@@ -1,0 +1,74 @@
+<div class="container mx-auto">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-xl font-semibold text-gray-800">قائمة الموردين</h2>
+    <a routerLink="/entities/suppliers/new" class="bg-primary-600 text-white px-4 py-2 rounded-lg shadow hover:bg-primary-700 transition duration-300 flex items-center text-sm">
+      <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+      إضافة مورد جديد
+    </a>
+  </div>
+
+  <div class="bg-white p-6 rounded-lg shadow-md">
+    <div class="mb-4">
+      <input 
+        type="text" 
+        placeholder="ابحث عن مورد (الاسم، السجل التجاري، الهاتف...)"
+        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition duration-150 ease-in-out"
+        (input)="onFilter($event)">
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full bg-white">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase cursor-pointer" (click)="onSort('name')">
+              اسم المورد {{ getSortIcon('name') }}
+            </th>
+            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase cursor-pointer" (click)="onSort('crNumber')">
+              رقم السجل التجاري {{ getSortIcon('crNumber') }}
+            </th>
+            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase cursor-pointer" (click)="onSort('phone')">
+              رقم الهاتف {{ getSortIcon('phone') }}
+            </th>
+            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase cursor-pointer" (click)="onSort('address')">
+              العنوان {{ getSortIcon('address') }}
+            </th>
+            <th class="text-center py-3 px-4 font-semibold text-sm text-gray-600 uppercase">إجراءات</th>
+          </tr>
+        </thead>
+        <tbody class="text-gray-700">
+          @for (supplier of filteredAndSortedSuppliers(); track supplier.id) {
+            <tr class="border-b hover:bg-gray-50 transition-colors duration-150 ease-in-out">
+              <td class="py-3 px-4 text-sm whitespace-nowrap">{{ supplier.name }}</td>
+              <td class="py-3 px-4 font-mono text-sm whitespace-nowrap">{{ supplier.crNumber }}</td>
+              <td class="py-3 px-4 font-mono text-sm whitespace-nowrap">{{ supplier.phone }}</td>
+              <td class="py-3 px-4 text-sm whitespace-nowrap">{{ supplier.address }}</td>
+               <td class="py-3 px-4 text-sm whitespace-nowrap">
+                <div class="flex items-center justify-center space-x-2 space-x-reverse">
+                  <button (click)="editSupplier(supplier.id)" class="text-blue-500 hover:text-blue-700 p-1">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                  </button>
+                  <button (click)="requestDelete(supplier.id)" class="text-red-500 hover:text-red-700 p-1">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="text-center py-8 text-gray-500">
+                لا يوجد موردون حتى الآن.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<app-modal 
+  [isOpen]="isDeleteModalOpen()" 
+  title="تأكيد حذف المورد" 
+  message="هل أنت متأكد من حذف هذا المورد؟ لا يمكن التراجع عن هذا الإجراء."
+  (confirm)="confirmDelete()" 
+  (cancel)="closeDeleteModal()">
+</app-modal>

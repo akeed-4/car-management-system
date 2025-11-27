@@ -1,0 +1,17 @@
+/* Add any custom styles here if needed */
+
+/* Animation for card hover */
+.bg-white {
+  transition: all 0.3s ease;
+}
+
+.bg-white:hover {
+  transform: translateY(-4px);
+}
+
+/* Custom scrollbar for long text */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

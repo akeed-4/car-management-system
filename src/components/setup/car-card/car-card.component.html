@@ -1,0 +1,110 @@
+<div class="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+  <!-- Car Image -->
+  <div class="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200">
+    @if (car().imageUrl) {
+      <img 
+        [src]="car().imageUrl" 
+        [alt]="car().manufacturer + ' ' + car().model"
+        class="w-full h-full object-cover"
+      />
+    } @else {
+      <div class="flex items-center justify-center h-full">
+        <svg class="w-24 h-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+        </svg>
+      </div>
+    }
+    
+    <!-- Status Badge -->
+    <div class="absolute top-3 right-3">
+      <span [class]="'px-3 py-1 rounded-full text-xs font-semibold ' + getStatusColor(car().status)">
+        {{ getStatusLabel(car().status) }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Car Details -->
+  <div class="p-4">
+    <!-- Car Name -->
+    <h3 class="text-lg font-bold text-gray-800 mb-2 truncate">
+      {{ car().manufacturer }} {{ car().model }}
+    </h3>
+
+    <!-- Year and VIN -->
+    <div class="space-y-1 mb-3">
+      <div class="flex items-center text-sm text-gray-600">
+        <svg class="w-4 h-4 ml-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+        <span>سنة الصنع: {{ car().year }}</span>
+      </div>
+      
+      <div class="flex items-center text-sm text-gray-600">
+        <svg class="w-4 h-4 ml-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+        </svg>
+        <span class="truncate">VIN: {{ car().vin }}</span>
+      </div>
+    </div>
+
+    <!-- Price -->
+    <div class="mb-4">
+      <div class="flex items-baseline gap-1">
+        <span class="text-2xl font-bold text-blue-600">
+          {{ car().salePrice.toLocaleString('ar-EG') }}
+        </span>
+        <span class="text-sm text-gray-500">ج.م</span>
+      </div>
+      @if (car().purchasePrice) {
+        <div class="text-xs text-gray-500">
+          سعر الشراء: {{ car().purchasePrice.toLocaleString('ar-EG') }} ج.م
+        </div>
+      }
+    </div>
+
+    <!-- Additional Info -->
+    <div class="flex gap-4 mb-4 text-xs text-gray-600">
+      @if (car().color) {
+        <div class="flex items-center">
+          <div 
+            class="w-3 h-3 rounded-full border border-gray-300 ml-1"
+            [style.background-color]="car().color"
+          ></div>
+          <span>{{ car().color }}</span>
+        </div>
+      }
+      @if (car().mileage) {
+        <div class="flex items-center">
+          <svg class="w-3 h-3 ml-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg>
+          <span>{{ car().mileage.toLocaleString('ar-EG') }} كم</span>
+        </div>
+      }
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex gap-2">
+      <button
+        (click)="onView()"
+        class="flex-1 px-3 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition duration-200 text-sm font-medium"
+      >
+        عرض
+      </button>
+      <button
+        (click)="onEdit()"
+        class="flex-1 px-3 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition duration-200 text-sm font-medium"
+      >
+        تعديل
+      </button>
+      <button
+        (click)="onDelete()"
+        class="px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition duration-200 text-sm font-medium"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>

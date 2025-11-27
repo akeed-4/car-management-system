@@ -1,0 +1,103 @@
+<div class="container mx-auto">
+  <h2 class="text-xl font-semibold text-gray-800 mb-6">إدارة موديلات السيارات</h2>
+
+  <div class="bg-white p-6 rounded-lg shadow-md">
+    <!-- Add new model form -->
+    <div class="mb-6 pb-4 border-b">
+      <h3 class="text-xl font-semibold text-gray-700 mb-2">إضافة موديل جديد</h3>
+      <form #form="ngForm" (ngSubmit)="addCarModel()" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+        <div>
+          <label for="manufacturer" class="block text-sm font-medium text-gray-700">الشركة المصنعة</label>
+          <select 
+            id="manufacturer"
+            name="manufacturer"
+            [ngModel]="selectedManufacturerId()"
+            (ngModelChange)="selectedManufacturerId.set(+$event)"
+            required
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+            <option [ngValue]="null" disabled>-- اختر الشركة --</option>
+            @for(m of manufacturers(); track m.id) {
+              <option [value]="m.id">{{ m.name }}</option>
+            }
+          </select>
+        </div>
+        <div>
+           <label for="modelName" class="block text-sm font-medium text-gray-700">اسم الموديل</label>
+           <input 
+              type="text"
+              id="modelName"
+              name="modelName"
+              placeholder="مثال: كامري"
+              [ngModel]="newModelName()"
+              (ngModelChange)="newModelName.set($event)"
+              required
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+        </div>
+        <button 
+          type="submit" 
+          [disabled]="form.invalid"
+          class="bg-primary-600 text-white px-6 py-2 rounded-lg shadow hover:bg-primary-700 transition duration-300 disabled:opacity-50 text-sm">
+          إضافة الموديل
+        </button>
+      </form>
+    </div>
+
+    <!-- List of existing models -->
+    <h3 class="text-xl font-semibold text-gray-700 mb-4">الموديلات الحالية</h3>
+    <div class="mb-4">
+      <input 
+        type="text" 
+        placeholder="ابحث عن موديل (الاسم، الشركة المصنعة...)"
+        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition duration-150 ease-in-out"
+        (input)="onFilter($event)">
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full bg-white">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase cursor-pointer" (click)="onSort('id')">
+              # {{ getSortIcon('id') }}
+            </th>
+            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase cursor-pointer" (click)="onSort('name')">
+              الموديل {{ getSortIcon('name') }}
+            </th>
+            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase cursor-pointer" (click)="onSort('manufacturerName')">
+              الشركة المصنعة {{ getSortIcon('manufacturerName') }}
+            </th>
+            <th class="text-center py-3 px-4 font-semibold text-sm text-gray-600 uppercase">إجراءات</th>
+          </tr>
+        </thead>
+        <tbody class="text-gray-700">
+          @for (model of filteredAndSortedModels(); track model.id) {
+            <tr class="border-b hover:bg-gray-50">
+              <td class="py-3 px-4 text-sm whitespace-nowrap">{{ model.id }}</td>
+              <td class="py-3 px-4 font-medium text-sm whitespace-nowrap">{{ model.name }}</td>
+              <td class="py-3 px-4 text-sm whitespace-nowrap">{{ model.manufacturerName }}</td>
+              <td class="py-3 px-4 text-sm whitespace-nowrap">
+                 <div class="flex items-center justify-center">
+                  <button (click)="requestDelete(model.id)" class="text-red-500 hover:text-red-700 p-1">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="4" class="text-center py-8 text-gray-500">
+                لم يتم إضافة أي موديلات بعد.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<app-modal 
+  [isOpen]="isDeleteModalOpen()" 
+  title="تأكيد حذف الموديل" 
+  message="هل أنت متأكد من حذف هذا الموديل؟"
+  (confirm)="confirmDelete()" 
+  (cancel)="closeDeleteModal()">
+</app-modal>

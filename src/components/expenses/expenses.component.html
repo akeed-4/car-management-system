@@ -1,0 +1,104 @@
+<div class="container mx-auto p-6">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-semibold text-gray-800">إدارة المصروفات</h2>
+    <button 
+      (click)="navigateToNewExpense()"
+      class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2"
+    >
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+      </svg>
+      إضافة مصروف جديد
+    </button>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-md overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              التاريخ
+            </th>
+            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              الوصف
+            </th>
+            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              الفئة
+            </th>
+            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              المبلغ
+            </th>
+            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              ملاحظات
+            </th>
+            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              الإجراءات
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          @for (expense of expenses(); track expense.id) {
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ expense.date }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ expense.description }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                  {{ getCategoryLabel(expense.category) }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">
+                {{ expense.amount.toLocaleString('ar-EG') }} ج.م
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-500">
+                {{ expense.notes || '-' }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <button 
+                  (click)="editExpense(expense.id)"
+                  class="text-blue-600 hover:text-blue-900 ml-4"
+                >
+                  تعديل
+                </button>
+                <button 
+                  (click)="deleteExpense(expense.id)"
+                  class="text-red-600 hover:text-red-900"
+                >
+                  حذف
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                لا توجد مصروفات مسجلة
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Summary Card -->
+  @if (expenses().length > 0) {
+    <div class="mt-6 bg-gradient-to-r from-red-500 to-red-600 rounded-lg shadow-md p-6 text-white">
+      <div class="flex justify-between items-center">
+        <div>
+          <p class="text-sm opacity-90">إجمالي المصروفات</p>
+          <p class="text-3xl font-bold mt-1">
+            {{ totalExpenses().toLocaleString('ar-EG') }} ج.م
+          </p>
+        </div>
+        <div class="text-right">
+          <p class="text-sm opacity-90">عدد المصروفات</p>
+          <p class="text-3xl font-bold mt-1">{{ expenses().length }}</p>
+        </div>
+      </div>
+    </div>
+  }
+</div>

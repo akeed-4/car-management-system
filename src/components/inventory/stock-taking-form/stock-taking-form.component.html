@@ -1,0 +1,133 @@
+<div class="container mx-auto">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-semibold text-gray-800">{{ pageTitle() }}</h2>
+    <a routerLink="/inventory/stock-taking" class="text-primary-600 hover:text-primary-800 transition duration-300 flex items-center">
+      &larr; العودة إلى قائمة الجرد
+    </a>
+  </div>
+
+  <div class="bg-white p-8 rounded-lg shadow-md">
+    <form #stockTakeForm="ngForm" (ngSubmit)="saveStockTake()">
+      
+      <!-- Stock Take Header -->
+      <section class="border-b pb-6 mb-6">
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">بيانات الجرد الأساسية</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <label for="name" class="block text-sm font-medium text-gray-700">اسم الجرد</label>
+            <input 
+              type="text" 
+              id="name" 
+              name="name" 
+              [ngModel]="stockTake().name"
+              (ngModelChange)="updateHeaderField('name', $event)"
+              required
+              placeholder="مثال: جرد نهاية العام"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+          </div>
+          <div>
+            <label for="date" class="block text-sm font-medium text-gray-700">التاريخ</label>
+            <input 
+              type="date" 
+              id="date" 
+              name="date"
+              [ngModel]="stockTake().date"
+              (ngModelChange)="updateHeaderField('date', $event)"
+              required
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+          </div>
+          <div>
+            <label for="user" class="block text-sm font-medium text-gray-700">القائم بالجرد</label>
+            <input 
+              type="text" 
+              id="user" 
+              name="user"
+              [ngModel]="stockTake().user"
+              (ngModelChange)="updateHeaderField('user', $event)"
+              required
+              placeholder="اسم الموظف"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+          </div>
+        </div>
+      </section>
+
+      <!-- Stock Take Items Table -->
+      <section>
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold text-gray-700">تفاصيل الجرد</h3>
+            <button type="button" (click)="addNewItemRow()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700 transition duration-300 flex items-center text-sm">
+                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                إضافة سيارة للجرد
+            </button>
+        </div>
+        <div class="overflow-x-auto border rounded-lg">
+          <table class="min-w-full bg-white">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase w-2/5">السيارة</th>
+                <th class="text-center py-3 px-4 font-semibold text-sm text-gray-600 uppercase">الكمية بالنظام</th>
+                <th class="text-center py-3 px-4 font-semibold text-sm text-gray-600 uppercase">الكمية الفعلية</th>
+                <th class="text-center py-3 px-4 font-semibold text-sm text-gray-600 uppercase">حذف</th>
+              </tr>
+            </thead>
+            <tbody class="text-gray-700">
+              @for (item of stockTake().items; track i; let i = $index) {
+                <tr class="border-b">
+                  <td class="py-2 px-4">
+                     <select 
+                       [ngModel]="item.carId"
+                       (ngModelChange)="updateItemCar(+$event, i)"
+                       [name]="'carId-' + i"
+                       required
+                       class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                       <option [ngValue]="0" disabled>-- اختر سيارة --</option>
+                       @for (car of allCars(); track car.id) {
+                          @if(!selectedCarIds().includes(car.id) || car.id === item.carId) {
+                             <option [value]="car.id">{{ car.make }} {{ car.model }} ({{ car.year }})</option>
+                          }
+                       }
+                     </select>
+                  </td>
+                  <td class="py-3 px-4 text-center text-sm font-medium">{{ item.systemQuantity }}</td>
+                  <td class="py-2 px-4">
+                    <input 
+                      type="number"
+                      [ngModel]="item.countedQuantity"
+                      (ngModelChange)="updateItemCountedQuantity(+$event, i)"
+                      [name]="'countedQuantity-' + i"
+                      min="0"
+                      required
+                      class="w-24 mx-auto p-1 border border-gray-300 rounded-md text-center focus:outline-none focus:ring-2 focus:ring-primary-500">
+                  </td>
+                  <td class="py-3 px-4 text-center">
+                     <button type="button" (click)="removeItem(i)" class="text-red-500 hover:text-red-700 p-1">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
+                  </td>
+                </tr>
+              }
+              @if(!stockTake().items || stockTake().items?.length === 0) {
+                 <tr>
+                  <td colspan="4" class="text-center py-8 text-gray-500">
+                    الرجاء الضغط على زر "إضافة سيارة" لبدء الجرد.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Form Actions -->
+      <div class="mt-8 pt-6 border-t flex justify-end">
+        <a routerLink="/inventory/stock-taking" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg shadow hover:bg-gray-300 transition duration-300 ml-4 text-sm">إلغاء</a>
+        <button 
+          type="submit" 
+          [disabled]="stockTakeForm.invalid"
+          class="bg-primary-600 text-white px-6 py-2 rounded-lg shadow hover:bg-primary-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+          {{ editMode() ? 'حفظ التغييرات' : 'حفظ الجرد' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

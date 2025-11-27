@@ -1,0 +1,18 @@
+@media print {
+  #app-header,
+  #app-sidebar-container {
+    display: none;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background-color: white;
+  }
+  
+  main {
+    padding: 0 !important;
+  }
+}

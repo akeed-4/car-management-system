@@ -1,0 +1,94 @@
+<div class="container mx-auto">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-xl font-semibold text-gray-800">قائمة فواتير الشراء</h2>
+    <div class="flex items-center space-x-2 space-x-reverse">
+        <a routerLink="/procurement/invoice/new" class="no-print bg-primary-600 text-white px-4 py-2 rounded-lg shadow hover:bg-primary-700 transition duration-300 flex items-center text-sm">
+          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+          فاتورة شراء جديدة
+        </a>
+    </div>
+  </div>
+
+  <div class="bg-white p-6 rounded-lg shadow-md">
+    <div class="mb-4">
+      <input 
+        type="text" 
+        placeholder="ابحث عن فاتورة (الرقم، المورد، السيارة...)"
+        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition duration-150 ease-in-out"
+        (input)="onFilter($event)">
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full bg-white">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase cursor-pointer" (click)="onSort('invoiceNumber')">
+              رقم الفاتورة {{ getSortIcon('invoiceNumber') }}
+            </th>
+            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase cursor-pointer" (click)="onSort('invoiceDate')">
+              تاريخ الفاتورة {{ getSortIcon('invoiceDate') }}
+            </th>
+            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase cursor-pointer" (click)="onSort('supplierName')">
+              المورد {{ getSortIcon('supplierName') }}
+            </th>
+            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">المحتويات</th>
+            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase cursor-pointer" (click)="onSort('totalAmount')">
+              التكلفة الإجمالية {{ getSortIcon('totalAmount') }}
+            </th>
+            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase cursor-pointer" (click)="onSort('amountPaid')">
+              المدفوع {{ getSortIcon('amountPaid') }}
+            </th>
+            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase cursor-pointer" (click)="onSort('amountDue')">
+              المستحق {{ getSortIcon('amountDue') }}
+            </th>
+            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase cursor-pointer" (click)="onSort('status')">
+              الحالة {{ getSortIcon('status') }}
+            </th>
+            <th class="text-center py-3 px-4 font-semibold text-sm text-gray-600 uppercase no-print">إجراءات</th>
+          </tr>
+        </thead>
+        <tbody class="text-gray-700">
+          @for (invoice of filteredAndSortedInvoices(); track invoice.id) {
+            <tr class="border-b hover:bg-gray-50 transition-colors duration-150 ease-in-out">
+              <td class="py-3 px-4 font-mono text-sm whitespace-nowrap">{{ invoice.invoiceNumber }}</td>
+              <td class="py-3 px-4 text-sm whitespace-nowrap">{{ invoice.invoiceDate | date:'yyyy-MM-dd' }}</td>
+              <td class="py-3 px-4 text-sm whitespace-nowrap">{{ invoice.supplierName }}</td>
+              <td class="py-3 px-4 text-sm whitespace-nowrap">
+                 @if(invoice.items.length > 0) {
+                  {{ invoice.items[0].carDescription }}
+                  @if(invoice.items.length > 1) {
+                    <span class="text-xs text-gray-500 font-semibold">و {{ invoice.items.length - 1 }} أخريان</span>
+                  }
+                }
+              </td>
+              <td class="py-3 px-4 text-sm whitespace-nowrap">{{ invoice.totalAmount | currency:'SAR':'symbol':'1.0-0' }}</td>
+              <td class="py-3 px-4 text-sm whitespace-nowrap text-green-600">{{ invoice.amountPaid | currency:'SAR':'symbol':'1.0-0' }}</td>
+              <td class="py-3 px-4 text-sm whitespace-nowrap text-red-600">{{ invoice.amountDue | currency:'SAR':'symbol':'1.0-0' }}</td>
+              <td class="py-3 px-4 text-sm whitespace-nowrap">
+                 <span [class.bg-green-200]="invoice.status === 'Paid'"
+                       [class.text-green-800]="invoice.status === 'Paid'"
+                       [class.bg-red-200]="invoice.status === 'Unpaid'"
+                       [class.text-red-800]="invoice.status === 'Unpaid'"
+                       class="px-2 py-1 rounded-full text-xs font-medium">
+                  {{ invoice.status }}
+                </span>
+              </td>
+              <td class="py-3 px-4 text-sm whitespace-nowrap no-print">
+                <div class="flex items-center justify-center">
+                   <a [routerLink]="['/procurement/invoice/print', invoice.id]" title="طباعة الفاتورة" class="text-gray-500 hover:text-primary-600 p-1">
+                      <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0-1.131-12.112a1.125 1.125 0 0 0-1.12-1.006H8.348a1.125 1.125 0 0 0-1.12 1.006L6.098 18m11.318 0-2.829-5.115M6.34 18l-2.829-5.115m0 0a3.007 3.007 0 0 1-1.115-2.288V5.625a1.125 1.125 0 0 1 1.125-1.125h14.25a1.125 1.125 0 0 1 1.125 1.125v5.002c0 .823-.357 1.555-1.115 2.288m-13.03 0a1.125 1.125 0 0 1-1.125-1.125v-1.5c0-.621.504-1.125 1.125-1.125h14.25c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504-1.125-1.125 1.125m-14.25 0h14.25" /></svg>
+                   </a>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="9" class="text-center py-8 text-gray-500">
+                لا توجد فواتير شراء حتى الآن.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

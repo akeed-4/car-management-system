@@ -1,0 +1,162 @@
+<div class="container mx-auto">
+  <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
+    <h2 class="text-xl font-semibold text-gray-800">إنشاء فاتورة بيع</h2>
+    <a routerLink="/sales" class="text-primary-600 hover:text-primary-800 transition duration-300 flex items-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 ml-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+      <span>العودة إلى المبيعات</span>
+    </a>
+  </div>
+
+  <div class="bg-white p-6 md:p-8 rounded-lg shadow-md">
+    <form #salesInvoiceForm="ngForm" (ngSubmit)="saveInvoice()">
+      
+      <!-- Invoice Header -->
+      <section class="border-b pb-6 mb-6">
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">بيانات الفاتورة الرئيسية</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div>
+            <label for="customer" class="block text-sm font-medium text-gray-700">العميل</label>
+            <select id="customer" name="customer" [ngModel]="selectedCustomerId()" (ngModelChange)="selectedCustomerId.set(+$event)" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+              <option [ngValue]="null" disabled>-- اختر العميل --</option>
+              @for(customer of customers(); track customer.id) {
+                <option [value]="customer.id">{{ customer.name }} ({{ customer.nationalId }})</option>
+              }
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">رقم الفاتورة</label>
+            <input type="text" [value]="invoiceNumber()" disabled class="mt-1 block w-full bg-gray-100 px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+          </div>
+          <div>
+            <label for="invoiceDate" class="block text-sm font-medium text-gray-700">تاريخ الفاتورة</label>
+            <input type="date" id="invoiceDate" name="invoiceDate" [ngModel]="invoiceDate()" (ngModelChange)="invoiceDate.set($event)" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+          </div>
+          <div>
+            <label for="dueDate" class="block text-sm font-medium text-gray-700">تاريخ الاستحقاق</label>
+            <input type="date" id="dueDate" name="dueDate" [ngModel]="dueDate()" (ngModelChange)="dueDate.set($event)" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+          </div>
+          <div>
+            <label for="paymentMethod" class="block text-sm font-medium text-gray-700">طريقة الدفع</label>
+            <select id="paymentMethod" name="paymentMethod" [ngModel]="paymentMethod()" (ngModelChange)="paymentMethod.set($event)" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+              <option value="Cash">نقدي</option>
+              <option value="Bank Transfer">تحويل بنكي</option>
+              <option value="Finance">تمويل</option>
+            </select>
+          </div>
+          <div class="sm:col-span-2 lg:col-span-1">
+             <label for="salesperson" class="block text-sm font-medium text-gray-700">مندوب المبيعات</label>
+             <input type="text" id="salesperson" name="salesperson" placeholder="اسم البائع" [ngModel]="salesperson()" (ngModelChange)="salesperson.set($event)" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+          </div>
+        </div>
+      </section>
+
+      <!-- Add Car to Invoice -->
+      <section class="mb-6">
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">تفاصيل الفاتورة (البنود)</h3>
+        <div class="p-4 bg-gray-50 rounded-lg border grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+          <div class="md:col-span-6">
+            <label for="car" class="block text-sm font-medium text-gray-700">اختر السيارة</label>
+            <select id="car" name="car" [ngModel]="selectedCarId()" (ngModelChange)="selectedCarId.set(+$event)" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+              <option [ngValue]="null" disabled>-- اختر سيارة من المخزون --</option>
+              @for(car of availableCars(); track car.id) {
+                <option [value]="car.id">{{ car.make }} {{ car.model }} ({{ car.year }}) - الكمية المتاحة: {{ inventoryService.getCarQuantity(car.id) }}</option>
+              }
+            </select>
+          </div>
+          <div class="md:col-span-3">
+             <label for="quantity" class="block text-sm font-medium text-gray-700">الكمية المطلوبة</label>
+             <input type="number" id="quantity" name="quantity" [ngModel]="selectedQuantity()" (ngModelChange)="selectedQuantity.set(+$event)" min="1" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+          </div>
+           <div class="md:col-span-3">
+             <button type="button" (click)="addItemToInvoice()" [disabled]="!selectedCarId() || selectedQuantity() <= 0" class="w-full bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700 transition duration-300 flex items-center justify-center disabled:bg-indigo-300 text-sm">
+                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                إضافة للفاتورة
+             </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Invoice Items Table -->
+      <section class="mb-8">
+         <div class="overflow-x-auto border rounded-lg">
+          <table class="min-w-full bg-white">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">السيارة</th>
+                <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">الكمية</th>
+                <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">سعر الوحدة</th>
+                <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">الإجمالي</th>
+                <th class="text-center py-3 px-4 font-semibold text-sm text-gray-600 uppercase">حذف</th>
+              </tr>
+            </thead>
+            <tbody class="text-gray-700">
+              @for (item of invoiceItems(); track item.carId; let i = $index) {
+                <tr class="border-b">
+                  <td class="py-3 px-4 text-sm">{{ item.carDescription }}</td>
+                  <td class="py-3 px-4 text-sm">{{ item.quantity }}</td>
+                  <td class="py-2 px-4 text-sm font-mono">
+                     <input 
+                        type="number" 
+                        [ngModel]="item.unitPrice"
+                        (ngModelChange)="updateItemPrice(item.carId, +$event)"
+                        name="unitPrice-{{i}}"
+                        class="w-32 p-1 border border-gray-200 rounded-md text-left focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        dir="ltr"
+                        min="0">
+                  </td>
+                  <td class="py-3 px-4 text-sm font-mono font-semibold">{{ item.lineTotal | currency:'SAR' }}</td>
+                  <td class="py-3 px-4 text-center">
+                    <button type="button" (click)="removeItem(item.carId)" class="text-red-500 hover:text-red-700 p-1">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                  </td>
+                </tr>
+              }
+              @if(invoiceItems().length === 0) {
+                 <tr>
+                  <td colspan="5" class="text-center py-8 text-gray-500">
+                    لم تتم إضافة أي سيارات للفاتورة بعد.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Notes and Financial Summary -->
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+        <div>
+           <label for="notes" class="block text-sm font-medium text-gray-700">ملاحظات</label>
+           <textarea id="notes" name="notes" rows="4" [ngModel]="notes()" (ngModelChange)="notes.set($event)" placeholder="أي ملاحظات إضافية على الفاتورة..." class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"></textarea>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg">
+            <h4 class="font-semibold text-lg text-gray-800 mb-3">ملخص الفاتورة</h4>
+            <div class="space-y-2 text-gray-700">
+              <div class="flex justify-between items-center">
+                <p>الإجمالي قبل الضريبة</p>
+                <p class="font-mono">{{ subtotal() | currency:'SAR':'symbol':'1.0-0' }}</p>
+              </div>
+              <div class="flex justify-between items-center">
+                <p>ضريبة القيمة المضافة (15%)</p>
+                <p class="font-mono">+ {{ vatAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
+              </div>
+              <hr class="my-1">
+              <div class="flex justify-between items-center font-bold text-xl">
+                <p>الإجمالي النهائي</p>
+                <p class="font-mono text-primary-700">{{ totalAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
+              </div>
+            </div>
+          </div>
+      </section>
+
+      <!-- Form Actions -->
+      <div class="mt-8 pt-6 border-t flex justify-end">
+        <a routerLink="/sales" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg shadow hover:bg-gray-300 transition duration-300 ml-4 text-sm">إلغاء</a>
+        <button type="submit" [disabled]="!selectedCustomerId() || invoiceItems().length === 0" class="bg-primary-600 text-white px-6 py-2 rounded-lg shadow hover:bg-primary-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+            إصدار الفاتورة
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

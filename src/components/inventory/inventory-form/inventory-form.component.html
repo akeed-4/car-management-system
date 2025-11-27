@@ -1,0 +1,172 @@
+<div class="container mx-auto">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-xl font-semibold text-gray-800">{{ pageTitle() }}</h2>
+    <a routerLink="/inventory" class="text-primary-600 hover:text-primary-800 transition duration-300">&larr; العودة إلى المخزون</a>
+  </div>
+
+  <div class="bg-white p-8 rounded-lg shadow-md">
+    <form #carForm="ngForm" (ngSubmit)="saveCar()">
+      <!-- Hidden ID for edit mode is no longer needed in the template -->
+
+      <!-- Main Details Section -->
+      <section class="mb-8">
+        <h3 class="text-xl font-semibold text-gray-700 border-b pb-2 mb-4">البيانات الأساسية</h3>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div>
+            <label for="make" class="block text-sm font-medium text-gray-700">الشركة المصنعة</label>
+            <select id="make" name="make" #make="ngModel" [ngModel]="car().make" (ngModelChange)="updateCarField('make', $event)" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 transition duration-150 ease-in-out">
+              <option [ngValue]="undefined" disabled>-- اختر الشركة --</option>
+              @for (manufacturer of manufacturers(); track manufacturer.id) {
+                <option [value]="manufacturer.name">{{ manufacturer.name }}</option>
+              }
+            </select>
+          </div>
+          <div>
+            <label for="model" class="block text-sm font-medium text-gray-700">الموديل</label>
+             <select id="model" name="model" #model="ngModel" [ngModel]="car().model" (ngModelChange)="updateCarField('model', $event)" required [disabled]="!car().make" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 transition duration-150 ease-in-out disabled:bg-gray-100">
+              <option [ngValue]="undefined" disabled>-- اختر الموديل --</option>
+              @for (carModel of filteredModels(); track carModel.id) {
+                <option [value]="carModel.name">{{ carModel.name }}</option>
+              }
+            </select>
+          </div>
+          <div>
+            <label for="year" class="block text-sm font-medium text-gray-700">سنة الصنع</label>
+             <select id="year" name="year" #year="ngModel" [ngModel]="car().year" (ngModelChange)="updateCarField('year', +$event)" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 transition duration-150 ease-in-out">
+              <option [ngValue]="undefined" disabled>-- اختر السنة --</option>
+              @for (y of years(); track y) {
+                <option [value]="y">{{ y }}</option>
+              }
+            </select>
+          </div>
+          <!-- Quantity field removed as quantity is now tracked within InvoiceItem/StockTakeItem -->
+        </div>
+      </section>
+
+      <!-- Saudi Specific Details -->
+       <section class="mb-8">
+        <h3 class="text-xl font-semibold text-gray-700 border-b pb-2 mb-4">البيانات الاساسية</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <label for="vin" class="block text-sm font-medium text-gray-700">رقم الهيكل (VIN)</label>
+            <input type="text" id="vin" name="vin" #vin="ngModel" [ngModel]="car().vin" (ngModelChange)="updateCarField('vin', $event)" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-left transition duration-150 ease-in-out" dir="ltr">
+          </div>
+          <div>
+            <label for="plateNumber" class="block text-sm font-medium text-gray-700">رقم اللوحة</label>
+            <input type="text" id="plateNumber" name="plateNumber" #plateNumber="ngModel" [ngModel]="car().plateNumber" (ngModelChange)="updateCarField('plateNumber', $event)" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 transition duration-150 ease-in-out">
+          </div>
+          <div>
+            <label for="istimaraExpiry" class="block text-sm font-medium text-gray-700">تاريخ انتهاء الاستمارة</label>
+            <input type="date" id="istimaraExpiry" name="istimaraExpiry" #istimaraExpiry="ngModel" [ngModel]="car().istimaraExpiry" (ngModelChange)="updateCarField('istimaraExpiry', $event)" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 transition duration-150 ease-in-out">
+          </div>
+          <div>
+            <label for="fahasStatus" class="block text-sm font-medium text-gray-700">حالة الفحص الدوري</label>
+            <select id="fahasStatus" name="fahasStatus" #fahasStatus="ngModel" [ngModel]="car().fahasStatus" (ngModelChange)="updateCarField('fahasStatus', $event)" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 transition duration-150 ease-in-out">
+              <option value="Valid">ساري</option>
+              <option value="Expired">منتهي</option>
+              <option value="Not Required">غير مطلوب</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+       <!-- Technical & Visual Details -->
+      <section class="mb-8">
+        <h3 class="text-xl font-semibold text-gray-700 border-b pb-2 mb-4">التفاصيل الفنية والمظهر</h3>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+           <div>
+            <label for="mileage" class="block text-sm font-medium text-gray-700">الممشى (كم)</label>
+            <input type="number" id="mileage" name="mileage" #mileage="ngModel" [ngModel]="car().mileage" (ngModelChange)="updateCarField('mileage', +$event)" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 transition duration-150 ease-in-out">
+          </div>
+           <div>
+            <label for="exteriorColor" class="block text-sm font-medium text-gray-700">اللون الخارجي</label>
+            <input type="text" id="exteriorColor" name="exteriorColor" #exteriorColor="ngModel" [ngModel]="car().exteriorColor" (ngModelChange)="updateCarField('exteriorColor', $event)" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 transition duration-150 ease-in-out">
+          </div>
+           <div>
+            <label for="interiorColor" class="block text-sm font-medium text-gray-700">اللون الداخلي</label>
+            <input type="text" id="interiorColor" name="interiorColor" #interiorColor="ngModel" [ngModel]="car().interiorColor" (ngModelChange)="updateCarField('interiorColor', $event)" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 transition duration-150 ease-in-out">
+          </div>
+          <div>
+            <label for="transmission" class="block text-sm font-medium text-gray-700">ناقل الحركة (القير)</label>
+            <select id="transmission" name="transmission" #transmission="ngModel" [ngModel]="car().transmission" (ngModelChange)="updateCarField('transmission', $event)" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 transition duration-150 ease-in-out">
+              <option value="Automatic">أوتوماتيك</option>
+              <option value="Manual">يدوي</option>
+            </select>
+          </div>
+           <div>
+            <label for="engineSize" class="block text-sm font-medium text-gray-700">حجم المحرك</label>
+            <input type="text" id="engineSize" name="engineSize" #engineSize="ngModel" [ngModel]="car().engineSize" (ngModelChange)="updateCarField('engineSize', $event)" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 transition duration-150 ease-in-out">
+          </div>
+        </div>
+      </section>
+
+      <!-- Financials -->
+      <section class="mb-8">
+        <h3 class="text-xl font-semibold text-gray-700 border-b pb-2 mb-4">البيانات المالية</h3>
+         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+           <div>
+            <label for="purchasePrice" class="block text-sm font-medium text-gray-700">سعر الشراء</label>
+            <input type="number" id="purchasePrice" name="purchasePrice" #purchasePrice="ngModel" [ngModel]="car().purchasePrice" (ngModelChange)="updateCarField('purchasePrice', +$event)" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 transition duration-150 ease-in-out">
+          </div>
+           <div>
+            <label for="additionalCosts" class="block text-sm font-medium text-gray-700">تكاليف إضافية</label>
+            <input type="number" id="additionalCosts" name="additionalCosts" #additionalCosts="ngModel" [ngModel]="car().additionalCosts" (ngModelChange)="updateCarField('additionalCosts', +$event)" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 transition duration-150 ease-in-out">
+          </div>
+           <div>
+            <label for="salePrice" class="block text-sm font-medium text-gray-700">سعر البيع</label>
+            <input type="number" id="salePrice" name="salePrice" #salePrice="ngModel" [ngModel]="car().salePrice" (ngModelChange)="updateCarField('salePrice', +$event)" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 transition duration-150 ease-in-out">
+          </div>
+         </div>
+      </section>
+
+      <!-- Description and Photos -->
+      <section>
+        <h3 class="text-xl font-semibold text-gray-700 border-b pb-2 mb-4">الوصف والصور</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label for="description" class="block text-sm font-medium text-gray-700">الوصف التسويقي</label>
+            <textarea id="description" name="description" #description="ngModel" [ngModel]="car().description" (ngModelChange)="updateCarField('description', $event)" rows="6" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 transition duration-150 ease-in-out"></textarea>
+             <button (click)="generateDescription()" [disabled]="isGenerating() || !canGenerateDescription()" [title]="canGenerateDescription() ? 'إنشاء وصف باستخدام الذكاء الاصطناعي' : 'الرجاء إدخال الماركة والموديل والسنة أولاً'" type="button" class="mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                @if (isGenerating()) {
+                  <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  جاري الإنشاء...
+                } @else {
+                  إنشاء وصف بالذكاء الاصطناعي
+                }
+            </button>
+            @if(generationError()) {
+              <p class="text-sm text-red-600 mt-2">{{ generationError() }}</p>
+            }
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">الصور</label>
+            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                <div class="space-y-1 text-center">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    <p class="text-sm text-gray-600">
+                        <button type="button" class="font-medium text-primary-600 hover:text-primary-500">
+                        Upload a file
+                        </button>
+                    </p>
+                </div>
+            </div>
+            @if(car()?.photos?.[0]) {
+              <img [src]="car()?.photos?.[0]" alt="Car image" class="mt-4 rounded-lg object-cover h-32 w-full">
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Form Actions -->
+      <div class="mt-8 flex justify-end">
+        <a routerLink="/inventory" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg shadow hover:bg-gray-300 transition duration-300 ml-4 text-sm">إلغاء</a>
+        <button type="submit" [disabled]="carForm.invalid" class="bg-primary-600 text-white px-6 py-2 rounded-lg shadow hover:bg-primary-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+            {{ editMode() ? 'حفظ التغييرات' : 'إضافة السيارة' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

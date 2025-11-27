@@ -1,0 +1,208 @@
+<div class="relative h-screen flex flex-col overflow-hidden bg-gray-100">
+  
+  <!-- Header -->
+  <header id="app-header" class="flex-shrink-0 flex items-center justify-between p-4 bg-white border-b z-10">
+    <!-- Menu Button -->
+    <button (click)="toggleSidebar()" class="text-gray-500 focus:outline-none">
+      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+      </svg>
+    </button>
+
+    <!-- Right side icons -->
+    <div class="flex items-center space-x-4 space-x-reverse">
+      <button class="relative text-gray-500 hover:text-gray-700">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+      </button>
+      <div class="relative">
+        <img class="h-8 w-8 rounded-full object-cover" src="https://picsum.photos/100/100" alt="User avatar">
+      </div>
+    </div>
+  </header>
+  
+  <!-- Main Body -->
+  <div class="flex-1 flex overflow-hidden">
+    <!-- Main content -->
+    <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+
+  <!-- Sidebar Components (Overlay) -->
+  <div id="app-sidebar-container">
+    <!-- Backdrop -->
+    @if (isSidebarOpen()) {
+      <div (click)="closeSidebar()" class="fixed inset-0 bg-black bg-opacity-50 z-20 transition-opacity duration-300"></div>
+    }
+
+    <!-- Sidebar -->
+    <aside 
+      [class.translate-x-0]="isSidebarOpen()" 
+      [class.translate-x-full]="!isSidebarOpen()"
+      class="bg-white shadow-xl fixed top-0 right-0 h-full w-64 transform transition-transform duration-300 ease-in-out z-30 overflow-y-auto">
+      <div class="flex items-center justify-center p-4 border-b">
+        <h1 class="text-2xl font-bold text-primary-700">معرض سيارات</h1>
+      </div>
+      <nav class="mt-4 text-sm">
+        <a routerLink="/dashboard" routerLinkActive="bg-primary-100 text-primary-700" (click)="closeSidebar()"
+          class="flex items-center px-6 py-3 text-gray-700 hover:bg-primary-50 transition-colors duration-200">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          <span class="mr-3">لوحة التحكم</span>
+        </a>
+        
+        <!-- Setup Sub-menu -->
+        <div>
+          <button (click)="toggleSetupMenu()" class="w-full flex justify-between items-center px-6 py-3 text-gray-700 hover:bg-primary-50 transition-colors duration-200">
+            <span class="flex items-center">
+              <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12a7.5 7.5 0 0 0 15 0m-15 0a7.5 7.5 0 1 1 15 0m-15 0H3m18 0h-1.5m-15 0a7.5 7.5 0 1 1 15 0m-15 0H3m15-9.75a7.5 7.5 0 0 1 7.5 7.5M4.5 2.25A7.5 7.5 0 0 0 12 9.75m0 0a7.5 7.5 0 0 0 7.5-7.5M12 9.75s-1.5-.75-3.75-3.75m3.75 3.75s1.5-.75 3.75-3.75m-7.5 3.75c0 3.75 3.358 7.5 7.5 7.5s7.5-3.75 7.5-7.5" /></svg>
+              <span class="mr-3">تأسيس</span>
+            </span>
+            <svg class="w-4 h-4 transition-transform" [class.rotate-180]="isSetupMenuOpen()" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+          </button>
+          @if(isSetupMenuOpen()) {
+            <div class="bg-gray-50">
+              <a routerLink="/setup/manufacturers" routerLinkActive="text-primary-700 font-semibold" (click)="closeSidebar()" class="flex items-center py-2 px-12 text-sm text-gray-600 hover:bg-primary-100 transition-colors duration-200">الشركات المصنعة</a>
+              <a routerLink="/setup/models" routerLinkActive="text-primary-700 font-semibold" (click)="closeSidebar()" class="flex items-center py-2 px-12 text-sm text-gray-600 hover:bg-primary-100 transition-colors duration-200">موديلات السيارات</a>
+              <a routerLink="/setup/year" routerLinkActive="text-primary-700 font-semibold" (click)="closeSidebar()" class="flex items-center py-2 px-12 text-sm text-gray-600 hover:bg-primary-100 transition-colors duration-200">سنة الصنع</a>
+              <a routerLink="/setup/card" routerLinkActive="text-primary-700 font-semibold" (click)="closeSidebar()" class="flex items-center py-2 px-12 text-sm text-gray-600 hover:bg-primary-100 transition-colors duration-200">بطاقة السيارة</a>
+            </div>
+          }
+        </div>
+
+        <!-- Inventory Sub-menu -->
+        <div>
+          <button (click)="toggleInventoryMenu()" class="w-full flex justify-between items-center px-6 py-3 text-gray-700 hover:bg-primary-50 transition-colors duration-200">
+            <span class="flex items-center">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+              <span class="mr-3">إدارة المخزون</span>
+            </span>
+            <svg class="w-4 h-4 transition-transform" [class.rotate-180]="isInventoryMenuOpen()" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+          </button>
+          @if(isInventoryMenuOpen()) {
+            <div class="bg-gray-50">
+              <a routerLink="/inventory" routerLinkActive="text-primary-700 font-semibold" (click)="closeSidebar()" class="flex items-center py-2 px-12 text-sm text-gray-600 hover:bg-primary-100 transition-colors duration-200">الرصيد الافتتاحي</a>
+              <a routerLink="/inventory/stock-taking" routerLinkActive="text-primary-700 font-semibold" (click)="closeSidebar()" class="flex items-center py-2 px-12 text-sm text-gray-600 hover:bg-primary-100 transition-colors duration-200">جرد بضاعة</a>
+              <a routerLink="/inventory/stock-taking-approval" routerLinkActive="text-primary-700 font-semibold" (click)="closeSidebar()" class="flex items-center py-2 px-12 text-sm text-gray-600 hover:bg-primary-100 transition-colors duration-200">اعتماد جرد بضاعة</a>
+            </div>
+          }
+        </div>
+        
+        <a routerLink="/requested-cars" routerLinkActive="bg-primary-100 text-primary-700" (click)="closeSidebar()"
+          class="flex items-center px-6 py-3 text-gray-700 hover:bg-primary-50 transition-colors duration-200">
+          <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75c0-.231-.035-.454-.1-.664M6.75 7.5H18a2.25 2.25 0 0 1 2.25 2.25v9a2.25 2.25 0 0 1-2.25 2.25H6.75a2.25 2.25 0 0 1-2.25-2.25v-9a2.25 2.25 0 0 1 2.25-2.25Z" /></svg>
+          <span class="mr-3">السيارات المطلوبة</span>
+        </a>
+
+        <!-- Sales Sub-menu -->
+        <div>
+          <button (click)="toggleSalesMenu()" class="w-full flex justify-between items-center px-6 py-3 text-gray-700 hover:bg-primary-50 transition-colors duration-200">
+            <span class="flex items-center">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+              <span class="mr-3">المبيعات</span>
+            </span>
+            <svg class="w-4 h-4 transition-transform" [class.rotate-180]="isSalesMenuOpen()" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+          </button>
+          @if(isSalesMenuOpen()) {
+            <div class="bg-gray-50">
+              <a routerLink="/sales" routerLinkActive="text-primary-700 font-semibold" (click)="closeSidebar()" class="flex items-center py-2 px-12 text-sm text-gray-600 hover:bg-primary-100 transition-colors duration-200">قائمة الفواتير</a>
+              <a routerLink="/sales/return" routerLinkActive="text-primary-700 font-semibold" (click)="closeSidebar()" class="flex items-center py-2 px-12 text-sm text-gray-600 hover:bg-primary-100 transition-colors duration-200">ترجيع فاتورة مبيعات</a>
+            </div>
+          }
+        </div>
+
+        <!-- Procurement Sub-menu -->
+        <div>
+          <button (click)="toggleProcurementMenu()" class="w-full flex justify-between items-center px-6 py-3 text-gray-700 hover:bg-primary-50 transition-colors duration-200">
+            <span class="flex items-center">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+              <span class="mr-3">المشتريات</span>
+            </span>
+            <svg class="w-4 h-4 transition-transform" [class.rotate-180]="isProcurementMenuOpen()" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+          </button>
+          @if(isProcurementMenuOpen()) {
+            <div class="bg-gray-50">
+              <a routerLink="/procurement" routerLinkActive="text-primary-700 font-semibold" (click)="closeSidebar()" class="flex items-center py-2 px-12 text-sm text-gray-600 hover:bg-primary-100 transition-colors duration-200">قائمة الفواتير</a>
+              <a routerLink="/procurement/return" routerLinkActive="text-primary-700 font-semibold" (click)="closeSidebar()" class="flex items-center py-2 px-12 text-sm text-gray-600 hover:bg-primary-100 transition-colors duration-200">ترجيع فاتورة شراء</a>
+            </div>
+          }
+        </div>
+        
+        <!-- Expenses Menu -->
+        <a routerLink="/expenses" routerLinkActive="bg-primary-100 text-primary-700" (click)="closeSidebar()"
+          class="flex items-center px-6 py-3 text-gray-700 hover:bg-primary-50 transition-colors duration-200">
+          <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.879m0 0a3 3 0 1 0 4.243 4.243c.1-.105.148-.246.148-.487V7.5H9m-3 0V5.25A2.25 2.25 0 0 1 7.5 3h5.25c.813 0 1.5.684 1.5 1.5S13.563 6 12.75 6H9m11.318 4.01l.879.879m0 0a3 3 0 1 1-4.243 4.243c-.105-.1-.246-.148-.487-.148H12m0 0V9.75m0 0V9" /></svg>
+          <span class="mr-3">المصروفات</span>
+        </a>
+
+        <!-- Accounts Sub-menu -->
+        <div>
+          <button (click)="toggleAccountsMenu()" class="w-full flex justify-between items-center px-6 py-3 text-gray-700 hover:bg-primary-50 transition-colors duration-200">
+            <span class="flex items-center">
+              <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.03 60.03 0 0 1 1.5-3.528m1.147 2.405 1.258-.887m12.348-1.265 1.257-.887m-1.257-.887H15.75M12 12.75l1.5 1.5a2.25 2.25 0 0 0 3 0 2.25 2.25 0 0 0 3 0l1.5-1.5m-2.25-4.5h-15M2.25 6.75h15m-15 3h15m-15 3H7.5m15-6h-15m-15 3h15m-15 0H7.5m-15 0v-6a2.25 2.25 0 0 1 2.25-2.25h15A2.25 2.25 0 0 1 21 6.75v6a2.25 2.25 0 0 1-2.25 2.25H2.25Z" /></svg>
+              <span class="mr-3">الحسابات</span>
+            </span>
+            <svg class="w-4 h-4 transition-transform" [class.rotate-180]="isAccountsMenuOpen()" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+          </button>
+          @if(isAccountsMenuOpen()) {
+            <div class="bg-gray-50">
+              <a routerLink="/accounts/receipts" routerLinkActive="text-primary-700 font-semibold" (click)="closeSidebar()" class="flex items-center py-2 px-12 text-sm text-gray-600 hover:bg-primary-100 transition-colors duration-200">سندات القبض</a>
+              <a routerLink="/accounts/payments" routerLinkActive="text-primary-700 font-semibold" (click)="closeSidebar()" class="flex items-center py-2 px-12 text-sm text-gray-600 hover:bg-primary-100 transition-colors duration-200">سندات الصرف</a>
+            </div>
+          }
+        </div>
+
+        <!-- Entities Sub-menu -->
+        <div>
+          <button (click)="toggleEntitiesMenu()" class="w-full flex justify-between items-center px-6 py-3 text-gray-700 hover:bg-primary-50 transition-colors duration-200">
+            <span class="flex items-center">
+              <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21v-3.75m.75-9.75h4.5m-4.5 0v3.75m0-3.75h3.75m-3.75 0h.75m-1.5 0h.75m3.75-3.75h3.75m-3.75 0h.75m1.5 0v3.75m0-3.75h3.75m0-3.75h.75m-1.5 0h.75m-4.5 0v3.75m0-3.75h3.75m-3.75 0h.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+              <span class="mr-3">الكيانات</span>
+            </span>
+            <svg class="w-4 h-4 transition-transform" [class.rotate-180]="isEntitiesMenuOpen()" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+          </button>
+          @if(isEntitiesMenuOpen()) {
+            <div class="bg-gray-50">
+              <a routerLink="/entities/customers" routerLinkActive="text-primary-700 font-semibold" (click)="closeSidebar()" class="flex items-center py-2 px-12 text-sm text-gray-600 hover:bg-primary-100 transition-colors duration-200">العملاء</a>
+              <a routerLink="/entities/suppliers" routerLinkActive="text-primary-700 font-semibold" (click)="closeSidebar()" class="flex items-center py-2 px-12 text-sm text-gray-600 hover:bg-primary-100 transition-colors duration-200">الموردين</a>
+            </div>
+          }
+        </div>
+
+        <!-- Reports Sub-menu -->
+        <div>
+          <button (click)="toggleReportsMenu()" class="w-full flex justify-between items-center px-6 py-3 text-gray-700 hover:bg-primary-50 transition-colors duration-200">
+            <span class="flex items-center">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+              <span class="mr-3">التقارير</span>
+            </span>
+            <svg class="w-4 h-4 transition-transform" [class.rotate-180]="isReportsMenuOpen()" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+          </button>
+          @if(isReportsMenuOpen()) {
+            <div class="bg-gray-50">
+              <a routerLink="/reports/financial" routerLinkActive="text-primary-700 font-semibold" (click)="closeSidebar()" class="flex items-center py-2 px-12 text-sm text-gray-600 hover:bg-primary-100 transition-colors duration-200">تقارير مالية</a>
+              <a routerLink="/reports/tax" routerLinkActive="text-primary-700 font-semibold" (click)="closeSidebar()" class="flex items-center py-2 px-12 text-sm text-gray-600 hover:bg-primary-100 transition-colors duration-200">تقارير ضريبية</a>
+              <a routerLink="/reports/administrative" routerLinkActive="text-primary-700 font-semibold" (click)="closeSidebar()" class="flex items-center py-2 px-12 text-sm text-gray-600 hover:bg-primary-100 transition-colors duration-200">تقارير إدارية</a>
+            </div>
+          }
+        </div>
+        
+        <!-- Users & Permissions Sub-menu -->
+        <div>
+          <button (click)="toggleUsersMenu()" class="w-full flex justify-between items-center px-6 py-3 text-gray-700 hover:bg-primary-50 transition-colors duration-200">
+            <span class="flex items-center">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M15 21a6 6 0 00-9-5.197M15 21a6 6 0 00-9-5.197"/></svg>
+              <span class="mr-3">المستخدمون والصلاحيات</span>
+            </span>
+            <svg class="w-4 h-4 transition-transform" [class.rotate-180]="isUsersMenuOpen()" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+          </button>
+          @if(isUsersMenuOpen()) {
+            <div class="bg-gray-50">
+              <a routerLink="/users" routerLinkActive="text-primary-700 font-semibold" (click)="closeSidebar()" class="flex items-center py-2 px-12 text-sm text-gray-600 hover:bg-primary-100 transition-colors duration-200">قائمة المستخدمين</a>
+              <a routerLink="/users/roles" routerLinkActive="text-primary-700 font-semibold" (click)="closeSidebar()" class="flex items-center py-2 px-12 text-sm text-gray-600 hover:bg-primary-100 transition-colors duration-200">الأدوار والصلاحيات</a>
+            </div>
+          }
+        </div>
+      </nav>
+    </aside>
+  </div>
+</div>

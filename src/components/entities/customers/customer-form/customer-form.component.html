@@ -1,0 +1,74 @@
+<div class="container mx-auto">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-semibold text-gray-800">{{ pageTitle() }}</h2>
+    <a routerLink="/entities/customers" class="text-primary-600 hover:text-primary-800 transition duration-300">&larr; العودة إلى قائمة العملاء</a>
+  </div>
+
+  <div class="bg-white p-8 rounded-lg shadow-md max-w-2xl mx-auto">
+    <form #customerForm="ngForm" (ngSubmit)="saveCustomer()">
+      <div class="space-y-6">
+        <div>
+          <label for="name" class="block text-sm font-medium text-gray-700">اسم العميل الكامل</label>
+          <input 
+            type="text" 
+            id="name" 
+            name="name" 
+            #name="ngModel"
+            [ngModel]="customer().name"
+            (ngModelChange)="updateCustomerField('name', $event)"
+            required
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+        </div>
+
+        <div>
+          <label for="nationalId" class="block text-sm font-medium text-gray-700">رقم الهوية / الإقامة</label>
+          <input 
+            type="text" 
+            id="nationalId" 
+            name="nationalId"
+            #nationalId="ngModel"
+            [ngModel]="customer().nationalId"
+            (ngModelChange)="updateCustomerField('nationalId', $event)"
+            required
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+        </div>
+        
+        <div>
+          <label for="phone" class="block text-sm font-medium text-gray-700">رقم الجوال</label>
+          <input 
+            type="tel" 
+            id="phone" 
+            name="phone"
+            #phone="ngModel"
+            [ngModel]="customer().phone"
+            (ngModelChange)="updateCustomerField('phone', $event)"
+            required
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+        </div>
+        
+        <div>
+          <label for="address" class="block text-sm font-medium text-gray-700">العنوان</label>
+          <input 
+            type="text" 
+            id="address" 
+            name="address"
+            #address="ngModel"
+            [ngModel]="customer().address"
+            (ngModelChange)="updateCustomerField('address', $event)"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="mt-8 pt-6 border-t flex justify-end">
+        <a routerLink="/entities/customers" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg shadow hover:bg-gray-300 transition duration-300 ml-4 text-sm">إلغاء</a>
+        <button 
+          type="submit" 
+          [disabled]="customerForm.invalid" 
+          class="bg-primary-600 text-white px-6 py-2 rounded-lg shadow hover:bg-primary-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+          {{ editMode() ? 'حفظ التغييرات' : 'إضافة العميل' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

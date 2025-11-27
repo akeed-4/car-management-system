@@ -1,0 +1,129 @@
+<div class="container mx-auto">
+  <h2 class="text-xl font-semibold text-gray-800 mb-6">لوحة التحكم</h2>
+  
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- Available Cars -->
+    <a routerLink="/inventory" class="block bg-white p-6 rounded-lg shadow-md transition duration-200 hover:shadow-lg hover:-translate-y-1">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-500">سيارات متاحة</p>
+          <p class="text-3xl font-bold text-gray-900">{{ availableCarsCount() }}</p>
+        </div>
+        <div class="bg-green-100 p-3 rounded-full">
+          <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+      </div>
+    </a>
+    
+    <!-- Requested Cars -->
+    <a routerLink="/requested-cars" class="block bg-white p-6 rounded-lg shadow-md transition duration-200 hover:shadow-lg hover:-translate-y-1">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-500">السيارات المطلوبة</p>
+          <p class="text-3xl font-bold text-gray-900">{{ requestedCarsCount() }}</p>
+        </div>
+        <div class="bg-orange-100 p-3 rounded-full">
+          <svg class="w-6 h-6 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75c0-.231-.035-.454-.1-.664M6.75 7.5H18a2.25 2.25 0 0 1 2.25 2.25v9a2.25 2.25 0 0 1-2.25 2.25H6.75a2.25 2.25 0 0 1-2.25-2.25v-9a2.25 2.25 0 0 1 2.25-2.25Z" /></svg>
+        </div>
+      </div>
+    </a>
+    
+    <!-- Sold Cars -->
+    <div class="bg-white p-6 rounded-lg shadow-md flex items-center justify-between">
+      <div>
+        <p class="text-sm font-medium text-gray-500">سيارات مباعة</p>
+        <p class="text-3xl font-bold text-gray-900">{{ soldCarsCount() }}</p>
+      </div>
+      <div class="bg-red-100 p-3 rounded-full">
+         <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v.01"></path></svg>
+      </div>
+    </div>
+
+    <!-- Total Expenses -->
+    <a routerLink="/expenses" class="block bg-white p-6 rounded-lg shadow-md transition duration-200 hover:shadow-lg hover:-translate-y-1">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-500">إجمالي المصروفات</p>
+          <p class="text-2xl font-bold text-gray-900">{{ totalExpenses() | currency:'SAR':'symbol':'1.0-0' }}</p>
+        </div>
+        <div class="bg-red-100 p-3 rounded-full">
+          <svg class="w-6 h-6 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.879m0 0a3 3 0 1 0 4.243 4.243c.1-.105.148-.246.148-.487V7.5H9m-3 0V5.25A2.25 2.25 0 0 1 7.5 3h5.25c.813 0 1.5.684 1.5 1.5S13.563 6 12.75 6H9m11.318 4.01l.879.879m0 0a3 3 0 1 1-4.243 4.243c-.105-.1-.246-.148-.487-.148H12m0 0V9.75m0 0V9" /></svg>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="flex flex-col gap-8 mt-8">
+    <!-- Sales by Manufacturer Chart -->
+    <div class="bg-white p-6 rounded-lg shadow-md">
+       <h3 class="text-xl font-semibold text-gray-800 mb-4">إجمالي المبيعات حسب الشركة المصنعة</h3>
+       @if(salesByManufacturer().length > 0) {
+        <app-bar-chart [data]="salesByManufacturer()"></app-bar-chart>
+       } @else {
+        <div class="flex items-center justify-center h-64 bg-gray-50 rounded-md">
+          <p class="text-gray-500">لا توجد بيانات مبيعات لعرضها.</p>
+        </div>
+       }
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+      <!-- Inventory Status Distribution -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">توزيع حالات المخزون</h3>
+        @if(inventoryStatusDistribution().length > 0) {
+          <app-pie-chart [data]="inventoryStatusDistribution()"></app-pie-chart>
+        } @else {
+          <div class="flex items-center justify-center h-[400px] bg-gray-50 rounded-md">
+            <p class="text-gray-500">لا توجد بيانات مخزون لعرضها.</p>
+          </div>
+        }
+      </div>
+      <!-- Recent Cars Table -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">أحدث السيارات المضافة</h3>
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">السيارة</th>
+                        <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">سعر البيع</th>
+                        <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">الحالة</th>
+                        <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">الممشى</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-700">
+                    @for (car of cars() | slice:0:5; track car.id) {
+                        <tr class="border-b">
+                            <td class="py-3 px-4 text-sm whitespace-nowrap">
+                                <div class="flex items-center">
+                                  <img class="h-12 w-16 object-cover rounded-md" [src]="car.photos[0]" alt="{{car.make}} {{car.model}}">
+                                  <div class="mr-4">
+                                    <div class="font-bold">{{ car.make }} {{ car.model }}</div>
+                                    <div class="text-xs text-gray-500">{{ car.year }}</div>
+                                  </div>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4 text-sm whitespace-nowrap">{{ car.salePrice | currency:'SAR':'symbol':'1.0-0' }}</td>
+                            <td class="py-3 px-4 text-sm whitespace-nowrap">
+                                <span [class.bg-green-200]="car.status === 'Available'"
+                                      [class.text-green-800]="car.status === 'Available'"
+                                      [class.bg-yellow-200]="car.status === 'Reserved'"
+                                      [class.text-yellow-800]="car.status === 'Reserved'"
+                                      [class.bg-red-200]="car.status === 'Sold'"
+                                      [class.text-red-800]="car.status === 'Sold'"
+                                      [class.bg-gray-200]="car.status === 'In Maintenance'"
+                                      [class.text-gray-800]="car.status === 'In Maintenance'"
+                                      class="px-2 py-1 rounded-full text-xs font-medium">
+                                    {{ car.status }}
+                                </span>
+                            </td>
+                            <td class="py-3 px-4 text-sm whitespace-nowrap">{{ car.mileage }} كم</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

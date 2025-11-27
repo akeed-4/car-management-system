@@ -1,0 +1,73 @@
+<div class="container mx-auto">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-semibold text-gray-800">{{ pageTitle() }}</h2>
+    <a routerLink="/entities/suppliers" class="text-primary-600 hover:text-primary-800 transition duration-300">&larr; العودة إلى قائمة الموردين</a>
+  </div>
+
+  <div class="bg-white p-8 rounded-lg shadow-md max-w-2xl mx-auto">
+    <form #supplierForm="ngForm" (ngSubmit)="saveSupplier()">
+      <div class="space-y-6">
+        <div>
+          <label for="name" class="block text-sm font-medium text-gray-700">اسم المورد</label>
+          <input 
+            type="text" 
+            id="name" 
+            name="name" 
+            #name="ngModel"
+            [ngModel]="supplier().name"
+            (ngModelChange)="updateSupplierField('name', $event)"
+            required
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+        </div>
+
+        <div>
+          <label for="crNumber" class="block text-sm font-medium text-gray-700">رقم السجل التجاري</label>
+          <input 
+            type="text" 
+            id="crNumber" 
+            name="crNumber"
+            #crNumber="ngModel"
+            [ngModel]="supplier().crNumber"
+            (ngModelChange)="updateSupplierField('crNumber', $event)"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+        </div>
+        
+        <div>
+          <label for="phone" class="block text-sm font-medium text-gray-700">رقم الهاتف</label>
+          <input 
+            type="tel" 
+            id="phone" 
+            name="phone"
+            #phone="ngModel"
+            [ngModel]="supplier().phone"
+            (ngModelChange)="updateSupplierField('phone', $event)"
+            required
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+        </div>
+        
+        <div>
+          <label for="address" class="block text-sm font-medium text-gray-700">العنوان</label>
+          <input 
+            type="text" 
+            id="address" 
+            name="address"
+            #address="ngModel"
+            [ngModel]="supplier().address"
+            (ngModelChange)="updateSupplierField('address', $event)"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="mt-8 pt-6 border-t flex justify-end">
+        <a routerLink="/entities/suppliers" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg shadow hover:bg-gray-300 transition duration-300 ml-4 text-sm">إلغاء</a>
+        <button 
+          type="submit" 
+          [disabled]="supplierForm.invalid" 
+          class="bg-primary-600 text-white px-6 py-2 rounded-lg shadow hover:bg-primary-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+          {{ editMode() ? 'حفظ التغييرات' : 'إضافة المورد' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

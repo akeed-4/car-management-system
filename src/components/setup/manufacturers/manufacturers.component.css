@@ -1,0 +1,13 @@
+/* You can add component-specific styles here if needed */
+.chart-tooltip {
+    position: absolute;
+    text-align: center;
+    padding: 8px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    pointer-events: none;
+    font-size: 0.9rem;
+    color: #333;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
