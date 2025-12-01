@@ -1,0 +1,61 @@
+<div class="container">
+  <h2 class="page-title">التقرير الضريبي للمبيعات</h2>
+
+  <div class="summary-grid">
+    <div class="summary-card">
+      <p class="summary-title">إجمالي المبيعات (قبل الضريبة)</p>
+      <p class="summary-value">{{ totalSubtotal() | currency:'SAR':'symbol':'1.0-2' }}</p>
+    </div>
+    <div class="summary-card">
+      <p class="summary-title">إجمالي ضريبة القيمة المضافة</p>
+      <p class="summary-value text-orange">{{ totalVatAmount() | currency:'SAR':'symbol':'1.0-2' }}</p>
+    </div>
+    <div class="summary-card">
+      <p class="summary-title">الإجمالي الشامل (مع الضريبة)</p>
+      <p class="summary-value text-blue">{{ grandTotal() | currency:'SAR':'symbol':'1.0-2' }}</p>
+    </div>
+  </div>
+
+  <div class="card">
+     <h3 class="card-header">تفاصيل فواتير المبيعات</h3>
+     <div class="table-controls">
+      <input 
+        type="text" 
+        placeholder="ابحث عن فاتورة (الرقم، العميل، التاريخ...)"
+        class="form-input search-input"
+        (input)="onFilter($event)">
+    </div>
+     <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th (click)="onSort('invoiceNumber')">رقم الفاتورة {{ getSortIcon('invoiceNumber') }}</th>
+            <th (click)="onSort('invoiceDate')">التاريخ {{ getSortIcon('invoiceDate') }}</th>
+            <th (click)="onSort('customerName')">العميل {{ getSortIcon('customerName') }}</th>
+            <th (click)="onSort('subtotal')">المبلغ قبل الضريبة {{ getSortIcon('subtotal') }}</th>
+            <th (click)="onSort('vatAmount')">مبلغ الضريبة {{ getSortIcon('vatAmount') }}</th>
+            <th (click)="onSort('totalAmount')">الإجمالي {{ getSortIcon('totalAmount') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (invoice of filteredAndSortedInvoices(); track invoice.id) {
+            <tr>
+              <td class="font-mono">{{ invoice.invoiceNumber }}</td>
+              <td>{{ invoice.invoiceDate | date:'yyyy-MM-dd' }}</td>
+              <td>{{ invoice.customerName }}</td>
+              <td class="font-mono">{{ invoice.subtotal | currency:'SAR' }}</td>
+              <td class="font-mono">{{ invoice.vatAmount | currency:'SAR' }}</td>
+              <td class="font-mono font-bold">{{ invoice.totalAmount | currency:'SAR' }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="empty-state">
+                لا توجد فواتير مبيعات مسجلة لعرض التقرير الضريبي.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

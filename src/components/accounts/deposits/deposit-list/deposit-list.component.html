@@ -1,0 +1,56 @@
+
+<div class="container">
+  <div class="page-header">
+    <h2>قائمة سندات العربون</h2>
+    <a routerLink="/accounts/deposits/new" class="btn btn-primary">
+      <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+      <span>إصدار سند عربون جديد</span>
+    </a>
+  </div>
+
+  <div class="card">
+    <div class="table-controls">
+      <input 
+        type="text" 
+        placeholder="ابحث عن سند (الرقم، العميل، السيارة...)"
+        class="form-input search-input"
+        (input)="onFilter($event)">
+    </div>
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th (click)="onSort('voucherNumber')">رقم السند {{ getSortIcon('voucherNumber') }}</th>
+            <th (click)="onSort('date')">التاريخ {{ getSortIcon('date') }}</th>
+            <th (click)="onSort('customerName')">العميل {{ getSortIcon('customerName') }}</th>
+            <th (click)="onSort('carDescription')">السيارة {{ getSortIcon('carDescription') }}</th>
+            <th (click)="onSort('amount')">المبلغ {{ getSortIcon('amount') }}</th>
+            <th class="actions-header">إجراءات</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (deposit of filteredAndSortedDeposits(); track deposit.id) {
+            <tr>
+              <td class="font-mono">{{ deposit.voucherNumber }}</td>
+              <td>{{ deposit.date | date:'yyyy-MM-dd' }}</td>
+              <td>{{ deposit.customerName }}</td>
+              <td>{{ deposit.carDescription }}</td>
+              <td class="font-mono">{{ deposit.amount | currency:'SAR' }}</td>
+              <td class="actions-cell">
+                <a class="btn-icon" title="عرض/تعديل">
+                  <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                </a>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="empty-state">
+                لا توجد سندات عربون مسجلة.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

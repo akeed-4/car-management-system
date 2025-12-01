@@ -1,0 +1,68 @@
+<div class="container">
+  <div class="page-header">
+    <h2>{{ pageTitle() }}</h2>
+    <a routerLink="/entities/suppliers" class="back-link">&larr; العودة إلى قائمة الموردين</a>
+  </div>
+
+  <div class="card form-container">
+    <form #supplierForm="ngForm" (ngSubmit)="saveSupplier()">
+      <div class="form-fields">
+        <div>
+          <label for="name" class="form-label">اسم المورد</label>
+          <input 
+            type="text" 
+            id="name" 
+            name="name" 
+            [ngModel]="supplier().name"
+            (ngModelChange)="updateSupplierField('name', $event)"
+            required
+            class="form-input">
+        </div>
+
+        <div>
+          <label for="crNumber" class="form-label">رقم السجل التجاري</label>
+          <input 
+            type="text" 
+            id="crNumber" 
+            name="crNumber"
+            [ngModel]="supplier().crNumber"
+            (ngModelChange)="updateSupplierField('crNumber', $event)"
+            class="form-input">
+        </div>
+        
+        <div>
+          <label for="phone" class="form-label">رقم الهاتف</label>
+          <input 
+            type="tel" 
+            id="phone" 
+            name="phone"
+            [ngModel]="supplier().phone"
+            (ngModelChange)="updateSupplierField('phone', $event)"
+            required
+            class="form-input">
+        </div>
+        
+        <div>
+          <label for="address" class="form-label">العنوان</label>
+          <input 
+            type="text" 
+            id="address" 
+            name="address"
+            [ngModel]="supplier().address"
+            (ngModelChange)="updateSupplierField('address', $event)"
+            class="form-input">
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <a routerLink="/entities/suppliers" class="btn btn-light">إلغاء</a>
+        <button 
+          type="submit" 
+          [disabled]="supplierForm.invalid" 
+          class="btn btn-primary">
+          {{ editMode() ? 'حفظ التغييرات' : 'إضافة المورد' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

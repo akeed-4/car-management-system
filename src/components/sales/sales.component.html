@@ -1,0 +1,157 @@
+
+
+
+<div class="container">
+  <div class="page-header">
+    <h2>قائمة فواتير المبيعات</h2>
+    <a routerLink="/sales/invoice/new" class="btn btn-primary no-print">
+      <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+      <span>فاتورة بيع جديدة</span>
+    </a>
+  </div>
+
+  <div class="card">
+    <div class="table-controls">
+      <input 
+        type="text" 
+        placeholder="ابحث عن فاتورة (الرقم، العميل، السيارة...)"
+        class="form-input search-input"
+        (input)="onFilter($event)">
+      <div class="toggle-switch">
+        <label for="showArchived">عرض الأرشيف</label>
+        <input type="checkbox" id="showArchived" [checked]="showArchived()" (change)="showArchived.set(!showArchived())">
+      </div>
+    </div>
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th (click)="onSort('invoiceNumber')">رقم الفاتورة {{ getSortIcon('invoiceNumber') }}</th>
+            <th (click)="onSort('invoiceDate')">التاريخ {{ getSortIcon('invoiceDate') }}</th>
+            <th (click)="onSort('customerName')">العميل {{ getSortIcon('customerName') }}</th>
+            <th>المحتويات</th>
+            <th (click)="onSort('totalAmount')">الإجمالي {{ getSortIcon('totalAmount') }}</th>
+            <th (click)="onSort('status')">حالة السداد {{ getSortIcon('status') }}</th>
+            <th class="actions-header">نقل الملكية</th>
+            <th class="actions-header">التسليم</th>
+            <th class="actions-header">الدفع</th>
+            <th class="actions-header">المستندات</th>
+            <th class="actions-header no-print">إجراءات</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (invoice of filteredAndSortedInvoices(); track invoice.id) {
+            <tr [class.archived-row]="showArchived()">
+              <td class="font-mono">{{ invoice.invoiceNumber }}</td>
+              <td>{{ invoice.invoiceDate | date:'yyyy-MM-dd' }}</td>
+              <td>{{ invoice.customerName }}</td>
+              <td>
+                @if(invoice.items.length > 0) {
+                  {{ invoice.items[0].carDescription }}
+                  @if(invoice.items.length > 1) {
+                    <span class="more-items">+ {{ invoice.items.length - 1 }}</span>
+                  }
+                }
+              </td>
+              <td class="font-mono">{{ invoice.totalAmount | currency:'SAR':'symbol':'1.0-0' }}</td>
+              <td>
+                 <span class="badge"
+                       [class.badge-green]="invoice.status === 'Paid'"
+                       [class.badge-yellow]="invoice.status === 'Pending'"
+                       [class.badge-red]="invoice.status === 'Overdue'">
+                  {{ invoice.status }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                 @if(!showArchived()) {
+                   @switch (invoice.ownershipTransferStatus) {
+                      @case ('Not Started') {
+                        <button (click)="initiateTransfer(invoice)" [disabled]="transferringInvoices().has(invoice.id)" class="btn btn-small btn-transfer">
+                          بدء نقل الملكية
+                        </button>
+                      }
+                      @case ('In Progress') {
+                         <div class="status-in-progress">
+                          <span class="spinner-small"></span>
+                          <span>قيد التنفيذ...</span>
+                        </div>
+                      }
+                      @case ('Completed') {
+                        <span class="badge badge-green">مكتملة</span>
+                      }
+                      @case ('Failed') {
+                        <button (click)="initiateTransfer(invoice)" [disabled]="transferringInvoices().has(invoice.id)" class="btn btn-small btn-transfer-retry">
+                          إعادة المحاولة
+                        </button>
+                      }
+                    }
+                 } @else {
+                  <span class="placeholder-text">-</span>
+                 }
+              </td>
+               <td class="actions-cell">
+                 @if(!showArchived() && invoice.status === 'Paid' && invoice.ownershipTransferStatus === 'Completed') {
+                    <button (click)="scheduleDelivery(invoice.id)" class="btn btn-small btn-delivery">
+                      جدولة التسليم
+                    </button>
+                 } @else {
+                  <span class="placeholder-text">-</span>
+                 }
+              </td>
+              <td class="actions-cell">
+                @if(invoice.status !== 'Paid' && !showArchived()) {
+                  <button (click)="payWithPos(invoice)" class="btn btn-small btn-pos">
+                    <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15A2.25 2.25 0 0 0 2.25 6.75v10.5A2.25 2.25 0 0 0 4.5 19.5Z" /></svg>
+                    <span>الدفع بالشبكة</span>
+                  </button>
+                } @else {
+                  <span class="placeholder-text">-</span>
+                }
+              </td>
+              <td class="actions-cell">
+                <button (click)="openDealJacket(invoice)" class="btn-icon" title="عرض/إدارة المستندات">
+                  <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                  </svg>
+                </button>
+              </td>
+              <td class="actions-cell no-print">
+                   <a [routerLink]="['/sales/invoice/print', invoice.id]" class="btn-icon" title="طباعة الفاتورة">
+                      <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062-.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0-1.131-12.112a1.125 1.125 0 0 0-1.12-1.006H8.348a1.125 1.125 0 0 0-1.12 1.006L6.098 18m11.318 0-2.829-5.115M6.34 18l-2.829-5.115m0 0a3.007 3.007 0 0 1-1.115-2.288V5.625a1.125 1.125 0 0 1 1.125-1.125h14.25a1.125 1.125 0 0 1 1.125 1.125v5.002c0 .823-.357 1.555-1.115 2.288m-13.03 0a1.125 1.125 0 0 1-1.125-1.125v-1.5c0-.621.504-1.125 1.125-1.125h14.25c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504-1.125-1.125 1.125m-14.25 0h14.25" /></svg>
+                   </a>
+                   @if(!showArchived() && invoice.status === 'Paid') {
+                      <button (click)="archiveInvoice(invoice.id)" class="btn-icon" title="أرشفة">
+                        <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4" /></svg>
+                      </button>
+                   } @else if (showArchived()) {
+                      <button (click)="unarchiveInvoice(invoice.id)" class="btn-icon btn-icon-success" title="إلغاء الأرشفة">
+                        <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0-3-3m3 3 3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" /></svg>
+                      </button>
+                   }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="12" class="empty-state">
+                {{ showArchived() ? 'لا توجد فواتير في الأرشيف.' : 'لا توجد فواتير مبيعات حتى الآن.' }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<app-pos-payment-modal
+  [isOpen]="isPosModalOpen()"
+  [invoice]="currentPaymentInvoice()"
+  [status]="currentPaymentStatus()"
+  (close)="closePosModal()">
+</app-pos-payment-modal>
+
+<app-deal-jacket-modal 
+  [isOpen]="isDealJacketOpen()"
+  [invoice]="selectedInvoiceForJacket()"
+  (close)="isDealJacketOpen.set(false)">
+</app-deal-jacket-modal>

@@ -1,0 +1,75 @@
+<div class="container">
+  <h2 class="page-title">التقارير الإدارية</h2>
+
+  <div class="reports-grid">
+    <div class="card">
+      <h3 class="card-header">السيارات الأكثر مبيعاً</h3>
+      <div class="table-controls">
+        <input 
+          type="text" 
+          placeholder="ابحث عن سيارة..."
+          class="form-input search-input"
+          (input)="onBestSellerFilter($event)">
+      </div>
+       <div class="table-wrapper">
+        <table class="table">
+          <thead>
+            <tr>
+              <th (click)="onBestSellerSort('description')">السيارة {{ getBestSellerSortIcon('description') }}</th>
+              <th (click)="onBestSellerSort('quantitySold')">الكمية المباعة {{ getBestSellerSortIcon('quantitySold') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (car of bestSellingCars(); track car.description) {
+              <tr>
+                <td>{{ car.description }}</td>
+                <td class="text-center font-bold">{{ car.quantitySold }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="2" class="empty-state">
+                  لا توجد بيانات مبيعات لعرضها.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+       <h3 class="card-header">أفضل أداء لمندوبي المبيعات</h3>
+       <div class="table-controls">
+        <input 
+          type="text" 
+          placeholder="ابحث عن مندوب..."
+          class="form-input search-input"
+          (input)="onSalespersonFilter($event)">
+      </div>
+       <div class="table-wrapper">
+        <table class="table">
+          <thead>
+            <tr>
+              <th (click)="onSalespersonSort('name')">اسم المندوب {{ getSalespersonSortIcon('name') }}</th>
+              <th (click)="onSalespersonSort('totalSales')">إجمالي المبيعات {{ getSalespersonSortIcon('totalSales') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (person of topSalespeople(); track person.name) {
+              <tr>
+                <td>{{ person.name }}</td>
+                <td class="font-mono">{{ person.totalSales | currency:'SAR':'symbol':'1.0-2' }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="2" class="empty-state">
+                  لا توجد بيانات مبيعات لعرضها.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

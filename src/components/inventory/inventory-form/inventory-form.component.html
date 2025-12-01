@@ -1,0 +1,278 @@
+
+
+<div class="container">
+  <div class="page-header">
+    <h2>{{ pageTitle() }}</h2>
+    <a routerLink="/inventory" class="back-link">&larr; العودة إلى المخزون</a>
+  </div>
+
+  <div class="card">
+    <form #carForm="ngForm" (ngSubmit)="saveCar()">
+      <!-- Main Details Section -->
+      <section class="form-section">
+        <h3 class="form-section-title">البيانات الأساسية</h3>
+        <div class="form-grid cols-4">
+          <div>
+            <label for="make" class="form-label">الشركة المصنعة</label>
+            <select id="make" name="make" #make="ngModel" [ngModel]="car().make" (ngModelChange)="updateCarField('make', $event)" required class="form-select">
+              <option [ngValue]="undefined" disabled>-- اختر الشركة --</option>
+              @for (manufacturer of manufacturers(); track manufacturer.id) {
+                <option [value]="manufacturer.name">{{ manufacturer.name }}</option>
+              }
+            </select>
+          </div>
+          <div>
+            <label for="model" class="form-label">الموديل</label>
+             <select id="model" name="model" #model="ngModel" [ngModel]="car().model" (ngModelChange)="updateCarField('model', $event)" required [disabled]="!car().make" class="form-select">
+              <option [ngValue]="undefined" disabled>-- اختر الموديل --</option>
+              @for (carModel of filteredModels(); track carModel.id) {
+                <option [value]="carModel.name">{{ carModel.name }}</option>
+              }
+            </select>
+          </div>
+          <div>
+            <label for="year" class="form-label">سنة الصنع</label>
+             <select id="year" name="year" #year="ngModel" [ngModel]="car().year" (ngModelChange)="updateCarField('year', +$event)" required class="form-select">
+              <option [ngValue]="undefined" disabled>-- اختر السنة --</option>
+              @for (y of years(); track y) {
+                <option [value]="y">{{ y }}</option>
+              }
+            </select>
+          </div>
+          <div>
+            <label for="currentLocation" class="form-label">الموقع الحالي</label>
+            <input 
+              type="text"
+              id="currentLocation"
+              name="currentLocation"
+              [ngModel]="car().currentLocation"
+              (ngModelChange)="updateCarField('currentLocation', $event)"
+              required
+              placeholder="e.g., Showroom A, Lot 3"
+              class="form-input">
+          </div>
+        </div>
+        <div class="form-grid" style="margin-top: 1.5rem;">
+            <div>
+                <label class="form-label">حالة السيارة</label>
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="condition" value="Used" [ngModel]="car().condition" (ngModelChange)="onConditionChange($event)">
+                        <span>مستعملة</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="condition" value="New" [ngModel]="car().condition" (ngModelChange)="onConditionChange($event)">
+                        <span>جديدة</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+      </section>
+
+      <!-- Saudi Specific Details -->
+       <section class="form-section">
+        <h3 class="form-section-title">البيانات الاساسية</h3>
+        <div class="form-grid cols-3">
+          <div>
+            <label for="vin" class="form-label">رقم الهيكل (VIN)</label>
+            <div class="input-group">
+              <input type="text" id="vin" name="vin" [ngModel]="car().vin" (ngModelChange)="updateCarField('vin', $event)" required class="form-input" dir="ltr">
+              <button (click)="isScannerOpen.set(true)" type="button" class="input-group-btn">
+                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" /></svg>
+                <span>مسح</span>
+              </button>
+            </div>
+          </div>
+          <div>
+            <label for="plateNumber" class="form-label">رقم اللوحة</label>
+            <input type="text" id="plateNumber" name="plateNumber" [ngModel]="car().plateNumber" (ngModelChange)="updateCarField('plateNumber', $event)" required class="form-input">
+          </div>
+          <div>
+            <label for="istimaraExpiry" class="form-label">تاريخ انتهاء الاستمارة</label>
+            <input type="date" id="istimaraExpiry" name="istimaraExpiry" [ngModel]="car().istimaraExpiry" (ngModelChange)="updateCarField('istimaraExpiry', $event)" class="form-input">
+          </div>
+          <div>
+            <label for="fahasStatus" class="form-label">حالة الفحص الدوري</label>
+            <select id="fahasStatus" name="fahasStatus" [ngModel]="car().fahasStatus" (ngModelChange)="updateCarField('fahasStatus', $event)" class="form-select">
+              <option value="Valid">ساري</option>
+              <option value="Expired">منتهي</option>
+              <option value="Not Required">غير مطلوب</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+       <!-- Technical & Visual Details -->
+      <section class="form-section">
+        <h3 class="form-section-title">التفاصيل الفنية والمظهر</h3>
+        <div class="form-grid cols-4">
+           <div>
+            <label for="mileage" class="form-label">الممشى (كم)</label>
+            <input type="number" id="mileage" name="mileage" [ngModel]="car().mileage" (ngModelChange)="updateCarField('mileage', +$event)" required [disabled]="car().condition === 'New'" class="form-input">
+          </div>
+           <div>
+            <label for="exteriorColor" class="form-label">اللون الخارجي</label>
+            <input type="text" id="exteriorColor" name="exteriorColor" [ngModel]="car().exteriorColor" (ngModelChange)="updateCarField('exteriorColor', $event)" class="form-input">
+          </div>
+           <div>
+            <label for="interiorColor" class="form-label">اللون الداخلي</label>
+            <input type="text" id="interiorColor" name="interiorColor" [ngModel]="car().interiorColor" (ngModelChange)="updateCarField('interiorColor', $event)" class="form-input">
+          </div>
+          <div>
+            <label for="transmission" class="form-label">ناقل الحركة (القير)</label>
+            <select id="transmission" name="transmission" [ngModel]="car().transmission" (ngModelChange)="updateCarField('transmission', $event)" class="form-select">
+              <option value="Automatic">أوتوماتيك</option>
+              <option value="Manual">يدوي</option>
+            </select>
+          </div>
+           <div>
+            <label for="engineSize" class="form-label">حجم المحرك</label>
+            <input type="text" id="engineSize" name="engineSize" [ngModel]="car().engineSize" (ngModelChange)="updateCarField('engineSize', $event)" class="form-input">
+          </div>
+        </div>
+      </section>
+
+      <!-- Financials -->
+      <section class="form-section">
+        <h3 class="form-section-title">البيانات المالية</h3>
+         <div class="form-grid cols-4">
+           <div>
+            <label for="purchasePrice" class="form-label">سعر الشراء</label>
+            <input type="number" id="purchasePrice" name="purchasePrice" [ngModel]="car().purchasePrice" (ngModelChange)="updateCarField('purchasePrice', +$event)" required class="form-input">
+          </div>
+           <div>
+            <label for="additionalCosts" class="form-label">تكاليف إضافية</label>
+            <input type="number" id="additionalCosts" name="additionalCosts" [ngModel]="car().additionalCosts" (ngModelChange)="updateCarField('additionalCosts', +$event)" class="form-input">
+          </div>
+          <div>
+            <label for="trueTotalCost" class="form-label">التكلفة الإجمالية الحقيقية</label>
+            <input type="text" id="trueTotalCost" name="trueTotalCost" [value]="calculatedTotalCost() | currency:'SAR'" readonly class="form-input font-mono">
+          </div>
+           <div>
+            <label for="salePrice" class="form-label">سعر البيع</label>
+             <div class="price-suggester">
+                <input type="number" id="salePrice" name="salePrice" [ngModel]="car().salePrice" (ngModelChange)="updateCarField('salePrice', +$event)" required class="form-input">
+                <button type="button" (click)="suggestPrice()" [disabled]="isSuggestingPrice() || !canSuggestPrice()" title="اقتراح سعر باستخدام الذكاء الاصطناعي" class="price-suggester-btn">
+                  @if(isSuggestingPrice()) {
+                    <span class="spinner"></span>
+                  } @else {
+                    <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z" /></svg>
+                  }
+                </button>
+            </div>
+             @if (priceSuggestion(); as suggestion) {
+              <div class="suggestion-box">
+                <button type="button" (click)="applySuggestedPrice(suggestion.low)" class="suggestion-item low">منخفض: {{suggestion.low | currency:'SAR':'symbol':'1.0-0'}}</button>
+                <button type="button" (click)="applySuggestedPrice(suggestion.average)" class="suggestion-item average">متوسط: {{suggestion.average | currency:'SAR':'symbol':'1.0-0'}}</button>
+                <button type="button" (click)="applySuggestedPrice(suggestion.high)" class="suggestion-item high">مرتفع: {{suggestion.high | currency:'SAR':'symbol':'1.0-0'}}</button>
+              </div>
+            }
+            @if(priceSuggestionError()) {
+                <p class="error-text">{{ priceSuggestionError() }}</p>
+            }
+          </div>
+         </div>
+         <div class="form-grid cols-3" style="margin-top: 1.5rem;">
+            <div>
+              <label for="purchaseDate" class="form-label">تاريخ الشراء</label>
+              <input type="date" id="purchaseDate" name="purchaseDate" [ngModel]="car().purchaseDate" (ngModelChange)="updateCarField('purchaseDate', $event)" class="form-input">
+            </div>
+            <div>
+              <label for="floorPlanId" class="form-label">خطة التمويل (اختياري)</label>
+              <select id="floorPlanId" name="floorPlanId" [ngModel]="car().floorPlanId" (ngModelChange)="updateCarField('floorPlanId', $event ? +$event : undefined)" class="form-select">
+                <option [ngValue]="undefined">-- بدون تمويل --</option>
+                @for (plan of floorPlans(); track plan.id) {
+                  <option [value]="plan.id">{{ plan.planName }} - {{ plan.financier }}</option>
+                }
+              </select>
+            </div>
+         </div>
+      </section>
+
+      @if (editMode() && associatedExpenses().length > 0) {
+        <section class="form-section">
+          <h3 class="form-section-title">التكاليف المرتبطة</h3>
+          <div class="table-wrapper">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>التاريخ</th>
+                  <th>الوصف</th>
+                  <th>المبلغ</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for(expense of associatedExpenses(); track expense.id) {
+                  <tr>
+                    <td>{{expense.date}}</td>
+                    <td>{{expense.description}}</td>
+                    <td class="font-mono">{{expense.amount | currency:'SAR'}}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+
+      <!-- Description and Photos -->
+      <section class="form-section">
+        <h3 class="form-section-title">الوصف والصور</h3>
+        <div class="form-grid cols-2">
+          <div>
+            <label for="description" class="form-label">الوصف التسويقي</label>
+            <textarea id="description" name="description" [ngModel]="car().description" (ngModelChange)="updateCarField('description', $event)" rows="6" class="form-input"></textarea>
+          </div>
+          <div>
+            <label class="form-label">الصور</label>
+            <div class="photo-upload-box">
+                <div class="photo-upload-content">
+                    <svg class="icon" stroke="currentColor" fill="none" viewBox="0 0 48 48"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    <p>
+                        <button type="button" class="upload-btn">
+                          ارفع ملفاً
+                        </button>
+                    </p>
+                </div>
+            </div>
+            @if(car()?.photos?.[0]) {
+              <img [src]="car()?.photos?.[0]" alt="Car image" class="photo-preview">
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <a routerLink="/inventory" class="btn btn-light">إلغاء</a>
+        @if(editMode()) {
+          <button type="button" (click)="isPublishModalOpen.set(true)" class="btn btn-secondary">
+            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" /></svg>
+            <span>نشر على المنصات</span>
+          </button>
+          @if(car()?.status === 'Reserved') {
+            <button type="button" (click)="navigateToDepositForm()" class="btn btn-secondary">
+              <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15A2.25 2.25 0 0 0 2.25 6.75v10.5A2.25 2.25 0 0 0 4.5 19.5Z" /></svg>
+              <span>سند عربون</span>
+            </button>
+          }
+        }
+        <button type="submit" [disabled]="carForm.invalid" class="btn btn-primary">
+            {{ editMode() ? 'حفظ التغييرات' : 'إضافة السيارة' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<app-vin-scanner 
+  [isOpen]="isScannerOpen()" 
+  (vinScanned)="onVinScanned($event)"
+  (cancel)="isScannerOpen.set(false)">
+</app-vin-scanner>
+
+<app-publish-modal
+  [isOpen]="isPublishModalOpen()"
+  [car]="car()"
+  (close)="isPublishModalOpen.set(false)">
+</app-publish-modal>

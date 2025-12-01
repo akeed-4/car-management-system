@@ -1,0 +1,83 @@
+
+<div class="container">
+  <h2 class="page-title">التقرير المالي (الأرباح والخسائر)</h2>
+
+  <!-- Summary Cards -->
+  <div class="summary-grid">
+    <div class="summary-card">
+      <p class="summary-title">إجمالي الإيرادات</p>
+      <p class="summary-value">{{ totalRevenue() | currency:'SAR':'symbol':'1.0-0' }}</p>
+    </div>
+    <div class="summary-card">
+      <p class="summary-title">تكلفة البضاعة المباعة</p>
+      <p class="summary-value text-danger">{{ totalCostOfGoodsSold() | currency:'SAR':'symbol':'1.0-0' }}</p>
+    </div>
+    <div class="summary-card">
+      <p class="summary-title">إجمالي عمولة العهدة</p>
+      <p class="summary-value text-success">{{ totalConsignmentCommission() | currency:'SAR':'symbol':'1.0-0' }}</p>
+    </div>
+    <div class="summary-card">
+       <div class="summary-title-with-tooltip">
+        <p class="summary-title">المصروفات التشغيلية</p>
+        <div class="tooltip-container">
+            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /></svg>
+             <div class="tooltip-text">
+              هذه هي المصروفات العامة (إيجار، رواتب، إلخ) ولا تشمل التكاليف المرتبطة مباشرة بالسيارات، حيث تم احتسابها ضمن تكلفة البضاعة المباعة.
+            </div>
+        </div>
+      </div>
+      <p class="summary-value text-danger">{{ totalOperatingExpenses() | currency:'SAR':'symbol':'1.0-0' }}</p>
+    </div>
+    <div class="summary-card">
+      <p class="summary-title">صافي الربح</p>
+      <p class="summary-value large" [class.text-success]="netProfit() >= 0" [class.text-danger]="netProfit() < 0">
+        {{ netProfit() | currency:'SAR':'symbol':'1.0-0' }}
+      </p>
+    </div>
+  </div>
+
+  <div class="card">
+     <h3 class="card-header">تفاصيل الأرباح لكل عملية بيع</h3>
+     <div class="table-controls">
+      <input 
+        type="text" 
+        placeholder="ابحث عن فاتورة/سيارة..."
+        class="form-input search-input"
+        (input)="onFilter($event)">
+    </div>
+     <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th (click)="onSort('invoiceNumber')">رقم الفاتورة/العملية {{ getSortIcon('invoiceNumber') }}</th>
+            <th (click)="onSort('carDescription')">السيارة {{ getSortIcon('carDescription') }}</th>
+            <th (click)="onSort('salePrice')">سعر البيع {{ getSortIcon('salePrice') }}</th>
+            <th (click)="onSort('costOfGoods')">تكلفة البضاعة {{ getSortIcon('costOfGoods') }}</th>
+            <th (click)="onSort('profit')">الربح/العمولة {{ getSortIcon('profit') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of filteredAndSortedProfitReport(); track item.invoiceNumber + item.carDescription) {
+            <tr>
+              <td class="font-mono">{{ item.invoiceNumber }}</td>
+              <td>{{ item.carDescription }}</td>
+              <td class="font-mono">{{ item.salePrice | currency:'SAR' }}</td>
+              <td class="font-mono">{{ item.costOfGoods | currency:'SAR' }}</td>
+              <td class="font-mono font-bold"
+                  [class.text-success]="item.profit > 0"
+                  [class.text-danger]="item.profit < 0">
+                {{ item.profit | currency:'SAR' }}
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="empty-state">
+                لا توجد بيانات مبيعات لعرض التقرير المالي.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

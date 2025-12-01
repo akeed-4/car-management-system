@@ -1,0 +1,70 @@
+.container { max-width: 1280px; margin: 0 auto; }
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-gray-800);
+  margin-bottom: 1.5rem;
+}
+
+.form-section {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-gray-200);
+}
+.form-section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-gray-700);
+  margin-bottom: 0.5rem;
+}
+
+.add-form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  align-items: flex-end;
+}
+@media(min-width: 768px) {
+  .add-form-grid {
+    grid-template-columns: 3fr 1fr;
+  }
+}
+
+.card-header {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-gray-700);
+  margin-bottom: 1rem;
+}
+
+.table-controls {
+  margin-bottom: 1rem;
+}
+.search-input {
+  width: 100%;
+  max-width: 400px;
+}
+
+.table th { cursor: pointer; user-select: none; }
+.font-medium { font-weight: 500; }
+
+.actions-header { text-align: center; }
+.actions-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-icon-danger:hover {
+  color: var(--color-danger-600);
+}
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-gray-500);
+}

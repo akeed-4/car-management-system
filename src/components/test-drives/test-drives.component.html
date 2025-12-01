@@ -1,0 +1,61 @@
+<div class="container mx-auto">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-xl font-semibold text-gray-800">جدول تجارب القيادة</h2>
+    <a routerLink="/test-drives/new" class="bg-primary-600 text-white px-4 py-2 rounded-lg shadow hover:bg-primary-700 transition duration-300 flex items-center text-sm">
+      <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+      حجز تجربة قيادة جديدة
+    </a>
+  </div>
+
+  <div class="bg-white p-6 rounded-lg shadow-md">
+    <div class="flex flex-col space-y-8">
+      @for (day of schedule(); track day.date) {
+        <div>
+          <h3 class="text-lg font-bold text-primary-700 border-b-2 border-primary-100 pb-2 mb-4">
+            {{ day.date | date:'fullDate':'':'ar' }}
+          </h3>
+          @if (day.bookings.length > 0) {
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              @for (booking of day.bookings; track booking.id) {
+                <div class="border rounded-lg p-4 bg-gray-50 flex flex-col justify-between"
+                     [class.opacity-60]="booking.status !== 'Scheduled'">
+                  <div>
+                    <div class="flex justify-between items-start">
+                      <p class="font-bold text-gray-800">{{ booking.carDescription }}</p>
+                      <span class="px-2 py-1 text-xs font-semibold rounded-full"
+                            [class.bg-blue-100]="booking.status === 'Scheduled'" [class.text-blue-800]="booking.status === 'Scheduled'"
+                            [class.bg-green-100]="booking.status === 'Completed'" [class.text-green-800]="booking.status === 'Completed'"
+                            [class.bg-red-100]="booking.status === 'Canceled'" [class.text-red-800]="booking.status === 'Canceled'">
+                        {{ booking.status === 'Scheduled' ? 'مجدولة' : (booking.status === 'Completed' ? 'مكتملة' : 'ملغاة') }}
+                      </span>
+                    </div>
+                    <p class="text-sm text-gray-600">
+                      <span class="font-semibold">{{ booking.startTime | date:'shortTime':'':'ar' }}</span> - 
+                      <span class="font-semibold">{{ booking.endTime | date:'shortTime':'':'ar' }}</span>
+                    </p>
+                    <p class="text-sm text-gray-500">العميل: <span class="font-medium">{{ booking.customerName }}</span></p>
+                    <p class="text-sm text-gray-500">مندوب المبيعات: <span class="font-medium">{{ booking.salesperson }}</span></p>
+                  </div>
+                  @if (booking.status === 'Scheduled') {
+                    <div class="flex justify-end space-x-2 space-x-reverse mt-4 pt-4 border-t">
+                      <button (click)="updateStatus(booking, 'Canceled')" class="px-3 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-md hover:bg-red-200">
+                        إلغاء
+                      </button>
+                      <button (click)="updateStatus(booking, 'Completed')" class="px-3 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-md hover:bg-green-200">
+                        إكمال
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="text-center py-4 text-gray-500">
+              لا توجد حجوزات لهذا اليوم.
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>

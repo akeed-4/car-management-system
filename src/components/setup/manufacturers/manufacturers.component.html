@@ -1,0 +1,84 @@
+<div class="container">
+  <h2 class="page-title">إدارة المصنعين</h2>
+
+  <div class="card">
+    <div class="form-section">
+      <h3 class="form-section-title">إضافة مصنع جديد</h3>
+      <form #form="ngForm" (ngSubmit)="addManufacturer()" class="add-form-grid">
+        <div>
+          <label for="newManufacturerName" class="form-label">اسم المصنع</label>
+          <input
+            id="newManufacturerName"
+            type="text"
+            [(ngModel)]="newManufacturerName"
+            class="form-input"
+            placeholder="أدخل اسم المصنع"
+            name="manufacturerName"
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          [disabled]="!newManufacturerName()"
+          class="btn btn-primary">
+          إضافة
+        </button>
+      </form>
+    </div>
+
+    <h3 class="card-header">قائمة المصنعين</h3>
+    
+    <div class="table-controls">
+      <input
+        type="text"
+        placeholder="بحث باسم المصنع..."
+        (input)="onFilter($event)"
+        class="form-input search-input"
+      />
+    </div>
+
+    @if (filteredAndSortedManufacturers().length === 0) {
+      <div class="empty-state">
+        لا توجد مصنعين لعرضهم.
+      </div>
+    } @else {
+      <div class="table-wrapper">
+        <table class="table">
+          <thead>
+            <tr>
+              <th (click)="onSort('name')">
+                اسم المصنع
+                <span>{{ getSortIcon('name') }}</span>
+              </th>
+              <th class="actions-header">الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (manufacturer of filteredAndSortedManufacturers(); track manufacturer.id) {
+              <tr>
+                <td>{{ manufacturer.name }}</td>
+                <td class="actions-cell">
+                  <button
+                    (click)="requestDelete(manufacturer.id)"
+                    class="btn-icon btn-icon-danger"
+                    title="حذف"
+                  >
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+
+  <app-modal
+    [isOpen]="isDeleteModalOpen()"
+    title="تأكيد الحذف"
+    message="هل أنت متأكد من رغبتك في حذف هذا المصنع؟ لا يمكن التراجع عن هذا الإجراء."
+    (confirm)="confirmDelete()"
+    (cancel)="closeDeleteModal()"
+  ></app-modal>
+</div>

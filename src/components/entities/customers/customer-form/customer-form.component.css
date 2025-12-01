@@ -1,0 +1,59 @@
+.container { max-width: 1280px; margin: 0 auto; }
+.back-link { font-weight: 500; }
+
+.form-container {
+  max-width: 768px;
+  margin: 0 auto;
+}
+
+.form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-actions {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-gray-200);
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.service-record-card {
+  margin-top: 2rem;
+}
+
+.form-section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-gray-700);
+  border-bottom: 1px solid var(--color-gray-200);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.service-record-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.service-record-item {
+  padding: 1rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--rounded-lg);
+  background-color: var(--color-gray-50);
+}
+
+.record-title { font-weight: 700; color: var(--color-gray-800); }
+.record-subtitle { font-size: 0.875rem; color: var(--color-gray-500); }
+.record-details { margin-top: 0.5rem; font-size: 0.875rem; }
+.record-detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.detail-value { font-weight: 600; color: var(--color-gray-700); }
+.detail-value.alert { color: var(--color-danger-600); }

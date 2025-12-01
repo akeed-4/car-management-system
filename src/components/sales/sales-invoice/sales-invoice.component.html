@@ -1,0 +1,159 @@
+
+
+<div class="container">
+  <div class="page-header">
+    <h2>إنشاء فاتورة بيع</h2>
+    <a routerLink="/sales" class="back-link">
+      <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+      <span>العودة إلى المبيعات</span>
+    </a>
+  </div>
+
+  <div class="card">
+    <form #salesInvoiceForm="ngForm" (ngSubmit)="saveInvoice()">
+      
+      <section class="form-section">
+        <h3 class="form-section-title">بيانات الفاتورة الرئيسية</h3>
+        <div class="form-grid cols-4">
+          <div>
+            <label for="customer" class="form-label">العميل</label>
+            <select id="customer" name="customer" [ngModel]="selectedCustomerId()" (ngModelChange)="selectedCustomerId.set(+$event)" required class="form-select">
+              <option [ngValue]="null" disabled>-- اختر العميل --</option>
+              @for(customer of customers(); track customer.id) {
+                <option [value]="customer.id">{{ customer.name }} ({{ customer.nationalId }})</option>
+              }
+            </select>
+          </div>
+          <div>
+            <label class="form-label">رقم الفاتورة</label>
+            <input type="text" [value]="invoiceNumber()" disabled class="form-input" readonly>
+          </div>
+          <div>
+            <label for="invoiceDate" class="form-label">تاريخ الفاتورة</label>
+            <input type="date" id="invoiceDate" name="invoiceDate" [ngModel]="invoiceDate()" (ngModelChange)="invoiceDate.set($event)" required class="form-input">
+          </div>
+          <div>
+            <label for="dueDate" class="form-label">تاريخ الاستحقاق</label>
+            <input type="date" id="dueDate" name="dueDate" [ngModel]="dueDate()" (ngModelChange)="dueDate.set($event)" class="form-input">
+          </div>
+          <div>
+            <label for="paymentMethod" class="form-label">طريقة الدفع</label>
+            <select id="paymentMethod" name="paymentMethod" [ngModel]="paymentMethod()" (ngModelChange)="paymentMethod.set($event)" class="form-select">
+              <option value="Cash">نقدي</option>
+              <option value="Bank Transfer">تحويل بنكي</option>
+              <option value="Finance">تمويل</option>
+            </select>
+          </div>
+          <div>
+             <label for="salesperson" class="form-label">مندوب المبيعات</label>
+             <input type="text" id="salesperson" name="salesperson" placeholder="اسم البائع" [ngModel]="salesperson()" (ngModelChange)="salesperson.set($event)" class="form-input">
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <h3 class="form-section-title">تفاصيل الفاتورة (البنود)</h3>
+        <div class="add-item-box">
+          <div class="add-item-grid">
+            <div class="field-car">
+              <label for="car" class="form-label">اختر السيارة</label>
+              <select id="car" name="car" [ngModel]="selectedCarId()" (ngModelChange)="selectedCarId.set(+$event)" class="form-select">
+                <option [ngValue]="null" disabled>-- اختر سيارة من المخزون --</option>
+                @for(car of availableCars(); track car.id) {
+                  <option [value]="car.id">{{ car.make }} {{ car.model }} ({{ car.year }}) - الكمية: {{ inventoryService.getCarQuantity(car.id) }}</option>
+                }
+              </select>
+            </div>
+            <div class="field-qty">
+              <label for="quantity" class="form-label">الكمية</label>
+              <input type="number" id="quantity" name="quantity" [ngModel]="selectedQuantity()" (ngModelChange)="selectedQuantity.set(+$event)" min="1" class="form-input">
+            </div>
+            <div class="field-btn">
+              <button type="button" (click)="addItemToInvoice()" [disabled]="!selectedCarId() || selectedQuantity() <= 0" class="btn btn-secondary">
+                  <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                  <span>إضافة</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+         <div class="table-wrapper">
+          <table class="table items-table">
+            <thead>
+              <tr>
+                <th>السيارة</th>
+                <th>الكمية</th>
+                <th>سعر الوحدة</th>
+                <th>الإجمالي</th>
+                <th class="actions-header">حذف</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of invoiceItems(); track item.carId; let i = $index) {
+                <tr>
+                  <td>{{ item.carDescription }}</td>
+                  <td>{{ item.quantity }}</td>
+                  <td>
+                     <input 
+                        type="number" 
+                        [ngModel]="item.unitPrice"
+                        (ngModelChange)="updateItemPrice(item.carId, +$event)"
+                        name="unitPrice-{{i}}"
+                        class="form-input price-input"
+                        dir="ltr"
+                        min="0">
+                  </td>
+                  <td class="font-mono">{{ item.lineTotal | currency:'SAR' }}</td>
+                  <td class="actions-cell">
+                    <button type="button" (click)="removeItem(item.carId)" class="btn-icon btn-icon-danger">
+                      <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                  </td>
+                </tr>
+              }
+              @if(invoiceItems().length === 0) {
+                 <tr>
+                  <td colspan="5" class="empty-state">
+                    لم تتم إضافة أي سيارات للفاتورة بعد.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="summary-section">
+        <div>
+           <label for="notes" class="form-label">ملاحظات</label>
+           <textarea id="notes" name="notes" rows="4" [ngModel]="notes()" (ngModelChange)="notes.set($event)" placeholder="أي ملاحظات إضافية على الفاتورة..." class="form-input"></textarea>
+        </div>
+        <div class="summary-box">
+            <h4>ملخص الفاتورة</h4>
+            <div class="summary-item">
+              <p>الإجمالي قبل الضريبة</p>
+              <p class="font-mono">{{ subtotal() | currency:'SAR':'symbol':'1.0-0' }}</p>
+            </div>
+            <div class="summary-item">
+              <p>ضريبة القيمة المضافة (15%)</p>
+              <p class="font-mono">+ {{ vatAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
+            </div>
+            <hr>
+            <div class="summary-item total">
+              <p>الإجمالي النهائي</p>
+              <p class="font-mono">{{ totalAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
+            </div>
+          </div>
+      </section>
+
+      <div class="form-actions">
+        <a routerLink="/sales" class="btn btn-light">إلغاء</a>
+        <button type="submit" [disabled]="!selectedCustomerId() || invoiceItems().length === 0" class="btn btn-primary">
+            إصدار الفاتورة
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

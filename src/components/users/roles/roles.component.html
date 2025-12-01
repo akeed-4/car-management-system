@@ -1,0 +1,88 @@
+<div class="container">
+  <h2 class="page-title">إدارة الأدوار والصلاحيات</h2>
+
+  <div class="roles-grid">
+    <div class="card">
+      <h3 class="card-header">الأدوار</h3>
+      
+      <div class="form-group">
+        <label for="role" class="form-label">اختر دورًا لتعديل صلاحياته</label>
+        <select 
+          id="role" 
+          name="role"
+          [ngModel]="selectedRoleId()"
+          (ngModelChange)="onRoleSelect($event ? +$event : null)"
+          class="form-select">
+          <option [ngValue]="null">-- اختر دور --</option>
+          @for (role of roles(); track role.id) {
+            <option [value]="role.id">{{ role.name }}</option>
+          }
+        </select>
+      </div>
+      
+      <div class="new-role-section">
+        <h3 class="section-title">أو إنشاء دور جديد</h3>
+         <div class="add-form">
+            <input 
+              type="text" 
+              placeholder="اسم الدور الجديد"
+              [ngModel]="newRoleName()"
+              (ngModelChange)="newRoleName.set($event)"
+              name="newRoleName"
+              class="form-input">
+            <button 
+              type="button" 
+              (click)="addNewRole()"
+              [disabled]="!newRoleName()"
+              class="btn btn-secondary">
+              إنشاء
+            </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card permissions-card">
+      @if (selectedRoleId(); as roleId) {
+        <div>
+          <div class="permissions-header">
+            <h3>صلاحيات دور: <span>{{ getSelectedRoleName() }}</span></h3>
+            <button (click)="savePermissions()" class="btn btn-primary">
+              حفظ الصلاحيات
+            </button>
+          </div>
+          
+          <div class="permissions-groups">
+            @for (group of permissionGroups; track group[0]) {
+              <fieldset class="permission-group">
+                <legend>{{ group[1].title }}</legend>
+                <div class="permissions-grid">
+                  @for (perm of (group[1].permissions | keyvalue); track perm.key) {
+                    <div class="checkbox-item">
+                      <div class="checkbox-wrapper">
+                        <input 
+                          [id]="perm.key" 
+                          [name]="perm.key"
+                          type="checkbox" 
+                          [checked]="currentPermissions()[perm.key]"
+                          (change)="togglePermission(perm.key)"
+                          class="form-checkbox">
+                      </div>
+                      <div class="checkbox-label">
+                        <label [for]="perm.key">{{ perm.value }}</label>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </fieldset>
+            }
+          </div>
+        </div>
+      } @else {
+        <div class="empty-state large">
+          <p>الرجاء اختيار دور من القائمة لعرض صلاحياته وتعديلها.</p>
+        </div>
+      }
+    </div>
+
+  </div>
+</div>

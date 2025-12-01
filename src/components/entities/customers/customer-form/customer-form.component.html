@@ -1,0 +1,104 @@
+<div class="container">
+  <div class="page-header">
+    <h2>{{ pageTitle() }}</h2>
+    <a routerLink="/entities/customers" class="back-link">&larr; العودة إلى قائمة العملاء</a>
+  </div>
+
+  <div class="card form-container">
+    <form #customerForm="ngForm" (ngSubmit)="saveCustomer()">
+      <div class="form-fields">
+        <div>
+          <label for="name" class="form-label">اسم العميل الكامل</label>
+          <input 
+            type="text" 
+            id="name" 
+            name="name"
+            [ngModel]="customer().name"
+            (ngModelChange)="updateCustomerField('name', $event)"
+            required
+            class="form-input">
+        </div>
+
+        <div>
+          <label for="nationalId" class="form-label">رقم الهوية / الإقامة</label>
+          <input 
+            type="text" 
+            id="nationalId" 
+            name="nationalId"
+            [ngModel]="customer().nationalId"
+            (ngModelChange)="updateCustomerField('nationalId', $event)"
+            required
+            class="form-input">
+        </div>
+        
+        <div>
+          <label for="phone" class="form-label">رقم الجوال</label>
+          <input 
+            type="tel" 
+            id="phone" 
+            name="phone"
+            [ngModel]="customer().phone"
+            (ngModelChange)="updateCustomerField('phone', $event)"
+            required
+            class="form-input">
+        </div>
+        
+        <div>
+          <label for="address" class="form-label">العنوان</label>
+          <input 
+            type="text" 
+            id="address" 
+            name="address"
+            [ngModel]="customer().address"
+            (ngModelChange)="updateCustomerField('address', $event)"
+            class="form-input">
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <a routerLink="/entities/customers" class="btn btn-light">إلغاء</a>
+        <button 
+          type="submit" 
+          [disabled]="customerForm.invalid" 
+          class="btn btn-primary">
+          {{ editMode() ? 'حفظ التغييرات' : 'إضافة العميل' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  @if(editMode() && soldCars().length > 0) {
+    <div class="card form-container service-record-card">
+      <h3 class="form-section-title">سجل السيارات والخدمات</h3>
+      <div class="service-record-list">
+        @for(car of soldCars(); track car.id) {
+          @let istimaraDays = getDaysRemaining(car.istimaraExpiry);
+          @let fahasExpiryDate = getFahasExpiry(car.saleDate);
+          @let fahasDays = getDaysRemaining(fahasExpiryDate);
+          <div class="service-record-item">
+            <p class="record-title">{{car.make}} {{car.model}} ({{car.year}}) - <span class="font-mono">{{car.plateNumber}}</span></p>
+            <p class="record-subtitle">تاريخ الشراء: {{car.saleDate | date: 'yyyy-MM-dd'}}</p>
+            <div class="record-details">
+              <div class="record-detail-item">
+                <p>انتهاء الاستمارة:</p>
+                @if(istimaraDays !== null && istimaraDays <= 30) {
+                  <p class="detail-value alert">{{car.istimaraExpiry}} (باقي {{istimaraDays}} أيام)</p>
+                } @else {
+                  <p class="detail-value">{{car.istimaraExpiry}}</p>
+                }
+              </div>
+              <div class="record-detail-item">
+                <p>انتهاء الفحص الدوري (تقديري):</p>
+                 @if(fahasDays !== null && fahasDays <= 30) {
+                  <p class="detail-value alert">{{fahasExpiryDate}} (باقي {{fahasDays}} أيام)</p>
+                } @else {
+                  <p class="detail-value">{{fahasExpiryDate}}</p>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

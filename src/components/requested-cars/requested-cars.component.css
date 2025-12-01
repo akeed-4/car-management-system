@@ -1,0 +1,59 @@
+.container { max-width: 1280px; margin: 0 auto; }
+
+.header-actions .icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-left: 0.5rem;
+}
+
+.table-controls {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.toggle-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.toggle-switch label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-700);
+}
+
+.font-medium { font-weight: 600; }
+.sub-text { font-size: 0.75rem; color: var(--color-gray-500); }
+
+.badge-blue { background-color: #dbeafe; color: #1d4ed8; }
+.badge-purple { background-color: #e9d5ff; color: #5b21b6; }
+.badge-teal { background-color: #ccfbf1; color: #0f766e; }
+.badge-gray { background-color: var(--color-gray-200); color: var(--color-gray-800); }
+
+.actions-header { text-align: center; }
+.actions-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.actions-cell .icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.btn-icon-danger:hover { color: var(--color-danger-600); }
+.btn-icon-success:hover { color: var(--color-success-500); }
+
+.archived-row {
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-500);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-gray-500);
+}

@@ -1,0 +1,42 @@
+<div class="container">
+  <h2 class="page-title">إدارة سنوات الصنع</h2>
+
+  <div class="card card-container">
+    <div class="form-section">
+      <h3 class="form-section-title">إضافة سنة صنع جديدة</h3>
+      <form #form="ngForm" (ngSubmit)="addYear()" class="add-form">
+        <input 
+          type="number" 
+          placeholder="أدخل السنة"
+          [ngModel]="newYear()"
+          (ngModelChange)="newYear.set(+$event)"
+          name="year"
+          required
+          min="1900"
+          max="2100"
+          class="form-input">
+        <button 
+          type="submit" 
+          [disabled]="form.invalid"
+          class="btn btn-primary">
+          إضافة
+        </button>
+      </form>
+    </div>
+
+    <h3 class="card-header">السنوات المتاحة</h3>
+    <div class="years-list-wrapper">
+      <ul class="years-list">
+        @for (year of years(); track year) {
+          <li class="year-item">
+            {{ year }}
+          </li>
+        } @empty {
+          <p class="empty-state">
+            لم يتم إضافة أي سنوات بعد.
+          </p>
+        }
+      </ul>
+    </div>
+  </div>
+</div>

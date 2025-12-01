@@ -1,0 +1,70 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title>Car Dealership Management System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap" rel="stylesheet">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+<script type="importmap">
+{
+  "imports": {
+    "rxjs": "https://aistudiocdn.com/rxjs@^7.8.2?conditions=es2015",
+    "rxjs/operators": "https://aistudiocdn.com/rxjs@^7.8.2/operators?conditions=es2015",
+    "rxjs/ajax": "https://aistudiocdn.com/rxjs@^7.8.2/ajax?conditions=es2015",
+    "rxjs/webSocket": "https://aistudiocdn.com/rxjs@^7.8.2/webSocket?conditions=es2015",
+    "rxjs/testing": "https://aistudiocdn.com/rxjs@^7.8.2/testing?conditions=es2015",
+    "rxjs/fetch": "https://aistudiocdn.com/rxjs@^7.8.2/fetch?conditions=es2015",
+    "@angular/compiler": "https://next.esm.sh/@angular/compiler@^21.0.1?external=rxjs",
+    "@angular/platform-browser": "https://next.esm.sh/@angular/platform-browser@^21.0.1?external=rxjs",
+    "@angular/common/http": "https://next.esm.sh/@angular/common@^21.0.1/http?external=rxjs",
+    "@angular/core": "https://next.esm.sh/@angular/core@^21.0.1?external=rxjs",
+    "@angular/common": "https://next.esm.sh/@angular/common@^21.0.1?external=rxjs",
+    "@angular/router": "https://next.esm.sh/@angular/router@^21.0.1?external=rxjs",
+    "@angular/forms": "https://next.esm.sh/@angular/forms@^21.0.1?external=rxjs",
+    "@google/genai": "https://next.esm.sh/@google/genai@^1.30.0?external=rxjs",
+    "@/src/": "./src/"
+  }
+}
+</script>
+<style>
+  #loading-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #f9fafb;
+    font-family: 'Almarai', sans-serif;
+    transition: opacity 0.5s ease-out;
+  }
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #bfdbfe;
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>
+</head>
+<body>
+  <app-root>
+    <div id="loading-screen">
+      <div class="spinner"></div>
+      <p class="mt-4 text-lg text-gray-700 font-medium">أهلاً بك في نظام إدارة معارض السيارات</p>
+    </div>
+  </app-root>
+</body>
+</html>

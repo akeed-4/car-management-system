@@ -1,0 +1,66 @@
+.container { max-width: 1280px; margin: 0 auto; }
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-gray-800);
+  margin-bottom: 1.5rem;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+@media (min-width: 768px) {
+  .summary-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.summary-card {
+  background-color: var(--color-white);
+  padding: 1.5rem;
+  border-radius: var(--rounded-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.summary-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-500);
+}
+
+.summary-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-gray-800);
+  margin-top: 0.25rem;
+}
+
+.text-orange { color: var(--color-warning-800); }
+.text-blue { color: var(--color-primary-700); }
+
+.card-header {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-gray-700);
+  margin-bottom: 1rem;
+}
+
+.table-controls {
+  margin-bottom: 1rem;
+}
+.search-input {
+  width: 100%;
+  max-width: 400px;
+}
+
+.table th { cursor: pointer; user-select: none; }
+
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-gray-500);
+}

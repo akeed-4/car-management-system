@@ -1,0 +1,112 @@
+
+
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+}
+
+.modal-content {
+  position: relative;
+  width: 90%;
+  max-width: 500px;
+  background-color: var(--color-white);
+  border-radius: var(--rounded-lg);
+  box-shadow: var(--shadow-xl);
+  padding: 1.5rem;
+  margin: 1rem; /* Smaller margin for mobile responsiveness */
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-gray-200);
+  margin-bottom: 1.5rem;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-gray-800);
+}
+.modal-subtitle {
+  font-size: 0.875rem;
+  color: var(--color-gray-500);
+  margin-top: 0.25rem;
+}
+
+.btn-icon .icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--color-gray-500);
+}
+.btn-icon:hover .icon {
+  color: var(--color-gray-800);
+}
+
+.modal-body {
+  padding-bottom: 1.5rem;
+}
+
+.checklist-intro {
+  font-size: 0.875rem;
+  color: var(--color-gray-600);
+  margin-bottom: 1rem;
+}
+
+.checklist-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: var(--rounded-md);
+  transition: background-color 0.2s;
+}
+.checklist-item:hover {
+  background-color: var(--color-gray-50);
+}
+
+.form-checkbox {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--rounded-md);
+  color: var(--color-primary-600);
+  flex-shrink: 0;
+}
+.form-checkbox:focus {
+  outline: 2px solid var(--color-primary-200);
+  outline-offset: 2px;
+}
+
+.checklist-item span {
+  font-size: 0.9rem;
+  color: var(--color-gray-800);
+}
+.checklist-item span.completed-text {
+  text-decoration: line-through;
+  color: var(--color-gray-500);
+}
+
+.modal-footer {
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-gray-200);
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.modal-footer .btn .icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-left: 0.5rem;
+}
+    

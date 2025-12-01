@@ -1,0 +1,42 @@
+<div class="container mx-auto">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-semibold text-gray-800">قائمة مرتجعات المبيعات</h2>
+    <a routerLink="sales/return/new" class="bg-primary-600 text-white px-4 py-2 rounded-lg shadow hover:bg-primary-700 transition duration-300 flex items-center text-sm">
+      <svg class="w-5 h-5 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+      إنشاء مرتجع مبيعات جديد
+    </a>
+  </div>
+
+  <div class="bg-white p-6 rounded-lg shadow-md">
+    <div class="overflow-x-auto">
+      <table class="min-w-full bg-white">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">رقم المرتجع</th>
+            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">التاريخ</th>
+            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">الفاتورة الأصلية</th>
+            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">العميل</th>
+            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">الإجمالي المرتجع</th>
+          </tr>
+        </thead>
+        <tbody class="text-gray-700">
+          @for (ret of returnInvoices(); track ret.id) {
+            <tr class="border-b hover:bg-gray-50">
+              <td class="py-3 px-4 text-sm font-mono whitespace-nowrap">{{ ret.returnInvoiceNumber }}</td>
+              <td class="py-3 px-4 text-sm whitespace-nowrap">{{ ret.returnInvoiceDate | date:'yyyy-MM-dd' }}</td>
+              <td class="py-3 px-4 text-sm font-mono whitespace-nowrap">{{ ret.originalInvoiceNumber }}</td>
+              <td class="py-3 px-4 text-sm whitespace-nowrap">{{ ret.customerName }}</td>
+              <td class="py-3 px-4 text-sm font-mono whitespace-nowrap">{{ ret.totalAmount | currency:'SAR' }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="text-center py-8 text-gray-500">
+                لا توجد فواتير مرتجعات مبيعات حتى الآن.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

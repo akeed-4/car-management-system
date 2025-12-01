@@ -1,0 +1,107 @@
+<div class="container mx-auto">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-semibold text-gray-800">اعتماد مستند جرد</h2>
+    <a routerLink="/inventory/stock-taking-approval" class="text-primary-600 hover:text-primary-800 transition duration-300 flex items-center">
+      &larr; العودة إلى قائمة الاعتمادات
+    </a>
+  </div>
+
+  <div class="bg-white p-8 rounded-lg shadow-md">
+    <form #approvalForm="ngForm" (ngSubmit)="approveStockTake()">
+      
+      <!-- Approval Header -->
+      <section class="border-b pb-6 mb-6">
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">بيانات الاعتماد</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <label for="stockTake" class="block text-sm font-medium text-gray-700">مستند الجرد</label>
+            <select 
+              id="stockTake" 
+              name="stockTake"
+              [ngModel]="selectedStockTakeId()"
+              (ngModelChange)="onStockTakeSelect($event ? +$event : null)"
+              required
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+              <option [ngValue]="null" disabled>-- اختر مستند جرد --</option>
+              @for (st of pendingStockTakes(); track st.id) {
+                <option [value]="st.id">{{ st.name }} ({{ st.date | date:'yyyy-MM-dd' }})</option>
+              }
+            </select>
+          </div>
+          <div>
+            <label for="approvalDate" class="block text-sm font-medium text-gray-700">تاريخ الاعتماد</label>
+            <input 
+              type="date" 
+              id="approvalDate" 
+              name="approvalDate"
+              [ngModel]="approvalDate()"
+              (ngModelChange)="approvalDate.set($event)"
+              required
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+          </div>
+          <div>
+            <label for="approverName" class="block text-sm font-medium text-gray-700">اسم المعتمد</label>
+            <input 
+              type="text" 
+              id="approverName" 
+              name="approverName"
+              [ngModel]="approverName()"
+              (ngModelChange)="approverName.set($event)"
+              required
+              placeholder="اسم المدير المسؤول"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+          </div>
+        </div>
+      </section>
+
+      <!-- Comparison Table -->
+      @if (selectedStockTake(); as stockTake) {
+        <section>
+          <h3 class="text-xl font-semibold text-gray-700 mb-4">مقارنة الكميات</h3>
+          <div class="overflow-x-auto border rounded-lg">
+            <table class="min-w-full bg-white">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">السيارة</th>
+                  <th class="text-center py-3 px-4 font-semibold text-sm text-gray-600 uppercase">الكمية بالنظام</th>
+                  <th class="text-center py-3 px-4 font-semibold text-sm text-gray-600 uppercase">الكمية الفعلية</th>
+                  <th class="text-center py-3 px-4 font-semibold text-sm text-gray-600 uppercase">الفرق</th>
+                </tr>
+              </thead>
+              <tbody class="text-gray-700">
+                @for (item of stockTake.items; track item.carId) {
+                  @let difference = item.countedQuantity - item.systemQuantity;
+                  <tr class="border-b" [class.bg-red-50]="difference !== 0" [class.bg-green-50]="difference === 0">
+                    <td class="py-3 px-4 text-sm">{{ item.carDescription }}</td>
+                    <td class="py-3 px-4 text-center text-sm font-medium">{{ item.systemQuantity }}</td>
+                    <td class="py-3 px-4 text-center text-sm font-medium">{{ item.countedQuantity }}</td>
+                    <td class="py-3 px-4 text-center text-sm font-bold"
+                        [class.text-red-600]="difference !== 0"
+                        [class.text-green-600]="difference === 0">
+                      {{ difference > 0 ? '+' : '' }}{{ difference }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="mt-8 pt-6 border-t flex justify-end">
+            <a routerLink="/inventory/stock-taking-approval" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg shadow hover:bg-gray-300 transition duration-300 ml-4 text-sm">إلغاء</a>
+            <button 
+              type="submit" 
+              [disabled]="approvalForm.invalid"
+              class="bg-green-600 text-white px-6 py-2 rounded-lg shadow hover:bg-green-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+              اعتماد الجرد وتحديث المخزون
+            </button>
+          </div>
+        </section>
+      } @else {
+         <div class="text-center py-12 text-gray-500 bg-gray-50 rounded-lg">
+           <p>الرجاء اختيار مستند جرد من القائمة أعلاه لعرض تفاصيله واعتماده.</p>
+         </div>
+      }
+    </form>
+  </div>
+</div>

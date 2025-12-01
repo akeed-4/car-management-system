@@ -1,0 +1,83 @@
+<div class="container mx-auto">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-xl font-semibold text-gray-800">إنشاء سند صرف</h2>
+    <a routerLink="/accounts/payments" class="text-primary-600 hover:text-primary-800 transition">&larr; العودة إلى القائمة</a>
+  </div>
+
+  <div class="bg-white p-8 rounded-lg shadow-md  mx-auto">
+    <form #paymentForm="ngForm" (ngSubmit)="savePayment()">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Header Info -->
+        <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6 border-b pb-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">رقم السند</label>
+            <input type="text" [value]="voucherNumber()" disabled class="mt-1 block w-full bg-gray-100 px-3 py-2 border border-gray-300 rounded-md">
+          </div>
+          <div>
+            <label for="date" class="block text-sm font-medium text-gray-700">التاريخ</label>
+            <input type="date" id="date" name="date" [ngModel]="date()" (ngModelChange)="date.set($event)" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+          </div>
+        </div>
+        
+        <!-- Supplier and Invoice Selection -->
+        <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label for="supplier" class="block text-sm font-medium text-gray-700">المورد</label>
+            <select id="supplier" name="supplier" [ngModel]="selectedSupplierId()" (ngModelChange)="onSupplierChange($event ? +$event : null)" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+              <option [ngValue]="null" disabled>-- اختر المورد --</option>
+              @for(s of suppliers(); track s.id) { <option [value]="s.id">{{ s.name }}</option> }
+            </select>
+          </div>
+          <div>
+            <label for="invoice" class="block text-sm font-medium text-gray-700">الفاتورة المستحقة</label>
+            <select id="invoice" name="invoice" [ngModel]="selectedInvoiceId()" (ngModelChange)="onInvoiceChange($event ? +$event : null)" required [disabled]="!selectedSupplierId()" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md disabled:bg-gray-100">
+              <option [ngValue]="null" disabled>-- اختر الفاتورة --</option>
+              @for(inv of outstandingInvoices(); track inv.id) { <option [value]="inv.id">{{ inv.invoiceNumber }} (المستحق: {{inv.amountDue | currency:'SAR'}})</option> }
+            </select>
+          </div>
+        </div>
+
+        <!-- Invoice Details -->
+        @if(selectedInvoiceDetails(); as inv) {
+          <div class="md:col-span-2 bg-gray-50 p-4 rounded-lg border text-sm">
+            <h4 class="font-semibold mb-2">تفاصيل الفاتورة المحددة</h4>
+            <div class="grid grid-cols-3 gap-4">
+              <p><span class="text-gray-500">الإجمالي:</span><br><strong class="font-mono">{{inv.totalAmount | currency:'SAR'}}</strong></p>
+              <p><span class="text-gray-500">المدفوع:</span><br><strong class="font-mono">{{inv.amountPaid | currency:'SAR'}}</strong></p>
+              <p><span class="text-gray-500">المستحق:</span><br><strong class="font-mono text-red-600">{{inv.amountDue | currency:'SAR'}}</strong></p>
+            </div>
+          </div>
+        }
+
+        <!-- Payment Details -->
+        <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6 border-t pt-6">
+          <div>
+            <label for="amount" class="block text-sm font-medium text-gray-700">المبلغ المدفوع</label>
+            <input type="number" id="amount" name="amount" [ngModel]="amount()" (ngModelChange)="amount.set(+$event)" required min="0.01" [max]="selectedInvoiceDetails()?.amountDue" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+          </div>
+          <div>
+            <label for="paymentMethod" class="block text-sm font-medium text-gray-700">طريقة الدفع</label>
+            <select id="paymentMethod" name="paymentMethod" [ngModel]="paymentMethod()" (ngModelChange)="paymentMethod.set($event)" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+              <option value="Bank Transfer">تحويل بنكي</option>
+              <option value="Cash">نقدي</option>
+            </select>
+          </div>
+           <div>
+            <label for="accountId" class="block text-sm font-medium text-gray-700">الحساب المدفوع منه</label>
+            <select id="accountId" name="accountId" [ngModel]="selectedAccountId()" (ngModelChange)="selectedAccountId.set(+$event)" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+              <option [ngValue]="null" disabled>-- اختر الحساب --</option>
+              @for(acc of accounts(); track acc.id) { <option [value]="acc.id">{{ acc.name }}</option> }
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-8 pt-6 border-t flex justify-end">
+        <a routerLink="/accounts/payments" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg shadow hover:bg-gray-300 transition ml-4 text-sm">إلغاء</a>
+        <button type="submit" [disabled]="paymentForm.invalid || amount() <= 0" class="bg-primary-600 text-white px-6 py-2 rounded-lg shadow hover:bg-primary-700 transition disabled:opacity-50 text-sm">
+          حفظ السند
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

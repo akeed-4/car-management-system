@@ -1,0 +1,42 @@
+.container { max-width: 1280px; margin: 0 auto; }
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-gray-800);
+  margin-bottom: 1.5rem;
+}
+
+.reports-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+@media (min-width: 1024px) {
+  .reports-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.card-header {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-gray-700);
+  margin-bottom: 1rem;
+}
+
+.table-controls {
+  margin-bottom: 1rem;
+}
+.search-input {
+  width: 100%;
+}
+
+.table th { cursor: pointer; user-select: none; }
+.text-center { text-align: center; }
+
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-gray-500);
+}

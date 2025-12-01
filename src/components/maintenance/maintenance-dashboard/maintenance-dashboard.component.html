@@ -1,0 +1,92 @@
+
+
+<div class="container">
+  <div class="page-header">
+    <h2>إدارة الصيانة (أوامر العمل)</h2>
+    <a routerLink="/maintenance/new" class="btn btn-primary">
+      <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+      <span>أمر عمل جديد</span>
+    </a>
+  </div>
+
+  <div class="card">
+    <div class="table-controls">
+      <div class="filter-buttons">
+        <button class="filter-btn" [class.active]="statusFilter() === 'All'" (click)="setStatusFilter('All')">الكل</button>
+        <button class="filter-btn" [class.active]="statusFilter() === 'Pending'" (click)="setStatusFilter('Pending')">بانتظار الصيانة</button>
+        <button class="filter-btn" [class.active]="statusFilter() === 'In Progress'" (click)="setStatusFilter('In Progress')">قيد العمل</button>
+        <button class="filter-btn" [class.active]="statusFilter() === 'Completed'" (click)="setStatusFilter('Completed')">مكتملة</button>
+      </div>
+      <input 
+        type="text" 
+        placeholder="ابحث عن أمر عمل (الرقم، العميل، السيارة...)"
+        class="form-input search-input"
+        (input)="onFilter($event)">
+    </div>
+
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th (click)="onSort('orderNumber')">رقم الأمر {{ getSortIcon('orderNumber') }}</th>
+            <th (click)="onSort('customerName')">العميل {{ getSortIcon('customerName') }}</th>
+            <th (click)="onSort('carDescription')">السيارة {{ getSortIcon('carDescription') }}</th>
+            <th (click)="onSort('dateIn')">تاريخ الدخول {{ getSortIcon('dateIn') }}</th>
+            <th (click)="onSort('dateOut')">تاريخ الخروج {{ getSortIcon('dateOut') }}</th>
+            <th (click)="onSort('totalCost')">التكلفة {{ getSortIcon('totalCost') }}</th>
+            <th (click)="onSort('status')">الحالة {{ getSortIcon('status') }}</th>
+            <th class="actions-header">إجراءات</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (order of filteredAndSortedOrders(); track order.id) {
+            <tr>
+              <td class="font-mono">{{ order.orderNumber }}</td>
+              <td>
+                <div class="font-medium">{{ order.customerName }}</div>
+                @if (order.customerPhone) {
+                  <div class="sub-text font-mono">{{ order.customerPhone }}</div>
+                }
+              </td>
+              <td>{{ order.carDescription || '-' }}</td>
+              <td>{{ order.dateIn | date:'yyyy-MM-dd' }}</td>
+              <td>{{ order.dateOut ? (order.dateOut | date:'yyyy-MM-dd') : '-' }}</td>
+              <td class="font-mono">{{ order.totalCost | currency:'SAR' }}</td>
+              <td>
+                <span class="badge"
+                      [class.badge-yellow]="order.status === 'Pending'"
+                      [class.badge-blue]="order.status === 'In Progress'"
+                      [class.badge-green]="order.status === 'Completed'"
+                      [class.badge-red]="order.status === 'Canceled'">
+                  {{ order.status === 'Pending' ? 'بانتظار الصيانة' : 
+                     (order.status === 'In Progress' ? 'قيد العمل' : 
+                       (order.status === 'Completed' ? 'مكتملة' : 'ملغاة')) }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <a [routerLink]="['/maintenance/edit', order.id]" class="btn-icon" title="تعديل">
+                   <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                </a>
+                @if (order.status !== 'Completed' && order.status !== 'Canceled') {
+                  <button (click)="updateOrderStatus(order, 'Completed')" class="btn-icon btn-icon-success" title="وضع كمكتمل">
+                    <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                  </button>
+                  <button (click)="updateOrderStatus(order, 'Canceled')" class="btn-icon btn-icon-danger" title="إلغاء">
+                    <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75 12 12m0 0 2.25 2.25M12 12l2.25-2.25M12 12l-2.25 2.25M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                  </button>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="8" class="empty-state">
+                لا توجد أوامر صيانة مطابقة.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+    

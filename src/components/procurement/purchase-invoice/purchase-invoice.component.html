@@ -1,0 +1,135 @@
+
+
+<div class="container">
+  <div class="page-header">
+    <h2>إنشاء فاتورة شراء</h2>
+    <a routerLink="/purchases" class="back-link">
+      <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+      <span>العودة إلى المشتريات</span>
+    </a>
+  </div>
+
+  <div class="card">
+    <form #purchaseInvoiceForm="ngForm" (ngSubmit)="saveInvoice()">
+
+      <section class="form-section">
+        <h3 class="form-section-title">بيانات الفاتورة الرئيسية</h3>
+        <div class="form-grid cols-3">
+          <div>
+            <label for="supplier" class="form-label">المورد</label>
+            <select id="supplier" name="supplier" [ngModel]="selectedSupplierId()" (ngModelChange)="selectedSupplierId.set(+$event)" required class="form-select">
+              <option [ngValue]="null" disabled>-- اختر المورد --</option>
+              @for(supplier of suppliers(); track supplier.id) {
+                <option [value]="supplier.id">{{ supplier.name }}</option>
+              }
+            </select>
+          </div>
+          <div>
+            <label class="form-label">رقم الفاتورة</label>
+            <input type="text" [value]="invoiceNumber()" disabled class="form-input" readonly>
+          </div>
+          <div>
+            <label for="invoiceDate" class="form-label">تاريخ الفاتورة</label>
+            <input type="date" id="invoiceDate" name="invoiceDate" [ngModel]="invoiceDate()" (ngModelChange)="invoiceDate.set($event)" required class="form-input">
+          </div>
+          <div>
+            <label for="paymentMethod" class="form-label">طريقة الدفع</label>
+            <select id="paymentMethod" name="paymentMethod" [ngModel]="paymentMethod()" (ngModelChange)="paymentMethod.set($event)" class="form-select">
+              <option value="Cash">نقدي</option>
+              <option value="Bank Transfer">تحويل بنكي</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <h3 class="form-section-title">تفاصيل الفاتورة (البنود)</h3>
+        <div class="add-item-box">
+          <div class="add-item-grid">
+            <div class="field-car">
+              <label for="car" class="form-label">اختر السيارة</label>
+              <select id="car" name="car" [ngModel]="selectedCarId()" (ngModelChange)="onCarSelectionChange(+$event)" class="form-select">
+                <option [ngValue]="null" disabled>-- اختر سيارة من المخزون --</option>
+                @for(car of cars(); track car.id) {
+                  <option [value]="car.id">{{ car.make }} {{ car.model }} ({{ car.year }}) - الكمية: {{ inventoryService.getCarQuantity(car.id) }}</option>
+                }
+              </select>
+            </div>
+            <div class="field-price">
+              <label for="purchasePrice" class="form-label">سعر الشراء للوحدة</label>
+              <input type="number" id="purchasePrice" name="purchasePrice" [ngModel]="purchasePrice()" (ngModelChange)="purchasePrice.set(+$event)" min="0" class="form-input">
+            </div>
+            <div class="field-qty">
+              <label for="quantity" class="form-label">الكمية</label>
+              <input type="number" id="quantity" name="quantity" [ngModel]="selectedQuantity()" (ngModelChange)="selectedQuantity.set(+$event)" min="1" class="form-input">
+            </div>
+            <div class="field-btn">
+              <button type="button" (click)="addItemToInvoice()" [disabled]="!selectedCarId() || selectedQuantity() <= 0" class="btn btn-secondary">
+                  <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                  <span>إضافة</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <section class="form-section">
+         <div class="table-wrapper">
+          <table class="table items-table">
+            <thead>
+              <tr>
+                <th>السيارة</th>
+                <th>الكمية</th>
+                <th>سعر الشراء للوحدة</th>
+                <th>الإجمالي</th>
+                <th class="actions-header">حذف</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of invoiceItems(); track item.carId) {
+                <tr>
+                  <td>{{ item.carDescription }}</td>
+                  <td>{{ item.quantity }}</td>
+                  <td class="font-mono">{{ item.unitPrice | currency:'SAR' }}</td>
+                  <td class="font-mono">{{ item.lineTotal | currency:'SAR' }}</td>
+                  <td class="actions-cell">
+                    <button type="button" (click)="removeItem(item.carId)" class="btn-icon btn-icon-danger">
+                      <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                  </td>
+                </tr>
+              }
+              @if(invoiceItems().length === 0) {
+                 <tr>
+                  <td colspan="5" class="empty-state">
+                    لم تتم إضافة أي سيارات للفاتورة بعد.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="summary-section">
+        <div>
+           <label for="notes" class="form-label">ملاحظات</label>
+           <textarea id="notes" name="notes" rows="4" [ngModel]="notes()" (ngModelChange)="notes.set($event)" placeholder="أي ملاحظات إضافية على الفاتورة..." class="form-input"></textarea>
+        </div>
+        <div class="summary-box">
+          <div class="summary-item total">
+            <h4>الإجمالي النهائي</h4>
+            <p class="font-mono">{{ totalAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="form-actions">
+        <a routerLink="/procurement" class="btn btn-light">إلغاء</a>
+        <button type="submit" [disabled]="!selectedSupplierId() || invoiceItems().length === 0" class="btn btn-primary">
+            حفظ فاتورة الشراء
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

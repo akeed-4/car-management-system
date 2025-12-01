@@ -1,0 +1,163 @@
+
+
+<div class="container">
+  <div class="page-header">
+    <h2>{{ pageTitle() }}</h2>
+    <a routerLink="/maintenance" class="back-link">
+      <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+      <span>العودة إلى إدارة الصيانة</span>
+    </a>
+  </div>
+
+  <div class="card">
+    <form #serviceOrderForm="ngForm" (ngSubmit)="saveServiceOrder()">
+      <!-- Header Info -->
+      <section class="form-section">
+        <h3 class="form-section-title">بيانات أمر العمل</h3>
+        <div class="form-grid cols-3">
+          <div>
+            <label class="form-label">رقم أمر العمل</label>
+            <input type="text" [ngModel]="serviceOrder().orderNumber" disabled class="form-input" readonly>
+          </div>
+          <div>
+            <label for="dateIn" class="form-label">تاريخ الدخول</label>
+            <input type="date" id="dateIn" name="dateIn" [ngModel]="serviceOrder().dateIn" (ngModelChange)="updateField('dateIn', $event)" required class="form-input">
+          </div>
+          <div>
+            <label for="dateOut" class="form-label">تاريخ الخروج (اختياري)</label>
+            <input type="date" id="dateOut" name="dateOut" [ngModel]="serviceOrder().dateOut" (ngModelChange)="updateField('dateOut', $event)" class="form-input">
+          </div>
+           <div>
+            <label for="status" class="form-label">الحالة</label>
+            <select id="status" name="status" [ngModel]="serviceOrder().status" (ngModelChange)="updateField('status', $event)" required class="form-select" [disabled]="!editMode()">
+              <option value="Pending">بانتظار الصيانة</option>
+              <option value="In Progress">قيد العمل</option>
+              <option value="Completed">مكتملة</option>
+              <option value="Canceled">ملغاة</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Car/Customer Details -->
+      <section class="form-section">
+        <h3 class="form-section-title">تفاصيل السيارة والعميل</h3>
+        <div class="form-grid cols-2">
+          <div>
+            <label for="carId" class="form-label">سيارة من المخزون (اختياري)</label>
+            <select id="carId" name="carId" [ngModel]="serviceOrder().carId" (ngModelChange)="updateField('carId', $event ? +$event : undefined)" class="form-select">
+              <option [ngValue]="undefined">-- لا توجد سيارة من المخزون --</option>
+              @for (car of availableInventoryCars(); track car.id) {
+                <option [value]="car.id">{{ car.make }} {{ car.model }} ({{ car.year }}) - {{car.vin}}</option>
+              }
+            </select>
+          </div>
+          <div>
+            <label for="customerName" class="form-label">اسم العميل</label>
+            <input 
+              type="text" 
+              id="customerName" 
+              name="customerName" 
+              [ngModel]="serviceOrder().customerName" 
+              (ngModelChange)="updateField('customerName', $event)" 
+              required 
+              class="form-input"
+              [disabled]="!!selectedCarInForm()">
+          </div>
+          <div>
+            <label for="customerPhone" class="form-label">رقم جوال العميل (اختياري لعميل خارجي)</label>
+            <input 
+              type="tel" 
+              id="customerPhone" 
+              name="customerPhone" 
+              [ngModel]="serviceOrder().customerPhone" 
+              (ngModelChange)="updateField('customerPhone', $event)" 
+              class="form-input"
+              [disabled]="!!selectedCarInForm()">
+          </div>
+        </div>
+      </section>
+
+      <!-- Service Items -->
+      <section class="form-section">
+        <h3 class="form-section-title">بنود الخدمة وقطع الغيار</h3>
+        <div class="table-wrapper">
+          <table class="table items-table">
+            <thead>
+              <tr>
+                <th>الوصف</th>
+                <th>التكلفة</th>
+                <th class="actions-header">إجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of serviceOrder().serviceItems; track $index; let i = $index) {
+                <tr>
+                  <td>
+                    <input 
+                      type="text" 
+                      [ngModel]="item.description" 
+                      (ngModelChange)="updateServiceItem(i, 'description', $event)" 
+                      [name]="'itemDesc-' + i" 
+                      placeholder="وصف الخدمة/القطعة" 
+                      required 
+                      class="form-input table-input">
+                  </td>
+                  <td>
+                    <input 
+                      type="number" 
+                      [ngModel]="item.cost" 
+                      (ngModelChange)="updateServiceItem(i, 'cost', +$event)" 
+                      [name]="'itemCost-' + i" 
+                      min="0" 
+                      required 
+                      class="form-input table-input text-left">
+                  </td>
+                  <td class="actions-cell">
+                    <button type="button" (click)="removeServiceItem(i)" class="btn-icon btn-icon-danger">
+                      <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                  </td>
+                </tr>
+              }
+              @if(!serviceOrder().serviceItems || serviceOrder().serviceItems?.length === 0) {
+                 <tr>
+                  <td colspan="3" class="empty-state">
+                    الرجاء إضافة بنود الخدمة.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <button type="button" (click)="addServiceItem()" class="btn btn-secondary add-item-btn">
+          <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+          <span>إضافة بند خدمة</span>
+        </button>
+      </section>
+
+      <!-- Notes and Total -->
+      <section class="form-section summary-section">
+        <div>
+           <label for="notes" class="form-label">ملاحظات (اختياري)</label>
+           <textarea id="notes" name="notes" rows="4" [ngModel]="serviceOrder().notes" (ngModelChange)="updateField('notes', $event)" placeholder="ملاحظات إضافية حول أمر العمل..." class="form-input"></textarea>
+        </div>
+        <div class="summary-box">
+            <div class="summary-item total">
+              <h4>التكلفة الإجمالية</h4>
+              <p class="font-mono">{{ serviceOrder().totalCost | currency:'SAR':'symbol':'1.0-0' }}</p>
+            </div>
+          </div>
+      </section>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <a routerLink="/maintenance" class="btn btn-light">إلغاء</a>
+        <button type="submit" [disabled]="serviceOrderForm.invalid || !serviceOrder().serviceItems || serviceOrder().serviceItems?.length === 0 || (!serviceOrder().carId && !serviceOrder().customerName)" class="btn btn-primary">
+            {{ editMode() ? 'حفظ التغييرات' : 'إنشاء أمر العمل' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+    

@@ -1,0 +1,92 @@
+@if (isOpen()) {
+  <div class="modal-backdrop" (click)="onBackdropClick($event)">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>إدارة المستندات - صفقة رقم {{ invoice()?.invoiceNumber }}</h3>
+        <button class="close-btn" (click)="onClose()" aria-label="إغلاق">
+          <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      @if (invoice(); as inv) {
+        <div class="modal-body">
+          <div class="invoice-summary">
+            <div class="summary-item">
+              <span class="label">العميل:</span>
+              <span class="value">{{ inv.customerName }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">التاريخ:</span>
+              <span class="value">{{ inv.invoiceDate | date:'yyyy-MM-dd' }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">المبلغ الإجمالي:</span>
+              <span class="value">{{ inv.totalAmount | currency:'SAR':'symbol':'1.0-0' }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">حالة السداد:</span>
+              <span class="value">{{ inv.status }}</span>
+            </div>
+          </div>
+
+          <div class="documents-section">
+            <h4>المستندات المطلوبة</h4>
+            <div class="document-list">
+              <div class="document-item">
+                <div class="document-info">
+                  <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                  </svg>
+                  <span>نسخة من الهوية الوطنية</span>
+                </div>
+                <span class="badge badge-yellow">قيد الانتظار</span>
+              </div>
+              <div class="document-item">
+                <div class="document-info">
+                  <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                  </svg>
+                  <span>استمارة البيع</span>
+                </div>
+                <span class="badge badge-yellow">قيد الانتظار</span>
+              </div>
+              <div class="document-item">
+                <div class="document-info">
+                  <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                  </svg>
+                  <span>شهادة الفحص الفني</span>
+                </div>
+                <span class="badge badge-yellow">قيد الانتظار</span>
+              </div>
+              <div class="document-item">
+                <div class="document-info">
+                  <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                  </svg>
+                  <span>وثيقة التأمين</span>
+                </div>
+                <span class="badge badge-yellow">قيد الانتظار</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="notes-section">
+            <h4>ملاحظات</h4>
+            <textarea 
+              class="notes-textarea" 
+              placeholder="أضف ملاحظات حول المستندات أو الصفقة..."
+              rows="4"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="onClose()">إغلاق</button>
+          <button class="btn btn-primary">حفظ التغييرات</button>
+        </div>
+      }
+    </div>
+  </div>
+}

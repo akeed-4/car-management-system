@@ -1,0 +1,141 @@
+
+
+<div class="container">
+  <h2 class="page-title">لوحة التحكم</h2>
+  
+  <div class="summary-grid">
+    <a routerLink="/inventory" class="summary-card">
+      <div class="summary-card-content">
+        <p class="summary-card-title">سيارات متاحة</p>
+        <p class="summary-card-value">{{ availableCarsCount() }}</p>
+      </div>
+      <div class="summary-card-icon green">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+      </div>
+    </a>
+    
+    <a routerLink="/requested-cars" class="summary-card">
+      <div class="summary-card-content">
+        <p class="summary-card-title">السيارات المطلوبة</p>
+        <p class="summary-card-value">{{ requestedCarsCount() }}</p>
+      </div>
+      <div class="summary-card-icon orange">
+        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75c0-.231-.035-.454-.1-.664M6.75 7.5H18a2.25 2.25 0 0 1 2.25-2.25v9a2.25 2.25 0 0 1-2.25-2.25H6.75a2.25 2.25 0 0 1-2.25-2.25v-9a2.25 2.25 0 0 1 2.25-2.25Z" /></svg>
+      </div>
+    </a>
+    
+    <div class="summary-card static">
+      <div class="summary-card-content">
+        <p class="summary-card-title">سيارات مباعة</p>
+        <p class="summary-card-value">{{ soldCarsCount() }}</p>
+      </div>
+      <div class="summary-card-icon red">
+         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v.01"></path></svg>
+      </div>
+    </div>
+
+    <a routerLink="/expenses" class="summary-card">
+      <div class="summary-card-content">
+        <p class="summary-card-title">إجمالي المصروفات</p>
+        <p class="summary-card-value small-value">{{ totalExpenses() | currency:'SAR':'symbol':'1.0-0' }}</p>
+      </div>
+      <div class="summary-card-icon red">
+        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.879m0 0a3 3 0 1 0 4.243 4.243c.1-.105.148-.246.148-.487V7.5H9m-3 0V5.25A2.25 2.25 0 0 1 7.5 3h5.25c.813 0 1.5.684 1.5 1.5S13.563 6 12.75 6H9m11.318 4.01l.879.879m0 0a3 3 0 1 1-4.243 4.243c-.105-.1-.246-.148-.487-.148H12m0 0V9.75m0 0V9" /></svg>
+      </div>
+    </a>
+  </div>
+
+  <div class="card alerts-card">
+    <h3 class="card-header">
+      <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" /></svg>
+      تنبيهات الخدمات والتجديدات القادمة
+    </h3>
+    @if(upcomingAlerts().length > 0) {
+      <div class="alerts-list">
+        @for (alert of upcomingAlerts(); track alert.customerName + alert.carDescription + alert.alertType) {
+          <a [routerLink]="['/entities/customers/edit', alert.customerId]" class="alert-item">
+            <div class="alert-item-content">
+              <p class="alert-item-title">{{ alert.carDescription }} - <span class="plate-number">{{ alert.plateNumber }}</span></p>
+              <p class="alert-item-subtitle">العميل: {{ alert.customerName }}</p>
+            </div>
+            <div class="alert-item-details">
+              <p class="alert-item-type">{{ alert.alertType }}</p>
+              <p class="alert-item-expiry">ينتهي بعد <span>{{ alert.daysRemaining }}</span> أيام ({{ alert.expiryDate }})</p>
+            </div>
+          </a>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <p>لا توجد تنبيهات قادمة خلال الـ 30 يومًا القادمة.</p>
+      </div>
+    }
+  </div>
+
+  <div class="charts-grid">
+    <div class="card">
+       <h3 class="card-header">إجمالي المبيعات حسب الشركة المصنعة</h3>
+       @if(salesByManufacturer().length > 0) {
+        <app-bar-chart [data]="salesByManufacturer()"></app-bar-chart>
+       } @else {
+        <div class="empty-state large">
+          <p>لا توجد بيانات مبيعات لعرضها.</p>
+        </div>
+       }
+    </div>
+
+    <div class="charts-grid-inner">
+      <div class="card">
+        <h3 class="card-header">توزيع حالات المخزون</h3>
+        @if(inventoryStatusDistribution().length > 0) {
+          <app-pie-chart [data]="inventoryStatusDistribution()"></app-pie-chart>
+        } @else {
+          <div class="empty-state large">
+            <p>لا توجد بيانات مخزون لعرضها.</p>
+          </div>
+        }
+      </div>
+      <div class="card">
+        <h3 class="card-header">أحدث السيارات المضافة</h3>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>السيارة</th>
+                        <th>سعر البيع</th>
+                        <th>الحالة</th>
+                        <th>الممشى</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (car of cars() | slice:0:5; track car.id) {
+                        <tr>
+                            <td>
+                                <div class="car-cell">
+                                  <img class="car-cell-img" [src]="car.photos[0]" alt="{{car.make}} {{car.model}}">
+                                  <div class="car-cell-info">
+                                    <div class="car-cell-title">{{ car.make }} {{ car.model }}</div>
+                                    <div class="car-cell-subtitle">{{ car.year }}</div>
+                                  </div>
+                                </div>
+                            </td>
+                            <td>{{ car.salePrice | currency:'SAR':'symbol':'1.0-0' }}</td>
+                            <td>
+                                <span class="badge"
+                                      [class.badge-green]="car.status === 'Available'"
+                                      [class.badge-yellow]="car.status === 'Reserved'"
+                                      [class.badge-red]="car.status === 'Sold'"
+                                      [class.badge-gray]="car.status === 'In Maintenance'">
+                                    {{ car.status }}
+                                </span>
+                            </td>
+                            <td>{{ car.mileage }} كم</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

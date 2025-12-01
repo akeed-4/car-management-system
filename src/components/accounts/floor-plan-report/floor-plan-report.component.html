@@ -1,0 +1,52 @@
+<div class="container">
+  <h2 class="page-title">تقرير تمويل المخزون (Floor Plan)</h2>
+
+  <!-- Summary Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <p class="stat-label">إجمالي قيمة السيارات الممولة حالياً</p>
+      <p class="stat-value">{{ totalFinancedValue() | currency:'SAR':'symbol':'1.0-0' }}</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-label">إجمالي تكاليف التمويل المتراكمة</p>
+      <p class="stat-value stat-warning">{{ totalAccruedCost() | currency:'SAR':'symbol':'1.0-0' }}</p>
+    </div>
+  </div>
+
+  <!-- Detailed Report Table -->
+  <div class="card">
+     <h3 class="card-title">تفاصيل تكلفة التمويل لكل سيارة</h3>
+     <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>السيارة</th>
+            <th>سعر الشراء</th>
+            <th>تاريخ الشراء</th>
+            <th>خطة التمويل</th>
+            <th class="text-center">أيام في المخزون</th>
+            <th>تكلفة التمويل المتراكمة</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of financedCarsReport(); track item.carId) {
+            <tr>
+              <td>{{ item.carDescription }}</td>
+              <td class="font-mono">{{ item.purchasePrice | currency:'SAR' }}</td>
+              <td>{{ item.purchaseDate | date:'yyyy-MM-dd' }}</td>
+              <td>{{ item.planName }} ({{ item.financier }})</td>
+              <td class="text-center days-badge" [class.days-warning]="item.daysInStock > 60">{{ item.daysInStock }}</td>
+              <td class="font-mono cost-value">{{ item.accruedCost | currency:'SAR' }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="empty-state">
+                لا توجد سيارات ممولة في المخزون حالياً.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

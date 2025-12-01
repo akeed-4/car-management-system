@@ -1,0 +1,77 @@
+<div class="container">
+  <div class="page-header">
+    <h2>{{ pageTitle() }}</h2>
+    <a routerLink="/users" class="back-link">&larr; العودة إلى قائمة المستخدمين</a>
+  </div>
+
+  <div class="card form-container">
+    <form #userForm="ngForm" (ngSubmit)="saveUser()">
+      <div class="form-fields">
+        <div>
+          <label for="name" class="form-label">اسم المستخدم</label>
+          <input 
+            type="text" 
+            id="name" 
+            name="name"
+            [ngModel]="user().name"
+            (ngModelChange)="updateUserField('name', $event)"
+            required
+            class="form-input">
+        </div>
+
+        <div>
+          <label for="password" class="form-label">كلمة المرور</label>
+          <input 
+            type="password" 
+            id="password" 
+            name="password"
+            [ngModel]="user().password"
+            (ngModelChange)="updateUserField('password', $event)"
+            [required]="!editMode()"
+            [placeholder]="editMode() ? 'اتركه فارغاً لعدم التغيير' : ''"
+            class="form-input">
+        </div>
+        
+        <div>
+          <label for="role" class="form-label">الدور</label>
+          <select 
+            id="role" 
+            name="role"
+            [ngModel]="user().roleId"
+            (ngModelChange)="updateUserField('roleId', +$event)"
+            required
+            class="form-select">
+            <option [ngValue]="null" disabled>-- اختر دور المستخدم --</option>
+            @for(role of roles(); track role.id) {
+              <option [value]="role.id">{{ role.name }}</option>
+            }
+          </select>
+        </div>
+        
+        <div>
+          <label for="status" class="form-label">الحالة</label>
+           <select 
+            id="status" 
+            name="status"
+            [ngModel]="user().status"
+            (ngModelChange)="updateUserField('status', $event)"
+            required
+            class="form-select">
+            <option value="Active">نشط</option>
+            <option value="Inactive">غير نشط</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <a routerLink="/users" class="btn btn-light">إلغاء</a>
+        <button 
+          type="submit" 
+          [disabled]="userForm.invalid" 
+          class="btn btn-primary">
+          {{ editMode() ? 'حفظ التغييرات' : 'إضافة المستخدم' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

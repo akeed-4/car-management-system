@@ -1,0 +1,196 @@
+
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-gray-800);
+  margin-bottom: 1.5rem;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .summary-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.summary-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--color-white);
+  padding: 1.5rem;
+  border-radius: var(--rounded-lg);
+  box-shadow: var(--shadow-md);
+  transition: transform 0.2s, box-shadow 0.2s;
+  text-decoration: none;
+}
+.summary-card:not(.static):hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.summary-card-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-500);
+}
+
+.summary-card-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-gray-900);
+}
+.summary-card-value.small-value {
+  font-size: 1.5rem;
+}
+
+.summary-card-icon {
+  padding: 0.75rem;
+  border-radius: var(--rounded-full);
+}
+.summary-card-icon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.summary-card-icon.green { background-color: #dcfce7; color: #16a34a; }
+.summary-card-icon.orange { background-color: #ffedd5; color: #f97316; }
+.summary-card-icon.red { background-color: #fee2e2; color: #dc2626; }
+
+
+.alerts-card {
+  margin-top: 2rem;
+}
+
+.card-header {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-gray-800);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+}
+.card-header .icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-left: 0.75rem;
+  color: var(--color-warning-500);
+}
+
+.alerts-list {
+  display: flex;
+  flex-direction: column;
+}
+.alert-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--color-gray-200);
+  transition: background-color 0.2s;
+}
+.alert-item:last-child {
+  border-bottom: none;
+}
+.alert-item:hover {
+  background-color: var(--color-gray-50);
+}
+.alert-item-title {
+  font-weight: 600;
+  color: var(--color-gray-900);
+}
+.plate-number {
+  font-family: monospace;
+}
+.alert-item-subtitle {
+  font-size: 0.875rem;
+  color: var(--color-gray-500);
+}
+.alert-item-details {
+  text-align: left;
+}
+.alert-item-type {
+  font-weight: 600;
+  color: var(--color-danger-600);
+}
+.alert-item-expiry {
+  font-size: 0.875rem;
+  color: var(--color-gray-500);
+}
+.alert-item-expiry span {
+  font-weight: 700;
+}
+
+
+.charts-grid {
+  margin-top: 2rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+.charts-grid-inner {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 1280px) {
+  .charts-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 6rem;
+  background-color: var(--color-gray-50);
+  border-radius: var(--rounded-md);
+  color: var(--color-gray-500);
+}
+.empty-state.large {
+  height: 16rem;
+}
+.empty-state.xlarge {
+  height: 25rem;
+}
+
+/* Recent Cars Table Styles */
+.car-cell {
+  display: flex;
+  align-items: center;
+}
+.car-cell-img {
+  width: 4rem;
+  height: 3rem;
+  object-fit: cover;
+  border-radius: var(--rounded-md);
+}
+.car-cell-info {
+  margin-right: 1rem;
+}
+.car-cell-title {
+  font-weight: 700;
+}
+.car-cell-subtitle {
+  font-size: 0.75rem;
+  color: var(--color-gray-500);
+}
+
+.badge-green { background-color: var(--color-success-100); color: var(--color-success-800); }
+.badge-yellow { background-color: var(--color-warning-100); color: var(--color-warning-800); }
+.badge-red { background-color: var(--color-danger-100); color: var(--color-danger-800); }
+.badge-gray { background-color: var(--color-gray-200); color: var(--color-gray-800); }

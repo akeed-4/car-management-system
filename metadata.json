@@ -1,0 +1,8 @@
+
+{
+  "name": "Car Management System",
+  "description": "A comprehensive car dealership management system tailored for the Saudi market, featuring inventory control, sales, CRM, procurement, financials, AI-powered tools, workshop management, delivery scheduling, down payment tracking, margin VAT for used cars, and consignment vehicle management.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

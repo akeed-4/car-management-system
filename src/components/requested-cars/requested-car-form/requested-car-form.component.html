@@ -1,0 +1,82 @@
+<div class="container">
+  <div class="page-header">
+    <h2>{{ pageTitle() }}</h2>
+    <a routerLink="/requested-cars" class="back-link">&larr; العودة إلى قائمة الطلبات</a>
+  </div>
+
+  <div class="card form-container">
+    <form #requestForm="ngForm" (ngSubmit)="saveRequest()">
+      
+      <section class="form-section">
+        <h3 class="form-section-title">بيانات العميل</h3>
+        <div class="form-grid cols-2">
+          <div>
+            <label for="customerName" class="form-label">اسم العميل</label>
+            <input type="text" id="customerName" name="customerName" [ngModel]="request().customerName" (ngModelChange)="updateRequestField('customerName', $event)" required class="form-input">
+          </div>
+          <div>
+            <label for="customerPhone" class="form-label">رقم الجوال</label>
+            <input type="tel" id="customerPhone" name="customerPhone" [ngModel]="request().customerPhone" (ngModelChange)="updateRequestField('customerPhone', $event)" required class="form-input">
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <h3 class="form-section-title">مواصفات السيارة المطلوبة</h3>
+        <div class="form-grid cols-3">
+          <div>
+            <label for="make" class="form-label">الشركة المصنعة</label>
+            <select id="make" name="make" [ngModel]="request().make" (ngModelChange)="updateRequestField('make', $event)" required class="form-select">
+                <option value="" disabled>-- اختر الشركة --</option>
+                @for(m of manufacturers(); track m.id) {
+                    <option [value]="m.name">{{m.name}}</option>
+                }
+            </select>
+          </div>
+          <div>
+            <label for="model" class="form-label">الموديل</label>
+            <select id="model" name="model" [ngModel]="request().model" (ngModelChange)="updateRequestField('model', $event)" required [disabled]="!request().make" class="form-select">
+              <option [ngValue]="undefined" disabled>-- اختر الموديل --</option>
+              @for (carModel of filteredModels(); track carModel.id) {
+                <option [value]="carModel.name">{{ carModel.name }}</option>
+              }
+            </select>
+          </div>
+          <div>
+            <label for="year" class="form-label">سنة الصنع (اختياري)</label>
+            <select id="year" name="year" [ngModel]="request().year" (ngModelChange)="updateRequestField('year', +$event)" class="form-select">
+              <option [ngValue]="undefined">-- اختر السنة --</option>
+              @for (y of years(); track y) {
+                <option [value]="y">{{ y }}</option>
+              }
+            </select>
+          </div>
+          <div>
+            <label for="color" class="form-label">اللون (اختياري)</label>
+            <input type="text" id="color" name="color" [ngModel]="request().color" (ngModelChange)="updateRequestField('color', $event)" class="form-input">
+          </div>
+           <div class="col-span-2">
+            <label for="status" class="form-label">حالة الطلب</label>
+             <select id="status" name="status" [ngModel]="request().status" (ngModelChange)="updateRequestField('status', $event)" required class="form-select">
+              <option value="New">جديد</option>
+              <option value="Contacted">تم التواصل</option>
+              <option value="Sourced">تم توفيرها</option>
+              <option value="Closed">مغلق</option>
+            </select>
+          </div>
+          <div class="col-span-3">
+            <label for="notes" class="form-label">ملاحظات إضافية</label>
+            <textarea id="notes" name="notes" rows="3" [ngModel]="request().notes" (ngModelChange)="updateRequestField('notes', $event)" class="form-input"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <div class="form-actions">
+        <a routerLink="/requested-cars" class="btn btn-light">إلغاء</a>
+        <button type="submit" [disabled]="requestForm.invalid" class="btn btn-primary">
+          {{ editMode() ? 'حفظ التغييرات' : 'حفظ الطلب' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

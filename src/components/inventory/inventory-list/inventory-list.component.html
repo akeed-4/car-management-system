@@ -1,0 +1,139 @@
+
+
+<div class="container">
+  <div class="page-header">
+    <h2>مخزون السيارات</h2>
+    <div class="header-actions">
+      <button (click)="isScannerOpen.set(true)" class="btn btn-secondary">
+        <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" /></svg>
+        <span>مسح رقم الهيكل</span>
+      </button>
+      <a routerLink="/inventory/new" class="btn btn-primary">
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+        <span>إضافة سيارة جديدة</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="table-controls">
+       <div class="filter-buttons">
+        <button class="filter-btn" [class.active]="conditionFilter() === 'All'" (click)="setConditionFilter('All')">الكل</button>
+        <button class="filter-btn" [class.active]="conditionFilter() === 'New'" (click)="setConditionFilter('New')">سيارات جديدة</button>
+        <button class="filter-btn" [class.active]="conditionFilter() === 'Used'" (click)="setConditionFilter('Used')">سيارات مستعملة</button>
+      </div>
+
+      <input 
+        type="text" 
+        [value]="filter()"
+        placeholder="ابحث عن سيارة (الماركة، الموديل، الموقع...)"
+        class="form-input search-input"
+        (input)="onFilter($event)">
+      
+      <div class="toggle-switch">
+        <label for="showArchived">عرض الأرشيف</label>
+        <input type="checkbox" id="showArchived" [checked]="showArchived()" (change)="showArchived.set(!showArchived())">
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th (click)="onSort('make')">السيارة {{ getSortIcon('make') }}</th>
+            <th (click)="onSort('vin')">رقم الهيكل (VIN) {{ getSortIcon('vin') }}</th>
+            <th (click)="onSort('salePrice')">سعر البيع {{ getSortIcon('salePrice') }}</th>
+            <th (click)="onSort('status')">الحالة {{ getSortIcon('status') }}</th>
+            <th (click)="onSort('currentLocation')">الموقع الحالي {{ getSortIcon('currentLocation') }}</th>
+            <th class="actions-header">إجراءات</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (car of filteredAndSortedCars(); track car.id) {
+            <tr [class.archived-row]="showArchived()">
+              <td>
+                <div class="car-cell">
+                  <img class="car-cell-img" [src]="car.photos[0]" alt="{{car.make}} {{car.model}}">
+                  <div class="car-cell-info">
+                    <div class="car-cell-title">
+                      {{ car.make }} {{ car.model }}
+                      <span class="condition-badge" [class.new]="car.condition === 'New'" [class.used]="car.condition === 'Used'">
+                        {{ car.condition === 'New' ? 'جديدة' : 'مستعملة' }}
+                      </span>
+                    </div>
+                    <div class="car-cell-subtitle">{{ car.year }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="font-mono">{{ car.vin }}</td>
+              <td>{{ car.salePrice | currency:'SAR':'symbol':'1.0-0' }}</td>
+              <td>
+                <span class="badge"
+                      [class.badge-green]="car.status === 'Available'"
+                      [class.badge-yellow]="car.status === 'Reserved'"
+                      [class.badge-red]="car.status === 'Sold'"
+                      [class.badge-gray]="car.status === 'In Maintenance'">
+                  {{ car.status }}
+                </span>
+              </td>
+              <td>
+                <input 
+                  type="text" 
+                  [value]="car.currentLocation"
+                  (blur)="onLocationChange(car.id, $event)"
+                  class="form-input location-input"
+                  placeholder="e.g., Showroom A"
+                  [disabled]="showArchived()">
+              </td>
+              <td>
+                <div class="actions-cell">
+                  @if(!showArchived()) {
+                    <button (click)="editCar(car.id)" class="btn-icon" title="تعديل">
+                       <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    </button>
+                    <button (click)="requestDelete(car.id)" class="btn-icon btn-icon-danger" title="حذف">
+                      <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
+                    @if(car.status === 'Sold') {
+                      <button (click)="archiveCar(car.id)" class="btn-icon" title="أرشفة">
+                        <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4" /></svg>
+                      </button>
+                    } @else if (car.status === 'Reserved') {
+                      <a [routerLink]="['/accounts/deposits/new', car.id]" class="btn-icon" title="إصدار سند عربون">
+                        <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15A2.25 2.25 0 0 0 2.25 6.75v10.5A2.25 2.25 0 0 0 4.5 19.5Z" /></svg>
+                      </a>
+                    }
+                  } @else {
+                    <button (click)="unarchiveCar(car.id)" class="btn-icon btn-icon-success" title="إلغاء الأرشفة">
+                      <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0-3-3m3 3 3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" /></svg>
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="empty-state">
+                {{ showArchived() ? 'لا توجد سيارات في الأرشيف.' : 'لا توجد سيارات مطابقة لبحثك.' }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<app-modal 
+  [isOpen]="isDeleteModalOpen()" 
+  title="تأكيد حذف السيارة" 
+  message="هل أنت متأكد من حذف هذه السيارة من المخزون؟ لا يمكن التراجع عن هذا الإجراء."
+  (confirm)="confirmDelete()" 
+  (cancel)="closeDeleteModal()">
+</app-modal>
+
+<app-vin-scanner 
+  [isOpen]="isScannerOpen()" 
+  (vinScanned)="onVinScanned($event)"
+  (cancel)="isScannerOpen.set(false)">
+</app-vin-scanner>

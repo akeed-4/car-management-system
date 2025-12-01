@@ -1,0 +1,103 @@
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { CurrencyPipe, DatePipe } from '@angular/common';
+import { SalesService } from '../../../services/sales.service';
+import { SalesReturnService } from '../../../services/sales-return.service';
+import { InventoryService } from '../../../services/inventory.service';
+import { ReturnInvoiceItem } from '../../../types/return-invoice-item.model';
+import { SalesReturnInvoice } from '../../../types/sales-return-invoice.model';
+import { SalesInvoice } from '../../../types/sales-invoice.model';
+
+@Component({
+  selector: 'app-sales-return-form',
+  standalone: true,
+  imports: [RouterLink, FormsModule, CurrencyPipe],
+  templateUrl: './sales-return-form.component.html',
+  styleUrl: './sales-return-form.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class SalesReturnFormComponent {
+  private salesService = inject(SalesService);
+  private salesReturnService = inject(SalesReturnService);
+  private inventoryService = inject(InventoryService);
+  private router = inject(Router);
+
+  // Form State
+  returnInvoiceNumber = signal(`RT-S-${Date.now()}`);
+  returnInvoiceDate = signal(new Date().toISOString().split('T')[0]);
+
+  originalInvoices = this.salesService.invoices$;
+  selectedOriginalInvoice = signal<SalesInvoice | null>(null);
+  
+  returnItems = signal<ReturnInvoiceItem[]>([]);
+  
+  totalAmount = computed(() => this.returnItems().reduce((sum, item) => sum + item.lineTotal, 0));
+
+  onInvoiceSelect(invoiceId: number): void {
+    const invoice = this.originalInvoices().find(inv => inv.id === invoiceId);
+    this.selectedOriginalInvoice.set(invoice ?? null);
+
+    if (!invoice) {
+      this.returnItems.set([]);
+      return;
+    }
+    
+    const items: ReturnInvoiceItem[] = invoice.items.map(item => ({
+      carId: item.carId,
+      carDescription: item.carDescription,
+      unitPrice: item.unitPrice,
+      originalQuantity: item.quantity,
+      returnQuantity: 0,
+      lineTotal: 0,
+    }));
+    this.returnItems.set(items);
+  }
+
+  updateReturnQuantity(carId: number, quantity: number): void {
+    this.returnItems.update(items =>
+      items.map(item => {
+        if (item.carId === carId) {
+          const validQuantity = Math.max(0, Math.min(quantity, item.originalQuantity));
+          return {
+            ...item,
+            returnQuantity: validQuantity,
+            lineTotal: item.unitPrice * validQuantity,
+          };
+        }
+        return item;
+      })
+    );
+  }
+
+  saveReturn(): void {
+    const originalInvoice = this.selectedOriginalInvoice();
+    const itemsToReturn = this.returnItems().filter(item => item.returnQuantity > 0);
+
+    if (!originalInvoice || itemsToReturn.length === 0) {
+      alert('الرجاء تحديد الكميات المرتجعة.');
+      return;
+    }
+
+    const newReturn: Omit<SalesReturnInvoice, 'id'> = {
+      returnInvoiceNumber: this.returnInvoiceNumber(),
+      returnInvoiceDate: this.returnInvoiceDate(),
+      originalInvoiceId: originalInvoice.id,
+      originalInvoiceNumber: originalInvoice.invoiceNumber,
+      customerId: originalInvoice.customerId,
+      customerName: originalInvoice.customerName,
+      items: itemsToReturn,
+      totalAmount: this.totalAmount(),
+    };
+    
+    this.salesReturnService.addReturnInvoice(newReturn);
+
+    // Update inventory
+    itemsToReturn.forEach(item => {
+      this.inventoryService.incrementCarQuantity(item.carId, item.returnQuantity);
+    });
+    
+    alert('تم إنشاء فاتورة المرتجع بنجاح وتحديث المخزون.');
+    this.router.navigate(['/sales/return']);
+  }
+}

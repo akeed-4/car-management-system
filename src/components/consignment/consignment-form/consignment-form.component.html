@@ -1,0 +1,189 @@
+
+<div class="container">
+  <div class="page-header">
+    <h2>{{ pageTitle() }}</h2>
+    <a routerLink="/consignment-cars" class="back-link">
+      <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+      <span>العودة إلى سيارات العهدة</span>
+    </a>
+  </div>
+
+  <div class="card">
+    <form #consignmentForm="ngForm" (ngSubmit)="saveConsignmentCar()">
+      <!-- Owner Details -->
+      <section class="form-section">
+        <h3 class="form-section-title">بيانات المالك</h3>
+        <div class="form-grid cols-2">
+          <div>
+            <label for="ownerName" class="form-label">اسم المالك</label>
+            <input 
+              type="text" 
+              id="ownerName" 
+              name="ownerName" 
+              [ngModel]="car().ownerName" 
+              (ngModelChange)="updateCarField('ownerName', $event)" 
+              required 
+              class="form-input">
+          </div>
+          <div>
+            <label for="ownerPhone" class="form-label">رقم جوال المالك</label>
+            <input 
+              type="tel" 
+              id="ownerPhone" 
+              name="ownerPhone" 
+              [ngModel]="car().ownerPhone" 
+              (ngModelChange)="updateCarField('ownerPhone', $event)" 
+              required 
+              class="form-input">
+          </div>
+        </div>
+      </section>
+
+      <!-- Car Details -->
+      <section class="form-section">
+        <h3 class="form-section-title">تفاصيل السيارة</h3>
+        <div class="form-grid cols-3">
+          <div>
+            <label for="make" class="form-label">الشركة المصنعة</label>
+            <input 
+              type="text" 
+              id="make" 
+              name="make" 
+              [ngModel]="car().make" 
+              (ngModelChange)="updateCarField('make', $event)" 
+              required 
+              class="form-input">
+          </div>
+          <div>
+            <label for="model" class="form-label">الموديل</label>
+            <input 
+              type="text" 
+              id="model" 
+              name="model" 
+              [ngModel]="car().model" 
+              (ngModelChange)="updateCarField('model', $event)" 
+              required 
+              class="form-input">
+          </div>
+          <div>
+            <label for="year" class="form-label">سنة الصنع</label>
+            <input 
+              type="number" 
+              id="year" 
+              name="year" 
+              [ngModel]="car().year" 
+              (ngModelChange)="updateCarField('year', +$event)" 
+              required 
+              class="form-input">
+          </div>
+          <div>
+            <label for="exteriorColor" class="form-label">اللون الخارجي</label>
+            <input 
+              type="text" 
+              id="exteriorColor" 
+              name="exteriorColor" 
+              [ngModel]="car().exteriorColor" 
+              (ngModelChange)="updateCarField('exteriorColor', $event)" 
+              class="form-input">
+          </div>
+          <div>
+            <label for="mileage" class="form-label">الممشى (كم)</label>
+            <input 
+              type="number" 
+              id="mileage" 
+              name="mileage" 
+              [ngModel]="car().mileage" 
+              (ngModelChange)="updateCarField('mileage', +$event)" 
+              class="form-input">
+          </div>
+          <div>
+            <label for="plateNumber" class="form-label">رقم اللوحة</label>
+            <input 
+              type="text" 
+              id="plateNumber" 
+              name="plateNumber" 
+              [ngModel]="car().plateNumber" 
+              (ngModelChange)="updateCarField('plateNumber', $event)" 
+              class="form-input">
+          </div>
+           <div>
+            <label for="vin" class="form-label">رقم الهيكل (VIN)</label>
+            <input 
+              type="text" 
+              id="vin" 
+              name="vin" 
+              [ngModel]="car().vin" 
+              (ngModelChange)="updateCarField('vin', $event)" 
+              class="form-input" dir="ltr">
+          </div>
+        </div>
+      </section>
+
+      <!-- Financial Details -->
+      <section class="form-section">
+        <h3 class="form-section-title">البيانات المالية للعهدة</h3>
+        <div class="form-grid cols-2">
+          <div>
+            <label for="agreedSalePrice" class="form-label">سعر البيع المتفق عليه مع المالك</label>
+            <input 
+              type="number" 
+              id="agreedSalePrice" 
+              name="agreedSalePrice" 
+              [ngModel]="car().agreedSalePrice" 
+              (ngModelChange)="updateCarField('agreedSalePrice', +$event)" 
+              required 
+              min="0"
+              class="form-input">
+          </div>
+          <div>
+            <label for="commissionRate" class="form-label">نسبة العمولة (%)</label>
+            <input 
+              type="number" 
+              id="commissionRate" 
+              name="commissionRate" 
+              [ngModel]="(car().commissionRate ?? 0) * 100" 
+              (ngModelChange)="updateCarField('commissionRate', +$event / 100)" 
+              required 
+              min="0" 
+              max="100"
+              class="form-input">
+          </div>
+          <div>
+            <label for="dateReceived" class="form-label">تاريخ الاستلام</label>
+            <input 
+              type="date" 
+              id="dateReceived" 
+              name="dateReceived" 
+              [ngModel]="car().dateReceived" 
+              (ngModelChange)="updateCarField('dateReceived', $event)" 
+              required 
+              class="form-input">
+          </div>
+        </div>
+      </section>
+
+      <!-- Notes -->
+      <section class="form-section">
+        <label for="notes" class="form-label">ملاحظات (اختياري)</label>
+        <textarea 
+          id="notes" 
+          name="notes" 
+          rows="3" 
+          [ngModel]="car().notes" 
+          (ngModelChange)="updateCarField('notes', $event)" 
+          class="form-input"></textarea>
+      </section>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <a routerLink="/consignment-cars" class="btn btn-light">إلغاء</a>
+        <button 
+          type="submit" 
+          [disabled]="consignmentForm.invalid" 
+          class="btn btn-primary">
+          {{ editMode() ? 'حفظ التغييرات' : 'إضافة سيارة العهدة' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,49 @@
+<div class="container">
+  <div class="page-header">
+    <h2>قائمة سندات القبض</h2>
+    <a routerLink="/accounts/receipts/new"  class="bg-primary-600 text-white px-4 py-2 rounded-lg shadow hover:bg-primary-700 transition duration-300 flex items-center text-sm">
+      <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+      <span>إضافة سند قبض جديد</span>
+    </a>
+  </div>
+
+  <div class="card">
+    <div class="table-controls">
+      <input 
+        type="text" 
+        placeholder="ابحث عن سند (الرقم، العميل، الفاتورة...)"
+        class="form-input search-input"
+        (input)="onFilter($event)">
+    </div>
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th (click)="onSort('voucherNumber')">رقم السند {{ getSortIcon('voucherNumber') }}</th>
+            <th (click)="onSort('date')">التاريخ {{ getSortIcon('date') }}</th>
+            <th (click)="onSort('customerName')">العميل {{ getSortIcon('customerName') }}</th>
+            <th (click)="onSort('salesInvoiceNumber')">رقم الفاتورة {{ getSortIcon('salesInvoiceNumber') }}</th>
+            <th (click)="onSort('amount')">المبلغ {{ getSortIcon('amount') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (receipt of filteredAndSortedReceipts(); track receipt.id) {
+            <tr>
+              <td class="font-mono">{{ receipt.voucherNumber }}</td>
+              <td>{{ receipt.date | date:'yyyy-MM-dd' }}</td>
+              <td>{{ receipt.customerName }}</td>
+              <td class="font-mono">{{ receipt.salesInvoiceNumber }}</td>
+              <td class="font-mono">{{ receipt.amount | currency:'SAR':'symbol':'1.0-0' }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="empty-state">
+                لا توجد سندات قبض مسجلة.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

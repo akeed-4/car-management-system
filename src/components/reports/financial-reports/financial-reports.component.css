@@ -1,0 +1,114 @@
+.container { max-width: 1280px; margin: 0 auto; }
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-gray-800);
+  margin-bottom: 1.5rem;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 640px) {
+  .summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1024px) {
+  .summary-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.summary-card {
+  background-color: var(--color-white);
+  padding: 1.5rem;
+  border-radius: var(--rounded-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.summary-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-500);
+}
+
+.summary-title-with-tooltip {
+  display: flex;
+  align-items: center;
+}
+.summary-title-with-tooltip .icon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-gray-400);
+  margin-right: 0.5rem;
+}
+
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+}
+.tooltip-text {
+  visibility: hidden;
+  width: 250px;
+  background-color: var(--color-gray-800);
+  color: var(--color-white);
+  text-align: center;
+  border-radius: var(--rounded-md);
+  padding: 0.5rem;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -125px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 0.75rem;
+}
+.tooltip-container:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+
+.summary-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-gray-800);
+  margin-top: 0.25rem;
+}
+.summary-value.large {
+  font-size: 2rem;
+}
+
+.text-success { color: var(--color-success-800); }
+.text-danger { color: var(--color-danger-800); }
+
+.card-header {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-gray-700);
+  margin-bottom: 1rem;
+}
+
+.table-controls {
+  margin-bottom: 1rem;
+}
+.search-input {
+  width: 100%;
+  max-width: 400px;
+}
+
+.table th { cursor: pointer; user-select: none; }
+.text-center { text-align: center; }
+
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-gray-500);
+}
