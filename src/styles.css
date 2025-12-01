@@ -1,4 +1,7 @@
 
+/* Angular Material theme (prebuilt) */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
 /* --- GLOBAL DESIGN SYSTEM --- */
 
 /* 1. CSS Variables */
