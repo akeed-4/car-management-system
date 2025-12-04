@@ -1,12 +1,15 @@
 import {
-  coerceBooleanProperty
-} from "./chunk-2OHV5IG7.js";
-import {
   CdkScrollable,
   CdkScrollableModule,
   ScrollDispatcher,
   ViewportRuler
-} from "./chunk-XQGJLW6N.js";
+} from "./chunk-2FOKS44A.js";
+import {
+  coerceBooleanProperty
+} from "./chunk-42QFQP6S.js";
+import "./chunk-3V2N2X4B.js";
+import "./chunk-GUGIMSVJ.js";
+import "./chunk-RP5JKT6Z.js";
 import {
   ESCAPE,
   FocusMonitor,
@@ -14,22 +17,22 @@ import {
   InteractivityChecker,
   _animationsDisabled,
   hasModifierKey
-} from "./chunk-4AWAPKI3.js";
-import {
-  coerceNumberProperty
-} from "./chunk-GJFJQOJS.js";
-import "./chunk-W72DKQZH.js";
-import "./chunk-LQOCBH5U.js";
-import "./chunk-GUGIMSVJ.js";
+} from "./chunk-RB7XLOKD.js";
+import "./chunk-377GTYIT.js";
+import "./chunk-N4DOILP3.js";
 import "./chunk-XA6252L2.js";
-import {
-  Platform
-} from "./chunk-7R3CFXAP.js";
 import {
   BidiModule,
   Directionality
-} from "./chunk-Z7WUVX6M.js";
-import "./chunk-WL5ZY545.js";
+} from "./chunk-2R57SV63.js";
+import "./chunk-WQZGJRLP.js";
+import {
+  coerceNumberProperty
+} from "./chunk-Y7WPNMWP.js";
+import {
+  Platform
+} from "./chunk-BPAKBQVK.js";
+import "./chunk-YUMQOYZO.js";
 import "./chunk-UC72YTJX.js";
 import {
   ChangeDetectionStrategy,
@@ -89,7 +92,7 @@ import {
   ɵɵrestoreView,
   ɵɵstyleProp,
   ɵɵviewQuery
-} from "./chunk-2OZ55SV7.js";
+} from "./chunk-ZUYASPZO.js";
 import "./chunk-GOMI4DH3.js";
 
 // node_modules/@angular/material/fesm2022/sidenav.mjs

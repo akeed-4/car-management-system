@@ -1,3 +1,23 @@
+<!-- Toolbar -->
+<mat-toolbar color="primary" class="app-toolbar">
+  <button mat-icon-button (click)="toggleSidebar()">
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <span class="toolbar-title">نظام إدارة معرض السيارات</span>
+
+  <span class="spacer"></span>
+
+  <button mat-icon-button>
+    <mat-icon>notifications</mat-icon>
+  </button>
+
+  <button mat-icon-button>
+    <mat-icon>help_outline</mat-icon>
+  </button>
+
+  <img class="avatar" src="https://picsum.photos/100/100" alt="user">
+</mat-toolbar>
 <mat-sidenav-container class="app-container" autosize dir="rtl">
 
   <!-- Sidebar -->
@@ -45,26 +65,7 @@
   <!-- Main Content -->
   <mat-sidenav-content>
 
-    <!-- Toolbar -->
-    <mat-toolbar color="primary" class="app-toolbar">
-      <button mat-icon-button (click)="toggleSidebar()">
-        <mat-icon>menu</mat-icon>
-      </button>
-
-      <span class="toolbar-title">نظام إدارة معرض السيارات</span>
-
-      <span class="spacer"></span>
-
-      <button mat-icon-button>
-        <mat-icon>notifications</mat-icon>
-      </button>
-
-      <button mat-icon-button>
-        <mat-icon>help_outline</mat-icon>
-      </button>
-
-      <img class="avatar" src="https://picsum.photos/100/100" alt="user">
-    </mat-toolbar>
+ 
 
     <!-- Routed Pages -->
     <div class="page-content">
