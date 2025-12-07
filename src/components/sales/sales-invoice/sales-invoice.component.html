@@ -1,137 +1,161 @@
-
-
 <div class="container">
   <div class="page-header">
     <h2>إنشاء فاتورة بيع</h2>
     <a routerLink="/sales" class="back-link">
-      <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+      <button mat-icon-button>
+        <mat-icon>arrow_back</mat-icon>
+      </button>
       <span>العودة إلى المبيعات</span>
     </a>
   </div>
 
-  <div class="card">
-    <form #salesInvoiceForm="ngForm" (ngSubmit)="saveInvoice()">
-      
+  <mat-card>
+  
+
+
+    <form (ngSubmit)="saveInvoice()">
       <section class="form-section">
         <h3 class="form-section-title">بيانات الفاتورة الرئيسية</h3>
-        <div class="form-grid cols-4">
-          <div>
-            <label for="customer" class="form-label">العميل</label>
-            <select id="customer" name="customer" [ngModel]="selectedCustomerId()" (ngModelChange)="selectedCustomerId.set(+$event)" required class="form-select">
-              <option [ngValue]="null" disabled>-- اختر العميل --</option>
-              @for(customer of customers(); track customer.id) {
-                <option [value]="customer.id">{{ customer.name }} ({{ customer.nationalId }})</option>
-              }
-            </select>
-          </div>
-          <div>
-            <label class="form-label">رقم الفاتورة</label>
-            <input type="text" [value]="invoiceNumber()" disabled class="form-input" readonly>
-          </div>
-          <div>
-            <label for="invoiceDate" class="form-label">تاريخ الفاتورة</label>
-            <input type="date" id="invoiceDate" name="invoiceDate" [ngModel]="invoiceDate()" (ngModelChange)="invoiceDate.set($event)" required class="form-input">
-          </div>
-          <div>
-            <label for="dueDate" class="form-label">تاريخ الاستحقاق</label>
-            <input type="date" id="dueDate" name="dueDate" [ngModel]="dueDate()" (ngModelChange)="dueDate.set($event)" class="form-input">
-          </div>
-          <div>
-            <label for="paymentMethod" class="form-label">طريقة الدفع</label>
-            <select id="paymentMethod" name="paymentMethod" [ngModel]="paymentMethod()" (ngModelChange)="paymentMethod.set($event)" class="form-select">
-              <option value="Cash">نقدي</option>
-              <option value="Bank Transfer">تحويل بنكي</option>
-              <option value="Finance">تمويل</option>
-            </select>
-          </div>
-          <div>
-             <label for="salesperson" class="form-label">مندوب المبيعات</label>
-             <input type="text" id="salesperson" name="salesperson" placeholder="اسم البائع" [ngModel]="salesperson()" (ngModelChange)="salesperson.set($event)" class="form-input">
-          </div>
-        </div>
+        <mat-grid-list [cols]="(layout$ | async)?.columns || 4" rowHeight="80" gutterSize="16px">
+          <mat-grid-tile [colspan]="(layout$ | async)?.miniCard.cols || 1" [rowspan]="(layout$ | async)?.miniCard.rows || 1">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>العميل</mat-label>
+              <mat-select [formControl]="customerControl" required>
+                <mat-option [value]="null" disabled>-- اختر العميل --</mat-option>
+                <mat-option *ngFor="let customer of customers()" [value]="customer.id">
+                  {{ customer.name }} ({{ customer.nationalId }})
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </mat-grid-tile>
+
+          <mat-grid-tile [colspan]="(layout$ | async)?.miniCard.cols || 1" [rowspan]="(layout$ | async)?.miniCard.rows || 1">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>رقم الفاتورة</mat-label>
+              <input matInput [value]="invoiceNumber()" disabled readonly>
+            </mat-form-field>
+          </mat-grid-tile>
+
+          <mat-grid-tile [colspan]="(layout$ | async)?.miniCard.cols || 1" [rowspan]="(layout$ | async)?.miniCard.rows || 1">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>تاريخ الفاتورة</mat-label>
+              <input matInput [matDatepicker]="invoiceDatePicker" [formControl]="invoiceDateControl" required>
+              <mat-datepicker-toggle matSuffix [for]="invoiceDatePicker"></mat-datepicker-toggle>
+              <mat-datepicker #invoiceDatePicker></mat-datepicker>
+            </mat-form-field>
+          </mat-grid-tile>
+
+          <mat-grid-tile [colspan]="(layout$ | async)?.miniCard.cols || 1" [rowspan]="(layout$ | async)?.miniCard.rows || 1">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>تاريخ الاستحقاق</mat-label>
+              <input matInput [matDatepicker]="dueDatePicker" [formControl]="dueDateControl">
+              <mat-datepicker-toggle matSuffix [for]="dueDatePicker"></mat-datepicker-toggle>
+              <mat-datepicker #dueDatePicker></mat-datepicker>
+            </mat-form-field>
+          </mat-grid-tile>
+
+          <mat-grid-tile [colspan]="(layout$ | async)?.miniCard.cols || 1" [rowspan]="(layout$ | async)?.miniCard.rows || 1">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>طريقة الدفع</mat-label>
+              <mat-select [formControl]="paymentMethodControl">
+                <mat-option value="Cash">نقدي</mat-option>
+                <mat-option value="Bank Transfer">تحويل بنكي</mat-option>
+                <mat-option value="Finance">تمويل</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </mat-grid-tile>
+
+          <mat-grid-tile [colspan]="(layout$ | async)?.miniCard.cols || 1" [rowspan]="(layout$ | async)?.miniCard.rows || 1">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>مندوب المبيعات</mat-label>
+              <input matInput [formControl]="salespersonControl">
+            </mat-form-field>
+          </mat-grid-tile>
+        </mat-grid-list>
       </section>
 
       <section class="form-section">
         <h3 class="form-section-title">تفاصيل الفاتورة (البنود)</h3>
         <div class="add-item-box">
-          <div class="add-item-grid">
-            <div class="field-car">
-              <label for="car" class="form-label">اختر السيارة</label>
-              <select id="car" name="car" [ngModel]="selectedCarId()" (ngModelChange)="selectedCarId.set(+$event)" class="form-select">
-                <option [ngValue]="null" disabled>-- اختر سيارة من المخزون --</option>
-                @for(car of availableCars(); track car.id) {
-                  <option [value]="car.id">{{ car.make }} {{ car.model }} ({{ car.year }}) - الكمية: {{ inventoryService.getCarQuantity(car.id) }}</option>
-                }
-              </select>
-            </div>
-            <div class="field-qty">
-              <label for="quantity" class="form-label">الكمية</label>
-              <input type="number" id="quantity" name="quantity" [ngModel]="selectedQuantity()" (ngModelChange)="selectedQuantity.set(+$event)" min="1" class="form-input">
-            </div>
-            <div class="field-btn">
-              <button type="button" (click)="addItemToInvoice()" [disabled]="!selectedCarId() || selectedQuantity() <= 0" class="btn btn-secondary">
-                  <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                  <span>إضافة</span>
+          <mat-grid-list [cols]="(layout$ | async)?.columns || 3" rowHeight="80" gutterSize="16px">
+            <mat-grid-tile [colspan]="(layout$ | async)?.miniCard.cols || 1" [rowspan]="(layout$ | async)?.miniCard.rows || 1">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>اختر السيارة</mat-label>
+                <mat-select [formControl]="selectedCarIdControl">
+                  <mat-option [value]="null" disabled>-- اختر سيارة من المخزون --</mat-option>
+                  <mat-option *ngFor="let car of availableCars()" [value]="car.id">
+                    {{ car.make }} {{ car.model }} ({{ car.year }}) - الكمية: {{ carQuantities().get(car.id) || 0 }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </mat-grid-tile>
+
+            <mat-grid-tile [colspan]="(layout$ | async)?.miniCard.cols || 1" [rowspan]="(layout$ | async)?.miniCard.rows || 1">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>الكمية</mat-label>
+                <input matInput type="number" [formControl]="selectedQuantityControl" min="1">
+              </mat-form-field>
+            </mat-grid-tile>
+
+            <mat-grid-tile [colspan]="(layout$ | async)?.miniCard.cols || 1" [rowspan]="(layout$ | async)?.miniCard.rows || 1">
+              <button mat-raised-button color="primary" (click)="addItemToInvoice()" [disabled]="!selectedCarIdControl.valid || !selectedQuantityControl.valid">
+                <mat-icon>add</mat-icon>
+                <span>إضافة</span>
               </button>
-            </div>
-          </div>
+            </mat-grid-tile>
+          </mat-grid-list>
         </div>
       </section>
 
       <section class="form-section">
-         <div class="table-wrapper">
-          <table class="table items-table">
-            <thead>
-              <tr>
-                <th>السيارة</th>
-                <th>الكمية</th>
-                <th>سعر الوحدة</th>
-                <th>الإجمالي</th>
-                <th class="actions-header">حذف</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (item of invoiceItems(); track item.carId; let i = $index) {
-                <tr>
-                  <td>{{ item.carDescription }}</td>
-                  <td>{{ item.quantity }}</td>
-                  <td>
-                     <input 
-                        type="number" 
-                        [ngModel]="item.unitPrice"
-                        (ngModelChange)="updateItemPrice(item.carId, +$event)"
-                        name="unitPrice-{{i}}"
-                        class="form-input price-input"
-                        dir="ltr"
-                        min="0">
-                  </td>
-                  <td class="font-mono">{{ item.lineTotal | currency:'SAR' }}</td>
-                  <td class="actions-cell">
-                    <button type="button" (click)="removeItem(item.carId)" class="btn-icon btn-icon-danger">
-                      <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                  </td>
-                </tr>
-              }
-              @if(invoiceItems().length === 0) {
-                 <tr>
-                  <td colspan="5" class="empty-state">
-                    لم تتم إضافة أي سيارات للفاتورة بعد.
-                  </td>
-                </tr>
-              }
-            </tbody>
+        <div class="table-wrapper">
+          <table mat-table [dataSource]="invoiceItems()" class="mat-elevation-z8">
+            <ng-container matColumnDef="carDescription">
+              <th mat-header-cell *matHeaderCellDef> السيارة </th>
+              <td mat-cell *matCellDef="let item"> {{ item.carDescription }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="quantity">
+              <th mat-header-cell *matHeaderCellDef> الكمية </th>
+              <td mat-cell *matCellDef="let item"> {{ item.quantity }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="unitPrice">
+              <th mat-header-cell *matHeaderCellDef> سعر الوحدة </th>
+              <td mat-cell *matCellDef="let item">
+                <input matInput type="number" [(ngModel)]="item.unitPrice" (ngModelChange)="updateItemPrice(item.carId, $event)" [ngModelOptions]="{standalone: true}" min="0">
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="lineTotal">
+              <th mat-header-cell *matHeaderCellDef> الإجمالي </th>
+              <td mat-cell *matCellDef="let item"> {{ item.lineTotal | currency:'SAR' }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef> حذف </th>
+              <td mat-cell *matCellDef="let item">
+                <button mat-icon-button color="warn" (click)="removeItem(item.carId)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
           </table>
         </div>
       </section>
 
       <section class="summary-section">
-        <div>
-           <label for="notes" class="form-label">ملاحظات</label>
-           <textarea id="notes" name="notes" rows="4" [ngModel]="notes()" (ngModelChange)="notes.set($event)" placeholder="أي ملاحظات إضافية على الفاتورة..." class="form-input"></textarea>
-        </div>
-        <div class="summary-box">
-            <h4>ملخص الفاتورة</h4>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>ملاحظات</mat-label>
+          <textarea matInput rows="4" [formControl]="notesControl" placeholder="أي ملاحظات إضافية على الفاتورة..."></textarea>
+        </mat-form-field>
+
+        <mat-card>
+          <mat-card-title>ملخص الفاتورة</mat-card-title>
+          <mat-card-content>
             <div class="summary-item">
               <p>الإجمالي قبل الضريبة</p>
               <p class="font-mono">{{ subtotal() | currency:'SAR':'symbol':'1.0-0' }}</p>
@@ -145,15 +169,16 @@
               <p>الإجمالي النهائي</p>
               <p class="font-mono">{{ totalAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
             </div>
-          </div>
+          </mat-card-content>
+        </mat-card>
       </section>
 
       <div class="form-actions">
-        <a routerLink="/sales" class="btn btn-light">إلغاء</a>
-        <button type="submit" [disabled]="!selectedCustomerId() || invoiceItems().length === 0" class="btn btn-primary">
-            إصدار الفاتورة
+        <a routerLink="/sales" mat-button>إلغاء</a>
+        <button mat-raised-button color="primary" type="submit" [disabled]="!customerControl.valid || !invoiceDateControl.valid || invoiceItems().length === 0">
+          إصدار الفاتورة
         </button>
       </div>
     </form>
-  </div>
+  </mat-card>
 </div>

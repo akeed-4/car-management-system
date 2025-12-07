@@ -1,25 +1,25 @@
 import {
+  MatDivider,
+  MatDividerModule
+} from "./chunk-V2NRKUMG.js";
+import {
+  MatPseudoCheckboxModule
+} from "./chunk-Z4UMI5TJ.js";
+import {
   MAT_RIPPLE_GLOBAL_OPTIONS,
-  MatPseudoCheckboxModule,
   MatRippleModule,
   RippleRenderer
-} from "./chunk-M7LDGMZQ.js";
+} from "./chunk-DI3QAXLS.js";
 import {
   NG_VALUE_ACCESSOR
-} from "./chunk-SP5WYCSE.js";
-import {
-  coerceBooleanProperty
-} from "./chunk-42QFQP6S.js";
-import "./chunk-3V2N2X4B.js";
-import "./chunk-GUGIMSVJ.js";
+} from "./chunk-ZJAS6YUS.js";
+import "./chunk-5OHGYAKF.js";
 import {
   SelectionModel
-} from "./chunk-6JUOM6DA.js";
+} from "./chunk-OU5FZAZB.js";
 import {
   _StructuralStylesLoader
-} from "./chunk-MYWZHIUY.js";
-import "./chunk-NGX5KMVR.js";
-import "./chunk-RP5JKT6Z.js";
+} from "./chunk-XZPAYAGA.js";
 import {
   A,
   CdkObserveContent,
@@ -29,28 +29,35 @@ import {
   SPACE,
   _animationsDisabled,
   hasModifierKey
-} from "./chunk-RB7XLOKD.js";
-import "./chunk-377GTYIT.js";
-import "./chunk-N4DOILP3.js";
+} from "./chunk-CNKMQHWD.js";
 import {
   _getFocusedElementPierceShadowDom
-} from "./chunk-XA6252L2.js";
-import {
-  BidiModule
-} from "./chunk-2R57SV63.js";
+} from "./chunk-DPAJNIXH.js";
+import "./chunk-NGX5KMVR.js";
+import "./chunk-PYKZHYFZ.js";
 import {
   _CdkPrivateStyleLoader
-} from "./chunk-WQZGJRLP.js";
+} from "./chunk-O27F6YLE.js";
+import {
+  coerceBooleanProperty
+} from "./chunk-PLJ2QXBA.js";
+import "./chunk-T5ZVQZJO.js";
+import "./chunk-N4DOILP3.js";
+import "./chunk-GUGIMSVJ.js";
+import "./chunk-YWPKBWDS.js";
 import {
   coerceNumberProperty
-} from "./chunk-Y7WPNMWP.js";
+} from "./chunk-AAOOLWN6.js";
 import {
   Platform
-} from "./chunk-BPAKBQVK.js";
+} from "./chunk-YA5HYVLV.js";
 import {
   NgTemplateOutlet
-} from "./chunk-YUMQOYZO.js";
+} from "./chunk-UKAKFZXH.js";
 import "./chunk-UC72YTJX.js";
+import {
+  BidiModule
+} from "./chunk-45Q3JSYN.js";
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -66,16 +73,12 @@ import {
   NgZone,
   Output,
   Renderer2,
-  Subject,
-  Subscription,
   ViewChild,
   ViewEncapsulation,
   forwardRef,
   inject,
-  merge,
   setClassMetadata,
   signal,
-  takeUntil,
   ɵɵInheritDefinitionFeature,
   ɵɵNgOnChangesFeature,
   ɵɵProvidersFeature,
@@ -109,101 +112,14 @@ import {
   ɵɵtemplate,
   ɵɵtemplateRefExtractor,
   ɵɵviewQuery
-} from "./chunk-ZUYASPZO.js";
+} from "./chunk-MOKDIJIK.js";
+import {
+  Subject,
+  Subscription,
+  merge,
+  takeUntil
+} from "./chunk-RSS3ODKE.js";
 import "./chunk-GOMI4DH3.js";
-
-// node_modules/@angular/material/fesm2022/divider.mjs
-var MatDivider = class _MatDivider {
-  get vertical() {
-    return this._vertical;
-  }
-  set vertical(value) {
-    this._vertical = coerceBooleanProperty(value);
-  }
-  _vertical = false;
-  get inset() {
-    return this._inset;
-  }
-  set inset(value) {
-    this._inset = coerceBooleanProperty(value);
-  }
-  _inset = false;
-  static ɵfac = function MatDivider_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatDivider)();
-  };
-  static ɵcmp = ɵɵdefineComponent({
-    type: _MatDivider,
-    selectors: [["mat-divider"]],
-    hostAttrs: ["role", "separator", 1, "mat-divider"],
-    hostVars: 7,
-    hostBindings: function MatDivider_HostBindings(rf, ctx) {
-      if (rf & 2) {
-        ɵɵattribute("aria-orientation", ctx.vertical ? "vertical" : "horizontal");
-        ɵɵclassProp("mat-divider-vertical", ctx.vertical)("mat-divider-horizontal", !ctx.vertical)("mat-divider-inset", ctx.inset);
-      }
-    },
-    inputs: {
-      vertical: "vertical",
-      inset: "inset"
-    },
-    decls: 0,
-    vars: 0,
-    template: function MatDivider_Template(rf, ctx) {
-    },
-    styles: [".mat-divider{display:block;margin:0;border-top-style:solid;border-top-color:var(--mat-divider-color, var(--mat-sys-outline-variant));border-top-width:var(--mat-divider-width, 1px)}.mat-divider.mat-divider-vertical{border-top:0;border-right-style:solid;border-right-color:var(--mat-divider-color, var(--mat-sys-outline-variant));border-right-width:var(--mat-divider-width, 1px)}.mat-divider.mat-divider-inset{margin-left:80px}[dir=rtl] .mat-divider.mat-divider-inset{margin-left:auto;margin-right:80px}\n"],
-    encapsulation: 2,
-    changeDetection: 0
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatDivider, [{
-    type: Component,
-    args: [{
-      selector: "mat-divider",
-      host: {
-        "role": "separator",
-        "[attr.aria-orientation]": 'vertical ? "vertical" : "horizontal"',
-        "[class.mat-divider-vertical]": "vertical",
-        "[class.mat-divider-horizontal]": "!vertical",
-        "[class.mat-divider-inset]": "inset",
-        "class": "mat-divider"
-      },
-      template: "",
-      encapsulation: ViewEncapsulation.None,
-      changeDetection: ChangeDetectionStrategy.OnPush,
-      styles: [".mat-divider{display:block;margin:0;border-top-style:solid;border-top-color:var(--mat-divider-color, var(--mat-sys-outline-variant));border-top-width:var(--mat-divider-width, 1px)}.mat-divider.mat-divider-vertical{border-top:0;border-right-style:solid;border-right-color:var(--mat-divider-color, var(--mat-sys-outline-variant));border-right-width:var(--mat-divider-width, 1px)}.mat-divider.mat-divider-inset{margin-left:80px}[dir=rtl] .mat-divider.mat-divider-inset{margin-left:auto;margin-right:80px}\n"]
-    }]
-  }], null, {
-    vertical: [{
-      type: Input
-    }],
-    inset: [{
-      type: Input
-    }]
-  });
-})();
-var MatDividerModule = class _MatDividerModule {
-  static ɵfac = function MatDividerModule_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatDividerModule)();
-  };
-  static ɵmod = ɵɵdefineNgModule({
-    type: _MatDividerModule,
-    imports: [MatDivider],
-    exports: [MatDivider, BidiModule]
-  });
-  static ɵinj = ɵɵdefineInjector({
-    imports: [BidiModule]
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatDividerModule, [{
-    type: NgModule,
-    args: [{
-      imports: [MatDivider],
-      exports: [MatDivider, BidiModule]
-    }]
-  }], null, null);
-})();
 
 // node_modules/@angular/material/fesm2022/list.mjs
 var _c0 = ["*"];

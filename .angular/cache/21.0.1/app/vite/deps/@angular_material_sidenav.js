@@ -1,15 +1,4 @@
-import {
-  CdkScrollable,
-  CdkScrollableModule,
-  ScrollDispatcher,
-  ViewportRuler
-} from "./chunk-2FOKS44A.js";
-import {
-  coerceBooleanProperty
-} from "./chunk-42QFQP6S.js";
-import "./chunk-3V2N2X4B.js";
-import "./chunk-GUGIMSVJ.js";
-import "./chunk-RP5JKT6Z.js";
+import "./chunk-5OHGYAKF.js";
 import {
   ESCAPE,
   FocusMonitor,
@@ -17,23 +6,35 @@ import {
   InteractivityChecker,
   _animationsDisabled,
   hasModifierKey
-} from "./chunk-RB7XLOKD.js";
-import "./chunk-377GTYIT.js";
+} from "./chunk-CNKMQHWD.js";
+import "./chunk-DPAJNIXH.js";
+import "./chunk-PYKZHYFZ.js";
+import "./chunk-O27F6YLE.js";
+import {
+  coerceBooleanProperty
+} from "./chunk-PLJ2QXBA.js";
+import "./chunk-T5ZVQZJO.js";
 import "./chunk-N4DOILP3.js";
-import "./chunk-XA6252L2.js";
+import {
+  CdkScrollable,
+  CdkScrollableModule,
+  ScrollDispatcher,
+  ViewportRuler
+} from "./chunk-ZSTMYFWE.js";
+import "./chunk-GUGIMSVJ.js";
+import "./chunk-YWPKBWDS.js";
+import {
+  coerceNumberProperty
+} from "./chunk-AAOOLWN6.js";
+import {
+  Platform
+} from "./chunk-YA5HYVLV.js";
+import "./chunk-UKAKFZXH.js";
+import "./chunk-UC72YTJX.js";
 import {
   BidiModule,
   Directionality
-} from "./chunk-2R57SV63.js";
-import "./chunk-WQZGJRLP.js";
-import {
-  coerceNumberProperty
-} from "./chunk-Y7WPNMWP.js";
-import {
-  Platform
-} from "./chunk-BPAKBQVK.js";
-import "./chunk-YUMQOYZO.js";
-import "./chunk-UC72YTJX.js";
+} from "./chunk-45Q3JSYN.js";
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -51,22 +52,12 @@ import {
   Output,
   QueryList,
   Renderer2,
-  Subject,
   ViewChild,
   ViewEncapsulation,
   afterNextRender,
-  debounceTime,
-  filter,
-  fromEvent,
   inject,
-  map,
-  mapTo,
-  merge,
   setClassMetadata,
   signal,
-  startWith,
-  take,
-  takeUntil,
   ɵɵInheritDefinitionFeature,
   ɵɵProvidersFeature,
   ɵɵadvance,
@@ -92,7 +83,19 @@ import {
   ɵɵrestoreView,
   ɵɵstyleProp,
   ɵɵviewQuery
-} from "./chunk-ZUYASPZO.js";
+} from "./chunk-MOKDIJIK.js";
+import {
+  Subject,
+  debounceTime,
+  filter,
+  fromEvent,
+  map,
+  mapTo,
+  merge,
+  startWith,
+  take,
+  takeUntil
+} from "./chunk-RSS3ODKE.js";
 import "./chunk-GOMI4DH3.js";
 
 // node_modules/@angular/material/fesm2022/sidenav.mjs
