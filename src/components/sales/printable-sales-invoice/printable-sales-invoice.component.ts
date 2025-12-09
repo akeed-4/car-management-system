@@ -5,12 +5,13 @@ import { SalesInvoice } from '../../../types/sales-invoice.model';
 import { CustomerService } from '../../../services/customer.service';
 import { Customer } from '../../../types/customer.model';
 import { CurrencyPipe, DatePipe } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-printable-sales-invoice',
   standalone: true,
-  imports: [CurrencyPipe, DatePipe],
+  imports: [CurrencyPipe, TranslateModule],
   templateUrl: './printable-sales-invoice.component.html',
   styleUrl: './printable-sales-invoice.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -50,11 +51,12 @@ export class PrintableSalesInvoiceComponent {
       const idParam = this.route.snapshot.params['id'];
       if (idParam) {
         const id = Number(idParam);
-        const inv = this.salesService.getInvoiceById(id);
-        if (inv) {
-          this.invoice.set(inv);
-          this.customer.set(this.customerService.getCustomerById(inv.customerId) ?? null);
-        }
+        this.salesService.getInvoiceById(id).subscribe(inv => {
+          if (inv) {
+            this.invoice.set(inv);
+            this.customer.set(this.customerService.getCustomerById(inv.customerId) ?? null);
+          }
+        });
       }
     }, { allowSignalWrites: true });
   }

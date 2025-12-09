@@ -1,75 +1,57 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { RequestedCar } from '../types/requested-car.model';
+import { Observable, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RequestedCarService {
-  private nextId = signal(3);
-  private requestedCars = signal<RequestedCar[]>([
-    {
-      id: 1,
-      requestDate: '2024-05-22',
-      customerName: 'محمد عبدالله',
-      customerPhone: '0512345678',
-      make: 'Mercedes-Benz',
-      model: 'G-Class',
-      year: 2024,
-      color: 'أسود',
-      notes: 'يفضل أن تكون بحالة جديدة تماماً.',
-      status: 'New',
-      isArchived: false,
-    },
-    {
-      id: 2,
-      requestDate: '2024-05-20',
-      customerName: 'سارة خالد',
-      customerPhone: '0587654321',
-      make: 'Toyota',
-      model: 'Land Cruiser',
-      year: 2023,
-      color: 'أبيض لؤلؤي',
-      notes: 'تم التواصل مع العميل، يبحث عن فئة VXR.',
-      status: 'Contacted',
-      isArchived: false,
-    },
-  ]);
-
+  private http = inject(HttpClient);
+  private apiUrl = 'https://api.example.com/requested-cars'; // ضع رابط API الحقيقي هنا
+  private requestedCars = signal<RequestedCar[]>([]);
   public requestedCars$ = this.requestedCars.asReadonly();
 
-  getRequestById(id: number): RequestedCar | undefined {
-    return this.requestedCars().find(r => r.id === id);
+  constructor() {
+    this.loadRequestedCars();
   }
 
-  addRequest(request: Omit<RequestedCar, 'id'>) {
-    const newRequest: RequestedCar = {
-      ...request,
-      id: this.nextId(),
-      isArchived: false,
-    };
-    this.requestedCars.update(requests => [...requests, newRequest]);
-    this.nextId.update(id => id + 1);
+  loadRequestedCars() {
+    this.getRequestedCars().subscribe(requestedCars => this.requestedCars.set(requestedCars));
   }
 
-  updateRequest(updatedRequest: RequestedCar) {
-    this.requestedCars.update(requests =>
-      requests.map(r => (r.id === updatedRequest.id ? updatedRequest : r))
-    );
+  // جلب كل الطلبات
+  getRequestedCars(): Observable<RequestedCar[]> {
+    return this.http.get<RequestedCar[]>(this.apiUrl);
   }
 
-  deleteRequest(id: number) {
-    this.requestedCars.update(requests => requests.filter(r => r.id !== id));
-  }
-  
-  archiveRequest(id: number) {
-    this.requestedCars.update(requests =>
-      requests.map(req => (req.id === id ? { ...req, isArchived: true } : req))
-    );
+  // جلب طلب محدد حسب ID
+  getRequestById(id: number): Observable<RequestedCar> {
+    return this.http.get<RequestedCar>(`${this.apiUrl}/${id}`);
   }
 
-  unarchiveRequest(id: number) {
-    this.requestedCars.update(requests =>
-      requests.map(req => (req.id === id ? { ...req, isArchived: false } : req))
-    );
+  // إضافة طلب جديد
+  addRequest(request: Omit<RequestedCar, 'id'>): Observable<RequestedCar> {
+    return this.http.post<RequestedCar>(this.apiUrl, request);
+  }
+
+  // تحديث طلب موجود
+  updateRequest(updatedRequest: RequestedCar): Observable<RequestedCar> {
+    return this.http.put<RequestedCar>(`${this.apiUrl}/${updatedRequest.id}`, updatedRequest);
+  }
+
+  // حذف طلب
+  deleteRequest(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  // أرشفة الطلب
+  archiveRequest(id: number): Observable<RequestedCar> {
+    return this.http.patch<RequestedCar>(`${this.apiUrl}/${id}`, { isArchived: true });
+  }
+
+  // إلغاء أرشفة الطلب
+  unarchiveRequest(id: number): Observable<RequestedCar> {
+    return this.http.patch<RequestedCar>(`${this.apiUrl}/${id}`, { isArchived: false });
   }
 }

@@ -1,92 +1,101 @@
-import { Injectable, signal, inject } from '@angular/core';
-import { ConsignmentCar, ConsignmentCarStatus } from '../types/consignment-car.model';
-import { SalesService } from './sales.service'; // Potentially link to sales for reporting
-import { CustomerService } from './customer.service'; // To select owner if they are a customer
+import { Injectable, signal } from '@angular/core';
+import { environment } from '../environments/environment';
+import { ConsignmentCar } from '../types/consignment-car.model';
+import { HttpClient } from '@angular/common/http';
+import { catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ConsignmentService {
-  private nextId = signal(1);
-  // private salesService = inject(SalesService); // Could be used to link to sales
+  private apiUrl = `${environment.origin}/api/consignments`;
 
-  private consignmentCars = signal<ConsignmentCar[]>([
-    {
-      id: 1,
-      vin: 'CONSIGNMENTVIN001',
-      plateNumber: 'ABC 789',
-      make: 'Nissan',
-      model: 'Sunny',
-      year: 2020,
-      exteriorColor: 'Silver',
-      mileage: 80000,
-      ownerName: 'سامي العلي',
-      ownerPhone: '0561234567',
-      agreedSalePrice: 40000,
-      commissionRate: 0.07, // 7%
-      status: 'Available',
-      dateReceived: '2024-05-10',
-      isArchived: false,
-    },
-  ]);
+  constructor(private http: HttpClient) {}
 
+  private consignmentCars = signal<ConsignmentCar[]>([]);
   public consignmentCars$ = this.consignmentCars.asReadonly();
 
-  getConsignmentCarById(id: number): ConsignmentCar | undefined {
-    return this.consignmentCars$().find(c => c.id === id);
+  // ------- Get All --------------------------------------------------------
+  loadAll() {
+    this.http.get<ConsignmentCar[]>(this.apiUrl).pipe(
+      catchError(() => of([]))
+    ).subscribe(result => {
+      this.consignmentCars.set(result);
+    });
   }
 
+  // ------- Get By ID ------------------------------------------------------
+  getById(id: number) {
+    return this.http.get<ConsignmentCar>(`${this.apiUrl}/${id}`);
+  }
+
+  // ------- Create ---------------------------------------------------------
   addConsignmentCar(car: Omit<ConsignmentCar, 'id'>) {
-    const newCar: ConsignmentCar = {
-      ...car,
-      id: this.nextId(),
-      status: 'Available',
-      isArchived: false,
-    };
-    this.consignmentCars.update(cars => [...cars, newCar]);
-    this.nextId.update(id => id + 1);
+    this.http.post<ConsignmentCar>(this.apiUrl, car).pipe(
+      catchError(() => of(null))
+    ).subscribe(result => {
+      if (result) {
+        this.consignmentCars.update(list => [...list, result]);
+      }
+    });
   }
 
+  // ------- Update ---------------------------------------------------------
   updateConsignmentCar(updatedCar: ConsignmentCar) {
-    this.consignmentCars.update(cars =>
-      cars.map(c => (c.id === updatedCar.id ? updatedCar : c))
-    );
+    const url = `${this.apiUrl}/${updatedCar.id}`;
+    this.http.put<ConsignmentCar>(url, updatedCar).pipe(
+      catchError(() => of(null))
+    ).subscribe(result => {
+      if (result) {
+        this.consignmentCars.update(list =>
+          list.map(c => (c.id === result.id ? result : c))
+        );
+      }
+    });
   }
-  
+
+  // ------- Sell Car -------------------------------------------------------
   sellConsignmentCar(carId: number, salePrice: number) {
-    this.consignmentCars.update(cars => 
-      cars.map(car => {
-        if (car.id === carId) {
-          const commissionAmount = salePrice * car.commissionRate;
-          const ownerPayout = salePrice - commissionAmount;
-          return {
-            ...car,
-            status: 'Sold',
-            dateSold: new Date().toISOString().split('T')[0],
-            salePrice: salePrice,
-            commissionAmount: commissionAmount,
-            ownerPayout: ownerPayout,
-          };
-        }
-        return car;
-      })
-    );
+    const url = `${this.apiUrl}/${carId}/sell`;
+    this.http.post<ConsignmentCar>(url, { salePrice }).pipe(
+      catchError(() => of(null))
+    ).subscribe(result => {
+      if (result) {
+        this.consignmentCars.update(list =>
+          list.map(c => (c.id === result.id ? result : c))
+        );
+      }
+    });
   }
 
-  // Fix: Added deleteConsignmentCar method to align with UI functionality.
+  // ------- Delete ---------------------------------------------------------
   deleteConsignmentCar(id: number) {
-    this.consignmentCars.update(cars => cars.filter(car => car.id !== id));
+    this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+      catchError(() => of(null))
+    ).subscribe(() => {
+      this.consignmentCars.update(list => list.filter(c => c.id !== id));
+    });
   }
 
+  // ------- Archive --------------------------------------------------------
   archiveConsignmentCar(id: number) {
-    this.consignmentCars.update(cars =>
-      cars.map(car => (car.id === id ? { ...car, isArchived: true } : car))
-    );
+    this.http.post(`${this.apiUrl}/${id}/archive`, {}).pipe(
+      catchError(() => of(null))
+    ).subscribe(() => {
+      this.consignmentCars.update(list =>
+        list.map(c => c.id === id ? { ...c, isArchived: true } : c)
+      );
+    });
   }
 
   unarchiveConsignmentCar(id: number) {
-    this.consignmentCars.update(cars =>
-      cars.map(car => (car.id === id ? { ...car, isArchived: false } : car))
-    );
+    this.http.post(`${this.apiUrl}/${id}/unarchive`, {}).pipe(
+      catchError(() => of(null))
+    ).subscribe(() => {
+      this.consignmentCars.update(list =>
+        list.map(c => c.id === id ? { ...c, isArchived: false } : c)
+      );
+    });
   }
 }

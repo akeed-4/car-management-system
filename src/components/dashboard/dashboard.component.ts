@@ -29,19 +29,10 @@ export class DashboardComponent {
   
   // Access cars and quantities separately
   cars = this.inventoryService.cars$;
-  carQuantities = this.inventoryService.carQuantities$; // Access car quantities
-  upcomingAlerts = this.alertsService.upcomingAlerts$;
+  upcomingAlerts = this.alertsService.upcomingAlerts;
   
   availableCarsCount = computed(() => {
-    let count = 0;
-    const quantities = this.carQuantities();
-    for (const [carId, quantity] of quantities.entries()) {
-      const car = this.cars().find(c => c.id === carId);
-      if (car?.status === 'Available') {
-        count += quantity;
-      }
-    }
-    return count;
+    return this.cars().filter(c => c.status === 'Available').length;
   });
 
   requestedCarsCount = computed(() => this.requestedCarService.requestedCars$().length);
@@ -49,15 +40,7 @@ export class DashboardComponent {
   soldCarsCount = computed(() => this.salesService.invoices$().reduce((sum, inv) => inv.items.reduce((itemSum, item) => itemSum + item.quantity, 0) + sum ,0));
   
   totalInventoryValue = computed(() => {
-    let value = 0;
-    const quantities = this.carQuantities();
-    for (const [carId, quantity] of quantities.entries()) {
-      const car = this.cars().find(c => c.id === carId);
-      if (car) {
-        value += car.totalCost * quantity;
-      }
-    }
-    return value;
+    return this.cars().reduce((sum, car) => sum + car.totalCost * car.quantity, 0);
   });
   
   // New computed signal for total expenses
@@ -84,21 +67,12 @@ export class DashboardComponent {
   });
 
   inventoryStatusDistribution = computed(() => {
-    const quantities = this.carQuantities();
     const cars = this.cars();
     const statusCounts = new Map<CarStatus, number>();
 
-    for (const [carId, quantity] of quantities.entries()) {
-      const car = cars.find(c => c.id === carId);
-      if (car && quantity > 0) { // Only count if there's stock
-        const currentCount = statusCounts.get(car.status) || 0;
-        statusCounts.set(car.status, currentCount + quantity);
-      } else if (car && car.status === 'Sold' && quantity === 0) {
-        // Explicitly handle sold cars with 0 quantity if needed for reporting,
-        // though typically `soldCarsCount` handles this.
-        const currentCount = statusCounts.get(car.status) || 0;
-        statusCounts.set(car.status, currentCount + quantity); // Will add 0 if quantity is 0
-      }
+    for (const car of cars) {
+      const currentCount = statusCounts.get(car.status) || 0;
+      statusCounts.set(car.status, currentCount + car.quantity);
     }
 
     // Ensure all possible statuses are represented for chart consistency, even if 0

@@ -1,42 +1,45 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { StockTake } from '../types/stock-take.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class StockTakeService {
-  private nextId = signal(1);
-  private stockTakes = signal<StockTake[]>([]);
+  private http = inject(HttpClient);
+  private apiUrl = 'https://api.example.com/stock-takes'; // رابط الـ API الحقيقي
 
-  public stockTakes$ = this.stockTakes.asReadonly();
+  constructor() {}
 
-  getStockTakeById(id: number): StockTake | undefined {
-    return this.stockTakes().find(st => st.id === id);
+  // جلب كل StockTakes
+  getStockTakes(): Observable<StockTake[]> {
+    return this.http.get<StockTake[]>(this.apiUrl);
   }
 
-  addStockTake(stockTake: Omit<StockTake, 'id' | 'status'>) {
-    const newStockTake: StockTake = {
-      ...stockTake,
-      id: this.nextId(),
-      status: 'Pending',
-    };
-    this.stockTakes.update(sts => [...sts, newStockTake]);
-    this.nextId.update(id => id + 1);
+  // جلب StockTake واحدة حسب ID
+  getStockTakeById(id: number): Observable<StockTake> {
+    return this.http.get<StockTake>(`${this.apiUrl}/${id}`);
   }
 
-  updateStockTake(updatedStockTake: StockTake) {
-    this.stockTakes.update(sts =>
-      sts.map(st => st.id === updatedStockTake.id ? updatedStockTake : st)
-    );
+  // إضافة StockTake جديدة
+  addStockTake(stockTake: Omit<StockTake, 'id' | 'status'>): Observable<StockTake> {
+    const newStockTake = { ...stockTake, status: 'Pending' };
+    return this.http.post<StockTake>(this.apiUrl, newStockTake);
   }
 
-  updateStockTakeStatus(id: number, status: 'Pending' | 'Approved') {
-    this.stockTakes.update(sts =>
-      sts.map(st => st.id === id ? { ...st, status } : st)
-    );
+  // تحديث StockTake
+  updateStockTake(stockTake: StockTake): Observable<StockTake> {
+    return this.http.put<StockTake>(`${this.apiUrl}/${stockTake.id}`, stockTake);
   }
 
-  deleteStockTake(id: number) {
-    this.stockTakes.update(sts => sts.filter(st => st.id !== id));
+  // تحديث حالة StockTake
+  updateStockTakeStatus(id: number, status: 'Pending' | 'Approved'): Observable<StockTake> {
+    return this.http.patch<StockTake>(`${this.apiUrl}/${id}`, { status });
+  }
+
+  // حذف StockTake
+  deleteStockTake(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }

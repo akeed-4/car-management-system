@@ -91,14 +91,14 @@
               </tr>
             </thead>
             <tbody>
-              @for (item of serviceOrder().serviceItems; track $index; let i = $index) {
+              @for (item of serviceOrder().serviceItems; track item) {
                 <tr>
                   <td>
                     <input 
                       type="text" 
                       [ngModel]="item.description" 
-                      (ngModelChange)="updateServiceItem(i, 'description', $event)" 
-                      [name]="'itemDesc-' + i" 
+                      (ngModelChange)="updateServiceItem(item, 'description', $event)" 
+                      [name]="'itemDesc-' + item" 
                       placeholder="وصف الخدمة/القطعة" 
                       required 
                       class="form-input table-input">
@@ -107,14 +107,14 @@
                     <input 
                       type="number" 
                       [ngModel]="item.cost" 
-                      (ngModelChange)="updateServiceItem(i, 'cost', +$event)" 
-                      [name]="'itemCost-' + i" 
+                      (ngModelChange)="updateServiceItem(item, 'cost', +$event)" 
+                      [name]="'itemCost-' + item" 
                       min="0" 
                       required 
                       class="form-input table-input text-left">
                   </td>
                   <td class="actions-cell">
-                    <button type="button" (click)="removeServiceItem(i)" class="btn-icon btn-icon-danger">
+                    <button type="button" (click)="removeServiceItem(item)" class="btn-icon btn-icon-danger">
                       <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                   </td>

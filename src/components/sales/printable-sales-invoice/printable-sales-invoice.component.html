@@ -1,122 +1,66 @@
-<div class="bg-gray-100 p-4 font-sans">
-@if (invoice(); as inv) {
-  <div class="max-w-4xl mx-auto bg-white shadow-2xl rounded-lg">
-    <div class="p-8 md:p-12">
-      <!-- Invoice Header -->
-      <header class="flex justify-between items-start pb-6 mb-6 border-b">
-        <div class="flex items-center">
-            <div class="text-primary-600">
-                <svg class="w-12 h-12" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.125-.504 1.125-1.125V14.25m-17.25 4.5v-1.875a3.375 3.375 0 0 1 3.375-3.375h9.75a3.375 3.375 0 0 1 3.375 3.375v1.875m-17.25 4.5h14.25M9 12.75h6m-6 0a1.5 1.5 0 0 1-1.5-1.5V8.625c0-.828.672-1.5 1.5-1.5h6c.828 0 1.5.672 1.5 1.5v2.625a1.5 1.5 0 0 1-1.5 1.5m-6 0h6" />
-                </svg>
-            </div>
-            <div class="mr-4">
-                <h1 class="text-lg font-bold text-gray-800">{{ companyInfo.name }}</h1>
-                <p class="text-xs text-gray-500">{{ companyInfo.address }}</p>
-                <p class="text-xs text-gray-500">الرقم الضريبي: {{ companyInfo.taxNumber }}</p>
-            </div>
-        </div>
-        <div class="text-left">
-            <h2 class="text-2xl font-bold text-gray-700 uppercase">فاتورة</h2>
-            <p class="text-sm text-gray-500 mt-1">رقم: {{ inv.invoiceNumber }}</p>
-            <p class="text-sm text-gray-500">تاريخ: {{ inv.invoiceDate | date:'yyyy-MM-dd' }}</p>
-        </div>
-      </header>
 
-      <!-- Customer Info -->
-      <section class="grid grid-cols-2 gap-8 mb-8">
-        <div>
-          <h3 class="text-xs font-semibold text-gray-500 mb-2 uppercase">فاتورة إلى:</h3>
-          @if(customer(); as cust) {
-            <p class="font-bold text-sm text-gray-800">{{ cust.name }}</p>
-            <p class="text-xs text-gray-600">{{ cust.address }}</p>
-            <p class="text-xs text-gray-600">الجوال: {{ cust.phone }}</p>
-          }
-        </div>
-        <div class="text-left">
-            <h3 class="text-xs font-semibold text-gray-500 mb-2 uppercase">حالة الدفع:</h3>
-            <p>
-              <span [class.bg-green-100]="isPaid()" [class.text-green-800]="isPaid()" [class.bg-yellow-100]="!isPaid()" [class.text-yellow-800]="!isPaid()" class="px-3 py-1 rounded-full text-xs font-semibold">
-                  {{ isPaid() ? 'مدفوعة' : 'قيد الانتظar' }}
-              </span>
-            </p>
-            <h3 class="text-xs font-semibold text-gray-500 mb-2 mt-2 uppercase">حالة نقل الملكية:</h3>
-            <p>
-               <span [class.bg-green-100]="inv.ownershipTransferStatus === 'Completed'" [class.text-green-800]="inv.ownershipTransferStatus === 'Completed'" 
-                     [class.bg-blue-100]="inv.ownershipTransferStatus === 'In Progress'" [class.text-blue-800]="inv.ownershipTransferStatus === 'In Progress'"
-                     [class.bg-gray-100]="inv.ownershipTransferStatus === 'Not Started'" [class.text-gray-800]="inv.ownershipTransferStatus === 'Not Started'"
-                     [class.bg-red-100]="inv.ownershipTransferStatus === 'Failed'" [class.text-red-800]="inv.ownershipTransferStatus === 'Failed'"
-                     class="px-3 py-1 rounded-full text-xs font-semibold">
-                {{ transferStatusText() }}
-              </span>
-            </p>
-        </div>
-      </section>
 
-      <!-- Items Table -->
-      <section class="mb-8">
-        <table class="w-full text-sm">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="p-3 text-right font-semibold text-gray-600">البيان</th>
-              <th class="p-3 text-center font-semibold text-gray-600 whitespace-nowrap">الكمية</th>
-              <th class="p-3 text-left font-semibold text-gray-600 whitespace-nowrap">سعر الوحدة</th>
-              <th class="p-3 text-left font-semibold text-gray-600 whitespace-nowrap">الإجمالي</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for(item of inv.items; track item.carId) {
-              <tr class="border-b align-top">
-                <td class="p-3 align-top">
-                  <p class="font-semibold text-gray-800">{{ item.carDescription }}</p>
-                </td>
-                <td class="p-3 text-center align-top">{{ item.quantity }}</td>
-                <td class="p-3 text-left font-mono whitespace-nowrap align-top">{{ item.unitPrice | currency:'SAR':'symbol':'1.0-2' }}</td>
-                <td class="p-3 text-left font-mono whitespace-nowrap align-top">{{ item.lineTotal | currency:'SAR':'symbol':'1.0-2' }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </section>
-      
-      <!-- Financial Summary & Notes -->
-      <section class="mt-8 flex justify-end">
-        <div class="w-full max-w-sm">
-          <div class="space-y-1">
-            <div class="flex justify-between text-sm">
-              <span class="text-gray-600">الإجمالي قبل الضريبة:</span>
-              <span class="font-mono font-medium">{{ inv.subtotal | currency:'SAR':'symbol':'1.0-2' }}</span>
-            </div>
-            <div class="flex justify-between text-sm">
-              <span class="text-gray-600">ضريبة القيمة المضافة (15%):</span>
-              <span class="font-mono font-medium">{{ inv.vatAmount | currency:'SAR':'symbol':'1.0-2' }}</span>
-            </div>
-            <div class="border-t my-2"></div>
-            <div class="flex justify-between font-bold text-lg">
-              <span class="text-gray-900">الإجمالي النهائي:</span>
-              <span class="font-mono text-primary-700">{{ inv.totalAmount | currency:'SAR':'symbol':'1.0-2' }}</span>
-            </div>
-          </div>
-        </div>
-      </section>
+<div class="invoice-container">
 
-      <!-- Footer -->
-      <footer class="text-center text-xs text-gray-400 border-t pt-6 mt-12">
-        <p>شكراً لتعاملكم معنا.</p>
-      </footer>
+  @if (invoice(); as inv) {
+    <div class="invoice-header">
+      <img src="/assets/logo.png" alt="Company Logo" class="logo">
+      <div class="company-info">
+        <h1>{{ companyInfo.name }}</h1>
+        <p>{{ companyInfo.address }}</p>
+        <p>الرقم الضريبي: {{ companyInfo.taxNumber }}</p>
+      </div>
     </div>
-  </div>
-} @else {
-  <p class="text-center text-red-500 p-8">لم يتم العثور على الفاتورة المطلوبة.</p>
-}
+
+    <div class="customer-info">
+      <h3>{{ 'SALES.PRINTABLE.INVOICE_TO' | translate }}</h3>
+      <p>{{ customer().name }}</p>
+      <p>{{ customer().address }}</p>
+      <p>الجوال: {{ customer().phone }}</p>
+    </div>
+
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th>{{ 'SALES.PRINTABLE.ITEM' | translate }}</th>
+          <th>{{ 'SALES.PRINTABLE.QTY' | translate }}</th>
+          <th>{{ 'SALES.PRINTABLE.UNIT_PRICE' | translate }}</th>
+          <th>{{ 'SALES.PRINTABLE.LINE_TOTAL' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for(item of inv.items; track item.carId) {
+          <tr>
+            <td>{{ item.carDescription }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.unitPrice | currency:'SAR':'symbol':'1.0-2' }}</td>
+            <td>{{ item.lineTotal | currency:'SAR':'symbol':'1.0-2' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <div class="summary-section">
+      <h3>{{ 'SALES.PRINTABLE.SUMMARY' | translate }}</h3>
+      <p>Subtotal: {{ inv.subtotal | currency:'SAR':'symbol':'1.0-2' }}</p>
+      <p>VAT: {{ inv.vatAmount | currency:'SAR':'symbol':'1.0-2' }}</p>
+      <p class="total">Total: {{ inv.totalAmount | currency:'SAR':'symbol':'1.0-2' }}</p>
+    </div>
+
+    <div class="footer">
+      <p>{{ 'SALES.PRINTABLE.THANKS' | translate }}</p>
+    </div>
+  } @else {
+    <p class="text-center text-red-500 p-8">لم يتم العثور على الفاتورة المطلوبة.</p>
+  }
 </div>
 <!-- Print Controls -->
 <div class="mt-8 text-center no-print">
   <button (click)="goBack()" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg shadow hover:bg-gray-300 transition duration-300 ml-4">
-    &larr; رجوع
+    &larr; {{ 'SALES.PRINTABLE.BACK' | translate }}
   </button>
   <button (click)="printInvoice()" class="bg-primary-600 text-white px-6 py-2 rounded-lg shadow hover:bg-primary-700 transition duration-300">
     <svg class="inline-block w-5 h-5 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03-.48.062-.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0-1.131-12.112a1.125 1.125 0 0 0-1.12-1.006H8.348a1.125 1.125 0 0 0-1.12 1.006L6.098 18m11.318 0-2.829-5.115M6.34 18l-2.829-5.115m0 0a3.007 3.007 0 0 1-1.115-2.288V5.625a1.125 1.125 0 0 1 1.125-1.125h14.25a1.125 1.125 0 0 1 1.125 1.125v5.002c0 .823-.357 1.555-1.115 2.288m-13.03 0a1.125 1.125 0 0 1-1.125-1.125v-1.5c0-.621.504-1.125 1.125-1.125h14.25c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504-1.125-1.125 1.125m-14.25 0h14.25" /></svg>
-    طباعة الفاتورة
+    {{ 'SALES.PRINTABLE.PRINT' | translate }}
   </button>
 </div>

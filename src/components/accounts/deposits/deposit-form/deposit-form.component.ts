@@ -7,11 +7,12 @@ import { InventoryService } from '../../../../services/inventory.service';
 import { DepositService } from '../../../../services/deposit.service';
 import { DepositVoucher } from '../../../../types/deposit-voucher.model';
 import { Car } from '../../../../types/car.model';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-deposit-form',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, TranslateModule],
   templateUrl: './deposit-form.component.html',
   styleUrl: './deposit-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -45,12 +46,7 @@ export class DepositFormComponent {
   amount = signal(0);
   notes = signal('');
 
-  selectedCarDetails = computed<Car | undefined>(() => {
-    const carId = this.selectedCarId();
-    if (!carId) return undefined;
-    // Fix: inventoryService is now correctly typed, allowing getCarById access.
-    return this.inventoryService.getCarById(carId);
-  });
+  selectedCarDetails = signal<Car | undefined>(undefined);
 
   constructor() {
     effect(() => {
@@ -58,6 +54,7 @@ export class DepositFormComponent {
       if (carIdParam) {
         const carId = Number(carIdParam);
         this.selectedCarId.set(carId);
+        this.inventoryService.getCarById(carId).subscribe(car => this.selectedCarDetails.set(car));
         // Prefill customer if the car is reserved and we know the customer
         // (This part would typically be more complex, e.g., if sales invoice exists)
         // For now, we'll let the user select customer manually or leave as an exercise.
@@ -67,8 +64,11 @@ export class DepositFormComponent {
 
   onCarChange(carId: number | null) {
     this.selectedCarId.set(carId);
-    // Optionally pre-fill amount if a default deposit percentage is configured
-    // For now, leave at 0.
+    if (carId) {
+      this.inventoryService.getCarById(carId).subscribe(car => this.selectedCarDetails.set(car));
+    } else {
+      this.selectedCarDetails.set(undefined);
+    }
   }
 
   saveDeposit() {
@@ -77,7 +77,8 @@ export class DepositFormComponent {
     const depositAmount = this.amount();
 
     if (!customer || !car || depositAmount <= 0) {
-      alert('الرجاء تعبئة جميع الحقول المطلوبة بشكل صحيح.');
+      const translate = inject(TranslateService);
+      alert(translate.instant('ACCOUNTS.DEPOSITS.FORM.FILL_REQUIRED'));
       return;
     }
 
@@ -94,7 +95,8 @@ export class DepositFormComponent {
 
     // Fix: depositService is now correctly typed, allowing addDeposit access.
     this.depositService.addDeposit(newDeposit);
-    alert('تم إصدار سند العربون بنجاح.');
+    const translate = inject(TranslateService);
+    alert(translate.instant('ACCOUNTS.DEPOSITS.FORM.SAVED'));
     this.router.navigate(['/accounts/deposits']);
   }
 }

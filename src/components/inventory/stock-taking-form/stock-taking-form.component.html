@@ -2,7 +2,7 @@
   <div class="flex justify-between items-center mb-6">
     <h2 class="text-2xl font-semibold text-gray-800">{{ pageTitle() }}</h2>
     <a routerLink="/inventory/stock-taking" class="text-primary-600 hover:text-primary-800 transition duration-300 flex items-center">
-      &larr; العودة إلى قائمة الجرد
+      {{ 'INVENTORY.STOCK_TAKING_FORM.BACK_TO_LIST' | translate }}
     </a>
   </div>
 
@@ -11,10 +11,10 @@
       
       <!-- Stock Take Header -->
       <section class="border-b pb-6 mb-6">
-        <h3 class="text-xl font-semibold text-gray-700 mb-4">بيانات الجرد الأساسية</h3>
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">{{ 'INVENTORY.STOCK_TAKING_FORM.HEADER_TITLE' | translate }}</h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <label for="name" class="block text-sm font-medium text-gray-700">اسم الجرد</label>
+            <label for="name" class="block text-sm font-medium text-gray-700">{{ 'INVENTORY.STOCK_TAKING_FORM.NAME' | translate }}</label>
             <input 
               type="text" 
               id="name" 
@@ -26,7 +26,7 @@
               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
           </div>
           <div>
-            <label for="date" class="block text-sm font-medium text-gray-700">التاريخ</label>
+            <label for="date" class="block text-sm font-medium text-gray-700">{{ 'INVENTORY.STOCK_TAKING_FORM.DATE' | translate }}</label>
             <input 
               type="date" 
               id="date" 
@@ -37,7 +37,7 @@
               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
           </div>
           <div>
-            <label for="user" class="block text-sm font-medium text-gray-700">القائم بالجرد</label>
+            <label for="user" class="block text-sm font-medium text-gray-700">{{ 'INVENTORY.STOCK_TAKING_FORM.CONDUCTED_BY' | translate }}</label>
             <input 
               type="text" 
               id="user" 
@@ -54,20 +54,20 @@
       <!-- Stock Take Items Table -->
       <section>
         <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-semibold text-gray-700">تفاصيل الجرد</h3>
-            <button type="button" (click)="addNewItemRow()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700 transition duration-300 flex items-center text-sm">
+            <h3 class="text-xl font-semibold text-gray-700">{{ 'INVENTORY.STOCK_TAKING_FORM.ITEMS_TITLE' | translate }}</h3>
+                <button type="button" (click)="addNewItemRow()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700 transition duration-300 flex items-center text-sm">
                 <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                إضافة سيارة للجرد
+                {{ 'INVENTORY.STOCK_TAKING_FORM.ADD_CAR' | translate }}
             </button>
         </div>
         <div class="overflow-x-auto border rounded-lg">
           <table class="min-w-full bg-white">
             <thead class="bg-gray-50">
               <tr>
-                <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase w-2/5">السيارة</th>
-                <th class="text-center py-3 px-4 font-semibold text-sm text-gray-600 uppercase">الكمية بالنظام</th>
-                <th class="text-center py-3 px-4 font-semibold text-sm text-gray-600 uppercase">الكمية الفعلية</th>
-                <th class="text-center py-3 px-4 font-semibold text-sm text-gray-600 uppercase">حذف</th>
+                <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase w-2/5">{{ 'INVENTORY.STOCK_TAKING_FORM.CAR' | translate }}</th>
+                <th class="text-center py-3 px-4 font-semibold text-sm text-gray-600 uppercase">{{ 'INVENTORY.STOCK_TAKING_FORM.SYSTEM_QUANTITY' | translate }}</th>
+                <th class="text-center py-3 px-4 font-semibold text-sm text-gray-600 uppercase">{{ 'INVENTORY.STOCK_TAKING_FORM.ACTUAL_QUANTITY' | translate }}</th>
+                <th class="text-center py-3 px-4 font-semibold text-sm text-gray-600 uppercase">{{ 'INVENTORY.STOCK_TAKING_FORM.REMOVE' | translate }}</th>
               </tr>
             </thead>
             <tbody class="text-gray-700">
@@ -80,7 +80,7 @@
                        [name]="'carId-' + i"
                        required
                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
-                       <option [ngValue]="0" disabled>-- اختر سيارة --</option>
+                       <option [ngValue]="0" disabled>-- {{ 'INVENTORY.STOCK_TAKING_FORM.CAR' | translate }} --</option>
                        @for (car of allCars(); track car.id) {
                           @if(!selectedCarIds().includes(car.id) || car.id === item.carId) {
                              <option [value]="car.id">{{ car.make }} {{ car.model }} ({{ car.year }})</option>
@@ -109,7 +109,7 @@
               @if(!stockTake().items || stockTake().items?.length === 0) {
                  <tr>
                   <td colspan="4" class="text-center py-8 text-gray-500">
-                    الرجاء الضغط على زر "إضافة سيارة" لبدء الجرد.
+                    {{ 'INVENTORY.STOCK_TAKING_FORM.NO_ITEMS_PROMPT' | translate }}
                   </td>
                 </tr>
               }
@@ -120,12 +120,12 @@
 
       <!-- Form Actions -->
       <div class="mt-8 pt-6 border-t flex justify-end">
-        <a routerLink="/inventory/stock-taking" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg shadow hover:bg-gray-300 transition duration-300 ml-4 text-sm">إلغاء</a>
+        <a routerLink="/inventory/stock-taking" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg shadow hover:bg-gray-300 transition duration-300 ml-4 text-sm">{{ 'INVENTORY.STOCK_TAKING_FORM.CANCEL' | translate }}</a>
         <button 
           type="submit" 
           [disabled]="stockTakeForm.invalid"
           class="bg-primary-600 text-white px-6 py-2 rounded-lg shadow hover:bg-primary-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm">
-          {{ editMode() ? 'حفظ التغييرات' : 'حفظ الجرد' }}
+          {{ editMode() ? ( 'INVENTORY.STOCK_TAKING_FORM.SAVE_CHANGES' | translate ) : ( 'INVENTORY.STOCK_TAKING_FORM.SAVE_TAKE' | translate ) }}
         </button>
       </div>
     </form>

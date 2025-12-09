@@ -179,6 +179,28 @@ a:hover {
   color: var(--color-gray-800);
 }
 
+/* Small button variant */
+.btn-small {
+  padding: 0.25rem 0.5rem !important;
+  font-size: 0.75rem !important;
+  border-radius: calc(var(--rounded-md) - 4px) !important;
+  height: auto !important;
+  min-height: 28px !important;
+}
+
+.btn-small .icon {
+  width: 16px !important;
+  height: 16px !important;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+/* RTL: icon spacing on the left when direction is rtl */
+[dir="rtl"] .btn-small .icon {
+  margin-right: 0;
+  margin-left: 6px;
+}
+
 /* Forms */
 .form-label {
   display: block;
@@ -254,6 +276,31 @@ a:hover {
 }
 .table tbody tr {
   border-bottom: 1px solid var(--color-gray-200);
+
+/* Apply consistent 2px margin and width for main layout components so
+   all content fits without overflowing. This targets typical page
+   containers and component wrappers. */
+.container, .card, .table-wrapper, .page-header, main, section, .card * {
+  box-sizing: border-box !important;
+}
+
+.container, .card, .table-wrapper, .page-header {
+  margin: 2px !important;
+  width: calc(100% - 4px) !important;
+  max-width: calc(100% - 4px) !important;
+}
+
+/* Make media elements responsive inside components */
+img, svg, picture, iframe, video {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* Utility helpers */
+.full-width {
+  width: 100% !important;
+}
+
   transition: background-color 0.15s;
 }
 .table tbody tr:last-child {
@@ -288,4 +335,642 @@ a:hover {
   .no-print {
     display: none !important;
   }
+}
+@import 'src/styles/themes/theme-components.scss';
+@import 'src/styles/themes/css.variables.scss';
+
+
+.cdk-overlay-container {
+  z-index: 9999 !important;
+}
+
+.dx-overlay-wrapper.dx-popup-wrapper.dx-datagrid-edit-popup {
+  z-index: 1501 !important;
+}
+
+.dx-overlay-wrapper:not(.dx-datagrid-edit-popup) {
+  z-index: 10001 !important;
+}
+
+.mobile-tooltip {
+  pointer-events: none;
+  user-select: none;
+  font-family: var(--font-secondary);
+  max-width: 80vw;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  z-index: 2147483647;
+  font-weight: bold;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  animation: tooltipPulse 1s ease-in-out;
+}
+
+@keyframes tooltipPulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.mat-drawer-content {
+  display: inline !important;
+}
+
+
+
+
+
+.spinner:before {
+  content: '';
+  box-sizing: border-box;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin-top: -10px;
+  margin-left: -10px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  border-top-color: #000000;
+  animation: spinner .8s linear infinite;
+}
+
+
+
+.border-form .mat-mdc-slide-toggle.mat-accent {
+  --mdc-switch-selected-focus-state-layer-color: rgb(14, 172, 14);
+  --mdc-switch-selected-handle-color: rgb(14, 172, 14);
+  --mdc-switch-selected-hover-state-layer-color: rgb(14, 172, 14);
+  --mdc-switch-selected-pressed-state-layer-color: rgb(14, 172, 14);
+  --mdc-switch-selected-focus-handle-color: rgb(14, 172, 14);
+  --mdc-switch-selected-hover-handle-color: rgb(14, 172, 14);
+  --mdc-switch-selected-pressed-handle-color: rgb(14, 172, 14);
+  --mdc-switch-selected-focus-track-color: rgb(89, 180, 89);
+  --mdc-switch-selected-hover-track-color: rgb(89, 180, 89);
+  --mdc-switch-selected-pressed-track-color: rgb(89, 180, 89);
+  --mdc-switch-selected-track-color: rgb(89, 180, 89);
+
+  --mdc-switch-disabled-selected-handle-color: rgb(89, 180, 89);
+  --mdc-switch-disabled-selected-track-color: rgb(89, 180, 89);
+}
+
+.border-form .mat-mdc-slide-toggle.mat-accent {
+  --mdc-switch-unselected-focus-state-layer-color: rgb(194, 22, 36);
+  --mdc-switch-unselected-handle-color: rgb(194, 22, 36);
+  --mdc-switch-unselected-hover-state-layer-color: rgb(194, 22, 36);
+  --mdc-switch-unselected-pressed-state-layer-color: rgb(194, 22, 36);
+  --mdc-switch-unselected-focus-handle-color: rgb(194, 22, 36);
+  --mdc-switch-unselected-hover-handle-color: rgb(194, 22, 36);
+  --mdc-switch-unselected-pressed-handle-color: rgb(194, 22, 36);
+  --mdc-switch-unselected-focus-track-color: rgb(224, 115, 124);
+  --mdc-switch-unselected-hover-track-color: rgb(224, 115, 124);
+  --mdc-switch-unselected-pressed-track-color: rgb(224, 115, 124);
+  --mdc-switch-unselected-track-color: rgb(224, 115, 124);
+
+  --mdc-switch-disabled-unselected-track-color: rgb(194, 22, 36);
+  --mdc-switch-disabled-unselected-handle-color: rgb(194, 22, 36);
+
+}
+
+.borderless-form .mat-mdc-slide-toggle.mat-accent {
+  --mdc-switch-selected-focus-state-layer-color: rgb(14, 172, 14);
+  --mdc-switch-selected-handle-color: rgb(14, 172, 14);
+  --mdc-switch-selected-hover-state-layer-color: rgb(14, 172, 14);
+  --mdc-switch-selected-pressed-state-layer-color: rgb(14, 172, 14);
+  --mdc-switch-selected-focus-handle-color: rgb(14, 172, 14);
+  --mdc-switch-selected-hover-handle-color: rgb(14, 172, 14);
+  --mdc-switch-selected-pressed-handle-color: rgb(14, 172, 14);
+  --mdc-switch-selected-focus-track-color: rgb(89, 180, 89);
+  --mdc-switch-selected-hover-track-color: rgb(89, 180, 89);
+  --mdc-switch-selected-pressed-track-color: rgb(89, 180, 89);
+  --mdc-switch-selected-track-color: rgb(89, 180, 89);
+
+  --mdc-switch-disabled-selected-handle-color: rgb(89, 180, 89);
+  --mdc-switch-disabled-selected-track-color: rgb(89, 180, 89);
+}
+
+.borderless-form .mat-mdc-slide-toggle.mat-accent {
+  --mdc-switch-unselected-focus-state-layer-color: rgb(194, 22, 36);
+  --mdc-switch-unselected-handle-color: rgb(194, 22, 36);
+  --mdc-switch-unselected-hover-state-layer-color: rgb(194, 22, 36);
+  --mdc-switch-unselected-pressed-state-layer-color: rgb(194, 22, 36);
+  --mdc-switch-unselected-focus-handle-color: rgb(194, 22, 36);
+  --mdc-switch-unselected-hover-handle-color: rgb(194, 22, 36);
+  --mdc-switch-unselected-pressed-handle-color: rgb(194, 22, 36);
+  --mdc-switch-unselected-focus-track-color: rgb(224, 115, 124);
+  --mdc-switch-unselected-hover-track-color: rgb(224, 115, 124);
+  --mdc-switch-unselected-pressed-track-color: rgb(224, 115, 124);
+  --mdc-switch-unselected-track-color: rgb(224, 115, 124);
+
+  --mdc-switch-disabled-unselected-track-color: rgb(194, 22, 36);
+  --mdc-switch-disabled-unselected-handle-color: rgb(194, 22, 36);
+
+}
+
+.my-label {
+  font-family: var(--font-secondary);
+  color: #757575
+}
+
+.my-label-toolbar {
+  font-family: var(--font-secondary);
+  font-size: 16px;
+  font-weight: bold;
+  color: #3f51b5;
+}
+
+.my-label-disabled {
+  font-family: var(--font-secondary);
+  color: rgb(29, 28, 28);
+}
+
+::ng-deep .mat-mdc-select-value-text {
+  font-family: var(--font-secondary);
+
+}
+
+::ng-deep .mdc-tab__text-label {
+  font-family: var(--font-heading);
+}
+
+::ng-deep .mat-step-text-label {
+  font-family: var(--font-secondary);
+}
+
+.mdc-form-field>label,
+.mdc-form-field>label {
+  font-family: var(--font-secondary);
+  font-size: 18px;
+
+}
+
+.my-tabs .mat-mdc-select-value-text {
+  font-family: var(--font-secondary);
+}
+
+.my-tabs .mdc-tab__text-label {
+  font-family: var(--font-heading);
+}
+
+.my-tabs .mat-step-text-label {
+  font-family: var(--font-secondary);
+}
+
+.mat-form-field {
+  font-family: var(--font-body);
+}
+
+
+.border-form {
+  border: 1px solid;
+  padding: 23px;
+  color: #3f51b5;
+  border-radius: 10px;
+  margin: 10px;
+}
+
+.mat-form-field-flex.ng-invalid.ng-touched {
+  border: 1px solid red;
+}
+
+
+
+
+.readonly-color {
+  color: #ababab
+}
+
+.my-mat-card-container {
+  display: flex;
+}
+.container{
+  max-width: 1600px;
+  margin: 0 auto;
+}
+.my-mat-card {
+  display: flex;
+  margin: 5px;
+  color: #3f51b5;
+}
+
+.border-form input[type="text"][disabled] {
+  color: black;
+}
+
+.border-form input[type="number"][disabled] {
+  color: black;
+}
+
+.borderless-form input[type="text"][disabled] {
+  color: black;
+}
+
+.borderless-form input[type="number"][disabled] {
+  color: black;
+}
+
+
+.button-footer {
+  bottom: 0;
+  text-align: center;
+  margin: 5px;
+}
+
+
+
+.my-slide {
+  border: 1px gray solid;
+  border-radius: 3px;
+  margin-bottom: 15px;
+}
+
+
+
+
+.add-icon {
+  margin-top: -15px;
+  margin-left: 0rem;
+}
+
+
+
+
+.error-message {
+  font-family: var(--font-secondary);
+}
+
+.float-right {
+  float: right;
+}
+
+.float-left {
+  float: left;
+}
+
+
+.my-mat-card-container .my-mat-card .my-mat-card-title {
+  font-family: var(--font-heading);
+  font-size: 20px;
+}
+
+.my-mat-card-container .my-mat-card-normal .my-mat-card-title-normal {
+  font-family: var(--font-secondary);
+  font-size: 17px;
+}
+
+.my-mat-card-container .my-mat-card .my-mat-card-title-return-reason {
+  font-family: var(--font-heading);
+  font-size: 17px;
+}
+
+
+.border-form .select-class {
+  color: black;
+  font-family: var(--font-secondary);
+}
+
+.border-form-empty .select-class {
+  color: black;
+  font-family: var(--font-secondary);
+}
+
+.border-form .text-area-class {
+  color: black;
+  font-family: var(--font-body);
+}
+
+.borderless-form .select-class {
+  color: black;
+  font-family: var(--font-secondary);
+}
+
+.borderless-form-empty .select-class {
+  color: black;
+  font-family: var(--font-secondary);
+}
+
+.borderless-form .text-area-class {
+  color: black;
+  font-family: var(--font-body);
+}
+
+button {
+  margin-left: 1rem;
+}
+
+
+
+
+.button-footer button {
+  font-family: var(--font-body);
+}
+
+.my-button button {
+  font-family: var(--font-body);
+  margin-right: 15px;
+  margin-left: 15px;
+  margin-top: -15px;
+}
+
+.button-me button {
+  font-family: var(--font-heading);
+  margin-top: 10px;
+}
+
+.border-form .mat-step-text-label {
+  font-family: var(--font-secondary);
+}
+
+.borderless-form .mat-step-text-label {
+  font-family: var(--font-secondary);
+}
+
+form {
+  margin: 5px;
+}
+
+mat-form-field {
+  width: 99.9%;
+}
+
+
+.dx-datagrid {
+  font: var(--font-body);
+}
+
+.my-mat-card-container {
+  display: flex;
+}
+
+.my-mat-card {
+  display: flex;
+  margin: 5px;
+  color: #3f51b5;
+}
+
+.my-mat-card-normal {
+  display: flex;
+  margin: 5px;
+  background-color: #FF8F00;
+  color: #000000;
+}
+
+
+.grid-class {
+  margin-right: 5px;
+  margin-left: 5px;
+}
+
+.dx-toolbar-before {
+  margin-right: -5px !important;
+}
+
+
+
+.grid-class .dx-datagrid-header-panel .dx-button {
+  margin: auto 5px;
+}
+
+.tree-class .dx-treelist-header-panel .dx-button {
+  margin: auto 5px;
+}
+
+
+.dx-toolbar-items-container .dx-button {
+  margin: auto 5px;
+}
+
+.dx-box-item {
+  margin: auto 5px;
+}
+
+.my-mat-card-container .text-oneline {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.accordionTitle {
+  font-family: var(--font-secondary);
+  font-size: 17px;
+  text-align: center;
+}
+
+
+
+
+.swal2-html-container,
+.swal2-title {
+  font-family: var(--font-secondary);
+}
+
+.swal2-title {
+  color: red;
+  font-family: var(--font-secondary);
+}
+
+.mat-h2,
+.mat-headline-6,
+.mat-typography .mat-h2,
+.mat-typography .mat-headline-6,
+.mat-typography h2 {
+  font-family: vr(--font-secondary);
+  font-weight: bold;
+}
+
+.dataGrid .dx-header-row .cell-highlighted,
+.dataGrid .dx-datagrid-rowsview .dx-row.dx-row-lines .cell-highlighted {
+  background-color: #d8e4f490;
+}
+
+.dataGrid .dx-header-row .cell-bg,
+.dataGrid .dx-datagrid-rowsview .dx-row.dx-row-lines .cell-bg {
+  background-color: white;
+}
+
+@media (max-width: 360) {
+  .componentTitle-DropDown-Account-isMobile {
+    font-size: 10px;
+    /* Adjust font size */
+    padding: 1em 6em;
+    /* Adjust padding */
+    transform: translateY(0);
+    /* Modify transform for better alignment */
+  }
+}
+
+.dx-rtl .dx-datagrid-search-panel {
+  margin: 0 0 0 0;
+}
+
+.dx-datagrid-search-panel {
+  margin: 0 0 0 0;
+}
+
+.toolbar-button {
+  border: 1px #ddd solid;
+
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+.toolbar-item .dx-datagrid-toolbar-button .dx-datagrid-column-chooser-button .dx-button-content {
+  flex: 1 1 auto;
+  height: 100%;
+  max-height: 100%;
+  display: inherit;
+  align-items: center;
+  justify-content: center !important;
+  vertical-align: middle;
+  border: 1px #ddd solid;
+  border-radius: 4px;
+  width: auto;
+  margin: 10px;
+}
+
+.dx-item-content .dx-toolbar-item-content {
+  display: flex;
+  justify-content: center;
+}
+
+.dx-item-content .dx-list-item-content {
+  flex: 1 1 auto;
+  height: 100%;
+  max-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  border: 1px #ddd solid;
+  margin: 5px 8px 10px 8px;
+  padding: 8px;
+  border-radius: 4px;
+  width: auto;
+}
+
+.dx-scrollable-native.dx-rtl .dx-scrollable .dx-scrollable-content,
+.dx-scrollable-native.dx-rtl.dx-scrollable .dx-scrollable-content {
+  float: inherit !important;
+}
+
+.dx-toolbar-menu-section {
+  border-bottom: none;
+}
+
+.swal2-container {
+  z-index: 2000;
+}
+
+.dx-popup-content,
+.dx-popup-content .dx-field-item-label,
+.dx-popup-content .dx-field-item-content,
+.dx-popup-content input,
+.dx-popup-content textarea,
+.dx-popup-content .mat-input-element {
+  font-size: 16px !important;
+}
+
+.button-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1.2rem; /* Adjusted for better spacing */
+  margin-top: 2.5rem;
+  margin-bottom: 1.5rem;
+  font-family: var(--font-body)
+}
+
+.action-btn {
+  font-family: var(--font-body) !important;
+  font-size: 1.08em;
+  padding: 0.7em 2.2em;
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  min-width: 140px;
+  justify-content: center;
+  white-space: nowrap; 
+  box-sizing: border-box;
+}
+
+.action-btn-icon {
+  vertical-align: middle;
+  margin-right: 0.3em;
+}
+
+@media (max-width: 600px) {
+  .button-footer {
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-top: 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  .action-btn {
+    width: 100%;
+    min-width: unset;
+    justify-content: center;
+  }
+}
+
+.white-warn-btn {
+  color: #f44336 !important;
+  /* Material warn color */
+}
+
+.icon-left-rtl {
+  direction: ltr;
+}
+
+.icon-right-ltr {
+  direction: rtl;
+}
+
+.hint-border {
+  margin: 10px;
+}
+
+.form-grid {
+  display: grid;
+  gap: 16px;
+  align-items: start;
+  /* Avoid overlapping when controls grow */
+}
+
+.form-grid-item {
+  min-width: 0;
+}
+
+.form-grid mat-form-field {
+  width: 100%;
+}
+
+.form-grid textarea[matinput] {
+  resize: vertical;
+  min-height: 120px;
 }

@@ -1,6 +1,7 @@
 
 
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { UserService } from '../../services/user.service';
 import { RoleService } from '../../services/role.service';
@@ -24,7 +25,7 @@ export class UsersComponent {
   private roleService = inject(RoleService);
   private router = inject(Router);
 
-  users = this.userService.users$;
+  users = toSignal(this.userService.getUsers(), { initialValue: [] });
   filter = signal('');
   sortColumn = signal<SortColumn>('');
   sortDirection = signal<SortDirection>('');

@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { SupplierService } from '../../../services/supplier.service';
 import { Router, RouterLink } from '@angular/router';
 import { ModalComponent } from '../../shared/modal/modal.component';
@@ -20,7 +21,7 @@ export class SuppliersComponent {
   private supplierService = inject(SupplierService);
   private router = inject(Router);
   
-  suppliers = this.supplierService.suppliers$;
+  suppliers = toSignal(this.supplierService.getSuppliers(), { initialValue: [] });
   filter = signal('');
   sortColumn = signal<SortColumn>('');
   sortDirection = signal<SortDirection>('');

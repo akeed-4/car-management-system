@@ -43,47 +43,50 @@ export class CustomerFormComponent {
           this.customer.set({ ...existingCustomer });
           
           // Fetch sold cars for this customer
-          const customerInvoices = this.salesService.getInvoicesByCustomerId(existingCustomer.id);
-          const carsMap = new Map(this.inventoryService.cars$().map(c => [c.id, c]));
-          const cars: (Car & { saleDate: string })[] = [];
-          customerInvoices.forEach(inv => {
-              inv.items.forEach(item => {
-                  const car = carsMap.get(item.carId);
-                  if(car) {
-                      const carWithSaleDate: Car & { saleDate: string } = {
-                          id: car.id,
-                          vin: car.vin,
-                          plateNumber: car.plateNumber,
-                          istimaraExpiry: car.istimaraExpiry,
-                          fahasStatus: car.fahasStatus,
-                          make: car.make,
-                          model: car.model,
-                          year: car.year,
-                          condition: car.condition,
-                          exteriorColor: car.exteriorColor,
-                          interiorColor: car.interiorColor,
-                          mileage: car.mileage,
-                          transmission: car.transmission,
-                          engineSize: car.engineSize,
-                          status: car.status,
-                          currentLocation: car.currentLocation,
-                          photos: car.photos,
-                          purchasePrice: car.purchasePrice,
-                          additionalCosts: car.additionalCosts,
-                          totalCost: car.totalCost,
-                          salePrice: car.salePrice,
-                          description: car.description,
-                          purchaseDate: car.purchaseDate,
-                          floorPlanId: car.floorPlanId,
-                          isArchived: car.isArchived,
-                          saleDate: inv.invoiceDate // Add saleDate from invoice
-                      };
-                      cars.push(carWithSaleDate);
-                  }
+          this.salesService.getInvoicesByCustomerId(existingCustomer.id).subscribe({
+            next: (customerInvoices) => {
+              const carsMap = new Map(this.inventoryService.cars$().map(c => [c.id, c]));
+              const cars: (Car & { saleDate: string })[] = [];
+              customerInvoices.forEach(inv => {
+                  inv.items.forEach(item => {
+                      const car = carsMap.get(item.carId);
+                      if(car) {
+                          const carWithSaleDate: Car & { saleDate: string } = {
+                              id: car.id,
+                              vin: car.vin,
+                              plateNumber: car.plateNumber,
+                              istimaraExpiry: car.istimaraExpiry,
+                              fahasStatus: car.fahasStatus,
+                              make: car.make,
+                              model: car.model,
+                              year: car.year,
+                              condition: car.condition,
+                              exteriorColor: car.exteriorColor,
+                              interiorColor: car.interiorColor,
+                              mileage: car.mileage,
+                              transmission: car.transmission,
+                              engineSize: car.engineSize,
+                              status: car.status,
+                              currentLocation: car.currentLocation,
+                              photos: car.photos,
+                              purchasePrice: car.purchasePrice,
+                              additionalCosts: car.additionalCosts,
+                              totalCost: car.totalCost,
+                              salePrice: car.salePrice,
+                              description: car.description,
+                              quantity: car.quantity,
+                              purchaseDate: car.purchaseDate,
+                              floorPlanId: car.floorPlanId,
+                              isArchived: car.isArchived,
+                              saleDate: inv.invoiceDate // Add saleDate from invoice
+                          };
+                          cars.push(carWithSaleDate);
+                      }
+                  });
               });
+              this.soldCars.set(cars);
+            }
           });
-          this.soldCars.set(cars);
-
         } else {
           this.router.navigate(['/entities/customers']);
         }

@@ -70,14 +70,13 @@
               </thead>
               <tbody class="text-gray-700">
                 @for (item of stockTake.items; track item.carId) {
-                  @let difference = item.countedQuantity - item.systemQuantity;
-                  <tr class="border-b" [class.bg-red-50]="difference !== 0" [class.bg-green-50]="difference === 0">
+                  <tr class="border-b" [class.bg-red-50]="getDifference(item.countedQuantity, item.systemQuantity) !== 0" [class.bg-green-50]="getDifference(item.countedQuantity, item.systemQuantity) === 0">
                     <td class="py-3 px-4 text-sm">{{ item.carDescription }}</td>
                     <td class="py-3 px-4 text-center text-sm font-medium">{{ item.systemQuantity }}</td>
                     <td class="py-3 px-4 text-center text-sm font-medium">{{ item.countedQuantity }}</td>
                     <td class="py-3 px-4 text-center text-sm font-bold"
-                        [class.text-red-600]="difference !== 0"
-                        [class.text-green-600]="difference === 0">
+                        [class.text-red-600]="getDifference(item.countedQuantity, item.systemQuantity) !== 0"
+                        [class.text-green-600]="getDifference(item.countedQuantity, item.systemQuantity) === 0">
                       {{ difference > 0 ? '+' : '' }}{{ difference }}
                     </td>
                   </tr>

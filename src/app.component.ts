@@ -1,12 +1,18 @@
-
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal, inject, OnDestroy } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
+import { TranslateService } from '@ngx-translate/core';
+import { LanguageService } from './services/language.service';
+import { Subscription } from 'rxjs';
 import { MatListModule } from '@angular/material/list';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion'; // <-- هذا مهم
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { TranslateModule } from '@ngx-translate/core';
+import { LayoutComponent } from './components/shared/layout/layout.component';
 
 @Component({
   selector: 'app-root',
@@ -15,13 +21,38 @@ import { MatExpansionModule } from '@angular/material/expansion'; // <-- هذا 
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
-    CommonModule,
-    RouterOutlet,
-    RouterLink,
-    RouterLinkActive,MatListModule,MatSidenavModule,MatToolbarModule,MatIconModule, MatExpansionModule, // <-- استيراده هنا
+    CommonModule
+   ,MatListModule,MatSidenavModule,MatToolbarModule,MatIconModule, MatExpansionModule, MatFormFieldModule, MatSelectModule, TranslateModule,RouterOutlet
   ],
 })
-export class AppComponent {
+export class AppComponent implements OnDestroy {
+
+    selectedLang = 'ar';
+    private translate = inject(TranslateService);
+    private document = inject(DOCUMENT);
+    private languageService = inject(LanguageService);
+    private languageSub: Subscription | null = null;
+
+    constructor() {
+      // configure available languages and default
+      this.translate.addLangs(['en', 'ar']);
+      this.translate.setDefaultLang('ar');
+      // start with stored language
+      const current = this.languageService.getCurrentLanguage();
+      this.selectedLang = current;
+      this.translate.use(this.selectedLang);
+      this.setDocumentDir(this.selectedLang);
+
+      // subscribe to language changes so the document dir updates dynamically
+      this.languageSub = this.languageService.language$.subscribe(lang => {
+        if (lang) {
+          this.selectedLang = lang;
+          this.translate.use(lang);
+          this.setDocumentDir(lang);
+        }
+      });
+    }
+
   private readonly sidebarDefaultOpen = typeof window !== 'undefined' ? window.innerWidth >= 1024 : true;
   isSidebarOpen = signal(this.sidebarDefaultOpen);
   openMenuIds = signal<Set<string>>(new Set());
@@ -44,6 +75,21 @@ toggleMenu(id: string) {
 isMenuOpen(id: string) {
   return this.openMenus[id];
 }
+
+  switchLang(lang: string) {
+    this.languageService.changeLocalLanguage(lang);
+  }
+
+  ngOnDestroy(): void {
+    this.languageSub?.unsubscribe();
+  }
+
+  private setDocumentDir(lang: string) {
+    const dir = lang === 'ar' ? 'rtl' : 'ltr';
+    if (this.document && this.document.documentElement) {
+      this.document.documentElement.dir = dir;
+    }
+  }
 
 
 
@@ -152,4 +198,5 @@ isMenuOpen(id: string) {
     ]
   }
 ];
+
 }

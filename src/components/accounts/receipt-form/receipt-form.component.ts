@@ -2,15 +2,17 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CustomerService } from '../../../services/customer.service';
 import { SalesService } from '../../../services/sales.service';
 import { ReceiptService } from '../../../services/receipt.service';
 import { TreasuryService } from '../../../services/treasury.service';
+import { SalesInvoice } from '@/src/types/sales-invoice.model';
 
 @Component({
   selector: 'app-receipt-form',
   standalone: true,
-  imports: [FormsModule, RouterLink, CurrencyPipe],
+  imports: [FormsModule, RouterLink, CurrencyPipe, TranslateModule],
   templateUrl: './receipt-form.component.html',
   styleUrl: './receipt-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -21,6 +23,7 @@ export class ReceiptFormComponent {
   private salesService = inject(SalesService);
   private receiptService = inject(ReceiptService);
   private treasuryService = inject(TreasuryService);
+  private translate = inject(TranslateService);
 
   customers = this.customerService.customers$;
   accounts = this.treasuryService.accounts$;
@@ -33,11 +36,7 @@ export class ReceiptFormComponent {
   paymentMethod = signal('Cash');
   selectedAccountId = signal<number | null>(null);
   
-  outstandingInvoices = computed(() => {
-    const custId = this.selectedCustomerId();
-    if (!custId) return [];
-    return this.salesService.getOutstandingInvoicesByCustomerId(custId);
-  });
+  outstandingInvoices = signal<SalesInvoice[]>([]);
 
   selectedInvoiceDetails = computed(() => {
     const invId = this.selectedInvoiceId();
@@ -47,9 +46,16 @@ export class ReceiptFormComponent {
 
   onCustomerChange(customerId: number | null) {
     this.selectedCustomerId.set(customerId);
-    this.selectedInvoiceId.set(null); // Reset invoice selection
+    this.selectedInvoiceId.set(null);
     this.amount.set(0);
+    if (customerId) {
+      this.salesService.getOutstandingInvoicesByCustomerId(customerId).subscribe(invoices => this.outstandingInvoices.set(invoices));
+    } else {
+      this.outstandingInvoices.set([]);
+    }
   }
+
+
 
   onInvoiceChange(invoiceId: number | null) {
     this.selectedInvoiceId.set(invoiceId);
@@ -64,11 +70,11 @@ export class ReceiptFormComponent {
     const account = this.accounts().find(a => a.id === this.selectedAccountId());
 
     if (!customer || !invoice || !account || paymentAmount <= 0) {
-      alert('الرجاء تعبئة جميع الحقول بشكل صحيح.');
+      alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.FILL_REQUIRED'));
       return;
     }
     if (paymentAmount > invoice.amountDue) {
-      alert('المبلغ المدفوع أكبر من المبلغ المستحق.');
+      alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.AMOUNT_EXCEEDS'));
       return;
     }
 
@@ -89,7 +95,7 @@ export class ReceiptFormComponent {
       accountName: account.name,
     });
 
-    alert('تم حفظ سند القبض وتحديث الفاتورة بنجاح.');
+    alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.SAVED'));
     this.router.navigate(['/accounts/receipts']);
   }
 }

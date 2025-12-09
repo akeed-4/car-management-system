@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { CarModelService } from '../../../services/car-model.service';
 import { ManufacturerService } from '../../../services/manufacturer.service';
@@ -20,7 +21,7 @@ export class CarModelsComponent {
   private carModelService = inject(CarModelService);
   private manufacturerService = inject(ManufacturerService);
 
-  carModels = this.carModelService.carModels$;
+  carModels = toSignal(this.carModelService.getCarModels(), { initialValue: [] });
   manufacturers = this.manufacturerService.manufacturers$;
 
   newModelName = signal('');

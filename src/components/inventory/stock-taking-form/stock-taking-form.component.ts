@@ -5,11 +5,12 @@ import { InventoryService } from '../../../services/inventory.service';
 import { StockTakeService } from '../../../services/stock-take.service';
 import { StockTake } from '../../../types/stock-take.model';
 import { StockTakeItem } from '../../../types/stock-take-item.model';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-stock-taking-form',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, TranslateModule],
   templateUrl: './stock-taking-form.component.html',
   styleUrl: './stock-taking-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,6 +20,7 @@ export class StockTakingFormComponent {
   private router = inject(Router);
   private inventoryService = inject(InventoryService);
   private stockTakeService = inject(StockTakeService);
+  private translate = inject(TranslateService);
 
   stockTake = signal<Partial<StockTake>>({
     date: new Date().toISOString().split('T')[0],
@@ -42,12 +44,12 @@ export class StockTakingFormComponent {
         const id = Number(idParam);
         this.editMode.set(true);
         this.pageTitle.set('تعديل مستند الجرد');
-        const existingDoc = this.stockTakeService.getStockTakeById(id);
-        if (existingDoc) {
+        this.stockTakeService.getStockTakeById(id).subscribe(existingDoc => {
           this.stockTake.set({ ...existingDoc });
-        } else {
+        }, error => {
+          console.error('Error loading stock take:', error);
           this.router.navigate(['/inventory/stock-taking']);
-        }
+        });
       }
       // For new mode, it starts empty by default
     }, { allowSignalWrites: true });
@@ -77,24 +79,21 @@ export class StockTakingFormComponent {
   }
 
   updateItemCar(carId: number, index: number) {
-    const car = this.inventoryService.getCarById(carId);
-    if (!car) return;
+    this.inventoryService.getCarById(carId).subscribe(car => {
+      const systemQty = car.quantity;
 
-    // Fix: Replaced direct access to `car.quantity` with `inventoryService.getCarQuantity(car.id)`
-    const systemQty = this.inventoryService.getCarQuantity(car.id);
-
-    this.stockTake.update(st => {
-      if (!st.items) return st;
-      const updatedItems = [...st.items];
-      updatedItems[index] = {
-        ...updatedItems[index],
-        carId: car.id,
-        carDescription: `${car.make} ${car.model} (${car.year})`,
-        // Fix: Access 'quantity' property from the Car model after it's been added
-        systemQuantity: systemQty,
-        countedQuantity: systemQty, // Default counted quantity to system quantity on selection
-      };
-      return { ...st, items: updatedItems };
+      this.stockTake.update(st => {
+        if (!st.items) return st;
+        const updatedItems = [...st.items];
+        updatedItems[index] = {
+          ...updatedItems[index],
+          carId: car.id,
+          carDescription: `${car.make} ${car.model} (${car.year})`,
+          systemQuantity: systemQty,
+          countedQuantity: systemQty, // Default counted quantity to system quantity on selection
+        };
+        return { ...st, items: updatedItems };
+      });
     });
   }
 
@@ -113,18 +112,18 @@ export class StockTakingFormComponent {
   saveStockTake() {
     const stockTakeData = this.stockTake();
     if (!stockTakeData.name || !stockTakeData.user) {
-      alert('الرجاء إدخال اسم الجرد واسم القائم بالجرد.');
+      alert(this.translate.instant('INVENTORY.STOCK_TAKING_FORM.ERROR_NAME_USER'));
       return;
     }
 
     if (!stockTakeData.items || stockTakeData.items.length === 0) {
-      alert('الرجاء إضافة سيارة واحدة على الأقل لمستند الجرد.');
+      alert(this.translate.instant('INVENTORY.STOCK_TAKING_FORM.ERROR_NO_ITEMS'));
       return;
     }
 
     // Validate that all rows have a car selected
     if (stockTakeData.items.some(item => item.carId === 0)) {
-      alert('الرجاء اختيار سيارة لكل صف في الجدول.');
+      alert(this.translate.instant('INVENTORY.STOCK_TAKING_FORM.ERROR_SELECT_CAR'));
       return;
     }
 

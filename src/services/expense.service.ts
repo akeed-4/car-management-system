@@ -1,86 +1,97 @@
-
-
 import { Injectable, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { tap } from 'rxjs';
 import { Expense } from '../types/expense.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ExpenseService {
-  private nextId = signal(4);
-  private expenses = signal<Expense[]>([
-    {
-      id: 1,
-      date: '2024-05-01',
-      description: 'إيجار معرض شهر مايو',
-      category: 'Rent',
-      amount: 15000,
-      notes: 'دفعة شهرية',
-      accountId: 2,
-      accountName: 'حساب بنك الراجحي',
-      isArchived: false,
-    },
-    {
-      id: 2,
-      date: '2024-05-10',
-      description: 'فاتورة كهرباء',
-      category: 'Utilities',
-      amount: 1200,
-      notes: 'الربع الثاني',
-      accountId: 1,
-      accountName: 'خزينة الكاش الرئيسية',
-      isArchived: false,
-    },
-    {
-      id: 3,
-      date: '2024-04-05',
-      description: 'تغيير زيت وفلتر',
-      category: 'Maintenance',
-      amount: 450,
-      accountId: 1,
-      accountName: 'خزينة الكاش الرئيسية',
-      carId: 1,
-      carDescription: 'Toyota Camry (2023)',
-      isArchived: false,
-    }
-  ]);
+  private apiUrl = 'http://localhost:5294/api/expenses';
 
+  private expenses = signal<Expense[]>([]);
   public expenses$ = this.expenses.asReadonly();
 
+  constructor(private http: HttpClient) {
+    this.loadExpenses();
+  }
+
+  /** Load all expenses */
+  loadExpenses() {
+    this.http.get<Expense[]>(this.apiUrl)
+      .pipe(tap(data => this.expenses.set(data)))
+      .subscribe();
+  }
+
+  /** Get single expense by ID */
   getExpenseById(id: number): Expense | undefined {
     return this.expenses().find(e => e.id === id);
   }
 
-  addExpense(expense: Omit<Expense, 'id'>) {
-    const newExpense: Expense = {
-      ...expense,
-      id: this.nextId(),
-      isArchived: false,
-    };
-    this.expenses.update(expenses => [...expenses, newExpense]);
-    this.nextId.update(id => id + 1);
+  /** Add new expense */
+  addExpense(expense: Omit<Expense, 'id' | 'isArchived'>) {
+    const payload = { ...expense, isArchived: false };
+
+    this.http.post<Expense>(this.apiUrl, payload)
+      .pipe(
+        tap(newExpense => {
+          this.expenses.update(list => [...list, newExpense]);
+        })
+      )
+      .subscribe();
   }
 
-  updateExpense(updatedExpense: Expense) {
-    this.expenses.update(expenses =>
-      expenses.map(e => (e.id === updatedExpense.id ? updatedExpense : e))
-    );
+  /** Update existing expense */
+  updateExpense(expense: Expense) {
+    const url = `${this.apiUrl}/${expense.id}`;
+    this.http.put<Expense>(url, expense)
+      .pipe(
+        tap(updated => {
+          this.expenses.update(list =>
+            list.map(e => (e.id === updated.id ? updated : e))
+          );
+        })
+      )
+      .subscribe();
   }
 
+  /** Delete expense */
   deleteExpense(id: number) {
-    this.expenses.update(expenses => expenses.filter(e => e.id !== id));
-  }
-  
-  archiveExpense(id: number) {
-    this.expenses.update(expenses =>
-      expenses.map(exp => (exp.id === id ? { ...exp, isArchived: true } : exp))
-    );
+    const url = `${this.apiUrl}/${id}`;
+    this.http.delete(url)
+      .pipe(
+        tap(() => {
+          this.expenses.update(list => list.filter(e => e.id !== id));
+        })
+      )
+      .subscribe();
   }
 
+  /** Archive expense */
+  archiveExpense(id: number) {
+    const url = `${this.apiUrl}/${id}/archive`;
+    this.http.put(url, null)
+      .pipe(
+        tap(() => {
+          this.expenses.update(list =>
+            list.map(e => (e.id === id ? { ...e, isArchived: true } : e))
+          );
+        })
+      )
+      .subscribe();
+  }
+
+  /** Unarchive expense */
   unarchiveExpense(id: number) {
-    this.expenses.update(expenses =>
-      expenses.map(exp => (exp.id === id ? { ...exp, isArchived: false } : exp))
-    );
+    const url = `${this.apiUrl}/${id}/unarchive`;
+    this.http.put(url, null)
+      .pipe(
+        tap(() => {
+          this.expenses.update(list =>
+            list.map(e => (e.id === id ? { ...e, isArchived: false } : e))
+          );
+        })
+      )
+      .subscribe();
   }
 }
-    

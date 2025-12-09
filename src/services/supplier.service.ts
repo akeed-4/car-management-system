@@ -1,39 +1,39 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { Supplier } from '../types/supplier.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SupplierService {
-  private nextId = signal(4);
-  private suppliers = signal<Supplier[]>([
-    { id: 1, name: 'شركة النهدي للسيارات', crNumber: '4030123456', phone: '011-555-1212', address: 'الرياض, مخرج 5' },
-    { id: 2, name: 'مزاد السيارات الدولي', crNumber: '4030654321', phone: '012-555-8989', address: 'جدة, المنطقة الصناعية' },
-    { id: 3, name: 'مورد فردي - أحمد علي', crNumber: 'N/A', phone: '0509871234', address: 'الخبر, حي العليا' },
-  ]);
+  private http = inject(HttpClient);
+  private apiUrl = 'https://api.example.com/suppliers'; // رابط الـ API الحقيقي
 
-  public suppliers$ = this.suppliers.asReadonly();
-  
-  getSupplierById(id: number): Supplier | undefined {
-    return this.suppliers().find(s => s.id === id);
+  constructor() {}
+
+  // جلب كل الموردين
+  getSuppliers(): Observable<Supplier[]> {
+    return this.http.get<Supplier[]>(this.apiUrl);
   }
 
-  addSupplier(supplier: Omit<Supplier, 'id'>) {
-    const newSupplier: Supplier = {
-      ...supplier,
-      id: this.nextId(),
-    };
-    this.suppliers.update(suppliers => [...suppliers, newSupplier]);
-    this.nextId.update(id => id + 1);
-  }
-  
-  updateSupplier(updatedSupplier: Supplier) {
-    this.suppliers.update(suppliers => 
-      suppliers.map(s => s.id === updatedSupplier.id ? updatedSupplier : s)
-    );
+  // جلب مورد واحد حسب ID
+  getSupplierById(id: number): Observable<Supplier> {
+    return this.http.get<Supplier>(`${this.apiUrl}/${id}`);
   }
 
-  deleteSupplier(id: number) {
-    this.suppliers.update(suppliers => suppliers.filter(s => s.id !== id));
+  // إضافة مورد جديد
+  addSupplier(supplier: Omit<Supplier, 'id'>): Observable<Supplier> {
+    return this.http.post<Supplier>(this.apiUrl, supplier);
+  }
+
+  // تحديث مورد موجود
+  updateSupplier(supplier: Supplier): Observable<Supplier> {
+    return this.http.put<Supplier>(`${this.apiUrl}/${supplier.id}`, supplier);
+  }
+
+  // حذف مورد
+  deleteSupplier(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }

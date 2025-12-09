@@ -32,14 +32,14 @@ export class UserFormComponent {
         const id = Number(idParam);
         this.editMode.set(true);
         this.pageTitle.set('تعديل بيانات المستخدم');
-        const existingUser = this.userService.getUserById(id);
-        if (existingUser) {
+        this.userService.getUserById(id).subscribe(existingUser => {
           // Exclude password when setting the form model
           const { password, ...userToEdit } = existingUser;
           this.user.set({ ...userToEdit });
-        } else {
+        }, error => {
+          console.error('Error loading user:', error);
           this.router.navigate(['/users']);
-        }
+        });
       }
     });
   }

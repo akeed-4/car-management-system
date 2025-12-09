@@ -34,12 +34,12 @@ export class ConsignmentFormComponent {
         const id = Number(idParam);
         this.editMode.set(true);
         this.pageTitle.set('تعديل بيانات سيارة العهدة');
-        const existingCar = this.consignmentService.getConsignmentCarById(id);
-        if (existingCar) {
+        this.consignmentService.getById(id).subscribe(existingCar => {
           this.car.set({ ...existingCar });
-        } else {
+        }, error => {
+          console.error('Error loading consignment car:', error);
           this.router.navigate(['/consignment-cars']);
-        }
+        });
       }
     });
   }

@@ -36,11 +36,12 @@ export class PrintablePurchaseInvoiceComponent {
       const idParam = this.route.snapshot.params['id'];
       if (idParam) {
         const id = Number(idParam);
-        const inv = this.procurementService.getInvoiceById(id);
-        if (inv) {
+        this.procurementService.getInvoiceById(id).subscribe(inv => {
           this.invoice.set(inv);
-          this.supplier.set(this.supplierService.getSupplierById(inv.supplierId) ?? null);
-        }
+          this.supplierService.getSupplierById(inv.supplierId).subscribe(sup => {
+            this.supplier.set(sup ?? null);
+          });
+        });
       }
     }, { allowSignalWrites: true });
   }

@@ -1,4 +1,5 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { SalesInvoice } from '../types/sales-invoice.model';
 import { PosPaymentStatus } from '../types/pos-payment-status.model';
 import { SalesService } from './sales.service';
@@ -12,40 +13,51 @@ export class PaymentGatewayService {
   private salesService = inject(SalesService);
   private receiptService = inject(ReceiptService);
   private treasuryService = inject(TreasuryService);
+  private http = inject(HttpClient);
 
-  // Simulates a backend state for payment statuses
-  private paymentStates = new Map<number, PosPaymentStatus>();
+  // رابط API الخاص ببوابة الدفع
+  private paymentApiUrl = 'https://api.example.com/payments';
 
   async initiatePosPayment(invoice: SalesInvoice): Promise<PosPaymentStatus> {
-    this.paymentStates.set(invoice.id, 'Pending');
+    try {
+      // استدعاء API خارجي لإتمام الدفع
+      const response = await this.http.post<{ status: PosPaymentStatus }>(
+        this.paymentApiUrl,
+        {
+          invoiceId: invoice.id,
+          amount: invoice.amountDue,
+          customerId: invoice.customerId,
+          paymentMethod: 'Card',
+        }
+      ).toPromise();
 
-    // Simulate the time it takes for the customer to use the terminal
-    await new Promise(resolve => setTimeout(resolve, 8000));
+      const finalStatus: PosPaymentStatus = response?.status || 'Failed';
 
-    const isSuccess = Math.random() < 0.8; // 80% success rate
-    const finalStatus: PosPaymentStatus = isSuccess ? 'Success' : 'Failed';
-    this.paymentStates.set(invoice.id, finalStatus);
-    
-    if (isSuccess) {
-      // 1. Mark the invoice as paid
-      this.salesService.applyPayment(invoice.id, invoice.amountDue);
+      if (finalStatus === 'Success') {
+        // 1. Mark the invoice as paid
+        this.salesService.applyPayment(invoice.id, invoice.amountDue);
 
-      // 2. Automatically generate a receipt voucher
-      const defaultAccount = this.treasuryService.accounts$()[1]; // Assume bank account
-      this.receiptService.addReceipt({
-        voucherNumber: `RV-POS-${invoice.id}`,
-        date: new Date().toISOString().split('T')[0],
-        customerId: invoice.customerId,
-        customerName: invoice.customerName,
-        salesInvoiceId: invoice.id,
-        salesInvoiceNumber: invoice.invoiceNumber,
-        amount: invoice.amountDue,
-        paymentMethod: 'Card',
-        accountId: defaultAccount.id,
-        accountName: defaultAccount.name,
-      });
+        // 2. Automatically generate a receipt voucher
+        const accounts = await this.treasuryService.getAccounts().toPromise();
+      const defaultAccount = accounts[0]; // أو أي ح // Assume bank account
+        this.receiptService.addReceipt({
+          voucherNumber: `RV-POS-${invoice.id}`,
+          date: new Date().toISOString().split('T')[0],
+          customerId: invoice.customerId,
+          customerName: invoice.customerName,
+          salesInvoiceId: invoice.id,
+          salesInvoiceNumber: invoice.invoiceNumber,
+          amount: invoice.amountDue,
+          paymentMethod: 'Card',
+          accountId: defaultAccount.id,
+          accountName: defaultAccount.name,
+        });
+      }
+
+      return finalStatus;
+    } catch (error) {
+      console.error('Payment API failed:', error);
+      return 'Failed';
     }
-
-    return finalStatus;
   }
 }

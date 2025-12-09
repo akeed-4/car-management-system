@@ -1,18 +1,18 @@
 
 <div class="container">
   <div class="page-header">
-    <h2>قائمة سندات العربون</h2>
+    <h2>{{ 'ACCOUNTS.DEPOSITS.LIST_TITLE' | translate }}</h2>
     <a routerLink="/accounts/deposits/new" class="btn btn-primary">
       <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-      <span>إصدار سند عربون جديد</span>
+      <span>{{ 'ACCOUNTS.DEPOSITS.NEW' | translate }}</span>
     </a>
   </div>
 
   <div class="card">
     <div class="table-controls">
       <input 
-        type="text" 
-        placeholder="ابحث عن سند (الرقم، العميل، السيارة...)"
+      type="text" 
+      placeholder="{{ 'ACCOUNTS.DEPOSITS.SEARCH_PLACEHOLDER' | translate }}"
         class="form-input search-input"
         (input)="onFilter($event)">
     </div>
@@ -20,12 +20,12 @@
       <table class="table">
         <thead>
           <tr>
-            <th (click)="onSort('voucherNumber')">رقم السند {{ getSortIcon('voucherNumber') }}</th>
-            <th (click)="onSort('date')">التاريخ {{ getSortIcon('date') }}</th>
-            <th (click)="onSort('customerName')">العميل {{ getSortIcon('customerName') }}</th>
-            <th (click)="onSort('carDescription')">السيارة {{ getSortIcon('carDescription') }}</th>
-            <th (click)="onSort('amount')">المبلغ {{ getSortIcon('amount') }}</th>
-            <th class="actions-header">إجراءات</th>
+            <th (click)="onSort('voucherNumber')">{{ 'ACCOUNTS.DEPOSITS.COL_VOUCHER_NUMBER' | translate }} {{ getSortIcon('voucherNumber') }}</th>
+            <th (click)="onSort('date')">{{ 'ACCOUNTS.DEPOSITS.COL_DATE' | translate }} {{ getSortIcon('date') }}</th>
+            <th (click)="onSort('customerName')">{{ 'ACCOUNTS.DEPOSITS.COL_CUSTOMER' | translate }} {{ getSortIcon('customerName') }}</th>
+            <th (click)="onSort('carDescription')">{{ 'ACCOUNTS.DEPOSITS.COL_CAR' | translate }} {{ getSortIcon('carDescription') }}</th>
+            <th (click)="onSort('amount')">{{ 'ACCOUNTS.DEPOSITS.COL_AMOUNT' | translate }} {{ getSortIcon('amount') }}</th>
+            <th class="actions-header">{{ 'ACCOUNTS.ACTIONS' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -45,7 +45,7 @@
           } @empty {
             <tr>
               <td colspan="6" class="empty-state">
-                لا توجد سندات عربون مسجلة.
+                {{ 'ACCOUNTS.DEPOSITS.NO_DEPOSITS' | translate }}
               </td>
             </tr>
           }

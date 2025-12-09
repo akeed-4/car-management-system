@@ -1,12 +1,14 @@
 
 
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { PurchaseInvoice } from '../../types/purchase-invoice.model';
 import { FormsModule } from '@angular/forms'; // Import FormsModule for filter input
 // Fix: Import ProcurementService
 import { ProcurementService } from '../../services/procurement.service';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 type SortColumn = keyof PurchaseInvoice | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -14,14 +16,15 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-procurement',
   standalone: true,
-  imports: [RouterLink, CurrencyPipe, DatePipe, FormsModule],
+  imports: [RouterLink, CurrencyPipe, DatePipe, FormsModule, TranslateModule],
   templateUrl: './procurement.component.html',
   styleUrl: './procurement.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProcurementComponent {
     private procurementService = inject(ProcurementService);
-    invoices = this.procurementService.invoices$;
+  private translate = inject(TranslateService);
+    invoices = toSignal(this.procurementService.getInvoices(), { initialValue: [] });
 
     filter = signal('');
     sortColumn = signal<SortColumn>('');

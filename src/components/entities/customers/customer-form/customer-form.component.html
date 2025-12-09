@@ -72,27 +72,24 @@
       <h3 class="form-section-title">سجل السيارات والخدمات</h3>
       <div class="service-record-list">
         @for(car of soldCars(); track car.id) {
-          @let istimaraDays = getDaysRemaining(car.istimaraExpiry);
-          @let fahasExpiryDate = getFahasExpiry(car.saleDate);
-          @let fahasDays = getDaysRemaining(fahasExpiryDate);
           <div class="service-record-item">
             <p class="record-title">{{car.make}} {{car.model}} ({{car.year}}) - <span class="font-mono">{{car.plateNumber}}</span></p>
             <p class="record-subtitle">تاريخ الشراء: {{car.saleDate | date: 'yyyy-MM-dd'}}</p>
             <div class="record-details">
               <div class="record-detail-item">
                 <p>انتهاء الاستمارة:</p>
-                @if(istimaraDays !== null && istimaraDays <= 30) {
-                  <p class="detail-value alert">{{car.istimaraExpiry}} (باقي {{istimaraDays}} أيام)</p>
+                @if(getDaysRemaining(car.istimaraExpiry) !== null && getDaysRemaining(car.istimaraExpiry)! <= 30) {
+                  <p class="detail-value alert">{{car.istimaraExpiry}} (باقي {{getDaysRemaining(car.istimaraExpiry)}} أيام)</p>
                 } @else {
                   <p class="detail-value">{{car.istimaraExpiry}}</p>
                 }
               </div>
               <div class="record-detail-item">
                 <p>انتهاء الفحص الدوري (تقديري):</p>
-                 @if(fahasDays !== null && fahasDays <= 30) {
-                  <p class="detail-value alert">{{fahasExpiryDate}} (باقي {{fahasDays}} أيام)</p>
+                 @if(getDaysRemaining(getFahasExpiry(car.saleDate)) !== null && getDaysRemaining(getFahasExpiry(car.saleDate))! <= 30) {
+                  <p class="detail-value alert">{{getFahasExpiry(car.saleDate)}} (باقي {{getDaysRemaining(getFahasExpiry(car.saleDate))}} أيام)</p>
                 } @else {
-                  <p class="detail-value">{{fahasExpiryDate}}</p>
+                  <p class="detail-value">{{getFahasExpiry(car.saleDate)}}</p>
                 }
               </div>
             </div>

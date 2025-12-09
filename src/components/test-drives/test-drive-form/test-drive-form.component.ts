@@ -46,17 +46,19 @@ export class TestDriveFormComponent {
         const id = Number(idParam);
         this.editMode.set(true);
         this.pageTitle.set('تعديل حجز تجربة قيادة');
-        const existingBooking = this.testDriveService.getBookingById(id);
-        if (existingBooking) {
-          this.booking.set({ ...existingBooking });
-          const start = new Date(existingBooking.startTime);
-          this.bookingDate.set(start.toISOString().split('T')[0]);
-          this.startTime.set(start.toTimeString().substring(0, 5));
-          const end = new Date(existingBooking.endTime);
-          this.endTime.set(end.toTimeString().substring(0, 5));
-        } else {
-          this.router.navigate(['/test-drives']);
-        }
+        this.testDriveService.getBookingById(id).subscribe({
+          next: (existingBooking) => {
+            this.booking.set({ ...existingBooking });
+            const start = new Date(existingBooking.startTime);
+            this.bookingDate.set(start.toISOString().split('T')[0]);
+            this.startTime.set(start.toTimeString().substring(0, 5));
+            const end = new Date(existingBooking.endTime);
+            this.endTime.set(end.toTimeString().substring(0, 5));
+          },
+          error: () => {
+            this.router.navigate(['/test-drives']);
+          }
+        });
       }
     });
   }

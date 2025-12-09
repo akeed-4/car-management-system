@@ -1,89 +1,110 @@
 import { Injectable, signal, inject } from '@angular/core';
-import { Delivery, DeliveryStatus, ChecklistItem } from '../types/delivery.model';
+import { HttpClient } from '@angular/common/http';
+import { Delivery, ChecklistItem } from '../types/delivery.model';
+import { tap } from 'rxjs';
 import { InventoryService } from './inventory.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DeliveryService {
-  private nextId = signal(2);
+  private apiUrl = 'http://localhost:5294/api/deliveries';
+
   private inventoryService = inject(InventoryService);
-
-  // Fix: Explicitly typed the initial array as Delivery[] to ensure correct type inference for 'status'.
-  private deliveries = signal<Delivery[]>([
-    {
-      id: 1,
-      salesInvoiceId: 2, // Assuming INV-202406010900 from SalesService
-      salesInvoiceNumber: 'INV-202406010900',
-      carId: 1, // Toyota Camry
-      carDescription: 'Toyota Camry (2023)',
-      customerId: 1,
-      customerName: 'عبدالله محمد',
-      scheduledDate: new Date().toISOString().split('T')[0], // Today
-      scheduledTime: '15:00',
-      deliveryAgentId: 2, // Ahmed Salesperson
-      deliveryAgentName: 'أحمد مندوب مبيعات',
-      status: 'Scheduled' as DeliveryStatus,
-      checklist: [
-        { id: 1, description: 'تم تنظيف السيارة وتجهيزها', completed: false },
-        { id: 2, description: 'تم فحص جميع السوائل والإطارات', completed: false },
-        { id: 3, description: 'تم توقيع أوراق الاستلام النهائية', completed: false },
-        { id: 4, description: 'تم شرح مميزات السيارة للعميل', completed: false },
-        { id: 5, description: 'تم تسليم المفتاح الإضافي', completed: false },
-      ],
-      notes: 'العميل متحمس جداً.',
-    },
-  ]);
-
+  private deliveries = signal<Delivery[]>([]);
   public deliveries$ = this.deliveries.asReadonly();
 
+  constructor(private http: HttpClient) {
+    this.loadDeliveries();
+  }
+
+  /** Load all deliveries */
+  loadDeliveries() {
+    this.http.get<Delivery[]>(this.apiUrl)
+      .pipe(tap(data => this.deliveries.set(data)))
+      .subscribe();
+  }
+
+  /** Get one delivery by ID (from local signal) */
   getDeliveryById(id: number): Delivery | undefined {
-    return this.deliveries$().find(d => d.id === id);
+    return this.deliveries().find(d => d.id === id);
   }
 
+  /** Add new delivery */
   addDelivery(delivery: Omit<Delivery, 'id'>) {
-    const newDelivery: Delivery = {
-      ...delivery,
-      id: this.nextId(),
-      status: 'Scheduled', // Always starts as scheduled
-    };
-    this.deliveries.update(deliveries => [...deliveries, newDelivery]);
-    this.nextId.update(id => id + 1);
+    this.http.post<Delivery>(this.apiUrl, delivery)
+      .pipe(
+        tap(newDelivery => {
+          this.deliveries.update(list => [...list, newDelivery]);
 
-    // Update car location to 'Scheduled for Delivery' or similar
-    this.inventoryService.updateCarLocation(newDelivery.carId, 'Out for Delivery Prep'); // Can use a more specific location
+          // Update car location
+          this.inventoryService.updateCarLocation(newDelivery.carId, 'Out for Delivery Prep');
+        })
+      )
+      .subscribe();
   }
 
-  updateDelivery(updatedDelivery: Delivery) {
-    this.deliveries.update(deliveries =>
-      deliveries.map(d => (d.id === updatedDelivery.id ? updatedDelivery : d))
-    );
+  /** Update existing delivery */
+  updateDelivery(delivery: Delivery) {
+    this.http.put<Delivery>(`${this.apiUrl}/${delivery.id}`, delivery)
+      .pipe(
+        tap(updated => {
+          this.deliveries.update(list =>
+            list.map(d => (d.id === updated.id ? updated : d))
+          );
 
-    // Update car location based on delivery status
-    if (updatedDelivery.status === 'Completed' || updatedDelivery.status === 'Canceled') {
-        this.inventoryService.updateCarLocation(updatedDelivery.carId, 'In Showroom'); // Or return to available/sold
-    } else if (updatedDelivery.status === 'In Progress') {
-        this.inventoryService.updateCarLocation(updatedDelivery.carId, 'Out for Delivery');
-    }
+          // Update inventory based on status
+          if (updated.status === 'Completed' || updated.status === 'Canceled') {
+            this.inventoryService.updateCarLocation(updated.carId, 'In Showroom');
+          } else if (updated.status === 'In Progress') {
+            this.inventoryService.updateCarLocation(updated.carId, 'Out for Delivery');
+          }
+        })
+      )
+      .subscribe();
   }
 
+  /** Update delivery checklist */
   updateDeliveryChecklist(deliveryId: number, updatedChecklist: ChecklistItem[]) {
-    this.deliveries.update(deliveries =>
-      deliveries.map(d => (d.id === deliveryId ? { ...d, checklist: updatedChecklist } : d))
-    );
+    const url = `${this.apiUrl}/${deliveryId}/checklist`;
+
+    this.http.put<Delivery>(url, updatedChecklist)
+      .pipe(
+        tap(updated => {
+          this.deliveries.update(list =>
+            list.map(d => (d.id === updated.id ? updated : d))
+          );
+        })
+      )
+      .subscribe();
   }
 
-  // A method to finalize delivery (e.g., after checklist completion)
+  /** Mark delivery as completed */
   completeDelivery(deliveryId: number) {
-    this.deliveries.update(deliveries =>
-      deliveries.map(d => {
-        if (d.id === deliveryId) {
-          const updated: Delivery = { ...d, status: 'Completed' as DeliveryStatus };
-          this.inventoryService.updateCarLocation(updated.carId, 'Sold'); // Final status
-          return updated;
-        }
-        return d;
-      })
-    );
+    const url = `${this.apiUrl}/${deliveryId}/complete`;
+
+    this.http.post<Delivery>(url, {})
+      .pipe(
+        tap(updated => {
+          this.deliveries.update(list =>
+            list.map(d => (d.id === updated.id ? updated : d))
+          );
+
+          // Update car inventory
+          this.inventoryService.updateCarLocation(updated.carId, 'Sold');
+        })
+      )
+      .subscribe();
+  }
+
+  /** Delete delivery */
+  deleteDelivery(id: number) {
+    this.http.delete(`${this.apiUrl}/${id}`)
+      .pipe(
+        tap(() => {
+          this.deliveries.update(list => list.filter(d => d.id !== id));
+        })
+      )
+      .subscribe();
   }
 }

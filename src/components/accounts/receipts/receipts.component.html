@@ -1,17 +1,17 @@
 <div class="container">
   <div class="page-header">
-    <h2>قائمة سندات القبض</h2>
+    <h2>{{ 'ACCOUNTS.RECEIPTS.LIST_TITLE' | translate }}</h2>
     <a routerLink="/accounts/receipts/new"  class="bg-primary-600 text-white px-4 py-2 rounded-lg shadow hover:bg-primary-700 transition duration-300 flex items-center text-sm">
       <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-      <span>إضافة سند قبض جديد</span>
+      <span>{{ 'ACCOUNTS.RECEIPTS.NEW' | translate }}</span>
     </a>
   </div>
 
   <div class="card">
     <div class="table-controls">
       <input 
-        type="text" 
-        placeholder="ابحث عن سند (الرقم، العميل، الفاتورة...)"
+      type="text" 
+      placeholder="{{ 'ACCOUNTS.RECEIPTS.SEARCH_PLACEHOLDER' | translate }}"
         class="form-input search-input"
         (input)="onFilter($event)">
     </div>
@@ -19,11 +19,11 @@
       <table class="table">
         <thead>
           <tr>
-            <th (click)="onSort('voucherNumber')">رقم السند {{ getSortIcon('voucherNumber') }}</th>
-            <th (click)="onSort('date')">التاريخ {{ getSortIcon('date') }}</th>
-            <th (click)="onSort('customerName')">العميل {{ getSortIcon('customerName') }}</th>
-            <th (click)="onSort('salesInvoiceNumber')">رقم الفاتورة {{ getSortIcon('salesInvoiceNumber') }}</th>
-            <th (click)="onSort('amount')">المبلغ {{ getSortIcon('amount') }}</th>
+            <th (click)="onSort('voucherNumber')">{{ 'ACCOUNTS.RECEIPTS.COL_VOUCHER_NUMBER' | translate }} {{ getSortIcon('voucherNumber') }}</th>
+            <th (click)="onSort('date')">{{ 'ACCOUNTS.RECEIPTS.COL_DATE' | translate }} {{ getSortIcon('date') }}</th>
+            <th (click)="onSort('customerName')">{{ 'ACCOUNTS.RECEIPTS.COL_CUSTOMER' | translate }} {{ getSortIcon('customerName') }}</th>
+            <th (click)="onSort('salesInvoiceNumber')">{{ 'ACCOUNTS.RECEIPTS.COL_INVOICE' | translate }} {{ getSortIcon('salesInvoiceNumber') }}</th>
+            <th (click)="onSort('amount')">{{ 'ACCOUNTS.RECEIPTS.COL_AMOUNT' | translate }} {{ getSortIcon('amount') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -37,8 +37,8 @@
             </tr>
           } @empty {
             <tr>
-              <td colspan="5" class="empty-state">
-                لا توجد سندات قبض مسجلة.
+                <td colspan="5" class="empty-state">
+                {{ 'ACCOUNTS.RECEIPTS.NO_RECEIPTS' | translate }}
               </td>
             </tr>
           }

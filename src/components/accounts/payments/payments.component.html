@@ -1,25 +1,25 @@
 <div class="container mx-auto">
   <div class="flex justify-between items-center mb-6">
-    <h2 class="text-xl font-semibold text-gray-800">قائمة سندات الصرف</h2>
+    <h2 class="text-xl font-semibold text-gray-800">{{ 'ACCOUNTS.PAYMENTS.LIST_TITLE' | translate }}</h2>
     <a routerLink="/accounts/payments/new" class="bg-primary-600 text-white px-4 py-2 rounded-lg shadow hover:bg-primary-700 transition duration-300 flex items-center text-sm">
       <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-      إضافة سند صرف جديد
+      {{ 'ACCOUNTS.PAYMENTS.NEW' | translate }}
     </a>
   </div>
 
   <div class="bg-white p-6 rounded-lg shadow-md">
     <div class="mb-4">
-      <input type="text" placeholder="ابحث عن سند..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition" (input)="onFilter($event)">
+      <input type="text" placeholder="{{ 'ACCOUNTS.PAYMENTS.SEARCH_PLACEHOLDER' | translate }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition" (input)="onFilter($event)">
     </div>
     <div class="overflow-x-auto">
       <table class="min-w-full bg-white">
         <thead class="bg-gray-50">
           <tr>
-            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase cursor-pointer" (click)="onSort('voucherNumber')">رقم السند {{getSortIcon('voucherNumber')}}</th>
-            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase cursor-pointer" (click)="onSort('date')">التاريخ {{getSortIcon('date')}}</th>
-            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase cursor-pointer" (click)="onSort('supplierName')">المورد {{getSortIcon('supplierName')}}</th>
-            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase cursor-pointer" (click)="onSort('purchaseInvoiceNumber')">رقم الفاتورة {{getSortIcon('purchaseInvoiceNumber')}}</th>
-            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase cursor-pointer" (click)="onSort('amount')">المبلغ {{getSortIcon('amount')}}</th>
+            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase cursor-pointer" (click)="onSort('voucherNumber')">{{ 'ACCOUNTS.PAYMENTS.COL_VOUCHER_NUMBER' | translate }} {{getSortIcon('voucherNumber')}}</th>
+            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase cursor-pointer" (click)="onSort('date')">{{ 'ACCOUNTS.PAYMENTS.COL_DATE' | translate }} {{getSortIcon('date')}}</th>
+            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase cursor-pointer" (click)="onSort('supplierName')">{{ 'ACCOUNTS.PAYMENTS.COL_SUPPLIER' | translate }} {{getSortIcon('supplierName')}}</th>
+            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase cursor-pointer" (click)="onSort('purchaseInvoiceNumber')">{{ 'ACCOUNTS.PAYMENTS.COL_INVOICE' | translate }} {{getSortIcon('purchaseInvoiceNumber')}}</th>
+            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase cursor-pointer" (click)="onSort('amount')">{{ 'ACCOUNTS.PAYMENTS.COL_AMOUNT' | translate }} {{getSortIcon('amount')}}</th>
           </tr>
         </thead>
         <tbody class="text-gray-700">
@@ -32,7 +32,7 @@
               <td class="py-3 px-4 text-sm whitespace-nowrap font-mono">{{ payment.amount | currency:'SAR' }}</td>
             </tr>
           } @empty {
-            <tr><td colspan="5" class="text-center py-8 text-gray-500">لا توجد سندات صرف مسجلة.</td></tr>
+            <tr><td colspan="5" class="text-center py-8 text-gray-500">{{ 'ACCOUNTS.PAYMENTS.NO_PAYMENTS' | translate }}</td></tr>
           }
         </tbody>
       </table>

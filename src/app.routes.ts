@@ -49,14 +49,24 @@ import { ConsignmentListComponent } from './components/consignment/consignment-l
 import { ConsignmentFormComponent } from './components/consignment/consignment-form/consignment-form.component';
 import { DepositListComponent } from './components/accounts/deposits/deposit-list/deposit-list.component';
 import { DepositFormComponent } from './components/accounts/deposits/deposit-form/deposit-form.component';
+import { LoginComponent } from './components/auth/login/login.component';
+import { RegistrationComponent } from './components/auth/registration/registration.component';
+import { LayoutComponent } from './components/shared/layout/layout.component';
 
 export const APP_ROUTES: Routes = [
-  { path: 'dashboard', component: DashboardComponent },
-  { path: 'setup/manufacturers', component: ManufacturersComponent },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: 'login', component: LoginComponent },
+  { path: 'registration', component: RegistrationComponent },
+  {
+    path: '',
+    component: LayoutComponent,
+    children: [
+      { path: 'dashboard', component: DashboardComponent },
+      { path: 'setup/manufacturers', component: ManufacturersComponent },
   { path: 'setup/models', component: CarModelsComponent },
   { path: 'setup/year', component: ManufactureYearComponent },
-  { path: 'setup/card', redirectTo: '/inventory/new' }, // Redirect to the functional inventory form
-  { path: 'inventory', component: InventoryListComponent },
+      { path: 'setup/card', redirectTo: '/inventory/new' }, // Redirect to the functional inventory form
+      { path: 'inventory', component: InventoryListComponent },
   { path: 'inventory/new', component: InventoryFormComponent },
   { path: 'inventory/edit/:id', component: InventoryFormComponent },
   { path: 'inventory/stock-taking', component: StockTakingComponent },
@@ -114,6 +124,8 @@ export const APP_ROUTES: Routes = [
   { path: 'maintenance/edit/:id', component: ServiceOrderFormComponent },
   { path: 'deliveries', component: DeliveryScheduleComponent },
   { path: 'deliveries/schedule/:invoiceId', component: DeliveryFormComponent },
-  { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
-  { path: '**', redirectTo: '/dashboard' } 
+      { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+      { path: '**', redirectTo: '/dashboard' }
+    ]
+  }
 ];

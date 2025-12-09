@@ -1,9 +1,9 @@
 <div class="container mx-auto">
   <div class="flex justify-between items-center mb-6">
-    <h2 class="text-xl font-semibold text-gray-800">جدول تجارب القيادة</h2>
+    <h2 class="text-xl font-semibold text-gray-800">{{ 'TEST_DRIVES.SCHEDULE_TITLE' | translate }}</h2>
     <a routerLink="/test-drives/new" class="bg-primary-600 text-white px-4 py-2 rounded-lg shadow hover:bg-primary-700 transition duration-300 flex items-center text-sm">
       <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-      حجز تجربة قيادة جديدة
+      {{ 'TEST_DRIVES.BOOK_NEW' | translate }}
     </a>
   </div>
 
@@ -26,23 +26,23 @@
                             [class.bg-blue-100]="booking.status === 'Scheduled'" [class.text-blue-800]="booking.status === 'Scheduled'"
                             [class.bg-green-100]="booking.status === 'Completed'" [class.text-green-800]="booking.status === 'Completed'"
                             [class.bg-red-100]="booking.status === 'Canceled'" [class.text-red-800]="booking.status === 'Canceled'">
-                        {{ booking.status === 'Scheduled' ? 'مجدولة' : (booking.status === 'Completed' ? 'مكتملة' : 'ملغاة') }}
+                        {{ booking.status === 'Scheduled' ? ('TEST_DRIVES.STATUS_SCHEDULED' | translate) : (booking.status === 'Completed' ? ('TEST_DRIVES.STATUS_COMPLETED' | translate) : ('TEST_DRIVES.STATUS_CANCELED' | translate)) }}
                       </span>
                     </div>
                     <p class="text-sm text-gray-600">
                       <span class="font-semibold">{{ booking.startTime | date:'shortTime':'':'ar' }}</span> - 
                       <span class="font-semibold">{{ booking.endTime | date:'shortTime':'':'ar' }}</span>
                     </p>
-                    <p class="text-sm text-gray-500">العميل: <span class="font-medium">{{ booking.customerName }}</span></p>
-                    <p class="text-sm text-gray-500">مندوب المبيعات: <span class="font-medium">{{ booking.salesperson }}</span></p>
+                    <p class="text-sm text-gray-500">{{ 'TEST_DRIVES.CLIENT' | translate }}: <span class="font-medium">{{ booking.customerName }}</span></p>
+                    <p class="text-sm text-gray-500">{{ 'TEST_DRIVES.SALESPERSON' | translate }}: <span class="font-medium">{{ booking.salesperson }}</span></p>
                   </div>
                   @if (booking.status === 'Scheduled') {
                     <div class="flex justify-end space-x-2 space-x-reverse mt-4 pt-4 border-t">
                       <button (click)="updateStatus(booking, 'Canceled')" class="px-3 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-md hover:bg-red-200">
-                        إلغاء
+                        {{ 'TEST_DRIVES.CANCEL' | translate }}
                       </button>
                       <button (click)="updateStatus(booking, 'Completed')" class="px-3 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-md hover:bg-green-200">
-                        إكمال
+                        {{ 'TEST_DRIVES.COMPLETE' | translate }}
                       </button>
                     </div>
                   }
@@ -51,7 +51,7 @@
             </div>
           } @else {
             <div class="text-center py-4 text-gray-500">
-              لا توجد حجوزات لهذا اليوم.
+              {{ 'TEST_DRIVES.NO_BOOKINGS' | translate }}
             </div>
           }
         </div>

@@ -1,6 +1,7 @@
 
 
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { DatePipe, CurrencyPipe } from '@angular/common';
 import { ServiceOrder, ServiceOrderStatus } from '../../../types/service-order.model';
@@ -20,7 +21,7 @@ type SortDirection = 'asc' | 'desc' | '';
 export class MaintenanceDashboardComponent {
   private serviceOrderService = inject(ServiceOrderService);
 
-  allServiceOrders = this.serviceOrderService.serviceOrders$;
+  allServiceOrders = toSignal(this.serviceOrderService.getServiceOrders(), { initialValue: [] });
   filter = signal('');
   sortColumn = signal<SortColumn>('dateIn');
   sortDirection = signal<SortDirection>('desc');

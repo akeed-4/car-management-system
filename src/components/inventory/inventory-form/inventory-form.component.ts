@@ -1,5 +1,6 @@
 
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { InventoryService } from '../../../services/inventory.service';
 import { Car, CarCondition, CarStatus, CarLocation } from '../../../types/car.model';
@@ -11,6 +12,7 @@ import { CarModelService } from '../../../services/car-model.service';
 import { ManufactureYearService } from '../../../services/manufacture-year.service';
 import { VinScannerComponent } from '../../shared/vin-scanner/vin-scanner.component';
 import { PublishModalComponent } from '../../shared/publish-modal/publish-modal.component';
+import { TranslateModule } from '@ngx-translate/core';
 import { FloorPlanService } from '../../../services/floor-plan.service';
 import { ExpenseService } from '../../../services/expense.service';
 import { PriceSuggestion } from '../../../types/price-suggestion.model';
@@ -18,7 +20,7 @@ import { PriceSuggestion } from '../../../types/price-suggestion.model';
 @Component({
   selector: 'app-inventory-form',
   standalone: true,
-  imports: [RouterLink, FormsModule, CurrencyPipe, VinScannerComponent, PublishModalComponent],
+  imports: [RouterLink, FormsModule, CurrencyPipe, VinScannerComponent, PublishModalComponent, TranslateModule],
   templateUrl: './inventory-form.component.html',
   styleUrl: './inventory-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,7 +38,7 @@ export class InventoryFormComponent {
 
   // Signals for dropdowns
   manufacturers = this.manufacturerService.manufacturers$;
-  allModels = this.carModelService.carModels$;
+  allModels = toSignal(this.carModelService.getCarModels(), { initialValue: [] });
   years = this.yearService.years$;
   floorPlans = this.floorPlanService.floorPlans$;
 
@@ -100,12 +102,12 @@ export class InventoryFormComponent {
         const id = Number(idParam);
         this.editMode.set(true);
         this.pageTitle.set('تعديل بيانات السيارة');
-        const existingCar = this.inventoryService.getCarById(id);
-        if (existingCar) {
+        this.inventoryService.getCarById(id).subscribe(existingCar => {
           this.car.set({ ...existingCar });
-        } else {
+        }, error => {
+          console.error('Error loading car:', error);
           this.router.navigate(['/inventory']);
-        }
+        });
       }
     });
   }

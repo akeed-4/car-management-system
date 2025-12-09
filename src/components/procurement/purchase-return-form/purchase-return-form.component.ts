@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
@@ -8,11 +9,12 @@ import { InventoryService } from '../../../services/inventory.service';
 import { ReturnInvoiceItem } from '../../../types/return-invoice-item.model';
 import { PurchaseReturnInvoice } from '../../../types/purchase-return-invoice.model';
 import { PurchaseInvoice } from '../../../types/purchase-invoice.model';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-purchase-return-form',
   standalone: true,
-  imports: [RouterLink, FormsModule, CurrencyPipe],
+  imports: [RouterLink, FormsModule, CurrencyPipe, TranslateModule],
   templateUrl: './purchase-return-form.component.html',
   styleUrl: './purchase-return-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,12 +24,13 @@ export class PurchaseReturnFormComponent {
   private purchaseReturnService = inject(PurchaseReturnService);
   private inventoryService = inject(InventoryService);
   private router = inject(Router);
+  private translate = inject(TranslateService);
 
   // Form State
   returnInvoiceNumber = signal(`RT-P-${Date.now()}`);
   returnInvoiceDate = signal(new Date().toISOString().split('T')[0]);
 
-  originalInvoices = this.procurementService.invoices$;
+  originalInvoices = toSignal(this.procurementService.getInvoices(), { initialValue: [] });
   selectedOriginalInvoice = signal<PurchaseInvoice | null>(null);
   
   returnItems = signal<ReturnInvoiceItem[]>([]);
@@ -75,7 +78,7 @@ export class PurchaseReturnFormComponent {
     const itemsToReturn = this.returnItems().filter(item => item.returnQuantity > 0);
 
     if (!originalInvoice || itemsToReturn.length === 0) {
-      alert('الرجاء تحديد الكميات المرتجعة.');
+      alert(this.translate.instant('PROCUREMENT.PURCHASE_RETURN.ERROR_NO_ITEMS'));
       return;
     }
 
@@ -96,7 +99,7 @@ export class PurchaseReturnFormComponent {
       this.inventoryService.decrementCarQuantity(item.carId, item.returnQuantity);
     });
     
-    alert('تم إنشاء فاتورة المرتجع بنجاح وتحديث المخزون.');
+    alert(this.translate.instant('PROCUREMENT.PURCHASE_RETURN.SAVED_SUCCESS'));
     this.router.navigate(['/procurement/return']);
   }
 }

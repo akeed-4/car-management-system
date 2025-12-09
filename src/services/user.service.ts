@@ -1,38 +1,47 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, tap } from 'rxjs';
 import { User } from '../types/user.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
-  private nextId = signal(3);
-  private users = signal<User[]>([
-    { id: 1, name: 'المدير العام', roleId: 1, roleName: 'مدير النظام', status: 'Active' },
-    { id: 2, name: 'أحمد مندوب مبيعات', roleId: 2, roleName: 'مندوب مبيعات', status: 'Active' },
-  ]);
-
+  private http = inject(HttpClient);
+  private apiUrl = 'https://api.example.com/users'; // رابط الـ API
+  private users = signal<User[]>([]);
   public users$ = this.users.asReadonly();
 
-  getUserById(id: number): User | undefined {
-    return this.users().find(u => u.id === id);
+  constructor() {
+    this.loadUsers();
   }
 
-  addUser(user: Omit<User, 'id'>) {
-    const newUser: User = {
-      ...user,
-      id: this.nextId(),
-    };
-    this.users.update(users => [...users, newUser]);
-    this.nextId.update(id => id + 1);
+  loadUsers() {
+    this.getUsers().subscribe(users => this.users.set(users));
   }
 
-  updateUser(updatedUser: User) {
-    this.users.update(users =>
-      users.map(u => (u.id === updatedUser.id ? updatedUser : u))
-    );
+  // جلب جميع المستخدمين
+  getUsers(): Observable<User[]> {
+    return this.http.get<User[]>(this.apiUrl);
   }
 
-  deleteUser(id: number) {
-    this.users.update(users => users.filter(u => u.id !== id));
+  // جلب مستخدم واحد حسب ID
+  getUserById(id: number): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/${id}`);
+  }
+
+  // إضافة مستخدم جديد
+  addUser(user: Omit<User, 'id'>): Observable<User> {
+    return this.http.post<User>(this.apiUrl, user);
+  }
+
+  // تحديث مستخدم موجود
+  updateUser(user: User): Observable<User> {
+    return this.http.put<User>(`${this.apiUrl}/${user.id}`, user);
+  }
+
+  // حذف مستخدم
+  deleteUser(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }

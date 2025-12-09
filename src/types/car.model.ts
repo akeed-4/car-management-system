@@ -31,6 +31,5 @@ export interface Car {
   purchaseDate?: string; // e.g., '2024-05-20'
   floorPlanId?: number;
   isArchived?: boolean;
-  // Fix: Removed quantity from Car interface. It's now tracked via InventoryService's carQuantities map
-  // and in InvoiceItem/StockTakeItem for specific transactions.
+  quantity: number; // Current quantity in inventory
 }

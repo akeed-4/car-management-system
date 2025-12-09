@@ -1,5 +1,6 @@
 
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CurrencyPipe } from '@angular/common';
@@ -8,11 +9,13 @@ import { SupplierService } from '../../../services/supplier.service';
 import { ProcurementService } from '../../../services/procurement.service';
 import { PurchaseInvoice } from '../../../types/purchase-invoice.model';
 import { InvoiceItem } from '../../../types/invoice-item.model';
+import { Car } from '../../../types/car.model';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-purchase-invoice',
   standalone: true,
-  imports: [RouterLink, FormsModule, CurrencyPipe],
+  imports: [RouterLink, FormsModule, CurrencyPipe, TranslateModule],
   templateUrl: './purchase-invoice.component.html',
   styleUrl: './purchase-invoice.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,11 +25,11 @@ export class PurchaseInvoiceComponent {
   private supplierService = inject(SupplierService);
   private procurementService = inject(ProcurementService);
   private router = inject(Router);
+  private translate = inject(TranslateService);
 
   // Services state
-  suppliers = this.supplierService.suppliers$;
+  suppliers = toSignal(this.supplierService.getSuppliers(), { initialValue: [] });
   cars = this.inventoryService.cars$; // Use this to select existing car definitions
-  carQuantities = this.inventoryService.carQuantities$; // Access car quantities
 
   // Form state
   invoiceNumber = signal(''); // Added for consistency with SalesInvoice
@@ -42,6 +45,7 @@ export class PurchaseInvoiceComponent {
   selectedCarId = signal<number | null>(null);
   selectedQuantity = signal(1);
   purchasePrice = signal(0);
+  selectedCar = signal<Car | null>(null);
 
   constructor() {
     this.invoiceNumber.set(`PO-${Date.now()}`); // Generate Purchase Order number
@@ -55,10 +59,10 @@ export class PurchaseInvoiceComponent {
   addItemToInvoice(): void {
     const carId = this.selectedCarId();
     if (!carId) {
-      alert('الرجاء اختيار سيارة.');
+      alert(this.translate.instant('PROCUREMENT.PURCHASE_INVOICE.ERROR_SELECT_CAR'));
       return;
     }
-    const car = this.inventoryService.getCarById(carId);
+    const car = this.selectedCar();
     const quantity = this.selectedQuantity();
     const price = this.purchasePrice();
 
@@ -66,9 +70,9 @@ export class PurchaseInvoiceComponent {
       return;
     }
 
-    const existingItem = this.invoiceItems().find(item => item.carId === carId);
+    const existingItem = this.invoiceItems().find(item => item.carId === car.id);
     if (existingItem) {
-        alert('هذه السيارة مضافة بالفعل إلى الفاتورة.');
+      alert(this.translate.instant('PROCUREMENT.PURCHASE_INVOICE.ERROR_ALREADY_ADDED'));
         return;
     }
 
@@ -84,6 +88,7 @@ export class PurchaseInvoiceComponent {
 
     // Reset selection
     this.selectedCarId.set(null);
+    this.selectedCar.set(null);
     this.selectedQuantity.set(1);
     this.purchasePrice.set(0);
   }
@@ -95,15 +100,15 @@ export class PurchaseInvoiceComponent {
   onCarSelectionChange(carId: number | null): void {
     this.selectedCarId.set(carId);
     if(carId) {
-        const car = this.inventoryService.getCarById(carId);
-        // Default purchase price from inventory, but allow override
-        this.purchasePrice.set(car?.purchasePrice ?? 0); 
+        this.inventoryService.getCarById(carId).subscribe(car => {
+          this.purchasePrice.set(car?.purchasePrice ?? 0);
+          this.selectedCar.set(car);
+        });
     } else {
       this.purchasePrice.set(0);
+      this.selectedCar.set(null);
     }
-  }
-
-  saveInvoice(): void {
+  }  saveInvoice(): void {
     const supplierId = this.selectedSupplierId();
     const supplier = this.suppliers().find(s => s.id === supplierId);
     const items = this.invoiceItems();
@@ -136,7 +141,7 @@ export class PurchaseInvoiceComponent {
       this.inventoryService.incrementCarQuantity(item.carId, item.quantity);
     });
 
-    alert('تم حفظ فاتورة الشراء بنجاح وتحديث المخزون.');
+    alert(this.translate.instant('PROCUREMENT.PURCHASE_INVOICE.SAVED_SUCCESS'));
     this.router.navigate(['/purchases']);
   }
 }

@@ -46,7 +46,7 @@ export class CurrentSettingService {
 
 
   getApplicationName(){
-    return this.getCurrentLanguage() == 'en' ? 'WitsUP' : 'ويتسب' ;
+    return this.getCurrentLanguage() == 'en' ? 'carSystem' : 'معارض سيارات' ;
   }
 
   getCurrentLanguage():string{

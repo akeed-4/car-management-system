@@ -4,6 +4,7 @@ import { DatePipe } from '@angular/common';
 import { TestDriveService } from '../../services/test-drive.service';
 import { InventoryService } from '../../services/inventory.service';
 import { TestDrive, TestDriveStatus } from '../../types/test-drive.model';
+import { TranslateModule } from '@ngx-translate/core';
 
 interface DaySchedule {
   date: Date;
@@ -13,7 +14,7 @@ interface DaySchedule {
 @Component({
   selector: 'app-test-drives',
   standalone: true,
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink, DatePipe, TranslateModule],
   templateUrl: './test-drives.component.html',
   styleUrl: './test-drives.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

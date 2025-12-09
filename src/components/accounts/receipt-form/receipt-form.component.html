@@ -1,7 +1,7 @@
 <div class="container mx-auto">
   <div class="flex justify-between items-center mb-6">
-    <h2 class="text-xl font-semibold text-gray-800">إنشاء سند قبض</h2>
-    <a routerLink="/accounts/receipts" class="text-primary-600 hover:text-primary-800 transition">&larr; العودة إلى القائمة</a>
+    <h2 class="text-xl font-semibold text-gray-800">{{ 'ACCOUNTS.RECEIPT_FORM.TITLE' | translate }}</h2>
+    <a routerLink="/accounts/receipts" class="text-primary-600 hover:text-primary-800 transition">&larr; {{ 'ACCOUNTS.RECEIPT_FORM.BACK' | translate }}</a>
   </div>
 
   <div class="bg-white p-8 rounded-lg shadow-md  mx-auto">
@@ -10,11 +10,11 @@
         <!-- Header Info -->
         <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6 border-b pb-6">
           <div>
-            <label class="block text-sm font-medium text-gray-700">رقم السند</label>
+            <label class="block text-sm font-medium text-gray-700">{{ 'ACCOUNTS.RECEIPT_FORM.VOUCHER_NUMBER' | translate }}</label>
             <input type="text" [value]="voucherNumber()" disabled class="mt-1 block w-full bg-gray-100 px-3 py-2 border border-gray-300 rounded-md">
           </div>
           <div>
-            <label for="date" class="block text-sm font-medium text-gray-700">التاريخ</label>
+            <label for="date" class="block text-sm font-medium text-gray-700">{{ 'ACCOUNTS.RECEIPT_FORM.DATE' | translate }}</label>
             <input type="date" id="date" name="date" [ngModel]="date()" (ngModelChange)="date.set($event)" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
           </div>
         </div>
@@ -22,16 +22,16 @@
         <!-- Customer and Invoice Selection -->
         <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label for="customer" class="block text-sm font-medium text-gray-700">العميل</label>
+            <label for="customer" class="block text-sm font-medium text-gray-700">{{ 'ACCOUNTS.RECEIPT_FORM.CUSTOMER' | translate }}</label>
             <select id="customer" name="customer" [ngModel]="selectedCustomerId()" (ngModelChange)="onCustomerChange($event ? +$event : null)" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
-              <option [ngValue]="null" disabled>-- اختر العميل --</option>
+              <option [ngValue]="null" disabled>{{ 'ACCOUNTS.RECEIPT_FORM.SELECT_CUSTOMER' | translate }}</option>
               @for(c of customers(); track c.id) { <option [value]="c.id">{{ c.name }}</option> }
             </select>
           </div>
           <div>
-            <label for="invoice" class="block text-sm font-medium text-gray-700">الفاتورة المستحقة</label>
+            <label for="invoice" class="block text-sm font-medium text-gray-700">{{ 'ACCOUNTS.RECEIPT_FORM.INVOICE' | translate }}</label>
             <select id="invoice" name="invoice" [ngModel]="selectedInvoiceId()" (ngModelChange)="onInvoiceChange($event ? +$event : null)" required [disabled]="!selectedCustomerId()" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md disabled:bg-gray-100">
-              <option [ngValue]="null" disabled>-- اختر الفاتورة --</option>
+              <option [ngValue]="null" disabled>{{ 'ACCOUNTS.RECEIPT_FORM.SELECT_INVOICE' | translate }}</option>
               @for(inv of outstandingInvoices(); track inv.id) { <option [value]="inv.id">{{ inv.invoiceNumber }} (المستحق: {{inv.amountDue | currency:'SAR'}})</option> }
             </select>
           </div>
@@ -52,11 +52,11 @@
         <!-- Payment Details -->
         <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6 border-t pt-6">
           <div>
-            <label for="amount" class="block text-sm font-medium text-gray-700">المبلغ المدفوع</label>
+            <label for="amount" class="block text-sm font-medium text-gray-700">{{ 'ACCOUNTS.RECEIPT_FORM.AMOUNT' | translate }}</label>
             <input type="number" id="amount" name="amount" [ngModel]="amount()" (ngModelChange)="amount.set(+$event)" required min="0.01" [max]="selectedInvoiceDetails()?.amountDue" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
           </div>
           <div>
-            <label for="paymentMethod" class="block text-sm font-medium text-gray-700">طريقة الدفع</label>
+            <label for="paymentMethod" class="block text-sm font-medium text-gray-700">{{ 'ACCOUNTS.RECEIPT_FORM.PAYMENT_METHOD' | translate }}</label>
             <select id="paymentMethod" name="paymentMethod" [ngModel]="paymentMethod()" (ngModelChange)="paymentMethod.set($event)" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
               <option value="Cash">نقدي</option>
               <option value="Bank Transfer">تحويل بنكي</option>
@@ -64,7 +64,7 @@
             </select>
           </div>
           <div>
-            <label for="accountId" class="block text-sm font-medium text-gray-700">حساب الإيداع</label>
+            <label for="accountId" class="block text-sm font-medium text-gray-700">{{ 'ACCOUNTS.RECEIPT_FORM.ACCOUNT' | translate }}</label>
             <select id="accountId" name="accountId" [ngModel]="selectedAccountId()" (ngModelChange)="selectedAccountId.set(+$event)" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
               <option [ngValue]="null" disabled>-- اختر الحساب --</option>
               @for(acc of accounts(); track acc.id) { <option [value]="acc.id">{{ acc.name }}</option> }
@@ -74,9 +74,9 @@
       </div>
 
       <div class="mt-8 pt-6 border-t flex justify-end">
-        <a routerLink="/accounts/receipts" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg shadow hover:bg-gray-300 transition ml-4 text-sm">إلغاء</a>
+        <a routerLink="/accounts/receipts" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg shadow hover:bg-gray-300 transition ml-4 text-sm">{{ 'ACCOUNTS.RECEIPT_FORM.CANCEL' | translate }}</a>
         <button type="submit" [disabled]="receiptForm.invalid || amount() <= 0" class="bg-primary-600 text-white px-6 py-2 rounded-lg shadow hover:bg-primary-700 transition disabled:opacity-50 text-sm">
-          حفظ السند
+          {{ 'ACCOUNTS.RECEIPT_FORM.SAVE' | translate }}
         </button>
       </div>
     </form>

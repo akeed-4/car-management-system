@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { SalesInvoice } from '../../types/sales-invoice.model';
 import { FormsModule } from '@angular/forms'; // Import FormsModule for filter input
 import { InventoryService } from '../../services/inventory.service';
@@ -17,7 +19,7 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-sales',
   standalone: true,
-  imports: [RouterLink, CurrencyPipe, DatePipe, FormsModule, PosPaymentModalComponent, DealJacketModalComponent],
+  imports: [RouterLink, CurrencyPipe, DatePipe, FormsModule, PosPaymentModalComponent, DealJacketModalComponent, TranslateModule],
   templateUrl: './sales.component.html',
   styleUrl: './sales.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -29,7 +31,7 @@ export class SalesComponent {
   private paymentGatewayService = inject(PaymentGatewayService);
   private router = inject(Router);
   
-  invoices = this.salesService.invoices$;
+  invoices = toSignal(this.salesService.getInvoices(), { initialValue: [] });
   filter = signal('');
   sortColumn = signal<SortColumn>('');
   sortDirection = signal<SortDirection>('');

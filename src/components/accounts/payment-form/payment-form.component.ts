@@ -1,28 +1,32 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SupplierService } from '../../../services/supplier.service';
 import { ProcurementService } from '../../../services/procurement.service';
 import { PaymentService } from '../../../services/payment.service';
 import { TreasuryService } from '../../../services/treasury.service';
+import { PurchaseInvoice } from '../../../types/purchase-invoice.model';
 
 @Component({
   selector: 'app-payment-form',
   standalone: true,
-  imports: [FormsModule, RouterLink, CurrencyPipe],
+  imports: [FormsModule, RouterLink, CurrencyPipe, TranslateModule],
   templateUrl: './payment-form.component.html',
   styleUrl: './payment-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PaymentFormComponent {
   private router = inject(Router);
+  private translate = inject(TranslateService);
   private supplierService = inject(SupplierService);
   private procurementService = inject(ProcurementService);
   private paymentService = inject(PaymentService);
   private treasuryService = inject(TreasuryService);
 
-  suppliers = this.supplierService.suppliers$;
+  suppliers = toSignal(this.supplierService.getSuppliers(), { initialValue: [] });
   accounts = this.treasuryService.accounts$;
   
   voucherNumber = signal(`PV-${Date.now()}`);
@@ -33,12 +37,8 @@ export class PaymentFormComponent {
   paymentMethod = signal('Bank Transfer');
   selectedAccountId = signal<number | null>(null);
   
-  outstandingInvoices = computed(() => {
-    const suppId = this.selectedSupplierId();
-    if (!suppId) return [];
-    return this.procurementService.getOutstandingInvoicesBySupplierId(suppId);
-  });
-
+  outstandingInvoices = signal<PurchaseInvoice[]>([]);
+  
   selectedInvoiceDetails = computed(() => {
     const invId = this.selectedInvoiceId();
     if (!invId) return null;
@@ -49,6 +49,11 @@ export class PaymentFormComponent {
     this.selectedSupplierId.set(supplierId);
     this.selectedInvoiceId.set(null); // Reset invoice selection
     this.amount.set(0);
+    if (supplierId) {
+      this.procurementService.getOutstandingInvoicesBySupplierId(supplierId).subscribe(invoices => this.outstandingInvoices.set(invoices));
+    } else {
+      this.outstandingInvoices.set([]);
+    }
   }
 
   onInvoiceChange(invoiceId: number | null) {
@@ -64,11 +69,11 @@ export class PaymentFormComponent {
     const account = this.accounts().find(a => a.id === this.selectedAccountId());
 
     if (!supplier || !invoice || !account || paymentAmount <= 0) {
-      alert('الرجاء تعبئة جميع الحقول بشكل صحيح.');
+      alert(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.FILL_REQUIRED'));
       return;
     }
     if (paymentAmount > invoice.amountDue) {
-      alert('المبلغ المدفوع أكبر من المبلغ المستحق.');
+      alert(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.AMOUNT_EXCEEDS'));
       return;
     }
 
@@ -89,7 +94,7 @@ export class PaymentFormComponent {
       accountName: account.name,
     });
 
-    alert('تم حفظ سند الصرف وتحديث الفاتورة بنجاح.');
+    alert(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.SAVED'));
     this.router.navigate(['/accounts/payments']);
   }
 }

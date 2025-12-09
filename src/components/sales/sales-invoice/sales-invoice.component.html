@@ -1,11 +1,11 @@
 <div class="container">
   <div class="page-header">
-    <h2>إنشاء فاتورة بيع</h2>
+    <h2>{{ 'INVOICE.CREATE_TITLE' | translate }}</h2>
     <a routerLink="/sales" class="back-link">
       <button mat-icon-button>
         <mat-icon>arrow_back</mat-icon>
       </button>
-      <span>العودة إلى المبيعات</span>
+      <span>{{ 'INVOICE.BACK_TO_SALES' | translate }}</span>
     </a>
   </div>
 
@@ -15,13 +15,13 @@
 
     <form (ngSubmit)="saveInvoice()">
       <section class="form-section">
-        <h3 class="form-section-title">بيانات الفاتورة الرئيسية</h3>
-        <mat-grid-list [cols]="(layout$ | async)?.columns || 4" rowHeight="80" gutterSize="16px">
+        <h3 class="form-section-title">{{ 'INVOICE.MAIN_DATA' | translate }}</h3>
+        <mat-grid-list [cols]="(layout$ | async)?.columns || 4" rowHeight="80" gutterSize="8px">
           <mat-grid-tile [colspan]="(layout$ | async)?.miniCard.cols || 1" [rowspan]="(layout$ | async)?.miniCard.rows || 1">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>العميل</mat-label>
+            <mat-form-field appearance="outline" class="full-width" floatLabel="always">
+              <mat-label>{{ 'INVOICE.CUSTOMER' | translate }}</mat-label>
               <mat-select [formControl]="customerControl" required>
-                <mat-option [value]="null" disabled>-- اختر العميل --</mat-option>
+                <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_CUSTOMER_OPTION' | translate }}</mat-option>
                 <mat-option *ngFor="let customer of customers()" [value]="customer.id">
                   {{ customer.name }} ({{ customer.nationalId }})
                 </mat-option>
@@ -30,15 +30,15 @@
           </mat-grid-tile>
 
           <mat-grid-tile [colspan]="(layout$ | async)?.miniCard.cols || 1" [rowspan]="(layout$ | async)?.miniCard.rows || 1">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>رقم الفاتورة</mat-label>
+            <mat-form-field appearance="outline" class="full-width" floatLabel="always">
+              <mat-label>{{ 'INVOICE.INVOICE_NUMBER' | translate }}</mat-label>
               <input matInput [value]="invoiceNumber()" disabled readonly>
             </mat-form-field>
           </mat-grid-tile>
 
           <mat-grid-tile [colspan]="(layout$ | async)?.miniCard.cols || 1" [rowspan]="(layout$ | async)?.miniCard.rows || 1">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>تاريخ الفاتورة</mat-label>
+            <mat-form-field appearance="outline" class="full-width" floatLabel="always">
+              <mat-label>{{ 'INVOICE.INVOICE_DATE' | translate }}</mat-label>
               <input matInput [matDatepicker]="invoiceDatePicker" [formControl]="invoiceDateControl" required>
               <mat-datepicker-toggle matSuffix [for]="invoiceDatePicker"></mat-datepicker-toggle>
               <mat-datepicker #invoiceDatePicker></mat-datepicker>
@@ -46,8 +46,8 @@
           </mat-grid-tile>
 
           <mat-grid-tile [colspan]="(layout$ | async)?.miniCard.cols || 1" [rowspan]="(layout$ | async)?.miniCard.rows || 1">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>تاريخ الاستحقاق</mat-label>
+            <mat-form-field appearance="outline" class="full-width" floatLabel="always">
+              <mat-label>{{ 'INVOICE.DUE_DATE' | translate }}</mat-label>
               <input matInput [matDatepicker]="dueDatePicker" [formControl]="dueDateControl">
               <mat-datepicker-toggle matSuffix [for]="dueDatePicker"></mat-datepicker-toggle>
               <mat-datepicker #dueDatePicker></mat-datepicker>
@@ -55,19 +55,19 @@
           </mat-grid-tile>
 
           <mat-grid-tile [colspan]="(layout$ | async)?.miniCard.cols || 1" [rowspan]="(layout$ | async)?.miniCard.rows || 1">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>طريقة الدفع</mat-label>
+            <mat-form-field appearance="outline" class="full-width" floatLabel="always">
+              <mat-label>{{ 'INVOICE.PAYMENT_METHOD' | translate }}</mat-label>
               <mat-select [formControl]="paymentMethodControl">
-                <mat-option value="Cash">نقدي</mat-option>
-                <mat-option value="Bank Transfer">تحويل بنكي</mat-option>
-                <mat-option value="Finance">تمويل</mat-option>
+                <mat-option value="Cash">{{ 'INVOICE.PAYMENT_CASH' | translate }}</mat-option>
+                <mat-option value="Bank Transfer">{{ 'INVOICE.PAYMENT_BANK_TRANSFER' | translate }}</mat-option>
+                <mat-option value="Finance">{{ 'INVOICE.PAYMENT_FINANCE' | translate }}</mat-option>
               </mat-select>
             </mat-form-field>
           </mat-grid-tile>
 
           <mat-grid-tile [colspan]="(layout$ | async)?.miniCard.cols || 1" [rowspan]="(layout$ | async)?.miniCard.rows || 1">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>مندوب المبيعات</mat-label>
+            <mat-form-field appearance="outline" class="full-width" floatLabel="always">
+              <mat-label>{{ 'INVOICE.SALESPERSON' | translate }}</mat-label>
               <input matInput [formControl]="salespersonControl">
             </mat-form-field>
           </mat-grid-tile>
@@ -75,32 +75,38 @@
       </section>
 
       <section class="form-section">
-        <h3 class="form-section-title">تفاصيل الفاتورة (البنود)</h3>
+        <h3 class="form-section-title">{{ 'INVOICE.ITEMS_SECTION' | translate }}</h3>
         <div class="add-item-box">
-          <mat-grid-list [cols]="(layout$ | async)?.columns || 3" rowHeight="80" gutterSize="16px">
+          <mat-grid-list [cols]="(layout$ | async)?.columns || 3" rowHeight="100" gutterSize="16px">
             <mat-grid-tile [colspan]="(layout$ | async)?.miniCard.cols || 1" [rowspan]="(layout$ | async)?.miniCard.rows || 1">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>اختر السيارة</mat-label>
+              <mat-form-field appearance="outline" class="full-width" floatLabel="always">
+                <mat-label>{{ 'INVOICE.SELECT_CAR' | translate }}</mat-label>
                 <mat-select [formControl]="selectedCarIdControl">
-                  <mat-option [value]="null" disabled>-- اختر سيارة من المخزون --</mat-option>
+                  <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_CAR_OPTION' | translate }}</mat-option>
                   <mat-option *ngFor="let car of availableCars()" [value]="car.id">
                     {{ car.make }} {{ car.model }} ({{ car.year }}) - الكمية: {{ carQuantities().get(car.id) || 0 }}
                   </mat-option>
                 </mat-select>
               </mat-form-field>
             </mat-grid-tile>
+                <mat-grid-tile [colspan]="(layout$ | async)?.miniCard.cols || 1" [rowspan]="(layout$ | async)?.miniCard.rows || 1">
+                  <mat-form-field appearance="outline" class="full-width" floatLabel="always">
+                    <mat-label>{{ 'INVOICE.costPrice' | translate }}</mat-label>
+                    <input matInput type="number" [formControl]="selectedCostPriceControl" min="1">
+                  </mat-form-field>
+                </mat-grid-tile>
 
             <mat-grid-tile [colspan]="(layout$ | async)?.miniCard.cols || 1" [rowspan]="(layout$ | async)?.miniCard.rows || 1">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>الكمية</mat-label>
+              <mat-form-field appearance="outline" class="full-width" floatLabel="always">
+                <mat-label>{{ 'INVOICE.QUANTITY' | translate }}</mat-label>
                 <input matInput type="number" [formControl]="selectedQuantityControl" min="1">
               </mat-form-field>
             </mat-grid-tile>
 
             <mat-grid-tile [colspan]="(layout$ | async)?.miniCard.cols || 1" [rowspan]="(layout$ | async)?.miniCard.rows || 1">
-              <button mat-raised-button color="primary" (click)="addItemToInvoice()" [disabled]="!selectedCarIdControl.valid || !selectedQuantityControl.valid">
+                <button mat-raised-button color="primary" (click)="addItemToInvoice()" [disabled]="!selectedCarIdControl.valid || !selectedQuantityControl.valid">
                 <mat-icon>add</mat-icon>
-                <span>إضافة</span>
+                <span>{{ 'INVOICE.ADD' | translate }}</span>
               </button>
             </mat-grid-tile>
           </mat-grid-list>
@@ -109,64 +115,54 @@
 
       <section class="form-section">
         <div class="table-wrapper">
-          <table mat-table [dataSource]="invoiceItems()" class="mat-elevation-z8">
-            <ng-container matColumnDef="carDescription">
-              <th mat-header-cell *matHeaderCellDef> السيارة </th>
-              <td mat-cell *matCellDef="let item"> {{ item.carDescription }} </td>
-            </ng-container>
-
-            <ng-container matColumnDef="quantity">
-              <th mat-header-cell *matHeaderCellDef> الكمية </th>
-              <td mat-cell *matCellDef="let item"> {{ item.quantity }} </td>
-            </ng-container>
-
-            <ng-container matColumnDef="unitPrice">
-              <th mat-header-cell *matHeaderCellDef> سعر الوحدة </th>
-              <td mat-cell *matCellDef="let item">
-                <input matInput type="number" [(ngModel)]="item.unitPrice" (ngModelChange)="updateItemPrice(item.carId, $event)" [ngModelOptions]="{standalone: true}" min="0">
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="lineTotal">
-              <th mat-header-cell *matHeaderCellDef> الإجمالي </th>
-              <td mat-cell *matCellDef="let item"> {{ item.lineTotal | currency:'SAR' }} </td>
-            </ng-container>
-
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef> حذف </th>
-              <td mat-cell *matCellDef="let item">
-                <button mat-icon-button color="warn" (click)="removeItem(item.carId)">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-          </table>
+          <dx-data-grid
+            [dataSource]="invoiceItems()"
+            [showBorders]="true"
+            [columnAutoWidth]="true"
+            [rowAlternationEnabled]="true"
+            [editing]="{ mode: 'cell', allowUpdating: true, allowDeleting: true }"
+            [rtlEnabled]="true"
+            [showBorders]="true"
+            (onRowRemoving)="removeItem($event.data.carId)"
+            (onCellValueChanged)="updateItemPrice($event.data.carId, $event.value)"
+          >
+            <dxi-column dataField="carDescription" caption="{{ 'INVOICE.CAR' | translate }}" [allowEditing]="false"></dxi-column>
+            <dxi-column dataField="quantity" caption="{{ 'INVOICE.QUANTITY' | translate }}" [allowEditing]="false"></dxi-column>
+            <dxi-column dataField="unitPrice" caption="{{ 'INVOICE.UNIT_PRICE' | translate }}" dataType="number"></dxi-column>
+            <dxi-column dataField="lineTotal" caption="{{ 'INVOICE.LINE_TOTAL' | translate }}" dataType="number" [allowEditing]="false" format="currency"></dxi-column>
+            <dxi-column type="buttons">
+              <dxi-button name="delete"></dxi-button>
+            </dxi-column>
+            <dxo-filter-row [visible]="true"></dxo-filter-row>
+            <dxo-header-filter [visible]="true"></dxo-header-filter>
+            <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false"
+              [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
+            <dxo-selection mode="single"></dxo-selection>
+            <dxo-grouping [autoExpandAll]="false" [contextMenuEnabled]="true" ></dxo-grouping>
+          </dx-data-grid>
         </div>
       </section>
 
       <section class="summary-section">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>ملاحظات</mat-label>
-          <textarea matInput rows="4" [formControl]="notesControl" placeholder="أي ملاحظات إضافية على الفاتورة..."></textarea>
+          <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'INVOICE.NOTES' | translate }}</mat-label>
+          <textarea matInput rows="4" [formControl]="notesControl" placeholder="{{ 'INVOICE.NOTES_PLACEHOLDER' | translate }}"></textarea>
         </mat-form-field>
 
         <mat-card>
-          <mat-card-title>ملخص الفاتورة</mat-card-title>
+          <mat-card-title>{{ 'INVOICE.INVOICE_SUMMARY' | translate }}</mat-card-title>
           <mat-card-content>
             <div class="summary-item">
-              <p>الإجمالي قبل الضريبة</p>
+              <p>{{ 'INVOICE.SUBTOTAL' | translate }}</p>
               <p class="font-mono">{{ subtotal() | currency:'SAR':'symbol':'1.0-0' }}</p>
             </div>
             <div class="summary-item">
-              <p>ضريبة القيمة المضافة (15%)</p>
+              <p>{{ 'INVOICE.VAT' | translate }}</p>
               <p class="font-mono">+ {{ vatAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
             </div>
             <hr>
             <div class="summary-item total">
-              <p>الإجمالي النهائي</p>
+              <p>{{ 'INVOICE.TOTAL' | translate }}</p>
               <p class="font-mono">{{ totalAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
             </div>
           </mat-card-content>
@@ -174,9 +170,9 @@
       </section>
 
       <div class="form-actions">
-        <a routerLink="/sales" mat-button>إلغاء</a>
+        <a routerLink="/sales" mat-button>{{ 'INVOICE.CANCEL' | translate }}</a>
         <button mat-raised-button color="primary" type="submit" [disabled]="!customerControl.valid || !invoiceDateControl.valid || invoiceItems().length === 0">
-          إصدار الفاتورة
+          {{ 'INVOICE.ISSUE' | translate }}
         </button>
       </div>
     </form>

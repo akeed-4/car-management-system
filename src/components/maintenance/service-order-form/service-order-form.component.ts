@@ -58,14 +58,13 @@ export class ServiceOrderFormComponent implements OnInit {
       const id = Number(idParam);
       this.editMode.set(true);
       this.pageTitle.set('تعديل أمر العمل');
-      const existingOrder = this.serviceOrderService.getServiceOrderById(id);
-      console.log('Existing order:', existingOrder);
-      if (existingOrder) {
+      this.serviceOrderService.getServiceOrderById(id).subscribe(existingOrder => {
+        console.log('Existing order:', existingOrder);
         this.serviceOrder.set({ ...existingOrder });
-      } else {
-        console.log('Order not found, navigating back');
+      }, error => {
+        console.error('Error loading service order:', error);
         this.router.navigate(['/maintenance']);
-      }
+      });
     } else {
       console.log('Creating new order');
       this.serviceOrder.update(order => ({
@@ -104,20 +103,20 @@ export class ServiceOrderFormComponent implements OnInit {
     this.serviceOrder.update(order => ({ ...order, serviceItems: [...(order.serviceItems ?? []), newItem] }));
   }
 
-  updateServiceItem(index: number, field: keyof ServiceItem, value: any) {
+  updateServiceItem(item: ServiceItem, field: keyof ServiceItem, value: any) {
     this.serviceOrder.update(order => {
       if (!order.serviceItems) return order;
-      const updatedItems = [...order.serviceItems];
-      updatedItems[index] = { ...updatedItems[index], [field]: value };
+      const updatedItems = order.serviceItems.map(existingItem => 
+        existingItem === item ? { ...existingItem, [field]: value } : existingItem
+      );
       return { ...order, serviceItems: updatedItems };
     });
   }
 
-  removeServiceItem(index: number) {
+  removeServiceItem(item: ServiceItem) {
     this.serviceOrder.update(order => {
       if (!order.serviceItems) return order;
-      const updatedItems = [...order.serviceItems];
-      updatedItems.splice(index, 1);
+      const updatedItems = order.serviceItems.filter(existingItem => existingItem !== item);
       return { ...order, serviceItems: updatedItems };
     });
   }

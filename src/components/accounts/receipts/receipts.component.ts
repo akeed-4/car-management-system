@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { ReceiptService } from '../../../services/receipt.service';
 import { ReceiptVoucher } from '../../../types/receipt-voucher.model';
 
@@ -11,7 +13,7 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-receipts',
   standalone: true,
-  imports: [RouterLink, CurrencyPipe, DatePipe, FormsModule],
+  imports: [RouterLink, CurrencyPipe, DatePipe, FormsModule, TranslateModule],
   templateUrl: './receipts.component.html',
   styleUrl: './receipts.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,7 +21,7 @@ type SortDirection = 'asc' | 'desc' | '';
 export class ReceiptsComponent {
   private receiptService = inject(ReceiptService);
   
-  receipts = this.receiptService.receipts$;
+  receipts = toSignal(this.receiptService.receipts$, {initialValue: []});
   filter = signal('');
   sortColumn = signal<SortColumn>('date');
   sortDirection = signal<SortDirection>('desc');

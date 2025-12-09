@@ -1,0 +1,32 @@
+{
+  "src/types/upcoming-alert.model.ts": {
+    "alertType.expireRegistration": "انتهاء الاستمارة",
+    "alertType.periodicInspection": "فحص دوري"
+  },
+  "src/services/delivery.service.ts": {
+    "sampleCustomer.name": "عبدالله محمد",
+    "sampleDelivery.agentName": "أحمد مندوب مبيعات",
+    "delivery.note1": "تم تنظيف السيارة وتجهيزها",
+    "delivery.note2": "تم فحص جميع السوائل والإطارات",
+    "delivery.note3": "تم توقيع أوراق الاستلام النهائية",
+    "delivery.note4": "تم شرح مميزات السيارة للعميل",
+    "delivery.note5": "تم تسليم المفتاح الإضافي",
+    "delivery.notesSummary": "العميل متحمس جداً."
+  },
+  "src/services/floor-plan.service.ts": {
+    "plan.murabahaForCars": "تمويل مرابحة للسيارات",
+    "plan.alarajhiBank": "بنك الراجحي",
+    "plan.financeCars": "تمويل السيارات",
+    "plan.alahliBank": "البنك الأهلي السعودي",
+    "plan.personalFinance": "تمويل شخصي",
+    "plan.riyadhBank": "بنك الرياض"
+  },
+  "src/services/procurement.service.ts": {
+    "supplier.alnahdi": "شركة النهدي للسيارات",
+    "procurement.noteShipping": "شامل تكاليف النقل.",
+    "supplier.auction": "مزاد السيارات الدولي"
+  },
+  "src/services/role.service.ts": {
+    "role.dashboard": "لوحة التحكم"
+  }
+}

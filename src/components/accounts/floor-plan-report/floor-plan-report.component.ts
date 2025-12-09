@@ -3,6 +3,7 @@ import { InventoryService } from '../../../services/inventory.service';
 import { FloorPlanService } from '../../../services/floor-plan.service';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FloorPlan } from '../../../types/floor-plan.model';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 interface FinancedCarReportItem {
   carId: number;
@@ -19,7 +20,7 @@ interface FinancedCarReportItem {
 @Component({
   selector: 'app-floor-plan-report',
   standalone: true,
-  imports: [CurrencyPipe, DatePipe],
+  imports: [TranslateModule, CurrencyPipe, DatePipe],
   templateUrl: './floor-plan-report.component.html',
   styleUrl: './floor-plan-report.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,12 +28,13 @@ interface FinancedCarReportItem {
 export class FloorPlanReportComponent {
   private inventoryService = inject(InventoryService);
   private floorPlanService = inject(FloorPlanService);
+  translate = inject(TranslateService);
 
   private allCars = this.inventoryService.cars$;
   private allPlans = this.floorPlanService.floorPlans$;
   
   financedCarsReport = computed<FinancedCarReportItem[]>(() => {
-    const cars = this.allCars().filter(c => c.floorPlanId && (c.status === 'Available' || c.status === 'Reserved'));
+    const cars = this.allCars().filter(c => c.floorPlanId && c.purchaseDate && (c.status === 'Available' || c.status === 'Reserved'));
     // Fix: Explicitly type the Map to help TypeScript infer the value type correctly.
     const plansMap = new Map<number, FloorPlan>(this.allPlans().map(p => [p.id, p]));
     const today = new Date();

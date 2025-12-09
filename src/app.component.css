@@ -1,5 +1,5 @@
 .app-container {
-  height: 100vh;
+  height: 400vh;
 }
 
 .app-toolbar {
@@ -13,6 +13,7 @@
 .app-sidenav {
   direction: rtl;
   text-align: right;
+  font-family: 'Amarai', sans-serif;
 }
 .avatar {
   height: 36px;
@@ -52,4 +53,8 @@
 
 .submenu a {
   padding-right: 40px !important;
+}
+
+.app-sidenav mat-list-item {
+  font-family: 'Amarai', sans-serif;
 }

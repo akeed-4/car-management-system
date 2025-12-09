@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DepositService } from '../../../../services/deposit.service';
@@ -11,7 +12,7 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-deposit-list',
   standalone: true,
-  imports: [RouterLink, CurrencyPipe, DatePipe, FormsModule],
+  imports: [RouterLink, CurrencyPipe, DatePipe, FormsModule, TranslateModule],
   templateUrl: './deposit-list.component.html',
   styleUrl: './deposit-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

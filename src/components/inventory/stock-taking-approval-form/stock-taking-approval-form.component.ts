@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { StockTakeService } from '../../../services/stock-take.service';
@@ -28,7 +29,7 @@ export class StockTakingApprovalFormComponent {
   selectedStockTakeId = signal<number | null>(null);
 
   // Data Sources
-  private allStockTakes = this.stockTakeService.stockTakes$;
+  private allStockTakes = toSignal(this.stockTakeService.getStockTakes(), { initialValue: [] });
   pendingStockTakes = computed(() => this.allStockTakes().filter(st => st.status === 'Pending'));
   
   selectedStockTake = signal<StockTake | null>(null);
@@ -36,7 +37,9 @@ export class StockTakingApprovalFormComponent {
   onStockTakeSelect(id: number | null): void {
     this.selectedStockTakeId.set(id);
     if (id) {
-      this.selectedStockTake.set(this.stockTakeService.getStockTakeById(id) ?? null);
+      this.stockTakeService.getStockTakeById(id).subscribe(stockTake => {
+        this.selectedStockTake.set(stockTake ?? null);
+      });
     } else {
       this.selectedStockTake.set(null);
     }
@@ -68,5 +71,9 @@ export class StockTakingApprovalFormComponent {
 
     alert(`تم اعتماد الجرد "${stockTake.name}" بنجاح وتحديث المخزون.`);
     this.router.navigate(['/inventory/stock-taking-approval']);
+  }
+
+  getDifference(countedQuantity: number, systemQuantity: number): number {
+    return countedQuantity - systemQuantity;
   }
 }

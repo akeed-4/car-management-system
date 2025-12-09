@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { SalesService } from '../../../services/sales.service';
@@ -12,7 +14,7 @@ import { SalesInvoice } from '../../../types/sales-invoice.model';
 @Component({
   selector: 'app-sales-return-form',
   standalone: true,
-  imports: [RouterLink, FormsModule, CurrencyPipe],
+  imports: [RouterLink, FormsModule, CurrencyPipe, TranslateModule],
   templateUrl: './sales-return-form.component.html',
   styleUrl: './sales-return-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,12 +24,13 @@ export class SalesReturnFormComponent {
   private salesReturnService = inject(SalesReturnService);
   private inventoryService = inject(InventoryService);
   private router = inject(Router);
+  private translate = inject(TranslateService);
 
   // Form State
   returnInvoiceNumber = signal(`RT-S-${Date.now()}`);
   returnInvoiceDate = signal(new Date().toISOString().split('T')[0]);
 
-  originalInvoices = this.salesService.invoices$;
+  originalInvoices = toSignal(this.salesService.getInvoices(), { initialValue: [] });
   selectedOriginalInvoice = signal<SalesInvoice | null>(null);
   
   returnItems = signal<ReturnInvoiceItem[]>([]);
@@ -75,7 +78,7 @@ export class SalesReturnFormComponent {
     const itemsToReturn = this.returnItems().filter(item => item.returnQuantity > 0);
 
     if (!originalInvoice || itemsToReturn.length === 0) {
-      alert('الرجاء تحديد الكميات المرتجعة.');
+      alert(this.translate.instant('SALES.RETURN.ERROR_NO_ITEMS'));
       return;
     }
 
@@ -97,7 +100,7 @@ export class SalesReturnFormComponent {
       this.inventoryService.incrementCarQuantity(item.carId, item.returnQuantity);
     });
     
-    alert('تم إنشاء فاتورة المرتجع بنجاح وتحديث المخزون.');
+    alert(this.translate.instant('SALES.RETURN.SAVED_SUCCESS'));
     this.router.navigate(['/sales/return']);
   }
 }

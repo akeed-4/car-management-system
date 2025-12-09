@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { RequestedCar } from '../../../types/requested-car.model';
@@ -32,7 +33,7 @@ export class RequestedCarFormComponent {
   
   // Data for dropdowns
   manufacturers = this.manufacturerService.manufacturers$;
-  allModels = this.carModelService.carModels$;
+  allModels = toSignal(this.carModelService.getCarModels(), { initialValue: [] });
   years = this.yearService.years$;
 
   // Computed signal for filtered models
@@ -52,12 +53,14 @@ export class RequestedCarFormComponent {
         const id = Number(idParam);
         this.editMode.set(true);
         this.pageTitle.set('تعديل طلب سيارة');
-        const existingRequest = this.requestedCarService.getRequestById(id);
-        if (existingRequest) {
-          this.request.set({ ...existingRequest });
-        } else {
-          this.router.navigate(['/requested-cars']);
-        }
+        this.requestedCarService.getRequestById(id).subscribe({
+          next: (existingRequest) => {
+            this.request.set({ ...existingRequest });
+          },
+          error: () => {
+            this.router.navigate(['/requested-cars']);
+          }
+        });
       }
     });
   }

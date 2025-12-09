@@ -1,0 +1,131 @@
+<div class='parentDiv'>
+    <mat-toolbar color="primary" class="example-toolbar">
+        <button [disabled]="isHomeRoute()" mat-icon-button (click)="isExpanded = !isExpanded" (click)="onToggleClick()"
+            id="side-nav-toggle">
+            <mat-icon>menu</mat-icon>
+            <!-- <mat-icon *ngIf="!smallScreen">menu</mat-icon>
+       <span class="menuToggleText"  *ngIf="smallScreen">{{'layout.menu' | translate}} ↓</span> -->
+        </button>
+        <h1 (click)="openSearchComponent()" class="app-name">{{'layout.systemName' | translate}}</h1>
+        <mat-divider vertical class="mat-divider-vertical"></mat-divider>
+        <span class="language" *ngIf="!smallScreen" [hidden]="currentLanguage == 'en'" (click)="onChangeLanguage('en')">
+            English</span>
+        <span class="language" *ngIf="!smallScreen" [hidden]="currentLanguage == 'ar'" (click)="onChangeLanguage('ar')">
+            العربية</span>
+
+    
+
+        <span class="example-spacer"></span>
+        <span (click)="chooseBusinessAgain()" [hidden]="smallScreen" id="screen-title" class="screen-title"
+            matTooltipClass="my-tooltip"
+            >{{title}}</span>
+        <span class="example-spacer"></span>
+
+        <span flex></span>
+
+        <mat-icon *ngIf="smallScreen" #tooltip="matTooltip" (click)="toggleTooltip(tooltip)" [matTooltip]="titleDetail"
+            matTooltipPosition="above"> store</mat-icon>
+        <span *ngIf="smallScreen" class="example-spacer"></span>
+
+
+        <div style="font-size: 15px">
+            <button class="login-button" mat-raised-button color="accent" *ngIf="!isAuthenticated" (click)="logIn()">
+                {{'admin.login' | translate}}</button>
+        </div>
+        <div style="font-size: 15px">
+
+            <button *ngIf="isAuthenticated" class="select-button" color="accent" mat-raised-button
+                [matMenuTriggerFor]="menu" [ngClass]="{'mobile-manage-text': isMobile}">
+                {{manageText }}
+                <mat-icon>arrow_drop_down</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu" xPosition="before">
+                <button (click)="changePassword()" mat-menu-item> <span class="hello-drop">{{"admin.changePassword" |
+                        translate}}</span></button>
+                <button  (click)="goToSystemAdmin()" mat-menu-item> <span
+                        class="hello-drop">{{"admin.systemAdmin" | translate}}</span></button>
+                <button  (click)="goToUserProfile()" mat-menu-item> <span
+                        class="hello-drop">{{"admin.userProfile" | translate}}</span></button>
+                <button (click)="onChangeLanguage('en')" *ngIf="currentLanguage == 'ar' && smallScreen" mat-menu-item>
+                    <span class="hello-drop">English</span></button>
+                <button (click)="onChangeLanguage('ar')" *ngIf="currentLanguage == 'en' && smallScreen" mat-menu-item>
+                    <span class="hello-drop">العربية</span></button>
+                <button mat-menu-item class="theme-active" *ngIf="isMobile" [matMenuTriggerFor]="themeMenu"
+                    [matTooltip]="'layout.changeTheme' | translate">
+                    <span class="hello-drop">{{ 'layout.changeTheme' | translate }}</span>
+                </button>
+                <!-- <button (click)="help()" mat-menu-item> <span class="hello-drop">{{'admin.help' | translate}}</span></button> -->
+                <button (click)="logOut()" mat-menu-item> <span class="hello-drop">{{'admin.logout' |
+                        translate}}</span></button>
+            </mat-menu>
+        </div>
+    </mat-toolbar>
+</div>
+<mat-sidenav-container class="example-container" autosize>
+    <mat-sidenav #sidenav [ngClass]="{'example-sidenav': !isMobile,'example-sidenav-mob': isMobile }"
+        [mode]="isMobile ? 'over' : 'side'" [opened]="sideNavOpen" position="start" *ngIf="isExpanded || isShowing"
+        id="side-nav-me">
+        <div class="form">
+            <!-- Force DevExtreme menu direction using bound `textDir` -->
+            <div id="application-menu" class="application-menu" [attr.dir]="textDir">
+                <input *ngIf="!isMobile" mat-input type="search"
+                    [ngClass]="{'search-input': !isMobile,'search-input-mob': isMobile }"
+                    [placeholder]="(isMobile ? 'selectSearch.placeholderMenuMobile' : 'selectSearch.placeholderMenu') | translate"
+                    [dir]="textDir" (click)="openMenuGrid()" />
+                <dx-menu *ngIf="!isMobile" #menu [dataSource]="menus" displayExpr="name" itemsExpr="submenu" orientation="vertical"
+                    showFirstSubmenuMode="onHover" (onItemClick)="itemClick($event)" [rtlEnabled]="menuRtlEnabled"
+                    [hideSubmenuOnMouseLeave]="false" cssClass="menu-layout"
+                    (onSubmenuShowing)="onSubmenuShowing($event)"   >
+                </dx-menu>
+
+                <dx-tree-list *ngIf="isMobile" #dxTreeList id="dxTreeList" [dataSource]="menus" dataStructure="tree"
+                    [showBorders]="true" [rowAlternationEnabled]="true" [rtlEnabled]="menuRtlEnabled"
+                    (onRowClick)="onRowClick($event)" width="auto" cssClass="list-layout" [wordWrapEnabled]="true"
+                    [searchPanel]="{ visible: isMobile, width: 230, placeholder: ('selectSearch.placeholderMenuMobile' | translate), highlightSearchText: false}">
+                    <dxi-column dataField="name" cssClass="list-layout" caption="{{'layout.menu' | translate}}"
+                        [allowSorting]="false"></dxi-column>
+                </dx-tree-list>
+
+            </div>
+        </div>
+    </mat-sidenav>
+
+    <div class="example-sidenav-content">
+
+        <body class="dx-viewport" id="margin-body" [style]="styleMarginBody">
+            <div class="container">
+                
+                <router-outlet></router-outlet>
+            </div>
+        </body>
+    </div>
+
+</mat-sidenav-container>
+
+
+<!-- Theme Customizer Component -->
+
+<!-- <div id="myOverlay" class="overlay">
+  <span [ngClass]="{'closebtn': !isMobile,'closebtn-mobile': isMobile }" (click)="closeSearch()" [title]="'selectSearch.closeOverlay' | translate"> <mat-icon>close</mat-icon></span>
+  <div class="overlay-content">
+      <input matInput type="text" [placeholder]="'selectSearch.placeholder' | translate" name="search" autocomplete="off" id="mySearch" [dir]="textDir"  class="search-input-write" [matAutocomplete]="auto"
+      (input)="onSearch($event)">
+      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onSearchOptionSelected($event)">
+        <mat-option *ngFor="let option of filteredOptions" [value]="option">
+          <div>
+            <strong class="first-label">{{ option.menuName }}</strong>
+            <br />
+            <span class="secondary-label">{{ option.label }}</span>
+          </div>
+        </mat-option>
+      </mat-autocomplete>
+  </div>
+</div> -->
+
+<footer class="footer">
+    <span class="footer-example">
+        {{ ('layout.systemName' | translate) }}
+        <!-- <span class="footer-version">({{version}})</span> -->
+        - © {{'layout.copyright' | translate}} {{year}}
+    </span>
+</footer>

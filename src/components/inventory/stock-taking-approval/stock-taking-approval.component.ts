@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { StockTakeApprovalService } from '../../../services/stock-take-approval.service';
 import { DatePipe } from '@angular/common';
@@ -13,5 +14,5 @@ import { DatePipe } from '@angular/common';
 })
 export class StockTakingApprovalComponent {
   private approvalService = inject(StockTakeApprovalService);
-  approvals = this.approvalService.approvals$;
+  approvals = toSignal(this.approvalService.getApprovals(), { initialValue: [] });
 }

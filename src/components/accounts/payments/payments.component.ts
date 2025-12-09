@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { PaymentService } from '../../../services/payment.service';
 import { PaymentVoucher } from '../../../types/payment-voucher.model';
 
@@ -11,7 +13,7 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-payments',
   standalone: true,
-  imports: [RouterLink, CurrencyPipe, DatePipe, FormsModule],
+  imports: [RouterLink, CurrencyPipe, DatePipe, FormsModule, TranslateModule],
   templateUrl: './payments.component.html',
   styleUrl: './payments.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,7 +21,7 @@ type SortDirection = 'asc' | 'desc' | '';
 export class PaymentsComponent {
   private paymentService = inject(PaymentService);
 
-  payments = this.paymentService.payments$;
+  payments = toSignal(this.paymentService.payments$, {initialValue: []});
   filter = signal('');
   sortColumn = signal<SortColumn>('date');
   sortDirection = signal<SortDirection>('desc');

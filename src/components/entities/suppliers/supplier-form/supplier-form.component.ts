@@ -28,12 +28,12 @@ export class SupplierFormComponent {
         const id = Number(idParam);
         this.editMode.set(true);
         this.pageTitle.set('تعديل بيانات المورد');
-        const existingSupplier = this.supplierService.getSupplierById(id);
-        if (existingSupplier) {
+        this.supplierService.getSupplierById(id).subscribe(existingSupplier => {
           this.supplier.set({ ...existingSupplier });
-        } else {
+        }, error => {
+          console.error('Error loading supplier:', error);
           this.router.navigate(['/entities/suppliers']);
-        }
+        });
       }
     });
   }

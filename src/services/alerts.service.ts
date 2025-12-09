@@ -1,8 +1,9 @@
-import { Injectable, computed, inject } from '@angular/core';
+import { Injectable, inject, computed } from '@angular/core';
 import { SalesService } from './sales.service';
 import { InventoryService } from './inventory.service';
 import { UpcomingAlert } from '../types/upcoming-alert.model';
 import { Car } from '../types/car.model';
+import { combineLatest, map, Observable } from 'rxjs';
 
 const ALERT_THRESHOLD_DAYS = 30;
 
@@ -13,7 +14,7 @@ export class AlertsService {
   private salesService = inject(SalesService);
   private inventoryService = inject(InventoryService);
 
-  upcomingAlerts$ = computed<UpcomingAlert[]>(() => {
+  upcomingAlerts = computed(() => {
     const allInvoices = this.salesService.invoices$();
     const allCars = this.inventoryService.cars$();
     const carsMap = new Map<number, Car>(allCars.map(c => [c.id, c]));

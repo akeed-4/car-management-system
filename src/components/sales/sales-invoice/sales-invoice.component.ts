@@ -21,6 +21,8 @@ import { MatTableModule } from '@angular/material/table';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDividerModule } from '@angular/material/divider';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import { DxDataGridModule } from 'devextreme-angular';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 const VAT_RATE_FULL = 0.15; // 15% for new cars on full sale price
 const VAT_RATE_MARGIN = 0.15; // 15% applied to profit margin for used cars
@@ -43,7 +45,9 @@ const VAT_RATE_MARGIN = 0.15; // 15% applied to profit margin for used cars
     MatGridListModule,
     MatTableModule,
     MatDatepickerModule,
-    MatDividerModule
+    MatDividerModule,
+    DxDataGridModule,
+    TranslateModule,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './sales-invoice.component.html',
@@ -56,7 +60,7 @@ export class SalesInvoiceComponent {
   private salesService = inject(SalesService);
   private currentSettingService = inject(CurrentSettingService);
   private router = inject(Router);
-
+  private translate = inject(TranslateService);
   displayedColumns: string[] = ['carDescription', 'quantity', 'unitPrice', 'lineTotal', 'actions'];
 
   // Layout configuration for responsive grid
@@ -71,7 +75,7 @@ export class SalesInvoiceComponent {
   selectedCarIdControl = new FormControl(null);
   selectedQuantityControl = new FormControl(1, [Validators.required, Validators.min(1)]);
   notesControl = new FormControl('');
-
+selectedCostPriceControl = new FormControl(0, [Validators.required, Validators.min(0)]);
   // Services state
   customers = signal([
     { id: 1, name: 'Customer A', nationalId: '1234567890' },
@@ -146,7 +150,7 @@ export class SalesInvoiceComponent {
   addItemToInvoice(): void {
     const carId = this.selectedCarIdControl.value;
     if (!carId) {
-      alert('الرجاء اختيار سيارة.');
+      alert(this.translate.instant('INVOICE.SELECT_CAR'));
       return;
     }
 
@@ -159,15 +163,15 @@ export class SalesInvoiceComponent {
     }
 
     if (quantity > availableStock) {
-      alert(`الكمية المطلوبة (${quantity}) أكبر من الكمية المتاحة في المخزون (${availableStock}).`);
+      alert(this.translate.instant('INVOICE.QUANTITY') + ` (${quantity}) ` + this.translate.instant('COMMON.STOCK_LESS') + ` (${availableStock}).`);
       return;
     }
     
     // Check if car is already in the invoice
     const existingItem = this.invoiceItems().find(item => item.carId === carId);
     if (existingItem) {
-        alert('هذه السيارة مضافة بالفعل إلى الفاتورة.');
-        return;
+      alert(this.translate.instant('INVOICE.ALREADY_ADDED'));
+      return;
     }
 
     const newItem: InvoiceItem = {
@@ -206,16 +210,16 @@ export class SalesInvoiceComponent {
     const items = this.invoiceItems();
 
     if (!customerId || !customer) {
-      alert('الرجاء اختيار العميل.');
+      alert(this.translate.instant('INVOICE.SELECT_CUSTOMER_OPTION'));
       return;
     }
     if (items.length === 0) {
-      alert('الرجاء إضافة سيارة واحدة على الأقل للفاتورة.');
+      alert(this.translate.instant('INVOICE.ADD_AT_LEAST_ONE'));
       return;
     }
 
     // Mock save
-    alert('تم إنشاء الفاتورة بنجاح.');
+    alert(this.translate.instant('INVOICE.CREATED_SUCCESS'));
     this.router.navigate(['/sales']);
   }
 }

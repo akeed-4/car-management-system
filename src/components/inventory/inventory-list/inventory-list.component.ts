@@ -27,7 +27,6 @@ export class InventoryListComponent {
   private router = inject(Router);
 
   cars = this.inventoryService.cars$;
-  carQuantities = this.inventoryService.carQuantities$; // Access car quantities
   filter = signal('');
   sortColumn = signal<SortColumn>('');
   sortDirection = signal<SortDirection>('');
@@ -41,16 +40,6 @@ export class InventoryListComponent {
   // VIN Scanner Modal state
   isScannerOpen = signal(false);
   
-  // Computed signal to combine car data with its quantity for display
-  carsWithQuantities = computed(() => {
-    const cars = this.cars();
-    const quantities = this.carQuantities();
-    return cars.map(car => ({
-      ...car,
-      quantity: quantities.get(car.id) ?? 0 // Add quantity to each car object
-    }));
-  });
-
   filteredAndSortedCars = computed(() => {
     const searchTerm = this.filter().toLowerCase();
     const column = this.sortColumn();
@@ -58,7 +47,7 @@ export class InventoryListComponent {
     const showArchived = this.showArchived();
     const condition = this.conditionFilter();
 
-    let cars = this.carsWithQuantities().filter(car => !!car.isArchived === showArchived);
+    let cars = this.cars().filter(car => !!car.isArchived === showArchived);
 
     // Filter by Condition
     if (condition !== 'All') {

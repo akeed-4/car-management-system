@@ -1,104 +1,59 @@
-
-
-import { Injectable, signal, inject } from '@angular/core';
-import { ServiceOrder, ServiceOrderStatus } from '../types/service-order.model';
-import { InventoryService } from './inventory.service';
-import { ExpenseService } from './expense.service';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { ServiceOrder } from '../types/service-order.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ServiceOrderService {
-  private nextId = signal(3);
-  private inventoryService = inject(InventoryService);
-  private expenseService = inject(ExpenseService);
+  private http = inject(HttpClient);
+  private apiUrl = 'https://api.example.com/service-orders'; // ضع رابط API الحقيقي هنا
 
-  private serviceOrders = signal<ServiceOrder[]>([
-    {
-      id: 1,
-      orderNumber: 'SO-20240601-001',
-      dateIn: '2024-06-01',
-      status: 'In Progress',
-      carId: 6, // Linked to an inventory car
-      carDescription: 'Nissan Patrol (2023)',
-      customerName: 'المعرض (تجهيز للبيع)',
-      serviceItems: [
-        { description: 'تغيير زيت وفلتر', cost: 450 },
-        { description: 'فحص عام', cost: 150 },
-      ],
-      totalCost: 600,
-      notes: 'صيانة دورية قبل العرض.',
-    },
-    {
-      id: 2,
-      orderNumber: 'SO-20240602-002',
-      dateIn: '2024-06-02',
-      dateOut: '2024-06-02',
-      status: 'Completed',
-      customerName: 'عميل خارجي - محمد علي',
-      customerPhone: '0501231234',
-      serviceItems: [
-        { description: 'تغيير إطارات', cost: 2000 },
-        { description: 'ترصيص وميزان', cost: 200 },
-      ],
-      totalCost: 2200,
-      notes: 'تم استلام السيارة من العميل.',
-    },
-  ]);
+  constructor() {}
 
-  public serviceOrders$ = this.serviceOrders.asReadonly();
-
-  getServiceOrderById(id: number): ServiceOrder | undefined {
-    return this.serviceOrders$().find(so => so.id === id);
+  // جلب جميع أوامر الخدمة
+  getServiceOrders(): Observable<ServiceOrder[]> {
+    return this.http.get<ServiceOrder[]>(this.apiUrl);
   }
 
-  addServiceOrder(order: Omit<ServiceOrder, 'id'>) {
-    const newOrder: ServiceOrder = {
+  // جلب أمر خدمة حسب ID
+  getServiceOrderById(id: number): Observable<ServiceOrder> {
+    return this.http.get<ServiceOrder>(`${this.apiUrl}/${id}`);
+  }
+
+  // إضافة أمر خدمة جديد
+  addServiceOrder(order: Omit<ServiceOrder, 'id'>): Observable<ServiceOrder> {
+    const newOrder = {
       ...order,
-      id: this.nextId(),
-      status: order.status || 'Pending', // Default status if not provided
+      status: order.status || 'Pending', // قيمة افتراضية للحالة
     };
-    this.serviceOrders.update(orders => [...orders, newOrder]);
-    this.nextId.update(id => id + 1);
-
-    // Update car status if it's an inventory car
-    if (newOrder.carId) {
-      this.inventoryService.updateCarStatus(newOrder.carId, 'In Maintenance');
-    }
+    return this.http.post<ServiceOrder>(this.apiUrl, newOrder);
   }
 
-  updateServiceOrder(updatedOrder: ServiceOrder) {
-    this.serviceOrders.update(orders =>
-      orders.map(order => (order.id === updatedOrder.id ? updatedOrder : order))
-    );
+  // تحديث أمر خدمة موجود
+  updateServiceOrder(order: ServiceOrder): Observable<ServiceOrder> {
+    return this.http.put<ServiceOrder>(`${this.apiUrl}/${order.id}`, order);
+  }
 
-    // Handle car status and expense creation on status change
-    const oldOrder = this.getServiceOrderById(updatedOrder.id);
-    if (oldOrder && updatedOrder.status !== oldOrder.status) {
-        if (updatedOrder.status === 'Completed' || updatedOrder.status === 'Canceled') {
-            if (updatedOrder.carId) {
-                // Return inventory car to Available/In Showroom
-                this.inventoryService.updateCarStatus(updatedOrder.carId, 'Available');
-            }
+  // أرشفة أمر الخدمة
+  archiveServiceOrder(id: number): Observable<ServiceOrder> {
+    return this.http.post<ServiceOrder>(`${this.apiUrl}/${id}/archive`, {});
+  }
 
-            // If completed, create an expense linked to the car for profitability tracking
-            if (updatedOrder.status === 'Completed' && updatedOrder.carId) {
-                this.expenseService.addExpense({
-                    date: updatedOrder.dateOut || new Date().toISOString().split('T')[0],
-                    description: `صيانة لسيارة المخزون: ${updatedOrder.carDescription}`,
-                    category: 'Maintenance',
-                    amount: updatedOrder.totalCost,
-                    notes: `أمر عمل رقم: ${updatedOrder.orderNumber}`,
-                    carId: updatedOrder.carId,
-                    carDescription: updatedOrder.carDescription,
-                    accountId: 1, // Default cash account
-                    accountName: 'خزينة الكاش الرئيسية',
-                });
-            }
-        } else if (updatedOrder.status === 'In Progress' && updatedOrder.carId) {
-             this.inventoryService.updateCarStatus(updatedOrder.carId, 'In Maintenance');
-        }
-    }
+  // إلغاء أرشفة أمر الخدمة
+  unarchiveServiceOrder(id: number): Observable<ServiceOrder> {
+    return this.http.post<ServiceOrder>(`${this.apiUrl}/${id}/unarchive`, {});
+  }
+
+  // تحديث حالة السيارة في المخزون مرتبط بأمر الخدمة
+  updateCarStatus(carId: number, status: string): Observable<any> {
+    const url = `https://api.example.com/inventory/cars/${carId}/status`;
+    return this.http.patch(url, { status });
+  }
+
+  // إنشاء مصروف مرتبط بأمر الخدمة (اختياري)
+  addExpense(expense: any): Observable<any> {
+    return this.http.post('https://api.example.com/expenses', expense);
   }
 }
-    
