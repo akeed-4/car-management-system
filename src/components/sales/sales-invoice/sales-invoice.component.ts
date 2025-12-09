@@ -55,6 +55,10 @@ const VAT_RATE_MARGIN = 0.15; // 15% applied to profit margin for used cars
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SalesInvoiceComponent {
+    // Utility to calculate total amount
+    calculateTotalAmount(items: any[]): number {
+      return items.reduce((sum, item) => sum + (item.amount || 0), 0);
+    }
   private inventoryService = inject(InventoryService);
   private customerService = inject(CustomerService);
   private salesService = inject(SalesService);
@@ -111,13 +115,7 @@ selectedCostPriceControl = new FormControl(0, [Validators.required, Validators.m
         unitPrice: 50000,
         lineTotal: 50000
       },
-      {
-        carId: 2,
-        carDescription: 'Honda Civic 2023',
-        quantity: 2,
-        unitPrice: 60000,
-        lineTotal: 120000
-      }
+    
     ]);
   }
 
@@ -218,8 +216,34 @@ selectedCostPriceControl = new FormControl(0, [Validators.required, Validators.m
       return;
     }
 
-    // Mock save
-    alert(this.translate.instant('INVOICE.CREATED_SUCCESS'));
-    this.router.navigate(['/sales']);
+    // Prepare invoice data (adjust fields as needed)
+    const now = new Date();
+    const invoiceData: SalesInvoice = {
+      id: 0, // Placeholder, backend should assign
+      invoiceNumber: 'INV-' + now.getTime(),
+      invoiceDate: now.toISOString(),
+      customerId,
+      customerName: customer.name,
+      items,
+      subtotal: this.subtotal(),
+      totalAmount: this.totalAmount(),
+      vatAmount: this.vatAmount(),
+      notes: this.notesControl.value || '',
+      isArchived: false,
+      status: "Pending",
+      amountPaid: 0,
+      amountDue: this.totalAmount(),
+      ownershipTransferStatus: 'Not Started',
+    };
+
+    this.salesService.addInvoice(invoiceData).subscribe({
+      next: () => {
+        alert(this.translate.instant('INVOICE.CREATED_SUCCESS'));
+        this.router.navigate(['/sales']);
+      },
+      error: () => {
+        alert(this.translate.instant('INVOICE.CREATE_FAILED'));
+      }
+    });
   }
 }

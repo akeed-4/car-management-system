@@ -41,7 +41,7 @@ export class SalesService {
   }
 
   // إضافة فاتورة جديدة
-  addInvoice(invoice: Omit<SalesInvoice, 'id' | 'amountPaid' | 'amountDue' | 'ownershipTransferStatus'>): Observable<SalesInvoice> {
+  addInvoice(invoice: SalesInvoice): Observable<SalesInvoice> {
     const newInvoice = {
       ...invoice,
       amountPaid: 0,
