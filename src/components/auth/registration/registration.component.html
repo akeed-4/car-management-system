@@ -1,0 +1,42 @@
+<div class="registration-container">
+  <h2>{{ 'REGISTRATION.TITLE' | translate }}</h2>
+  <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="name">{{ 'REGISTRATION.NAME' | translate }}</label>
+      <input id="name" type="text" formControlName="name" />
+      <div class="error" *ngIf="registrationForm.get('name')?.invalid && registrationForm.get('name')?.touched">
+        {{ 'REGISTRATION.NAME_ERROR' | translate }}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="email">{{ 'REGISTRATION.EMAIL' | translate }}</label>
+      <input id="email" type="email" formControlName="email" />
+      <div class="error" *ngIf="registrationForm.get('email')?.invalid && registrationForm.get('email')?.touched">
+        {{ 'REGISTRATION.EMAIL_ERROR' | translate }}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="password">{{ 'REGISTRATION.PASSWORD' | translate }}</label>
+      <input id="password" type="password" formControlName="password" />
+      <div class="error" *ngIf="registrationForm.get('password')?.invalid && registrationForm.get('password')?.touched">
+        {{ 'REGISTRATION.PASSWORD_ERROR' | translate }}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="confirmPassword">{{ 'REGISTRATION.CONFIRM_PASSWORD' | translate }}</label>
+      <input id="confirmPassword" type="password" formControlName="confirmPassword" />
+      <div class="error" *ngIf="registrationForm.get('confirmPassword')?.invalid && registrationForm.get('confirmPassword')?.touched">
+        {{ 'REGISTRATION.CONFIRM_PASSWORD_ERROR' | translate }}
+      </div>
+    </div>
+
+    <div class="error" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+
+    <button type="submit">{{ 'REGISTRATION.SUBMIT' | translate }}</button>
+  </form>
+</div>

@@ -1,0 +1,40 @@
+.container { max-width: 1280px; margin: 0 auto; }
+
+.header-actions .icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-left: 0.5rem;
+}
+
+.table-controls {
+  margin-bottom: 1rem;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 400px;
+}
+
+.table th { cursor: pointer; user-select: none; }
+.actions-header { text-align: center; }
+
+.actions-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.actions-cell .icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.btn-icon-danger:hover {
+  color: var(--color-danger-600);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-gray-500);
+}

@@ -1,0 +1,107 @@
+
+
+<div class="container">
+  <div class="page-header">
+    <h2>{{ pageTitle() }}</h2>
+    <a routerLink="/deliveries" class="back-link">
+      <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+      <span>العودة إلى جدول التسليم</span>
+    </a>
+  </div>
+
+  <div class="card">
+    <form #deliveryForm="ngForm" (ngSubmit)="saveDelivery()">
+      
+      <!-- Invoice & Customer Summary -->
+      @if (selectedInvoice(); as inv) {
+        <section class="form-section summary-box">
+            <h3 class="form-section-title">تفاصيل الفاتورة والعميل</h3>
+            <div class="form-grid cols-2">
+                <div>
+                    <p class="summary-label">رقم الفاتورة:</p>
+                    <p class="summary-value font-mono">{{ inv.invoiceNumber }}</p>
+                </div>
+                <div>
+                    <p class="summary-label">العميل:</p>
+                    <p class="summary-value">{{ inv.customerName }}</p>
+                </div>
+                <div>
+                    <p class="summary-label">السيارة:</p>
+                    <p class="summary-value">{{ inv.items[0]?.carDescription || 'غير محدد' }}</p>
+                </div>
+                <div>
+                    <p class="summary-label">تاريخ البيع:</p>
+                    <p class="summary-value">{{ inv.invoiceDate | date:'yyyy-MM-dd' }}</p>
+                </div>
+            </div>
+        </section>
+      }
+
+      <!-- Scheduling Details -->
+      <section class="form-section">
+        <h3 class="form-section-title">تفاصيل الجدولة</h3>
+        <div class="form-grid cols-3">
+          <div>
+            <label for="scheduledDate" class="form-label">تاريخ التسليم</label>
+            <input 
+              type="date" 
+              id="scheduledDate" 
+              name="scheduledDate" 
+              [ngModel]="delivery().scheduledDate" 
+              (ngModelChange)="updateField('scheduledDate', $event)" 
+              required 
+              class="form-input">
+          </div>
+          <div>
+            <label for="scheduledTime" class="form-label">وقت التسليم</label>
+            <input 
+              type="time" 
+              id="scheduledTime" 
+              name="scheduledTime" 
+              [ngModel]="delivery().scheduledTime" 
+              (ngModelChange)="updateField('scheduledTime', $event)" 
+              required 
+              class="form-input">
+          </div>
+          <div>
+            <label for="deliveryAgent" class="form-label">الموظف المسؤول</label>
+            <select 
+              id="deliveryAgent" 
+              name="deliveryAgent" 
+              [ngModel]="delivery().deliveryAgentId" 
+              (ngModelChange)="updateField('deliveryAgentId', +$event)" 
+              required 
+              class="form-select">
+              <option [ngValue]="null" disabled>-- اختر موظف --</option>
+              @for (person of salespeople(); track person.id) {
+                <option [value]="person.id">{{ person.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Notes -->
+      <section class="form-section">
+        <label for="notes" class="form-label">ملاحظات (اختياري)</label>
+        <textarea 
+          id="notes" 
+          name="notes" 
+          rows="3" 
+          [ngModel]="delivery().notes" 
+          (ngModelChange)="updateField('notes', $event)" 
+          placeholder="ملاحظات إضافية حول عملية التسليم..." 
+          class="form-input"></textarea>
+      </section>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <a routerLink="/deliveries" class="btn btn-light">إلغاء</a>
+        <button type="submit" [disabled]="deliveryForm.invalid" class="btn btn-primary">
+            جدولة التسليم
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+    

@@ -1,0 +1,172 @@
+.container {
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header */
+.flex {
+  display: flex;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.text-gray-800 {
+  color: var(--color-gray-800);
+}
+
+/* Button */
+a[routerLink] {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  border-radius: var(--rounded-lg);
+  transition: all 0.3s;
+  text-decoration: none;
+}
+
+.bg-primary-600 {
+  background-color: var(--color-primary-600);
+  color: var(--color-white);
+  box-shadow: var(--shadow-md);
+}
+
+.bg-primary-600:hover {
+  background-color: var(--color-primary-700);
+  box-shadow: var(--shadow-lg);
+}
+
+.bg-primary-600 svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-left: 0.5rem;
+}
+
+/* Card */
+.bg-white {
+  background-color: var(--color-white);
+  padding: 1.5rem;
+  border-radius: var(--rounded-lg);
+  box-shadow: var(--shadow-md);
+}
+
+/* Table Wrapper */
+.overflow-x-auto {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background-color: var(--color-gray-50);
+}
+
+th {
+  text-align: right;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-gray-600);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--color-gray-200);
+  transition: background-color 0.15s;
+}
+
+tbody tr:hover {
+  background-color: var(--color-gray-50);
+}
+
+td {
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: var(--color-gray-700);
+  white-space: nowrap;
+}
+
+.font-mono {
+  font-family: 'Courier New', monospace;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-gray-500 {
+  color: var(--color-gray-500);
+}
+
+.py-8 {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .flex {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .text-2xl {
+    font-size: 1.25rem;
+  }
+
+  .bg-white {
+    padding: 1rem;
+  }
+
+  th,
+  td {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.813rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0.75rem;
+  }
+
+  .text-2xl {
+    font-size: 1.125rem;
+  }
+
+  th,
+  td {
+    padding: 0.5rem;
+    font-size: 0.75rem;
+  }
+}

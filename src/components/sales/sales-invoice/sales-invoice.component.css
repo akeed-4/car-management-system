@@ -1,0 +1,124 @@
+.container {
+  max-width: 1400px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.page-header h2 {
+  margin: 0;
+}
+
+.back-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+
+.back-link mat-icon {
+  margin-right: 0.25rem;
+}
+
+mat-card {
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.form-section {
+  margin-bottom: 2rem;
+}
+
+.form-section-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 0.25rem;
+}
+
+.add-item-box {
+  margin-top: 1rem;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.table-wrapper {
+  margin-top: 1rem;
+}
+
+.dx-datagrid {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.summary-section {
+  margin-top: 2rem;
+}
+
+/* Layout notes + summary side-by-side */
+.summary-section {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.summary-section .full-width {
+  /* allow the notes field to grow and take remaining space */
+  flex: 1 1 60%;
+  min-width: 280px;
+}
+
+.summary-section mat-card {
+  /* keep summary card at a fixed comfortable width */
+  flex: 0 0 320px;
+  min-width: 240px;
+}
+
+/* On small screens stack vertically */
+@media (max-width: 900px) {
+  .summary-section {
+    flex-direction: column;
+  }
+
+  .summary-section mat-card {
+    width: 100% !important;
+    flex: 1 1 100%;
+  }
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.summary-item.total {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.form-actions a {
+  text-decoration: none;
+}
+
+.mat-raised-button {
+  min-width: 140px;
+}

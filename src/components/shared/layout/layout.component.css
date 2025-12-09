@@ -1,0 +1,492 @@
+.footer {
+    width: 100%;
+    background: #3f51b5;
+    color: #fff;
+    text-align: center;
+    padding: 12px 0 10px 0;
+    border-top: 1px solid #1565c0;
+    font-family: "elmessiri-font", Arial, Helvetica, sans-serif;
+    margin-top: 0;
+
+}
+
+.footer-example {
+    color: #fff;
+    font-size: 16px;
+    font-family: "elmessiri-font", Arial, Helvetica, sans-serif;
+
+ 
+}
+.dx-datagrid *:not(.dx-icon):not([class*=dx-icon-]),
+.dx-treelist *:not(.dx-icon):not([class*=dx-icon-]),
+.dx-datagrid-headers,
+.dx-datagrid-rowsview,
+.dx-header-row,
+.dx-data-row,
+.dx-filter-row,
+.dx-menu *:not(.dx-icon):not([class*=dx-icon-]),
+.dx-menu-item *:not(.dx-icon):not([class*=dx-icon-]),
+.dx-popup,
+.dx-toolbar *:not(.dx-icon):not([class*=dx-icon-]),
+.dx-button *:not(.dx-icon):not([class*=dx-icon-]),
+.dx-texteditor,
+.dx-scrollable {
+    font-family: "elmessiri-font",  Arial, Helvetica,sans-serif !important;
+}
+.dx-menu-base{
+    font-weight: 500 !important;
+}
+.example-container {
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    font-family: "elmessiri-font", Arial, Helvetica, sans-serif;
+}
+
+.dx-context-menu .dx-menu-no-icons>.dx-menu-item-wrapper>.dx-menu-item>.dx-menu-item-content .dx-menu-item-text{
+    font-weight: 500 !important;
+}
+.example-sidenav-mob {
+    -webkit-user-select: none;
+    /* Safari */
+    user-select: none;
+    float: right;
+    width: 240px;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.menu-button {
+    transition: 300ms ease-in-out;
+    transform: rotate(0deg);
+}
+
+.menu-button.rotated {
+    transform: rotate(180deg);
+}
+
+.submenu {
+    overflow-y: hidden;
+    transition: transform 300ms ease;
+    transform: scaleY(0);
+    transform-origin: top;
+    padding-left: 30px;
+}
+
+.submenu.expanded {
+    transform: scaleY(1);
+}
+
+.footer {
+    flex: 1 1 auto;
+}
+
+.footer-version {
+    color: white;
+    font-size: 12px;
+}
+
+.example-spacer {
+    flex: 1 1 auto;
+}
+
+.mat-divider-vertical {
+    height: 100%;
+    width: 0px !important;
+    position: inherit !important;
+    margin: 0px 5px 0px 5px;
+}
+
+.language {
+    cursor: pointer;
+    font-family: "elmessiri-font", Arial, Helvetica, sans-serif;
+    font-size: 15px;
+}
+
+.hello-drop {
+    font-family: "cairo-font", Arial, Helvetica, sans-serif;
+    font-size: 15px;
+}
+
+.app-name {
+    margin: 0;
+    font-family: "elmessiri-font", Arial, Helvetica, sans-serif;
+    font-size: 17px;
+    cursor: pointer;
+}
+
+.screen-title {
+    font-family: "elmessiri-font", Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.select-button .mat-select {
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.select-button {
+    position: relative;
+    font-family: "elmessiri-font", Arial, Helvetica, sans-serif;
+    font-size: 15px;
+}
+
+.login-button {
+    font-family: "elmessiri-font", Arial, Helvetica, sans-serif;
+    font-size: 15px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: "elmessiri-font", Arial, Helvetica, sans-serif;
+}
+
+
+
+
+
+
+
+
+
+
+
+.container-me {
+    display: inline-block;
+}
+
+.parentDiv {
+    overflow-x: hidden;
+}
+
+::ng-deep .my-tooltip {
+    font-size: 14px;
+    font-weight: bold;
+    font-family: "cairo-font", Arial, Helvetica, sans-serif;
+}
+
+::ng-deep .mdc-tooltip {
+    white-space: pre-line !important;
+}
+
+
+.menuToggleText {
+    font-size: 11px;
+    font-family: "cairo-font", Arial, Helvetica, sans-serif;
+
+}
+
+
+.my-menu-item {
+    white-space: normal !important;
+    /* Allow word wrapping */
+    word-wrap: break-word !important;
+    padding-top: 9px;
+    font-size: 14px;
+    font-weight: bold;
+    font-family: "cairo-font", Arial, Helvetica, sans-serif;
+    font-style: normal;
+    color: black;
+}
+
+.icon-display {
+    font-size: 20px;
+    height: 20px;
+    width: 20px;
+}
+
+
+
+
+
+@media only screen and (max-device-width: 740px) {
+    ::ng-deep .menu-layout .dx-menu-item-text {
+        padding-top: 0px;
+        font-size: 10px;
+        font-weight: bold;
+        font-family: "cairo-font", Arial, Helvetica, sans-serif;
+        color: black;
+        white-space: normal !important;
+        /* Allow word wrapping */
+        word-wrap: break-word !important;
+        margin-top: -50px !important;
+
+    }
+
+    ::ng-deep .menu-layout .dx-menu-item {
+        padding-top: 0px;
+        font-size: 14px;
+        font-weight: bold;
+        font-family: "cairo-font", Arial, Helvetica, sans-serif;
+        color: black;
+    }
+
+    ::ng-deep #dxTreeList .dx-treelist-text-content {
+        font-size: 10px;
+        font-weight: bold;
+        font-family: "cairo-font", Arial, Helvetica, sans-serif;
+        color: black;
+    }
+
+    .list-layout {
+        font-size: 10px;
+        font-weight: bold;
+        font-family: "cairo-font", Arial, Helvetica, sans-serif;
+        color: black;
+    }
+}
+
+
+
+
+/***************Style Search BOX *********/
+/**************/
+/**************/
+
+.search-input {
+    width: 104px;
+    height: 30px;
+    margin: 5px;
+    text-align: center;
+    font-family: "cairo-font", Arial, Helvetica, sans-serif;
+    border: 1px solid #3f51b5;
+    border-radius: 5px;
+    box-shadow: grey 1px 1px 0px;
+}
+
+.search-input-mob {
+    width: 230px;
+    height: 30px;
+    margin: 5px;
+    text-align: center;
+    font-family: "cairo-font", Arial, Helvetica, sans-serif;
+    border: 1px solid #3f51b5;
+    border-radius: 5px;
+    box-shadow: grey 1px 1px 0px;
+}
+/* عكس السهم في حالة اتجاه RTL فقط */
+.dx-rtl .dx-menu-item-popout .dx-icon::before {
+    transform: rotate(180deg) !important;
+}
+::ng-deep .dx-treelist .dx-treelist-search-panel {
+    width: 230px;
+    height: 30px;
+    margin: 5px;
+    text-align: center;
+    font-family: "cairo-font", Arial, Helvetica, sans-serif;
+    border: 1px solid #3f51b5;
+    border-radius: 5px;
+    box-shadow: grey 1px 1px 0px;
+}
+
+.search-input-write {
+    font-family: "cairo-font", Arial, Helvetica, sans-serif;
+    text-align: center;
+}
+
+
+/* The overlay effect with black background */
+.overlay {
+    height: 100%;
+    width: 100%;
+    display: none;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.9);
+    /* Black with a little bit see-through */
+}
+
+/* The content */
+.overlay-content {
+    position: relative;
+    top: 10%;
+    width: 80%;
+    text-align: center;
+    margin-top: 30px;
+    margin: auto;
+}
+
+/* Close button */
+.overlay .closebtn {
+    position: absolute;
+    top: 90px;
+    right: 45px;
+    font-size: 60px;
+    cursor: pointer;
+    color: white;
+}
+
+.overlay .closebtn-mobile {
+    position: absolute;
+    top: 30px;
+    right: 10px;
+    font-size: 60px;
+    cursor: pointer;
+    color: white;
+}
+
+.overlay .closebtn:hover {
+    color: #ccc;
+}
+
+/* Style the search field */
+.overlay input[type=text] {
+    padding: 15px;
+    font-size: 17px;
+    border: none;
+    float: left;
+    width: 100%;
+    background: white;
+}
+
+.overlay input[type=text]:hover {
+    background: #f1f1f1;
+}
+
+/* Style the submit button */
+.overlay button {
+    float: left;
+    width: 20%;
+    padding: 15px;
+    background: #ddd;
+    font-size: 17px;
+    border: none;
+    cursor: pointer;
+}
+
+.overlay button:hover {
+    background: #bbb;
+}
+
+.first-label {
+    font-family: "cairo-font", Arial, Helvetica, sans-serif;
+}
+
+.secondary-label {
+    color: gray;
+    font-size: 0.9em;
+}
+
+/***************Style Search BOX *********/
+/**************/
+/**************/
+@media only screen and (max-width: 740px),
+only screen and (max-device-width: 740px) {
+    .mobile-manage-text {
+        font-size: 12px !important;
+    }
+}
+
+
+
+.custom-theme-selected {
+    border-left: 3px solid var(--warning-color, #fbbf24) !important;
+    background: linear-gradient(90deg,
+            rgba(251, 191, 36, 0.1) 0%,
+            var(--surface-selected) 20%) !important;
+}
+
+.theme-active ::ng-deep .mat-mdc-menu-submenu-icon {
+    display: none !important;
+}
+
+.mat-menu-item mat-icon {
+    margin-right: 8px;
+    color: var(--primary-color);
+}
+
+.custom-theme-icon {
+    color: var(--warning-color, #fbbf24) !important;
+    font-size: 18px !important;
+}
+
+.custom-theme-icon-small {
+    color: var(--warning-color, #fbbf24) !important;
+    font-size: 14px !important;
+    margin-left: -6px !important;
+    margin-right: 4px !important;
+    vertical-align: middle;
+}
+
+.selected-badge {
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 11px;
+    color: var(--warning-color, #fbbf24);
+    font-weight: 600;
+    opacity: 0.9;
+}
+
+.customize-theme-option {
+    background: linear-gradient(90deg,
+            rgba(63, 81, 181, 0.08) 0%,
+            transparent 100%) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    padding: 12px 16px !important;
+    min-height: 56px !important;
+
+    .customize-icon {
+        color: var(--primary-color, #3f51b5) !important;
+        margin-right: 12px !important;
+        font-size: 22px !important;
+    }
+
+    .arrow-icon {
+        margin-left: auto !important;
+        color: var(--primary-color, #3f51b5) !important;
+        font-size: 18px !important;
+        opacity: 0.7;
+    }
+
+    strong {
+        color: var(--primary-color, #3f51b5);
+        font-size: 14px;
+    }
+}
+
+/* Force DevExtreme menu popout icon to the left for RTL (like your image) */
+
+/* Layout overrides: make page content span full width inside the main content area */
+.example-sidenav-content {
+    width: 100% !important;
+    padding: 0 !important;
+}
+
+/* Remove per-component max-widths and let .container fill the available space */
+:host ::ng-deep .example-sidenav-content .container,
+:host ::ng-deep #margin-body .container,
+:host ::ng-deep .example-sidenav-content .container-me {
+    max-width: none !important;
+    width: calc(100% - 16px) !important;
+    margin: 8px !important;
+    padding: 0 8px !important;
+}
+
+:host ::ng-deep .example-sidenav-content .card,
+:host ::ng-deep #margin-body .card {
+    max-width: none !important;
+    width: 100% !important;
+}
+
+/* Wider form fields inside cards */
+:host ::ng-deep .example-sidenav-content .form input,
+:host ::ng-deep #margin-body .form input,
+:host ::ng-deep .example-sidenav-content .form .mat-form-field,
+:host ::ng-deep #margin-body .form .mat-form-field {
+    width: 100% !important;
+}
+
+
+

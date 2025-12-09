@@ -1,0 +1,68 @@
+
+.container { max-width: 1280px; margin: 0 auto; }
+
+.page-header { margin-bottom: 1.5rem; }
+
+.table-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 400px;
+}
+
+.toggle-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.toggle-switch label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-700);
+}
+
+.table th { cursor: pointer; user-select: none; }
+.actions-header { text-align: center; }
+
+.car-cell-info { margin-right: 0.5rem; } /* Adjusted for no image */
+.car-cell-title { font-weight: 700; color: var(--color-gray-800); }
+.car-cell-subtitle { font-size: 0.75rem; color: var(--color-gray-500); }
+
+.font-medium { font-weight: 600; }
+.sub-text { font-size: 0.75rem; color: var(--color-gray-500); }
+
+.badge-green { background-color: var(--color-success-100); color: var(--color-success-800); }
+.badge-red { background-color: var(--color-danger-100); color: var(--color-danger-800); }
+.badge-gray { background-color: var(--color-gray-200); color: var(--color-gray-800); }
+
+.actions-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.actions-cell .icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.btn-icon-success:hover { color: var(--color-success-500); }
+.btn-icon-danger:hover { color: var(--color-danger-600); }
+
+.archived-row {
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-500);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-gray-500);
+}
