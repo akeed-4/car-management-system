@@ -11,7 +11,6 @@ export interface ChartData {
 @Component({
   selector: 'app-bar-chart',
   standalone: true,
-  imports: [CurrencyPipe],
   templateUrl: './bar-chart.component.html',
   styleUrl: './bar-chart.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
