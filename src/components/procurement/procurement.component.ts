@@ -5,10 +5,10 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { PurchaseInvoice } from '../../types/purchase-invoice.model';
-import { FormsModule } from '@angular/forms'; // Import FormsModule for filter input
-// Fix: Import ProcurementService
+import { FormsModule } from '@angular/forms';
 import { ProcurementService } from '../../services/procurement.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { DxDataGridModule } from 'devextreme-angular';
 
 type SortColumn = keyof PurchaseInvoice | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -16,7 +16,7 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-procurement',
   standalone: true,
-  imports: [RouterLink, CurrencyPipe, DatePipe, FormsModule, TranslateModule],
+  imports: [RouterLink, FormsModule, TranslateModule, DxDataGridModule],
   templateUrl: './procurement.component.html',
   styleUrl: './procurement.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

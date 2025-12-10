@@ -3,9 +3,6 @@ import {
 } from "./chunk-UCS4H4HF.js";
 import "./chunk-SPOUXIM5.js";
 import {
-  toSignal
-} from "./chunk-6V36W76R.js";
-import {
   HttpClient,
   HttpClientModule,
   HttpErrorResponse,
@@ -13,6 +10,9 @@ import {
   HttpParams,
   HttpResponse
 } from "./chunk-6KV6DK3K.js";
+import {
+  toSignal
+} from "./chunk-6V36W76R.js";
 import {
   CommonModule,
   DOCUMENT,
@@ -32,10 +32,10 @@ import {
   ɵɵdefineInjector,
   ɵɵdefineNgModule
 } from "./chunk-NUYNIIDY.js";
+import "./chunk-HCNCREEU.js";
 import {
   forkJoin
 } from "./chunk-2DJKC5IO.js";
-import "./chunk-HCNCREEU.js";
 import {
   BehaviorSubject,
   Observable,

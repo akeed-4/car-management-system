@@ -1,93 +1,77 @@
 <div class="container">
-  <h2 class="page-title">إدارة موديلات السيارات</h2>
+  <h2 class="page-title">{{ 'CAR_MODELS.TITLE' | translate }}</h2>
 
   <div class="card">
     <div class="form-section">
-      <h3 class="form-section-title">إضافة موديل جديد</h3>
-      <form #form="ngForm" (ngSubmit)="addCarModel()" class="add-form-grid">
-        <div>
-          <label for="manufacturer" class="form-label">الشركة المصنعة</label>
-          <select 
-            id="manufacturer"
-            name="manufacturer"
-            [ngModel]="selectedManufacturerId()"
-            (ngModelChange)="selectedManufacturerId.set(+$event)"
-            required
-            class="form-select">
-            <option [ngValue]="null" disabled>-- اختر الشركة --</option>
+      <h3 class="form-section-title">{{ 'CAR_MODELS.ADD_NEW' | translate }}</h3>
+      <form [formGroup]="carModelForm" (ngSubmit)="addCarModel()" class="add-form-grid">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'CAR_MODELS.MANUFACTURER_LABEL' | translate }}</mat-label>
+          <mat-select
+            formControlName="manufacturerId"
+            required>
+            <mat-option [value]="null" disabled>{{ 'CAR_MODELS.SELECT_MANUFACTURER' | translate }}</mat-option>
             @for(m of manufacturers(); track m.id) {
-              <option [value]="m.id">{{ m.name }}</option>
+              <mat-option [value]="m.id">{{ m.name }}</mat-option>
             }
-          </select>
-        </div>
-        <div>
-           <label for="modelName" class="form-label">اسم الموديل</label>
-           <input 
-              type="text"
-              id="modelName"
-              name="modelName"
-              placeholder="مثال: كامري"
-              [ngModel]="newModelName()"
-              (ngModelChange)="newModelName.set($event)"
-              required
-              class="form-input">
-        </div>
-        <button 
-          type="submit" 
-          [disabled]="form.invalid"
-          class="btn btn-primary">
-          إضافة الموديل
-        </button>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'CAR_MODELS.MODEL_NAME_LABEL' | translate }}</mat-label>
+          <input
+            matInput
+            type="text"
+            formControlName="modelName"
+            placeholder="{{ 'CAR_MODELS.MODEL_PLACEHOLDER' | translate }}"
+            name="modelName"
+            required>
+        </mat-form-field>
+     
       </form>
+        <button mat-raised-button color="primary" type="submit" [disabled]="carModelForm.invalid" class="btn-mat-height">
+          <mat-icon>save</mat-icon>
+          {{ 'CAR_MODELS.ADD_BUTTON' | translate }}
+        </button>
     </div>
 
-    <h3 class="card-header">الموديلات الحالية</h3>
-    <div class="table-controls">
-      <input 
-        type="text" 
-        placeholder="ابحث عن موديل (الاسم، الشركة المصنعة...)"
-        class="form-input search-input"
-        (input)="onFilter($event)">
-    </div>
-    <div class="table-wrapper">
-      <table class="table">
-        <thead>
-          <tr>
-            <th (click)="onSort('id')"># {{ getSortIcon('id') }}</th>
-            <th (click)="onSort('name')">الموديل {{ getSortIcon('name') }}</th>
-            <th (click)="onSort('manufacturerName')">الشركة المصنعة {{ getSortIcon('manufacturerName') }}</th>
-            <th class="actions-header">إجراءات</th>
-          </tr>
-        </thead>
-        <tbody>
+    <h3 class="card-header">{{ 'CAR_MODELS.LIST_TITLE' | translate }}</h3>
+    
+    @if (filteredAndSortedModels().length === 0) {
+      <div class="empty-state">
+        {{ 'CAR_MODELS.NO_MODELS' | translate }}
+      </div>
+    } @else {
+      <ng-container *ngIf="cardLayout$ | async as layout">
+        <mat-grid-list [cols]="layout.columns" rowHeight="120px" gutterSize="16px">
           @for (model of filteredAndSortedModels(); track model.id) {
-            <tr>
-              <td>{{ model.id }}</td>
-              <td class="font-medium">{{ model.name }}</td>
-              <td>{{ model.manufacturerName }}</td>
-              <td class="actions-cell">
-                  <button (click)="requestDelete(model.id)" class="btn-icon btn-icon-danger" title="حذف">
-                      <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="model-card">
+                <div class="model-card-content">
+                  <h4 class="model-name">{{ model.name }}</h4>
+                  <p class="manufacturer-name">{{ model.manufacturerName }}</p>
+                </div>
+                <div class="model-card-actions">
+                  <button
+                    mat-icon-button
+                    (click)="requestDelete(model.id)"
+                    [title]="'CAR_MODELS.DELETE' | translate"
+                    color="warn">
+                    <mat-icon>delete</mat-icon>
                   </button>
-              </td>
-            </tr>
-          } @empty {
-            <tr>
-              <td colspan="4" class="empty-state">
-                لم يتم إضافة أي موديلات بعد.
-              </td>
-            </tr>
+                </div>
+              </div>
+            </mat-grid-tile>
           }
-        </tbody>
-      </table>
-    </div>
+        </mat-grid-list>
+      </ng-container>
+    }
   </div>
 </div>
 
 <app-modal 
   [isOpen]="isDeleteModalOpen()" 
-  title="تأكيد حذف الموديل" 
-  message="هل أنت متأكد من حذف هذا الموديل؟"
+  title="{{ 'CAR_MODELS.DELETE_CONFIRM_TITLE' | translate }}" 
+  message="{{ 'CAR_MODELS.DELETE_CONFIRM_MESSAGE' | translate }}"
   (confirm)="confirmDelete()" 
   (cancel)="closeDeleteModal()">
 </app-modal>

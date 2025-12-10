@@ -52,6 +52,7 @@ import { DepositFormComponent } from './components/accounts/deposits/deposit-for
 import { LoginComponent } from './components/auth/login/login.component';
 import { RegistrationComponent } from './components/auth/registration/registration.component';
 import { LayoutComponent } from './components/shared/layout/layout.component';
+import { CarCardComponent } from './components/setup/car-card/car-card.component';
 
 export const APP_ROUTES: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -65,7 +66,7 @@ export const APP_ROUTES: Routes = [
       { path: 'setup/manufacturers', component: ManufacturersComponent },
   { path: 'setup/models', component: CarModelsComponent },
   { path: 'setup/year', component: ManufactureYearComponent },
-      { path: 'setup/card', redirectTo: '/inventory/new' }, // Redirect to the functional inventory form
+      { path: 'setup/card', component :CarCardComponent }, // Redirect to the functional inventory form
       { path: 'inventory', component: InventoryListComponent },
   { path: 'inventory/new', component: InventoryFormComponent },
   { path: 'inventory/edit/:id', component: InventoryFormComponent },

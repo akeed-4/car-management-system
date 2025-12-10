@@ -1,0 +1,320 @@
+<div class="container">
+    <div class="page-header">
+        <h2>{{ pageTitle() }}</h2>
+        <a routerLink="/inventory" class="back-link">{{ 'INVENTORY.FORM.BACK_TO_INVENTORY' | translate }}</a>
+    </div>
+
+    <div class="card">
+        <form [formGroup]="carForm" (ngSubmit)="saveCar()">
+            <!-- Main Details Section -->
+            <section class="form-section">
+                <h3 class="form-section-title">{{ 'INVENTORY.FORM.MAIN_DETAILS' | translate }}</h3>
+                <ng-container *ngIf="layout$ | async as layout">
+                    <mat-grid-list [cols]="layout.columns" rowHeight="80px" gutterSize="6px">
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>{{ 'INVENTORY.FORM.MANUFACTURER' | translate }}</mat-label>
+                                <mat-select formControlName="make" required>
+                                    <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_MANUFACTURER' | translate }}</mat-option>
+                                    @for (manufacturer of manufacturers(); track manufacturer.id) {
+                                        <mat-option [value]="manufacturer.name">{{ manufacturer.name }}</mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        </mat-grid-tile>
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>{{ 'INVENTORY.FORM.MODEL' | translate }}</mat-label>
+                                <mat-select formControlName="model" required>
+                                    <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_MODEL' | translate }}</mat-option>
+                                    @for (carModel of filteredModels(); track carModel.id) {
+                                        <mat-option [value]="carModel.name">{{ carModel.name }}</mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        </mat-grid-tile>
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>{{ 'INVENTORY.FORM.YEAR' | translate }}</mat-label>
+                                <mat-select formControlName="year" required>
+                                    <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_YEAR' | translate }}</mat-option>
+                                    @for (y of years(); track y) {
+                                        <mat-option [value]="y">{{ y }}</mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        </mat-grid-tile>
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>{{ 'INVENTORY.FORM.CURRENT_LOCATION' | translate }}</mat-label>
+                                <input matInput type="text" formControlName="currentLocation" required
+                                    placeholder="e.g., Showroom A, Lot 3">
+                            </mat-form-field>
+                        </mat-grid-tile>
+                    </mat-grid-list>
+                </ng-container>
+                <ng-container *ngIf="layout$ | async as layout">
+                    <mat-grid-list [cols]="layout.columns" rowHeight="80px" gutterSize="6px">
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <div class="radio-group-container">
+                                <label class="form-label">{{ 'INVENTORY.FORM.CONDITION' | translate }}</label>
+                                <mat-radio-group formControlName="condition" class="radio-group">
+                                    <mat-radio-button value="Used">{{ 'INVENTORY.FORM.USED' | translate }}</mat-radio-button>
+                                    <mat-radio-button value="New">{{ 'INVENTORY.FORM.NEW' | translate }}</mat-radio-button>
+                                </mat-radio-group>
+                            </div>
+                        </mat-grid-tile>
+                    </mat-grid-list>
+                </ng-container>
+            </section>
+
+            <!-- Saudi Specific Details -->
+            <section class="form-section">
+                <h3 class="form-section-title">{{ 'INVENTORY.FORM.SAUDI_DETAILS' | translate }}</h3>
+                <ng-container *ngIf="layout$ | async as layout">
+                    <mat-grid-list [cols]="layout.columns" rowHeight="80px" gutterSize="6px">
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>{{ 'INVENTORY.FORM.VIN' | translate }}</mat-label>
+                                <input matInput type="text" formControlName="vin" required dir="ltr">
+                                <button matSuffix mat-icon-button (click)="isScannerOpen.set(true)" type="button">
+                                    <mat-icon>qr_code_scanner</mat-icon>
+                                </button>
+                            </mat-form-field>
+                        </mat-grid-tile>
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>{{ 'INVENTORY.FORM.PLATE_NUMBER' | translate }}</mat-label>
+                                <input matInput type="text" formControlName="plateNumber" required>
+                            </mat-form-field>
+                        </mat-grid-tile>
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>{{ 'INVENTORY.FORM.ISTIMARA_EXPIRY' | translate }}</mat-label>
+                                <input matInput type="date" formControlName="istimaraExpiry">
+                            </mat-form-field>
+                        </mat-grid-tile>
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>{{ 'INVENTORY.FORM.FAHAS_STATUS' | translate }}</mat-label>
+                                <mat-select formControlName="fahasStatus">
+                                    <mat-option value="Valid">{{ 'INVENTORY.FORM.FAHAS_VALID' | translate }}</mat-option>
+                                    <mat-option value="Expired">{{ 'INVENTORY.FORM.FAHAS_EXPIRED' | translate }}</mat-option>
+                                    <mat-option value="Not Required">{{ 'INVENTORY.FORM.FAHAS_NOT_REQUIRED' | translate }}</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </mat-grid-tile>
+                    </mat-grid-list>
+                </ng-container>
+            </section>
+
+            <!-- Technical & Visual Details -->
+            <section class="form-section">
+                <h3 class="form-section-title">{{ 'INVENTORY.FORM.TECHNICAL' | translate }}</h3>
+                <ng-container *ngIf="layout$ | async as layout">
+                    <mat-grid-list [cols]="layout.columns" rowHeight="80px" gutterSize="6px">
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>{{ 'INVENTORY.FORM.MILEAGE' | translate }}</mat-label>
+                                <input matInput type="number" formControlName="mileage" required
+                                    [attr.disabled]="carForm.value.condition === 'New' ? true : null">
+                            </mat-form-field>
+                        </mat-grid-tile>
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>{{ 'INVENTORY.FORM.EXTERIOR_COLOR' | translate }}</mat-label>
+                                <input matInput type="text" formControlName="exteriorColor">
+                            </mat-form-field>
+                        </mat-grid-tile>
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>{{ 'INVENTORY.FORM.INTERIOR_COLOR' | translate }}</mat-label>
+                                <input matInput type="text" formControlName="interiorColor">
+                            </mat-form-field>
+                        </mat-grid-tile>
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>{{ 'INVENTORY.FORM.TRANSMISSION' | translate }}</mat-label>
+                                <mat-select formControlName="transmission">
+                                    <mat-option value="Automatic">{{ 'INVENTORY.FORM.AUTOMATIC' | translate }}</mat-option>
+                                    <mat-option value="Manual">{{ 'INVENTORY.FORM.MANUAL' | translate }}</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </mat-grid-tile>
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>{{ 'INVENTORY.FORM.ENGINE_SIZE' | translate }}</mat-label>
+                                <input matInput type="text" formControlName="engineSize">
+                            </mat-form-field>
+                        </mat-grid-tile>
+                    </mat-grid-list>
+                </ng-container>
+            </section>
+
+            <!-- Financials -->
+            <section class="form-section">
+                <h3 class="form-section-title">{{ 'INVENTORY.FORM.FINANCIALS' | translate }}</h3>
+                <ng-container *ngIf="layout$ | async as layout">
+                    <mat-grid-list [cols]="layout.columns" rowHeight="120px" gutterSize="6px">
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>{{ 'INVENTORY.FORM.PURCHASE_PRICE' | translate }}</mat-label>
+                                <input matInput type="number" formControlName="purchasePrice" required>
+                            </mat-form-field>
+                        </mat-grid-tile>
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>{{ 'INVENTORY.FORM.ADDITIONAL_COSTS' | translate }}</mat-label>
+                                <input matInput type="number" formControlName="additionalCosts">
+                            </mat-form-field>
+                        </mat-grid-tile>
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>{{ 'INVENTORY.FORM.TRUE_TOTAL_COST' | translate }}</mat-label>
+                                <input matInput type="text" [value]="calculatedTotalCost() | currency:'SAR'" readonly>
+                            </mat-form-field>
+                        </mat-grid-tile>
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>{{ 'INVENTORY.FORM.SALE_PRICE' | translate }}</mat-label>
+                                <input matInput type="number" formControlName="salePrice" required>
+                                <button matSuffix mat-icon-button type="button" (click)="suggestPrice()"
+                                    [disabled]="isSuggestingPrice() || !canSuggestPrice()"
+                                    title="اقتراح سعر باستخدام الذكاء الاصطناعي">
+                                    <mat-icon *ngIf="!isSuggestingPrice()">auto_awesome</mat-icon>
+                                    <mat-icon *ngIf="isSuggestingPrice()" class="spin">refresh</mat-icon>
+                                </button>
+                            </mat-form-field>
+                            @if (priceSuggestion(); as suggestion) {
+                            <div class="suggestion-box">
+                                <button type="button" (click)="applySuggestedPrice(suggestion.low)"
+                                    class="suggestion-item low">{{ 'INVENTORY.FORM.SUGGESTION_LOW' | translate }}:
+                                    {{suggestion.low | currency:'SAR':'symbol':'1.0-0'}}</button>
+                                <button type="button" (click)="applySuggestedPrice(suggestion.average)"
+                                    class="suggestion-item average">{{ 'INVENTORY.FORM.SUGGESTION_AVG' | translate }}:
+                                    {{suggestion.average | currency:'SAR':'symbol':'1.0-0'}}</button>
+                                <button type="button" (click)="applySuggestedPrice(suggestion.high)"
+                                    class="suggestion-item high">{{ 'INVENTORY.FORM.SUGGESTION_HIGH' | translate }}:
+                                    {{suggestion.high | currency:'SAR':'symbol':'1.0-0'}}</button>
+                            </div>
+                            }
+                            @if(priceSuggestionError()) {
+                            <p class="error-text">{{ priceSuggestionError() }}</p>
+                            }
+                        </mat-grid-tile>
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>{{ 'INVENTORY.FORM.PURCHASE_DATE' | translate }}</mat-label>
+                                <input matInput type="date" formControlName="purchaseDate">
+                            </mat-form-field>
+                        </mat-grid-tile>
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>{{ 'INVENTORY.FORM.FLOOR_PLAN' | translate }}</mat-label>
+                                <mat-select formControlName="floorPlanId">
+                                    <mat-option [value]="null">{{ 'INVENTORY.FORM.NO_FINANCING' | translate }}</mat-option>
+                                    @for (plan of floorPlans(); track plan.id) {
+                                        <mat-option [value]="plan.id">{{ plan.planName }} - {{ plan.financier }}</mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        </mat-grid-tile>
+                    </mat-grid-list>
+                </ng-container>
+            </section>
+
+            @if (editMode() && associatedExpenses().length > 0) {
+            <section class="form-section">
+                <h3 class="form-section-title">{{ 'INVENTORY.FORM.RELATED_COSTS' | translate }}</h3>
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>التاريخ</th>
+                                <th>الوصف</th>
+                                <th>المبلغ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for(expense of associatedExpenses(); track expense.id) {
+                            <tr>
+                                <td>{{expense.date}}</td>
+                                <td>{{expense.description}}</td>
+                                <td class="font-mono">{{expense.amount | currency:'SAR'}}</td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            }
+
+            <!-- Description and Photos -->
+            <section class="form-section">
+                <h3 class="form-section-title">{{ 'INVENTORY.FORM.DESCRIPTION_PHOTOS' | translate }}</h3>
+                <ng-container *ngIf="layout$ | async as layout">
+                    <mat-grid-list [cols]="2" rowHeight="200px" gutterSize="16px">
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>{{ 'INVENTORY.FORM.MARKETING_DESCRIPTION' | translate }}</mat-label>
+                                <textarea matInput formControlName="description" rows="6"></textarea>
+                            </mat-form-field>
+                        </mat-grid-tile>
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <div class="photo-upload-container">
+                                <label class="form-label">{{ 'INVENTORY.FORM.PHOTOS' | translate }}</label>
+                                <div class="photo-upload-box">
+                                    <div class="photo-upload-content">
+                                        <mat-icon class="upload-icon">cloud_upload</mat-icon>
+                                        <p>
+                                            <button mat-raised-button type="button" class="upload-btn" (click)="fileInput.click()">
+                                                {{ 'INVENTORY.FORM.UPLOAD_FILE' | translate }}
+                                            </button>
+                                        </p>
+                                    </div>
+                                </div>
+                                <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" style="display: none;">
+                                @if(carForm.value.photos?.[0]) {
+                                <img [src]="carForm.value.photos?.[0]" alt="Car image" class="photo-preview">
+                                }
+                            </div>
+                        </mat-grid-tile>
+                    </mat-grid-list>
+                </ng-container>
+            </section>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <a routerLink="/inventory" class="btn btn-light">{{ 'INVENTORY.FORM.CANCEL' | translate }}</a>
+                @if(editMode()) {
+                <button type="button" (click)="isPublishModalOpen.set(true)" class="btn btn-secondary">
+                    <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" />
+                    </svg>
+                    <span>{{ 'INVENTORY.FORM.PUBLISH' | translate }}</span>
+                </button>
+                @if(car()?.status === 'Reserved') {
+                <button type="button" (click)="navigateToDepositForm()" class="btn btn-secondary">
+                    <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15A2.25 2.25 0 0 0 2.25 6.75v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
+                    </svg>
+                    <span>{{ 'INVENTORY.FORM.DEPOSIT_VOUCHER' | translate }}</span>
+                </button>
+                }
+                }
+                <button type="submit" [disabled]="carForm.invalid" class="btn btn-primary">
+                    {{ editMode() ? ( 'INVENTORY.FORM.SAVE_CHANGES' | translate ) : ( 'INVENTORY.FORM.ADD_CAR' |
+                    translate ) }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<app-vin-scanner [isOpen]="isScannerOpen()" (vinScanned)="onVinScanned($event)" (cancel)="isScannerOpen.set(false)">
+</app-vin-scanner>
+
+<app-publish-modal [isOpen]="isPublishModalOpen()" [car]="car()" (close)="isPublishModalOpen.set(false)">
+</app-publish-modal>

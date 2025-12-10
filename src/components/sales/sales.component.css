@@ -9,7 +9,50 @@
   height: 16px;
 }
 
-.container { max-width: 1480px; margin: 0 auto; }
+/* --- Professional Sales Design --- */
+.container { 
+  max-width: 1600px; 
+  margin: 2rem auto; 
+  padding: 1rem;
+}
+
+.strong-header {
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border-radius: 8px;
+  padding: 16px 24px;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.header-info {
+  flex: 1;
+}
+
+.strong-title {
+  font-weight: 700;
+  font-size: 2rem;
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+.invoice-card {
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  border-radius: 12px;
+  padding: 32px;
+  background: #fff;
+}
+
+.premium-table {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 16px;
+}
+/* --- End Professional Design --- */
 
 .header-actions .icon {
   width: 1.25rem;

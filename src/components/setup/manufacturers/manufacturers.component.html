@@ -4,26 +4,25 @@
   <div class="card">
     <div class="form-section">
       <h3 class="form-section-title">{{ 'MANUFACTURERS.ADD_NEW' | translate }}</h3>
-      <form #form="ngForm" (ngSubmit)="addManufacturer()" class="add-form-grid">
-        <div>
-          <label for="newManufacturerName" class="form-label">{{ 'MANUFACTURERS.NAME_LABEL' | translate }}</label>
+      <form [formGroup]="manufacturerForm" (ngSubmit)="addManufacturer()" class="add-form-grid">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'MANUFACTURERS.NAME_LABEL' | translate }}</mat-label>
           <input
+            matInput
             id="newManufacturerName"
             type="text"
-            [(ngModel)]="newManufacturerName"
-            class="form-input"
+            formControlName="name"
             placeholder="{{ 'MANUFACTURERS.NAME_PLACEHOLDER' | translate }}"
             name="manufacturerName"
             required
           />
-        </div>
-        <button
-          type="submit"
-          [disabled]="!newManufacturerName()"
-          class="btn btn-primary">
+        </mat-form-field>
+     
+      </form>
+        <button mat-raised-button color="primary" type="submit" [disabled]="manufacturerForm.invalid" class="btn-mat-height">
+          <mat-icon>save</mat-icon>
           {{ 'MANUFACTURERS.ADD_BUTTON' | translate }}
         </button>
-      </form>
     </div>
 
     <h3 class="card-header">{{ 'MANUFACTURERS.LIST_TITLE' | translate }}</h3>
@@ -33,22 +32,25 @@
         {{ 'MANUFACTURERS.NO_MANUFACTURERS' | translate }}
       </div>
     } @else {
-      <div class="table-wrapper">
-        <dx-data-grid
-          [dataSource]="filteredAndSortedManufacturers()"
-          [showBorders]="true"
-          [columnAutoWidth]="true"
-          [rowAlternationEnabled]="true"
-          [rtlEnabled]="true"
-          (onRowRemoving)="doDelete($event.data.id)"
-        >
-          <dxi-column dataField="name" caption="{{ 'MANUFACTURERS.NAME' | translate }}" [allowSorting]="true"></dxi-column>
-          <dxi-column type="buttons" caption="{{ 'MANUFACTURERS.ACTIONS' | translate }}">
-            <dxi-button name="delete" text="{{ 'MANUFACTURERS.DELETE' | translate }}" icon="trash"  [onClick]="doDelete"></dxi-button>
-          </dxi-column>
-          <dxo-filter-row [visible]="true"></dxo-filter-row>
-          <dxo-header-filter [visible]="true"></dxo-header-filter>
-        </dx-data-grid>
+      <div class="manufacturers-grid">
+        @for (manufacturer of filteredAndSortedManufacturers(); track manufacturer.id) {
+          <div class="manufacturer-card">
+            <div class="manufacturer-card-content">
+              <h4 class="manufacturer-name">{{ manufacturer.name }}</h4>
+            </div>
+            <div class="manufacturer-card-actions">
+              <button
+                type="button"
+                class="btn-icon-danger"
+                (click)="doDelete(manufacturer.id)"
+                [title]="'MANUFACTURERS.DELETE' | translate">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        }
       </div>
     }
   </div>

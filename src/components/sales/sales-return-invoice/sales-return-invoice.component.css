@@ -1,59 +1,326 @@
+/* --- Professional Sales Return Invoice List Design --- */
 .container {
-  padding: 1.5rem;
   max-width: 1400px;
-  margin: 0 auto;
+  margin: 1rem auto;
+  padding: 0.5rem;
+  font-family: 'Roboto', sans-serif;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  min-height: 100vh;
 }
 
-/* Header */
-.flex {
-  display: flex;
-}
-
-.justify-between {
-  justify-content: space-between;
-}
-
-.items-center {
-  align-items: center;
-}
-
-.mb-6 {
+/* Page Header */
+.page-header {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
   margin-bottom: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e8f4fd;
 }
 
-.text-2xl {
-  font-size: 1.5rem;
+.page-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
-.font-semibold {
+.btn-primary {
+  background: linear-gradient(135deg, #1976d2, #1565c0);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
   font-weight: 600;
-}
-
-.text-gray-800 {
-  color: var(--color-gray-800);
-}
-
-/* Button */
-a[routerLink] {
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.2);
   display: inline-flex;
   align-items: center;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  border-radius: var(--rounded-lg);
-  transition: all 0.3s;
+  gap: 0.5rem;
   text-decoration: none;
 }
 
-.bg-primary-600 {
-  background-color: var(--color-primary-600);
-  color: var(--color-white);
-  box-shadow: var(--shadow-md);
+.btn-primary:hover {
+  background: linear-gradient(135deg, #1565c0, #0d47a1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
 }
 
-.bg-primary-600:hover {
-  background-color: var(--color-primary-700);
-  box-shadow: var(--shadow-lg);
+.btn-primary svg {
+  width: 18px;
+  height: 18px;
 }
+
+/* DataGrid Container */
+.datagrid-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  padding: 1.5rem;
+  border: 1px solid #e8f4fd;
+  overflow: hidden;
+}
+
+/* Professional DataGrid Styling */
+.professional-datagrid {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.professional-datagrid .dx-datagrid-headers {
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  color: white;
+  font-weight: 600;
+  border-bottom: 2px solid #0d47a1;
+}
+
+.professional-datagrid .dx-datagrid-header-panel {
+  background: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.professional-datagrid .dx-header-row {
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+}
+
+.professional-datagrid .dx-header-row td {
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 1rem 0.75rem;
+}
+
+.professional-datagrid .dx-header-row td:last-child {
+  border-right: none;
+}
+
+.professional-datagrid .dx-datagrid-rowsview .dx-row {
+  border-bottom: 1px solid #e9ecef;
+  transition: all 0.2s ease;
+}
+
+.professional-datagrid .dx-datagrid-rowsview .dx-row:hover {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  transform: scale(1.002);
+}
+
+.professional-datagrid .dx-datagrid-rowsview .dx-row.dx-row-alt {
+  background: #fafbfc;
+}
+
+.professional-datagrid .dx-datagrid-rowsview .dx-data-row td {
+  padding: 0.75rem;
+  border-right: 1px solid #e9ecef;
+  font-size: 0.85rem;
+  color: #37474f;
+}
+
+.professional-datagrid .dx-datagrid-rowsview .dx-data-row td:last-child {
+  border-right: none;
+}
+
+/* DataGrid Summary */
+.professional-datagrid .dx-datagrid-total-footer {
+  background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  border-top: 2px solid #1b5e20;
+}
+
+.professional-datagrid .dx-datagrid-total-footer td {
+  padding: 1rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.professional-datagrid .dx-datagrid-total-footer td:last-child {
+  border-right: none;
+}
+
+/* DataGrid Filter Row */
+.professional-datagrid .dx-datagrid-filter-row {
+  background: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.professional-datagrid .dx-datagrid-filter-row input {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  width: 100%;
+}
+
+.professional-datagrid .dx-datagrid-filter-row input:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+}
+
+/* DataGrid Search Panel */
+.professional-datagrid .dx-datagrid-search-panel {
+  background: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  padding: 0.75rem;
+}
+
+.professional-datagrid .dx-datagrid-search-panel input {
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  width: 250px;
+  transition: all 0.3s ease;
+}
+
+.professional-datagrid .dx-datagrid-search-panel input:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+  transform: scale(1.02);
+}
+
+/* DataGrid Pager */
+.professional-datagrid .dx-datagrid-pager {
+  background: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+  padding: 1rem;
+}
+
+.professional-datagrid .dx-page {
+  background: white;
+  border: 1px solid #dee2e6;
+  color: #495057;
+  transition: all 0.2s ease;
+}
+
+.professional-datagrid .dx-page:hover {
+  background: #1976d2;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.professional-datagrid .dx-page.dx-selection {
+  background: #1976d2;
+  color: white;
+  font-weight: 600;
+}
+
+.professional-datagrid .dx-page-sizes select {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  background: white;
+}
+
+.professional-datagrid .dx-page-sizes select:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+}
+
+.professional-datagrid .dx-info {
+  color: #6c757d;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Empty State */
+.professional-datagrid .dx-datagrid-nodata {
+  text-align: center;
+  padding: 3rem;
+  color: #6c757d;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px dashed #dee2e6;
+  font-size: 1rem;
+}
+
+.professional-datagrid .dx-datagrid-nodata::before {
+  content: '📋';
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .container {
+    padding: 0.25rem;
+  }
+
+  .page-header {
+    padding: 1rem;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .datagrid-container {
+    padding: 1rem;
+  }
+
+  .professional-datagrid .dx-datagrid-search-panel input {
+    width: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-header .flex {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .btn-primary {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .professional-datagrid .dx-datagrid-search-panel input {
+    width: 100%;
+  }
+
+  .professional-datagrid .dx-header-row td {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.25rem;
+  }
+
+  .professional-datagrid .dx-datagrid-rowsview .dx-data-row td {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 1.25rem;
+  }
+
+  .datagrid-container {
+    padding: 0.5rem;
+  }
+
+  .professional-datagrid .dx-datagrid-pager {
+    padding: 0.5rem;
+  }
+
+  .professional-datagrid .dx-page-sizes {
+    display: none;
+  }
+}
+
+/* --- End Professional Design --- */
 
 .bg-primary-600 svg {
   width: 1.25rem;

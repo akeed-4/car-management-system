@@ -1,9 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
+import { ReactiveFormsModule, FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { ManufacturerService } from '../../../services/manufacturer.service';
 import { Manufacturer } from '../../../types/manufacturer.model';
 import { ModalComponent } from '../../shared/modal/modal.component'; // Corrected import path
-import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 
@@ -13,16 +16,17 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-manufacturers',
   standalone: true,
-  imports: [FormsModule, ModalComponent, DxDataGridModule, TranslateModule],
+  imports: [ReactiveFormsModule, ModalComponent, TranslateModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule],
   templateUrl: './manufacturers.component.html',
   styleUrl: './manufacturers.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ManufacturersComponent {
+export class ManufacturersComponent implements OnInit {
   private manufacturerService = inject(ManufacturerService);
+  private fb = inject(FormBuilder);
 
   manufacturers = this.manufacturerService.manufacturers$;
-  newManufacturerName = signal('');
+  manufacturerForm!: FormGroup;
   
   filter = signal('');
   sortColumn = signal<SortColumn>('');
@@ -33,6 +37,16 @@ export class ManufacturersComponent {
   itemToDeleteId = signal<number | null>(null);
   constructor() { 
     this.doDelete=this.doDelete.bind(this);
+  }
+
+  ngOnInit(): void {
+    this.initForm();
+  }
+
+  private initForm(): void {
+    this.manufacturerForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(1)]]
+    });
   }
   filteredAndSortedManufacturers = computed(() => {
     const searchTerm = this.filter().toLowerCase();
@@ -75,14 +89,16 @@ export class ManufacturersComponent {
 
 
   async addManufacturer(): Promise<void> {
-    const name = this.newManufacturerName().trim();
-    if (name) {
-      try {
-        await this.manufacturerService.addManufacturer({ name });
-        this.newManufacturerName.set('');
-      } catch (error) {
-        console.error('Failed to add manufacturer', error);
-        alert('Failed to add manufacturer. Please try again.');
+    if (this.manufacturerForm.valid) {
+      const name = this.manufacturerForm.value.name?.trim();
+      if (name) {
+        try {
+          await this.manufacturerService.addManufacturer({ name });
+          this.manufacturerForm.reset();
+        } catch (error) {
+          console.error('Failed to add manufacturer', error);
+          alert('Failed to add manufacturer. Please try again.');
+        }
       }
     }
   }

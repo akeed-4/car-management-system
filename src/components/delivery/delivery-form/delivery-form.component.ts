@@ -1,7 +1,7 @@
 
 
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DatePipe, JsonPipe } from '@angular/common';
 import { DeliveryService } from '../../../services/delivery.service';
@@ -10,11 +10,28 @@ import { CustomerService } from '../../../services/customer.service';
 import { UserService } from '../../../services/user.service';
 import { Delivery } from '../../../types/delivery.model';
 import { SalesInvoice } from '../../../types/sales-invoice.model';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { CurrentSettingService } from '../../../services/current-setting.service';
 
 @Component({
   selector: 'app-delivery-form',
   standalone: true,
-  imports: [FormsModule, RouterLink, DatePipe],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    DatePipe,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatIconModule,
+    MatGridListModule
+  ],
   templateUrl: './delivery-form.component.html',
   styleUrl: './delivery-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,6 +43,12 @@ export class DeliveryFormComponent {
   private salesService = inject(SalesService);
   private customerService = inject(CustomerService);
   private userService = inject(UserService);
+  private fb = inject(FormBuilder);
+  private currentSettingService = inject(CurrentSettingService);
+
+  deliveryForm: FormGroup;
+
+  layout$ = this.currentSettingService.getCardLayout(3);
 
   delivery = signal<Partial<Delivery>>({
     scheduledDate: new Date().toISOString().split('T')[0],
@@ -43,12 +66,19 @@ export class DeliveryFormComponent {
   pageTitle = signal('جدولة تسليم مركبة');
 
   salespeople = computed(() => this.userService.users$().filter(u => u.roleName === 'مندوب مبيعات'));
-  
+
   // Data for pre-filling from invoice
   private allInvoices = this.salesService.invoices$;
   selectedInvoice = signal<SalesInvoice | null>(null);
 
   constructor() {
+    this.deliveryForm = this.fb.group({
+      scheduledDate: [new Date().toISOString().split('T')[0], Validators.required],
+      scheduledTime: ['10:00', Validators.required],
+      deliveryAgentId: [null, Validators.required],
+      notes: ['']
+    });
+
     effect(() => {
       const invoiceIdParam = this.route.snapshot.params['invoiceId'];
       if (invoiceIdParam) {
@@ -67,6 +97,12 @@ export class DeliveryFormComponent {
             customerId: customer?.id,
             customerName: customer?.name,
           }));
+
+          // Update form with pre-filled data
+          this.deliveryForm.patchValue({
+            scheduledDate: this.delivery().scheduledDate,
+            scheduledTime: this.delivery().scheduledTime
+          });
         } else {
           // If invoice not found, navigate back or to a generic new delivery form
           this.router.navigate(['/deliveries']);
@@ -75,15 +111,16 @@ export class DeliveryFormComponent {
     }, { allowSignalWrites: true });
   }
 
-  updateField<K extends keyof Delivery>(field: K, value: Delivery[K]) {
-    this.delivery.update(d => ({ ...d, [field]: value }));
-  }
-
   saveDelivery(): void {
+    if (this.deliveryForm.invalid) {
+      return;
+    }
+
+    const formValue = this.deliveryForm.value;
     const deliveryData = this.delivery();
     const invoice = this.selectedInvoice();
 
-    if (!deliveryData.salesInvoiceId || !invoice || !deliveryData.carId || !deliveryData.customerId || !deliveryData.scheduledDate || !deliveryData.scheduledTime || !deliveryData.deliveryAgentId) {
+    if (!deliveryData.salesInvoiceId || !invoice || !deliveryData.carId || !deliveryData.customerId) {
       alert('الرجاء تعبئة جميع الحقول المطلوبة لجدولة التسليم.');
       return;
     }
@@ -92,7 +129,10 @@ export class DeliveryFormComponent {
     deliveryData.carDescription = invoice.items[0]?.carDescription;
     deliveryData.customerName = invoice.customerName;
     deliveryData.salesInvoiceNumber = invoice.invoiceNumber;
-    deliveryData.deliveryAgentName = this.salespeople().find(p => p.id === deliveryData.deliveryAgentId)?.name;
+    deliveryData.deliveryAgentName = this.salespeople().find(p => p.id === formValue.deliveryAgentId)?.name;
+    deliveryData.scheduledDate = formValue.scheduledDate;
+    deliveryData.scheduledTime = formValue.scheduledTime;
+    deliveryData.notes = formValue.notes;
 
     // For simplicity, delivery schedules are always new, not edited via this form
     const { id, ...newDelivery } = deliveryData;
@@ -101,5 +141,4 @@ export class DeliveryFormComponent {
     alert('تمت جدولة التسليم بنجاح.');
     this.router.navigate(['/deliveries']);
   }
-}
-    
+}    

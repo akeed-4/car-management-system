@@ -1,8 +1,17 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatIconModule } from '@angular/material/icon';
+import { TranslateModule } from '@ngx-translate/core';
 import { CarModelService } from '../../../services/car-model.service';
 import { ManufacturerService } from '../../../services/manufacturer.service';
+import { CurrentSettingService } from '../../../services/current-setting.service';
 import { ModalComponent } from '../../shared/modal/modal.component';
 import { CarModel } from '../../../types/car-model.model';
 
@@ -12,20 +21,22 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-car-models',
   standalone: true,
-  imports: [FormsModule, ModalComponent],
+  imports: [CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule, MatGridListModule, MatIconModule, TranslateModule, ModalComponent],
   templateUrl: './car-models.component.html',
   styleUrl: './car-models.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CarModelsComponent {
+export class CarModelsComponent implements OnInit {
   private carModelService = inject(CarModelService);
   private manufacturerService = inject(ManufacturerService);
+  private currentSettingService = inject(CurrentSettingService);
+  private fb = inject(FormBuilder);
 
   carModels = toSignal(this.carModelService.getCarModels(), { initialValue: [] });
   manufacturers = this.manufacturerService.manufacturers$;
+  cardLayout$ = this.currentSettingService.getCardLayout(1);
 
-  newModelName = signal('');
-  selectedManufacturerId = signal<number | null>(null);
+  carModelForm!: FormGroup;
 
   filter = signal('');
   sortColumn = signal<SortColumn>('');
@@ -34,6 +45,17 @@ export class CarModelsComponent {
   // Modal state
   isDeleteModalOpen = signal(false);
   itemToDeleteId = signal<number | null>(null);
+
+  ngOnInit(): void {
+    this.initForm();
+  }
+
+  private initForm(): void {
+    this.carModelForm = this.fb.group({
+      manufacturerId: [null, Validators.required],
+      modelName: ['', [Validators.required, Validators.minLength(1)]]
+    });
+  }
 
   filteredAndSortedModels = computed(() => {
     const searchTerm = this.filter().toLowerCase();
@@ -97,18 +119,19 @@ export class CarModelsComponent {
 
 
   addCarModel(): void {
-    const name = this.newModelName().trim();
-    const manufacturerId = this.selectedManufacturerId();
-    const manufacturer = this.manufacturers().find(m => m.id === manufacturerId);
+    if (this.carModelForm.valid) {
+      const name = this.carModelForm.value.modelName?.trim();
+      const manufacturerId = this.carModelForm.value.manufacturerId;
+      const manufacturer = this.manufacturers().find(m => m.id === manufacturerId);
 
-    if (name && manufacturerId && manufacturer) {
-      this.carModelService.addCarModel({ 
-        name, 
-        manufacturerId,
-        manufacturerName: manufacturer.name 
-      });
-      this.newModelName.set('');
-      this.selectedManufacturerId.set(null);
+      if (name && manufacturerId && manufacturer) {
+        this.carModelService.addCarModel({ 
+          name, 
+          manufacturerId,
+          manufacturerName: manufacturer.name 
+        });
+        this.carModelForm.reset();
+      }
     }
   }
 

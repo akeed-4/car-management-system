@@ -1,42 +1,96 @@
-<div class="container mx-auto">
-  <div class="flex justify-between items-center mb-6">
-    <h2 class="text-2xl font-semibold text-gray-800">{{ 'SALES.RETURN.LIST_TITLE' | translate }}</h2>
-    <a routerLink="sales/return/new" class="bg-primary-600 text-white px-4 py-2 rounded-lg shadow hover:bg-primary-700 transition duration-300 flex items-center text-sm">
-      <svg class="w-5 h-5 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-      {{ 'SALES.RETURN.NEW_RETURN' | translate }}
-    </a>
+<div class="container">
+  <div class="page-header">
+    <div class="flex justify-between items-center">
+      <h2 class="page-title">{{ 'SALES.RETURN.LIST_TITLE' | translate }}</h2>
+      <a routerLink="/sales/return/new" class="btn-primary">
+        <svg class="w-5 h-5 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+        </svg>
+        {{ 'SALES.RETURN.NEW_RETURN' | translate }}
+      </a>
+    </div>
   </div>
 
-  <div class="bg-white p-6 rounded-lg shadow-md">
-    <div class="overflow-x-auto">
-      <table class="min-w-full bg-white">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">رقم المرتجع</th>
-            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">التاريخ</th>
-            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">الفاتورة الأصلية</th>
-            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">العميل</th>
-            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">الإجمالي المرتجع</th>
-          </tr>
-        </thead>
-        <tbody class="text-gray-700">
-          @for (ret of returnInvoices(); track ret.id) {
-            <tr class="border-b hover:bg-gray-50">
-              <td class="py-3 px-4 text-sm font-mono whitespace-nowrap">{{ ret.returnInvoiceNumber }}</td>
-              <td class="py-3 px-4 text-sm whitespace-nowrap">{{ ret.returnInvoiceDate | date:'yyyy-MM-dd' }}</td>
-              <td class="py-3 px-4 text-sm font-mono whitespace-nowrap">{{ ret.originalInvoiceNumber }}</td>
-              <td class="py-3 px-4 text-sm whitespace-nowrap">{{ ret.customerName }}</td>
-              <td class="py-3 px-4 text-sm font-mono whitespace-nowrap">{{ ret.totalAmount | currency:'SAR' }}</td>
-            </tr>
-          } @empty {
-            <tr>
-              <td colspan="5" class="text-center py-8 text-gray-500">
-                {{ 'SALES.RETURN.NO_RETURNS' | translate }}
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+  <div class="datagrid-container">
+    <dx-data-grid
+      [dataSource]="returnInvoices()"
+      [showBorders]="true"
+      [showRowLines]="true"
+      [showColumnLines]="true"
+      [allowColumnReordering]="true"
+      [allowColumnResizing]="true"
+      [columnAutoWidth]="true"
+      [wordWrapEnabled]="true"
+      height="600px"
+      class="professional-datagrid">
+
+      <dxo-paging [pageSize]="10" [enabled]="true"></dxo-paging>
+      <dxo-pager
+        [visible]="true"
+        [allowedPageSizes]="[5, 10, 20]"
+        [displayMode]="'full'"
+        [showPageSizeSelector]="true"
+        [showInfo]="true"
+        [showNavigationButtons]="true">
+      </dxo-pager>
+      <dxo-scrolling mode="virtual"></dxo-scrolling>
+      <dxo-filter-row [visible]="true"></dxo-filter-row>
+      <dxo-header-filter [visible]="true"></dxo-header-filter>
+      <dxo-search-panel [visible]="true" [placeholder]="'SALES.RETURN.SEARCH_PLACEHOLDER' | translate"></dxo-search-panel>
+
+      <dxi-column
+        dataField="returnInvoiceNumber"
+        [caption]="'SALES.RETURN.RETURN_NUMBER' | translate"
+        [width]="150"
+        alignment="right">
+      </dxi-column>
+
+      <dxi-column
+        dataField="returnInvoiceDate"
+        [caption]="'SALES.RETURN.RETURN_DATE' | translate"
+        dataType="date"
+        format="yyyy-MM-dd"
+        [width]="120"
+        alignment="right">
+      </dxi-column>
+
+      <dxi-column
+        dataField="originalInvoiceNumber"
+        [caption]="'SALES.RETURN.ORIGINAL_INVOICE' | translate"
+        [width]="150"
+        alignment="right">
+      </dxi-column>
+
+      <dxi-column
+        dataField="customerName"
+        [caption]="'SALES.RETURN.CUSTOMER' | translate"
+        [minWidth]="200"
+        alignment="right">
+      </dxi-column>
+
+      <dxi-column
+        dataField="totalAmount"
+        [caption]="'SALES.RETURN.TOTAL_AMOUNT' | translate"
+        dataType="number"
+        format="currency"
+        [width]="130"
+        alignment="right">
+        <dxo-format type="currency" currency="SAR"></dxo-format>
+      </dxi-column>
+
+      <dxo-summary>
+        <dxi-total-item
+          column="totalAmount"
+          summaryType="sum"
+          [customizeText]="customizeTotalText">
+        </dxi-total-item>
+        <dxi-total-item
+          column="returnInvoiceNumber"
+          summaryType="count"
+          [customizeText]="customizeCountText">
+        </dxi-total-item>
+      </dxo-summary>
+
+    </dx-data-grid>
   </div>
 </div>

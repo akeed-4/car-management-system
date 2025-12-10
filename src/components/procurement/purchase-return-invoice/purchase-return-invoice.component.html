@@ -8,33 +8,67 @@
   </div>
 
   <div class="bg-white p-6 rounded-lg shadow-md">
-    <div class="overflow-x-auto">
-      <table class="min-w-full bg-white">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">{{ 'PURCHASE_RETURN.COL_RETURN_NUMBER' | translate }}</th>
-            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">{{ 'PURCHASE_RETURN.COL_DATE' | translate }}</th>
-            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">{{ 'PURCHASE_RETURN.COL_SUPPLIER' | translate }}</th>
-            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">{{ 'PURCHASE_RETURN.COL_TOTAL' | translate }}</th>
-          </tr>
-        </thead>
-        <tbody class="text-gray-700">
-          @for (ret of returnInvoices(); track ret.id) {
-            <tr class="border-b hover:bg-gray-50">
-              <td class="py-3 px-4 text-sm font-mono whitespace-nowrap">{{ ret.returnInvoiceNumber }}</td>
-              <td class="py-3 px-4 text-sm whitespace-nowrap">{{ ret.returnInvoiceDate | date:'yyyy-MM-dd' }}</td>
-              <td class="py-3 px-4 text-sm whitespace-nowrap">{{ ret.supplierName }}</td>
-              <td class="py-3 px-4 text-sm font-mono whitespace-nowrap">{{ ret.totalAmount | currency:'SAR' }}</td>
-            </tr>
-          } @empty {
-            <tr>
-                <td colspan="4" class="text-center py-8 text-gray-500">
-                {{ 'PURCHASE_RETURN.NO_RETURNS' | translate }}
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+    <div class="datagrid-container">
+      <dx-data-grid
+        [dataSource]="returnInvoices()"
+        [showBorders]="true"
+        [showRowLines]="true"
+        [showColumnLines]="true"
+        [allowColumnReordering]="true"
+        [allowColumnResizing]="true"
+        [columnAutoWidth]="true"
+        [wordWrapEnabled]="true"
+        height="500px"
+        class="professional-datagrid">
+
+        <dxo-paging [pageSize]="10" [enabled]="true"></dxo-paging>
+        <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
+        <dxo-filter-row [visible]="true"></dxo-filter-row>
+        <dxo-header-filter [visible]="true"></dxo-header-filter>
+        <dxo-search-panel [visible]="true" [placeholder]="'PURCHASE_RETURN.SEARCH' | translate"></dxo-search-panel>
+
+        <dxi-column
+          dataField="returnInvoiceNumber"
+          [caption]="'PURCHASE_RETURN.COL_RETURN_NUMBER' | translate"
+          [width]="150"
+          alignment="right">
+        </dxi-column>
+
+        <dxi-column
+          dataField="returnInvoiceDate"
+          [caption]="'PURCHASE_RETURN.COL_DATE' | translate"
+          dataType="date"
+          format="yyyy-MM-dd"
+          [width]="120"
+          alignment="right">
+        </dxi-column>
+
+        <dxi-column
+          dataField="supplierName"
+          [caption]="'PURCHASE_RETURN.COL_SUPPLIER' | translate"
+          [minWidth]="200"
+          alignment="right">
+        </dxi-column>
+
+        <dxi-column
+          dataField="totalAmount"
+          [caption]="'PURCHASE_RETURN.COL_TOTAL' | translate"
+          dataType="number"
+          format="currency"
+          [width]="120"
+          alignment="right">
+          <dxo-format type="currency" currency="SAR"></dxo-format>
+        </dxi-column>
+
+        <dxo-summary>
+          <dxi-total-item
+            column="totalAmount"
+            summaryType="sum"
+            [customizeText]="customizeTotalText">
+          </dxi-total-item>
+        </dxo-summary>
+
+      </dx-data-grid>
     </div>
   </div>
 </div>

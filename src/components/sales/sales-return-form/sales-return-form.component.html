@@ -1,112 +1,159 @@
-<div class="container mx-auto">
-  <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
-    <h2 class="text-2xl font-semibold text-gray-800">{{ 'SALES.RETURN.CREATE_TITLE' | translate }}</h2>
-    <a routerLink="/sales/return" class="text-primary-600 hover:text-primary-800 transition duration-300 flex items-center">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 ml-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-      <span>{{ 'SALES.RETURN.BACK_TO_LIST' | translate }}</span>
-    </a>
+<div class="container">
+  <div class="page-header">
+    <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
+      <h2 class="page-title">{{ 'SALES.RETURN.CREATE_TITLE' | translate }}</h2>
+      <a routerLink="/sales/return" class="back-link">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+        </svg>
+        <span>{{ 'SALES.RETURN.BACK_TO_LIST' | translate }}</span>
+      </a>
+    </div>
   </div>
 
-  <div class="bg-white p-6 md:p-8 rounded-lg shadow-md">
-    <form #returnForm="ngForm" (ngSubmit)="saveReturn()">
-      
+  <div class="form-container">
+    <form [formGroup]="returnForm" (ngSubmit)="saveReturn()">
+
       <!-- Return Header -->
-      <section class="border-b pb-6 mb-6">
-        <h3 class="text-xl font-semibold text-gray-700 mb-4">{{ 'SALES.RETURN.HEADER' | translate }}</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div>
-            <label class="block text-sm font-medium text-gray-700">{{ 'SALES.RETURN.RETURN_NUMBER' | translate }}</label>
-            <input type="text" [value]="returnInvoiceNumber()" disabled class="mt-1 block w-full bg-gray-100 px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+      <section class="form-section">
+        <h3 class="section-title">{{ 'SALES.RETURN.HEADER' | translate }}</h3>
+        <div class="form-grid">
+          <div class="form-field">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'SALES.RETURN.RETURN_NUMBER' | translate }}</mat-label>
+              <input matInput type="text" [value]="returnInvoiceNumber()" disabled>
+            </mat-form-field>
           </div>
-          <div>
-            <label for="returnDate" class="block text-sm font-medium text-gray-700">{{ 'SALES.RETURN.RETURN_DATE' | translate }}</label>
-            <input type="date" id="returnDate" name="returnDate" [ngModel]="returnInvoiceDate()" (ngModelChange)="returnInvoiceDate.set($event)" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+          <div class="form-field">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'SALES.RETURN.RETURN_DATE' | translate }}</mat-label>
+              <input matInput type="date" formControlName="returnDate" required>
+            </mat-form-field>
           </div>
-          <div>
-            <label for="originalInvoice" class="block text-sm font-medium text-gray-700">{{ 'SALES.RETURN.ORIGINAL_INVOICE' | translate }}</label>
-            <select 
-              id="originalInvoice" 
-              name="originalInvoice"
-              [ngModel]="selectedOriginalInvoice()?.id"
-              (ngModelChange)="onInvoiceSelect(+$event)"
-              required 
-              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
-              <option [ngValue]="null" disabled>{{ 'SALES.RETURN.SELECT_INVOICE' | translate }}</option>
-              @for (invoice of originalInvoices(); track invoice.id) {
-                <option [value]="invoice.id">{{ invoice.invoiceNumber }} - {{ invoice.customerName }}</option>
-              }
-            </select>
+          <div class="form-field">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'SALES.RETURN.ORIGINAL_INVOICE' | translate }}</mat-label>
+              <mat-select formControlName="originalInvoice" required>
+                <mat-option [value]="null" disabled>{{ 'SALES.RETURN.SELECT_INVOICE' | translate }}</mat-option>
+                @for (invoice of originalInvoices(); track invoice.id) {
+                <mat-option [value]="invoice.id">{{ invoice.invoiceNumber }} - {{ invoice.customerName }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
           </div>
         </div>
         @if (selectedOriginalInvoice(); as originalInvoice) {
-          <div class="mt-4 p-4 bg-gray-50 rounded-lg border text-sm">
-            <p><span class="font-medium text-gray-500">{{ 'INVOICE.CUSTOMER' | translate }}:</span> <span class="font-semibold">{{originalInvoice.customerName}}</span></p>
+          <div class="invoice-info-card">
+            <p class="invoice-info-text">
+              <span class="invoice-info-label">{{ 'INVOICE.CUSTOMER' | translate }}:</span>
+              <span>{{originalInvoice.customerName}}</span>
+            </p>
           </div>
         }
-      </section>
-
-      <!-- Return Items Table -->
+      </section>      <!-- Return Items DataGrid -->
       <section class="mb-8">
         <h3 class="text-xl font-semibold text-gray-700 mb-4">{{ 'SALES.RETURN.ITEMS_HEADER' | translate }}</h3>
-        <div class="overflow-x-auto border rounded-lg">
-          <table class="min-w-full bg-white">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">{{ 'SALES.RETURN.CAR' | translate }}</th>
-                <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">{{ 'SALES.RETURN.ORIGINAL_QTY' | translate }}</th>
-                <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">{{ 'SALES.RETURN.UNIT_PRICE' | translate }}</th>
-                <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">{{ 'SALES.RETURN.RETURN_QTY' | translate }}</th>
-                <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">{{ 'SALES.RETURN.LINE_TOTAL' | translate }}</th>
-              </tr>
-            </thead>
-            <tbody class="text-gray-700">
-              @for(item of returnItems(); track item.carId; let i = $index) {
-                <tr class="border-b">
-                  <td class="py-3 px-4 text-sm">{{ item.carDescription }}</td>
-                  <td class="py-3 px-4 text-sm">{{ item.originalQuantity }}</td>
-                  <td class="py-3 px-4 text-sm font-mono">{{ item.unitPrice | currency:'SAR' }}</td>
-                  <td class="py-2 px-4">
-                    <input 
-                      type="number"
-                      [ngModel]="item.returnQuantity"
-                      (ngModelChange)="updateReturnQuantity(item.carId, +$event)"
-                      name="returnQuantity-{{i}}"
-                      min="0"
-                      [max]="item.originalQuantity"
-                      class="w-24 p-1 border border-gray-300 rounded-md text-center focus:outline-none focus:ring-2 focus:ring-primary-500">
-                  </td>
-                  <td class="py-3 px-4 text-sm font-mono font-semibold">{{ item.lineTotal | currency:'SAR' }}</td>
-                </tr>
-              }
-              @if(returnItems().length === 0) {
-                 <tr>
-                  <td colspan="5" class="text-center py-8 text-gray-500">
-                    {{ 'SALES.RETURN.NO_ORIGINAL_SELECTED' | translate }}
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
+        <div class="datagrid-container">
+          <dx-data-grid
+            [dataSource]="returnItems()"
+            [showBorders]="true"
+            [showRowLines]="true"
+            [showColumnLines]="true"
+            [allowColumnReordering]="true"
+            [allowColumnResizing]="true"
+            [columnAutoWidth]="true"
+            [wordWrapEnabled]="true"
+            height="400px"
+            class="professional-datagrid">
+
+            <dxo-paging [enabled]="false"></dxo-paging>
+            <dxo-scrolling mode="virtual"></dxo-scrolling>
+            <dxo-filter-row [visible]="true"></dxo-filter-row>
+            <dxo-header-filter [visible]="true"></dxo-header-filter>
+
+            <dxi-column
+              dataField="carDescription"
+              [caption]="'SALES.RETURN.CAR' | translate"
+              [allowEditing]="false"
+              [minWidth]="200"
+              alignment="right">
+            </dxi-column>
+
+            <dxi-column
+              dataField="originalQuantity"
+              [caption]="'SALES.RETURN.ORIGINAL_QTY' | translate"
+              [allowEditing]="false"
+              [width]="120"
+              dataType="number"
+              alignment="right">
+            </dxi-column>
+
+            <dxi-column
+              dataField="unitPrice"
+              [caption]="'SALES.RETURN.UNIT_PRICE' | translate"
+              [allowEditing]="false"
+              [width]="120"
+              dataType="number"
+              format="currency"
+              alignment="right">
+              <dxo-format type="currency" currency="SAR"></dxo-format>
+            </dxi-column>
+
+            <dxi-column
+              dataField="returnQuantity"
+              [caption]="'SALES.RETURN.RETURN_QTY' | translate"
+              [width]="120"
+              dataType="number"
+              alignment="right">
+              <dxo-lookup
+                [dataSource]="getQuantityOptions"
+                valueExpr="value"
+                displayExpr="text">
+              </dxo-lookup>
+            </dxi-column>
+
+            <dxi-column
+              dataField="lineTotal"
+              [caption]="'SALES.RETURN.LINE_TOTAL' | translate"
+              [allowEditing]="false"
+              [width]="120"
+              dataType="number"
+              format="currency"
+              alignment="right">
+              <dxo-format type="currency" currency="SAR"></dxo-format>
+            </dxi-column>
+
+            <dxo-summary>
+              <dxi-total-item
+                column="lineTotal"
+                summaryType="sum"
+                [customizeText]="customizeTotalText">
+              </dxi-total-item>
+            </dxo-summary>
+
+          </dx-data-grid>
         </div>
       </section>
 
       <!-- Financial Summary -->
-      <section class="flex justify-end mt-8">
-        <div class="w-full max-w-sm bg-gray-50 p-4 rounded-lg">
-            <div class="flex justify-between items-center font-bold text-xl">
-              <p>{{ 'SALES.RETURN.TOTAL' | translate }}</p>
-              <p class="font-mono text-red-600">{{ totalAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
-            </div>
+      <section class="financial-summary">
+        <div class="summary-card">
+          <div class="summary-content">
+            <p class="summary-label">{{ 'SALES.RETURN.TOTAL' | translate }}</p>
+            <p class="summary-amount">{{ totalAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
           </div>
+        </div>
       </section>
 
       <!-- Form Actions -->
-      <div class="mt-8 pt-6 border-t flex justify-end">
-        <a routerLink="/sales/return" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg shadow hover:bg-gray-300 transition duration-300 ml-4 text-sm">{{ 'SALES.RETURN.CANCEL' | translate }}</a>
-        <button 
-          type="submit" 
-          [disabled]="!selectedOriginalInvoice() || totalAmount() === 0" 
-          class="bg-primary-600 text-white px-6 py-2 rounded-lg shadow hover:bg-primary-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+      <div class="form-actions">
+        <a routerLink="/sales/return" class="btn-cancel">
+          {{ 'SALES.RETURN.CANCEL' | translate }}
+        </a>
+        <button
+          type="submit"
+          [disabled]="returnForm.invalid || totalAmount() === 0"
+          class="btn-save">
           {{ 'SALES.RETURN.SAVE' | translate }}
         </button>
       </div>

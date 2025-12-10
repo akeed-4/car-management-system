@@ -446,5 +446,28 @@
     "DELETE": "حذف",
     "DELETE_CONFIRM_TITLE": "تأكيد الحذف",
     "DELETE_CONFIRM_MESSAGE": "هل أنت متأكد من رغبتك في حذف هذا المصنع؟ لا يمكن التراجع عن هذا الإجراء."
+  },
+  "MANUFACTURE_YEAR": {
+    "TITLE": "إدارة سنوات الصنع",
+    "ADD_NEW": "إضافة سنة صنع جديدة",
+    "NAME_LABEL": "السنة",
+    "NAME_PLACEHOLDER": "أدخل السنة",
+    "ADD_BUTTON": "إضافة",
+    "LIST_TITLE": "السنوات المتاحة",
+    "NO_YEARS": "لم يتم إضافة أي سنوات بعد."
+  },
+  "CAR_MODELS": {
+    "TITLE": "إدارة موديلات السيارات",
+    "ADD_NEW": "إضافة موديل جديد",
+    "MANUFACTURER_LABEL": "الشركة المصنعة",
+    "SELECT_MANUFACTURER": "اختر الشركة المصنعة",
+    "MODEL_NAME_LABEL": "اسم الموديل",
+    "MODEL_PLACEHOLDER": "مثال: كامري",
+    "ADD_BUTTON": "إضافة الموديل",
+    "LIST_TITLE": "الموديلات الحالية",
+    "NO_MODELS": "لم يتم إضافة أي موديلات بعد.",
+    "DELETE": "حذف",
+    "DELETE_CONFIRM_TITLE": "تأكيد حذف الموديل",
+    "DELETE_CONFIRM_MESSAGE": "هل أنت متأكد من حذف هذا الموديل؟"
   }
 }

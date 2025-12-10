@@ -4,132 +4,149 @@
   <div class="page-header">
     <h2>{{ 'PURCHASE_INVOICE.CREATE_TITLE' | translate }}</h2>
     <a routerLink="/purchases" class="back-link">
-      <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+      <button mat-icon-button>
+        <mat-icon>arrow_back</mat-icon>
+      </button>
       <span>{{ 'PURCHASE_INVOICE.BACK_TO_PURCHASES' | translate }}</span>
     </a>
   </div>
 
-  <div class="card">
-    <form #purchaseInvoiceForm="ngForm" (ngSubmit)="saveInvoice()">
+  <mat-card>
+
+    <form [formGroup]="purchaseInvoiceForm" (ngSubmit)="saveInvoice()">
 
       <section class="form-section">
         <h3 class="form-section-title">{{ 'PURCHASE_INVOICE.MAIN_DATA' | translate }}</h3>
-        <div class="form-grid cols-3">
-          <div>
-            <label for="supplier" class="form-label">{{ 'PURCHASE_INVOICE.SUPPLIER' | translate }}</label>
-            <select id="supplier" name="supplier" [ngModel]="selectedSupplierId()" (ngModelChange)="selectedSupplierId.set(+$event)" required class="form-select">
-              <option [ngValue]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_SUPPLIER' | translate }}</option>
-              @for(supplier of suppliers(); track supplier.id) {
-                <option [value]="supplier.id">{{ supplier.name }}</option>
-              }
-            </select>
-          </div>
-          <div>
-            <label class="form-label">{{ 'PURCHASE_INVOICE.INVOICE_NUMBER' | translate }}</label>
-            <input type="text" [value]="invoiceNumber()" disabled class="form-input" readonly>
-          </div>
-          <div>
-            <label for="invoiceDate" class="form-label">{{ 'PURCHASE_INVOICE.INVOICE_DATE' | translate }}</label>
-            <input type="date" id="invoiceDate" name="invoiceDate" [ngModel]="invoiceDate()" (ngModelChange)="invoiceDate.set($event)" required class="form-input">
-          </div>
-          <div>
-            <label for="paymentMethod" class="form-label">{{ 'PURCHASE_INVOICE.PAYMENT_METHOD' | translate }}</label>
-            <select id="paymentMethod" name="paymentMethod" [ngModel]="paymentMethod()" (ngModelChange)="paymentMethod.set($event)" class="form-select">
-              <option value="Cash">{{ 'PURCHASE_INVOICE.PAYMENT_CASH' | translate }}</option>
-              <option value="Bank Transfer">{{ 'PURCHASE_INVOICE.PAYMENT_BANK_TRANSFER' | translate }}</option>
-            </select>
-          </div>
-        </div>
+        <ng-container *ngIf="layout$ | async as layout">
+          <mat-grid-list [cols]="layout.columns" rowHeight="80" gutterSize="8px">
+            <mat-grid-tile [colspan]="1" [rowspan]="1">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'PURCHASE_INVOICE.SUPPLIER' | translate }}</mat-label>
+                <mat-select formControlName="supplierId" required>
+                  <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_SUPPLIER' | translate }}</mat-option>
+                  @for(supplier of suppliers(); track supplier.id) {
+                    <mat-option [value]="supplier.id">{{ supplier.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="1" [rowspan]="1">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'PURCHASE_INVOICE.INVOICE_NUMBER' | translate }}</mat-label>
+                <input matInput [value]="invoiceNumber()" readonly>
+              </mat-form-field>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="1" [rowspan]="1">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'PURCHASE_INVOICE.INVOICE_DATE' | translate }}</mat-label>
+                <input matInput type="date" formControlName="invoiceDate" required>
+              </mat-form-field>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="1" [rowspan]="1">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'PURCHASE_INVOICE.PAYMENT_METHOD' | translate }}</mat-label>
+                <mat-select formControlName="paymentMethod">
+                  <mat-option value="Cash">{{ 'PURCHASE_INVOICE.PAYMENT_CASH' | translate }}</mat-option>
+                  <mat-option value="Bank Transfer">{{ 'PURCHASE_INVOICE.PAYMENT_BANK_TRANSFER' | translate }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </mat-grid-tile>
+          </mat-grid-list>
+        </ng-container>
       </section>
 
       <section class="form-section">
         <h3 class="form-section-title">{{ 'PURCHASE_INVOICE.ITEMS_SECTION' | translate }}</h3>
         <div class="add-item-box">
-          <div class="add-item-grid">
-            <div class="field-car">
-              <label for="car" class="form-label">{{ 'PURCHASE_INVOICE.SELECT_CAR' | translate }}</label>
-              <select id="car" name="car" [ngModel]="selectedCarId()" (ngModelChange)="onCarSelectionChange(+$event)" class="form-select">
-                <option [ngValue]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_CAR_OPTION' | translate }}</option>
-                @for(car of cars(); track car.id) {
-                  <option [value]="car.id">{{ car.make }} {{ car.model }} ({{ car.year }}) - الكمية: {{ inventoryService.getCarQuantity(car.id) }}</option>
-                }
-              </select>
-            </div>
-            <div class="field-price">
-              <label for="purchasePrice" class="form-label">{{ 'PURCHASE_INVOICE.PURCHASE_PRICE' | translate }}</label>
-              <input type="number" id="purchasePrice" name="purchasePrice" [ngModel]="purchasePrice()" (ngModelChange)="purchasePrice.set(+$event)" min="0" class="form-input">
-            </div>
-            <div class="field-qty">
-              <label for="quantity" class="form-label">{{ 'PURCHASE_INVOICE.QUANTITY' | translate }}</label>
-              <input type="number" id="quantity" name="quantity" [ngModel]="selectedQuantity()" (ngModelChange)="selectedQuantity.set(+$event)" min="1" class="form-input">
-            </div>
-            <div class="field-btn">
-              <button type="button" (click)="addItemToInvoice()" [disabled]="!selectedCarId() || selectedQuantity() <= 0" class="btn btn-secondary">
-                  <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+          <ng-container *ngIf="layout$ | async as layout">
+            <mat-grid-list [cols]="layout.columns" rowHeight="100" gutterSize="16px">
+              <mat-grid-tile [colspan]="1" [rowspan]="1">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'PURCHASE_INVOICE.SELECT_CAR' | translate }}</mat-label>
+                  <mat-select [value]="selectedCarId()" (selectionChange)="onCarSelectionChange(+$event.value)">
+                    <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_CAR_OPTION' | translate }}</mat-option>
+                    @for(car of cars(); track car.id) {
+                      <mat-option [value]="car.id">{{ car.make }} {{ car.model }} ({{ car.year }}) - الكمية: {{ inventoryService.getCarQuantity(car.id) }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </mat-grid-tile>
+              <mat-grid-tile [colspan]="1" [rowspan]="1">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'PURCHASE_INVOICE.PURCHASE_PRICE' | translate }}</mat-label>
+                  <input matInput type="number" [value]="purchasePrice()" (input)="purchasePrice.set(+$event.target.value)" min="0">
+                </mat-form-field>
+              </mat-grid-tile>
+              <mat-grid-tile [colspan]="1" [rowspan]="1">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'PURCHASE_INVOICE.QUANTITY' | translate }}</mat-label>
+                  <input matInput type="number" [value]="selectedQuantity()" (input)="selectedQuantity.set(+$event.target.value)" min="1">
+                </mat-form-field>
+              </mat-grid-tile>
+              <mat-grid-tile [colspan]="1" [rowspan]="1">
+                <button mat-raised-button color="primary" type="button" (click)="addItemToInvoice()" [disabled]="!selectedCarId() || selectedQuantity() <= 0">
+                  <mat-icon>add</mat-icon>
                   <span>{{ 'PURCHASE_INVOICE.ADD' | translate }}</span>
-              </button>
-            </div>
-          </div>
+                </button>
+              </mat-grid-tile>
+            </mat-grid-list>
+          </ng-container>
         </div>
       </section>
-      
+
       <section class="form-section">
-         <div class="table-wrapper">
-          <table class="table items-table">
-            <thead>
-              <tr>
-                <th>السيارة</th>
-                <th>الكمية</th>
-                <th>سعر الشراء للوحدة</th>
-                <th>الإجمالي</th>
-                <th class="actions-header">حذف</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (item of invoiceItems(); track item.carId) {
-                <tr>
-                  <td>{{ item.carDescription }}</td>
-                  <td>{{ item.quantity }}</td>
-                  <td class="font-mono">{{ item.unitPrice | currency:'SAR' }}</td>
-                  <td class="font-mono">{{ item.lineTotal | currency:'SAR' }}</td>
-                  <td class="actions-cell">
-                    <button type="button" (click)="removeItem(item.carId)" class="btn-icon btn-icon-danger">
-                      <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                  <tr>
-                  <tr>
-                    <td colspan="5" class="empty-state">
-                      {{ 'PURCHASE_INVOICE.NO_ITEMS' | translate }}
-                    </td>
-                  </tr>
-                    لم تتم إضافة أي سيارات للفاتورة بعد.
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
+        <div class="table-container">
+          <dx-data-grid
+            [dataSource]="invoiceItems()"
+            [showBorders]="true"
+            [columnAutoWidth]="true"
+            [rowAlternationEnabled]="true"
+            [rtlEnabled]="true"
+            [noDataText]="'PURCHASE_INVOICE.NO_ITEMS' | translate"
+            keyExpr="carId"
+          >
+            <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}"></dxi-column>
+            <dxi-column dataField="quantity" caption="{{ 'PURCHASE_INVOICE.QUANTITY' | translate }}" dataType="number"></dxi-column>
+            <dxi-column dataField="unitPrice" caption="{{ 'PURCHASE_INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
+            <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" dataType="number" format="currency"></dxi-column>
+            <dxi-column caption="{{ 'PURCHASE_INVOICE.DELETE' | translate }}" cellTemplate="actionsTemplate"></dxi-column>
+
+            <div *dxTemplate="let data of 'actionsTemplate'">
+              <button mat-icon-button color="warn" (click)="removeItem(data.data.carId)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+
+            <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false"
+              [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
+          </dx-data-grid>
         </div>
       </section>
 
       <section class="summary-section">
-        <div>
-           <label for="notes" class="form-label">{{ 'PURCHASE_INVOICE.NOTES' | translate }}</label>
-           <textarea id="notes" name="notes" rows="4" [ngModel]="notes()" (ngModelChange)="notes.set($event)" placeholder="{{ 'PURCHASE_INVOICE.NOTES_PLACEHOLDER' | translate }}" class="form-input"></textarea>
-        </div>
-        <div class="summary-box">
-          <div class="summary-item total">
-            <h4>{{ 'PURCHASE_INVOICE.TOTAL' | translate }}</h4>
-            <p class="font-mono">{{ totalAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
-          </div>
-        </div>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'PURCHASE_INVOICE.NOTES' | translate }}</mat-label>
+          <textarea matInput formControlName="notes" rows="4" placeholder="{{ 'PURCHASE_INVOICE.NOTES_PLACEHOLDER' | translate }}"></textarea>
+        </mat-form-field>
+
+        <mat-card>
+          <mat-card-title>{{ 'PURCHASE_INVOICE.INVOICE_SUMMARY' | translate }}</mat-card-title>
+          <mat-card-content>
+            <div class="summary-item total">
+              <p>{{ 'PURCHASE_INVOICE.TOTAL' | translate }}</p>
+              <p class="font-mono">{{ totalAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
+            </div>
+          </mat-card-content>
+        </mat-card>
       </section>
 
       <div class="form-actions">
-        <a routerLink="/PURCHASE_INVOICE" class="btn btn-light">{{ 'PURCHASE_INVOICE.CANCEL' | translate }}</a>
-        <button type="submit" [disabled]="!selectedSupplierId() || invoiceItems().length === 0" class="btn btn-primary">
+        <a routerLink="/purchases" mat-button>{{ 'PURCHASE_INVOICE.CANCEL' | translate }}</a>
+        <button mat-raised-button color="primary" type="submit" [disabled]="purchaseInvoiceForm.invalid || invoiceItems().length === 0">
+            <mat-icon>save</mat-icon>
             {{ 'PURCHASE_INVOICE.SAVE' | translate }}
         </button>
       </div>
     </form>
-  </div>
+  </mat-card>
 </div>

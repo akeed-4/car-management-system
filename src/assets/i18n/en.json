@@ -444,5 +444,28 @@
     "DELETE": "Delete",
     "DELETE_CONFIRM_TITLE": "Confirm Deletion",
     "DELETE_CONFIRM_MESSAGE": "Are you sure you want to delete this manufacturer? This action cannot be undone."
+  },
+  "MANUFACTURE_YEAR": {
+    "TITLE": "Manufacture Years Management",
+    "ADD_NEW": "Add New Manufacture Year",
+    "NAME_LABEL": "Year",
+    "NAME_PLACEHOLDER": "Enter the year",
+    "ADD_BUTTON": "Add",
+    "LIST_TITLE": "Available Years",
+    "NO_YEARS": "No years have been added yet."
+  },
+  "CAR_MODELS": {
+    "TITLE": "Car Models Management",
+    "ADD_NEW": "Add New Model",
+    "MANUFACTURER_LABEL": "Manufacturer",
+    "SELECT_MANUFACTURER": "Select Manufacturer",
+    "MODEL_NAME_LABEL": "Model Name",
+    "MODEL_PLACEHOLDER": "e.g., Camry",
+    "ADD_BUTTON": "Add Model",
+    "LIST_TITLE": "Current Models",
+    "NO_MODELS": "No models have been added yet.",
+    "DELETE": "Delete",
+    "DELETE_CONFIRM_TITLE": "Confirm Model Deletion",
+    "DELETE_CONFIRM_MESSAGE": "Are you sure you want to delete this model?"
   }
 }

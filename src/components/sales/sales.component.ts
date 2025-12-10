@@ -4,14 +4,15 @@ import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { SalesInvoice } from '../../types/sales-invoice.model';
-import { FormsModule } from '@angular/forms'; // Import FormsModule for filter input
+import { FormsModule } from '@angular/forms';
 import { InventoryService } from '../../services/inventory.service';
 import { PosPaymentModalComponent } from '../shared/pos-payment-modal/pos-payment-modal.component';
 import { PaymentGatewayService } from '../../services/payment-gateway.service';
 import { PosPaymentStatus } from '../../types/pos-payment-status.model';
 import { DealJacketModalComponent } from '../shared/deal-jacket-modal/deal-jacket-modal.component';
-// Fix: Import SalesService
 import { SalesService } from '../../services/sales.service';
+import { DxDataGridModule } from 'devextreme-angular';
+import { LanguageService } from '../../services/language.service';
 
 type SortColumn = keyof SalesInvoice | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -19,15 +20,15 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-sales',
   standalone: true,
-  imports: [RouterLink, CurrencyPipe, DatePipe, FormsModule, PosPaymentModalComponent, DealJacketModalComponent, TranslateModule],
+  imports: [RouterLink, FormsModule, PosPaymentModalComponent, DealJacketModalComponent, TranslateModule, DxDataGridModule],
   templateUrl: './sales.component.html',
   styleUrl: './sales.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SalesComponent {
-  // Fix: Explicitly type the injected SalesService to resolve 'unknown' type inference issues.
   private salesService: SalesService = inject(SalesService);
   private inventoryService = inject(InventoryService);
+  languageService = inject(LanguageService);
   private paymentGatewayService = inject(PaymentGatewayService);
   private router = inject(Router);
   
