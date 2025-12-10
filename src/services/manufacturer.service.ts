@@ -17,7 +17,6 @@ export class ManufacturerService {
     this.loadManufacturersFromApi();
   }
 
-  // جلب بيانات المصنعين من API
   async loadManufacturersFromApi() {
     try {
       const data = await firstValueFrom(this.http.get<Manufacturer[]>(this.apiUrl));
@@ -27,21 +26,27 @@ export class ManufacturerService {
     }
   }
 
-  // إضافة مصنع جديد محليًا + يمكن تعديل ليكون عبر POST API
-  addManufacturer(manufacturer: Omit<Manufacturer, 'id'>) {
-    const newId = this.manufacturers().length ? Math.max(...this.manufacturers().map(m => m.id)) + 1 : 1;
-    const newManufacturer: Manufacturer = { ...manufacturer, id: newId };
-    this.manufacturers.update(list => [...list, newManufacturer]);
-
-    // إذا أردت يمكن استدعاء API POST هنا
-    // this.http.post(this.apiUrl, newManufacturer).subscribe();
+  async addManufacturer(manufacturer: Omit<Manufacturer, 'id'>): Promise<void> {
+    try {
+      // Send to API
+      await firstValueFrom(this.http.post(this.apiUrl, manufacturer));
+      // Reload the list from API
+      await this.loadManufacturersFromApi();
+    } catch (error) {
+      console.error('Failed to add manufacturer', error);
+      throw error;
+    }
   }
 
-  // حذف مصنع محليًا + يمكن تعديل ليكون عبر DELETE API
-  deleteManufacturer(id: number) {
-    this.manufacturers.update(list => list.filter(m => m.id !== id));
-
-    // إذا أردت يمكن استدعاء API DELETE هنا
-    // this.http.delete(`${this.apiUrl}/${id}`).subscribe();
+  async deleteManufacturer(id: number): Promise<void> {
+    try {
+      // Send delete to API
+      await firstValueFrom(this.http.delete(`${this.apiUrl}/${id}`));
+      // Reload the list from API
+      await this.loadManufacturersFromApi();
+    } catch (error) {
+      console.error('Failed to delete manufacturer', error);
+      throw error;
+    }
   }
 }

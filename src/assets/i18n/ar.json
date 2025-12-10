@@ -432,8 +432,19 @@
       "PERIODIC_INSPECTION": "فحص دوري",
       "STOCK_LESS": "الكمية المطلوبة أكبر من الكمية المتاحة في المخزون"
     }
+  },
+  "MANUFACTURERS": {
+    "TITLE": "إدارة المصنعين",
+    "ADD_NEW": "إضافة مصنع جديد",
+    "NAME_LABEL": "اسم المصنع",
+    "NAME_PLACEHOLDER": "أدخل اسم المصنع",
+    "ADD_BUTTON": "إضافة",
+    "LIST_TITLE": "قائمة المصنعين",
+    "NO_MANUFACTURERS": "لا توجد مصنعين لعرضهم.",
+    "NAME": "اسم المصنع",
+    "ACTIONS": "الإجراءات",
+    "DELETE": "حذف",
+    "DELETE_CONFIRM_TITLE": "تأكيد الحذف",
+    "DELETE_CONFIRM_MESSAGE": "هل أنت متأكد من رغبتك في حذف هذا المصنع؟ لا يمكن التراجع عن هذا الإجراء."
   }
-
- 
-
 }

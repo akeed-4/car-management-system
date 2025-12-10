@@ -6,7 +6,7 @@
             <!-- <mat-icon *ngIf="!smallScreen">menu</mat-icon>
        <span class="menuToggleText"  *ngIf="smallScreen">{{'layout.menu' | translate}} ↓</span> -->
         </button>
-        <h1 (click)="openSearchComponent()" class="app-name">{{'layout.systemName' | translate}}</h1>
+        <!-- <h1 (click)="openSearchComponent()" class="app-name">{{'layout.systemName' | translate}}</h1> -->
         <mat-divider vertical class="mat-divider-vertical"></mat-divider>
         <span class="language" *ngIf="!smallScreen" [hidden]="currentLanguage == 'en'" (click)="onChangeLanguage('en')">
             English</span>
