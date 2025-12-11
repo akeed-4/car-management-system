@@ -3,11 +3,19 @@ import {
   _RecycleViewRepeaterStrategy,
   _VIEW_REPEATER_STRATEGY,
   isDataSource
+<<<<<<<< HEAD:.angular/cache/17.3.17/vite/deps/chunk-UX3XE7N4.js
 } from "./chunk-ZFXV6YSV.js";
 import {
   BidiModule,
   Directionality
 } from "./chunk-ARJLLKHC.js";
+========
+} from "./chunk-GGB6PFUA.js";
+import {
+  BidiModule,
+  Directionality
+} from "./chunk-R2VTMLMR.js";
+>>>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd:.angular/cache/17.3.17/vite/deps/chunk-H6XPPGQU.js
 import {
   Platform,
   RtlScrollAxisType,
@@ -15,10 +23,17 @@ import {
   coerceNumberProperty,
   getRtlScrollAxisType,
   supportsScrollBehavior
+<<<<<<<< HEAD:.angular/cache/17.3.17/vite/deps/chunk-UX3XE7N4.js
 } from "./chunk-RTLW6FVR.js";
 import {
   DOCUMENT
 } from "./chunk-X3U6SXRI.js";
+========
+} from "./chunk-NBCXDWXJ.js";
+import {
+  DOCUMENT
+} from "./chunk-JMWJDSKO.js";
+>>>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd:.angular/cache/17.3.17/vite/deps/chunk-H6XPPGQU.js
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -67,7 +82,11 @@ import {
   ɵɵqueryRefresh,
   ɵɵstyleProp,
   ɵɵviewQuery
+<<<<<<<< HEAD:.angular/cache/17.3.17/vite/deps/chunk-UX3XE7N4.js
 } from "./chunk-2WBDQMXG.js";
+========
+} from "./chunk-F43I5743.js";
+>>>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd:.angular/cache/17.3.17/vite/deps/chunk-H6XPPGQU.js
 import {
   animationFrameScheduler,
   asapScheduler,
@@ -1651,4 +1670,8 @@ export {
   CdkScrollableModule,
   ScrollingModule
 };
+<<<<<<<< HEAD:.angular/cache/17.3.17/vite/deps/chunk-UX3XE7N4.js
 //# sourceMappingURL=chunk-UX3XE7N4.js.map
+========
+//# sourceMappingURL=chunk-H6XPPGQU.js.map
+>>>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd:.angular/cache/17.3.17/vite/deps/chunk-H6XPPGQU.js

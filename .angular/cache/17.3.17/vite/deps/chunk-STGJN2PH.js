@@ -4,10 +4,17 @@ import {
   NestedOption,
   NestedOptionHost,
   extractTemplate
+<<<<<<<< HEAD:.angular/cache/17.3.17/vite/deps/chunk-STGJN2PH.js
 } from "./chunk-Q2KYPPQE.js";
 import {
   DOCUMENT
 } from "./chunk-X3U6SXRI.js";
+========
+} from "./chunk-E3L2KCM5.js";
+import {
+  DOCUMENT
+} from "./chunk-JMWJDSKO.js";
+>>>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd:.angular/cache/17.3.17/vite/deps/chunk-6OEUBRTF.js
 import {
   Component,
   ContentChildren,
@@ -34,7 +41,11 @@ import {
   ɵɵprojectionDef,
   ɵɵqueryRefresh,
   ɵɵsetNgModuleScope
+<<<<<<<< HEAD:.angular/cache/17.3.17/vite/deps/chunk-STGJN2PH.js
 } from "./chunk-2WBDQMXG.js";
+========
+} from "./chunk-F43I5743.js";
+>>>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd:.angular/cache/17.3.17/vite/deps/chunk-6OEUBRTF.js
 
 // node_modules/devextreme-angular/fesm2015/devextreme-angular-ui-nested.js
 var DxoAdapterComponent = class extends NestedOption {
@@ -37233,4 +37244,8 @@ devextreme-angular/fesm2015/devextreme-angular-ui-nested.js:
    * https://github.com/DevExpress/devextreme-angular
    *)
 */
+<<<<<<<< HEAD:.angular/cache/17.3.17/vite/deps/chunk-STGJN2PH.js
 //# sourceMappingURL=chunk-STGJN2PH.js.map
+========
+//# sourceMappingURL=chunk-6OEUBRTF.js.map
+>>>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd:.angular/cache/17.3.17/vite/deps/chunk-6OEUBRTF.js

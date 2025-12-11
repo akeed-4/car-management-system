@@ -4,6 +4,7 @@ import {
   style,
   transition,
   trigger
+<<<<<<<< HEAD:.angular/cache/17.3.17/vite/deps/chunk-MQBXRGM7.js
 } from "./chunk-NWUHS5YH.js";
 import {
   MatCommonModule,
@@ -16,11 +17,29 @@ import {
   Platform,
   coerceBooleanProperty
 } from "./chunk-RTLW6FVR.js";
+========
+} from "./chunk-MZUWPUDJ.js";
+import {
+  MatCommonModule,
+  ObserversModule
+} from "./chunk-SP2XHUVL.js";
+import {
+  Directionality
+} from "./chunk-R2VTMLMR.js";
+import {
+  Platform,
+  coerceBooleanProperty
+} from "./chunk-NBCXDWXJ.js";
+>>>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd:.angular/cache/17.3.17/vite/deps/chunk-A54YKFTV.js
 import {
   CommonModule,
   DOCUMENT,
   NgTemplateOutlet
+<<<<<<<< HEAD:.angular/cache/17.3.17/vite/deps/chunk-MQBXRGM7.js
 } from "./chunk-X3U6SXRI.js";
+========
+} from "./chunk-JMWJDSKO.js";
+>>>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd:.angular/cache/17.3.17/vite/deps/chunk-A54YKFTV.js
 import {
   ANIMATION_MODULE_TYPE,
   Attribute,
@@ -77,7 +96,11 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵviewQuery
+<<<<<<<< HEAD:.angular/cache/17.3.17/vite/deps/chunk-MQBXRGM7.js
 } from "./chunk-2WBDQMXG.js";
+========
+} from "./chunk-F43I5743.js";
+>>>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd:.angular/cache/17.3.17/vite/deps/chunk-A54YKFTV.js
 import {
   merge
 } from "./chunk-55R5MX2O.js";
@@ -1630,4 +1653,8 @@ export {
   MatFormField,
   MatFormFieldModule
 };
+<<<<<<<< HEAD:.angular/cache/17.3.17/vite/deps/chunk-MQBXRGM7.js
 //# sourceMappingURL=chunk-MQBXRGM7.js.map
+========
+//# sourceMappingURL=chunk-A54YKFTV.js.map
+>>>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd:.angular/cache/17.3.17/vite/deps/chunk-A54YKFTV.js

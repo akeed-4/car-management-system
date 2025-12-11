@@ -2,11 +2,16 @@ import {
   ScrollDispatcher,
   ScrollingModule,
   ViewportRuler
+<<<<<<<< HEAD:.angular/cache/17.3.17/vite/deps/chunk-AABGXX6Z.js
 } from "./chunk-UX3XE7N4.js";
+========
+} from "./chunk-H6XPPGQU.js";
+>>>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd:.angular/cache/17.3.17/vite/deps/chunk-77BXHEMC.js
 import {
   DomPortalOutlet,
   PortalModule,
   TemplatePortal
+<<<<<<<< HEAD:.angular/cache/17.3.17/vite/deps/chunk-AABGXX6Z.js
 } from "./chunk-G7IE6IUI.js";
 import {
   ESCAPE,
@@ -16,6 +21,17 @@ import {
   BidiModule,
   Directionality
 } from "./chunk-ARJLLKHC.js";
+========
+} from "./chunk-P5HKZEOQ.js";
+import {
+  ESCAPE,
+  hasModifierKey
+} from "./chunk-SP2XHUVL.js";
+import {
+  BidiModule,
+  Directionality
+} from "./chunk-R2VTMLMR.js";
+>>>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd:.angular/cache/17.3.17/vite/deps/chunk-77BXHEMC.js
 import {
   Platform,
   _getEventTarget,
@@ -23,11 +39,19 @@ import {
   coerceArray,
   coerceCssPixelValue,
   supportsScrollBehavior
+<<<<<<<< HEAD:.angular/cache/17.3.17/vite/deps/chunk-AABGXX6Z.js
 } from "./chunk-RTLW6FVR.js";
 import {
   DOCUMENT,
   Location
 } from "./chunk-X3U6SXRI.js";
+========
+} from "./chunk-NBCXDWXJ.js";
+import {
+  DOCUMENT,
+  Location
+} from "./chunk-JMWJDSKO.js";
+>>>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd:.angular/cache/17.3.17/vite/deps/chunk-77BXHEMC.js
 import {
   ANIMATION_MODULE_TYPE,
   ApplicationRef,
@@ -58,7 +82,11 @@ import {
   ɵɵdefineNgModule,
   ɵɵdirectiveInject,
   ɵɵinject
+<<<<<<<< HEAD:.angular/cache/17.3.17/vite/deps/chunk-AABGXX6Z.js
 } from "./chunk-2WBDQMXG.js";
+========
+} from "./chunk-F43I5743.js";
+>>>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd:.angular/cache/17.3.17/vite/deps/chunk-77BXHEMC.js
 import {
   merge
 } from "./chunk-55R5MX2O.js";
@@ -73,7 +101,7 @@ import {
 import {
   __spreadProps,
   __spreadValues
-} from "./chunk-N6ESDQJH.js";
+} from "./chunk-WOR4A3D2.js";
 
 // node_modules/@angular/cdk/fesm2022/overlay.mjs
 var scrollBehaviorSupported = supportsScrollBehavior();
@@ -2822,4 +2850,8 @@ export {
   CdkConnectedOverlay,
   OverlayModule
 };
+<<<<<<<< HEAD:.angular/cache/17.3.17/vite/deps/chunk-AABGXX6Z.js
 //# sourceMappingURL=chunk-AABGXX6Z.js.map
+========
+//# sourceMappingURL=chunk-77BXHEMC.js.map
+>>>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd:.angular/cache/17.3.17/vite/deps/chunk-77BXHEMC.js

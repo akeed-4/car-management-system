@@ -2,6 +2,7 @@ import {
   Overlay,
   OverlayConfig,
   OverlayModule
+<<<<<<< HEAD
 } from "./chunk-AABGXX6Z.js";
 import {
   CdkScrollableModule
@@ -11,13 +12,28 @@ import {
   TemplatePortal
 } from "./chunk-G7IE6IUI.js";
 import "./chunk-ZFXV6YSV.js";
+=======
+} from "./chunk-77BXHEMC.js";
+import {
+  CdkScrollableModule
+} from "./chunk-H6XPPGQU.js";
+import {
+  DomPortalOutlet,
+  TemplatePortal
+} from "./chunk-P5HKZEOQ.js";
+>>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd
 import {
   animate,
   state,
   style,
   transition,
   trigger
+<<<<<<< HEAD
 } from "./chunk-NWUHS5YH.js";
+=======
+} from "./chunk-MZUWPUDJ.js";
+import "./chunk-GGB6PFUA.js";
+>>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd
 import {
   DOWN_ARROW,
   ENTER,
@@ -34,6 +50,7 @@ import {
   hasModifierKey,
   isFakeMousedownFromScreenReader,
   isFakeTouchstartFromScreenReader
+<<<<<<< HEAD
 } from "./chunk-VAYPS2XR.js";
 import {
   Directionality
@@ -45,6 +62,19 @@ import {
   CommonModule,
   DOCUMENT
 } from "./chunk-X3U6SXRI.js";
+=======
+} from "./chunk-SP2XHUVL.js";
+import {
+  Directionality
+} from "./chunk-R2VTMLMR.js";
+import {
+  normalizePassiveListenerOptions
+} from "./chunk-NBCXDWXJ.js";
+import {
+  CommonModule,
+  DOCUMENT
+} from "./chunk-JMWJDSKO.js";
+>>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd
 import {
   ApplicationRef,
   ChangeDetectionStrategy,
@@ -104,12 +134,21 @@ import {
   ɵɵrestoreView,
   ɵɵtemplate,
   ɵɵviewQuery
+<<<<<<< HEAD
 } from "./chunk-2WBDQMXG.js";
 import "./chunk-GC67Z2CB.js";
 import {
   asapScheduler,
   merge
 } from "./chunk-55R5MX2O.js";
+=======
+} from "./chunk-F43I5743.js";
+import {
+  asapScheduler,
+  merge
+} from "./chunk-2DJKC5IO.js";
+import "./chunk-HCNCREEU.js";
+>>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd
 import {
   Subject,
   Subscription,
@@ -124,7 +163,7 @@ import {
 import {
   __spreadProps,
   __spreadValues
-} from "./chunk-N6ESDQJH.js";
+} from "./chunk-WOR4A3D2.js";
 
 // node_modules/@angular/material/fesm2022/menu.mjs
 var _c0 = ["mat-menu-item", ""];
