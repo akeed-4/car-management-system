@@ -4,6 +4,14 @@ import { Router, RouterLink } from '@angular/router';
 import { ModalComponent } from '../../shared/modal/modal.component';
 import { Customer } from '../../../types/customer.model';
 import { FormsModule } from '@angular/forms';
+import {
+  DxDataGridModule,
+  DxButtonModule,
+  DxLoadPanelModule,
+  DxScrollViewModule
+} from 'devextreme-angular';
+import { TranslateModule } from '@ngx-translate/core';
+import { MatIconModule } from '@angular/material/icon';
 
 type SortColumn = keyof Customer | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -11,7 +19,17 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-customers',
   standalone: true,
-  imports: [RouterLink, ModalComponent, FormsModule],
+  imports: [
+    RouterLink,
+    ModalComponent,
+    FormsModule,
+    DxDataGridModule,
+    DxButtonModule,
+    DxLoadPanelModule,
+    DxScrollViewModule,
+    TranslateModule,
+    MatIconModule
+  ],
   templateUrl: './customers.component.html',
   styleUrl: './customers.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -5,7 +5,7 @@
     <h2>{{ pageTitle() }}</h2>
     <a routerLink="/deliveries" class="back-link">
       <mat-icon>arrow_back</mat-icon>
-      <span>العودة إلى جدول التسليم</span>
+      <span>{{ 'DELIVERY.BACK_TO_DELIVERIES' | translate }}</span>
     </a>
   </div>
 
@@ -15,22 +15,22 @@
       <!-- Invoice & Customer Summary -->
       @if (selectedInvoice(); as inv) {
         <section class="form-section summary-box">
-            <h3 class="form-section-title">تفاصيل الفاتورة والعميل</h3>
+            <h3 class="form-section-title">{{ 'DELIVERY.INVOICE_CUSTOMER_DETAILS' | translate }}</h3>
             <div class="summary-grid">
                 <div>
-                    <p class="summary-label">رقم الفاتورة:</p>
+                    <p class="summary-label">{{ 'DELIVERY.INVOICE_NUMBER' | translate }}</p>
                     <p class="summary-value font-mono">{{ inv.invoiceNumber }}</p>
                 </div>
                 <div>
-                    <p class="summary-label">العميل:</p>
+                    <p class="summary-label">{{ 'DELIVERY.CUSTOMER' | translate }}</p>
                     <p class="summary-value">{{ inv.customerName }}</p>
                 </div>
                 <div>
-                    <p class="summary-label">السيارة:</p>
-                    <p class="summary-value">{{ inv.items[0]?.carDescription || 'غير محدد' }}</p>
+                    <p class="summary-label">{{ 'DELIVERY.CAR' | translate }}</p>
+                    <p class="summary-value">{{ inv.items[0]?.carDescription || ('COMMON.UNDEFINED' | translate) }}</p>
                 </div>
                 <div>
-                    <p class="summary-label">تاريخ البيع:</p>
+                    <p class="summary-label">{{ 'DELIVERY.SALE_DATE' | translate }}</p>
                     <p class="summary-value">{{ inv.invoiceDate | date:'yyyy-MM-dd' }}</p>
                 </div>
             </div>
@@ -39,26 +39,26 @@
 
       <!-- Scheduling Details -->
       <section class="form-section">
-        <h3 class="form-section-title">تفاصيل الجدولة</h3>
+        <h3 class="form-section-title">{{ 'DELIVERY.SCHEDULING_DETAILS' | translate }}</h3>
         <ng-container *ngIf="layout$ | async as layout">
           <mat-grid-list [cols]="layout.columns" rowHeight="100px" gutterSize="16px">
             <mat-grid-tile [colspan]="1" [rowspan]="1">
               <mat-form-field appearance="outline" class="full-width">
-                <mat-label>تاريخ التسليم</mat-label>
+                <mat-label>{{ 'DELIVERY.DELIVERY_DATE' | translate }}</mat-label>
                 <input matInput type="date" formControlName="scheduledDate" required>
               </mat-form-field>
             </mat-grid-tile>
             <mat-grid-tile [colspan]="1" [rowspan]="1">
               <mat-form-field appearance="outline" class="full-width">
-                <mat-label>وقت التسليم</mat-label>
+                <mat-label>{{ 'DELIVERY.DELIVERY_TIME' | translate }}</mat-label>
                 <input matInput type="time" formControlName="scheduledTime" required>
               </mat-form-field>
             </mat-grid-tile>
             <mat-grid-tile [colspan]="1" [rowspan]="1">
               <mat-form-field appearance="outline" class="full-width">
-                <mat-label>الموظف المسؤول</mat-label>
+                <mat-label>{{ 'DELIVERY.RESPONSIBLE_EMPLOYEE' | translate }}</mat-label>
                 <mat-select formControlName="deliveryAgentId" required>
-                  <mat-option [value]="null" disabled>-- اختر الموظف --</mat-option>
+                  <mat-option [value]="null" disabled>{{ 'DELIVERY.SELECT_EMPLOYEE' | translate }}</mat-option>
                   @for(salesperson of salespeople(); track salesperson.id) {
                     <mat-option [value]="salesperson.id">{{ salesperson.name }}</mat-option>
                   }
@@ -72,17 +72,17 @@
       <!-- Notes -->
       <section class="form-section">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>ملاحظات (اختياري)</mat-label>
-          <textarea matInput formControlName="notes" rows="3" placeholder="ملاحظات إضافية حول عملية التسليم..."></textarea>
+          <mat-label>{{ 'DELIVERY.NOTES_OPTIONAL' | translate }}</mat-label>
+          <textarea matInput formControlName="notes" rows="3" [placeholder]="'DELIVERY.NOTES_PLACEHOLDER' | translate"></textarea>
         </mat-form-field>
       </section>
 
       <!-- Form Actions -->
       <div class="form-actions">
-        <a routerLink="/deliveries" mat-button>إلغاء</a>
+        <a routerLink="/deliveries" mat-button>{{ 'COMMON.CANCEL' | translate }}</a>
         <button mat-raised-button color="primary" type="submit" [disabled]="deliveryForm.invalid">
           <mat-icon>schedule</mat-icon>
-          جدولة التسليم
+          {{ 'DELIVERY.SCHEDULE_DELIVERY' | translate }}
         </button>
       </div>
     </form>

@@ -1,5 +1,286 @@
-.container { max-width: 1280px; margin: 0 auto; }
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
 
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.page-header h2 {
+  margin: 0;
+  color: var(--color-gray-900);
+  font-size: 1.875rem;
+  font-weight: 600;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: var(--color-primary-600);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-700);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+/* DevExtreme DataGrid Custom Styles */
+::ng-deep .dx-datagrid {
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+::ng-deep .dx-datagrid .dx-datagrid-headers {
+  background: linear-gradient(135deg, var(--color-primary-50) 0%, var(--color-primary-100) 100%);
+  border-bottom: 2px solid var(--color-primary-200);
+}
+
+::ng-deep .dx-datagrid .dx-header-row {
+  background: transparent;
+}
+
+::ng-deep .dx-datagrid .dx-header-row .dx-datagrid-text-content {
+  font-weight: 600;
+  color: var(--color-gray-800);
+  font-size: 0.875rem;
+}
+
+::ng-deep .dx-datagrid .dx-row {
+  border-bottom: 1px solid var(--color-gray-100);
+}
+
+::ng-deep .dx-datagrid .dx-row.dx-row-alt {
+  background-color: var(--color-gray-50);
+}
+
+::ng-deep .dx-datagrid .dx-row:hover {
+  background-color: var(--color-primary-50);
+  transition: background-color 0.2s ease;
+}
+
+::ng-deep .dx-datagrid .dx-cell {
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+}
+
+::ng-deep .dx-datagrid .dx-command-edit {
+  text-align: center;
+}
+
+/* Filter Row Styles */
+::ng-deep .dx-datagrid .dx-freespace-row {
+  background: var(--color-gray-50);
+}
+
+::ng-deep .dx-datagrid .dx-editor-cell .dx-texteditor {
+  height: 24px !important;
+}
+
+::ng-deep .dx-datagrid .dx-editor-cell .dx-texteditor-input {
+  height: 22px !important;
+  font-size: 0.8rem;
+  border-radius: 4px;
+  border: 1px solid var(--color-gray-300);
+  padding: 0 0.25rem;
+}
+
+::ng-deep .dx-datagrid .dx-editor-cell .dx-texteditor-input:focus {
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.08);
+}
+
+/* Select/Combobox Styles */
+::ng-deep .dx-datagrid .dx-selectbox {
+  height: 24px !important;
+}
+
+::ng-deep .dx-datagrid .dx-dropdowneditor {
+  height: 24px !important;
+}
+
+::ng-deep .dx-datagrid .dx-dropdowneditor-input {
+  height: 22px !important;
+  font-size: 0.8rem;
+  border-radius: 4px;
+  border: 1px solid var(--color-gray-300);
+}
+
+::ng-deep .dx-datagrid .dx-dropdowneditor-input:focus {
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.08);
+}
+
+/* Search Panel */
+::ng-deep .dx-datagrid .dx-toolbar .dx-texteditor {
+  height: 36px;
+  width: 300px;
+}
+
+::ng-deep .dx-datagrid .dx-toolbar .dx-texteditor-input {
+  height: 34px;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-gray-300);
+  padding: 0 0.75rem;
+  font-size: 0.875rem;
+}
+
+::ng-deep .dx-datagrid .dx-toolbar .dx-texteditor-input:focus {
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Pager Styles */
+::ng-deep .dx-datagrid .dx-pager {
+  background: var(--color-gray-50);
+  border-top: 1px solid var(--color-gray-200);
+  padding: 1rem;
+}
+
+::ng-deep .dx-datagrid .dx-page-size {
+  margin-right: 1rem;
+}
+
+::ng-deep .dx-datagrid .dx-page-size .dx-selectbox {
+  height: 32px;
+  width: 120px;
+}
+
+::ng-deep .dx-datagrid .dx-page-size .dx-dropdowneditor-input {
+  height: 30px;
+  font-size: 0.875rem;
+}
+
+/* Button Styles */
+::ng-deep .dx-datagrid .dx-button {
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
+  transition: all 0.2s ease;
+}
+
+::ng-deep .dx-datagrid .dx-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Action Buttons */
+::ng-deep .dx-datagrid .dx-command-edit .dx-link {
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+::ng-deep .dx-datagrid .dx-command-edit .dx-link:hover {
+  background-color: var(--color-gray-100);
+  transform: scale(1.1);
+}
+
+::ng-deep .dx-datagrid .dx-command-edit .dx-link.dx-link-edit {
+  color: var(--color-primary-600);
+}
+
+::ng-deep .dx-datagrid .dx-command-edit .dx-link.dx-link-delete {
+  color: var(--color-danger-600);
+}
+
+/* Group Panel */
+::ng-deep .dx-datagrid .dx-group-panel {
+  background: var(--color-gray-100);
+  border-bottom: 1px solid var(--color-gray-200);
+  padding: 0.75rem;
+}
+
+::ng-deep .dx-datagrid .dx-group-panel-item {
+  background: white;
+  border: 1px solid var(--color-gray-300);
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  margin-right: 0.5rem;
+}
+
+/* Loading Panel */
+::ng-deep .dx-datagrid .dx-loadpanel-content {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+/* Column Chooser */
+::ng-deep .dx-datagrid .dx-overlay-content .dx-popup-content {
+  border-radius: 0.5rem;
+}
+
+::ng-deep .dx-datagrid .dx-column-chooser {
+  padding: 1rem;
+}
+
+/* Export Button */
+::ng-deep .dx-datagrid .dx-toolbar .dx-button.dx-button-has-icon {
+  background: var(--color-success-600);
+  color: white;
+  border: none;
+}
+
+::ng-deep .dx-datagrid .dx-toolbar .dx-button.dx-button-has-icon:hover {
+  background: var(--color-success-700);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 0.5rem;
+  }
+
+  .page-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  ::ng-deep .dx-datagrid .dx-toolbar .dx-texteditor {
+    width: 100%;
+  }
+
+  ::ng-deep .dx-datagrid .dx-cell {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Legacy styles for backward compatibility */
 .header-actions .icon {
   width: 1.25rem;
   height: 1.25rem;

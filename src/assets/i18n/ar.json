@@ -41,6 +41,15 @@
     "TITLE": "نظام إدارة معرض السيارات",
     "SIDEBAR_TITLE": "معرض سيارات"
   },
+  "COMMON": {
+    "ALERT": {
+      "EXPIRE_REGISTRATION": "انتهاء التسجيل",
+      "PERIODIC_INSPECTION": "الفحص الدوري"
+    },
+    "STOCK_LESS": "الكمية المطلوبة أكبر من المخزون المتاح",
+    "CANCEL": "إلغاء",
+    "UNDEFINED": "غير محدد"
+  },
   
   "SAMPLE_DATA": {
     "CUSTOMER_NAME": "عبدالله محمد",
@@ -65,7 +74,133 @@
   "SUPPLIERS": {
     "ALNAHDI": "شركة النهدي للسيارات",
     "AUCTION": "مزاد السيارات الدولي",
-    "NOTE_SHIPPING": "شامل تكاليف النقل."
+    "NOTE_SHIPPING": "شامل تكاليف النقل.",
+    "FORM": {
+      "CREATE_TITLE": "إضافة مورد جديد",
+      "EDIT_TITLE": "تعديل بيانات المورد",
+      "BACK_TO_LIST": "العودة إلى قائمة الموردين",
+      "BASIC_INFO": "المعلومات الأساسية",
+      "SUPPLIER_NAME": "اسم المورد",
+      "CR_NUMBER": "رقم السجل التجاري",
+      "TAX_NUMBER": "الرقم الضريبي",
+      "SUPPLIER_CATEGORY": "فئة المورد",
+      "CATEGORY_PARTS": "قطع غيار",
+      "CATEGORY_VEHICLES": "سيارات",
+      "CATEGORY_SERVICES": "خدمات",
+      "CATEGORY_EQUIPMENT": "معدات",
+      "CONTACT_INFO": "معلومات التواصل",
+      "PRIMARY_PHONE": "رقم الهاتف الأساسي",
+      "SECONDARY_PHONE": "رقم الهاتف الثانوي",
+      "EMAIL": "البريد الإلكتروني",
+      "WEBSITE": "الموقع الإلكتروني",
+      "ADDRESS_INFO": "معلومات العنوان",
+      "DETAILED_ADDRESS": "العنوان التفصيلي",
+      "CITY": "المدينة",
+      "DISTRICT": "الحي",
+      "POSTAL_CODE": "الرمز البريدي",
+      "CONTACT_PERSON": "الشخص المسؤول",
+      "CONTACT_PERSON_NAME": "اسم الشخص المسؤول",
+      "CONTACT_PERSON_PHONE": "رقم جوال الشخص المسؤول",
+      "CONTACT_PERSON_EMAIL": "بريد الشخص المسؤول",
+      "FINANCIAL_INFO": "المعلومات المالية",
+      "PAYMENT_TERMS": "شروط الدفع",
+      "PAYMENT_CASH": "نقدي",
+      "PAYMENT_NET_15": "صافي 15 يوم",
+      "PAYMENT_NET_30": "صافي 30 يوم",
+      "PAYMENT_NET_60": "صافي 60 يوم",
+      "PAYMENT_NET_90": "صافي 90 يوم",
+      "CREDIT_LIMIT": "حد الائتمان (ريال)",
+      "BANKING_INFO": "المعلومات البنكية",
+      "BANK_NAME": "اسم البنك",
+      "BANK_ACCOUNT_NUMBER": "رقم الحساب البنكي",
+      "IBAN": "رقم الآيبان (IBAN)",
+      "ADDITIONAL_INFO": "معلومات إضافية",
+      "NOTES": "ملاحظات",
+      "ACTIVE_SUPPLIER": "المورد نشط",
+      "SAVE_CHANGES": "حفظ التغييرات",
+      "ADD_SUPPLIER": "إضافة المورد",
+      "CANCEL": "إلغاء",
+      "VALIDATION": {
+        "NAME_REQUIRED": "الاسم مطلوب ويجب أن يكون أكثر من حرفين",
+        "CR_NUMBER_REQUIRED": "رقم السجل التجاري مطلوب ويجب أن يكون 10 أرقام",
+        "PHONE_REQUIRED": "رقم الهاتف مطلوب ويجب أن يكون بالصيغة +966xxxxxxxxx",
+        "ADDRESS_REQUIRED": "العنوان مطلوب",
+        "EMAIL_INVALID": "البريد الإلكتروني غير صحيح",
+        "CREDIT_LIMIT_MIN": "حد الائتمان يجب أن يكون رقماً موجباً"
+      }
+    },
+    "LIST_TITLE": "قائمة الموردين",
+    "ADD_NEW": "إضافة مورد جديد",
+    "SEARCH_PLACEHOLDER": "البحث في الموردين...",
+    "COLUMNS": {
+      "NAME": "اسم المورد",
+      "CR_NUMBER": "رقم السجل التجاري",
+      "PHONE": "رقم الهاتف",
+      "SECONDARY_PHONE": "الهاتف الثانوي",
+      "EMAIL": "البريد الإلكتروني",
+      "CATEGORY": "الفئة",
+      "ADDRESS": "العنوان",
+      "CITY": "المدينة",
+      "PAYMENT_TERMS": "شروط الدفع",
+      "CREDIT_LIMIT": "حد الائتمان",
+      "STATUS": "الحالة",
+      "ACTIONS": "الإجراءات"
+    },
+    "STATUS": {
+      "ACTIVE": "نشط",
+      "INACTIVE": "غير نشط"
+    },
+    "ACTIONS": {
+      "EDIT": "تعديل",
+      "DELETE": "حذف"
+    },
+    "DELETE_MODAL": {
+      "TITLE": "تأكيد حذف المورد",
+      "MESSAGE": "هل أنت متأكد من حذف هذا المورد؟ لا يمكن التراجع عن هذا الإجراء."
+    }
+  },
+  "USERS": {
+    "FORM": {
+      "TITLE": "إدارة المستخدمين",
+      "FULL_NAME": "الاسم الكامل",
+      "USERNAME": "اسم المستخدم",
+      "EMAIL": "البريد الإلكتروني",
+      "PASSWORD": "كلمة المرور",
+      "CONFIRM_PASSWORD": "تأكيد كلمة المرور",
+      "PASSWORD_PLACEHOLDER": "اتركه فارغاً لعدم التغيير",
+      "ROLE": "الدور",
+      "STATUS": "الحالة",
+      "SELECT_ROLE": "-- اختر دور المستخدم --",
+      "SAVE": "حفظ",
+      "CANCEL": "إلغاء",
+      "EDIT_USER": "تعديل المستخدم",
+      "ADD_USER": "إضافة مستخدم جديد",
+      "BACK_TO_USERS": "العودة إلى قائمة المستخدمين"
+    },
+    "VALIDATION": {
+      "FULL_NAME_REQUIRED": "الاسم الكامل مطلوب",
+      "USERNAME_REQUIRED": "اسم المستخدم مطلوب",
+      "EMAIL_REQUIRED": "البريد الإلكتروني مطلوب",
+      "EMAIL_INVALID": "البريد الإلكتروني غير صحيح",
+      "PASSWORD_REQUIRED": "كلمة المرور مطلوبة",
+      "PASSWORD_MIN_LENGTH": "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
+      "CONFIRM_PASSWORD_REQUIRED": "تأكيد كلمة المرور مطلوب",
+      "PASSWORDS_NOT_MATCH": "كلمات المرور غير متطابقة",
+      "ROLE_REQUIRED": "الدور مطلوب",
+      "STATUS_REQUIRED": "الحالة مطلوبة"
+    },
+    "STATUS": {
+      "ACTIVE": "نشط",
+      "INACTIVE": "غير نشط"
+    },
+    "ACTIONS": {
+      "EDIT": "تعديل",
+      "DELETE": "حذف"
+    },
+    "DELETE_MODAL": {
+      "TITLE": "تأكيد حذف المستخدم",
+      "MESSAGE": "هل أنت متأكد من حذف هذا المستخدم؟ لا يمكن التراجع عن هذا الإجراء."
+    }
   },
   "ROLE": {
     "DASHBOARD": "لوحة التحكم"
@@ -265,7 +400,22 @@
     "COL_STATUS": "حالة السداد",
     "ACTIONS": "إجراءات",
     "TRANSFER_OWNERSHIP": "نقل الملكية",
-    "DELIVERY": "التسليم",
+    "DELIVERY": {
+      "BACK_TO_DELIVERIES": "العودة إلى جدول التسليم",
+      "INVOICE_CUSTOMER_DETAILS": "تفاصيل الفاتورة والعميل",
+      "INVOICE_NUMBER": "رقم الفاتورة:",
+      "CUSTOMER": "العميل:",
+      "CAR": "السيارة:",
+      "SALE_DATE": "تاريخ البيع:",
+      "SCHEDULING_DETAILS": "تفاصيل الجدولة",
+      "DELIVERY_DATE": "تاريخ التسليم",
+      "DELIVERY_TIME": "وقت التسليم",
+      "RESPONSIBLE_EMPLOYEE": "الموظف المسؤول",
+      "SELECT_EMPLOYEE": "-- اختر الموظف --",
+      "NOTES_OPTIONAL": "ملاحظات (اختياري)",
+      "NOTES_PLACEHOLDER": "ملاحظات إضافية حول عملية التسليم...",
+      "SCHEDULE_DELIVERY": "جدولة التسليم"
+    },
     "PAYMENT": "الدفع",
     "DOCUMENTS": "المستندات",
     "NO_INVOICES": "لا توجد فواتير مبيعات حتى الآن.",
@@ -469,5 +619,87 @@
     "DELETE": "حذف",
     "DELETE_CONFIRM_TITLE": "تأكيد حذف الموديل",
     "DELETE_CONFIRM_MESSAGE": "هل أنت متأكد من حذف هذا الموديل؟"
+  },
+  "DELIVERY_CHECKLIST": {
+    "TITLE": "قائمة التحقق للتسليم",
+    "SUBTITLE": "{{carDescription}} - للعميل: {{customerName}}",
+    "INTRO": "الرجاء التأكد من إتمام جميع الخطوات قبل تسليم المركبة:",
+    "COMPLETE_DELIVERY": "إتمام التسليم"
+  },
+  "CUSTOMERS": {
+    "LIST_TITLE": "قائمة العملاء",
+    "ADD_NEW": "إضافة عميل جديد",
+    "SEARCH_PLACEHOLDER": "البحث في العملاء...",
+    "COLUMNS": {
+      "NAME": "الاسم",
+      "NATIONAL_ID": "رقم الهوية",
+      "PHONE": "رقم الجوال",
+      "SECONDARY_PHONE": "الجوال الثانوي",
+      "EMAIL": "البريد الإلكتروني",
+      "ADDRESS": "العنوان",
+      "CITY": "المدينة",
+      "OCCUPATION": "المهنة",
+      "MONTHLY_INCOME": "الدخل الشهري",
+      "CREDIT_SCORE": "نقاط الائتمان",
+      "STATUS": "الحالة",
+      "ACTIONS": "الإجراءات"
+    },
+    "STATUS": {
+      "ACTIVE": "نشط",
+      "INACTIVE": "غير نشط"
+    },
+    "ACTIONS": {
+      "EDIT": "تعديل",
+      "DELETE": "حذف"
+    },
+    "DELETE_MODAL": {
+      "TITLE": "تأكيد حذف العميل",
+      "MESSAGE": "هل أنت متأكد من حذف هذا العميل؟ لا يمكن التراجع عن هذا الإجراء."
+    },
+    "FORM": {
+      "CREATE_TITLE": "إضافة عميل جديد",
+      "EDIT_TITLE": "تعديل بيانات العميل",
+      "BACK_TO_LIST": "العودة إلى قائمة العملاء",
+      "BASIC_INFO": "المعلومات الأساسية",
+      "FULL_NAME": "اسم العميل الكامل",
+      "NATIONAL_ID": "رقم الهوية / الإقامة",
+      "PRIMARY_PHONE": "رقم الجوال الأساسي",
+      "SECONDARY_PHONE": "رقم الجوال الثانوي",
+      "CONTACT_INFO": "معلومات التواصل",
+      "EMAIL": "البريد الإلكتروني",
+      "PREFERRED_CONTACT": "طريقة التواصل المفضلة",
+      "CONTACT_PHONE": "الهاتف",
+      "CONTACT_EMAIL": "البريد الإلكتروني",
+      "CONTACT_SMS": "الرسائل النصية",
+      "ADDRESS_INFO": "معلومات العنوان",
+      "DETAILED_ADDRESS": "العنوان التفصيلي",
+      "CITY": "المدينة",
+      "DISTRICT": "الحي",
+      "POSTAL_CODE": "الرمز البريدي",
+      "PERSONAL_INFO": "المعلومات الشخصية",
+      "DATE_OF_BIRTH": "تاريخ الميلاد",
+      "GENDER": "الجنس",
+      "GENDER_MALE": "ذكر",
+      "GENDER_FEMALE": "أنثى",
+      "OCCUPATION": "المهنة",
+      "EMPLOYER": "جهة العمل",
+      "MONTHLY_INCOME": "الدخل الشهري (ريال)",
+      "CREDIT_SCORE": "نقاط الائتمان",
+      "ADDITIONAL_INFO": "معلومات إضافية",
+      "NOTES": "ملاحظات",
+      "ACTIVE_CUSTOMER": "العميل نشط",
+      "SAVE_CHANGES": "حفظ التغييرات",
+      "ADD_CUSTOMER": "إضافة العميل",
+      "CANCEL": "إلغاء",
+      "VALIDATION": {
+        "NAME_REQUIRED": "الاسم مطلوب ويجب أن يكون أكثر من حرفين",
+        "NATIONAL_ID_REQUIRED": "رقم الهوية مطلوب ويجب أن يكون 10 أرقام",
+        "PHONE_REQUIRED": "رقم الجوال مطلوب ويجب أن يكون بالصيغة +966xxxxxxxxx",
+        "ADDRESS_REQUIRED": "العنوان مطلوب",
+        "EMAIL_INVALID": "البريد الإلكتروني غير صحيح",
+        "INCOME_MIN": "الدخل يجب أن يكون رقماً موجباً",
+        "CREDIT_SCORE_RANGE": "نقاط الائتمان يجب أن تكون بين 0 و 1000"
+      }
+    }
   }
 }

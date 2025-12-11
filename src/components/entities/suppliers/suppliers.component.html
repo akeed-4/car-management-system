@@ -1,64 +1,183 @@
 <div class="container">
   <div class="page-header">
-    <h2>قائمة الموردين</h2>
+    <h2>{{ 'SUPPLIERS.LIST_TITLE' | translate }}</h2>
     <a routerLink="/entities/suppliers/new" class="btn btn-primary">
-      <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-      <span>إضافة مورد جديد</span>
+      <mat-icon>add</mat-icon>
+      <!-- <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg> -->
+      <span>{{ 'SUPPLIERS.ADD_NEW' | translate }}</span>
     </a>
   </div>
 
   <div class="card">
-    <div class="table-controls">
-      <input 
-        type="text" 
-        placeholder="ابحث عن مورد (الاسم، السجل التجاري، الهاتف...)"
-        class="form-input search-input"
-        (input)="onFilter($event)">
-    </div>
-    <div class="table-wrapper">
-      <table class="table">
-        <thead>
-          <tr>
-            <th (click)="onSort('name')">اسم المورد {{ getSortIcon('name') }}</th>
-            <th (click)="onSort('crNumber')">رقم السجل التجاري {{ getSortIcon('crNumber') }}</th>
-            <th (click)="onSort('phone')">رقم الهاتف {{ getSortIcon('phone') }}</th>
-            <th (click)="onSort('address')">العنوان {{ getSortIcon('address') }}</th>
-            <th class="actions-header">إجراءات</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (supplier of filteredAndSortedSuppliers(); track supplier.id) {
-            <tr>
-              <td>{{ supplier.name }}</td>
-              <td class="font-mono">{{ supplier.crNumber }}</td>
-              <td class="font-mono">{{ supplier.phone }}</td>
-              <td>{{ supplier.address }}</td>
-               <td class="actions-cell">
-                  <button (click)="editSupplier(supplier.id)" class="btn-icon" title="تعديل">
-                      <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                  </button>
-                  <button (click)="requestDelete(supplier.id)" class="btn-icon btn-icon-danger" title="حذف">
-                      <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                  </button>
-              </td>
-            </tr>
-          } @empty {
-            <tr>
-              <td colspan="5" class="empty-state">
-                لا يوجد موردون حتى الآن.
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+    <dx-data-grid
+      #suppliersGrid
+      [dataSource]="suppliers"
+      [showBorders]="true"
+      [showRowLines]="true"
+      [showColumnLines]="true"
+      [rowAlternationEnabled]="true"
+      [allowColumnReordering]="true"
+      [allowColumnResizing]="true"
+      [columnAutoWidth]="true"
+      [rtlEnabled]="true"
+      [wordWrapEnabled]="true"
+      [hoverStateEnabled]="true"
+    >
+
+      <dxo-load-panel [enabled]="true"></dxo-load-panel>
+      <dxo-scrolling mode="virtual"></dxo-scrolling>
+
+      <dxi-column
+        dataField="name"
+        [caption]="'SUPPLIERS.COLUMNS.NAME' | translate"
+        [allowFiltering]="true"
+        [allowSorting]="true"
+        [allowGrouping]="true">
+      </dxi-column>
+
+      <dxi-column
+        dataField="crNumber"
+        [caption]="'SUPPLIERS.COLUMNS.CR_NUMBER' | translate"
+        [allowFiltering]="true"
+        [allowSorting]="true"
+        [allowGrouping]="false"
+        [width]="150">
+      </dxi-column>
+
+      <dxi-column
+        dataField="phone"
+        [caption]="'SUPPLIERS.COLUMNS.PHONE' | translate"
+        [allowFiltering]="true"
+        [allowSorting]="true"
+        [allowGrouping]="false"
+        [width]="140">
+      </dxi-column>
+
+      <dxi-column
+        dataField="phone2"
+        [caption]="'SUPPLIERS.COLUMNS.SECONDARY_PHONE' | translate"
+        [allowFiltering]="true"
+        [allowSorting]="false"
+        [allowGrouping]="false"
+        [width]="140"
+        [visible]="false">
+      </dxi-column>
+
+      <dxi-column
+        dataField="email"
+        [caption]="'SUPPLIERS.COLUMNS.EMAIL' | translate"
+        [allowFiltering]="true"
+        [allowSorting]="false"
+        [allowGrouping]="false"
+        [visible]="false">
+      </dxi-column>
+
+      <dxi-column
+        dataField="supplierCategory"
+        [caption]="'SUPPLIERS.COLUMNS.CATEGORY' | translate"
+        [allowFiltering]="true"
+        [allowSorting]="true"
+        [allowGrouping]="true"
+        [lookup]="{
+          dataSource: [
+            { value: 'Parts', displayExpr: 'SUPPLIERS.CATEGORY_PARTS' | translate },
+            { value: 'Vehicles', displayExpr: 'SUPPLIERS.CATEGORY_VEHICLES' | translate },
+            { value: 'Services', displayExpr: 'SUPPLIERS.CATEGORY_SERVICES' | translate },
+            { value: 'Equipment', displayExpr: 'SUPPLIERS.CATEGORY_EQUIPMENT' | translate }
+          ],
+          valueExpr: 'value',
+          displayExpr: 'displayExpr'
+        }">
+      </dxi-column>
+
+      <dxi-column
+        dataField="address"
+        [caption]="'SUPPLIERS.COLUMNS.ADDRESS' | translate"
+        [allowFiltering]="true"
+        [allowSorting]="false"
+        [allowGrouping]="true"
+        [width]="200">
+      </dxi-column>
+
+      <dxi-column
+        dataField="city"
+        [caption]="'SUPPLIERS.COLUMNS.CITY' | translate"
+        [allowFiltering]="true"
+        [allowSorting]="true"
+        [allowGrouping]="true"
+        [visible]="false">
+      </dxi-column>
+
+      <dxi-column
+        dataField="paymentTerms"
+        [caption]="'SUPPLIERS.COLUMNS.PAYMENT_TERMS' | translate"
+        [allowFiltering]="true"
+        [allowSorting]="true"
+        [allowGrouping]="true"
+        [lookup]="{
+          dataSource: [
+            { value: 'Cash', displayExpr: 'SUPPLIERS.PAYMENT_CASH' | translate },
+            { value: 'Net 15', displayExpr: 'SUPPLIERS.PAYMENT_NET_15' | translate },
+            { value: 'Net 30', displayExpr: 'SUPPLIERS.PAYMENT_NET_30' | translate },
+            { value: 'Net 60', displayExpr: 'SUPPLIERS.PAYMENT_NET_60' | translate },
+            { value: 'Net 90', displayExpr: 'SUPPLIERS.PAYMENT_NET_90' | translate }
+          ],
+          valueExpr: 'value',
+          displayExpr: 'displayExpr'
+        }"
+        [visible]="false">
+      </dxi-column>
+
+      <dxi-column
+        dataField="creditLimit"
+        [caption]="'SUPPLIERS.COLUMNS.CREDIT_LIMIT' | translate"
+        [allowFiltering]="true"
+        [allowSorting]="true"
+        [allowGrouping]="false"
+        [dataType]="'number'"
+        [format]="'currency'"
+        [visible]="false">
+      </dxi-column>
+
+      <dxi-column
+        dataField="isActive"
+        [caption]="'SUPPLIERS.COLUMNS.STATUS' | translate"
+        [allowFiltering]="true"
+        [allowSorting]="true"
+        [allowGrouping]="true"
+        [dataType]="'boolean'"
+        [trueText]="'SUPPLIERS.STATUS.ACTIVE' | translate"
+        [falseText]="'SUPPLIERS.STATUS.INACTIVE' | translate"
+        [width]="100">
+      </dxi-column>
+
+      <dxi-column
+        type="buttons"
+        [width]="120"
+        [caption]="'SUPPLIERS.COLUMNS.ACTIONS' | translate">
+        <dxi-button
+          name="edit"
+          [hint]="'SUPPLIERS.ACTIONS.EDIT' | translate"
+          [icon]="'edit'"
+          [onClick]="editSupplier">
+        </dxi-button>
+        <dxi-button
+          name="delete"
+          [hint]="'SUPPLIERS.ACTIONS.DELETE' | translate"
+          [icon]="'trash'"
+          [cssClass]="'btn-danger'"
+          [onClick]="requestDelete">
+        </dxi-button>
+      </dxi-column>
+
+    </dx-data-grid>
   </div>
 </div>
 
-<app-modal 
-  [isOpen]="isDeleteModalOpen()" 
-  title="تأكيد حذف المورد" 
-  message="هل أنت متأكد من حذف هذا المورد؟ لا يمكن التراجع عن هذا الإجراء."
-  (confirm)="confirmDelete()" 
+<app-modal
+  [isOpen]="isDeleteModalOpen()"
+  [title]="'SUPPLIERS.DELETE_MODAL.TITLE' | translate"
+  [message]="'SUPPLIERS.DELETE_MODAL.MESSAGE' | translate"
+  (confirm)="confirmDelete()"
   (cancel)="closeDeleteModal()">
 </app-modal>

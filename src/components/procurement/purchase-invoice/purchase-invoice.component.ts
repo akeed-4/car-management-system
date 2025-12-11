@@ -12,6 +12,8 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { provideNativeDateAdapter } from '@angular/material/core';
 import { DxDataGridModule } from 'devextreme-angular';
 import { InventoryService } from '../../../services/inventory.service';
 import { SupplierService } from '../../../services/supplier.service';
@@ -41,8 +43,10 @@ import { LanguageService } from '@/src/services/language.service';
     MatIconModule,
     MatTableModule,
     MatCardModule,
+    MatDatepickerModule,
     DxDataGridModule
   ],
+  providers: [provideNativeDateAdapter()],
   templateUrl: './purchase-invoice.component.html',
   styleUrl: './purchase-invoice.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -93,7 +97,7 @@ export class PurchaseInvoiceComponent {
   private initForm(): void {
     this.purchaseInvoiceForm = this.fb.group({
       supplierId: [null, Validators.required],
-      invoiceDate: [new Date().toISOString().split('T')[0], Validators.required],
+      invoiceDate: [new Date(), Validators.required],
       paymentMethod: ['Bank Transfer'],
       notes: ['']
     });

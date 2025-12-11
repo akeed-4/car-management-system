@@ -39,7 +39,9 @@
             <mat-grid-tile [colspan]="1" [rowspan]="1">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>{{ 'PURCHASE_INVOICE.INVOICE_DATE' | translate }}</mat-label>
-                <input matInput type="date" formControlName="invoiceDate" required>
+                <input matInput [matDatepicker]="invoiceDatePicker" formControlName="invoiceDate" required>
+                <mat-datepicker-toggle matSuffix [for]="invoiceDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #invoiceDatePicker></mat-datepicker>
               </mat-form-field>
             </mat-grid-tile>
             <mat-grid-tile [colspan]="1" [rowspan]="1">

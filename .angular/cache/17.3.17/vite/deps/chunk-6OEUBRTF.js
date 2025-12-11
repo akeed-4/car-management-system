@@ -4,10 +4,10 @@ import {
   NestedOption,
   NestedOptionHost,
   extractTemplate
-} from "./chunk-ACO5U7P7.js";
+} from "./chunk-E3L2KCM5.js";
 import {
   DOCUMENT
-} from "./chunk-LVPTVF37.js";
+} from "./chunk-JMWJDSKO.js";
 import {
   Component,
   ContentChildren,
@@ -34,7 +34,7 @@ import {
   ɵɵprojectionDef,
   ɵɵqueryRefresh,
   ɵɵsetNgModuleScope
-} from "./chunk-NUYNIIDY.js";
+} from "./chunk-F43I5743.js";
 
 // node_modules/devextreme-angular/fesm2015/devextreme-angular-ui-nested.js
 var DxoAdapterComponent = class extends NestedOption {
@@ -37233,4 +37233,4 @@ devextreme-angular/fesm2015/devextreme-angular-ui-nested.js:
    * https://github.com/DevExpress/devextreme-angular
    *)
 */
-//# sourceMappingURL=chunk-ANCNV4SO.js.map
+//# sourceMappingURL=chunk-6OEUBRTF.js.map

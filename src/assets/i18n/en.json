@@ -41,7 +41,9 @@
       "EXPIRE_REGISTRATION": "Expire Registration",
       "PERIODIC_INSPECTION": "Periodic Inspection"
     },
-    "STOCK_LESS": "requested quantity is greater than available stock"
+    "STOCK_LESS": "requested quantity is greater than available stock",
+    "CANCEL": "Cancel",
+    "UNDEFINED": "Undefined"
   },
   "SAMPLE_DATA": {
     "CUSTOMER_NAME": "Abdullah Mohammed",
@@ -64,9 +66,135 @@
     "RIYADH_BANK": "Riyadh Bank"
   },
   "SUPPLIERS": {
-    "ALNAHDI": "Al Nahdi Motors",
+    "ALNAHDI": "Al Nahdi Car Company",
     "AUCTION": "International Car Auction",
-    "NOTE_SHIPPING": "Includes shipping costs."
+    "NOTE_SHIPPING": "Includes shipping costs.",
+    "FORM": {
+      "CREATE_TITLE": "Add New Supplier",
+      "EDIT_TITLE": "Edit Supplier Information",
+      "BACK_TO_LIST": "Back to Suppliers List",
+      "BASIC_INFO": "Basic Information",
+      "SUPPLIER_NAME": "Supplier Name",
+      "CR_NUMBER": "Commercial Registration Number",
+      "TAX_NUMBER": "Tax Number",
+      "SUPPLIER_CATEGORY": "Supplier Category",
+      "CATEGORY_PARTS": "Parts",
+      "CATEGORY_VEHICLES": "Vehicles",
+      "CATEGORY_SERVICES": "Services",
+      "CATEGORY_EQUIPMENT": "Equipment",
+      "CONTACT_INFO": "Contact Information",
+      "PRIMARY_PHONE": "Primary Phone Number",
+      "SECONDARY_PHONE": "Secondary Phone Number",
+      "EMAIL": "Email Address",
+      "WEBSITE": "Website",
+      "ADDRESS_INFO": "Address Information",
+      "DETAILED_ADDRESS": "Detailed Address",
+      "CITY": "City",
+      "DISTRICT": "District",
+      "POSTAL_CODE": "Postal Code",
+      "CONTACT_PERSON": "Contact Person",
+      "CONTACT_PERSON_NAME": "Contact Person Name",
+      "CONTACT_PERSON_PHONE": "Contact Person Mobile",
+      "CONTACT_PERSON_EMAIL": "Contact Person Email",
+      "FINANCIAL_INFO": "Financial Information",
+      "PAYMENT_TERMS": "Payment Terms",
+      "PAYMENT_CASH": "Cash",
+      "PAYMENT_NET_15": "Net 15 days",
+      "PAYMENT_NET_30": "Net 30 days",
+      "PAYMENT_NET_60": "Net 60 days",
+      "PAYMENT_NET_90": "Net 90 days",
+      "CREDIT_LIMIT": "Credit Limit (SAR)",
+      "BANKING_INFO": "Banking Information",
+      "BANK_NAME": "Bank Name",
+      "BANK_ACCOUNT_NUMBER": "Bank Account Number",
+      "IBAN": "IBAN",
+      "ADDITIONAL_INFO": "Additional Information",
+      "NOTES": "Notes",
+      "ACTIVE_SUPPLIER": "Supplier is Active",
+      "SAVE_CHANGES": "Save Changes",
+      "ADD_SUPPLIER": "Add Supplier",
+      "CANCEL": "Cancel",
+      "VALIDATION": {
+        "NAME_REQUIRED": "Name is required and must be more than 2 characters",
+        "CR_NUMBER_REQUIRED": "Commercial Registration Number is required and must be 10 digits",
+        "PHONE_REQUIRED": "Phone number is required and must be in +966xxxxxxxxx format",
+        "ADDRESS_REQUIRED": "Address is required",
+        "EMAIL_INVALID": "Email is invalid",
+        "CREDIT_LIMIT_MIN": "Credit limit must be a positive number"
+      }
+    },
+    "LIST_TITLE": "Suppliers List",
+    "ADD_NEW": "Add New Supplier",
+    "SEARCH_PLACEHOLDER": "Search suppliers...",
+    "COLUMNS": {
+      "NAME": "Supplier Name",
+      "CR_NUMBER": "Commercial Registration",
+      "PHONE": "Phone",
+      "SECONDARY_PHONE": "Secondary Phone",
+      "EMAIL": "Email",
+      "CATEGORY": "Category",
+      "ADDRESS": "Address",
+      "CITY": "City",
+      "PAYMENT_TERMS": "Payment Terms",
+      "CREDIT_LIMIT": "Credit Limit",
+      "STATUS": "Status",
+      "ACTIONS": "Actions"
+    },
+    "STATUS": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive"
+    },
+    "ACTIONS": {
+      "EDIT": "Edit",
+      "DELETE": "Delete"
+    },
+    "DELETE_MODAL": {
+      "TITLE": "Confirm Supplier Deletion",
+      "MESSAGE": "Are you sure you want to delete this supplier? This action cannot be undone."
+    }
+  },
+  "USERS": {
+    "FORM": {
+      "TITLE": "User Management",
+      "FULL_NAME": "Full Name",
+      "USERNAME": "Username",
+      "EMAIL": "Email",
+      "PASSWORD": "Password",
+      "CONFIRM_PASSWORD": "Confirm Password",
+      "PASSWORD_PLACEHOLDER": "Leave blank to keep unchanged",
+      "ROLE": "Role",
+      "STATUS": "Status",
+      "SELECT_ROLE": "-- Select User Role --",
+      "SAVE": "Save",
+      "CANCEL": "Cancel",
+      "EDIT_USER": "Edit User",
+      "ADD_USER": "Add New User",
+      "BACK_TO_USERS": "Back to Users List"
+    },
+    "VALIDATION": {
+      "FULL_NAME_REQUIRED": "Full name is required",
+      "USERNAME_REQUIRED": "Username is required",
+      "EMAIL_REQUIRED": "Email is required",
+      "EMAIL_INVALID": "Email is invalid",
+      "PASSWORD_REQUIRED": "Password is required",
+      "PASSWORD_MIN_LENGTH": "Password must be at least 6 characters",
+      "CONFIRM_PASSWORD_REQUIRED": "Confirm password is required",
+      "PASSWORDS_NOT_MATCH": "Passwords do not match",
+      "ROLE_REQUIRED": "Role is required",
+      "STATUS_REQUIRED": "Status is required"
+    },
+    "STATUS": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive"
+    },
+    "ACTIONS": {
+      "EDIT": "Edit",
+      "DELETE": "Delete"
+    },
+    "DELETE_MODAL": {
+      "TITLE": "Confirm User Deletion",
+      "MESSAGE": "Are you sure you want to delete this user? This action cannot be undone."
+    }
   },
   "ROLE": {
     "DASHBOARD": "Dashboard"
@@ -263,7 +391,22 @@
     "COL_STATUS": "Payment Status",
     "ACTIONS": "Actions",
     "TRANSFER_OWNERSHIP": "Ownership Transfer",
-    "DELIVERY": "Delivery",
+    "DELIVERY": {
+      "BACK_TO_DELIVERIES": "Back to Delivery Table",
+      "INVOICE_CUSTOMER_DETAILS": "Invoice and Customer Details",
+      "INVOICE_NUMBER": "Invoice Number:",
+      "CUSTOMER": "Customer:",
+      "CAR": "Car:",
+      "SALE_DATE": "Sale Date:",
+      "SCHEDULING_DETAILS": "Scheduling Details",
+      "DELIVERY_DATE": "Delivery Date",
+      "DELIVERY_TIME": "Delivery Time",
+      "RESPONSIBLE_EMPLOYEE": "Responsible Employee",
+      "SELECT_EMPLOYEE": "-- Select Employee --",
+      "NOTES_OPTIONAL": "Notes (Optional)",
+      "NOTES_PLACEHOLDER": "Additional notes about the delivery process...",
+      "SCHEDULE_DELIVERY": "Schedule Delivery"
+    },
     "PAYMENT": "Payment",
     "DOCUMENTS": "Documents",
     "NO_INVOICES": "No sales invoices yet.",
@@ -467,5 +610,87 @@
     "DELETE": "Delete",
     "DELETE_CONFIRM_TITLE": "Confirm Model Deletion",
     "DELETE_CONFIRM_MESSAGE": "Are you sure you want to delete this model?"
+  },
+  "DELIVERY_CHECKLIST": {
+    "TITLE": "Delivery Checklist",
+    "SUBTITLE": "{{carDescription}} - For Customer: {{customerName}}",
+    "INTRO": "Please ensure all steps are completed before delivering the vehicle:",
+    "COMPLETE_DELIVERY": "Complete Delivery"
+  },
+  "CUSTOMERS": {
+    "LIST_TITLE": "Customers List",
+    "ADD_NEW": "Add New Customer",
+    "SEARCH_PLACEHOLDER": "Search customers...",
+    "COLUMNS": {
+      "NAME": "Name",
+      "NATIONAL_ID": "National ID",
+      "PHONE": "Phone",
+      "SECONDARY_PHONE": "Secondary Phone",
+      "EMAIL": "Email",
+      "ADDRESS": "Address",
+      "CITY": "City",
+      "OCCUPATION": "Occupation",
+      "MONTHLY_INCOME": "Monthly Income",
+      "CREDIT_SCORE": "Credit Score",
+      "STATUS": "Status",
+      "ACTIONS": "Actions"
+    },
+    "STATUS": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive"
+    },
+    "ACTIONS": {
+      "EDIT": "Edit",
+      "DELETE": "Delete"
+    },
+    "DELETE_MODAL": {
+      "TITLE": "Confirm Customer Deletion",
+      "MESSAGE": "Are you sure you want to delete this customer? This action cannot be undone."
+    },
+    "FORM": {
+      "CREATE_TITLE": "Add New Customer",
+      "EDIT_TITLE": "Edit Customer Information",
+      "BACK_TO_LIST": "Back to Customers List",
+      "BASIC_INFO": "Basic Information",
+      "FULL_NAME": "Full Customer Name",
+      "NATIONAL_ID": "National ID / Iqama",
+      "PRIMARY_PHONE": "Primary Mobile Number",
+      "SECONDARY_PHONE": "Secondary Mobile Number",
+      "CONTACT_INFO": "Contact Information",
+      "EMAIL": "Email Address",
+      "PREFERRED_CONTACT": "Preferred Contact Method",
+      "CONTACT_PHONE": "Phone",
+      "CONTACT_EMAIL": "Email",
+      "CONTACT_SMS": "SMS",
+      "ADDRESS_INFO": "Address Information",
+      "DETAILED_ADDRESS": "Detailed Address",
+      "CITY": "City",
+      "DISTRICT": "District",
+      "POSTAL_CODE": "Postal Code",
+      "PERSONAL_INFO": "Personal Information",
+      "DATE_OF_BIRTH": "Date of Birth",
+      "GENDER": "Gender",
+      "GENDER_MALE": "Male",
+      "GENDER_FEMALE": "Female",
+      "OCCUPATION": "Occupation",
+      "EMPLOYER": "Employer",
+      "MONTHLY_INCOME": "Monthly Income (SAR)",
+      "CREDIT_SCORE": "Credit Score",
+      "ADDITIONAL_INFO": "Additional Information",
+      "NOTES": "Notes",
+      "ACTIVE_CUSTOMER": "Customer is Active",
+      "SAVE_CHANGES": "Save Changes",
+      "ADD_CUSTOMER": "Add Customer",
+      "CANCEL": "Cancel",
+      "VALIDATION": {
+        "NAME_REQUIRED": "Name is required and must be more than 2 characters",
+        "NATIONAL_ID_REQUIRED": "National ID is required and must be 10 digits",
+        "PHONE_REQUIRED": "Mobile number is required and must be in +966xxxxxxxxx format",
+        "ADDRESS_REQUIRED": "Address is required",
+        "EMAIL_INVALID": "Email is invalid",
+        "INCOME_MIN": "Income must be a positive number",
+        "CREDIT_SCORE_RANGE": "Credit score must be between 0 and 1000"
+      }
+    }
   }
 }
