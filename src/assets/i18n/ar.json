@@ -469,5 +469,15 @@
     "DELETE": "حذف",
     "DELETE_CONFIRM_TITLE": "تأكيد حذف الموديل",
     "DELETE_CONFIRM_MESSAGE": "هل أنت متأكد من حذف هذا الموديل؟"
+  },
+  "LOGIN": {
+    "TITLE": "تسجيل الدخول",
+    "EMAIL": "الاسم",
+    "EMAIL_ERROR": "الاسم مطلوب",
+    "PASSWORD": "كلمة المرور",
+    "PASSWORD_ERROR": "كلمة المرور مطلوبة ويجب أن تكون 6 أحرف على الأقل",
+    "SUBMIT": "دخول",
+    "INVALID_CREDENTIALS": "بيانات الدخول غير صحيحة",
+    "FILL_REQUIRED_FIELDS": "يرجى ملء جميع الحقول المطلوبة"
   }
 }

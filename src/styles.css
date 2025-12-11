@@ -336,8 +336,6 @@ img, svg, picture, iframe, video {
     display: none !important;
   }
 }
-@import 'src/styles/themes/theme-components.scss';
-@import 'src/styles/themes/css.variables.scss';
 
 
 .cdk-overlay-container {

@@ -13,7 +13,7 @@ export class LanguageService {
   constructor(private translateService: TranslateService) {}
 
   getCurrentLanguage(){
-   return localStorage.getItem('currentLanguage') || 'en' ;
+   return localStorage.getItem('currentLanguage') || 'ar' ;
   }
 
   changeLocalLanguage(language: string){

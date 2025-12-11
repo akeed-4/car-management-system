@@ -467,5 +467,15 @@
     "DELETE": "Delete",
     "DELETE_CONFIRM_TITLE": "Confirm Model Deletion",
     "DELETE_CONFIRM_MESSAGE": "Are you sure you want to delete this model?"
+  },
+  "LOGIN": {
+    "TITLE": "Login",
+    "EMAIL": "Username",
+    "EMAIL_ERROR": "Username is required",
+    "PASSWORD": "Password",
+    "PASSWORD_ERROR": "Password is required and must be at least 6 characters",
+    "SUBMIT": "Login",
+    "INVALID_CREDENTIALS": "Invalid credentials",
+    "FILL_REQUIRED_FIELDS": "Please fill in all required fields"
   }
 }
