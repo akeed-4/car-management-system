@@ -6,8 +6,8 @@
       <!-- Header -->
       <div class="modal-header">
         <div>
-          <h3 class="modal-title">قائمة التحقق للتسليم</h3>
-          <p class="modal-subtitle">{{ del.carDescription }} - للعميل: {{ del.customerName }}</p>
+          <h3 class="modal-title">{{ 'DELIVERY_CHECKLIST.TITLE' | translate }}</h3>
+          <p class="modal-subtitle">{{ 'DELIVERY_CHECKLIST.SUBTITLE' | translate:{carDescription: del.carDescription, customerName: del.customerName} }}</p>
         </div>
         <button (click)="onCancel()" class="btn-icon">
           <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -16,7 +16,7 @@
 
       <!-- Body - Checklist -->
       <div class="modal-body">
-        <p class="checklist-intro">الرجاء التأكد من إتمام جميع الخطوات قبل تسليم المركبة:</p>
+        <p class="checklist-intro">{{ 'DELIVERY_CHECKLIST.INTRO' | translate }}</p>
         <div class="checklist-items">
           @for (item of currentChecklist(); track item.id) {
             <label class="checklist-item">
@@ -33,14 +33,14 @@
       <!-- Footer -->
       <div class="modal-footer">
         <button (click)="onCancel()" class="btn btn-light">
-          إلغاء
+          {{ 'COMMON.CANCEL' | translate }}
         </button>
         <button 
           (click)="onCompleteDelivery()" 
           [disabled]="!allTasksCompleted()" 
           class="btn btn-primary">
           <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-          <span>إتمام التسليم</span>
+          <span>{{ 'DELIVERY_CHECKLIST.COMPLETE_DELIVERY' | translate }}</span>
         </button>
       </div>
     </div>

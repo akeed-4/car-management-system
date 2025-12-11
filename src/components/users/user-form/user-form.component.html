@@ -1,77 +1,61 @@
 <div class="container">
   <div class="page-header">
     <h2>{{ pageTitle() }}</h2>
-    <a routerLink="/users" class="back-link">&larr; العودة إلى قائمة المستخدمين</a>
+    <a routerLink="/users" class="back-link">&larr; {{ 'USERS.FORM.BACK_TO_USERS' | translate }}</a>
   </div>
 
-  <div class="card form-container">
-    <form #userForm="ngForm" (ngSubmit)="saveUser()">
+  <mat-card class="form-container">
+    <form [formGroup]="userForm" (ngSubmit)="saveUser()">
       <div class="form-fields">
-        <div>
-          <label for="name" class="form-label">اسم المستخدم</label>
-          <input 
-            type="text" 
-            id="name" 
-            name="name"
-            [ngModel]="user().name"
-            (ngModelChange)="updateUserField('name', $event)"
-            required
-            class="form-input">
-        </div>
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>{{ 'USERS.FORM.USERNAME' | translate }}</mat-label>
+          <input matInput formControlName="name" required>
+          <mat-error *ngIf="userForm.get('name')?.invalid && userForm.get('name')?.touched">
+            {{ 'USERS.VALIDATION.USERNAME_REQUIRED' | translate }}
+          </mat-error>
+        </mat-form-field>
 
-        <div>
-          <label for="password" class="form-label">كلمة المرور</label>
-          <input 
-            type="password" 
-            id="password" 
-            name="password"
-            [ngModel]="user().password"
-            (ngModelChange)="updateUserField('password', $event)"
-            [required]="!editMode()"
-            [placeholder]="editMode() ? 'اتركه فارغاً لعدم التغيير' : ''"
-            class="form-input">
-        </div>
-        
-        <div>
-          <label for="role" class="form-label">الدور</label>
-          <select 
-            id="role" 
-            name="role"
-            [ngModel]="user().roleId"
-            (ngModelChange)="updateUserField('roleId', +$event)"
-            required
-            class="form-select">
-            <option [ngValue]="null" disabled>-- اختر دور المستخدم --</option>
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>{{ 'USERS.FORM.PASSWORD' | translate }}</mat-label>
+          <input matInput type="password" formControlName="password"
+                 [required]="!editMode()"
+                 [placeholder]="editMode() ? ('USERS.FORM.PASSWORD_PLACEHOLDER' | translate) : ''">
+          <mat-error *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched">
+            {{ 'USERS.VALIDATION.PASSWORD_REQUIRED' | translate }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>{{ 'USERS.FORM.ROLE' | translate }}</mat-label>
+          <mat-select formControlName="roleId" required>
+            <mat-option [value]="null" disabled>{{ 'USERS.FORM.SELECT_ROLE' | translate }}</mat-option>
             @for(role of roles(); track role.id) {
-              <option [value]="role.id">{{ role.name }}</option>
+              <mat-option [value]="role.id">{{ role.name }}</mat-option>
             }
-          </select>
-        </div>
-        
-        <div>
-          <label for="status" class="form-label">الحالة</label>
-           <select 
-            id="status" 
-            name="status"
-            [ngModel]="user().status"
-            (ngModelChange)="updateUserField('status', $event)"
-            required
-            class="form-select">
-            <option value="Active">نشط</option>
-            <option value="Inactive">غير نشط</option>
-          </select>
-        </div>
+          </mat-select>
+          <mat-error *ngIf="userForm.get('roleId')?.invalid && userForm.get('roleId')?.touched">
+            {{ 'USERS.VALIDATION.ROLE_REQUIRED' | translate }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>{{ 'USERS.FORM.STATUS' | translate }}</mat-label>
+          <mat-select formControlName="status" required>
+            <mat-option value="Active">{{ 'USERS.STATUS.ACTIVE' | translate }}</mat-option>
+            <mat-option value="Inactive">{{ 'USERS.STATUS.INACTIVE' | translate }}</mat-option>
+          </mat-select>
+          <mat-error *ngIf="userForm.get('status')?.invalid && userForm.get('status')?.touched">
+            {{ 'USERS.VALIDATION.STATUS_REQUIRED' | translate }}
+          </mat-error>
+        </mat-form-field>
       </div>
 
       <div class="form-actions">
-        <a routerLink="/users" class="btn btn-light">إلغاء</a>
-        <button 
-          type="submit" 
-          [disabled]="userForm.invalid" 
-          class="btn btn-primary">
-          {{ editMode() ? 'حفظ التغييرات' : 'إضافة المستخدم' }}
+        <a routerLink="/users" mat-stroked-button color="accent">{{ 'USERS.FORM.CANCEL' | translate }}</a>
+        <button mat-raised-button color="primary" type="submit" [disabled]="userForm.invalid">
+          {{ editMode() ? ('USERS.FORM.EDIT_USER' | translate) : ('USERS.FORM.ADD_USER' | translate) }}
         </button>
       </div>
     </form>
-  </div>
+  </mat-card>
 </div>

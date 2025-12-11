@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal, OnInit, computed, effect } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, OnInit, computed, effect, ChangeDetectorRef } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormBuilder } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -60,6 +60,7 @@ export class CarCardComponent implements OnInit {
   private floorPlanService = inject(FloorPlanService);
   private expenseService = inject(ExpenseService);
   private currentSettingService = inject(CurrentSettingService);
+  private cdr = inject(ChangeDetectorRef);
 
   layout$ = this.currentSettingService.getCardLayout(3);
   private fb = inject(FormBuilder);
@@ -69,7 +70,7 @@ export class CarCardComponent implements OnInit {
 
   // Signals for dropdowns
   manufacturers = this.manufacturerService.manufacturers$;
-  allModels = toSignal(this.carModelService.getCarModels(), { initialValue: [] })??null;
+  allModels = toSignal(this.carModelService.getCarModels(), { initialValue: [] }) ?? null;
   years = this.yearService.years$;
   floorPlans = this.floorPlanService.floorPlans$;
 
@@ -79,6 +80,9 @@ export class CarCardComponent implements OnInit {
 
   // Current car being edited (for modals)
   car = computed(() => this.carForm?.value || {});
+
+  // Selected photo for display
+  selectedPhoto = signal<string | null>(null);
 
   // AI Price Suggestion State
   isSuggestingPrice = signal(false);
@@ -160,12 +164,22 @@ export class CarCardComponent implements OnInit {
       isArchived: [false],
       quantity: [1]
     });
+
+    // Initialize selected photo from form
+    const initialPhotos = this.carForm.value.photos;
+    if (initialPhotos && initialPhotos.length > 0) {
+      this.selectedPhoto.set(initialPhotos[0]);
+    }
   }
 
   private loadCarForEdit(id: number): void {
     this.inventoryService.getCarById(id).subscribe({
       next: (existingCar) => {
         this.carForm.patchValue(existingCar);
+        // Update selected photo from loaded car
+        if (existingCar.photos && existingCar.photos.length > 0) {
+          this.selectedPhoto.set(existingCar.photos[0]);
+        }
       },
       error: (error) => {
         console.error('Error loading car:', error);
@@ -240,28 +254,66 @@ export class CarCardComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
-      
+
       // Validate file type
       if (!file.type.startsWith('image/')) {
         alert('Please select an image file');
         return;
       }
-      
+
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         alert('File size must be less than 5MB');
         return;
       }
-      
+
       const reader = new FileReader();
       reader.onload = () => {
         const base64String = reader.result as string;
         // Update the photos array in the form
+        const currentPhotos = this.carForm.value.photos || [];
+        const updatedPhotos = [base64String, ...currentPhotos.slice(1)]; // Replace first photo, keep others
+
         this.carForm.patchValue({
-          photos: [base64String]
+          photos: updatedPhotos
         });
+
+        // Update the selected photo signal for immediate UI update
+        this.selectedPhoto.set(base64String);
+
+        // Mark form control as touched and trigger validation
+        const photosControl = this.carForm.get('photos');
+        if (photosControl) {
+          photosControl.markAsTouched();
+          photosControl.updateValueAndValidity();
+        }
+
+        // Force change detection for OnPush strategy
+        this.carForm.updateValueAndValidity();
+        this.cdr.detectChanges();
       };
       reader.readAsDataURL(file);
     }
+  }
+
+  removePhoto(): void {
+    // Clear the photos array in the form
+    this.carForm.patchValue({
+      photos: []
+    });
+
+    // Clear the selected photo signal
+    this.selectedPhoto.set(null);
+
+    // Mark form control as touched and trigger validation
+    const photosControl = this.carForm.get('photos');
+    if (photosControl) {
+      photosControl.markAsTouched();
+      photosControl.updateValueAndValidity();
+    }
+
+    // Force change detection for OnPush strategy
+    this.carForm.updateValueAndValidity();
+    this.cdr.detectChanges();
   }
 }

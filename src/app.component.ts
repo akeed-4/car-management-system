@@ -3,6 +3,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { LanguageService } from './services/language.service';
+import { DevExtremeLocalizationService } from './services/devextreme-localization.service';
 import { Subscription } from 'rxjs';
 import { MatListModule } from '@angular/material/list';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -31,6 +32,7 @@ export class AppComponent implements OnDestroy {
     private translate = inject(TranslateService);
     private document = inject(DOCUMENT);
     private languageService = inject(LanguageService);
+    private devExtremeLocalizationService = inject(DevExtremeLocalizationService);
     private languageSub: Subscription | null = null;
 
     constructor() {

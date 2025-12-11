@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
@@ -9,6 +9,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { provideNativeDateAdapter } from '@angular/material/core';
 import { ProcurementService } from '../../../services/procurement.service';
 import { PurchaseReturnService } from '../../../services/purchase-return.service';
 import { InventoryService } from '../../../services/inventory.service';
@@ -20,10 +23,11 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-purchase-return-form',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule],
+  imports: [RouterLink, ReactiveFormsModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatIconModule, MatDatepickerModule],
   templateUrl: './purchase-return-form.component.html',
   styleUrl: './purchase-return-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
+   providers: [provideNativeDateAdapter()],
 })
 export class PurchaseReturnFormComponent implements OnInit {
   private procurementService = inject(ProcurementService);
@@ -39,7 +43,51 @@ export class PurchaseReturnFormComponent implements OnInit {
   returnInvoiceNumber = signal(`RT-P-${Date.now()}`);
   returnInvoiceDate = signal(new Date().toISOString().split('T')[0]);
 
-  originalInvoices = toSignal(this.procurementService.getInvoices(), { initialValue: [] });
+  // Mock data for development - replace with actual API call when backend is ready
+  originalInvoices = signal<PurchaseInvoice[]>([
+    {
+      id: 1,
+      invoiceNumber: 'INV-001',
+      invoiceDate: '2025-12-01',
+      supplierId: 1,
+      supplierName: 'ABC Suppliers',
+      status: 'Unpaid',
+      items: [
+        {
+          carId: 1,
+          carDescription: 'Toyota Corolla 2022',
+          quantity: 5,
+          unitPrice: 50000,
+          lineTotal: 250000
+        },
+      ],
+      totalAmount: 415000,
+      amountPaid: 0,
+      amountDue: 415000,
+      isArchived: false
+    },
+    {
+      id: 2,
+      invoiceNumber: 'INV-002',
+      invoiceDate: '2025-12-05',
+      supplierId: 2,
+      supplierName: 'XYZ Auto Parts',
+      status: 'Unpaid',
+      items: [
+        {
+          carId: 3,
+          carDescription: 'Ford Focus 2021',
+          quantity: 2,
+          unitPrice: 45000,
+          lineTotal: 90000
+        }
+      ],
+      totalAmount: 90000,
+      amountPaid: 0,
+      amountDue: 90000,
+      isArchived: false
+    }
+  ]);
   selectedOriginalInvoice = signal<PurchaseInvoice | null>(null);
   
   returnItems = signal<ReturnInvoiceItem[]>([]);
@@ -47,14 +95,19 @@ export class PurchaseReturnFormComponent implements OnInit {
   totalAmount = computed(() => this.returnItems().reduce((sum, item) => sum + item.lineTotal, 0));
 
   ngOnInit() {
+    const today = new Date();
     this.returnForm = this.fb.group({
-      returnDate: [this.returnInvoiceDate(), Validators.required],
+      returnDate: [today, Validators.required],
       originalInvoice: [null, Validators.required]
     });
 
     // Listen to return date changes
     this.returnForm.get('returnDate')?.valueChanges.subscribe(value => {
-      this.returnInvoiceDate.set(value);
+      if (value instanceof Date) {
+        this.returnInvoiceDate.set(value.toISOString().split('T')[0]);
+      } else if (value === null) {
+        this.returnInvoiceDate.set(new Date().toISOString().split('T')[0]);
+      }
     });
 
     // Listen to original invoice changes
@@ -73,7 +126,7 @@ export class PurchaseReturnFormComponent implements OnInit {
   };
 
   onInvoiceSelect(invoiceId: number): void {
-    const invoice = this.originalInvoices().find(inv => inv.id === invoiceId);
+    const invoice = this.originalInvoices().find(inv => inv.id === invoiceId)??null;
     this.selectedOriginalInvoice.set(invoice ?? null);
     
     if (!invoice) {

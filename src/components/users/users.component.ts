@@ -8,6 +8,7 @@ import { RoleService } from '../../services/role.service';
 import { ModalComponent } from '../shared/modal/modal.component';
 import { User } from '../../types/user.model';
 import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
 
 type SortColumn = keyof User | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -15,7 +16,7 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule,MatIconModule],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

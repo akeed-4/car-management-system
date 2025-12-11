@@ -1,68 +1,203 @@
 <div class="container">
   <div class="page-header">
     <h2>{{ pageTitle() }}</h2>
-    <a routerLink="/entities/suppliers" class="back-link">&larr; العودة إلى قائمة الموردين</a>
+    <a routerLink="/entities/suppliers" class="back-link">&larr; {{ 'SUPPLIERS.FORM.BACK_TO_LIST' | translate }}</a>
   </div>
 
-  <div class="card form-container">
-    <form #supplierForm="ngForm" (ngSubmit)="saveSupplier()">
-      <div class="form-fields">
-        <div>
-          <label for="name" class="form-label">اسم المورد</label>
-          <input 
-            type="text" 
-            id="name" 
-            name="name" 
-            [ngModel]="supplier().name"
-            (ngModelChange)="updateSupplierField('name', $event)"
-            required
-            class="form-input">
-        </div>
+  <mat-card class="form-container">
+    <form [formGroup]="supplierForm" (ngSubmit)="saveSupplier()">
+      <!-- Basic Information -->
+      <div class="form-section">
+        <h3 class="section-title">{{ 'SUPPLIERS.FORM.BASIC_INFO' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'SUPPLIERS.FORM.SUPPLIER_NAME' | translate }}</mat-label>
+            <input matInput formControlName="name" required>
+            <mat-error *ngIf="supplierForm.get('name')?.invalid && supplierForm.get('name')?.touched">
+              {{ 'SUPPLIERS.FORM.VALIDATION.NAME_REQUIRED' | translate }}
+            </mat-error>
+          </mat-form-field>
 
-        <div>
-          <label for="crNumber" class="form-label">رقم السجل التجاري</label>
-          <input 
-            type="text" 
-            id="crNumber" 
-            name="crNumber"
-            [ngModel]="supplier().crNumber"
-            (ngModelChange)="updateSupplierField('crNumber', $event)"
-            class="form-input">
-        </div>
-        
-        <div>
-          <label for="phone" class="form-label">رقم الهاتف</label>
-          <input 
-            type="tel" 
-            id="phone" 
-            name="phone"
-            [ngModel]="supplier().phone"
-            (ngModelChange)="updateSupplierField('phone', $event)"
-            required
-            class="form-input">
-        </div>
-        
-        <div>
-          <label for="address" class="form-label">العنوان</label>
-          <input 
-            type="text" 
-            id="address" 
-            name="address"
-            [ngModel]="supplier().address"
-            (ngModelChange)="updateSupplierField('address', $event)"
-            class="form-input">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'SUPPLIERS.FORM.CR_NUMBER' | translate }}</mat-label>
+            <input matInput formControlName="crNumber" required>
+            <mat-error *ngIf="supplierForm.get('crNumber')?.invalid && supplierForm.get('crNumber')?.touched">
+              {{ 'SUPPLIERS.FORM.VALIDATION.CR_NUMBER_REQUIRED' | translate }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'SUPPLIERS.FORM.TAX_NUMBER' | translate }}</mat-label>
+            <input matInput formControlName="taxNumber">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'SUPPLIERS.FORM.SUPPLIER_CATEGORY' | translate }}</mat-label>
+            <mat-select formControlName="supplierCategory">
+              <mat-option value="Parts">{{ 'SUPPLIERS.FORM.CATEGORY_PARTS' | translate }}</mat-option>
+              <mat-option value="Vehicles">{{ 'SUPPLIERS.FORM.CATEGORY_VEHICLES' | translate }}</mat-option>
+              <mat-option value="Services">{{ 'SUPPLIERS.FORM.CATEGORY_SERVICES' | translate }}</mat-option>
+              <mat-option value="Equipment">{{ 'SUPPLIERS.FORM.CATEGORY_EQUIPMENT' | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
       </div>
 
+      <!-- Contact Information -->
+      <div class="form-section">
+        <h3 class="section-title">{{ 'SUPPLIERS.FORM.CONTACT_INFO' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'SUPPLIERS.FORM.PRIMARY_PHONE' | translate }}</mat-label>
+            <input matInput formControlName="phone" placeholder="+966xxxxxxxxx" required>
+            <mat-error *ngIf="supplierForm.get('phone')?.invalid && supplierForm.get('phone')?.touched">
+              {{ 'SUPPLIERS.FORM.VALIDATION.PHONE_REQUIRED' | translate }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'SUPPLIERS.FORM.SECONDARY_PHONE' | translate }}</mat-label>
+            <input matInput formControlName="phone2" placeholder="+966xxxxxxxxx">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'SUPPLIERS.FORM.EMAIL' | translate }}</mat-label>
+            <input matInput type="email" formControlName="email">
+            <mat-error *ngIf="supplierForm.get('email')?.invalid && supplierForm.get('email')?.touched">
+              {{ 'SUPPLIERS.FORM.VALIDATION.EMAIL_INVALID' | translate }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'SUPPLIERS.FORM.WEBSITE' | translate }}</mat-label>
+            <input matInput formControlName="website" placeholder="https://example.com">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Address Information -->
+      <div class="form-section">
+        <h3 class="section-title">{{ 'SUPPLIERS.FORM.ADDRESS_INFO' | translate }}</h3>
+        <div >
+       
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'SUPPLIERS.FORM.CITY' | translate }}</mat-label>
+              <input matInput formControlName="city">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'SUPPLIERS.FORM.DISTRICT' | translate }}</mat-label>
+              <input matInput formControlName="district">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'SUPPLIERS.FORM.POSTAL_CODE' | translate }}</mat-label>
+              <input matInput formControlName="postalCode">
+            </mat-form-field>
+          </div>
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'SUPPLIERS.FORM.DETAILED_ADDRESS' | translate }}</mat-label>
+              <textarea matInput formControlName="address" rows="2" required></textarea>
+              <mat-error *ngIf="supplierForm.get('address')?.invalid && supplierForm.get('address')?.touched">
+                {{ 'SUPPLIERS.FORM.VALIDATION.ADDRESS_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Contact Person -->
+      <div class="form-section">
+        <h3 class="section-title">{{ 'SUPPLIERS.FORM.CONTACT_PERSON' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'SUPPLIERS.FORM.CONTACT_PERSON_NAME' | translate }}</mat-label>
+            <input matInput formControlName="contactPerson">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'SUPPLIERS.FORM.CONTACT_PERSON_PHONE' | translate }}</mat-label>
+            <input matInput formControlName="contactPersonPhone" placeholder="+966xxxxxxxxx">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'SUPPLIERS.FORM.CONTACT_PERSON_EMAIL' | translate }}</mat-label>
+            <input matInput type="email" formControlName="contactPersonEmail">
+            <mat-error *ngIf="supplierForm.get('contactPersonEmail')?.invalid && supplierForm.get('contactPersonEmail')?.touched">
+              {{ 'SUPPLIERS.FORM.VALIDATION.EMAIL_INVALID' | translate }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Financial Information -->
+      <div class="form-section">
+        <h3 class="section-title">{{ 'SUPPLIERS.FORM.FINANCIAL_INFO' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'SUPPLIERS.FORM.PAYMENT_TERMS' | translate }}</mat-label>
+            <mat-select formControlName="paymentTerms">
+              <mat-option value="Cash">{{ 'SUPPLIERS.FORM.PAYMENT_CASH' | translate }}</mat-option>
+              <mat-option value="Net 15">{{ 'SUPPLIERS.FORM.PAYMENT_NET_15' | translate }}</mat-option>
+              <mat-option value="Net 30">{{ 'SUPPLIERS.FORM.PAYMENT_NET_30' | translate }}</mat-option>
+              <mat-option value="Net 60">{{ 'SUPPLIERS.FORM.PAYMENT_NET_60' | translate }}</mat-option>
+              <mat-option value="Net 90">{{ 'SUPPLIERS.FORM.PAYMENT_NET_90' | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'SUPPLIERS.FORM.CREDIT_LIMIT' | translate }}</mat-label>
+            <input matInput type="number" formControlName="creditLimit" min="0">
+            <mat-error *ngIf="supplierForm.get('creditLimit')?.invalid && supplierForm.get('creditLimit')?.touched">
+              {{ 'SUPPLIERS.FORM.VALIDATION.CREDIT_LIMIT_MIN' | translate }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Banking Information -->
+      <div class="form-section">
+        <h3 class="section-title">{{ 'SUPPLIERS.FORM.BANKING_INFO' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'SUPPLIERS.FORM.BANK_NAME' | translate }}</mat-label>
+            <input matInput formControlName="bankName">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'SUPPLIERS.FORM.BANK_ACCOUNT_NUMBER' | translate }}</mat-label>
+            <input matInput formControlName="bankAccountNumber">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'SUPPLIERS.FORM.IBAN' | translate }}</mat-label>
+            <input matInput formControlName="iban">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Additional Information -->
+      <div class="form-section">
+        <h3 class="section-title">{{ 'SUPPLIERS.FORM.ADDITIONAL_INFO' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>{{ 'SUPPLIERS.FORM.NOTES' | translate }}</mat-label>
+            <textarea matInput formControlName="notes" rows="4"></textarea>
+          </mat-form-field>
+
+          <div class="form-field">
+            <mat-checkbox formControlName="isActive">{{ 'SUPPLIERS.FORM.ACTIVE_SUPPLIER' | translate }}</mat-checkbox>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
       <div class="form-actions">
-        <a routerLink="/entities/suppliers" class="btn btn-light">إلغاء</a>
-        <button 
-          type="submit" 
-          [disabled]="supplierForm.invalid" 
-          class="btn btn-primary">
-          {{ editMode() ? 'حفظ التغييرات' : 'إضافة المورد' }}
+        <a routerLink="/entities/suppliers" mat-stroked-button color="accent">{{ 'SUPPLIERS.FORM.CANCEL' | translate }}</a>
+        <button mat-raised-button color="primary" type="submit" [disabled]="supplierForm.invalid">
+          {{ editMode() ? ('SUPPLIERS.FORM.SAVE_CHANGES' | translate) : ('SUPPLIERS.FORM.ADD_SUPPLIER' | translate) }}
         </button>
       </div>
     </form>
-  </div>
+  </mat-card>
 </div>

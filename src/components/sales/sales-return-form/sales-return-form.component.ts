@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router, RouterLink } from '@angular/router';
@@ -16,14 +15,17 @@ import { InventoryService } from '../../../services/inventory.service';
 import { ReturnInvoiceItem } from '../../../types/return-invoice-item.model';
 import { SalesReturnInvoice } from '../../../types/sales-return-invoice.model';
 import { SalesInvoice } from '../../../types/sales-invoice.model';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { provideNativeDateAdapter } from '@angular/material/core';
 
 @Component({
   selector: 'app-sales-return-form',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule],
+  imports: [RouterLink, ReactiveFormsModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatDatepickerModule],
   templateUrl: './sales-return-form.component.html',
   styleUrl: './sales-return-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [provideNativeDateAdapter()]
 })
 export class SalesReturnFormComponent implements OnInit {
   private salesService = inject(SalesService);
@@ -39,7 +41,57 @@ export class SalesReturnFormComponent implements OnInit {
   returnInvoiceNumber = signal(`RT-S-${Date.now()}`);
   returnInvoiceDate = signal(new Date().toISOString().split('T')[0]);
 
-  originalInvoices = toSignal(this.salesService.getInvoices(), { initialValue: [] });
+  // Mock data for development - replace with actual API call when backend is ready
+  originalInvoices = signal<SalesInvoice[]>([
+    {
+      id: 1,
+      invoiceNumber: 'SINV-001',
+      invoiceDate: '2025-12-01',
+      customerId: 1,
+      customerName: 'John Doe',
+      status: 'Pending',
+      items: [
+        {
+          carId: 1,
+          carDescription: 'Toyota Corolla 2022',
+          quantity: 1,
+          unitPrice: 50000,
+          lineTotal: 50000
+        },
+      ],
+      subtotal: 50000,
+      vatAmount: 7500,
+      totalAmount: 57500,
+      amountPaid: 0,
+      amountDue: 57500,
+      ownershipTransferStatus: 'Not Started',
+      isArchived: false
+    },
+    {
+      id: 2,
+      invoiceNumber: 'SINV-002',
+      invoiceDate: '2025-12-05',
+      customerId: 2,
+      customerName: 'Jane Smith',
+      status: 'Pending',
+      items: [
+        {
+          carId: 2,
+          carDescription: 'Honda Civic 2021',
+          quantity: 1,
+          unitPrice: 45000,
+          lineTotal: 45000
+        }
+      ],
+      subtotal: 45000,
+      vatAmount: 6750,
+      totalAmount: 51750,
+      amountPaid: 0,
+      amountDue: 51750,
+      ownershipTransferStatus: 'Not Started',
+      isArchived: false
+    }
+  ]);
   selectedOriginalInvoice = signal<SalesInvoice | null>(null);
   
   returnItems = signal<ReturnInvoiceItem[]>([]);
@@ -48,7 +100,7 @@ export class SalesReturnFormComponent implements OnInit {
 
   ngOnInit() {
     this.returnForm = this.fb.group({
-      returnDate: [this.returnInvoiceDate(), Validators.required],
+      returnDate: [new Date(), Validators.required],
       originalInvoice: [null, Validators.required]
     });
 

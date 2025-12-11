@@ -217,9 +217,65 @@ mat-form-field.mat-form-field {
   margin-top: 1rem;
   border-radius: 8px;
   object-fit: cover;
-  height: 8rem;
+  height: 24rem;
   width: 100%;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  border: 2px solid #e9ecef;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.photo-preview:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.photo-display-container {
+  position: relative;
+  margin-top: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+}
+
+.photo-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.photo-display-container:hover .photo-actions {
+  opacity: 1;
+}
+
+.remove-photo-btn {
+  background: rgba(244, 67, 54, 0.9);
+  color: white;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+}
+
+.remove-photo-btn:hover {
+  background: #d32f2f;
+  transform: scale(1.1);
+}
+
+.change-photo-btn {
+  background: rgba(25, 118, 210, 0.9);
+  color: white;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+}
+
+.change-photo-btn:hover {
+  background: #1976d2;
+  transform: scale(1.1);
 }
 
 .table-wrapper {

@@ -4,4 +4,5 @@ export interface InvoiceItem {
   quantity: number;
   unitPrice: number;
   lineTotal: number;
+  carImage?: string | null;
 }

@@ -253,14 +253,14 @@
             <section class="form-section">
                 <h3 class="form-section-title">{{ 'INVENTORY.FORM.DESCRIPTION_PHOTOS' | translate }}</h3>
                 <ng-container *ngIf="layout$ | async as layout">
-                    <mat-grid-list [cols]="2" rowHeight="200px" gutterSize="16px">
+                    <mat-grid-list [cols]="2" rowHeight="300px" gutterSize="16px">
                         <mat-grid-tile [colspan]="1" [rowspan]="1">
                             <mat-form-field appearance="outline" class="full-width">
                                 <mat-label>{{ 'INVENTORY.FORM.MARKETING_DESCRIPTION' | translate }}</mat-label>
                                 <textarea matInput formControlName="description" rows="6"></textarea>
                             </mat-form-field>
                         </mat-grid-tile>
-                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                        <mat-grid-tile [colspan]="1" [rowspan]="2">
                             <div class="photo-upload-container">
                                 <label class="form-label">{{ 'INVENTORY.FORM.PHOTOS' | translate }}</label>
                                 <div class="photo-upload-box">
@@ -274,8 +274,18 @@
                                     </div>
                                 </div>
                                 <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" style="display: none;">
-                                @if(carForm.value.photos?.[0]) {
-                                <img [src]="carForm.value.photos?.[0]" alt="Car image" class="photo-preview">
+                                @if(selectedPhoto()) {
+                                <div class="photo-display-container">
+                                    <img [src]="selectedPhoto()" alt="Car image" class="photo-preview">
+                                    <div class="photo-actions">
+                                        <button mat-icon-button type="button" (click)="removePhoto()" class="remove-photo-btn" title="Remove photo">
+                                            <mat-icon>delete</mat-icon>
+                                        </button>
+                                        <button mat-icon-button type="button" (click)="fileInput.click()" class="change-photo-btn" title="Change photo">
+                                            <mat-icon>edit</mat-icon>
+                                        </button>
+                                    </div>
+                                </div>
                                 }
                             </div>
                         </mat-grid-tile>

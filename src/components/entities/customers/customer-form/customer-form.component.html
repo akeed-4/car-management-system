@@ -1,71 +1,172 @@
 <div class="container">
   <div class="page-header">
     <h2>{{ pageTitle() }}</h2>
-    <a routerLink="/entities/customers" class="back-link">&larr; العودة إلى قائمة العملاء</a>
+    <a routerLink="/entities/customers" class="back-link">&larr; {{ 'CUSTOMERS.FORM.BACK_TO_LIST' | translate }}</a>
   </div>
 
-  <div class="card form-container">
-    <form #customerForm="ngForm" (ngSubmit)="saveCustomer()">
-      <div class="form-fields">
-        <div>
-          <label for="name" class="form-label">اسم العميل الكامل</label>
-          <input 
-            type="text" 
-            id="name" 
-            name="name"
-            [ngModel]="customer().name"
-            (ngModelChange)="updateCustomerField('name', $event)"
-            required
-            class="form-input">
-        </div>
+  <mat-card class="form-container">
+    <form [formGroup]="customerForm" (ngSubmit)="saveCustomer()">
+      <!-- Basic Information -->
+      <div class="form-section">
+        <h3 class="section-title">{{ 'CUSTOMERS.FORM.BASIC_INFO' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'CUSTOMERS.FORM.FULL_NAME' | translate }}</mat-label>
+            <input matInput formControlName="name" required>
+            <mat-error *ngIf="customerForm.get('name')?.invalid && customerForm.get('name')?.touched">
+              {{ 'CUSTOMERS.FORM.VALIDATION.NAME_REQUIRED' | translate }}
+            </mat-error>
+          </mat-form-field>
 
-        <div>
-          <label for="nationalId" class="form-label">رقم الهوية / الإقامة</label>
-          <input 
-            type="text" 
-            id="nationalId" 
-            name="nationalId"
-            [ngModel]="customer().nationalId"
-            (ngModelChange)="updateCustomerField('nationalId', $event)"
-            required
-            class="form-input">
-        </div>
-        
-        <div>
-          <label for="phone" class="form-label">رقم الجوال</label>
-          <input 
-            type="tel" 
-            id="phone" 
-            name="phone"
-            [ngModel]="customer().phone"
-            (ngModelChange)="updateCustomerField('phone', $event)"
-            required
-            class="form-input">
-        </div>
-        
-        <div>
-          <label for="address" class="form-label">العنوان</label>
-          <input 
-            type="text" 
-            id="address" 
-            name="address"
-            [ngModel]="customer().address"
-            (ngModelChange)="updateCustomerField('address', $event)"
-            class="form-input">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'CUSTOMERS.FORM.NATIONAL_ID' | translate }}</mat-label>
+            <input matInput formControlName="nationalId" required>
+            <mat-error *ngIf="customerForm.get('nationalId')?.invalid && customerForm.get('nationalId')?.touched">
+              {{ 'CUSTOMERS.FORM.VALIDATION.NATIONAL_ID_REQUIRED' | translate }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'CUSTOMERS.FORM.PRIMARY_PHONE' | translate }}</mat-label>
+            <input matInput formControlName="phone" placeholder="+966xxxxxxxxx" required>
+            <mat-error *ngIf="customerForm.get('phone')?.invalid && customerForm.get('phone')?.touched">
+              {{ 'CUSTOMERS.FORM.VALIDATION.PHONE_REQUIRED' | translate }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'CUSTOMERS.FORM.SECONDARY_PHONE' | translate }}</mat-label>
+            <input matInput formControlName="phone2" placeholder="+966xxxxxxxxx">
+          </mat-form-field>
         </div>
       </div>
 
+      <!-- Contact Information -->
+      <div class="form-section">
+        <h3 class="section-title">{{ 'CUSTOMERS.FORM.CONTACT_INFO' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'CUSTOMERS.FORM.EMAIL' | translate }}</mat-label>
+            <input matInput type="email" formControlName="email">
+            <mat-error *ngIf="customerForm.get('email')?.invalid && customerForm.get('email')?.touched">
+              {{ 'CUSTOMERS.FORM.VALIDATION.EMAIL_INVALID' | translate }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'CUSTOMERS.FORM.PREFERRED_CONTACT' | translate }}</mat-label>
+            <mat-select formControlName="preferredContactMethod">
+              <mat-option value="Phone">{{ 'CUSTOMERS.FORM.CONTACT_PHONE' | translate }}</mat-option>
+              <mat-option value="Email">{{ 'CUSTOMERS.FORM.CONTACT_EMAIL' | translate }}</mat-option>
+              <mat-option value="SMS">{{ 'CUSTOMERS.FORM.CONTACT_SMS' | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Address Information -->
+      <div class="form-section">
+        <h3 class="section-title">{{ 'CUSTOMERS.FORM.ADDRESS_INFO' | translate }}</h3>
+        <div >
+       
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CUSTOMERS.FORM.CITY' | translate }}</mat-label>
+              <input matInput formControlName="city">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CUSTOMERS.FORM.DISTRICT' | translate }}</mat-label>
+              <input matInput formControlName="district">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CUSTOMERS.FORM.POSTAL_CODE' | translate }}</mat-label>
+              <input matInput formControlName="postalCode">
+            </mat-form-field>
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'CUSTOMERS.FORM.DETAILED_ADDRESS' | translate }}</mat-label>
+                <textarea matInput formControlName="address" rows="2" required></textarea>
+                <mat-error *ngIf="customerForm.get('address')?.invalid && customerForm.get('address')?.touched">
+                  {{ 'CUSTOMERS.FORM.VALIDATION.ADDRESS_REQUIRED' | translate }}
+                </mat-error>
+              </mat-form-field>
+          </div>
+        </div>
+      </div>
+
+      <!-- Personal Information -->
+      <div class="form-section">
+        <h3 class="section-title">{{ 'CUSTOMERS.FORM.PERSONAL_INFO' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'CUSTOMERS.FORM.DATE_OF_BIRTH' | translate }}</mat-label>
+            <input matInput [matDatepicker]="dateOfBirthPicker" formControlName="dateOfBirth">
+            <mat-datepicker-toggle matSuffix [for]="dateOfBirthPicker"></mat-datepicker-toggle>
+            <mat-datepicker #dateOfBirthPicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'CUSTOMERS.FORM.GENDER' | translate }}</mat-label>
+            <mat-select formControlName="gender">
+              <mat-option value="Male">{{ 'CUSTOMERS.FORM.GENDER_MALE' | translate }}</mat-option>
+              <mat-option value="Female">{{ 'CUSTOMERS.FORM.GENDER_FEMALE' | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'CUSTOMERS.FORM.OCCUPATION' | translate }}</mat-label>
+            <input matInput formControlName="occupation">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'CUSTOMERS.FORM.EMPLOYER' | translate }}</mat-label>
+            <input matInput formControlName="employer">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'CUSTOMERS.FORM.MONTHLY_INCOME' | translate }}</mat-label>
+            <input matInput type="number" formControlName="monthlyIncome" min="0">
+            <mat-error *ngIf="customerForm.get('monthlyIncome')?.invalid && customerForm.get('monthlyIncome')?.touched">
+              {{ 'CUSTOMERS.FORM.VALIDATION.INCOME_MIN' | translate }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'CUSTOMERS.FORM.CREDIT_SCORE' | translate }}</mat-label>
+            <input matInput type="number" formControlName="creditScore" min="0" max="1000">
+            <mat-error *ngIf="customerForm.get('creditScore')?.invalid && customerForm.get('creditScore')?.touched">
+              {{ 'CUSTOMERS.FORM.VALIDATION.CREDIT_SCORE_RANGE' | translate }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Additional Information -->
+      <div class="form-section">
+        <h3 class="section-title">{{ 'CUSTOMERS.FORM.ADDITIONAL_INFO' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>{{ 'CUSTOMERS.FORM.NOTES' | translate }}</mat-label>
+            <textarea matInput formControlName="notes" rows="4"></textarea>
+          </mat-form-field>
+
+          <div class="form-field">
+            <mat-checkbox formControlName="isActive">{{ 'CUSTOMERS.FORM.ACTIVE_CUSTOMER' | translate }}</mat-checkbox>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
       <div class="form-actions">
-        <a routerLink="/entities/customers" class="btn btn-light">إلغاء</a>
-        <button 
-          type="submit" 
-          [disabled]="customerForm.invalid" 
-          class="btn btn-primary">
-          {{ editMode() ? 'حفظ التغييرات' : 'إضافة العميل' }}
+        <a routerLink="/entities/customers" mat-stroked-button color="accent">{{ 'CUSTOMERS.FORM.CANCEL' | translate }}</a>
+        <button mat-raised-button color="primary" type="submit" [disabled]="customerForm.invalid">
+          {{ editMode() ? ('CUSTOMERS.FORM.SAVE_CHANGES' | translate) : ('CUSTOMERS.FORM.ADD_CUSTOMER' | translate) }}
         </button>
       </div>
     </form>
-  </div>
+  </mat-card>
 
   @if(editMode() && soldCars().length > 0) {
     <div class="card form-container service-record-card">

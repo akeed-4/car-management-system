@@ -17,6 +17,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { CurrentSettingService } from '../../../services/current-setting.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-delivery-form',
@@ -30,7 +31,8 @@ import { CurrentSettingService } from '../../../services/current-setting.service
     MatSelectModule,
     MatButtonModule,
     MatIconModule,
-    MatGridListModule
+    MatGridListModule,
+    TranslateModule
   ],
   templateUrl: './delivery-form.component.html',
   styleUrl: './delivery-form.component.css',

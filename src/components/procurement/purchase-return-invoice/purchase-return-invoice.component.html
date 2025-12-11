@@ -1,12 +1,17 @@
 <div class="container mx-auto">
-  <div class="flex justify-between items-center mb-6">
-    <h2 class="text-2xl font-semibold text-gray-800">{{ 'PURCHASE_RETURN.LIST_TITLE' | translate }}</h2>
-    <a routerLink="/purchases/return/new" class="bg-primary-600 text-white px-4 py-2 rounded-lg shadow hover:bg-primary-700 transition duration-300 flex items-center text-sm">
-      <svg class="w-5 h-5 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-      {{ 'PURCHASE_RETURN.NEW_RETURN' | translate }}
-    </a>
-  </div>
+  <div class="page-header">
+    <div class="flex flex-col items-start gap-4">
+      <h2 class="text-2xl font-semibold text-gray-800">{{ 'PURCHASE_RETURN.LIST_TITLE' | translate }}</h2>
+      <a routerLink="/purchases/return/new" class="btn-primary">
+        <svg class="w-5 h-5 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+        </svg>
+        {{ 'PURCHASE_RETURN.NEW_RETURN' | translate }}
 
+      </a>
+    </div>
+  </div>
   <div class="bg-white p-6 rounded-lg shadow-md">
     <div class="datagrid-container">
       <dx-data-grid

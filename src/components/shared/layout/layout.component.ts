@@ -148,6 +148,8 @@ export class LayoutComponent {
       this.changeMenuSettings();
       this.handleToggle();
       this.changeStyleMarginBody();
+      // Update menus when language changes
+      this.updateMenusForLanguage();
     });
   }
 
@@ -193,13 +195,36 @@ export class LayoutComponent {
   loadMenus() {
     this.menuService.getMenus().subscribe({
       next: (menus) => {
-        this.menus = menus;
+        this.menus = this.transformMenuForCurrentLanguage(menus);
         console.log('Menus loaded:', this.menus);
       },
       error: (err) => {
         console.error('Failed to load menus', err);
         // Optionally, fall back to hardcoded menus
         // this.menus = this.menuService.menuData;
+      }
+    });
+  }
+
+  private transformMenuForCurrentLanguage(menus: any[]): any[] {
+    return menus.map(menu => ({
+      ...menu,
+      name: this.currentLanguage === 'en' ? menu.englishName : menu.name,
+      submenu: menu.submenu ? menu.submenu.map((sub: any) => ({
+        ...sub,
+        name: this.currentLanguage === 'en' ? sub.englishName : sub.name
+      })) : undefined
+    }));
+  }
+
+  private updateMenusForLanguage() {
+    // Get the original menu data and transform it for the current language
+    this.menuService.getMenus().subscribe({
+      next: (menus) => {
+        this.menus = this.transformMenuForCurrentLanguage(menus);
+      },
+      error: (err) => {
+        console.error('Failed to update menus for language change', err);
       }
     });
   }

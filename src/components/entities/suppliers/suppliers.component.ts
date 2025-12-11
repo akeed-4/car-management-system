@@ -5,6 +5,14 @@ import { Router, RouterLink } from '@angular/router';
 import { ModalComponent } from '../../shared/modal/modal.component';
 import { Supplier } from '../../../types/supplier.model';
 import { FormsModule } from '@angular/forms';
+import {
+  DxDataGridModule,
+  DxButtonModule,
+  DxLoadPanelModule,
+  DxScrollViewModule
+} from 'devextreme-angular';
+import { TranslateModule } from '@ngx-translate/core';
+import { MatIconModule } from '@angular/material/icon';
 
 type SortColumn = keyof Supplier | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -12,7 +20,17 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-suppliers',
   standalone: true,
-  imports: [RouterLink, ModalComponent, FormsModule],
+  imports: [
+    RouterLink,
+    ModalComponent,
+    FormsModule,
+    DxDataGridModule,
+    DxButtonModule,
+    DxLoadPanelModule,
+    DxScrollViewModule,
+    TranslateModule,
+    MatIconModule
+  ],
   templateUrl: './suppliers.component.html',
   styleUrl: './suppliers.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
