@@ -23,6 +23,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { MatDialog } from '@angular/material/dialog';
+import { InvoiceItemDialogComponent } from '../invoice-item-dialog/invoice-item-dialog.component';
 
 const VAT_RATE_FULL = 0.15; // 15% for new cars on full sale price
 const VAT_RATE_MARGIN = 0.15; // 15% applied to profit margin for used cars
@@ -72,7 +74,7 @@ export class SalesInvoiceComponent implements OnInit {
     { id: 2, name: 'Customer B', nationalId: '0987654321' }
   ]);
   private allCars = signal([
-    { id: 1, make: 'Toyota', model: 'Corolla', year: 2022, status: 'Available', condition: 'New', salePrice: 50000, totalCost: 40000 },
+    { id: 1, make: 'Toyota', model: 'Corolla', year: 2022, status: 'Available', condition: 'New', salePrice: 50000, totalCost: 40000, photos: ['https://picsum.photos/seed/toyota/800/600'] },
   ]);
   carQuantities = signal(new Map([[1, 5], [2, 3]])); // Mock quantities
   availableCars = computed(() => {
@@ -97,6 +99,7 @@ export class SalesInvoiceComponent implements OnInit {
     private currentSettingService: CurrentSettingService,
     private router: Router,
     private translate: TranslateService
+    , private dialog: MatDialog
   ) {
     this.invoiceNumber.set(`INV-${Date.now()}`);
   }
@@ -169,19 +172,35 @@ export class SalesInvoiceComponent implements OnInit {
       return;
     }
 
-    const newItem: InvoiceItem = {
-      carId: car.id,
-      carDescription: `${car.make} ${car.model} (${car.year})`,
-      quantity: quantity,
-      unitPrice: car.salePrice,
-      lineTotal: car.salePrice * quantity,
-    };
+    // Open confirmation dialog before adding
+    // const dialogRef = this.dialog.open(InvoiceItemDialogComponent, {
+    //   width: '420px',
+    //   data: {
+    //     carDescription: `${car.make} ${car.model} (${car.year})`,
+    //     modelYear: `${car.model} / ${car.year}`,
+    //     quantity,
+    //     unitPrice: car.salePrice
+    //   }
+    // });
 
-    this.invoiceItems.update(items => [...items, newItem]);
+    // dialogRef.afterClosed().subscribe(result => {
+    //   if (result && result.confirmed) {
+    //     const newItem: InvoiceItem = {
+    //       carId: car.id,
+    //       carDescription: `${car.make} ${car.model} (${car.year})`,
+    //       quantity: result.quantity,
+    //       unitPrice: result.unitPrice,
+    //       lineTotal: result.unitPrice * result.quantity,
+    //       carImage: (car.photos && car.photos.length) ? car.photos[0] : null
+    //     };
 
-    // Reset selection
-    this.invoiceForm.get('selectedCarId')?.setValue(null);
-    this.invoiceForm.get('selectedQuantity')?.setValue(1);
+    //     this.invoiceItems.update(items => [...items, newItem]);
+
+    //     // Reset selection
+    //     this.invoiceForm.get('selectedCarId')?.setValue(null);
+    //     this.invoiceForm.get('selectedQuantity')?.setValue(1);
+    //   }
+    // });
   }
   
   removeItem(carId: number): void {

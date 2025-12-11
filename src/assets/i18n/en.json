@@ -34,7 +34,7 @@
     "ADD_AT_LEAST_ONE": "Please add at least one item to the invoice",
     "CREATED_SUCCESS": "Invoice created successfully",
     "ALREADY_ADDED": "This car is already added to the invoice",
-    "COST_PRICE": "Cost Price"
+    "costPrice": "Cost Price"
   },
   "COMMON": {
     "ALERT": {
