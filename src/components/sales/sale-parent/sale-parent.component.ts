@@ -10,7 +10,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { SaleType } from '../../../types/sales-enhancements.model';
 import { SalesInvoiceCashComponent } from '../sales-invoice-cash/sales-invoice-cash.component';
 import { SalesInvoiceCreditComponent } from '../sales-invoice-credit/sales-invoice-credit.component';
-import { InstallmentSaleComponent } from '../installment-sale/installment-sale.component';
+import { SalesInvoiceInstallmentsComponent } from '../sales-invoice-installments/sales-invoice-installments.component';
 
 @Component({
   selector: 'app-sale-parent',
@@ -26,7 +26,7 @@ import { InstallmentSaleComponent } from '../installment-sale/installment-sale.c
     TranslateModule,
     SalesInvoiceCashComponent,
     SalesInvoiceCreditComponent,
-    InstallmentSaleComponent,
+    SalesInvoiceInstallmentsComponent,
   ],
   templateUrl: './sale-parent.component.html',
   styleUrls: ['./sale-parent.component.css'],
@@ -36,8 +36,6 @@ export class SaleParentComponent {
 
   saleForm = this.fb.group({
     saleType: [SaleType.Cash, Validators.required],
-    customerId: [null, Validators.required],
-    carId: [null, Validators.required],
     approved: [false],
   });
 

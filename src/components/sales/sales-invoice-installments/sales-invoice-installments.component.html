@@ -1,0 +1,244 @@
+<div class="container">
+  <div class="page-header strong-header">
+    <div class="header-info">
+      <h2 class="strong-title">{{ 'INVOICE.INSTALLMENT_INVOICE_TITLE' | translate }}</h2>
+      <p class="header-subtitle">{{ 'INVOICE.INSTALLMENT_INVOICE_SUBTITLE' | translate }}</p>
+    </div>
+    <div class="header-actions">
+      <a routerLink="/sales" class="btn btn-secondary btn-small">
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        <span>{{ 'INVOICE.BACK_TO_SALES' | translate }}</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="card invoice-card">
+    <form [formGroup]="invoiceForm" >
+      <section class="form-section">
+        <h3 class="form-section-title">{{ 'INVOICE.MAIN_DATA' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'INVOICE.CUSTOMER' | translate }}</mat-label>
+            <mat-select formControlName="customer" required>
+              <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_CUSTOMER_OPTION' | translate }}</mat-option>
+              <mat-option *ngFor="let customer of customers()" [value]="customer.id">
+                {{ customer.name }} ({{ customer.nationalId }})
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'INVOICE.STORE' | translate }}</mat-label>
+            <mat-select formControlName="store" required>
+              <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_STORE_OPTION' | translate }}</mat-option>
+              <mat-option *ngFor="let store of stores()" [value]="store.id">
+                {{ store.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'INVOICE.INVOICE_NUMBER' | translate }}</mat-label>
+            <input matInput [value]="invoiceNumber()" disabled readonly>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'INVOICE.INVOICE_DATE' | translate }}</mat-label>
+            <input matInput [matDatepicker]="invoiceDatePicker" formControlName="invoiceDate" required>
+            <mat-datepicker-toggle matSuffix [for]="invoiceDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #invoiceDatePicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'INVOICE.SALESPERSON' | translate }}</mat-label>
+            <input matInput formControlName="salesperson">
+          </mat-form-field>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <h3 class="form-section-title">{{ 'INVOICE.ITEMS_SECTION' | translate }}</h3>
+        <div class="add-item-section">
+          <div class="form-grid">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'INVOICE.SELECT_CAR' | translate }}</mat-label>
+              <mat-select formControlName="selectedCarId">
+                <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_CAR_OPTION' | translate }}</mat-option>
+                <mat-option *ngFor="let car of availableCars()" [value]="car.carId">
+                  {{ car.carName }} - {{ 'INVOICE.QUANTITY_LABEL' | translate }} {{ car.availableQuantity }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'INVOICE.QUANTITY' | translate }}</mat-label>
+              <input matInput type="number" formControlName="selectedQuantity" min="1">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'INVOICE.UNIT_PRICE' | translate }}</mat-label>
+              <input matInput type="number" formControlName="selectedCostPrice" min="1">
+            </mat-form-field>
+
+            <div class="form-field">
+              <button mat-raised-button color="primary" (click)="addItemToInvoice()" [disabled]="!invoiceForm.get('selectedCarId')?.valid || !invoiceForm.get('selectedQuantity')?.valid || !invoiceForm.get('selectedCostPrice')?.valid" class="add-button">
+                <mat-icon>add</mat-icon>
+                <span>{{ 'INVOICE.ADD' | translate }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="table-wrapper premium-table">
+          <dx-data-grid
+            [dataSource]="invoiceItems()"
+            [showBorders]="true"
+            [columnAutoWidth]="true"
+            [rowAlternationEnabled]="true"
+            [editing]="{ mode: 'cell', allowUpdating: true, allowDeleting: true }"
+            [rtlEnabled]="true"
+            [showBorders]="true"
+            (onRowRemoving)="removeItem($event.data.carId)"
+            (onCellValueChanged)="updateItemPrice($event.data.carId, $event.value)"
+            [noDataText]="'INVOICE.NO_ITEMS' | translate"
+            [height]="300"
+          >
+            <dxi-column dataField="carName" caption="{{ 'INVOICE.CAR' | translate }}" [allowEditing]="false"></dxi-column>
+            <dxi-column dataField="quantity" caption="{{ 'INVOICE.QUANTITY' | translate }}" [allowEditing]="false"></dxi-column>
+            <dxi-column dataField="unitPrice" caption="{{ 'INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
+            <dxi-column dataField="lineTotal" caption="{{ 'INVOICE.LINE_TOTAL' | translate }}" dataType="number" [allowEditing]="false" format="currency"></dxi-column>
+            <dxi-column type="buttons">
+              <dxi-button name="delete"></dxi-button>
+            </dxi-column>
+            <dxo-filter-row [visible]="true"></dxo-filter-row>
+            <dxo-header-filter [visible]="true"></dxo-header-filter>
+            <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false"
+              [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
+            <dxo-selection mode="single"></dxo-selection>
+            <dxo-grouping [autoExpandAll]="false" [contextMenuEnabled]="true"></dxo-grouping>
+            <dxo-paging [pageSize]="10"></dxo-paging>
+            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
+          </dx-data-grid>
+        </div>
+      </section>
+
+      <!-- Installment Configuration Section -->
+      <section class="form-section installment-section">
+        <h3 class="form-section-title">{{ 'SALE.INSTALLMENT_SALE_TITLE' | translate }}</h3>
+
+        <!-- Down Payment -->
+        <div class="down-payment-section">
+          <mat-form-field appearance="outline" class="down-payment-field">
+            <mat-label>{{ 'SALE.DOWN_PAYMENT' | translate }}</mat-label>
+            <input matInput type="number" formControlName="downPayment" min="0" required>
+            <span matSuffix>{{ 'COMMON.CURRENCY' | translate }}</span>
+          </mat-form-field>
+        </div>
+
+        <!-- Installments Management -->
+        <div class="installments-management" formArrayName="installments">
+          <div class="installments-header">
+            <h4 class="subsection-title">{{ 'SALE.INSTALLMENTS' | translate }}</h4>
+            <button mat-raised-button type="button" (click)="addInstallment()" color="primary" class="add-installment-btn">
+              <mat-icon>add</mat-icon>
+              {{ 'SALE.ADD_INSTALLMENT' | translate }}
+            </button>
+          </div>
+
+          <!-- Installments Table -->
+          <div class="installments-table-container" *ngIf="installments.controls.length > 0">
+            <table class="installments-table">
+              <thead>
+                <tr>
+                  <th class="installment-number">{{ 'SALE.INSTALLMENT_NUMBER' | translate }}</th>
+                  <th class="installment-amount">{{ 'SALE.INSTALLMENT_AMOUNT' | translate }}</th>
+                  <th class="installment-date">{{ 'SALE.INSTALLMENT_DATE' | translate }}</th>
+                  <th class="installment-actions">{{ 'COMMON.ACTIONS' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let installment of installments.controls; let i = index" [formGroupName]="i">
+                  <td class="installment-number-cell">{{ i + 1 }}</td>
+                  <td class="installment-amount-cell">
+                    <mat-form-field appearance="outline" class="compact-field">
+                      <input matInput type="number" formControlName="amount" min="0" required>
+                      <span matSuffix>{{ 'COMMON.CURRENCY' | translate }}</span>
+                    </mat-form-field>
+                  </td>
+                  <td class="installment-date-cell">
+                    <mat-form-field appearance="outline" class="compact-field">
+                      <input matInput type="date" formControlName="date" required>
+                    </mat-form-field>
+                  </td>
+                  <td class="installment-actions-cell">
+                    <button mat-icon-button color="warn" type="button" (click)="removeInstallment(i)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Empty State -->
+          <div class="empty-state" *ngIf="installments.controls.length === 0">
+            <mat-icon class="empty-icon">schedule</mat-icon>
+            <p class="empty-text">{{ 'SALE.NO_INSTALLMENTS' | translate }}</p>
+            <p class="empty-subtitle">{{ 'SALE.ADD_FIRST_INSTALLMENT' | translate }}</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="summary-section">
+        <div class="notes-section">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'INVOICE.NOTES' | translate }}</mat-label>
+            <textarea matInput rows="4" formControlName="notes" placeholder="{{ 'INVOICE.NOTES_PLACEHOLDER' | translate }}"></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="summary-card">
+          <h4 class="summary-title">{{ 'INVOICE.INVOICE_SUMMARY' | translate }}</h4>
+          <div class="summary-content">
+            <div class="summary-row">
+              <span>{{ 'INVOICE.SUBTOTAL' | translate }}</span>
+              <span class="amount">{{ subtotal() }} {{ 'COMMON.CURRENCY' | translate }}</span>
+            </div>
+            <div class="summary-row">
+              <span>{{ 'INVOICE.VAT' | translate }}</span>
+              <span class="amount">+ {{ vatAmount() }} {{ 'COMMON.CURRENCY' | translate }}</span>
+            </div>
+            <div class="summary-row">
+              <span>{{ 'SALE.DOWN_PAYMENT' | translate }}</span>
+              <span class="amount">- {{ downPayment.value }} {{ 'COMMON.CURRENCY' | translate }}</span>
+            </div>
+            <hr class="summary-divider">
+            <div class="summary-row total-row">
+              <span class="total-label">{{ 'INVOICE.TOTAL' | translate }}</span>
+              <span class="total-amount">{{ totalAmount() }} {{ 'COMMON.CURRENCY' | translate }}</span>
+            </div>
+            <div class="summary-row">
+              <span>{{ 'SALE.REMAINING_AMOUNT' | translate }}</span>
+              <span class="remaining-amount">{{ totalWithDownPayment() }} {{ 'COMMON.CURRENCY' | translate }}</span>
+            </div>
+            <div class="summary-row">
+              <span>{{ 'SALE.TOTAL_INSTALLMENTS' | translate }}</span>
+              <span class="installment-amount">{{ calculateTotalInstallments() }} {{ 'COMMON.CURRENCY' | translate }}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="form-actions">
+        <a routerLink="/sales" class="btn btn-secondary">{{ 'INVOICE.CANCEL' | translate }}</a>
+        <button mat-raised-button color="primary" (click)="saveInvoice()" [disabled]="!invoiceForm.valid || invoiceItems().length === 0 || installments.controls.length === 0" class="btn-primary">
+          {{ 'INVOICE.ISSUE_INSTALLMENT_INVOICE' | translate }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,6 +1,9 @@
 {
   "INVOICE": {
     "CREATE_TITLE": "Create Sales Invoice",
+    "INSTALLMENT_INVOICE_TITLE": "Create Installment Sales Invoice",
+    "INSTALLMENT_INVOICE_SUBTITLE": "Set up flexible payment terms for your customers",
+    "ISSUE_INSTALLMENT_INVOICE": "Issue Installment Invoice",
     "BACK_TO_SALES": "Back to Sales",
     "MAIN_DATA": "Main Invoice Data",
     "CUSTOMER": "Customer",
@@ -45,7 +48,8 @@
       "EXPIRE_REGISTRATION": "Expire Registration",
       "PERIODIC_INSPECTION": "Periodic Inspection"
     },
-    "STOCK_LESS": "requested quantity is greater than available stock"
+    "STOCK_LESS": "requested quantity is greater than available stock",
+    "CURRENCY": "SAR"
   },
   "SALE": {
     "MANAGEMENT": "Sale Management",
@@ -60,6 +64,11 @@
     "INSTALLMENT_AMOUNT": "Installment Amount",
     "INSTALLMENT_DATE": "Installment Date",
     "ADD_INSTALLMENT": "Add Installment",
+    "INSTALLMENT_NUMBER": "Installment #",
+    "NO_INSTALLMENTS": "No installments added yet",
+    "ADD_FIRST_INSTALLMENT": "Click 'Add Installment' to start adding payment installments",
+    "REMAINING_AMOUNT": "Remaining Amount",
+    "TOTAL_INSTALLMENTS": "Total Installments",
     "Type_LABEL": "Type"
   },
   "CUSTOMER": {
@@ -523,7 +532,8 @@
       "TERM_MONTHS": "Term (Months)",
       "GENERATE": "Generate Preview",
       "SCHEDULE_TITLE": "Installment Schedule",
-      "TOTAL_INSTALLMENTS": "Total Installments"
+      "TOTAL_INSTALLMENTS": "Total Installments",
+      "REMAINING_AMOUNT": "Remaining Amount"
     },
 
     "GRID": {

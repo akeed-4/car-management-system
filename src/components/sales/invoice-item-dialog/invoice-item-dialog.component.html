@@ -1,7 +1,6 @@
 <h2 mat-dialog-title>{{ data.title || ('INVOICE.CONFIRM_ITEM' | translate) }}</h2>
 <div mat-dialog-content>
   <p><strong>{{ data.carDescription }}</strong></p>
-  <p>{{ 'INVOICE.MODEL_YEAR' | translate }}: {{ data.modelYear }}</p>
   <form [formGroup]="form">
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>{{ 'INVOICE.QUANTITY' | translate }}</mat-label>

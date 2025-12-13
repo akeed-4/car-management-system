@@ -212,6 +212,10 @@ export class SalesInvoiceComponent implements OnInit {
 
   totalAmount = computed(() => this.subtotal() + this.vatAmount());
 
+  hasInstallments = computed(() => {
+    return this.invoiceItems().some(item => item.installmentDetails);
+  });
+
   // Methods for managing invoice items
  addItemToInvoice(): void {
 

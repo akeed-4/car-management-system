@@ -2,6 +2,9 @@
    
   "INVOICE": {
     "CREATE_TITLE": "إنشاء فاتورة مبيعات",
+    "INSTALLMENT_INVOICE_TITLE": "إنشاء فاتورة مبيعات بالتقسيط",
+    "INSTALLMENT_INVOICE_SUBTITLE": "إعداد شروط دفع مرنة لعملائك",
+    "ISSUE_INSTALLMENT_INVOICE": "إصدار فاتورة التقسيط",
     "BACK_TO_SALES": "العودة للمبيعات",
     "MAIN_DATA": "البيانات الرئيسية للفاتورة",
     "CUSTOMER": "العميل",
@@ -46,7 +49,8 @@
       "EXPIRE_REGISTRATION": "انتهاء الاستمارة",
       "PERIODIC_INSPECTION": "فحص دوري"
     },
-    "STOCK_LESS": "الكمية المطلوبة أكبر من الكمية المتاحة في المخزون"
+    "STOCK_LESS": "الكمية المطلوبة أكبر من الكمية المتاحة في المخزون",
+    "CURRENCY": "ريال"
   },
   "SALE": {
     "MANAGEMENT": "إدارة المبيعات",
@@ -61,6 +65,11 @@
     "INSTALLMENT_AMOUNT": "مبلغ القسط",
     "INSTALLMENT_DATE": "تاريخ القسط",
     "ADD_INSTALLMENT": "إضافة قسط",
+    "INSTALLMENT_NUMBER": "رقم القسط",
+    "NO_INSTALLMENTS": "لم تتم إضافة أقساط بعد",
+    "ADD_FIRST_INSTALLMENT": "اضغط على 'إضافة قسط' لبدء إضافة أقساط الدفع",
+    "REMAINING_AMOUNT": "المبلغ المتبقي",
+    "TOTAL_INSTALLMENTS": "إجمالي الأقساط",
     "Type_LABEL": "نوع البيع"
   },
   "CUSTOMER": {
@@ -531,7 +540,8 @@
       "TERM_MONTHS": "مدة التقسيط (أشهر)",
       "GENERATE": "إنشاء المعاينة",
       "SCHEDULE_TITLE": "جدول الأقساط",
-      "TOTAL_INSTALLMENTS": "إجمالي الأقساط"
+      "TOTAL_INSTALLMENTS": "إجمالي الأقساط",
+      "REMAINING_AMOUNT": "المبلغ المتبقي"
     },
 
     "GRID": {

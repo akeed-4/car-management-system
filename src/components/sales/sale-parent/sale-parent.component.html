@@ -11,24 +11,6 @@
       </mat-select>
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'CUSTOMER.SELECT' | translate }}</mat-label>
-      <mat-select formControlName="customerId">
-        <!-- Customer options would be populated here -->
-        <mat-option value="1">Customer 1</mat-option>
-        <mat-option value="2">Customer 2</mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'CAR.SELECT' | translate }}</mat-label>
-      <mat-select formControlName="carId">
-        <!-- Car options would be populated here -->
-        <mat-option value="1">Car 1</mat-option>
-        <mat-option value="2">Car 2</mat-option>
-      </mat-select>
-    </mat-form-field>
-
     <mat-checkbox formControlName="approved">
       {{ 'SALE.APPROVED' | translate }}
     </mat-checkbox>
@@ -36,7 +18,7 @@
     <div class="sale-type-content" [ngSwitch]="saleForm.get('saleType')?.value">
       <app-sales-invoice-cash *ngSwitchCase="'cash'"></app-sales-invoice-cash>
       <app-sales-invoice-credit *ngSwitchCase="'credit'"></app-sales-invoice-credit>
-      <app-installment-sale *ngSwitchCase="'installments'" [parentForm]="saleForm"></app-installment-sale>
+      <app-sales-invoice-installments *ngSwitchCase="'installments'"></app-sales-invoice-installments>
     </div>
 
     <button mat-raised-button color="primary" type="submit" [disabled]="!saleForm.valid">

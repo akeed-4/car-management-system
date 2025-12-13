@@ -6,4 +6,10 @@ export interface InvoiceItem {
   lineTotal: number;
   carImage?: string | null;
   carName?: string;
+  installmentDetails?: {
+    downPayment: number;
+    numberOfInstallments: number;
+    installmentAmount: number;
+    firstInstallmentDate: Date;
+  };
 }
