@@ -1,0 +1,92 @@
+<form [formGroup]="branchForm" (ngSubmit)="onSubmit()" class="branch-form">
+  <div class="form-grid">
+    <!-- Basic Information -->
+   <mat-form-field appearance="outline">
+      <mat-label>{{ 'STORES.FORM.ACTIVITY' | translate }}</mat-label>
+      <mat-select formControlName="companyId">
+        <mat-option *ngFor="let company of companies" [value]="company.id">
+          {{ company.name }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="branchForm.get('companyId')?.invalid && branchForm.get('companyId')?.touched">
+        {{ 'STORES.FORM.ACTIVITY_REQUIRED' | translate }}
+      </mat-error>
+    </mat-form-field>
+
+
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'BRANCHES.FORM.NAME_AR' | translate }}</mat-label>
+      <input matInput formControlName="nameAr" [placeholder]="'BRANCHES.FORM.NAME_AR_PLACEHOLDER' | translate">
+      <mat-error *ngIf="branchForm.get('nameAr')?.invalid && branchForm.get('nameAr')?.touched">
+        {{ 'BRANCHES.FORM.NAME_AR_REQUIRED' | translate }}
+      </mat-error>
+    </mat-form-field>
+    
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'BRANCHES.FORM.NAME_EN' | translate }}</mat-label>
+      <input matInput formControlName="nameEn" [placeholder]="'BRANCHES.FORM.NAME_EN_PLACEHOLDER' | translate">
+      <mat-error *ngIf="branchForm.get('nameEn')?.invalid && branchForm.get('nameEn')?.touched">
+        {{ 'BRANCHES.FORM.NAME_EN_REQUIRED' | translate }}
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'BRANCHES.FORM.DESCRIPTION' | translate }}</mat-label>
+      <textarea matInput formControlName="description" [placeholder]="'BRANCHES.FORM.DESCRIPTION_PLACEHOLDER' | translate" rows="3"></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'BRANCHES.FORM.STATUS' | translate }}</mat-label>
+      <mat-select formControlName="status">
+        <mat-option value="active">{{ 'BRANCHES.STATUS.ACTIVE' | translate }}</mat-option>
+        <mat-option value="inactive">{{ 'BRANCHES.STATUS.INACTIVE' | translate }}</mat-option>
+        <mat-option value="suspended">{{ 'BRANCHES.STATUS.SUSPENDED' | translate }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Geographic Information -->
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'BRANCHES.FORM.LATITUDE' | translate }}</mat-label>
+      <input matInput type="number" formControlName="lat" [placeholder]="'BRANCHES.FORM.LATITUDE_PLACEHOLDER' | translate">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'BRANCHES.FORM.LONGITUDE' | translate }}</mat-label>
+      <input matInput type="number" formControlName="lng" [placeholder]="'BRANCHES.FORM.LONGITUDE_PLACEHOLDER' | translate">
+    </mat-form-field>
+
+    <!-- Address Information -->
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'BRANCHES.FORM.STREET' | translate }}</mat-label>
+      <input matInput formControlName="street" [placeholder]="'BRANCHES.FORM.STREET_PLACEHOLDER' | translate">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'BRANCHES.FORM.CITY' | translate }}</mat-label>
+      <input matInput formControlName="city" [placeholder]="'BRANCHES.FORM.CITY_PLACEHOLDER' | translate">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'BRANCHES.FORM.STATE' | translate }}</mat-label>
+      <input matInput formControlName="state" [placeholder]="'BRANCHES.FORM.STATE_PLACEHOLDER' | translate">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'BRANCHES.FORM.COUNTRY' | translate }}</mat-label>
+      <input matInput formControlName="country" [placeholder]="'BRANCHES.FORM.COUNTRY_PLACEHOLDER' | translate">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'BRANCHES.FORM.ZIP_CODE' | translate }}</mat-label>
+      <input matInput formControlName="zipCode" [placeholder]="'BRANCHES.FORM.ZIP_CODE_PLACEHOLDER' | translate">
+    </mat-form-field>
+  </div>
+
+  <div class="form-actions">
+    <button mat-raised-button color="primary" type="submit" [disabled]="!branchForm.valid">
+      {{ isEdit ? ('BRANCHES.FORM.UPDATE_BUTTON' | translate) : ('BRANCHES.FORM.CREATE_BUTTON' | translate) }}
+    </button>
+    <button mat-button type="button" (click)="onCancel()">{{ 'BRANCHES.FORM.CANCEL_BUTTON' | translate }}</button>
+  </div>
+</form>

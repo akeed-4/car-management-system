@@ -1,0 +1,103 @@
+<form [formGroup]="storeForm" (ngSubmit)="onSubmit()" class="store-form">
+  <div class="form-grid">
+    <!-- Basic Information -->
+   
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'STORES.FORM.NAME_AR' | translate }}</mat-label>
+      <input matInput formControlName="nameAr" [placeholder]="'STORES.FORM.NAME_AR_PLACEHOLDER' | translate">
+      <mat-error *ngIf="storeForm.get('nameAr')?.invalid && storeForm.get('nameAr')?.touched">
+        {{ 'STORES.FORM.NAME_AR_REQUIRED' | translate }}
+      </mat-error>
+    </mat-form-field>
+     <mat-form-field appearance="outline">
+      <mat-label>{{ 'STORES.FORM.NAME_EN' | translate }}</mat-label>
+      <input matInput formControlName="nameEn" [placeholder]="'STORES.FORM.NAME_EN_PLACEHOLDER' | translate">
+      <mat-error *ngIf="storeForm.get('nameEn')?.invalid && storeForm.get('nameEn')?.touched">
+        {{ 'STORES.FORM.NAME_EN_REQUIRED' | translate }}
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'STORES.FORM.DESCRIPTION' | translate }}</mat-label>
+      <textarea matInput formControlName="description" [placeholder]="'STORES.FORM.DESCRIPTION_PLACEHOLDER' | translate" rows="3"></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'STORES.FORM.ACTIVITY' | translate }}</mat-label>
+      <mat-select formControlName="companyId">
+        <mat-option *ngFor="let company of companies" [value]="company.id">
+          {{ company.name }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="storeForm.get('companyId')?.invalid && storeForm.get('companyId')?.touched">
+        {{ 'STORES.FORM.ACTIVITY_REQUIRED' | translate }}
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'STORES.FORM.BRANCH' | translate }}</mat-label>
+      <mat-select formControlName="branchId">
+        <mat-option *ngFor="let branch of branches" [value]="branch.id">
+          {{ branch.name }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="storeForm.get('branchId')?.invalid && storeForm.get('branchId')?.touched">
+        {{ 'STORES.FORM.BRANCH_REQUIRED' | translate }}
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'STORES.FORM.STATUS' | translate }}</mat-label>
+      <mat-select formControlName="status">
+        <mat-option value="active">{{ 'STORES.STATUS.ACTIVE' | translate }}</mat-option>
+        <mat-option value="inactive">{{ 'STORES.STATUS.INACTIVE' | translate }}</mat-option>
+        <mat-option value="suspended">{{ 'STORES.STATUS.SUSPENDED' | translate }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Geographic Information -->
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'STORES.FORM.LATITUDE' | translate }}</mat-label>
+      <input matInput type="number" formControlName="lat" [placeholder]="'STORES.FORM.LATITUDE_PLACEHOLDER' | translate">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'STORES.FORM.LONGITUDE' | translate }}</mat-label>
+      <input matInput type="number" formControlName="lng" [placeholder]="'STORES.FORM.LONGITUDE_PLACEHOLDER' | translate">
+    </mat-form-field>
+
+    <!-- Address Information -->
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'STORES.FORM.STREET' | translate }}</mat-label>
+      <input matInput formControlName="street" [placeholder]="'STORES.FORM.STREET_PLACEHOLDER' | translate">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'STORES.FORM.CITY' | translate }}</mat-label>
+      <input matInput formControlName="city" [placeholder]="'STORES.FORM.CITY_PLACEHOLDER' | translate">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'STORES.FORM.STATE' | translate }}</mat-label>
+      <input matInput formControlName="state" [placeholder]="'STORES.FORM.STATE_PLACEHOLDER' | translate">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'STORES.FORM.COUNTRY' | translate }}</mat-label>
+      <input matInput formControlName="country" [placeholder]="'STORES.FORM.COUNTRY_PLACEHOLDER' | translate">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'STORES.FORM.ZIP_CODE' | translate }}</mat-label>
+      <input matInput formControlName="zipCode" [placeholder]="'STORES.FORM.ZIP_CODE_PLACEHOLDER' | translate">
+    </mat-form-field>
+  </div>
+
+  <div class="form-actions">
+    <button mat-raised-button color="primary" type="submit" [disabled]="!storeForm.valid">
+      {{ isEdit ? ('STORES.FORM.UPDATE_BUTTON' | translate) : ('STORES.FORM.CREATE_BUTTON' | translate) }}
+    </button>
+    <button mat-button type="button" (click)="onCancel()">{{ 'STORES.FORM.CANCEL_BUTTON' | translate }}</button>
+  </div>
+</form>

@@ -32,7 +32,7 @@ export class VinScannerComponent implements OnDestroy {
       } else {
         this.stopCamera();
       }
-    });
+    }, { allowSignalWrites: true });
   }
 
   ngOnDestroy(): void {

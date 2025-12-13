@@ -1,0 +1,24 @@
+.car-linker {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #fafafa;
+}
+
+.half-width {
+  width: 48%;
+}
+
+@media (max-width: 600px) {
+  .half-width {
+    width: 100%;
+  }
+}
+
+h3 {
+  margin: 0;
+  color: #333;
+}

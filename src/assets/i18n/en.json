@@ -4,6 +4,7 @@
     "BACK_TO_SALES": "Back to Sales",
     "MAIN_DATA": "Main Invoice Data",
     "CUSTOMER": "Customer",
+    "STORE": "Store",
     "INVOICE_NUMBER": "Invoice Number",
     "INVOICE_DATE": "Invoice Date",
     "DUE_DATE": "Due Date",
@@ -26,6 +27,7 @@
     "CANCEL": "Cancel",
     "ISSUE": "Issue Invoice",
     "SELECT_CUSTOMER_OPTION": "Please select a customer",
+    "SELECT_STORE_OPTION": "-- Select store --",
     "SELECT_CAR_OPTION": "-- Select car from stock --",
     "PAYMENT_CASH": "Cash",
     "PAYMENT_BANK_TRANSFER": "Bank Transfer",
@@ -34,7 +36,9 @@
     "ADD_AT_LEAST_ONE": "Please add at least one item to the invoice",
     "CREATED_SUCCESS": "Invoice created successfully",
     "ALREADY_ADDED": "This car is already added to the invoice",
-    "COST_PRICE": "Cost Price"
+    "QUANTITY_LABEL": "Quantity:",
+    "costPrice": "Cost Price",
+    "INVALID_PRICE": "Please enter a valid price greater than 0"
   },
   "COMMON": {
     "ALERT": {
@@ -42,6 +46,52 @@
       "PERIODIC_INSPECTION": "Periodic Inspection"
     },
     "STOCK_LESS": "requested quantity is greater than available stock"
+  },
+  "SALE": {
+    "MANAGEMENT": "Sale Management",
+    "TYPE": "Sale Type",
+    "TYPE_CASH": "Cash",
+    "TYPE_CREDIT": "Credit",
+    "TYPE_INSTALLMENTS": "Installments",
+    "APPROVED": "Approved",
+    "INSTALLMENT_SALE_TITLE": "Installment Sale",
+    "DOWN_PAYMENT": "Down Payment",
+    "INSTALLMENTS": "Installments",
+    "INSTALLMENT_AMOUNT": "Installment Amount",
+    "INSTALLMENT_DATE": "Installment Date",
+    "ADD_INSTALLMENT": "Add Installment",
+    "Type_LABEL": "Type"
+  },
+  "CUSTOMER": {
+    "SELECT": "Select Customer"
+  },
+  "CAR": {
+    "SELECT": "Select Car"
+  },
+
+  "TOAST": {
+    "SUCCESS": "Success",
+    "WARNING": "Warning",
+    "ERROR": "Error",
+    "ADD_SUCCESS": "Added successfully",
+    "EDIT_SUCCESS": "Updated successfully",
+    "DELETE_SUCCESS": "Deleted successfully",
+    "DELETE_CONFIRM": "Are you sure you want to delete this item?",
+    "DELETE_CANCELLED": "Delete cancelled",
+    "LOAD_ERROR": "Failed to load data",
+    "SAVE_ERROR": "Failed to save data",
+    "VALIDATION_ERROR": "Please check the form for errors"
+  },
+  "CRUD": {
+    "ADD": "Add",
+    "EDIT": "Edit",
+    "DELETE": "Delete",
+    "SAVE": "Save",
+    "CANCEL": "Cancel",
+    "CONFIRM": "Confirm",
+    "BACK_TO_LIST": "Back to List",
+    "SAVE_CHANGES": "Save Changes",
+    "ADD_NEW": "Add New"
   },
   "SAMPLE_DATA": {
     "CUSTOMER_NAME": "Abdullah Mohammed",
@@ -66,7 +116,87 @@
   "SUPPLIERS": {
     "ALNAHDI": "Al Nahdi Motors",
     "AUCTION": "International Car Auction",
-    "NOTE_SHIPPING": "Includes shipping costs."
+    "NOTE_SHIPPING": "Includes shipping costs.",
+    "FORM": {
+      "BACK_TO_LIST": "Back to Suppliers List",
+      "BASIC_INFO": "Basic Information",
+      "SUPPLIER_NAME": "Supplier Name",
+      "CR_NUMBER": "CR Number",
+      "TAX_NUMBER": "Tax Number",
+      "SUPPLIER_CATEGORY": "Supplier Category",
+      "CATEGORY_PARTS": "Parts",
+      "CATEGORY_VEHICLES": "Vehicles",
+      "CATEGORY_SERVICES": "Services",
+      "CATEGORY_EQUIPMENT": "Equipment",
+      "CONTACT_INFO": "Contact Information",
+      "PRIMARY_PHONE": "Primary Phone",
+      "SECONDARY_PHONE": "Secondary Phone",
+      "EMAIL": "Email",
+      "WEBSITE": "Website",
+      "ADDRESS_INFO": "Address Information",
+      "CITY": "City",
+      "DISTRICT": "District",
+      "POSTAL_CODE": "Postal Code",
+      "DETAILED_ADDRESS": "Detailed Address",
+      "CONTACT_PERSON": "Contact Person",
+      "CONTACT_PERSON_NAME": "Contact Person Name",
+      "CONTACT_PERSON_PHONE": "Contact Person Phone",
+      "CONTACT_PERSON_EMAIL": "Contact Person Email",
+      "FINANCIAL_INFO": "Financial Information",
+      "PAYMENT_TERMS": "Payment Terms",
+      "PAYMENT_CASH": "Cash",
+      "PAYMENT_NET_15": "Net 15",
+      "PAYMENT_NET_30": "Net 30",
+      "PAYMENT_NET_60": "Net 60",
+      "PAYMENT_NET_90": "Net 90",
+      "CREDIT_LIMIT": "Credit Limit",
+      "BANKING_INFO": "Banking Information",
+      "BANK_NAME": "Bank Name",
+      "BANK_ACCOUNT_NUMBER": "Bank Account Number",
+      "IBAN": "IBAN",
+      "ADDITIONAL_INFO": "Additional Information",
+      "NOTES": "Notes",
+      "ACTIVE_SUPPLIER": "Active Supplier",
+      "CANCEL": "Cancel",
+      "SAVE_CHANGES": "Save Changes",
+      "ADD_SUPPLIER": "Add Supplier",
+      "VALIDATION": {
+        "NAME_REQUIRED": "Supplier name is required",
+        "CR_NUMBER_REQUIRED": "CR number is required",
+        "PHONE_REQUIRED": "Phone is required",
+        "ADDRESS_REQUIRED": "Address is required",
+        "EMAIL_INVALID": "Email is invalid",
+        "CREDIT_LIMIT_MIN": "Credit limit must be a positive number"
+      }
+    },
+    "LIST_TITLE": "Suppliers Management",
+    "ADD_NEW": "Add New Supplier",
+    "COLUMNS": {
+      "NAME": "Name",
+      "CR_NUMBER": "CR Number",
+      "PHONE": "Phone",
+      "SECONDARY_PHONE": "Secondary Phone",
+      "EMAIL": "Email",
+      "CATEGORY": "Category",
+      "ADDRESS": "Address",
+      "CITY": "City",
+      "PAYMENT_TERMS": "Payment Terms",
+      "CREDIT_LIMIT": "Credit Limit",
+      "STATUS": "Status",
+      "ACTIONS": "Actions"
+    },
+    "STATUS": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive"
+    },
+    "ACTIONS": {
+      "EDIT": "Edit",
+      "DELETE": "Delete"
+    },
+    "DELETE_MODAL": {
+      "TITLE": "Delete Supplier",
+      "MESSAGE": "Are you sure you want to delete this supplier? This action cannot be undone."
+    }
   },
   "ROLE": {
     "DASHBOARD": "Dashboard"
@@ -109,12 +239,16 @@
       "BACK_TO_INVENTORY": "← Back to Inventory",
       "MAIN_DETAILS": "Main Details",
       "MANUFACTURER": "Manufacturer",
+      "SELECT_MANUFACTURER": "Select Manufacturer",
       "MODEL": "Model",
+      "SELECT_MODEL": "Select Model",
       "YEAR": "Manufacture Year",
+      "SELECT_YEAR": "Select Year",
       "CURRENT_LOCATION": "Current Location",
       "CONDITION": "Condition",
       "USED": "Used",
       "NEW": "New",
+      "SAUDI_DETAILS": "Saudi Specific Details",
       "VIN": "Vehicle Identification Number (VIN)",
       "SCAN": "Scan",
       "PLATE_NUMBER": "Plate Number",
@@ -145,6 +279,8 @@
       "NO_FINANCE": "-- No financing --",
       "RELATED_COSTS": "Associated Costs",
       "DESCRIPTION_PHOTOS": "Description & Photos",
+      "MARKETING_DESCRIPTION": "Marketing Description",
+      "PHOTOS": "Photos",
       "UPLOAD_FILE": "Upload a file",
       "CANCEL": "Cancel",
       "PUBLISH": "Publish to platforms",
@@ -174,7 +310,7 @@
       "ERROR_SELECT_CAR": "Please select a car for every row in the table."
     }
   },
-  "PROCUREMENT": {
+  "PURCHASES": {
     "TITLE": "Purchase Invoices",
     "NEW_PURCHASE_INVOICE": "New Purchase Invoice",
     "SEARCH_PLACEHOLDER": "Search invoices (number, supplier, car...)",
@@ -189,17 +325,23 @@
     "STATUS": "Status",
     "ACTIONS": "Actions",
     "PRINT_INVOICE": "Print Invoice",
+    "EDIT_INVOICE": "Edit Invoice",
+    "DELETE_INVOICE": "Delete Invoice",
+    "DELETE_INVOICE_CONFIRM": "Are you sure you want to delete this invoice?",
+    "DELETE_INVOICE_ERROR": "Error deleting invoice.",
     "ARCHIVE": "Archive",
     "UNARCHIVE": "Unarchive",
     "NO_ARCHIVED_INVOICES": "No invoices in archive.",
     "NO_PURCHASE_INVOICES": "No purchase invoices yet."
   },
-  "PROCUREMENT.PURCHASE_INVOICE": {
+  "PURCHASE_INVOICE": {
     "CREATE_TITLE": "Create Purchase Invoice",
     "BACK_TO_PURCHASES": "Back to Purchases",
     "MAIN_DATA": "Main Invoice Data",
     "SUPPLIER": "Supplier",
     "SELECT_SUPPLIER": "-- Select supplier --",
+    "STORE": "Store",
+    "SELECT_STORE": "-- Select store --",
     "INVOICE_NUMBER": "Invoice Number",
     "INVOICE_DATE": "Invoice Date",
     "PAYMENT_METHOD": "Payment Method",
@@ -208,18 +350,23 @@
     "ITEMS_SECTION": "Invoice Items",
     "SELECT_CAR": "Select Car",
     "SELECT_CAR_OPTION": "-- Select car from stock --",
+    "AVAILABLE_QUANTITY": "Available Quantity",
     "PURCHASE_PRICE": "Purchase Price (unit)",
     "QUANTITY": "Quantity",
     "ADD": "Add",
     "NO_ITEMS": "No cars have been added to the invoice yet.",
     "NOTES": "Notes",
     "NOTES_PLACEHOLDER": "Any additional notes on the invoice...",
+    "INVOICE_SUMMARY": "Invoice Summary",
+    "SUBTOTAL": "Subtotal",
+    "VAT": "VAT (15%)",
     "TOTAL": "Total",
     "CANCEL": "Cancel",
     "SAVE": "Save Purchase Invoice",
     "ERROR_SELECT_CAR": "Please select a car.",
     "ERROR_ALREADY_ADDED": "This car is already added to the invoice.",
-    "SAVED_SUCCESS": "Purchase invoice saved and inventory updated."
+    "SAVED_SUCCESS": "Purchase invoice saved and inventory updated.",
+    "SAVE_ERROR": "Error saving purchase invoice."
   },
   "PROCUREMENT.PURCHASE_RETURN": {
     "CREATE_TITLE": "Create Purchase Return",
@@ -277,6 +424,10 @@
 
     "POS_PAYMENT": "Pay with POS",
     "PRINT_INVOICE": "Print Invoice",
+    "EDIT_INVOICE": "Edit Invoice",
+    "DELETE_INVOICE": "Delete Invoice",
+    "DELETE_INVOICE_CONFIRM": "Are you sure you want to delete this invoice?",
+    "DELETE_INVOICE_ERROR": "Error deleting invoice.",
     "ARCHIVE": "Archive",
     "UNARCHIVE": "Unarchive",
     "NO_ARCHIVE": "No invoices in archive.",
@@ -323,10 +474,98 @@
       "BACK": "Back",
       "PRINT": "Print Invoice",
       "NOT_FOUND": "Requested invoice not found."
+    },
+
+    "TYPE": {
+      "LABEL": "Sale Type",
+      "CASH": "Cash",
+      "CREDIT": "Credit",
+      "INSTALLMENTS": "Installments"
+    },
+
+    "DOWN_PAYMENT": {
+      "LABEL": "Down Payment",
+      "PLACEHOLDER": "Enter down payment amount",
+      "REQUIRED": "Down payment is required for Credit and Installment sales",
+      "MIN": "Down payment must be greater than 0"
+    },
+
+    "CAR_LINK": {
+      "TITLE": "Link Car to Customer",
+      "CHASSIS_NUMBER": "Chassis Number",
+      "PLATE_NUMBER": "Plate Number",
+      "CHASSIS_PLACEHOLDER": "Enter chassis number",
+      "PLATE_PLACEHOLDER": "Enter plate number",
+      "BUTTON": "Link Car"
+    },
+
+    "CONTRACT": {
+      "TITLE": "Sales Contract",
+      "CONTENT": "Contract Content",
+      "APPROVE": "Approve Contract",
+      "APPROVED": "Contract Approved",
+      "EDITABLE_BEFORE_APPROVAL": "Editable before approval",
+      "READONLY_AFTER_APPROVAL": "Read-only after approval"
     }
   }
 
   ,
+  "INSTALLMENT": {
+    "DASHBOARD": {
+      "TITLE": "Installment Management"
+    },
+
+    "PREVIEW": {
+      "TITLE": "Installment Schedule Preview",
+      "TOTAL_AMOUNT": "Total Amount",
+      "DOWN_PAYMENT": "Down Payment",
+      "INTEREST_RATE": "Interest Rate (%)",
+      "TERM_MONTHS": "Term (Months)",
+      "GENERATE": "Generate Preview",
+      "SCHEDULE_TITLE": "Installment Schedule",
+      "TOTAL_INSTALLMENTS": "Total Installments"
+    },
+
+    "GRID": {
+      "ID": "ID",
+      "TOTAL_AMOUNT": "Total Amount",
+      "DOWN_PAYMENT": "Down Payment",
+      "INTEREST_RATE": "Interest Rate",
+      "TERM_MONTHS": "Term Months",
+      "STATUS": "Status",
+      "CREATED_AT": "Created At",
+      "DUE_DATE": "Due Date",
+      "AMOUNT": "Amount",
+      "PAID": "Paid",
+      "OVERDUE": "Overdue",
+      "LATE_PENALTY": "Late Penalty",
+      "RESCHEDULE": "Reschedule",
+      "REGISTER_PAYMENT": "Register Payment"
+    },
+
+    "STATUS": {
+      "PAID": "Paid",
+      "UNPAID": "Unpaid",
+      "OVERDUE": "Overdue",
+      "ACTIVE": "Active",
+      "CLOSED": "Closed"
+    },
+
+    "RESCHEDULE": {
+      "TITLE": "Reschedule Installment",
+      "REASON": "Reason for Rescheduling",
+      "REASON_PLACEHOLDER": "Enter reason for rescheduling",
+      "REASON_REQUIRED": "Reason is required",
+      "NEW_TERM_MONTHS": "New Term (Months)",
+      "NEW_INTEREST_RATE": "New Interest Rate (%)",
+      "TERM_REQUIRED": "Term is required",
+      "TERM_MIN": "Term must be at least 1 month",
+      "INTEREST_REQUIRED": "Interest rate is required",
+      "INTEREST_MIN": "Interest rate must be 0 or greater",
+      "SUBMIT": "Reschedule"
+    }
+  },
+
   "ACCOUNTS": {
     "RECEIPTS": {
       "LIST_TITLE": "Receipt Vouchers",
@@ -434,9 +673,12 @@
   "MANUFACTURERS": {
     "TITLE": "Manufacturer Management",
     "ADD_NEW": "Add New Manufacturer",
+    "EDIT_TITLE": "Edit Manufacturer",
     "NAME_LABEL": "Manufacturer Name",
     "NAME_PLACEHOLDER": "Enter manufacturer name",
     "ADD_BUTTON": "Add",
+    "UPDATE_BUTTON": "Update",
+    "CANCEL_BUTTON": "Cancel",
     "LIST_TITLE": "Manufacturers List",
     "NO_MANUFACTURERS": "No manufacturers to display.",
     "NAME": "Manufacturer Name",
@@ -448,20 +690,26 @@
   "MANUFACTURE_YEAR": {
     "TITLE": "Manufacture Years Management",
     "ADD_NEW": "Add New Manufacture Year",
+    "EDIT_TITLE": "Edit Manufacture Year",
     "NAME_LABEL": "Year",
     "NAME_PLACEHOLDER": "Enter the year",
     "ADD_BUTTON": "Add",
+    "UPDATE_BUTTON": "Update",
+    "CANCEL_BUTTON": "Cancel",
     "LIST_TITLE": "Available Years",
     "NO_YEARS": "No years have been added yet."
   },
   "CAR_MODELS": {
     "TITLE": "Car Models Management",
     "ADD_NEW": "Add New Model",
+    "EDIT_TITLE": "Edit Model",
     "MANUFACTURER_LABEL": "Manufacturer",
     "SELECT_MANUFACTURER": "Select Manufacturer",
     "MODEL_NAME_LABEL": "Model Name",
     "MODEL_PLACEHOLDER": "e.g., Camry",
     "ADD_BUTTON": "Add Model",
+    "UPDATE_BUTTON": "Update Model",
+    "CANCEL_BUTTON": "Cancel",
     "LIST_TITLE": "Current Models",
     "NO_MODELS": "No models have been added yet.",
     "DELETE": "Delete",
@@ -477,5 +725,284 @@
     "SUBMIT": "Login",
     "INVALID_CREDENTIALS": "Invalid credentials",
     "FILL_REQUIRED_FIELDS": "Please fill in all required fields"
+  },
+  "CUSTOMERS": {
+    "FORM": {
+      "BACK_TO_LIST": "Back to Customers List",
+      "BASIC_INFO": "Basic Information",
+      "FULL_NAME": "Full Name",
+      "NATIONAL_ID": "National ID",
+      "PRIMARY_PHONE": "Primary Phone",
+      "SECONDARY_PHONE": "Secondary Phone",
+      "CONTACT_INFO": "Contact Information",
+      "EMAIL": "Email",
+      "PREFERRED_CONTACT": "Preferred Contact Method",
+      "CONTACT_PHONE": "Phone",
+      "CONTACT_EMAIL": "Email",
+      "CONTACT_SMS": "SMS",
+      "ADDRESS_INFO": "Address Information",
+      "CITY": "City",
+      "DISTRICT": "District",
+      "POSTAL_CODE": "Postal Code",
+      "DETAILED_ADDRESS": "Detailed Address",
+      "PERSONAL_INFO": "Personal Information",
+      "DATE_OF_BIRTH": "Date of Birth",
+      "GENDER": "Gender",
+      "GENDER_MALE": "Male",
+      "GENDER_FEMALE": "Female",
+      "OCCUPATION": "Occupation",
+      "EMPLOYER": "Employer",
+      "MONTHLY_INCOME": "Monthly Income",
+      "CREDIT_SCORE": "Credit Score",
+      "ADDITIONAL_INFO": "Additional Information",
+      "NOTES": "Notes",
+      "ACTIVE_CUSTOMER": "Active Customer",
+      "CANCEL": "Cancel",
+      "SAVE_CHANGES": "Save Changes",
+      "ADD_CUSTOMER": "Add Customer",
+      "VALIDATION": {
+        "NAME_REQUIRED": "Name is required and must be more than 2 characters",
+        "NATIONAL_ID_REQUIRED": "National ID is required and must be 10 digits",
+        "PHONE_REQUIRED": "Phone is required and must be in format +966xxxxxxxxx",
+        "ADDRESS_REQUIRED": "Address is required",
+        "EMAIL_INVALID": "Email is invalid",
+        "INCOME_MIN": "Income must be a positive number",
+        "CREDIT_SCORE_RANGE": "Credit score must be between 0 and 1000"
+      }
+    },
+    "LIST_TITLE": "Customers Management",
+    "ADD_NEW": "Add New Customer",
+    "COLUMNS": {
+      "NAME": "Name",
+      "NATIONAL_ID": "National ID",
+      "PHONE": "Phone",
+      "SECONDARY_PHONE": "Secondary Phone",
+      "EMAIL": "Email",
+      "ADDRESS": "Address",
+      "CITY": "City",
+      "OCCUPATION": "Occupation",
+      "MONTHLY_INCOME": "Monthly Income",
+      "CREDIT_SCORE": "Credit Score",
+      "STATUS": "Status",
+      "ACTIONS": "Actions"
+    },
+    "STATUS": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive"
+    },
+    "ACTIONS": {
+      "EDIT": "Edit",
+      "DELETE": "Delete"
+    },
+    "DELETE_MODAL": {
+      "TITLE": "Delete Customer",
+      "MESSAGE": "Are you sure you want to delete this customer? This action cannot be undone."
+    }
+  },
+  "COMPANIES": {
+    "LIST_TITLE": "Companies Management",
+    "ADD_NEW": "Add New Company",
+    "SEARCH_PLACEHOLDER": "Search companies...",
+    "COLUMNS": {
+      "CODE": "Code",
+      "NAME_EN": "Name (EN)",
+      "NAME_AR": "Name (AR)",
+      "DESCRIPTION": "Description",
+      "BRANCH": "Branch",
+      "STATUS": "Status",
+      "CREATED": "Created",
+      "ACTIONS": "Actions"
+    },
+    "STATUS": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive",
+      "SUSPENDED": "Suspended"
+    },
+    "ACTIONS": {
+      "EDIT": "Edit",
+      "DELETE": "Delete"
+    },
+    "FORM": {
+      "TITLE": "Company Information",
+      "CODE": "Company Code",
+      "CODE_PLACEHOLDER": "Enter company code",
+      "CODE_REQUIRED": "Company code is required",
+      "NAME_EN": "Name (English)",
+      "NAME_EN_PLACEHOLDER": "Enter English name",
+      "NAME_EN_REQUIRED": "English name is required",
+      "NAME_AR": "Name (Arabic)",
+      "NAME_AR_PLACEHOLDER": "Enter Arabic name",
+      "NAME_AR_REQUIRED": "Arabic name is required",
+      "DESCRIPTION": "Description",
+      "DESCRIPTION_PLACEHOLDER": "Enter description",
+      "BRANCH": "Branch",
+      "BRANCH_REQUIRED": "Branch is required",
+      "STATUS": "Status",
+      "LATITUDE": "Latitude",
+      "LATITUDE_PLACEHOLDER": "Enter latitude",
+      "LONGITUDE": "Longitude",
+      "LONGITUDE_PLACEHOLDER": "Enter longitude",
+      "STREET": "Street",
+      "STREET_PLACEHOLDER": "Enter street address",
+      "CITY": "City",
+      "CITY_PLACEHOLDER": "Enter city",
+      "STATE": "State",
+      "STATE_PLACEHOLDER": "Enter state",
+      "COUNTRY": "Country",
+      "COUNTRY_PLACEHOLDER": "Enter country",
+      "ZIP_CODE": "Zip Code",
+      "ZIP_CODE_PLACEHOLDER": "Enter zip code",
+      "CREATE_BUTTON": "Create Company",
+      "UPDATE_BUTTON": "Update Company",
+      "CANCEL_BUTTON": "Cancel"
+    }
+  },
+  "BRANCHES": {
+    "LIST_TITLE": "Branches Management",
+    "ADD_NEW": "Add New Branch",
+    "COLUMNS": {
+      "CODE": "Code",
+      "NAME_EN": "Name (EN)",
+      "NAME_AR": "Name (AR)",
+      "DESCRIPTION": "Description",
+      "STATUS": "Status",
+      "CREATED": "Created",
+      "ACTIONS": "Actions"
+    },
+    "STATUS": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive",
+      "SUSPENDED": "Suspended"
+    },
+    "ACTIONS": {
+      "EDIT": "Edit",
+      "DELETE": "Delete"
+    },
+    "FORM": {
+      "TITLE": "Branch Information",
+      "CODE": "Branch Code",
+      "CODE_PLACEHOLDER": "Enter branch code",
+      "CODE_REQUIRED": "Branch code is required",
+      "NAME_EN": "Name (English)",
+      "NAME_EN_PLACEHOLDER": "Enter English name",
+      "NAME_EN_REQUIRED": "English name is required",
+      "NAME_AR": "Name (Arabic)",
+      "NAME_AR_PLACEHOLDER": "Enter Arabic name",
+      "NAME_AR_REQUIRED": "Arabic name is required",
+      "DESCRIPTION": "Description",
+      "DESCRIPTION_PLACEHOLDER": "Enter description",
+      "STATUS": "Status",
+      "LATITUDE": "Latitude",
+      "LATITUDE_PLACEHOLDER": "Enter latitude",
+      "LONGITUDE": "Longitude",
+      "LONGITUDE_PLACEHOLDER": "Enter longitude",
+      "STREET": "Street",
+      "STREET_PLACEHOLDER": "Enter street address",
+      "CITY": "City",
+      "CITY_PLACEHOLDER": "Enter city",
+      "STATE": "State",
+      "STATE_PLACEHOLDER": "Enter state",
+      "COUNTRY": "Country",
+      "COUNTRY_PLACEHOLDER": "Enter country",
+      "ZIP_CODE": "Zip Code",
+      "ZIP_CODE_PLACEHOLDER": "Enter zip code",
+      "CREATE_BUTTON": "Create Branch",
+      "UPDATE_BUTTON": "Update Branch",
+      "CANCEL_BUTTON": "Cancel"
+    }
+  },
+  "STORES": {
+    "LIST_TITLE": "Stores Management",
+    "ADD_NEW": "Add New Store",
+    "SEARCH_PLACEHOLDER": "Search stores...",
+    "COLUMNS": {
+      "CODE": "Code",
+      "NAME_EN": "Name (EN)",
+      "NAME_AR": "Name (AR)",
+      "DESCRIPTION": "Description",
+      "ACTIVITY": "Company",
+      "BRANCH": "Branch",
+      "STATUS": "Status",
+      "CREATED": "Created",
+      "ACTIONS": "Actions"
+    },
+    "STATUS": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive",
+      "SUSPENDED": "Suspended"
+    },
+    "ACTIONS": {
+      "EDIT": "Edit",
+      "DELETE": "Delete"
+    },
+    "FORM": {
+      "TITLE": "Store Information",
+      "CODE": "Store Code",
+      "CODE_PLACEHOLDER": "Enter store code",
+      "CODE_REQUIRED": "Store code is required",
+      "NAME_EN": "Name (English)",
+      "NAME_EN_PLACEHOLDER": "Enter English name",
+      "NAME_EN_REQUIRED": "English name is required",
+      "NAME_AR": "Name (Arabic)",
+      "NAME_AR_PLACEHOLDER": "Enter Arabic name",
+      "NAME_AR_REQUIRED": "Arabic name is required",
+      "DESCRIPTION": "Description",
+      "DESCRIPTION_PLACEHOLDER": "Enter description",
+      "ACTIVITY": "Company",
+      "ACTIVITY_REQUIRED": "Company is required",
+      "BRANCH": "Branch",
+      "BRANCH_REQUIRED": "Branch is required",
+      "STATUS": "Status",
+      "LATITUDE": "Latitude",
+      "LATITUDE_PLACEHOLDER": "Enter latitude",
+      "LONGITUDE": "Longitude",
+      "LONGITUDE_PLACEHOLDER": "Enter longitude",
+      "STREET": "Street",
+      "STREET_PLACEHOLDER": "Enter street address",
+      "CITY": "City",
+      "CITY_PLACEHOLDER": "Enter city",
+      "STATE": "State",
+      "STATE_PLACEHOLDER": "Enter state",
+      "COUNTRY": "Country",
+      "COUNTRY_PLACEHOLDER": "Enter country",
+      "ZIP_CODE": "Zip Code",
+      "ZIP_CODE_PLACEHOLDER": "Enter zip code",
+      "CREATE_BUTTON": "Create Store",
+      "UPDATE_BUTTON": "Update Store",
+      "CANCEL_BUTTON": "Cancel"
+    }
+  },
+  "CARS": {
+    "LIST_TITLE": "Cars Management",
+    "ADD_NEW": "Add New Car",
+    "SEARCH_PLACEHOLDER": "Search cars...",
+    "COLUMNS": {
+      "VIN": "VIN",
+      "PLATE_NUMBER": "Plate Number",
+      "MAKE": "Make",
+      "MODEL": "Model",
+      "YEAR": "Year",
+      "CONDITION": "Condition",
+      "STATUS": "Status",
+      "LOCATION": "Location",
+      "SALE_PRICE": "Sale Price",
+      "QUANTITY": "Quantity",
+      "CREATED": "Created",
+      "ACTIONS": "Actions"
+    },
+    "CONDITION": {
+      "NEW": "New",
+      "USED": "Used"
+    },
+    "STATUS": {
+      "AVAILABLE": "Available",
+      "RESERVED": "Reserved",
+      "SOLD": "Sold",
+      "IN_MAINTENANCE": "In Maintenance"
+    },
+    "ACTIONS": {
+      "EDIT": "Edit",
+      "DELETE": "Delete"
+    }
   }
 }

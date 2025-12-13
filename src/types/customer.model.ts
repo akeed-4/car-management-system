@@ -18,6 +18,7 @@ export interface Customer {
   preferredContactMethod?: 'Phone' | 'Email' | 'SMS';
   notes?: string;
   isActive: boolean;
+  isCreditCustomer: boolean;
   createdDate: string;
   lastUpdated: string;
 }

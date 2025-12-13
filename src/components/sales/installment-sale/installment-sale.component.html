@@ -1,0 +1,28 @@
+<div>
+  <h3>{{ 'SALE.INSTALLMENT_SALE_TITLE' | translate }}</h3>
+  <div *ngIf="parentForm" [formGroup]="parentForm">
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'SALE.DOWN_PAYMENT' | translate }}</mat-label>
+      <input matInput type="number" formControlName="downPayment" min="0" required>
+    </mat-form-field>
+  </div>
+
+  <div *ngIf="installmentsArray" [formGroup]="parentForm">
+    <div formArrayName="installments">
+      <h4>{{ 'SALE.INSTALLMENTS' | translate }}</h4>
+      <div *ngFor="let installment of installments.controls; let i = index" [formGroupName]="i">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'SALE.INSTALLMENT_AMOUNT' | translate }} {{ i + 1 }}</mat-label>
+          <input matInput type="number" formControlName="amount" min="0" required>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'SALE.INSTALLMENT_DATE' | translate }} {{ i + 1 }}</mat-label>
+          <input matInput type="date" formControlName="date" required>
+        </mat-form-field>
+      </div>
+      <button mat-raised-button type="button" (click)="addInstallment()">
+        {{ 'SALE.ADD_INSTALLMENT' | translate }}
+      </button>
+    </div>
+  </div>
+</div>

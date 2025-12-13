@@ -1,0 +1,29 @@
+.sales-contract {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #fafafa;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.contract-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.contract-status {
+  text-align: center;
+  color: #4caf50;
+  font-weight: bold;
+}
+
+h3 {
+  margin: 0;
+  color: #333;
+}

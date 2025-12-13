@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormControl, Validators, FormGroup } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
@@ -7,9 +8,12 @@ import { InventoryService } from '../../../services/inventory.service';
 import { CustomerService } from '../../../services/customer.service';
 import { SalesService } from '../../../services/sales.service';
 import { CurrentSettingService } from '../../../services/current-setting.service';
+import { StoreService } from '../../../services/store.service';
 import { SalesInvoice } from '../../../types/sales-invoice.model';
 import { InvoiceItem } from '../../../types/invoice-item.model';
 import { Car } from '../../../types/car.model';
+import { StoreCarStockDto } from '../../../types/store-car-stock.model';
+import { Customer } from '../../../types/customer.model';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -25,6 +29,8 @@ import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
 import { InvoiceItemDialogComponent } from '../invoice-item-dialog/invoice-item-dialog.component';
+import { DxoValueErrorBarComponent } from 'devextreme-angular/ui/nested';
+import { ToastService } from '../../../services/toast.service';
 
 const VAT_RATE_FULL = 0.15; // 15% for new cars on full sale price
 const VAT_RATE_MARGIN = 0.15; // 15% applied to profit margin for used cars
@@ -69,53 +75,131 @@ export class SalesInvoiceComponent implements OnInit {
   // Form controls
   invoiceForm!: FormGroup;
   // Services state
-  customers = signal([
-    { id: 1, name: 'Customer A', nationalId: '1234567890' },
-    { id: 2, name: 'Customer B', nationalId: '0987654321' }
-  ]);
+  customers = this.customerService.customers$;
+  stores = this.storeService.stores$;
   private allCars = signal([
     { id: 1, make: 'Toyota', model: 'Corolla', year: 2022, status: 'Available', condition: 'New', salePrice: 50000, totalCost: 40000, photos: ['https://picsum.photos/seed/toyota/800/600'] },
   ]);
   carQuantities = signal(new Map([[1, 5], [2, 3]])); // Mock quantities
-  availableCars = computed(() => {
-    const cars = this.allCars();
-    const quantities = this.carQuantities();
-    // Filter out cars that are 'Sold' or 'In Maintenance'
-    return cars.filter(car => 
-      (car.status === 'Available' || car.status === 'Reserved') && 
-      (quantities.get(car.id) && quantities.get(car.id)! > 0)
-    );
-  });
+  carStocks = signal<StoreCarStockDto[]>([]);
+  availableCars = signal<StoreCarStockDto[]>([]);
 
   // Invoice items state
   invoiceItems = signal<InvoiceItem[]>([]);
 
   invoiceNumber = signal('');
 
+  selectedCustomer = signal<Customer | null>(null);
+
   constructor(
-   private inventoryService: InventoryService,
+    private inventoryService: InventoryService,
     private customerService: CustomerService,
     private salesService: SalesService,
     private currentSettingService: CurrentSettingService,
+    private storeService: StoreService,
     private router: Router,
-    private translate: TranslateService
-    , private dialog: MatDialog
+    private translate: TranslateService,
+    private dialog: MatDialog,
+    private route: ActivatedRoute,
+    private toastService: ToastService
   ) {
     this.invoiceNumber.set(`INV-${Date.now()}`);
   }
 
   ngOnInit() {
-    // Initialize form group
-    this.invoiceForm = new FormGroup({
-      customer: new FormControl(null, Validators.required),
-      invoiceDate: new FormControl(new Date(), Validators.required),
-      dueDate: new FormControl(''),
-      paymentMethod: new FormControl('Cash'),
-      salesperson: new FormControl(''),
-      selectedCarId: new FormControl(null),
-      selectedQuantity: new FormControl(1, [Validators.required, Validators.min(1)]),
-      notes: new FormControl(''),
-      selectedCostPrice: new FormControl(0, [Validators.required, Validators.min(0)])
+    // Check if we're editing an existing invoice
+    const invoiceId = this.route.snapshot.params['id'];
+    if (invoiceId) {
+      this.loadInvoiceForEdit(+invoiceId);
+    } else {
+      // Initialize form group for new invoice
+      this.invoiceForm = new FormGroup({
+        store: new FormControl(null, Validators.required),
+        customer: new FormControl(null, Validators.required),
+        invoiceDate: new FormControl(new Date(), Validators.required),
+        dueDate: new FormControl(''),
+        paymentMethod: new FormControl('Cash'),
+        salesperson: new FormControl(''),
+        selectedCarId: new FormControl(null),
+        selectedQuantity: new FormControl(1, [Validators.required, Validators.min(1)]),
+        notes: new FormControl(''),
+        selectedCostPrice: new FormControl(0, [Validators.required, Validators.min(0)])
+      });
+    }
+
+    // Watch for store changes to load car stocks
+    this.invoiceForm.get('store')?.valueChanges.subscribe(storeId => {
+      if (storeId) {
+        this.loadCarStocks(storeId);
+      } else {
+        this.carStocks.set([]);
+      }
+    });
+
+    // Watch for customer changes to set payment method
+    this.invoiceForm.get('customer')?.valueChanges.subscribe(customerId => {
+      const customer = this.customers().find(c => c.id === customerId);
+      this.selectedCustomer.set(customer || null);
+      if (customer?.isCreditCustomer) {
+        this.invoiceForm.get('paymentMethod')?.setValue('Finance');
+      } else {
+        this.invoiceForm.get('paymentMethod')?.setValue('Cash');
+      }
+    });
+  }
+
+  loadInvoiceForEdit(invoiceId: number) {
+    this.salesService.getInvoiceById(invoiceId).subscribe({
+      next: (invoice) => {
+        // Initialize form group with existing invoice data
+        this.invoiceForm = new FormGroup({
+          store: new FormControl(invoice.storeId, Validators.required),
+          customer: new FormControl(invoice.customerId, Validators.required),
+          invoiceDate: new FormControl(new Date(invoice.invoiceDate), Validators.required),
+          dueDate: new FormControl(invoice.dueDate ? new Date(invoice.dueDate) : ''),
+          paymentMethod: new FormControl(invoice.paymentMethod || 'Cash'),
+          salesperson: new FormControl(invoice.salesperson || ''),
+          selectedCarId: new FormControl(null),
+          selectedQuantity: new FormControl(1, [Validators.required, Validators.min(1)]),
+          notes: new FormControl(invoice.notes || ''),
+          selectedCostPrice: new FormControl(0, [Validators.required, Validators.min(0)])
+        });
+
+        // Set invoice number and items
+        this.invoiceNumber.set(invoice.invoiceNumber);
+        this.invoiceItems.set(invoice.items || []);
+      },
+      error: (error) => {
+        console.error('Failed to load invoice for edit', error);
+        // Navigate back to sales list on error
+        this.router.navigate(['/sales']);
+      }
+    });
+  }
+
+  loadCarStocks(storeId: number) {
+    this.salesService.getStocksByStore(storeId).subscribe({
+      next: (stocks) => {
+        this.carStocks.set(stocks);
+        console.log('Car stocks loaded for store', storeId, stocks);
+      },
+      error: (error) => {
+        console.error('Failed to load car stocks', error);
+        this.carStocks.set([]);
+      }
+    });
+
+    // Load available cars
+    this.salesService.getAvailableCarsByStore(storeId).subscribe({
+      next: (availableStocks) => {
+        console.log('Available cars loaded for store', storeId, availableStocks);
+        this.availableCars.set(availableStocks);
+        this.invoiceForm.get('selectedCarId')?.setValue(null);
+      },
+      error: (error) => {
+        console.error('Failed to load available cars', error);
+        this.availableCars.set([]);
+      }
     });
   }
 
@@ -123,85 +207,85 @@ export class SalesInvoiceComponent implements OnInit {
   subtotal = computed(() => this.invoiceItems().reduce((sum, item) => sum + item.lineTotal, 0));
   
   vatAmount = computed(() => {
-    let totalVat = 0;
-    const carsMap = new Map(this.allCars().map(c => [c.id, c]));
-
-    for (const item of this.invoiceItems()) {
-      const car = carsMap.get(item.carId);
-      if (car) {
-        if (car.condition === 'Used') {
-          // Margin VAT: VAT on (Sale Price - Cost)
-          const profitMargin = item.unitPrice - car.totalCost; 
-          totalVat += Math.max(0, profitMargin) * VAT_RATE_MARGIN * item.quantity;
-        } else {
-          // Full VAT: VAT on Sale Price
-          totalVat += item.unitPrice * VAT_RATE_FULL * item.quantity;
-        }
-      }
-    }
-    return totalVat;
+    return this.subtotal() * VAT_RATE_FULL;
   });
 
   totalAmount = computed(() => this.subtotal() + this.vatAmount());
 
   // Methods for managing invoice items
-  addItemToInvoice(): void {
-    const carId = this.invoiceForm.get('selectedCarId')?.value;
-    if (!carId) {
-      alert(this.translate.instant('INVOICE.SELECT_CAR'));
-      return;
-    }
+ addItemToInvoice(): void {
 
-    const car = this.allCars().find(c => c.id === carId);
-    const quantity = this.invoiceForm.get('selectedQuantity')?.value;
-    const availableStock = this.carQuantities().get(carId) || 0;
+  const customerId = this.invoiceForm.get('customer')?.value;
+  const carId = this.invoiceForm.get('selectedCarId')?.value;
+  const quantity = this.invoiceForm.get('selectedQuantity')?.value;
+  const unitPrice = this.invoiceForm.get('selectedCostPrice')?.value;
 
-    if (!car || quantity <= 0) {
-      return;
-    }
-
-    if (quantity > availableStock) {
-      alert(this.translate.instant('INVOICE.QUANTITY') + ` (${quantity}) ` + this.translate.instant('COMMON.STOCK_LESS') + ` (${availableStock}).`);
-      return;
-    }
-    
-    // Check if car is already in the invoice
-    const existingItem = this.invoiceItems().find(item => item.carId === carId);
-    if (existingItem) {
-      alert(this.translate.instant('INVOICE.ALREADY_ADDED'));
-      return;
-    }
-
-    // Open confirmation dialog before adding
-    // const dialogRef = this.dialog.open(InvoiceItemDialogComponent, {
-    //   width: '420px',
-    //   data: {
-    //     carDescription: `${car.make} ${car.model} (${car.year})`,
-    //     modelYear: `${car.model} / ${car.year}`,
-    //     quantity,
-    //     unitPrice: car.salePrice
-    //   }
-    // });
-
-    // dialogRef.afterClosed().subscribe(result => {
-    //   if (result && result.confirmed) {
-    //     const newItem: InvoiceItem = {
-    //       carId: car.id,
-    //       carDescription: `${car.make} ${car.model} (${car.year})`,
-    //       quantity: result.quantity,
-    //       unitPrice: result.unitPrice,
-    //       lineTotal: result.unitPrice * result.quantity,
-    //       carImage: (car.photos && car.photos.length) ? car.photos[0] : null
-    //     };
-
-    //     this.invoiceItems.update(items => [...items, newItem]);
-
-    //     // Reset selection
-    //     this.invoiceForm.get('selectedCarId')?.setValue(null);
-    //     this.invoiceForm.get('selectedQuantity')?.setValue(1);
-    //   }
-    // });
+  // ---- 1. Validate form selections ----
+  if (!customerId) {
+    alert(this.translate.instant('INVOICE.SELECT_CUSTOMER'));
+    return;
   }
+
+  if (!carId) {
+    alert(this.translate.instant('INVOICE.SELECT_CAR'));
+    return;
+  }
+
+  if (!quantity || quantity <= 0) {
+    alert(this.translate.instant('INVOICE.INVALID_QUANTITY'));
+    return;
+  }
+
+  if (!unitPrice || unitPrice <= 0) {
+    alert(this.translate.instant('INVOICE.INVALID_PRICE'));
+    return;
+  }
+
+  // ---- 2. Get stock item ----
+  const stockItem = this.carStocks().find(c => c.carId === carId);
+
+  if (!stockItem) {
+    alert(this.translate.instant('INVOICE.CAR_NOT_FOUND'));
+    return;
+  }
+
+  if (quantity > stockItem.availableQuantity) {
+    alert(
+      `${this.translate.instant('INVOICE.QUANTITY')} (${quantity}) `
+      + `${this.translate.instant('COMMON.STOCK_LESS')} (${stockItem.availableQuantity}).`
+    );
+    return;
+  }
+
+  // ---- 3. Check if already exists ----
+  const alreadyExists = this.invoiceItems().some(item => item.carId === carId);
+  if (alreadyExists) {
+    alert(this.translate.instant('INVOICE.ALREADY_ADDED'));
+    return;
+  }
+
+  // ---- 4. Build invoice item ----
+  const newItem: InvoiceItem = {
+    carId: stockItem.carId,
+    carName: stockItem.carName,
+    carDescription: stockItem.carName,
+    quantity,
+    unitPrice,
+    lineTotal: unitPrice * quantity,
+    carImage: null
+  };
+
+  // ---- 5. Update invoice items ----
+  this.invoiceItems.update(items => [...items, newItem]);
+
+  // ---- 6. Reset form controls ----
+  this.invoiceForm.patchValue({
+    selectedCarId: null,
+    selectedQuantity: 1,
+    selectedCostPrice: 0
+  });
+}
+
   
   removeItem(carId: number): void {
     this.invoiceItems.update(items => items.filter(item => item.carId !== carId));
@@ -219,10 +303,15 @@ export class SalesInvoiceComponent implements OnInit {
 
 
   saveInvoice(): void {
+    const storeId = this.invoiceForm.get('store')?.value;
     const customerId = this.invoiceForm.get('customer')?.value;
     const customer = this.customers().find(c => c.id === customerId);
     const items = this.invoiceItems();
 
+    if (!storeId) {
+      alert(this.translate.instant('INVOICE.SELECT_STORE'));
+      return;
+    }
     if (!customerId || !customer) {
       alert(this.translate.instant('INVOICE.SELECT_CUSTOMER_OPTION'));
       return;
@@ -240,6 +329,7 @@ export class SalesInvoiceComponent implements OnInit {
       invoiceDate: now.toISOString(),
       customerId,
       customerName: customer.name,
+      storeId,
       items,
       subtotal: this.subtotal(),
       totalAmount: this.totalAmount(),
@@ -254,11 +344,11 @@ export class SalesInvoiceComponent implements OnInit {
 
     this.salesService.addInvoice(invoiceData).subscribe({
       next: () => {
-        alert(this.translate.instant('INVOICE.CREATED_SUCCESS'));
+        this.toastService.showSuccess('TOAST.ADD_SUCCESS');
         this.router.navigate(['/sales']);
       },
       error: () => {
-        alert(this.translate.instant('INVOICE.CREATE_FAILED'));
+        this.toastService.showError('TOAST.SAVE_ERROR');
       }
     });
   }

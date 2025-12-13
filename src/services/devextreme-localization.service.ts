@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { locale, loadMessages } from 'devextreme/localization';
-import 'devextreme-intl';
 
 @Injectable({
   providedIn: 'root'

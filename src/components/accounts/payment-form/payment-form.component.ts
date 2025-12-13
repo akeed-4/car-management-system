@@ -5,7 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SupplierService } from '../../../services/supplier.service';
-import { ProcurementService } from '../../../services/procurement.service';
+import { PurchasesService } from '../../../services/purchases.service';
 import { PaymentService } from '../../../services/payment.service';
 import { TreasuryService } from '../../../services/treasury.service';
 import { PurchaseInvoice } from '../../../types/purchase-invoice.model';
@@ -22,7 +22,7 @@ export class PaymentFormComponent {
   private router = inject(Router);
   private translate = inject(TranslateService);
   private supplierService = inject(SupplierService);
-  private procurementService = inject(ProcurementService);
+  private purchasesService = inject(PurchasesService);
   private paymentService = inject(PaymentService);
   private treasuryService = inject(TreasuryService);
 
@@ -50,7 +50,7 @@ export class PaymentFormComponent {
     this.selectedInvoiceId.set(null); // Reset invoice selection
     this.amount.set(0);
     if (supplierId) {
-      this.procurementService.getOutstandingInvoicesBySupplierId(supplierId).subscribe(invoices => this.outstandingInvoices.set(invoices));
+      this.purchasesService.getOutstandingInvoicesBySupplierId(supplierId).subscribe(invoices => this.outstandingInvoices.set(invoices));
     } else {
       this.outstandingInvoices.set([]);
     }
@@ -78,7 +78,7 @@ export class PaymentFormComponent {
     }
 
     // 1. Apply payment to the purchase invoice
-    this.procurementService.applyPayment(invoice.id, paymentAmount);
+    this.purchasesService.applyPayment(invoice.id, paymentAmount);
 
     // 2. Create and save the payment voucher
     this.paymentService.addPayment({

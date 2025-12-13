@@ -1,0 +1,84 @@
+<div class="container">
+  <h2 class="page-title">{{ 'MANUFACTURE_YEAR.TITLE' | translate }}</h2>
+
+  <div class="card card-container">
+    <div class="form-section">
+      <h3 class="form-section-title">{{ isEditMode() ? ('MANUFACTURE_YEAR.EDIT_TITLE' | translate) : ('MANUFACTURE_YEAR.ADD_NEW' | translate) }}</h3>
+      <form [formGroup]="yearForm" ( class="add-form-grid">
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'MANUFACTURE_YEAR.NAME_LABEL' | translate }}</mat-label>
+          <input
+            matInput
+            type="number"
+            formControlName="year"
+            placeholder="{{ 'MANUFACTURE_YEAR.NAME_PLACEHOLDER' | translate }}"
+            name="year"
+            required
+            min="1900"
+            max="2100"
+          />
+        </mat-form-field>
+      </form>
+        <div class="form-actions">
+          <button mat-raised-button color="primary" (click)="addYear()" [disabled]="yearForm.invalid" class="btn-mat-height">
+            <mat-icon>{{ isEditMode() ? 'update' : 'save' }}</mat-icon>
+            {{ isEditMode() ? ('MANUFACTURE_YEAR.UPDATE_BUTTON' | translate) : ('MANUFACTURE_YEAR.ADD_BUTTON' | translate) }}
+          </button>
+          @if (isEditMode()) {
+            <button mat-stroked-button (click)="cancelEdit()" class="btn-mat-height">
+              <mat-icon>cancel</mat-icon>
+              {{ 'MANUFACTURE_YEAR.CANCEL_BUTTON' | translate }}
+            </button>
+          }
+        </div>
+    </div>
+
+    <h3 class="card-header">{{ 'MANUFACTURE_YEAR.LIST_TITLE' | translate }}</h3>
+    <div class="years-list-wrapper">
+      @if (years().length === 0) {
+        <p class="empty-state">
+          {{ 'MANUFACTURE_YEAR.NO_YEARS' | translate }}
+        </p>
+      } @else {
+        <ng-container *ngIf="cardLayout$ | async as layout">
+          <mat-grid-list [cols]="layout.columns" rowHeight="120px">
+            @for (year of years(); track year) {
+              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                <div class="year-item">
+                  <div class="year-content">
+                    <span class="year-number">{{ year }}</span>
+                  </div>
+                  <div class="year-actions">
+                    <button
+                      mat-icon-button
+                      (click)="editYear(year)"
+                      [title]="'MANUFACTURE_YEAR.EDIT' | translate"
+                      color="primary">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button
+                      mat-icon-button
+                      (click)="requestDelete(year)"
+                      [title]="'MANUFACTURE_YEAR.DELETE' | translate"
+                      color="warn">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              </mat-grid-tile>
+            }
+          </mat-grid-list>
+        </ng-container>
+      }
+    </div>
+  </div>
+</div>
+
+<app-modal 
+  [isOpen]="isDeleteModalOpen()" 
+  title="{{ 'MANUFACTURE_YEAR.DELETE_CONFIRM_TITLE' | translate }}" 
+  message="{{ 'MANUFACTURE_YEAR.DELETE_CONFIRM_MESSAGE' | translate }}"
+  (confirm)="confirmDelete()" 
+  (cancel)="closeDeleteModal()">
+</app-modal>

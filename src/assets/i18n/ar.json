@@ -5,6 +5,7 @@
     "BACK_TO_SALES": "العودة للمبيعات",
     "MAIN_DATA": "البيانات الرئيسية للفاتورة",
     "CUSTOMER": "العميل",
+    "STORE": "المتجر",
     "INVOICE_NUMBER": "رقم الفاتورة",
     "INVOICE_DATE": "تاريخ الفاتورة",
     "DUE_DATE": "تاريخ الاستحقاق",
@@ -27,6 +28,7 @@
     "CANCEL": "إلغاء",
     "ISSUE": "إصدار الفاتورة",
     "SELECT_CUSTOMER_OPTION": "يرجى اختيار العميل",
+    "SELECT_STORE_OPTION": "-- اختر متجر --",
     "SELECT_CAR_OPTION": "-- اختر سيارة من المخزون --",
     "PAYMENT_CASH": "نقداً",
     "PAYMENT_BANK_TRANSFER": "تحويل بنكي",
@@ -35,7 +37,62 @@
     "ADD_AT_LEAST_ONE": "يرجى إضافة عنصر واحد على الأقل إلى الفاتورة",
     "CREATED_SUCCESS": "تم إنشاء الفاتورة بنجاح",
     "ALREADY_ADDED": "هذه السيارة مضافة بالفعل إلى الفاتورة",
-    "COST_PRICE": "سعر الوحدة"
+    "QUANTITY_LABEL": "الكمية:",
+    "costPrice": "سعر الوحدة",
+    "INVALID_PRICE": "يرجى إدخال سعر صحيح أكبر من 0"
+  },
+  "COMMON": {
+    "ALERT": {
+      "EXPIRE_REGISTRATION": "انتهاء الاستمارة",
+      "PERIODIC_INSPECTION": "فحص دوري"
+    },
+    "STOCK_LESS": "الكمية المطلوبة أكبر من الكمية المتاحة في المخزون"
+  },
+  "SALE": {
+    "MANAGEMENT": "إدارة المبيعات",
+    "TYPE": "نوع البيع",
+    "TYPE_CASH": "نقدي",
+    "TYPE_CREDIT": "آجل",
+    "TYPE_INSTALLMENTS": "تقسيط",
+    "APPROVED": "معتمد",
+    "INSTALLMENT_SALE_TITLE": "بيع بالتقسيط",
+    "DOWN_PAYMENT": "الدفعة الأولى",
+    "INSTALLMENTS": "الأقساط",
+    "INSTALLMENT_AMOUNT": "مبلغ القسط",
+    "INSTALLMENT_DATE": "تاريخ القسط",
+    "ADD_INSTALLMENT": "إضافة قسط",
+    "Type_LABEL": "نوع البيع"
+  },
+  "CUSTOMER": {
+    "SELECT": "اختر العميل"
+  },
+  "CAR": {
+    "SELECT": "اختر السيارة"
+  },
+
+  "TOAST": {
+    "SUCCESS": "نجح",
+    "WARNING": "تحذير",
+    "ERROR": "خطأ",
+    "ADD_SUCCESS": "تم الإضافة بنجاح",
+    "EDIT_SUCCESS": "تم التحديث بنجاح",
+    "DELETE_SUCCESS": "تم الحذف بنجاح",
+    "DELETE_CONFIRM": "هل أنت متأكد من حذف هذا العنصر؟",
+    "DELETE_CANCELLED": "تم إلغاء الحذف",
+    "LOAD_ERROR": "فشل في تحميل البيانات",
+    "SAVE_ERROR": "فشل في حفظ البيانات",
+    "VALIDATION_ERROR": "يرجى التحقق من الأخطاء في النموذج"
+  },
+  "CRUD": {
+    "ADD": "إضافة",
+    "EDIT": "تعديل",
+    "DELETE": "حذف",
+    "SAVE": "حفظ",
+    "CANCEL": "إلغاء",
+    "CONFIRM": "تأكيد",
+    "BACK_TO_LIST": "العودة للقائمة",
+    "SAVE_CHANGES": "حفظ التغييرات",
+    "ADD_NEW": "إضافة جديد"
   },
   "APP": {
     "TITLE": "نظام إدارة معرض السيارات",
@@ -65,7 +122,87 @@
   "SUPPLIERS": {
     "ALNAHDI": "شركة النهدي للسيارات",
     "AUCTION": "مزاد السيارات الدولي",
-    "NOTE_SHIPPING": "شامل تكاليف النقل."
+    "NOTE_SHIPPING": "شامل تكاليف النقل.",
+    "FORM": {
+      "BACK_TO_LIST": "العودة لقائمة الموردين",
+      "BASIC_INFO": "المعلومات الأساسية",
+      "SUPPLIER_NAME": "اسم المورد",
+      "CR_NUMBER": "رقم السجل التجاري",
+      "TAX_NUMBER": "الرقم الضريبي",
+      "SUPPLIER_CATEGORY": "فئة المورد",
+      "CATEGORY_PARTS": "قطع غيار",
+      "CATEGORY_VEHICLES": "مركبات",
+      "CATEGORY_SERVICES": "خدمات",
+      "CATEGORY_EQUIPMENT": "معدات",
+      "CONTACT_INFO": "معلومات الاتصال",
+      "PRIMARY_PHONE": "رقم الهاتف الأساسي",
+      "SECONDARY_PHONE": "رقم الهاتف الثانوي",
+      "EMAIL": "البريد الإلكتروني",
+      "WEBSITE": "الموقع الإلكتروني",
+      "ADDRESS_INFO": "معلومات العنوان",
+      "CITY": "المدينة",
+      "DISTRICT": "الحي",
+      "POSTAL_CODE": "الرمز البريدي",
+      "DETAILED_ADDRESS": "العنوان التفصيلي",
+      "CONTACT_PERSON": "الشخص المسؤول",
+      "CONTACT_PERSON_NAME": "اسم الشخص المسؤول",
+      "CONTACT_PERSON_PHONE": "رقم جوال الشخص المسؤول",
+      "CONTACT_PERSON_EMAIL": "بريد الشخص المسؤول",
+      "FINANCIAL_INFO": "المعلومات المالية",
+      "PAYMENT_TERMS": "شروط الدفع",
+      "PAYMENT_CASH": "نقداً",
+      "PAYMENT_NET_15": "صافي 15 يوم",
+      "PAYMENT_NET_30": "صافي 30 يوم",
+      "PAYMENT_NET_60": "صافي 60 يوم",
+      "PAYMENT_NET_90": "صافي 90 يوم",
+      "CREDIT_LIMIT": "حد الائتمان",
+      "BANKING_INFO": "المعلومات البنكية",
+      "BANK_NAME": "اسم البنك",
+      "BANK_ACCOUNT_NUMBER": "رقم الحساب البنكي",
+      "IBAN": "رقم الآيبان",
+      "ADDITIONAL_INFO": "معلومات إضافية",
+      "NOTES": "ملاحظات",
+      "ACTIVE_SUPPLIER": "مورد نشط",
+      "CANCEL": "إلغاء",
+      "SAVE_CHANGES": "حفظ التغييرات",
+      "ADD_SUPPLIER": "إضافة المورد",
+      "VALIDATION": {
+        "NAME_REQUIRED": "اسم المورد مطلوب",
+        "CR_NUMBER_REQUIRED": "رقم السجل التجاري مطلوب",
+        "PHONE_REQUIRED": "رقم الهاتف مطلوب",
+        "ADDRESS_REQUIRED": "العنوان مطلوب",
+        "EMAIL_INVALID": "البريد الإلكتروني غير صحيح",
+        "CREDIT_LIMIT_MIN": "حد الائتمان يجب أن يكون رقماً موجباً"
+      }
+    },
+    "LIST_TITLE": "إدارة الموردين",
+    "ADD_NEW": "إضافة مورد جديد",
+    "COLUMNS": {
+      "NAME": "الاسم",
+      "CR_NUMBER": "رقم السجل التجاري",
+      "PHONE": "الهاتف",
+      "SECONDARY_PHONE": "الهاتف الثانوي",
+      "EMAIL": "البريد الإلكتروني",
+      "CATEGORY": "الفئة",
+      "ADDRESS": "العنوان",
+      "CITY": "المدينة",
+      "PAYMENT_TERMS": "شروط الدفع",
+      "CREDIT_LIMIT": "حد الائتمان",
+      "STATUS": "الحالة",
+      "ACTIONS": "الإجراءات"
+    },
+    "STATUS": {
+      "ACTIVE": "نشط",
+      "INACTIVE": "غير نشط"
+    },
+    "ACTIONS": {
+      "EDIT": "تعديل",
+      "DELETE": "حذف"
+    },
+    "DELETE_MODAL": {
+      "TITLE": "حذف المورد",
+      "MESSAGE": "هل أنت متأكد من حذف هذا المورد؟ لا يمكن التراجع عن هذا الإجراء."
+    }
   },
   "ROLE": {
     "DASHBOARD": "لوحة التحكم"
@@ -109,12 +246,16 @@
       "BACK_TO_INVENTORY": "← العودة إلى المخزون",
       "MAIN_DETAILS": "البيانات الأساسية",
       "MANUFACTURER": "الشركة المصنعة",
+      "SELECT_MANUFACTURER": "اختر الشركة المصنعة",
       "MODEL": "الموديل",
+      "SELECT_MODEL": "اختر الموديل",
       "YEAR": "سنة الصنع",
+      "SELECT_YEAR": "اختر السنة",
       "CURRENT_LOCATION": "الموقع الحالي",
       "CONDITION": "حالة السيارة",
       "USED": "مستعملة",
       "NEW": "جديدة",
+      "SAUDI_DETAILS": "التفاصيل السعودية الخاصة",
       "VIN": "رقم الهيكل (VIN)",
       "SCAN": "مسح",
       "PLATE_NUMBER": "رقم اللوحة",
@@ -145,6 +286,8 @@
       "NO_FINANCE": "-- بدون تمويل --",
       "RELATED_COSTS": "التكاليف المرتبطة",
       "DESCRIPTION_PHOTOS": "الوصف والصور",
+      "MARKETING_DESCRIPTION": "الوصف التسويقي",
+      "PHOTOS": "الصور",
       "UPLOAD_FILE": "ارفع ملفاً",
       "CANCEL": "إلغاء",
       "PUBLISH": "نشر على المنصات",
@@ -175,7 +318,7 @@
       "ERROR_SELECT_CAR": "الرجاء اختيار سيارة لكل صف في الجدول."
     }
   },
-  "PROCUREMENT": {
+  "PURCHASES": {
     "TITLE": "فواتير الشراء",
     "NEW_PURCHASE_INVOICE": "فاتورة شراء جديدة",
     "SEARCH_PLACEHOLDER": "ابحث عن فاتورة (الرقم، المورد، السيارة...)",
@@ -190,6 +333,10 @@
     "STATUS": "الحالة",
     "ACTIONS": "إجراءات",
     "PRINT_INVOICE": "طباعة الفاتورة",
+    "EDIT_INVOICE": "تعديل الفاتورة",
+    "DELETE_INVOICE": "حذف الفاتورة",
+    "DELETE_INVOICE_CONFIRM": "هل أنت متأكد من حذف هذه الفاتورة؟",
+    "DELETE_INVOICE_ERROR": "خطأ في حذف الفاتورة.",
     "ARCHIVE": "أرشفة",
     "UNARCHIVE": "إلغاء الأرشفة",
     "NO_ARCHIVED_INVOICES": "لا توجد فواتير في الأرشيف.",
@@ -202,6 +349,8 @@
     "MAIN_DATA": "بيانات الفاتورة الرئيسية",
     "SUPPLIER": "المورد",
     "SELECT_SUPPLIER": "-- اختر المورد --",
+    "STORE": "المخزن",
+    "SELECT_STORE": "-- اختر المخزن --",
     "INVOICE_NUMBER": "رقم الفاتورة",
     "INVOICE_DATE": "تاريخ الفاتورة",
     "PAYMENT_METHOD": "طريقة الدفع",
@@ -210,18 +359,23 @@
     "ITEMS_SECTION": "تفاصيل الفاتورة (البنود)",
     "SELECT_CAR": "اختر السيارة",
     "SELECT_CAR_OPTION": "-- اختر سيارة من المخزون --",
+    "AVAILABLE_QUANTITY": "الكمية المتاحة",
     "PURCHASE_PRICE": "سعر الشراء للوحدة",
     "QUANTITY": "الكمية",
     "ADD": "إضافة",
     "NO_ITEMS": "لم تتم إضافة أي سيارات للفاتورة بعد.",
     "NOTES": "ملاحظات",
     "NOTES_PLACEHOLDER": "أي ملاحظات إضافية على الفاتورة...",
+    "INVOICE_SUMMARY": "ملخص الفاتورة",
+    "SUBTOTAL": "المجموع الفرعي",
+    "VAT": "ضريبة القيمة المضافة (15%)",
     "TOTAL": "الإجمالي",
     "CANCEL": "إلغاء",
     "SAVE": "حفظ فاتورة الشراء",
     "ERROR_SELECT_CAR": "الرجاء اختيار سيارة.",
     "ERROR_ALREADY_ADDED": "هذه السيارة مضافة بالفعل إلى الفاتورة.",
-    "SAVED_SUCCESS": "تم حفظ فاتورة الشراء بنجاح وتحديث المخزون."
+    "SAVED_SUCCESS": "تم حفظ فاتورة الشراء بنجاح وتحديث المخزون.",
+    "SAVE_ERROR": "خطأ في حفظ فاتورة الشراء."
   },
   "PURCHASE_RETURN": {
     "CREATE_TITLE": "إنشاء مرتجع مشتريات",
@@ -279,6 +433,10 @@
 
     "POS_PAYMENT": "الدفع بالشبكة",
     "PRINT_INVOICE": "طباعة الفاتورة",
+    "EDIT_INVOICE": "تعديل الفاتورة",
+    "DELETE_INVOICE": "حذف الفاتورة",
+    "DELETE_INVOICE_CONFIRM": "هل أنت متأكد من حذف هذه الفاتورة؟",
+    "DELETE_INVOICE_ERROR": "خطأ في حذف الفاتورة.",
     "ARCHIVE": "أرشفة",
     "UNARCHIVE": "إلغاء الأرشفة",
     "NO_ARCHIVE": "لا توجد فواتير في الأرشيف.",
@@ -325,8 +483,97 @@
       "BACK": "رجوع",
       "PRINT": "طباعة الفاتورة",
       "NOT_FOUND": "لم يتم العثور على الفاتورة المطلوبة."
+    },
+
+    "TYPE": {
+      "LABEL": "نوع البيع",
+      "CASH": "نقدي",
+      "CREDIT": "ائتماني",
+      "INSTALLMENTS": "تقسيط"
+    },
+
+    "DOWN_PAYMENT": {
+      "LABEL": "الدفعة المقدمة",
+      "PLACEHOLDER": "أدخل مبلغ الدفعة المقدمة",
+      "REQUIRED": "الدفعة المقدمة مطلوبة للمبيعات الائتمانية والتقسيط",
+      "MIN": "يجب أن تكون الدفعة المقدمة أكبر من 0"
+    },
+
+    "CAR_LINK": {
+      "TITLE": "ربط السيارة بالعميل",
+      "CHASSIS_NUMBER": "رقم الشاسيه",
+      "PLATE_NUMBER": "رقم اللوحة",
+      "CHASSIS_PLACEHOLDER": "أدخل رقم الشاسيه",
+      "PLATE_PLACEHOLDER": "أدخل رقم اللوحة",
+      "BUTTON": "ربط السيارة"
+    },
+
+    "CONTRACT": {
+      "TITLE": "عقد البيع",
+      "CONTENT": "محتوى العقد",
+      "APPROVE": "اعتماد العقد",
+      "APPROVED": "تم اعتماد العقد",
+      "EDITABLE_BEFORE_APPROVAL": "قابل للتعديل قبل الاعتماد",
+      "READONLY_AFTER_APPROVAL": "للقراءة فقط بعد الاعتماد"
     }
   },
+
+  "INSTALLMENT": {
+    "DASHBOARD": {
+      "TITLE": "إدارة الأقساط"
+    },
+
+    "PREVIEW": {
+      "TITLE": "معاينة جدول الأقساط",
+      "TOTAL_AMOUNT": "المبلغ الإجمالي",
+      "DOWN_PAYMENT": "الدفعة المقدمة",
+      "INTEREST_RATE": "معدل الفائدة (%)",
+      "TERM_MONTHS": "مدة التقسيط (أشهر)",
+      "GENERATE": "إنشاء المعاينة",
+      "SCHEDULE_TITLE": "جدول الأقساط",
+      "TOTAL_INSTALLMENTS": "إجمالي الأقساط"
+    },
+
+    "GRID": {
+      "ID": "الرقم",
+      "TOTAL_AMOUNT": "المبلغ الإجمالي",
+      "DOWN_PAYMENT": "الدفعة المقدمة",
+      "INTEREST_RATE": "معدل الفائدة",
+      "TERM_MONTHS": "مدة التقسيط",
+      "STATUS": "الحالة",
+      "CREATED_AT": "تاريخ الإنشاء",
+      "DUE_DATE": "تاريخ الاستحقاق",
+      "AMOUNT": "المبلغ",
+      "PAID": "مدفوع",
+      "OVERDUE": "متأخر",
+      "LATE_PENALTY": "غرامة التأخير",
+      "RESCHEDULE": "إعادة جدولة",
+      "REGISTER_PAYMENT": "تسجيل الدفع"
+    },
+
+    "STATUS": {
+      "PAID": "مدفوع",
+      "UNPAID": "غير مدفوع",
+      "OVERDUE": "متأخر",
+      "ACTIVE": "نشط",
+      "CLOSED": "مغلق"
+    },
+
+    "RESCHEDULE": {
+      "TITLE": "إعادة جدولة القسط",
+      "REASON": "سبب إعادة الجدولة",
+      "REASON_PLACEHOLDER": "أدخل سبب إعادة الجدولة",
+      "REASON_REQUIRED": "السبب مطلوب",
+      "NEW_TERM_MONTHS": "المدة الجديدة (أشهر)",
+      "NEW_INTEREST_RATE": "معدل الفائدة الجديد (%)",
+      "TERM_REQUIRED": "المدة مطلوبة",
+      "TERM_MIN": "يجب أن تكون المدة شهر واحد على الأقل",
+      "INTEREST_REQUIRED": "معدل الفائدة مطلوب",
+      "INTEREST_MIN": "يجب أن يكون معدل الفائدة 0 أو أكبر",
+      "SUBMIT": "إعادة الجدولة"
+    }
+  },
+
   "ACCOUNTS": {
     "RECEIPTS": {
       "LIST_TITLE": "قائمة سندات القبض",
@@ -436,9 +683,12 @@
   "MANUFACTURERS": {
     "TITLE": "إدارة المصنعين",
     "ADD_NEW": "إضافة مصنع جديد",
+    "EDIT_TITLE": "تعديل المصنع",
     "NAME_LABEL": "اسم المصنع",
     "NAME_PLACEHOLDER": "أدخل اسم المصنع",
     "ADD_BUTTON": "إضافة",
+    "UPDATE_BUTTON": "تحديث",
+    "CANCEL_BUTTON": "إلغاء",
     "LIST_TITLE": "قائمة المصنعين",
     "NO_MANUFACTURERS": "لا توجد مصنعين لعرضهم.",
     "NAME": "اسم المصنع",
@@ -450,20 +700,26 @@
   "MANUFACTURE_YEAR": {
     "TITLE": "إدارة سنوات الصنع",
     "ADD_NEW": "إضافة سنة صنع جديدة",
+    "EDIT_TITLE": "تعديل سنة الصنع",
     "NAME_LABEL": "السنة",
     "NAME_PLACEHOLDER": "أدخل السنة",
     "ADD_BUTTON": "إضافة",
+    "UPDATE_BUTTON": "تحديث",
+    "CANCEL_BUTTON": "إلغاء",
     "LIST_TITLE": "السنوات المتاحة",
     "NO_YEARS": "لم يتم إضافة أي سنوات بعد."
   },
   "CAR_MODELS": {
     "TITLE": "إدارة موديلات السيارات",
     "ADD_NEW": "إضافة موديل جديد",
+    "EDIT_TITLE": "تعديل الموديل",
     "MANUFACTURER_LABEL": "الشركة المصنعة",
     "SELECT_MANUFACTURER": "اختر الشركة المصنعة",
     "MODEL_NAME_LABEL": "اسم الموديل",
     "MODEL_PLACEHOLDER": "مثال: كامري",
     "ADD_BUTTON": "إضافة الموديل",
+    "UPDATE_BUTTON": "تحديث الموديل",
+    "CANCEL_BUTTON": "إلغاء",
     "LIST_TITLE": "الموديلات الحالية",
     "NO_MODELS": "لم يتم إضافة أي موديلات بعد.",
     "DELETE": "حذف",
@@ -479,5 +735,284 @@
     "SUBMIT": "دخول",
     "INVALID_CREDENTIALS": "بيانات الدخول غير صحيحة",
     "FILL_REQUIRED_FIELDS": "يرجى ملء جميع الحقول المطلوبة"
+  },
+  "CUSTOMERS": {
+    "FORM": {
+      "BACK_TO_LIST": "العودة لقائمة العملاء",
+      "BASIC_INFO": "المعلومات الأساسية",
+      "FULL_NAME": "الاسم الكامل",
+      "NATIONAL_ID": "رقم الهوية",
+      "PRIMARY_PHONE": "رقم الجوال الأساسي",
+      "SECONDARY_PHONE": "رقم الجوال الثانوي",
+      "CONTACT_INFO": "معلومات الاتصال",
+      "EMAIL": "البريد الإلكتروني",
+      "PREFERRED_CONTACT": "طريقة الاتصال المفضلة",
+      "CONTACT_PHONE": "الهاتف",
+      "CONTACT_EMAIL": "البريد الإلكتروني",
+      "CONTACT_SMS": "رسالة نصية",
+      "ADDRESS_INFO": "معلومات العنوان",
+      "CITY": "المدينة",
+      "DISTRICT": "الحي",
+      "POSTAL_CODE": "الرمز البريدي",
+      "DETAILED_ADDRESS": "العنوان التفصيلي",
+      "PERSONAL_INFO": "المعلومات الشخصية",
+      "DATE_OF_BIRTH": "تاريخ الميلاد",
+      "GENDER": "الجنس",
+      "GENDER_MALE": "ذكر",
+      "GENDER_FEMALE": "أنثى",
+      "OCCUPATION": "المهنة",
+      "EMPLOYER": "جهة العمل",
+      "MONTHLY_INCOME": "الدخل الشهري",
+      "CREDIT_SCORE": "نقاط الائتمان",
+      "ADDITIONAL_INFO": "معلومات إضافية",
+      "NOTES": "ملاحظات",
+      "ACTIVE_CUSTOMER": "عميل نشط",
+      "CANCEL": "إلغاء",
+      "SAVE_CHANGES": "حفظ التغييرات",
+      "ADD_CUSTOMER": "إضافة العميل",
+      "VALIDATION": {
+        "NAME_REQUIRED": "الاسم مطلوب ويجب أن يكون أكثر من حرفين",
+        "NATIONAL_ID_REQUIRED": "رقم الهوية مطلوب ويجب أن يكون 10 أرقام",
+        "PHONE_REQUIRED": "رقم الجوال مطلوب ويجب أن يكون بالصيغة +966xxxxxxxxx",
+        "ADDRESS_REQUIRED": "العنوان مطلوب",
+        "EMAIL_INVALID": "البريد الإلكتروني غير صحيح",
+        "INCOME_MIN": "الدخل يجب أن يكون رقماً موجباً",
+        "CREDIT_SCORE_RANGE": "نقاط الائتمان يجب أن تكون بين 0 و 1000"
+      }
+    },
+    "LIST_TITLE": "إدارة العملاء",
+    "ADD_NEW": "إضافة عميل جديد",
+    "COLUMNS": {
+      "NAME": "الاسم",
+      "NATIONAL_ID": "رقم الهوية",
+      "PHONE": "الهاتف",
+      "SECONDARY_PHONE": "الهاتف الثانوي",
+      "EMAIL": "البريد الإلكتروني",
+      "ADDRESS": "العنوان",
+      "CITY": "المدينة",
+      "OCCUPATION": "المهنة",
+      "MONTHLY_INCOME": "الدخل الشهري",
+      "CREDIT_SCORE": "نقاط الائتمان",
+      "STATUS": "الحالة",
+      "ACTIONS": "الإجراءات"
+    },
+    "STATUS": {
+      "ACTIVE": "نشط",
+      "INACTIVE": "غير نشط"
+    },
+    "ACTIONS": {
+      "EDIT": "تعديل",
+      "DELETE": "حذف"
+    },
+    "DELETE_MODAL": {
+      "TITLE": "حذف العميل",
+      "MESSAGE": "هل أنت متأكد من حذف هذا العميل؟ لا يمكن التراجع عن هذا الإجراء."
+    }
+  },
+  "COMPANIES": {
+    "LIST_TITLE": "إدارة الشركات",
+    "ADD_NEW": "إضافة شركة جديدة",
+    "SEARCH_PLACEHOLDER": "البحث في الشركات...",
+    "COLUMNS": {
+      "CODE": "الرمز",
+      "NAME_EN": "الاسم (EN)",
+      "NAME_AR": "الاسم (AR)",
+      "DESCRIPTION": "الوصف",
+      "BRANCH": "الفرع",
+      "STATUS": "الحالة",
+      "CREATED": "تاريخ الإنشاء",
+      "ACTIONS": "الإجراءات"
+    },
+    "STATUS": {
+      "ACTIVE": "نشط",
+      "INACTIVE": "غير نشط",
+      "SUSPENDED": "معلق"
+    },
+    "ACTIONS": {
+      "EDIT": "تعديل",
+      "DELETE": "حذف"
+    },
+    "FORM": {
+      "TITLE": "معلومات الشركة",
+      "CODE": "رمز الشركة",
+      "CODE_PLACEHOLDER": "أدخل رمز الشركة",
+      "CODE_REQUIRED": "رمز الشركة مطلوب",
+      "NAME_EN": "الاسم (الإنجليزية)",
+      "NAME_EN_PLACEHOLDER": "أدخل الاسم بالإنجليزية",
+      "NAME_EN_REQUIRED": "الاسم بالإنجليزية مطلوب",
+      "NAME_AR": "الاسم (العربية)",
+      "NAME_AR_PLACEHOLDER": "أدخل الاسم بالعربية",
+      "NAME_AR_REQUIRED": "الاسم بالعربية مطلوب",
+      "DESCRIPTION": "الوصف",
+      "DESCRIPTION_PLACEHOLDER": "أدخل الوصف",
+      "BRANCH": "الفرع",
+      "BRANCH_REQUIRED": "الفرع مطلوب",
+      "STATUS": "الحالة",
+      "LATITUDE": "خط العرض",
+      "LATITUDE_PLACEHOLDER": "أدخل خط العرض",
+      "LONGITUDE": "خط الطول",
+      "LONGITUDE_PLACEHOLDER": "أدخل خط الطول",
+      "STREET": "الشارع",
+      "STREET_PLACEHOLDER": "أدخل عنوان الشارع",
+      "CITY": "المدينة",
+      "CITY_PLACEHOLDER": "أدخل المدينة",
+      "STATE": "الولاية",
+      "STATE_PLACEHOLDER": "أدخل الولاية",
+      "COUNTRY": "البلد",
+      "COUNTRY_PLACEHOLDER": "أدخل البلد",
+      "ZIP_CODE": "الرمز البريدي",
+      "ZIP_CODE_PLACEHOLDER": "أدخل الرمز البريدي",
+      "CREATE_BUTTON": "إنشاء شركة",
+      "UPDATE_BUTTON": "تحديث الشركة",
+      "CANCEL_BUTTON": "إلغاء"
+    }
+  },
+  "BRANCHES": {
+    "LIST_TITLE": "إدارة الفروع",
+    "ADD_NEW": "إضافة فرع جديد",
+    "COLUMNS": {
+      "CODE": "الرمز",
+      "NAME_EN": "الاسم (EN)",
+      "NAME_AR": "الاسم (AR)",
+      "DESCRIPTION": "الوصف",
+      "STATUS": "الحالة",
+      "CREATED": "تاريخ الإنشاء",
+      "ACTIONS": "الإجراءات"
+    },
+    "STATUS": {
+      "ACTIVE": "نشط",
+      "INACTIVE": "غير نشط",
+      "SUSPENDED": "معلق"
+    },
+    "ACTIONS": {
+      "EDIT": "تعديل",
+      "DELETE": "حذف"
+    },
+    "FORM": {
+      "TITLE": "معلومات الفرع",
+      "CODE": "رمز الفرع",
+      "CODE_PLACEHOLDER": "أدخل رمز الفرع",
+      "CODE_REQUIRED": "رمز الفرع مطلوب",
+      "NAME_EN": "الاسم (الإنجليزية)",
+      "NAME_EN_PLACEHOLDER": "أدخل الاسم بالإنجليزية",
+      "NAME_EN_REQUIRED": "الاسم بالإنجليزية مطلوب",
+      "NAME_AR": "الاسم (العربية)",
+      "NAME_AR_PLACEHOLDER": "أدخل الاسم بالعربية",
+      "NAME_AR_REQUIRED": "الاسم بالعربية مطلوب",
+      "DESCRIPTION": "الوصف",
+      "DESCRIPTION_PLACEHOLDER": "أدخل الوصف",
+      "STATUS": "الحالة",
+      "LATITUDE": "خط العرض",
+      "LATITUDE_PLACEHOLDER": "أدخل خط العرض",
+      "LONGITUDE": "خط الطول",
+      "LONGITUDE_PLACEHOLDER": "أدخل خط الطول",
+      "STREET": "الشارع",
+      "STREET_PLACEHOLDER": "أدخل عنوان الشارع",
+      "CITY": "المدينة",
+      "CITY_PLACEHOLDER": "أدخل المدينة",
+      "STATE": "الولاية",
+      "STATE_PLACEHOLDER": "أدخل الولاية",
+      "COUNTRY": "البلد",
+      "COUNTRY_PLACEHOLDER": "أدخل البلد",
+      "ZIP_CODE": "الرمز البريدي",
+      "ZIP_CODE_PLACEHOLDER": "أدخل الرمز البريدي",
+      "CREATE_BUTTON": "إنشاء فرع",
+      "UPDATE_BUTTON": "تحديث الفرع",
+      "CANCEL_BUTTON": "إلغاء"
+    }
+  },
+  "STORES": {
+    "LIST_TITLE": "إدارة المتاجر",
+    "ADD_NEW": "إضافة متجر جديد",
+    "SEARCH_PLACEHOLDER": "البحث في المتاجر...",
+    "COLUMNS": {
+      "CODE": "الرمز",
+      "NAME_EN": "الاسم (EN)",
+      "NAME_AR": "الاسم (AR)",
+      "DESCRIPTION": "الوصف",
+      "ACTIVITY": "الشركة",
+      "BRANCH": "الفرع",
+      "STATUS": "الحالة",
+      "CREATED": "تاريخ الإنشاء",
+      "ACTIONS": "الإجراءات"
+    },
+    "STATUS": {
+      "ACTIVE": "نشط",
+      "INACTIVE": "غير نشط",
+      "SUSPENDED": "معلق"
+    },
+    "ACTIONS": {
+      "EDIT": "تعديل",
+      "DELETE": "حذف"
+    },
+    "FORM": {
+      "TITLE": "معلومات المتجر",
+      "CODE": "رمز المتجر",
+      "CODE_PLACEHOLDER": "أدخل رمز المتجر",
+      "CODE_REQUIRED": "رمز المتجر مطلوب",
+      "NAME_EN": "الاسم (الإنجليزية)",
+      "NAME_EN_PLACEHOLDER": "أدخل الاسم بالإنجليزية",
+      "NAME_EN_REQUIRED": "الاسم بالإنجليزية مطلوب",
+      "NAME_AR": "الاسم (العربية)",
+      "NAME_AR_PLACEHOLDER": "أدخل الاسم بالعربية",
+      "NAME_AR_REQUIRED": "الاسم بالعربية مطلوب",
+      "DESCRIPTION": "الوصف",
+      "DESCRIPTION_PLACEHOLDER": "أدخل الوصف",
+      "ACTIVITY": "الشركة",
+      "ACTIVITY_REQUIRED": "الشركة مطلوبة",
+      "BRANCH": "الفرع",
+      "BRANCH_REQUIRED": "الفرع مطلوب",
+      "STATUS": "الحالة",
+      "LATITUDE": "خط العرض",
+      "LATITUDE_PLACEHOLDER": "أدخل خط العرض",
+      "LONGITUDE": "خط الطول",
+      "LONGITUDE_PLACEHOLDER": "أدخل خط الطول",
+      "STREET": "الشارع",
+      "STREET_PLACEHOLDER": "أدخل عنوان الشارع",
+      "CITY": "المدينة",
+      "CITY_PLACEHOLDER": "أدخل المدينة",
+      "STATE": "الولاية",
+      "STATE_PLACEHOLDER": "أدخل الولاية",
+      "COUNTRY": "البلد",
+      "COUNTRY_PLACEHOLDER": "أدخل البلد",
+      "ZIP_CODE": "الرمز البريدي",
+      "ZIP_CODE_PLACEHOLDER": "أدخل الرمز البريدي",
+      "CREATE_BUTTON": "إنشاء متجر",
+      "UPDATE_BUTTON": "تحديث المتجر",
+      "CANCEL_BUTTON": "إلغاء"
+    }
+  },
+  "CARS": {
+    "LIST_TITLE": "إدارة السيارات",
+    "ADD_NEW": "إضافة سيارة جديدة",
+    "SEARCH_PLACEHOLDER": "البحث في السيارات...",
+    "COLUMNS": {
+      "VIN": "رقم الهيكل",
+      "PLATE_NUMBER": "رقم اللوحة",
+      "MAKE": "الماركة",
+      "MODEL": "الموديل",
+      "YEAR": "السنة",
+      "CONDITION": "الحالة",
+      "STATUS": "الحالة",
+      "LOCATION": "الموقع",
+      "SALE_PRICE": "سعر البيع",
+      "QUANTITY": "الكمية",
+      "CREATED": "تاريخ الإنشاء",
+      "ACTIONS": "الإجراءات"
+    },
+    "CONDITION": {
+      "NEW": "جديدة",
+      "USED": "مستعملة"
+    },
+    "STATUS": {
+      "AVAILABLE": "متاحة",
+      "RESERVED": "محجوزة",
+      "SOLD": "مباعة",
+      "IN_MAINTENANCE": "في الصيانة"
+    },
+    "ACTIONS": {
+      "EDIT": "تعديل",
+      "DELETE": "حذف"
+    }
   }
 }

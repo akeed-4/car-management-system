@@ -14,7 +14,7 @@
   </div>
 
   <div class="card invoice-card">
-    <form [formGroup]="invoiceForm" (ngSubmit)="saveInvoice()">
+    <form [formGroup]="invoiceForm" >
       <section class="form-section">
         <h3 class="form-section-title">{{ 'INVOICE.MAIN_DATA' | translate }}</h3>
         <div class="form-grid">
@@ -24,6 +24,16 @@
               <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_CUSTOMER_OPTION' | translate }}</mat-option>
               <mat-option *ngFor="let customer of customers()" [value]="customer.id">
                 {{ customer.name }} ({{ customer.nationalId }})
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'INVOICE.STORE' | translate }}</mat-label>
+            <mat-select formControlName="store" required>
+              <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_STORE_OPTION' | translate }}</mat-option>
+              <mat-option *ngFor="let store of stores()" [value]="store.id">
+                {{ store.name }}
               </mat-option>
             </mat-select>
           </mat-form-field>
@@ -40,7 +50,7 @@
             <mat-datepicker #invoiceDatePicker></mat-datepicker>
           </mat-form-field>
 
-          <mat-form-field appearance="outline" class="form-field">
+          <mat-form-field *ngIf="selectedCustomer()?.isCreditCustomer" appearance="outline" class="form-field">
             <mat-label>{{ 'INVOICE.DUE_DATE' | translate }}</mat-label>
             <input matInput [matDatepicker]="dueDatePicker" formControlName="dueDate">
             <mat-datepicker-toggle matSuffix [for]="dueDatePicker"></mat-datepicker-toggle>
@@ -51,8 +61,8 @@
             <mat-label>{{ 'INVOICE.PAYMENT_METHOD' | translate }}</mat-label>
             <mat-select formControlName="paymentMethod">
               <mat-option value="Cash">{{ 'INVOICE.PAYMENT_CASH' | translate }}</mat-option>
-              <mat-option value="Bank Transfer">{{ 'INVOICE.PAYMENT_BANK_TRANSFER' | translate }}</mat-option>
-              <mat-option value="Finance">{{ 'INVOICE.PAYMENT_FINANCE' | translate }}</mat-option>
+              <mat-option *ngIf="selectedCustomer()?.isCreditCustomer" value="Bank Transfer">{{ 'INVOICE.PAYMENT_BANK_TRANSFER' | translate }}</mat-option>
+              <mat-option *ngIf="selectedCustomer()?.isCreditCustomer" value="Finance">{{ 'INVOICE.PAYMENT_FINANCE' | translate }}</mat-option>
             </mat-select>
           </mat-form-field>
 
@@ -71,8 +81,8 @@
               <mat-label>{{ 'INVOICE.SELECT_CAR' | translate }}</mat-label>
               <mat-select formControlName="selectedCarId">
                 <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_CAR_OPTION' | translate }}</mat-option>
-                <mat-option *ngFor="let car of availableCars()" [value]="car.id">
-                  {{ car.make }} {{ car.model }} ({{ car.year }}) - الكمية: {{ carQuantities().get(car.id) || 0 }}
+                <mat-option *ngFor="let car of availableCars()" [value]="car.carId">
+                  {{ car.carName }} - {{ 'INVOICE.QUANTITY_LABEL' | translate }} {{ car.availableQuantity }}
                 </mat-option>
               </mat-select>
             </mat-form-field>
@@ -113,7 +123,7 @@
             [noDataText]="'INVOICE.NO_ITEMS' | translate"
             [height]="400"
           >
-            <dxi-column dataField="carDescription" caption="{{ 'INVOICE.CAR' | translate }}" [allowEditing]="false"></dxi-column>
+            <dxi-column dataField="carName" caption="{{ 'INVOICE.CAR' | translate }}" [allowEditing]="false"></dxi-column>
             <dxi-column dataField="quantity" caption="{{ 'INVOICE.QUANTITY' | translate }}" [allowEditing]="false"></dxi-column>
             <dxi-column dataField="unitPrice" caption="{{ 'INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
             <dxi-column dataField="lineTotal" caption="{{ 'INVOICE.LINE_TOTAL' | translate }}" dataType="number" [allowEditing]="false" format="currency"></dxi-column>
@@ -162,7 +172,7 @@
 
       <div class="form-actions">
         <a routerLink="/sales" class="btn btn-secondary">{{ 'INVOICE.CANCEL' | translate }}</a>
-        <button mat-raised-button color="primary" type="submit" [disabled]="!invoiceForm.get('customer')?.valid || !invoiceForm.get('invoiceDate')?.valid || invoiceItems().length === 0" class="btn-primary">
+        <button mat-raised-button color="primary" (click)="saveInvoice()" [disabled]="!invoiceForm.get('customer')?.valid || !invoiceForm.get('invoiceDate')?.valid || invoiceItems().length === 0" class="btn-primary">
           {{ 'INVOICE.ISSUE' | translate }}
         </button>
       </div>

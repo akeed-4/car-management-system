@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { SalesInvoice } from '../types/sales-invoice.model';
 import { Observable, tap } from 'rxjs';
 import { InventoryService } from './inventory.service';
+import { environment } from '../environments/environment';
+import { StoreCarStockDto } from '../types/store-car-stock.model';
 
 @Injectable({
   providedIn: 'root',
@@ -10,10 +12,10 @@ import { InventoryService } from './inventory.service';
 export class SalesService {
   private http = inject(HttpClient);
   private inventoryService = inject(InventoryService);
-  private apiUrl = 'https://api.example.com/sales-invoices'; // ضع رابط API الحقيقي هنا
   private invoices = signal<SalesInvoice[]>([]);
   public invoices$ = this.invoices.asReadonly();
-
+    private apiUrl = environment.origin+ 'api/Sales';
+    private apiUrlstock = environment.origin+ 'api/Stocks';
   constructor() {
     this.loadInvoices();
   }
@@ -49,7 +51,7 @@ export class SalesService {
       ownershipTransferStatus: 'Not Started',
       isArchived: false,
     };
-    return this.http.post<SalesInvoice>(this.apiUrl, newInvoice);
+    return this.http.post<SalesInvoice>(this.apiUrl+'/AddInvoice', newInvoice);
   }
 
   // تحديث فاتورة موجودة
@@ -82,5 +84,15 @@ export class SalesService {
   // إلغاء أرشفة فاتورة
   unarchiveInvoice(id: number): Observable<SalesInvoice> {
     return this.http.post<SalesInvoice>(`${this.apiUrl}/${id}/unarchive`, {});
+  }
+
+  // جلب مخزون السيارات حسب المتجر
+  getStocksByStore(storeId: number): Observable<StoreCarStockDto[]> {
+    return this.http.get<StoreCarStockDto[]>(`${environment.origin}api/Stocks/store/${storeId}`);
+  }
+
+  // جلب السيارات المتاحة حسب المتجر
+  getAvailableCarsByStore(storeId: number): Observable<StoreCarStockDto[]> {
+    return this.http.get<StoreCarStockDto[]>(`${environment.origin}api/Stocks/store/${storeId}`);
   }
 }

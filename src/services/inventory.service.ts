@@ -1,14 +1,16 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Car, CarStatus, CarLocation } from '../types/car.model';
-import { Observable, tap, switchMap } from 'rxjs';
+import { Observable, tap, switchMap, firstValueFrom } from 'rxjs';
+import { env } from 'process';
+import { environment } from '../environments/environment';
+import { promises } from 'dns';
 
 @Injectable({
   providedIn: 'root',
 })
 export class InventoryService {
-  private apiUrl = 'https://your-api.com/cars'; // ضع رابط API هنا
-
+  private apiUrl = environment.origin+ 'api/Cars';
   private cars = signal<Car[]>([]);
   public cars$ = this.cars.asReadonly();
 
@@ -34,11 +36,21 @@ export class InventoryService {
   // =======================
   // POST
   // =======================
-  addCar(car: Omit<Car, 'id' | 'totalCost'>): Observable<Car> {
-    const newCar = { ...car, totalCost: car.purchasePrice + car.additionalCosts };
-    return this.http.post<Car>(this.apiUrl, newCar);
+async addCar(car: Omit<Car, 'id' | 'totalCost'>): Promise<Car> {
+  const newCar = { ...car, totalCost: car.purchasePrice + car.additionalCosts };
+  // Format istimaraExpiry as "yyyy-MM-dd" or set to null
+  if (newCar.istimaraExpiry) {
+    const date = new Date(newCar.istimaraExpiry);
+    if (!isNaN(date.getTime())) {
+      newCar.istimaraExpiry = date.toISOString().split('T')[0]; // "yyyy-MM-dd"
+    } else {
+      newCar.istimaraExpiry = null;
+    }
+  } else {
+    newCar.istimaraExpiry = null;
   }
-
+  return firstValueFrom(this.http.post<Car>(this.apiUrl + '/Create', newCar));
+}
   // =======================
   // PUT / PATCH
   // =======================

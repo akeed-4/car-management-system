@@ -6,6 +6,7 @@ export interface PurchaseInvoice {
   invoiceDate: string;
   supplierId: number;
   supplierName: string;
+  storeId?: number;
   paymentMethod?: 'Cash' | 'Bank Transfer';
   items: InvoiceItem[];
   totalAmount: number;

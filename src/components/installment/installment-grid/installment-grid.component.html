@@ -1,0 +1,63 @@
+<dx-data-grid
+  [dataSource]="gridDataSource"
+  [showBorders]="true"
+  [showRowLines]="true"
+  [showColumnLines]="true"
+  [rowAlternationEnabled]="true"
+  [allowColumnReordering]="true"
+  [allowColumnResizing]="true"
+  (onRowPrepared)="onRowPrepared($event)"
+  keyExpr="id">
+
+  <dxo-paging [pageSize]="10"></dxo-paging>
+  <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
+  <dxo-filter-row [visible]="true"></dxo-filter-row>
+  <dxo-header-filter [visible]="true"></dxo-header-filter>
+
+  <dxi-column dataField="id" caption="{{ 'INSTALLMENT.GRID.ID' | translate }}" [width]="80"></dxi-column>
+
+  <dxi-column dataField="totalAmount" caption="{{ 'INSTALLMENT.GRID.TOTAL_AMOUNT' | translate }}" dataType="number" format="currency"></dxi-column>
+
+  <dxi-column dataField="downPayment" caption="{{ 'INSTALLMENT.GRID.DOWN_PAYMENT' | translate }}" dataType="number" format="currency"></dxi-column>
+
+  <dxi-column dataField="interestRate" caption="{{ 'INSTALLMENT.GRID.INTEREST_RATE' | translate }}" dataType="number" format="percent"></dxi-column>
+
+  <dxi-column dataField="termMonths" caption="{{ 'INSTALLMENT.GRID.TERM_MONTHS' | translate }}"></dxi-column>
+
+  <dxi-column dataField="status" caption="{{ 'INSTALLMENT.GRID.STATUS' | translate }}"></dxi-column>
+
+  <dxi-column dataField="createdAt" caption="{{ 'INSTALLMENT.GRID.CREATED_AT' | translate }}" dataType="date" format="shortDate"></dxi-column>
+
+  <dxi-column type="buttons" [width]="200" *ngIf="!readOnly">
+    <dxi-button name="reschedule" text="{{ 'INSTALLMENT.GRID.RESCHEDULE' | translate }}" [onClick]="onReschedule"></dxi-button>
+  </dxi-column>
+
+  <dxo-master-detail [enabled]="true" template="detail"></dxo-master-detail>
+
+  <div *dxTemplate="let data of 'detail'">
+    <dx-data-grid
+      [dataSource]="data.installments"
+      [showBorders]="true"
+      [showRowLines]="true"
+      [showColumnLines]="true">
+
+      <dxi-column dataField="dueDate" caption="{{ 'INSTALLMENT.GRID.DUE_DATE' | translate }}" dataType="date" format="shortDate"></dxi-column>
+
+      <dxi-column dataField="amount" caption="{{ 'INSTALLMENT.GRID.AMOUNT' | translate }}" dataType="number" format="currency"></dxi-column>
+
+      <dxi-column dataField="paid" caption="{{ 'INSTALLMENT.GRID.PAID' | translate }}" dataType="boolean"></dxi-column>
+
+      <dxi-column dataField="overdue" caption="{{ 'INSTALLMENT.GRID.OVERDUE' | translate }}" dataType="boolean" [cellTemplate]="overdueTemplate"></dxi-column>
+
+      <dxi-column dataField="latePenalty" caption="{{ 'INSTALLMENT.GRID.LATE_PENALTY' | translate }}" dataType="number" format="currency"></dxi-column>
+
+      <dxi-column type="buttons" [width]="150" *ngIf="!readOnly">
+        <dxi-button name="registerPayment" text="{{ 'INSTALLMENT.GRID.REGISTER_PAYMENT' | translate }}" [onClick]="onRegisterPayment" [visible]="!data.paid"></dxi-button>
+      </dxi-column>
+    </dx-data-grid>
+
+    <div *dxTemplate="let cellInfo of 'overdueTemplate'">
+      <span *ngIf="cellInfo.value" class="overdue-indicator">{{ 'INSTALLMENT.STATUS.OVERDUE' | translate }}</span>
+    </div>
+  </div>
+</dx-data-grid>

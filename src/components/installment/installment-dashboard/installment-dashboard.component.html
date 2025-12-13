@@ -1,0 +1,39 @@
+<div class="installment-dashboard">
+  <h2>{{ 'INSTALLMENT.DASHBOARD.TITLE' | translate }}</h2>
+
+  <div class="preview-section">
+    <h3>{{ 'INSTALLMENT.PREVIEW.TITLE' | translate }}</h3>
+    <form [formGroup]="scheduleForm" class="preview-form">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'INSTALLMENT.PREVIEW.TOTAL_AMOUNT' | translate }}</mat-label>
+        <input matInput type="number" formControlName="totalAmount">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'INSTALLMENT.PREVIEW.DOWN_PAYMENT' | translate }}</mat-label>
+        <input matInput type="number" formControlName="downPayment">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'INSTALLMENT.PREVIEW.INTEREST_RATE' | translate }}</mat-label>
+        <input matInput type="number" step="0.01" formControlName="interestRate">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'INSTALLMENT.PREVIEW.TERM_MONTHS' | translate }}</mat-label>
+        <input matInput type="number" formControlName="termMonths">
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" (click)="generatePreview()" [disabled]="!scheduleForm.valid">
+        {{ 'INSTALLMENT.PREVIEW.GENERATE' | translate }}
+      </button>
+    </form>
+
+    <app-installment-schedule-preview *ngIf="previewSchedule" [schedule]="previewSchedule"></app-installment-schedule-preview>
+  </div>
+
+  <div class="schedules-section">
+    <h3>{{ 'INSTALLMENT.SCHEDULES.TITLE' | translate }}</h3>
+    <app-installment-grid [schedules]="schedules" (reschedule)="openRescheduleDialog($event)"></app-installment-grid>
+  </div>
+</div>

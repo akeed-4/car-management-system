@@ -1,0 +1,43 @@
+.schedule-preview {
+  margin-top: 20px;
+}
+
+.schedule-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+  padding: 16px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}
+
+table {
+  width: 100%;
+}
+
+.paid {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.unpaid {
+  color: #ff9800;
+}
+
+.overdue {
+  color: #f44336;
+  font-weight: bold;
+}
+
+.total-row {
+  text-align: right;
+  margin-top: 16px;
+  padding: 16px;
+  background-color: #e8f5e8;
+  border-radius: 8px;
+}
+
+h4 {
+  color: #333;
+}

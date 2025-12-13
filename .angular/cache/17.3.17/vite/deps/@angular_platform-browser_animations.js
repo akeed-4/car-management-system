@@ -1,12 +1,4 @@
 import {
-  BrowserModule,
-  DomRendererFactory2
-<<<<<<< HEAD
-} from "./chunk-JMORI3WN.js";
-=======
-} from "./chunk-ZODU344J.js";
->>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd
-import {
   AUTO_STYLE,
   AnimationGroupPlayer,
   AnimationMetadataType,
@@ -14,19 +6,15 @@ import {
   sequence,
   style,
   ɵPRE_STYLE
-<<<<<<< HEAD
 } from "./chunk-NWUHS5YH.js";
+import {
+  BrowserModule,
+  DomRendererFactory2
+} from "./chunk-JMORI3WN.js";
 import "./chunk-6XPNVVF7.js";
 import {
   DOCUMENT
 } from "./chunk-X3U6SXRI.js";
-=======
-} from "./chunk-MZUWPUDJ.js";
-import "./chunk-HXSU2YWY.js";
-import {
-  DOCUMENT
-} from "./chunk-JMWJDSKO.js";
->>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd
 import {
   ANIMATION_MODULE_TYPE,
   ChangeDetectionScheduler,
@@ -43,21 +31,14 @@ import {
   ɵɵdefineInjector,
   ɵɵdefineNgModule,
   ɵɵinject
-<<<<<<< HEAD
 } from "./chunk-2WBDQMXG.js";
 import "./chunk-GC67Z2CB.js";
 import "./chunk-55R5MX2O.js";
 import "./chunk-HBKDI3SF.js";
-=======
-} from "./chunk-F43I5743.js";
-import "./chunk-2DJKC5IO.js";
-import "./chunk-HCNCREEU.js";
-import "./chunk-62ONKXCG.js";
->>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd
 import {
   __objRest,
   __spreadValues
-} from "./chunk-WOR4A3D2.js";
+} from "./chunk-N6ESDQJH.js";
 
 // node_modules/@angular/animations/fesm2022/browser.mjs
 var LINE_START = "\n - ";

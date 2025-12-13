@@ -21,7 +21,9 @@ export const PERMISSIONS_LIST = {
     permissions: {
       view_sales: 'عرض فواتير المبيعات',
       add_sales_invoice: 'إضافة فاتورة بيع',
-      manage_sales_returns: 'إدارة مرتجعات المبيعات'
+      manage_sales_returns: 'إدارة مرتجعات المبيعات',
+      manage_installments: 'إدارة الأقساط',
+      manage_sale: 'إدارة المبيعات'
     }
   },
   procurement: {
@@ -81,6 +83,8 @@ export class RoleService {
         view_sales: true,
         add_sales_invoice: true,
         manage_customers: true,
+        manage_installments: true,
+        manage_sale: true,
       }
     },
     { id: 3, name: 'محاسب', permissions: {

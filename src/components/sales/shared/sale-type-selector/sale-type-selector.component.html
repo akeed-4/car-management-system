@@ -1,0 +1,17 @@
+<div class="sale-type-selector">
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>{{ 'SALES.TYPE.LABEL' | translate }}</mat-label>
+    <mat-select [formControl]="saleTypeControl" (selectionChange)="onSaleTypeChange($event.value)">
+      <mat-option *ngFor="let type of saleTypes" [value]="type.value">
+        {{ type.label | translate }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width" *ngIf="saleTypeControl.value === 'credit' || saleTypeControl.value === 'installments'">
+    <mat-label>{{ 'SALES.DOWN_PAYMENT.LABEL' | translate }}</mat-label>
+    <input matInput type="number" [formControl]="downPaymentControl" [placeholder]="'SALES.DOWN_PAYMENT.PLACEHOLDER' | translate">
+    <mat-error *ngIf="downPaymentControl.hasError('required')">{{ 'SALES.DOWN_PAYMENT.REQUIRED' | translate }}</mat-error>
+    <mat-error *ngIf="downPaymentControl.hasError('min')">{{ 'SALES.DOWN_PAYMENT.MIN' | translate }}</mat-error>
+  </mat-form-field>
+</div>

@@ -1,0 +1,17 @@
+<div class="car-linker">
+  <h3>{{ 'SALES.CAR_LINK.TITLE' | translate }}</h3>
+
+  <mat-form-field appearance="outline" class="half-width">
+    <mat-label>{{ 'SALES.CAR_LINK.CHASSIS_NUMBER' | translate }}</mat-label>
+    <input matInput [formControl]="chassisNumberControl" [placeholder]="'SALES.CAR_LINK.CHASSIS_PLACEHOLDER' | translate">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="half-width">
+    <mat-label>{{ 'SALES.CAR_LINK.PLATE_NUMBER' | translate }}</mat-label>
+    <input matInput [formControl]="plateNumberControl" [placeholder]="'SALES.CAR_LINK.PLATE_PLACEHOLDER' | translate">
+  </mat-form-field>
+
+  <button mat-raised-button color="primary" (click)="linkCarToCustomer()" [disabled]="!chassisNumberControl.value && !plateNumberControl.value">
+    {{ 'SALES.CAR_LINK.BUTTON' | translate }}
+  </button>
+</div>

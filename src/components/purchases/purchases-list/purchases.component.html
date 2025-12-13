@@ -1,0 +1,94 @@
+
+
+<div class="container">
+  <div class="page-header strong-header">
+    <div class="header-info">
+      <h2 class="strong-title">{{ 'PURCHASES.TITLE' | translate }}</h2>
+    </div>
+    <a routerLink="/purchases/invoice/new" class="btn btn-primary btn-small no-print">
+      <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+      <span>{{ 'PURCHASES.NEW_PURCHASE_INVOICE' | translate }}</span>
+    </a>
+  </div>
+
+  <div class="card invoice-card">
+    <div class="table-controls">
+       <div class="toggle-switch">
+        <label for="showArchived">{{ 'PURCHASES.SHOW_ARCHIVED' | translate }}</label>
+        <input type="checkbox" id="showArchived" [checked]="showArchived()" (change)="showArchived.set(!showArchived())">
+      </div>
+    </div>
+    <div class="table-wrapper premium-table">
+      <dx-data-grid
+        [dataSource]="filteredAndSortedInvoices()"
+        [showBorders]="true"
+        [columnAutoWidth]="true"
+        [rowAlternationEnabled]="true"
+        [rtlEnabled]="true"
+        height="600px"
+        [showRowLines]="true"
+
+        [allowColumnReordering]="true"
+        [allowColumnResizing]="true"
+        keyExpr="id"
+      >
+        <dxi-column dataField="invoiceNumber" caption="{{ 'PURCHASES.INVOICE_NUMBER' | translate }}" [allowSorting]="true"></dxi-column>
+        <dxi-column dataField="invoiceDate" caption="{{ 'PURCHASES.INVOICE_DATE' | translate }}" dataType="date" format="yyyy-MM-dd" [allowSorting]="true"></dxi-column>
+        <dxi-column dataField="supplierName" caption="{{ 'PURCHASES.SUPPLIER' | translate }}" [allowSorting]="true"></dxi-column>
+        <dxi-column caption="{{ 'PURCHASES.CONTENTS' | translate }}" [allowSorting]="false" cellTemplate="contentsTemplate"></dxi-column>
+        <dxi-column dataField="totalAmount" caption="{{ 'PURCHASES.TOTAL_COST' | translate }}" dataType="number" format="currency" [allowSorting]="true"></dxi-column>
+        <dxi-column dataField="amountPaid" caption="{{ 'PURCHASES.AMOUNT_PAID' | translate }}" dataType="number" format="currency" [allowSorting]="true" cssClass="text-success"></dxi-column>
+        <dxi-column dataField="amountDue" caption="{{ 'PURCHASES.AMOUNT_DUE' | translate }}" dataType="number" format="currency" [allowSorting]="true" cssClass="text-danger"></dxi-column>
+        <dxi-column dataField="status" caption="{{ 'PURCHASES.STATUS' | translate }}" [allowSorting]="true" cellTemplate="statusTemplate"></dxi-column>
+        <dxi-column caption="{{ 'PURCHASES.ACTIONS' | translate }}" [allowSorting]="false" cellTemplate="actionsTemplate" cssClass="no-print"></dxi-column>
+
+        <div *dxTemplate="let data of 'contentsTemplate'">
+          @if(data.data.items.length > 0) {
+            {{ data.data.items[0].carDescription }}
+            @if(data.data.items.length > 1) {
+              <span class="more-items">+ {{ data.data.items.length - 1 }}</span>
+            }
+          }
+        </div>
+
+        <div *dxTemplate="let data of 'statusTemplate'">
+          <span class="badge"
+                [class.badge-green]="data.data.status === 'Paid'"
+                [class.badge-red]="data.data.status === 'Unpaid'">
+            {{ data.data.status }}
+          </span>
+        </div>
+
+        <div *dxTemplate="let data of 'actionsTemplate'">
+          <a [routerLink]="['/purchases/invoice/print', data.data.id]" class="btn-icon" title="{{ 'PURCHASES.PRINT_INVOICE' | translate }}">
+        <mat-icon>print</mat-icon>
+          </a>
+          <a [routerLink]="['/purchases/invoice/edit', data.data.id]" class="btn-icon" title="{{ 'PURCHASES.EDIT_INVOICE' | translate }}">
+            <mat-icon>edit</mat-icon>
+          </a>
+          <button (click)="deleteInvoice(data.data.id)" class="btn-icon btn-icon-danger" title="{{ 'PURCHASES.DELETE_INVOICE' | translate }}">
+            <mat-icon>delete</mat-icon>
+          </button>
+          @if(!showArchived() && data.data.status === 'Paid') {
+            <button (click)="archiveInvoice(data.data.id)" class="btn-icon" title="{{ 'PURCHASES.ARCHIVE' | translate }}">
+              <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4" /></svg>
+            </button>
+          } @else if (showArchived()) {
+            <button (click)="unarchiveInvoice(data.data.id)" class="btn-icon btn-icon-success" title="{{ 'PURCHASES.UNARCHIVE' | translate }}">
+              <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0-3-3m3 3 3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" /></svg>
+            </button>
+          }
+        </div>
+
+        <dxo-filter-row [visible]="true"></dxo-filter-row>
+        <dxo-header-filter [visible]="true"></dxo-header-filter>
+        <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false"
+          [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
+        <dxo-selection mode="single"></dxo-selection>
+        <dxo-grouping [autoExpandAll]="false" [contextMenuEnabled]="true"></dxo-grouping>
+        <dxo-paging [pageSize]="10"></dxo-paging>
+        <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20, 50]" [showInfo]="true"></dxo-pager>
+      </dx-data-grid>
+    </div>
+  </div>
+</div>

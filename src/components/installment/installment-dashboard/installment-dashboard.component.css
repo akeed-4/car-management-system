@@ -1,0 +1,19 @@
+.installment-dashboard {
+  padding: 20px;
+}
+
+.preview-section, .schedules-section {
+  margin-bottom: 32px;
+}
+
+.preview-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+h2, h3 {
+  color: #333;
+  margin-bottom: 16px;
+}

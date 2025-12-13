@@ -1,0 +1,115 @@
+<div class="branch-list-container">
+  <div class="header">
+    <h2>{{ 'BRANCHES.LIST_TITLE' | translate }}</h2>
+    <div class="actions">
+      <input
+        type="text"
+        [(ngModel)]="filter"
+        placeholder="{{ 'BRANCHES.SEARCH_PLACEHOLDER' | translate }}"
+        class="search-input"
+      />
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="onCreate()"
+        appHasPermission="branch.create">
+        <mat-icon>add</mat-icon>
+        {{ 'BRANCHES.ADD_NEW' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <dx-data-grid
+    [dataSource]="filteredBranches()"
+    [showBorders]="true"
+    [showRowLines]="true"
+    [showColumnLines]="true"
+    [rowAlternationEnabled]="true"
+    [allowColumnReordering]="true"
+    [allowColumnResizing]="true"
+    [columnAutoWidth]="true"
+    [wordWrapEnabled]="true"
+    [rtlEnabled]="true"
+    [hoverStateEnabled]="true"
+    [selection]="{ mode: 'single' }"
+    (onRowClick)="onRowClick($event)"
+    height="70vh">
+
+    <dxo-load-panel [enabled]="true"></dxo-load-panel>
+    <dxo-scrolling mode="virtual"></dxo-scrolling>
+    <dxo-paging [pageSize]="10"></dxo-paging>
+    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
+    <dxo-filter-row [visible]="true"></dxo-filter-row>
+    <dxo-header-filter [visible]="true"></dxo-header-filter>
+    <dxo-search-panel [visible]="true" [placeholder]="'BRANCHES.SEARCH_PLACEHOLDER' | translate"></dxo-search-panel>
+    <dxo-export [enabled]="true" fileName="branches"></dxo-export>
+    <dxo-grouping [autoExpandAll]="false"></dxo-grouping>
+    <dxo-sorting mode="multiple"></dxo-sorting>
+
+
+
+    <dxi-column
+      dataField="name"
+      [caption]="'BRANCHES.COLUMNS.NAME_AR' | translate"
+      [allowFiltering]="true"
+      [allowSorting]="true"
+      [allowGrouping]="true"
+     >
+    </dxi-column>
+
+    <dxi-column
+      dataField="description"
+      [caption]="'BRANCHES.COLUMNS.DESCRIPTION' | translate"
+      [allowFiltering]="true"
+      [allowSorting]="false"
+      [allowGrouping]="true"
+      [width]="250">
+    </dxi-column>
+
+    <dxi-column
+      dataField="status"
+      [caption]="'BRANCHES.COLUMNS.STATUS' | translate"
+      [allowFiltering]="true"
+      [allowSorting]="true"
+      [allowGrouping]="true"
+      [dataType]="'string'"
+      [lookup]="{
+        dataSource: [
+          { value: 'active', displayExpr: 'BRANCHES.STATUS.ACTIVE' | translate },
+          { value: 'inactive', displayExpr: 'BRANCHES.STATUS.INACTIVE' | translate },
+          { value: 'suspended', displayExpr: 'BRANCHES.STATUS.SUSPENDED' | translate }
+        ],
+        valueExpr: 'value',
+        displayExpr: 'displayExpr'
+      }"
+      [width]="100">
+    </dxi-column>
+
+    <dxi-column
+      dataField="createdAt"
+      [caption]="'BRANCHES.COLUMNS.CREATED' | translate"
+      dataType="date"
+      format="yyyy-MM-dd"
+      [width]="120">
+    </dxi-column>
+
+    <dxi-column
+      type="buttons"
+      [width]="120"
+      [caption]="'BRANCHES.COLUMNS.ACTIONS' | translate">
+      <dxi-button
+        [hint]="'BRANCHES.ACTIONS.EDIT' | translate"
+        [icon]="'edit'"
+        [onClick]="onEdit"
+        >
+      </dxi-button>
+      <dxi-button
+        [hint]="'BRANCHES.ACTIONS.DELETE' | translate"
+        [icon]="'trash'"
+        [cssClass]="'btn-danger'"
+        [onClick]="onDelete"
+        >
+      </dxi-button>
+    </dxi-column>
+  </dx-data-grid>
+</div>

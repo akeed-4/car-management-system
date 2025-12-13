@@ -1,0 +1,20 @@
+.reschedule-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 400px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.half-width {
+  width: calc(50% - 8px);
+}
+
+@media (max-width: 600px) {
+  .half-width {
+    width: 100%;
+  }
+}

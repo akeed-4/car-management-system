@@ -107,7 +107,7 @@ export class SupplierFormComponent implements OnInit {
         };
         this.supplierService.addSupplier(newSupplier);
       }
-      this.router.navigate(['/entities/suppliers']);
+      // this.router.navigate(['/entities/suppliers']);
     }
   }
 }

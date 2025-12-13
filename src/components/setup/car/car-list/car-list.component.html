@@ -1,0 +1,186 @@
+<div >
+  <div class="">
+    <h2>{{ 'CARS.LIST_TITLE' | translate }}</h2>
+    <div class="actions">
+      <input
+        type="text"
+        [(ngModel)]="filter"
+        placeholder="{{ 'CARS.SEARCH_PLACEHOLDER' | translate }}"
+        class="search-input"
+      />
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="onCreate()"
+        >
+        <mat-icon>add</mat-icon>
+        {{ 'CARS.ADD_NEW' | translate }}
+      </button>
+    </div>
+  <dx-data-grid
+    [dataSource]="filteredCars()"
+    [showBorders]="true"
+    [showRowLines]="true"
+    [showColumnLines]="true"
+    [rowAlternationEnabled]="true"
+    [allowColumnReordering]="true"
+    [allowColumnResizing]="true"
+    [columnAutoWidth]="true"
+    [wordWrapEnabled]="true"
+    [rtlEnabled]="true"
+    [hoverStateEnabled]="true"
+    [selection]="{ mode: 'single' }"
+    (onRowClick)="onRowClick($event)"
+    height="70vh">
+
+    <dxo-load-panel [enabled]="true"></dxo-load-panel>
+    <dxo-scrolling mode="virtual"></dxo-scrolling>
+    <dxo-paging [pageSize]="10"></dxo-paging>
+    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
+    <dxo-filter-row [visible]="true"></dxo-filter-row>
+    <dxo-header-filter [visible]="true"></dxo-header-filter>
+    <dxo-search-panel [visible]="true" [placeholder]="'CARS.SEARCH_PLACEHOLDER' | translate"></dxo-search-panel>
+    <dxo-export [enabled]="true" fileName="cars"></dxo-export>
+    <dxo-grouping [autoExpandAll]="false"></dxo-grouping>
+    <dxo-sorting mode="multiple"></dxo-sorting>
+
+    <dxi-column
+      dataField="vin"
+      [caption]="'CARS.COLUMNS.VIN' | translate"
+      [allowFiltering]="true"
+      [allowSorting]="true"
+      [allowGrouping]="true"
+      [width]="150">
+    </dxi-column>
+
+    <dxi-column
+      dataField="plateNumber"
+      [caption]="'CARS.COLUMNS.PLATE_NUMBER' | translate"
+      [allowFiltering]="true"
+      [allowSorting]="true"
+      [allowGrouping]="true"
+      >
+    </dxi-column>
+
+    <dxi-column
+      dataField="make"
+      [caption]="'CARS.COLUMNS.MAKE' | translate"
+      [allowFiltering]="true"
+      [allowSorting]="true"
+      [allowGrouping]="true"
+      [width]="100">
+    </dxi-column>
+
+    <dxi-column
+      dataField="model"
+      [caption]="'CARS.COLUMNS.MODEL' | translate"
+      [allowFiltering]="true"
+      [allowSorting]="true"
+      [allowGrouping]="true"
+      [width]="100">
+    </dxi-column>
+
+    <dxi-column
+      dataField="year"
+      [caption]="'CARS.COLUMNS.YEAR' | translate"
+      [allowFiltering]="true"
+      [allowSorting]="true"
+      [allowGrouping]="true"
+      [width]="80">
+    </dxi-column>
+
+    <dxi-column
+      dataField="condition"
+      [caption]="'CARS.COLUMNS.CONDITION' | translate"
+      [allowFiltering]="true"
+      [allowSorting]="true"
+      [allowGrouping]="true"
+      [dataType]="'string'"
+      [lookup]="{
+        dataSource: [
+          { value: 'New', displayExpr: 'CARS.CONDITION.NEW' | translate },
+          { value: 'Used', displayExpr: 'CARS.CONDITION.USED' | translate }
+        ],
+        valueExpr: 'value',
+        displayExpr: 'displayExpr'
+      }"
+      [width]="100">
+    </dxi-column>
+
+    <dxi-column
+      dataField="status"
+      [caption]="'CARS.COLUMNS.STATUS' | translate"
+      [allowFiltering]="true"
+      [allowSorting]="true"
+      [allowGrouping]="true"
+      [dataType]="'string'"
+      [lookup]="{
+        dataSource: [
+          { value: 'Available', displayExpr: 'CARS.STATUS.AVAILABLE' | translate },
+          { value: 'Reserved', displayExpr: 'CARS.STATUS.RESERVED' | translate },
+          { value: 'Sold', displayExpr: 'CARS.STATUS.SOLD' | translate },
+          { value: 'In Maintenance', displayExpr: 'CARS.STATUS.IN_MAINTENANCE' | translate }
+        ],
+        valueExpr: 'value',
+        displayExpr: 'displayExpr'
+      }"
+      >
+    </dxi-column>
+
+    <dxi-column
+      dataField="currentLocation"
+      [caption]="'CARS.COLUMNS.LOCATION' | translate"
+      [allowFiltering]="true"
+      [allowSorting]="true"
+      [allowGrouping]="true"
+      [width]="150">
+    </dxi-column>
+
+    <dxi-column
+      dataField="salePrice"
+      [caption]="'CARS.COLUMNS.SALE_PRICE' | translate"
+      dataType="number"
+      format="currency"
+      [allowFiltering]="true"
+      [allowSorting]="true"
+      [allowGrouping]="true"
+      >
+    </dxi-column>
+
+    <dxi-column
+      dataField="quantity"
+      [caption]="'CARS.COLUMNS.QUANTITY' | translate"
+      dataType="number"
+      [allowFiltering]="true"
+      [allowSorting]="true"
+      [allowGrouping]="true"
+      [width]="80">
+    </dxi-column>
+
+    <dxi-column
+      dataField="createdAt"
+      [caption]="'CARS.COLUMNS.CREATED' | translate"
+      dataType="date"
+      format="yyyy-MM-dd"
+      >
+    </dxi-column>
+
+    <dxi-column
+      type="buttons"
+      [width]="120"
+      [caption]="'CARS.COLUMNS.ACTIONS' | translate">
+      <dxi-button
+        [hint]="'CARS.ACTIONS.EDIT' | translate"
+        icon="edit"
+        [onClick]="onEdit"
+        appHasPermission="car.update">
+      </dxi-button>
+      <dxi-button
+        [hint]="'CARS.ACTIONS.DELETE' | translate"
+        icon="trash"
+        [onClick]="onDelete"
+        appHasPermission="car.delete">
+      </dxi-button>
+    </dxi-column>
+  </dx-data-grid>
+</div>

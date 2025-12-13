@@ -9,6 +9,7 @@ export interface SalesInvoice {
   dueDate?: string;
   customerId: number;
   customerName: string;
+  storeId?: number;
   salesperson?: string;
   paymentMethod?: 'Cash' | 'Bank Transfer' | 'Finance';
   items: InvoiceItem[];

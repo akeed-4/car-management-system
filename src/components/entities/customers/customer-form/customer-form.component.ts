@@ -19,6 +19,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { ToastService } from '../../../../services/toast.service';
 
 @Component({
   selector: 'app-customer-form',
@@ -48,6 +49,7 @@ export class CustomerFormComponent implements OnInit {
   private customerService = inject(CustomerService);
   private salesService = inject(SalesService);
   private inventoryService = inject(InventoryService);
+  private toastService = inject(ToastService);
   private fb = inject(FormBuilder);
 
   customerForm!: FormGroup;
@@ -156,7 +158,16 @@ export class CustomerFormComponent implements OnInit {
           ...formValue,
           lastUpdated: currentDate
         } as Customer;
-        this.customerService.updateCustomer(updatedCustomer);
+        this.customerService.updateCustomer(updatedCustomer).subscribe({
+          next: () => {
+            this.toastService.showSuccess('TOAST.EDIT_SUCCESS');
+            this.router.navigate(['/entities/customers']);
+          },
+          error: (error) => {
+            console.error('Error updating customer:', error);
+            this.toastService.showError('TOAST.SAVE_ERROR');
+          }
+        });
       } else {
         const newCustomer: Omit<Customer, 'id'> = {
           ...formValue,
@@ -164,9 +175,19 @@ export class CustomerFormComponent implements OnInit {
           createdDate: currentDate,
           lastUpdated: currentDate
         };
-        this.customerService.addCustomer(newCustomer);
+        this.customerService.addCustomer(newCustomer).subscribe({
+          next: () => {
+            this.toastService.showSuccess('TOAST.ADD_SUCCESS');
+            this.router.navigate(['/entities/customers']);
+          },
+          error: (error) => {
+            console.error('Error adding customer:', error);
+            this.toastService.showError('TOAST.SAVE_ERROR');
+          }
+        });
       }
-      this.router.navigate(['/entities/customers']);
+    } else {
+      this.toastService.showWarning('TOAST.VALIDATION_ERROR');
     }
   }
 

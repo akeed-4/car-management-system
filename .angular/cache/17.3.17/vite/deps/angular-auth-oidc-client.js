@@ -1,18 +1,7 @@
 import {
   Router
-<<<<<<< HEAD
 } from "./chunk-QUANI6Q4.js";
-import {
-  toSignal
-} from "./chunk-6QELCLY7.js";
 import "./chunk-JMORI3WN.js";
-=======
-} from "./chunk-TOJ3GD2Y.js";
-import "./chunk-ZODU344J.js";
-import {
-  toSignal
-} from "./chunk-FHAW7C5U.js";
->>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd
 import {
   HttpClient,
   HttpClientModule,
@@ -20,20 +9,15 @@ import {
   HttpHeaders,
   HttpParams,
   HttpResponse
-<<<<<<< HEAD
 } from "./chunk-6XPNVVF7.js";
-=======
-} from "./chunk-HXSU2YWY.js";
->>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd
+import {
+  toSignal
+} from "./chunk-6QELCLY7.js";
 import {
   CommonModule,
   DOCUMENT,
   isPlatformBrowser
-<<<<<<< HEAD
 } from "./chunk-X3U6SXRI.js";
-=======
-} from "./chunk-JMWJDSKO.js";
->>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd
 import {
   Injectable,
   InjectionToken,
@@ -47,19 +31,11 @@ import {
   ɵɵdefineInjectable,
   ɵɵdefineInjector,
   ɵɵdefineNgModule
-<<<<<<< HEAD
 } from "./chunk-2WBDQMXG.js";
 import "./chunk-GC67Z2CB.js";
 import {
   forkJoin
 } from "./chunk-55R5MX2O.js";
-=======
-} from "./chunk-F43I5743.js";
-import {
-  forkJoin
-} from "./chunk-2DJKC5IO.js";
-import "./chunk-HCNCREEU.js";
->>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd
 import {
   BehaviorSubject,
   Observable,
@@ -86,7 +62,7 @@ import {
 import {
   __spreadProps,
   __spreadValues
-} from "./chunk-WOR4A3D2.js";
+} from "./chunk-N6ESDQJH.js";
 
 // node_modules/rfc4648/lib/rfc4648.js
 var base64UrlEncoding = {

@@ -5,4 +5,5 @@ export interface InvoiceItem {
   unitPrice: number;
   lineTotal: number;
   carImage?: string | null;
+  carName?: string;
 }

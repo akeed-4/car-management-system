@@ -972,3 +972,24 @@ mat-form-field {
   resize: vertical;
   min-height: 120px;
 }
+
+/* Toast Styles */
+.toast-success {
+  background-color: var(--color-success-500) !important;
+  color: white !important;
+}
+
+.toast-warning {
+  background-color: var(--color-warning-500) !important;
+  color: white !important;
+}
+
+.toast-error {
+  background-color: var(--color-danger-500) !important;
+  color: white !important;
+}
+
+.toast-info {
+  background-color: var(--color-primary-500) !important;
+  color: white !important;
+}

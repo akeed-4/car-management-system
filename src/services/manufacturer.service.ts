@@ -2,6 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { Manufacturer } from '../types/manufacturer.model';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +12,7 @@ export class ManufacturerService {
   public manufacturers$ = this.manufacturers.asReadonly();
 
   // رابط API الخاص بك
-  private apiUrl = 'https://api.example.com/manufacturers';
+  private apiUrl = environment.origin + 'api/Manufacturers';
 
   constructor(private http: HttpClient) {
     this.loadManufacturersFromApi();
@@ -29,11 +30,23 @@ export class ManufacturerService {
   async addManufacturer(manufacturer: Omit<Manufacturer, 'id'>): Promise<void> {
     try {
       // Send to API
-      await firstValueFrom(this.http.post(this.apiUrl, manufacturer));
+      await firstValueFrom(this.http.post(this.apiUrl + '/Create', manufacturer));
       // Reload the list from API
       await this.loadManufacturersFromApi();
     } catch (error) {
       console.error('Failed to add manufacturer', error);
+      throw error;
+    }
+  }
+
+  async updateManufacturer(id: number, manufacturer: Omit<Manufacturer, 'id'>): Promise<void> {
+    try {
+      // Send update to API
+      await firstValueFrom(this.http.put(`${this.apiUrl}/${id}`, manufacturer));
+      // Reload the list from API
+      await this.loadManufacturersFromApi();
+    } catch (error) {
+      console.error('Failed to update manufacturer', error);
       throw error;
     }
   }

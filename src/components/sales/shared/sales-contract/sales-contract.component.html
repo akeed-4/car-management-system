@@ -1,0 +1,18 @@
+<div class="sales-contract">
+  <h3>{{ 'SALES.CONTRACT.TITLE' | translate }}</h3>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>{{ 'SALES.CONTRACT.CONTENT' | translate }}</mat-label>
+    <textarea matInput [formControl]="contractControl" [readonly]="!isEditable || isApproved" rows="10"></textarea>
+  </mat-form-field>
+
+  <div class="contract-actions" *ngIf="!isApproved">
+    <button mat-raised-button color="primary" (click)="onApprove()" [disabled]="!contractControl.value">
+      {{ 'SALES.CONTRACT.APPROVE' | translate }}
+    </button>
+  </div>
+
+  <div class="contract-status" *ngIf="isApproved">
+    <p>{{ 'SALES.CONTRACT.APPROVED' | translate }}</p>
+  </div>
+</div>

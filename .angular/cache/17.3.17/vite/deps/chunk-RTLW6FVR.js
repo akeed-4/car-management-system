@@ -1,10 +1,6 @@
 import {
   isPlatformBrowser
-<<<<<<<< HEAD:.angular/cache/17.3.17/vite/deps/chunk-RTLW6FVR.js
 } from "./chunk-X3U6SXRI.js";
-========
-} from "./chunk-JMWJDSKO.js";
->>>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd:.angular/cache/17.3.17/vite/deps/chunk-NBCXDWXJ.js
 import {
   CSP_NONCE,
   ElementRef,
@@ -19,11 +15,7 @@ import {
   ɵɵdefineInjector,
   ɵɵdefineNgModule,
   ɵɵinject
-<<<<<<<< HEAD:.angular/cache/17.3.17/vite/deps/chunk-RTLW6FVR.js
 } from "./chunk-2WBDQMXG.js";
-========
-} from "./chunk-F43I5743.js";
->>>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd:.angular/cache/17.3.17/vite/deps/chunk-NBCXDWXJ.js
 import {
   Observable,
   Subject,
@@ -546,8 +538,4 @@ export {
   BreakpointObserver,
   Breakpoints
 };
-<<<<<<<< HEAD:.angular/cache/17.3.17/vite/deps/chunk-RTLW6FVR.js
 //# sourceMappingURL=chunk-RTLW6FVR.js.map
-========
-//# sourceMappingURL=chunk-NBCXDWXJ.js.map
->>>>>>>> db1b5b94f8726c92597e67c6e97b05a16a8297dd:.angular/cache/17.3.17/vite/deps/chunk-NBCXDWXJ.js

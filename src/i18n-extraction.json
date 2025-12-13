@@ -21,7 +21,7 @@
     "plan.personalFinance": "تمويل شخصي",
     "plan.riyadhBank": "بنك الرياض"
   },
-  "src/services/procurement.service.ts": {
+  "src/services/purchases.service.ts": {
     "supplier.alnahdi": "شركة النهدي للسيارات",
     "procurement.noteShipping": "شامل تكاليف النقل.",
     "supplier.auction": "مزاد السيارات الدولي"
