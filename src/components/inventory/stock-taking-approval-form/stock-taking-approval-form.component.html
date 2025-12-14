@@ -1,106 +1,90 @@
-<div class="container mx-auto">
-  <div class="flex justify-between items-center mb-6">
-    <h2 class="text-2xl font-semibold text-gray-800">اعتماد مستند جرد</h2>
-    <a routerLink="/inventory/stock-taking-approval" class="text-primary-600 hover:text-primary-800 transition duration-300 flex items-center">
-      &larr; العودة إلى قائمة الاعتمادات
-    </a>
-  </div>
+<mat-toolbar color="primary">
+  <span>{{ 'STOCK_TAKING_APPROVAL_FORM.TITLE' | translate }}</span>
+  <span class="spacer"></span>
+  <button mat-icon-button routerLink="/inventory/stock-taking-approval">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+</mat-toolbar>
 
-  <div class="bg-white p-8 rounded-lg shadow-md">
-    <form #approvalForm="ngForm" (ngSubmit)="approveStockTake()">
-      
+<mat-card>
+  <mat-card-content>
+    <form [formGroup]="approvalForm" (ngSubmit)="approveStockTake()">
+
       <!-- Approval Header -->
-      <section class="border-b pb-6 mb-6">
-        <h3 class="text-xl font-semibold text-gray-700 mb-4">بيانات الاعتماد</h3>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <label for="stockTake" class="block text-sm font-medium text-gray-700">مستند الجرد</label>
-            <select 
-              id="stockTake" 
-              name="stockTake"
-              [ngModel]="selectedStockTakeId()"
-              (ngModelChange)="onStockTakeSelect($event ? +$event : null)"
-              required
-              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
-              <option [ngValue]="null" disabled>-- اختر مستند جرد --</option>
-              @for (st of pendingStockTakes(); track st.id) {
-                <option [value]="st.id">{{ st.name }} ({{ st.date | date:'yyyy-MM-dd' }})</option>
-              }
-            </select>
-          </div>
-          <div>
-            <label for="approvalDate" class="block text-sm font-medium text-gray-700">تاريخ الاعتماد</label>
-            <input 
-              type="date" 
-              id="approvalDate" 
-              name="approvalDate"
-              [ngModel]="approvalDate()"
-              (ngModelChange)="approvalDate.set($event)"
-              required
-              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
-          </div>
-          <div>
-            <label for="approverName" class="block text-sm font-medium text-gray-700">اسم المعتمد</label>
-            <input 
-              type="text" 
-              id="approverName" 
-              name="approverName"
-              [ngModel]="approverName()"
-              (ngModelChange)="approverName.set($event)"
-              required
-              placeholder="اسم المدير المسؤول"
-              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
-          </div>
+      <div class="form-section">
+        <h3 class="section-title">{{ 'STOCK_TAKING_APPROVAL_FORM.APPROVAL_DETAILS' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'STOCK_TAKING_APPROVAL_FORM.STOCK_TAKE_DOCUMENT' | translate }}</mat-label>
+            <mat-select
+              formControlName="stockTake">
+              <mat-option [value]="null" disabled>{{ 'STOCK_TAKING_APPROVAL_FORM.SELECT_STOCK_TAKE' | translate }}</mat-option>
+              <mat-option *ngFor="let st of pendingStockTakes()" [value]="st.id">
+                {{ st.name }} ({{ st.date | date:'yyyy-MM-dd' }})
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'STOCK_TAKING_APPROVAL_FORM.APPROVAL_DATE' | translate }}</mat-label>
+            <input matInput
+              type="date"
+              formControlName="approvalDate">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'STOCK_TAKING_APPROVAL_FORM.APPROVER_NAME' | translate }}</mat-label>
+            <input matInput
+              type="text"
+              formControlName="approverName"
+              [placeholder]="'STOCK_TAKING_APPROVAL_FORM.APPROVER_PLACEHOLDER' | translate">
+          </mat-form-field>
         </div>
-      </section>
+      </div>
 
       <!-- Comparison Table -->
-      @if (selectedStockTake(); as stockTake) {
-        <section>
-          <h3 class="text-xl font-semibold text-gray-700 mb-4">مقارنة الكميات</h3>
-          <div class="overflow-x-auto border rounded-lg">
-            <table class="min-w-full bg-white">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">السيارة</th>
-                  <th class="text-center py-3 px-4 font-semibold text-sm text-gray-600 uppercase">الكمية بالنظام</th>
-                  <th class="text-center py-3 px-4 font-semibold text-sm text-gray-600 uppercase">الكمية الفعلية</th>
-                  <th class="text-center py-3 px-4 font-semibold text-sm text-gray-600 uppercase">الفرق</th>
-                </tr>
-              </thead>
-              <tbody class="text-gray-700">
-                @for (item of stockTake.items; track item.carId) {
-                  <tr class="border-b" [class.bg-red-50]="getDifference(item.countedQuantity, item.systemQuantity) !== 0" [class.bg-green-50]="getDifference(item.countedQuantity, item.systemQuantity) === 0">
-                    <td class="py-3 px-4 text-sm">{{ item.carDescription }}</td>
-                    <td class="py-3 px-4 text-center text-sm font-medium">{{ item.systemQuantity }}</td>
-                    <td class="py-3 px-4 text-center text-sm font-medium">{{ item.countedQuantity }}</td>
-                    <td class="py-3 px-4 text-center text-sm font-bold"
-                        [class.text-red-600]="getDifference(item.countedQuantity, item.systemQuantity) !== 0"
-                        [class.text-green-600]="getDifference(item.countedQuantity, item.systemQuantity) === 0">
-                      {{ difference > 0 ? '+' : '' }}{{ difference }}
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
+      <div *ngIf="selectedStockTake() as stockTake" class="table-section">
+        <h3 class="section-title">{{ 'STOCK_TAKING_APPROVAL_FORM.QUANTITY_COMPARISON' | translate }}</h3>
 
-          <!-- Form Actions -->
-          <div class="mt-8 pt-6 border-t flex justify-end">
-            <a routerLink="/inventory/stock-taking-approval" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg shadow hover:bg-gray-300 transition duration-300 ml-4 text-sm">إلغاء</a>
-            <button 
-              type="submit" 
-              [disabled]="approvalForm.invalid"
-              class="bg-green-600 text-white px-6 py-2 rounded-lg shadow hover:bg-green-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm">
-              اعتماد الجرد وتحديث المخزون
-            </button>
-          </div>
-        </section>
-      } @else {
-         <div class="text-center py-12 text-gray-500 bg-gray-50 rounded-lg">
-           <p>الرجاء اختيار مستند جرد من القائمة أعلاه لعرض تفاصيله واعتماده.</p>
-         </div>
-      }
+        <dx-data-grid
+          [dataSource]="stockTake.items"
+          [showBorders]="true"
+          [showRowLines]="true"
+          [showColumnLines]="true"
+          [rtlEnabled]="true"
+          [allowColumnReordering]="true"
+          [allowColumnResizing]="true"
+          [columnAutoWidth]="true"
+          [wordWrapEnabled]="true">
+
+          <dxi-column dataField="carDescription" caption="{{ 'STOCK_TAKING_APPROVAL_FORM.CAR' | translate }}"></dxi-column>
+          <dxi-column dataField="systemQuantity" caption="{{ 'STOCK_TAKING_APPROVAL_FORM.SYSTEM_QUANTITY' | translate }}" dataType="number" alignment="center"></dxi-column>
+          <dxi-column dataField="countedQuantity" caption="{{ 'STOCK_TAKING_APPROVAL_FORM.COUNTED_QUANTITY' | translate }}" dataType="number" alignment="center"></dxi-column>
+          <dxi-column
+            dataField="difference"
+            caption="{{ 'STOCK_TAKING_APPROVAL_FORM.DIFFERENCE' | translate }}"
+            dataType="number"
+            alignment="center"
+            [calculateDisplayValue]="getDifferenceDisplayValue">
+          </dxi-column>
+
+        </dx-data-grid>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!selectedStockTake()" class="empty-state">
+        <p>{{ 'STOCK_TAKING_APPROVAL_FORM.SELECT_STOCK_TAKE_MESSAGE' | translate }}</p>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions" *ngIf="selectedStockTake()">
+        <button mat-stroked-button type="button" routerLink="/inventory/stock-taking-approval" class="cancel-button">
+          {{ 'STOCK_TAKING_APPROVAL_FORM.CANCEL' | translate }}
+        </button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="approvalForm.invalid">
+          {{ 'STOCK_TAKING_APPROVAL_FORM.APPROVE_AND_UPDATE' | translate }}
+        </button>
+      </div>
     </form>
-  </div>
-</div>
+  </mat-card-content>
+</mat-card>

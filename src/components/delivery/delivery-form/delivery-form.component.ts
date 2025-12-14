@@ -3,7 +3,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { DatePipe, JsonPipe } from '@angular/common';
+import { DatePipe, JsonPipe, CommonModule } from '@angular/common';
 import { DeliveryService } from '../../../services/delivery.service';
 import { SalesService } from '../../../services/sales.service';
 import { CustomerService } from '../../../services/customer.service';
@@ -26,6 +26,7 @@ import { TranslateModule } from '@ngx-translate/core';
     ReactiveFormsModule,
     RouterLink,
     DatePipe,
+    CommonModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,

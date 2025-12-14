@@ -1,63 +1,74 @@
 
-<div class="container">
-  <div class="page-header">
-    <h2>{{ 'ACCOUNTS.DEPOSITS.FORM.TITLE' | translate }}</h2>
-    <a routerLink="/accounts/deposits" class="back-link">
-      <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-      <span>{{ 'ACCOUNTS.DEPOSITS.FORM.BACK' | translate }}</span>
-    </a>
-  </div>
+<mat-toolbar color="primary" class="toolbar">
+  <span>{{ 'ACCOUNTS.DEPOSITS.FORM.TITLE' | translate }}</span>
+  <span class="spacer"></span>
+  <button mat-icon-button routerLink="/accounts/deposits" matTooltip="{{ 'ACCOUNTS.DEPOSITS.FORM.BACK' | translate }}">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+</mat-toolbar>
 
-  <div class="card">
-    <form #depositForm="ngForm" (ngSubmit)="saveDeposit()">
-      
-      <section class="form-section">
-        <h3 class="form-section-title">{{ 'ACCOUNTS.DEPOSITS.FORM.TITLE' | translate }}</h3>
-        <div class="form-grid cols-3">
-          <div>
-            <label class="form-label">{{ 'ACCOUNTS.DEPOSITS.FORM.VOUCHER_NUMBER' | translate }}</label>
-            <input type="text" [value]="voucherNumber()" disabled class="form-input" readonly>
-          </div>
-          <div>
-            <label for="date" class="form-label">{{ 'ACCOUNTS.DEPOSITS.FORM.DATE' | translate }}</label>
-            <input type="date" id="date" name="date" [ngModel]="date()" (ngModelChange)="date.set($event)" required class="form-input">
-          </div>
-          <div>
-            <label for="customer" class="form-label">{{ 'ACCOUNTS.DEPOSITS.FORM.CUSTOMER' | translate }}</label>
-            <select id="customer" name="customer" [ngModel]="selectedCustomerId()" (ngModelChange)="selectedCustomerId.set(+$event)" required class="form-select">
-              <option [ngValue]="null" disabled>{{ 'ACCOUNTS.DEPOSITS.FORM.SELECT_CUSTOMER' | translate }}</option>
-              @for(customer of customers(); track customer.id) {
-                <option [value]="customer.id">{{ customer.name }}</option>
-              }
-            </select>
-          </div>
-          <div>
-            <label for="car" class="form-label">{{ 'ACCOUNTS.DEPOSITS.FORM.CAR' | translate }}</label>
-            <select id="car" name="car" [ngModel]="selectedCarId()" (ngModelChange)="onCarChange(+$event)" required class="form-select">
-              <option [ngValue]="null" disabled>{{ 'ACCOUNTS.DEPOSITS.FORM.SELECT_CAR' | translate }}</option>
-              @for(car of availableReservedCars(); track car.id) {
-                <option [value]="car.id">{{ car.make }} {{ car.model }} ({{ car.year }}) - {{car.vin}}</option>
-              }
-            </select>
-          </div>
-          <div>
-            <label for="amount" class="form-label">{{ 'ACCOUNTS.DEPOSITS.FORM.AMOUNT' | translate }}</label>
-            <input type="number" id="amount" name="amount" [ngModel]="amount()" (ngModelChange)="amount.set(+$event)" required min="0.01" class="form-input">
+<div class="container">
+  <mat-card class="form-card">
+    <mat-card-content>
+      <form [formGroup]="depositForm" (ngSubmit)="saveDeposit()">
+
+        <div class="form-section">
+          <h3 class="section-title">{{ 'ACCOUNTS.DEPOSITS.FORM.TITLE' | translate }}</h3>
+          <div class="form-grid cols-3">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.VOUCHER_NUMBER' | translate }}</mat-label>
+              <input matInput type="text" formControlName="voucherNumber" readonly>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.DATE' | translate }}</mat-label>
+              <input matInput type="date" formControlName="date" required>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.CUSTOMER' | translate }}</mat-label>
+              <mat-select formControlName="customer" required>
+                <mat-option [value]="null" disabled>{{ 'ACCOUNTS.DEPOSITS.FORM.SELECT_CUSTOMER' | translate }}</mat-option>
+                <mat-option *ngFor="let customer of customers(); trackBy: trackByCustomer" [value]="customer.id">
+                  {{ customer.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.CAR' | translate }}</mat-label>
+              <mat-select formControlName="car" required (selectionChange)="onCarChange($event.value)">
+                <mat-option [value]="null" disabled>{{ 'ACCOUNTS.DEPOSITS.FORM.SELECT_CAR' | translate }}</mat-option>
+                <mat-option *ngFor="let car of availableReservedCars(); trackBy: trackByCar" [value]="car.id">
+                  {{ car.make }} {{ car.model }} ({{ car.year }}) - {{car.vin}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.AMOUNT' | translate }}</mat-label>
+              <input matInput type="number" formControlName="amount" required min="0.01">
+            </mat-form-field>
           </div>
         </div>
-      </section>
 
-      <section class="form-section">
-        <label for="notes" class="form-label">{{ 'ACCOUNTS.DEPOSITS.FORM.NOTES_PLACEHOLDER' | translate }}</label>
-        <textarea id="notes" name="notes" rows="3" [ngModel]="notes()" (ngModelChange)="notes.set($event)" placeholder="{{ 'ACCOUNTS.DEPOSITS.FORM.NOTES_PLACEHOLDER' | translate }}" class="form-input"></textarea>
-      </section>
+        <div class="form-section">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.NOTES_PLACEHOLDER' | translate }}</mat-label>
+            <textarea matInput formControlName="notes" rows="3"
+              [placeholder]="'ACCOUNTS.DEPOSITS.FORM.NOTES_PLACEHOLDER' | translate"></textarea>
+          </mat-form-field>
+        </div>
 
-      <div class="form-actions">
-        <a routerLink="/accounts/deposits" class="btn btn-light">{{ 'ACCOUNTS.DEPOSITS.FORM.CANCEL' | translate }}</a>
-        <button type="submit" [disabled]="depositForm.invalid || amount() <= 0" class="btn btn-primary">
-          {{ 'ACCOUNTS.DEPOSITS.FORM.SAVE' | translate }}
-        </button>
-      </div>
-    </form>
-  </div>
+        <div class="form-actions">
+          <button mat-button routerLink="/accounts/deposits" type="button">
+            {{ 'ACCOUNTS.DEPOSITS.FORM.CANCEL' | translate }}
+          </button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="depositForm.invalid || depositForm.get('amount')?.value <= 0">
+            {{ 'ACCOUNTS.DEPOSITS.FORM.SAVE' | translate }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
 </div>

@@ -19,34 +19,35 @@
         <h3 class="form-section-title">{{ 'PURCHASE_INVOICE.MAIN_DATA' | translate }}</h3>
         <ng-container *ngIf="layout$ | async as layout">
           <mat-grid-list [cols]="layout.columns" rowHeight="80" gutterSize="8px">
-            <mat-grid-tile [colspan]="1" [rowspan]="1">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'PURCHASE_INVOICE.SUPPLIER' | translate }}</mat-label>
-                <mat-select formControlName="supplierId" required>
-                  <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_SUPPLIER' | translate }}</mat-option>
-                  @for(supplier of suppliers(); track supplier.id) {
-                    <mat-option [value]="supplier.id">{{ supplier.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-            </mat-grid-tile>
-            <mat-grid-tile [colspan]="1" [rowspan]="1">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'PURCHASE_INVOICE.STORE' | translate }}</mat-label>
-                <mat-select formControlName="storeId" (selectionChange)="onStoreSelectionChange(+$event.value)" required>
-                  <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_STORE' | translate }}</mat-option>
-                  @for(store of stores(); track store.id) {
-                    <mat-option [value]="store.id">{{ store.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-            </mat-grid-tile>
+         
             <mat-grid-tile [colspan]="1" [rowspan]="1">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>{{ 'PURCHASE_INVOICE.INVOICE_NUMBER' | translate }}</mat-label>
                 <input matInput [value]="invoiceNumber()" readonly>
               </mat-form-field>
             </mat-grid-tile>
+              <mat-grid-tile [colspan]="1" [rowspan]="1">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'PURCHASE_INVOICE.SUPPLIER' | translate }}</mat-label>
+                  <mat-select formControlName="supplierId" required>
+                    <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_SUPPLIER' | translate }}</mat-option>
+                    @for(supplier of suppliers(); track supplier.id) {
+                    <mat-option [value]="supplier.id">{{ supplier.name }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </mat-grid-tile>
+              <mat-grid-tile [colspan]="1" [rowspan]="1">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'PURCHASE_INVOICE.STORE' | translate }}</mat-label>
+                  <mat-select formControlName="storeId" (selectionChange)="onStoreSelectionChange(+$event.value)" required>
+                    <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_STORE' | translate }}</mat-option>
+                    @for(store of stores(); track store.id) {
+                    <mat-option [value]="store.id">{{ store.name }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </mat-grid-tile>
             <mat-grid-tile [colspan]="1" [rowspan]="1">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>{{ 'PURCHASE_INVOICE.INVOICE_DATE' | translate }}</mat-label>
@@ -122,7 +123,7 @@
             <dxi-column dataField="quantity" caption="{{ 'PURCHASE_INVOICE.QUANTITY' | translate }}" dataType="number"></dxi-column>
             <dxi-column dataField="unitPrice" caption="{{ 'PURCHASE_INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
             <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" dataType="number" format="currency"></dxi-column>
-            <dxi-column caption="{{ 'PURCHASE_INVOICE.DELETE' | translate }}" cellTemplate="actionsTemplate"></dxi-column>
+            <dxi-column caption="{{ 'PURCHASE_INVOICE.tools' | translate }}" cellTemplate="actionsTemplate"></dxi-column>
 
             <div *dxTemplate="let data of 'actionsTemplate'">
               <button mat-icon-button color="warn" (click)="removeItem(data.data.carId)">

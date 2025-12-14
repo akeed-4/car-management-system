@@ -4,8 +4,8 @@ export interface PaymentVoucher {
   date: string;
   supplierId: number;
   supplierName: string;
-  purchaseInvoiceId: number;
-  purchaseInvoiceNumber: string;
+  purchaseInvoiceId?: number | null;
+  purchaseInvoiceNumber?: string | null;
   amount: number;
   paymentMethod: string;
   accountId: number;

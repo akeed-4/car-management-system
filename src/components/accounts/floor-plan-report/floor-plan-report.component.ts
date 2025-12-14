@@ -1,9 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { InventoryService } from '../../../services/inventory.service';
 import { FloorPlanService } from '../../../services/floor-plan.service';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FloorPlan } from '../../../types/floor-plan.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { MatCardModule } from '@angular/material/card';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { DxDataGridModule, DxTemplateModule, DxTemplateHost } from 'devextreme-angular';
 
 interface FinancedCarReportItem {
   carId: number;
@@ -20,7 +23,16 @@ interface FinancedCarReportItem {
 @Component({
   selector: 'app-floor-plan-report',
   standalone: true,
-  imports: [TranslateModule, CurrencyPipe, DatePipe],
+  imports: [
+    TranslateModule,
+    CurrencyPipe,
+    MatCardModule,
+    CommonModule,
+    MatToolbarModule,
+    DxDataGridModule,
+    DxTemplateModule
+  ],
+  providers: [DxTemplateHost],
   templateUrl: './floor-plan-report.component.html',
   styleUrl: './floor-plan-report.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

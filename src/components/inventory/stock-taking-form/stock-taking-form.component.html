@@ -1,133 +1,123 @@
-<div class="container mx-auto">
-  <div class="flex justify-between items-center mb-6">
-    <h2 class="text-2xl font-semibold text-gray-800">{{ pageTitle() }}</h2>
-    <a routerLink="/inventory/stock-taking" class="text-primary-600 hover:text-primary-800 transition duration-300 flex items-center">
-      {{ 'INVENTORY.STOCK_TAKING_FORM.BACK_TO_LIST' | translate }}
-    </a>
-  </div>
+<mat-toolbar color="primary">
+  <span>{{ pageTitle() }}</span>
+  <span class="spacer"></span>
+  <button mat-icon-button routerLink="/inventory/stock-taking">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+</mat-toolbar>
 
-  <div class="bg-white p-8 rounded-lg shadow-md">
-    <form #stockTakeForm="ngForm" (ngSubmit)="saveStockTake()">
-      
+<mat-card>
+  <mat-card-content>
+    <form [formGroup]="stockTakeForm" (ngSubmit)="saveStockTake()">
+
       <!-- Stock Take Header -->
-      <section class="border-b pb-6 mb-6">
-        <h3 class="text-xl font-semibold text-gray-700 mb-4">{{ 'INVENTORY.STOCK_TAKING_FORM.HEADER_TITLE' | translate }}</h3>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <label for="name" class="block text-sm font-medium text-gray-700">{{ 'INVENTORY.STOCK_TAKING_FORM.NAME' | translate }}</label>
-            <input 
-              type="text" 
-              id="name" 
-              name="name" 
-              [ngModel]="stockTake().name"
-              (ngModelChange)="updateHeaderField('name', $event)"
-              required
-              placeholder="مثال: جرد نهاية العام"
-              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
-          </div>
-          <div>
-            <label for="date" class="block text-sm font-medium text-gray-700">{{ 'INVENTORY.STOCK_TAKING_FORM.DATE' | translate }}</label>
-            <input 
-              type="date" 
-              id="date" 
-              name="date"
-              [ngModel]="stockTake().date"
-              (ngModelChange)="updateHeaderField('date', $event)"
-              required
-              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
-          </div>
-          <div>
-            <label for="user" class="block text-sm font-medium text-gray-700">{{ 'INVENTORY.STOCK_TAKING_FORM.CONDUCTED_BY' | translate }}</label>
-            <input 
-              type="text" 
-              id="user" 
-              name="user"
-              [ngModel]="stockTake().user"
-              (ngModelChange)="updateHeaderField('user', $event)"
-              required
-              placeholder="اسم الموظف"
-              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
-          </div>
+      <div class="form-section">
+        <h3 class="section-title">{{ 'INVENTORY.STOCK_TAKING_FORM.HEADER_TITLE' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'INVENTORY.STOCK_TAKING_FORM.NAME' | translate }}</mat-label>
+            <input matInput
+              type="text"
+              formControlName="name"
+              [placeholder]="'INVENTORY.STOCK_TAKING_FORM.NAME_PLACEHOLDER' | translate">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'INVENTORY.STOCK_TAKING_FORM.DATE' | translate }}</mat-label>
+            <input matInput
+              type="date"
+              formControlName="date">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'INVENTORY.STOCK_TAKING_FORM.CONDUCTED_BY' | translate }}</mat-label>
+            <input matInput
+              type="text"
+              formControlName="user"
+              [placeholder]="'INVENTORY.STOCK_TAKING_FORM.USER_PLACEHOLDER' | translate">
+          </mat-form-field>
         </div>
-      </section>
+      </div>
 
       <!-- Stock Take Items Table -->
-      <section>
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-semibold text-gray-700">{{ 'INVENTORY.STOCK_TAKING_FORM.ITEMS_TITLE' | translate }}</h3>
-                <button type="button" (click)="addNewItemRow()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700 transition duration-300 flex items-center text-sm">
-                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                {{ 'INVENTORY.STOCK_TAKING_FORM.ADD_CAR' | translate }}
-            </button>
+      <div class="table-section">
+        <div class="table-header">
+          <h3 class="section-title">{{ 'INVENTORY.STOCK_TAKING_FORM.ITEMS_TITLE' | translate }}</h3>
+          <button mat-raised-button color="accent" type="button" (click)="addNewItemRow()">
+            <mat-icon>add</mat-icon>
+            {{ 'INVENTORY.STOCK_TAKING_FORM.ADD_CAR' | translate }}
+          </button>
         </div>
-        <div class="overflow-x-auto border rounded-lg">
-          <table class="min-w-full bg-white">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase w-2/5">{{ 'INVENTORY.STOCK_TAKING_FORM.CAR' | translate }}</th>
-                <th class="text-center py-3 px-4 font-semibold text-sm text-gray-600 uppercase">{{ 'INVENTORY.STOCK_TAKING_FORM.SYSTEM_QUANTITY' | translate }}</th>
-                <th class="text-center py-3 px-4 font-semibold text-sm text-gray-600 uppercase">{{ 'INVENTORY.STOCK_TAKING_FORM.ACTUAL_QUANTITY' | translate }}</th>
-                <th class="text-center py-3 px-4 font-semibold text-sm text-gray-600 uppercase">{{ 'INVENTORY.STOCK_TAKING_FORM.REMOVE' | translate }}</th>
-              </tr>
-            </thead>
-            <tbody class="text-gray-700">
-              @for (item of stockTake().items; track i; let i = $index) {
-                <tr class="border-b">
-                  <td class="py-2 px-4">
-                     <select 
-                       [ngModel]="item.carId"
-                       (ngModelChange)="updateItemCar(+$event, i)"
-                       [name]="'carId-' + i"
-                       required
-                       class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
-                       <option [ngValue]="0" disabled>-- {{ 'INVENTORY.STOCK_TAKING_FORM.CAR' | translate }} --</option>
-                       @for (car of allCars(); track car.id) {
-                          @if(!selectedCarIds().includes(car.id) || car.id === item.carId) {
-                             <option [value]="car.id">{{ car.make }} {{ car.model }} ({{ car.year }})</option>
-                          }
-                       }
-                     </select>
-                  </td>
-                  <td class="py-3 px-4 text-center text-sm font-medium">{{ item.systemQuantity }}</td>
-                  <td class="py-2 px-4">
-                    <input 
-                      type="number"
-                      [ngModel]="item.countedQuantity"
-                      (ngModelChange)="updateItemCountedQuantity(+$event, i)"
-                      [name]="'countedQuantity-' + i"
-                      min="0"
-                      required
-                      class="w-24 mx-auto p-1 border border-gray-300 rounded-md text-center focus:outline-none focus:ring-2 focus:ring-primary-500">
-                  </td>
-                  <td class="py-3 px-4 text-center">
-                     <button type="button" (click)="removeItem(i)" class="text-red-500 hover:text-red-700 p-1">
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                    </button>
-                  </td>
-                </tr>
-              }
-              @if(!stockTake().items || stockTake().items?.length === 0) {
-                 <tr>
-                  <td colspan="4" class="text-center py-8 text-gray-500">
-                    {{ 'INVENTORY.STOCK_TAKING_FORM.NO_ITEMS_PROMPT' | translate }}
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
+
+        <table mat-table [dataSource]="items.controls" class="items-table">
+
+          <!-- Car Column -->
+          <ng-container matColumnDef="car">
+            <th mat-header-cell *matHeaderCellDef>{{ 'INVENTORY.STOCK_TAKING_FORM.CAR' | translate }}</th>
+            <td mat-cell *matCellDef="let item; let i = index">
+              <mat-form-field appearance="outline" class="table-form-field">
+                <mat-select
+                  [formControl]="items.at(i).get('carId')"
+                  [name]="'carId-' + i">
+                  <mat-option [value]="0" disabled>{{ 'INVENTORY.STOCK_TAKING_FORM.SELECT_CAR' | translate }}</mat-option>
+                  <mat-option *ngFor="let car of allCars()" [value]="car.id"
+                    [disabled]="selectedCarIds().includes(car.id) && car.id !== items.at(i).get('carId')?.value">
+                    {{ car.make }} {{ car.model }} ({{ car.year }})
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </td>
+          </ng-container>
+
+          <!-- System Quantity Column -->
+          <ng-container matColumnDef="systemQuantity">
+            <th mat-header-cell *matHeaderCellDef class="text-center">{{ 'INVENTORY.STOCK_TAKING_FORM.SYSTEM_QUANTITY' | translate }}</th>
+            <td mat-cell *matCellDef="let item; let i = index" class="text-center">{{ items.at(i).get('systemQuantity')?.value }}</td>
+          </ng-container>
+
+          <!-- Actual Quantity Column -->
+          <ng-container matColumnDef="actualQuantity">
+            <th mat-header-cell *matHeaderCellDef class="text-center">{{ 'INVENTORY.STOCK_TAKING_FORM.ACTUAL_QUANTITY' | translate }}</th>
+            <td mat-cell *matCellDef="let item; let i = index">
+              <mat-form-field appearance="outline" class="quantity-field">
+                <input matInput
+                  type="number"
+                  [formControl]="items.at(i).get('countedQuantity')"
+                  [name]="'countedQuantity-' + i"
+                  min="0">
+              </mat-form-field>
+            </td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="text-center">{{ 'INVENTORY.STOCK_TAKING_FORM.REMOVE' | translate }}</th>
+            <td mat-cell *matCellDef="let item; let i = index" class="text-center">
+              <button mat-icon-button color="warn" type="button" (click)="removeItem(i)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <!-- Empty State -->
+        <div *ngIf="!items || items.length === 0" class="empty-state">
+          <p>{{ 'INVENTORY.STOCK_TAKING_FORM.NO_ITEMS_PROMPT' | translate }}</p>
         </div>
-      </section>
+      </div>
 
       <!-- Form Actions -->
-      <div class="mt-8 pt-6 border-t flex justify-end">
-        <a routerLink="/inventory/stock-taking" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg shadow hover:bg-gray-300 transition duration-300 ml-4 text-sm">{{ 'INVENTORY.STOCK_TAKING_FORM.CANCEL' | translate }}</a>
-        <button 
-          type="submit" 
-          [disabled]="stockTakeForm.invalid"
-          class="bg-primary-600 text-white px-6 py-2 rounded-lg shadow hover:bg-primary-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm">
-          {{ editMode() ? ( 'INVENTORY.STOCK_TAKING_FORM.SAVE_CHANGES' | translate ) : ( 'INVENTORY.STOCK_TAKING_FORM.SAVE_TAKE' | translate ) }}
+      <div class="form-actions">
+        <button mat-stroked-button type="button" routerLink="/inventory/stock-taking" class="cancel-button">
+          {{ 'INVENTORY.STOCK_TAKING_FORM.CANCEL' | translate }}
+        </button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="stockTakeForm.invalid">
+          {{ editMode() ? ('INVENTORY.STOCK_TAKING_FORM.SAVE_CHANGES' | translate) : ('INVENTORY.STOCK_TAKING_FORM.SAVE_TAKE' | translate) }}
         </button>
       </div>
     </form>
-  </div>
-</div>
+  </mat-card-content>
+</mat-card>

@@ -72,20 +72,12 @@
                     [ngClass]="{'search-input': !isMobile,'search-input-mob': isMobile }"
                     [placeholder]="(isMobile ? 'selectSearch.placeholderMenuMobile' : 'selectSearch.placeholderMenu') | translate"
                     [dir]="textDir" (click)="openMenuGrid()" />
-                <dx-menu *ngIf="!isMobile" #menu [dataSource]="menus" displayExpr="name" itemsExpr="submenu" orientation="vertical"
+                <dx-menu #menu [dataSource]="menus" displayExpr="name" itemsExpr="submenu" orientation="vertical"
                     showFirstSubmenuMode="onHover" (onItemClick)="itemClick($event)" [rtlEnabled]="menuRtlEnabled"
                     [hideSubmenuOnMouseLeave]="false" cssClass="menu-layout"
                     (onSubmenuShowing)="onSubmenuShowing($event)"   >
                 </dx-menu>
-
-                <dx-tree-list *ngIf="isMobile" #dxTreeList id="dxTreeList" [dataSource]="menus" dataStructure="tree"
-                    [showBorders]="true" [rowAlternationEnabled]="true" [rtlEnabled]="menuRtlEnabled"
-                    (onRowClick)="onRowClick($event)" width="auto" cssClass="list-layout" [wordWrapEnabled]="true"
-                    [searchPanel]="{ visible: isMobile, width: 230, placeholder: ('selectSearch.placeholderMenuMobile' | translate), highlightSearchText: false}">
-                    <dxi-column dataField="name" cssClass="list-layout" caption="{{'layout.menu' | translate}}"
-                        [allowSorting]="false"></dxi-column>
-                </dx-tree-list>
-
+            
             </div>
         </div>
     </mat-sidenav>

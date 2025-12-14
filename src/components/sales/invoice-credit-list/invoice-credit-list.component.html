@@ -1,0 +1,48 @@
+<div class="container">
+  <div class="page-header strong-header">
+    <div class="header-info">
+      <h2 class="strong-title">{{ getCaption('TITLE') }}</h2>
+    </div>
+    <button (click)="navigateToNewCreditInvoice()" class="btn btn-primary btn-small no-print">
+      <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+      </svg>
+      <span>{{ 'SALES.NEW_INVOICE' | translate }}</span>
+    </button>
+  
+  </div>
+
+  <div class="card">
+    <div class="table-wrapper premium-table">
+      <dx-data-grid
+        [dataSource]="creditInvoices()"
+        [showBorders]="true"
+        [columnAutoWidth]="true"
+        [rowAlternationEnabled]="true"
+        [rtlEnabled]="true"
+        [noDataText]="getCaption('NO_DATA')"
+        [height]="600"
+      >
+        <dxi-column dataField="invoiceNumber" [caption]="getCaption('INVOICE_NUMBER')" [allowEditing]="false"></dxi-column>
+        <dxi-column dataField="customer.name" [caption]="getCaption('CUSTOMER')" [allowEditing]="false"></dxi-column>
+        <dxi-column dataField="invoiceDate" [caption]="getCaption('INVOICE_DATE')" dataType="date" [allowEditing]="false"></dxi-column>
+        <dxi-column dataField="dueDate" [caption]="getCaption('DUE_DATE')" dataType="date" [allowEditing]="false"></dxi-column>
+        <dxi-column dataField="totalAmount" [caption]="getCaption('TOTAL_AMOUNT')" dataType="number" format="currency" [allowEditing]="false"></dxi-column>
+        <dxi-column dataField="paymentMethod" [caption]="getCaption('PAYMENT_METHOD')" [allowEditing]="false"></dxi-column>
+        <dxi-column dataField="status" [caption]="getCaption('STATUS')" [allowEditing]="false"></dxi-column>
+        <dxi-column type="buttons">
+          <dxi-button name="edit" [onClick]="onEditClick"></dxi-button>
+          <dxi-button name="delete" [onClick]="onDeleteClick"></dxi-button>
+        </dxi-column>
+        <dxo-filter-row [visible]="true"></dxo-filter-row>
+        <dxo-header-filter [visible]="true"></dxo-header-filter>
+        <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false"
+          [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
+        <dxo-selection mode="single"></dxo-selection>
+        <dxo-grouping [autoExpandAll]="false" [contextMenuEnabled]="true"></dxo-grouping>
+        <dxo-paging [pageSize]="10"></dxo-paging>
+        <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
+      </dx-data-grid>
+    </div>
+  </div>
+</div>

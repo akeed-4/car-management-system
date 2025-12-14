@@ -1,22 +1,47 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
+import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { RequestedCar } from '../../../types/requested-car.model';
 import { RequestedCarService } from '../../../services/requested-car.service';
 import { ManufacturerService } from '../../../services/manufacturer.service';
 import { CarModelService } from '../../../services/car-model.service';
 import { ManufactureYearService } from '../../../services/manufacture-year.service';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-requested-car-form',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+    MatToolbarModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    TranslateModule,
+    MatTooltipModule
+  ],
   templateUrl: './requested-car-form.component.html',
   styleUrl: './requested-car-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RequestedCarFormComponent {
+export class RequestedCarFormComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private requestedCarService = inject(RequestedCarService);
@@ -24,10 +49,7 @@ export class RequestedCarFormComponent {
   private carModelService = inject(CarModelService);
   private yearService = inject(ManufactureYearService);
 
-  request = signal<Partial<RequestedCar>>({
-    status: 'New',
-    requestDate: new Date().toISOString().split('T')[0],
-  });
+  requestForm!: FormGroup;
   editMode = signal(false);
   pageTitle = signal('إضافة طلب سيارة جديدة');
   
@@ -38,7 +60,7 @@ export class RequestedCarFormComponent {
 
   // Computed signal for filtered models
   filteredModels = computed(() => {
-    const carMake = this.request().make;
+    const carMake = this.requestForm?.get('make')?.value;
     const selectedManufacturer = this.manufacturers().find(m => m.name === carMake);
     if (!selectedManufacturer) {
       return [];
@@ -46,38 +68,54 @@ export class RequestedCarFormComponent {
     return this.allModels().filter(m => m.manufacturerId === selectedManufacturer.id);
   });
 
-  constructor() {
-    effect(() => {
-      const idParam = this.route.snapshot.params['id'];
-      if (idParam) {
-        const id = Number(idParam);
-        this.editMode.set(true);
-        this.pageTitle.set('تعديل طلب سيارة');
-        this.requestedCarService.getRequestById(id).subscribe({
-          next: (existingRequest) => {
-            this.request.set({ ...existingRequest });
-          },
-          error: () => {
-            this.router.navigate(['/requested-cars']);
-          }
-        });
-      }
+  ngOnInit() {
+    this.initForm();
+    
+    // Handle route params for editing
+    const idParam = this.route.snapshot.params['id'];
+    if (idParam) {
+      const id = Number(idParam);
+      this.editMode.set(true);
+      this.pageTitle.set('تعديل طلب سيارة');
+      this.requestedCarService.getRequestById(id).subscribe({
+        next: (existingRequest) => {
+          this.requestForm.patchValue(existingRequest);
+        },
+        error: () => {
+          this.router.navigate(['/requested-cars']);
+        }
+      });
+    }
+  }
+
+  private initForm() {
+    this.requestForm = new FormGroup({
+      customerName: new FormControl('', Validators.required),
+      customerPhone: new FormControl('', Validators.required),
+      make: new FormControl('', Validators.required),
+      model: new FormControl('', Validators.required),
+      year: new FormControl(null),
+      color: new FormControl(''),
+      status: new FormControl('New', Validators.required),
+      notes: new FormControl(''),
+      requestDate: new FormControl(new Date().toISOString().split('T')[0])
     });
   }
   
   updateRequestField<K extends keyof RequestedCar>(field: K, value: RequestedCar[K]) {
-    this.request.update(r => {
-      const updatedRequest: Partial<RequestedCar> = { ...r, [field]: value };
-      // When make changes, reset model
-      if (field === 'make') {
-        updatedRequest.model = undefined;
-      }
-      return updatedRequest;
-    });
+    this.requestForm.patchValue({ [field]: value });
+    // When make changes, reset model
+    if (field === 'make') {
+      this.requestForm.patchValue({ model: undefined });
+    }
   }
 
   saveRequest() {
-    const requestData = this.request();
+    if (this.requestForm.invalid) {
+      return;
+    }
+
+    const requestData = this.requestForm.value;
     if (this.editMode()) {
         this.requestedCarService.updateRequest(requestData as RequestedCar);
     } else {
@@ -85,5 +123,17 @@ export class RequestedCarFormComponent {
         this.requestedCarService.addRequest(newRequest as Omit<RequestedCar, 'id'>);
     }
     this.router.navigate(['/requested-cars']);
+  }
+
+  trackByManufacturer(index: number, manufacturer: any): any {
+    return manufacturer.id;
+  }
+
+  trackByModel(index: number, model: any): any {
+    return model.id;
+  }
+
+  trackByYear(index: number, year: number): number {
+    return year;
   }
 }

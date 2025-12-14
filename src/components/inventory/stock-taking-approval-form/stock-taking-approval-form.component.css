@@ -1,6 +1,144 @@
-.container { 
-  max-width: 1280px; 
-  margin: 0 auto; 
+/* Material Design compatible styles */
+mat-toolbar {
+  margin-bottom: 16px;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+mat-card-content {
+  padding: 24px !important;
+}
+
+.form-section {
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+  margin-bottom: 16px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.form-field {
+  width: 100%;
+}
+
+.table-section {
+  margin-bottom: 24px;
+}
+
+.comparison-table {
+  width: 100%;
+  margin-top: 16px;
+}
+
+.comparison-table th {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+  font-size: 14px;
+}
+
+.comparison-table td {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.row-difference {
+  background-color: #fff3e0;
+}
+
+.difference-positive {
+  color: #f44336;
+  font-weight: 500;
+}
+
+.difference-negative {
+  color: #4caf50;
+  font-weight: 500;
+}
+
+.difference-zero {
+  color: #2196f3;
+  font-weight: 500;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 16px;
+  background-color: #fafafa;
+  border-radius: 8px;
+  color: rgba(0, 0, 0, 0.54);
+  margin: 24px 0;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.cancel-button {
+  margin-right: 8px;
+}
+
+/* RTL Support */
+.mat-mdc-toolbar {
+  direction: rtl;
+}
+
+.mat-mdc-card {
+  direction: rtl;
+}
+
+.mat-mdc-form-field {
+  direction: rtl;
+}
+
+.mat-mdc-select {
+  direction: rtl;
+}
+
+.mat-mdc-input-element {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  mat-card-content {
+    padding: 16px !important;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .cancel-button {
+    margin-right: 0;
+    margin-bottom: 8px;
+  }
 }
 
 /* Layout utilities */

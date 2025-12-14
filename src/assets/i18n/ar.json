@@ -42,7 +42,9 @@
     "ALREADY_ADDED": "هذه السيارة مضافة بالفعل إلى الفاتورة",
     "QUANTITY_LABEL": "الكمية:",
     "costPrice": "سعر الوحدة",
-    "INVALID_PRICE": "يرجى إدخال سعر صحيح أكبر من 0"
+    "INVALID_PRICE": "يرجى إدخال سعر صحيح أكبر من 0",
+    "CAR_NOT_FOUND": "السيارة غير موجودة في المخزون",
+    "INVALID_QUANTITY": "يرجى إدخال كمية صحيحة أكبر من 0"
   },
   "COMMON": {
     "ALERT": {
@@ -298,6 +300,7 @@
       "MARKETING_DESCRIPTION": "الوصف التسويقي",
       "PHOTOS": "الصور",
       "UPLOAD_FILE": "ارفع ملفاً",
+      "CHOOSE_FILE": "اختر ملف",
       "CANCEL": "إلغاء",
       "PUBLISH": "نشر على المنصات",
       "DEPOSIT_VOUCHER": "سند عربون",
@@ -325,7 +328,28 @@
       "ERROR_NAME_USER": "الرجاء إدخال اسم الجرد واسم القائم بالجرد.",
       "ERROR_NO_ITEMS": "الرجاء إضافة سيارة واحدة على الأقل لمستند الجرد.",
       "ERROR_SELECT_CAR": "الرجاء اختيار سيارة لكل صف في الجدول."
-    }
+    },
+    "TITLE": "المخزون",
+    "SCAN_VIN": "مسح رقم الشاصي",
+    "ADD_NEW_CAR": "إضافة سيارة جديدة",
+    "CONDITION_FILTER": "فلترة الحالة",
+    "ALL": "الكل",
+    "NEW_CARS": "سيارات جديدة",
+    "USED_CARS": "سيارات مستعملة",
+    "SHOW_ARCHIVED": "عرض المؤرشف",
+    "CAR": "السيارة",
+    "VIN": "رقم الشاصي",
+    "SALE_PRICE": "سعر البيع",
+    "STATUS": "الحالة",
+    "CURRENT_LOCATION": "الموقع الحالي",
+    "ACTIONS": "الإجراءات",
+    "EDIT": "تعديل",
+    "DELETE": "حذف",
+    "ARCHIVE": "أرشفة",
+    "UNARCHIVE": "إلغاء الأرشفة",
+    "DEPOSIT_VOUCHER": "سند الإيداع",
+    "DELETE_CONFIRM_TITLE": "حذف السيارة",
+    "DELETE_CONFIRM_MESSAGE": "هل أنت متأكد من حذف هذه السيارة؟"
   },
   "PURCHASES": {
     "TITLE": "فواتير الشراء",
@@ -357,6 +381,8 @@
     "BACK_TO_PURCHASES": "العودة إلى المشتريات",
     "MAIN_DATA": "بيانات الفاتورة الرئيسية",
     "SUPPLIER": "المورد",
+    "CAR": "السيارة",
+    "UNIT_PRICE":"سعر الوحدة",
     "SELECT_SUPPLIER": "-- اختر المورد --",
     "STORE": "المخزن",
     "SELECT_STORE": "-- اختر المخزن --",
@@ -384,7 +410,8 @@
     "ERROR_SELECT_CAR": "الرجاء اختيار سيارة.",
     "ERROR_ALREADY_ADDED": "هذه السيارة مضافة بالفعل إلى الفاتورة.",
     "SAVED_SUCCESS": "تم حفظ فاتورة الشراء بنجاح وتحديث المخزون.",
-    "SAVE_ERROR": "خطأ في حفظ فاتورة الشراء."
+    "SAVE_ERROR": "خطأ في حفظ فاتورة الشراء.",
+    "tools":" أدوات"
   },
   "PURCHASE_RETURN": {
     "CREATE_TITLE": "إنشاء مرتجع مشتريات",
@@ -524,6 +551,19 @@
       "APPROVED": "تم اعتماد العقد",
       "EDITABLE_BEFORE_APPROVAL": "قابل للتعديل قبل الاعتماد",
       "READONLY_AFTER_APPROVAL": "للقراءة فقط بعد الاعتماد"
+    },
+
+    "CREDIT_LIST": {
+      "TITLE": "فواتير المبيعات الائتمانية",
+      "BACK_TO_SALES": "العودة للمبيعات",
+      "INVOICE_NUMBER": "رقم الفاتورة",
+      "CUSTOMER": "العميل",
+      "INVOICE_DATE": "تاريخ الفاتورة",
+      "DUE_DATE": "تاريخ الاستحقاق",
+      "TOTAL_AMOUNT": "المبلغ الإجمالي",
+      "PAYMENT_METHOD": "طريقة الدفع",
+      "STATUS": "الحالة",
+      "NO_DATA": "لا توجد فواتير ائتمانية."
     }
   },
 
@@ -686,8 +726,7 @@
       "SAVE": "حفظ السند",
       "FILL_REQUIRED": "الرجاء تعبئة جميع الحقول بشكل صحيح.",
       "AMOUNT_EXCEEDS": "المبلغ المدفوع أكبر من المبلغ المستحق.",
-      "PERIODIC_INSPECTION": "فحص دوري",
-      "STOCK_LESS": "الكمية المطلوبة أكبر من الكمية المتاحة في المخزون"
+      "SAVED": "تم حفظ سند القبض وتحديث الفاتورة."
     }
   },
   "MANUFACTURERS": {
@@ -744,6 +783,10 @@
     "PASSWORD_ERROR": "كلمة المرور مطلوبة ويجب أن تكون 6 أحرف على الأقل",
     "SUBMIT": "دخول",
     "INVALID_CREDENTIALS": "بيانات الدخول غير صحيحة",
+    "FILL_REQUIRED_FIELDS": "يرجى ملء جميع الحقول المطلوبة"
+  },
+  "REGISTRATION": {
+    "PASSWORD_MISMATCH": "كلمات المرور غير متطابقة",
     "FILL_REQUIRED_FIELDS": "يرجى ملء جميع الحقول المطلوبة"
   },
   "CUSTOMERS": {
@@ -1024,5 +1067,146 @@
       "EDIT": "تعديل",
       "DELETE": "حذف"
     }
+  },
+  "CONSIGNMENT": {
+    "LIST_TITLE": "سيارات لدى الغير (عهدة)",
+    "ADD_NEW": "إضافة سيارة عهدة",
+    "SHOW_ARCHIVED": "عرض الأرشيف",
+    "SEARCH_PLACEHOLDER": "البحث في سيارات العهدة...",
+    "COLUMNS": {
+      "CAR": "السيارة",
+      "OWNER": "المالك",
+      "AGREED_SALE_PRICE": "سعر البيع المتفق عليه",
+      "COMMISSION_RATE": "نسبة العمولة",
+      "STATUS": "الحالة",
+      "ACTIONS": "إجراءات"
+    },
+    "STATUS": {
+      "AVAILABLE": "متاحة",
+      "SOLD": "مباعة",
+      "ARCHIVED": "مؤرشفة"
+    },
+    "ACTIONS": {
+      "SELL": "بيع",
+      "EDIT": "تعديل",
+      "DELETE": "حذف",
+      "ARCHIVE": "أرشفة",
+      "UNARCHIVE": "إلغاء الأرشفة"
+    },
+    "FORM": {
+      "TITLE_NEW": "إضافة سيارة عهدة جديدة",
+      "TITLE_EDIT": "تعديل سيارة العهدة",
+      "BACK_TO_LIST": "العودة إلى قائمة العهدة",
+      "OWNER_DETAILS": "بيانات المالك",
+      "OWNER_NAME": "اسم المالك",
+      "OWNER_PHONE": "رقم جوال المالك",
+      "CAR_DETAILS": "تفاصيل السيارة",
+      "MANUFACTURER": "الشركة المصنعة",
+      "MODEL": "الموديل",
+      "YEAR": "سنة الصنع",
+      "EXTERIOR_COLOR": "اللون الخارجي",
+      "MILEAGE": "الممشى (كم)",
+      "PLATE_NUMBER": "رقم اللوحة",
+      "VIN": "رقم الهيكل (VIN)",
+      "FINANCIAL_DETAILS": "البيانات المالية للعهدة",
+      "AGREED_SALE_PRICE": "سعر البيع المتفق عليه مع المالك",
+      "COMMISSION_RATE": "نسبة العمولة (%)",
+      "RECEIPT_DATE": "تاريخ الاستلام",
+      "NOTES": "ملاحظات (اختياري)",
+      "CANCEL": "إلغاء",
+      "SAVE_NEW": "إضافة سيارة العهدة",
+      "SAVE_CHANGES": "حفظ التغييرات"
+    },
+    "SELL_MODAL_TITLE": "بيع سيارة العهدة",
+    "SELL_MODAL_MESSAGE": "هل أنت متأكد من بيع هذه السيارة؟",
+    "SELL_MODAL_PRICE_LABEL": "سعر البيع",
+    "DELETE_MODAL_TITLE": "تأكيد حذف السيارة",
+    "DELETE_MODAL_MESSAGE": "هل أنت متأكد من حذف هذه السيارة العهدة؟ لا يمكن التراجع عن هذا الإجراء."
+  },
+  "REQUESTED_CARS": {
+    "LIST_TITLE": "قائمة السيارات المطلوبة",
+    "ADD_NEW": "إضافة طلب جديد",
+    "ADD_NEW_REQUEST": "إضافة طلب جديد",
+    "SHOW_ARCHIVED": "عرض الأرشيف",
+    "SEARCH_PLACEHOLDER": "البحث في الطلبات...",
+    "COLUMNS": {
+      "REQUEST_DATE": "تاريخ الطلب",
+      "CUSTOMER_INFO": "بيانات العميل",
+      "CAR_REQUESTED": "السيارة المطلوبة",
+      "STATUS": "الحالة",
+      "ACTIONS": "إجراءات"
+    },
+    "STATUS": {
+      "PENDING": "معلق",
+      "IN_PROGRESS": "قيد التنفيذ",
+      "COMPLETED": "مكتمل",
+      "CANCELLED": "ملغي",
+      "NEW": "جديد",
+      "CONTACTED": "تم التواصل",
+      "SOURCED": "تم العثور عليها",
+      "CLOSED": "مغلق"
+    },
+    "ACTIONS": {
+      "EDIT": "تعديل",
+      "DELETE": "حذف",
+      "ARCHIVE": "أرشفة",
+      "UNARCHIVE": "إلغاء الأرشفة"
+    },
+    "FORM": {
+      "TITLE_NEW": "إضافة طلب سيارة جديد",
+      "TITLE_EDIT": "تعديل طلب السيارة",
+      "BACK_TO_LIST": "العودة إلى قائمة الطلبات",
+      "CUSTOMER_DETAILS": "بيانات العميل",
+      "CUSTOMER_NAME": "اسم العميل",
+      "CUSTOMER_PHONE": "رقم الجوال",
+      "CAR_SPECIFICATIONS": "مواصفات السيارة المطلوبة",
+      "MANUFACTURER": "الشركة المصنعة",
+      "MODEL": "الموديل",
+      "YEAR": "سنة الصنع (اختياري)",
+      "YEAR_OPTIONAL": "سنة الصنع (اختياري)",
+      "COLOR": "اللون (اختياري)",
+      "COLOR_OPTIONAL": "اللون (اختياري)",
+      "STATUS": "حالة الطلب",
+      "NOTES": "ملاحظات إضافية",
+      "ADDITIONAL_NOTES": "ملاحظات إضافية",
+      "SELECT_MANUFACTURER": "اختر الشركة المصنعة",
+      "SELECT_MODEL": "اختر الموديل",
+      "SELECT_YEAR": "اختر السنة",
+      "CANCEL": "إلغاء",
+      "SAVE_NEW": "حفظ الطلب",
+      "SAVE_REQUEST": "حفظ الطلب",
+      "SAVE_CHANGES": "حفظ التغييرات"
+    },
+    "MODAL": {
+      "DELETE_TITLE": "تأكيد حذف الطلب",
+      "DELETE_MESSAGE": "هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء."
+    }
+  },
+  "STOCK_TAKING_APPROVAL": {
+    "TITLE": "اعتمادات الجرد",
+    "CREATE_NEW": "إنشاء اعتماد جديد",
+    "APPROVAL_DATE": "تاريخ الاعتماد",
+    "APPROVER_NAME": "اسم المعتمد",
+    "STOCK_TAKE_DOCUMENT": "مستند الجرد",
+    "ACTIONS": "الإجراءات",
+    "EDIT": "تعديل",
+    "VIEW": "عرض"
+  },
+  "STOCK_TAKING_APPROVAL_FORM": {
+    "TITLE": "نموذج اعتماد الجرد",
+    "APPROVAL_DETAILS": "تفاصيل الاعتماد",
+    "STOCK_TAKE_DOCUMENT": "مستند الجرد",
+    "SELECT_STOCK_TAKE": "اختر مستند الجرد",
+    "APPROVAL_DATE": "تاريخ الاعتماد",
+    "APPROVER_NAME": "اسم المعتمد",
+    "APPROVER_PLACEHOLDER": "أدخل اسم المعتمد",
+    "QUANTITY_COMPARISON": "مقارنة الكميات",
+    "CAR": "السيارة",
+    "SYSTEM_QUANTITY": "كمية النظام",
+    "COUNTED_QUANTITY": "الكمية المعدودة",
+    "DIFFERENCE": "الفرق",
+    "SELECT_STOCK_TAKE_MESSAGE": "يرجى اختيار مستند جرد للمتابعة",
+    "CANCEL": "إلغاء",
+    "APPROVE_AND_UPDATE": "اعتماد وتحديث المخزون"
   }
 }

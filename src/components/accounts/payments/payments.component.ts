@@ -4,6 +4,13 @@ import { RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
 import { PaymentService } from '../../../services/payment.service';
 import { PaymentVoucher } from '../../../types/payment-voucher.model';
 
@@ -13,7 +20,20 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-payments',
   standalone: true,
-  imports: [RouterLink, CurrencyPipe, DatePipe, FormsModule, TranslateModule],
+  imports: [
+    RouterLink,
+    FormsModule,
+    TranslateModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+    MatToolbarModule,
+    MatFormFieldModule,
+    MatInputModule,
+    DxDataGridModule,
+    DxButtonModule,
+    DxTemplateModule,
+  ],
   templateUrl: './payments.component.html',
   styleUrl: './payments.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,7 +54,7 @@ export class PaymentsComponent {
       payments = payments.filter(p =>
         p.voucherNumber.toLowerCase().includes(searchTerm) ||
         p.supplierName.toLowerCase().includes(searchTerm) ||
-        p.purchaseInvoiceNumber.toLowerCase().includes(searchTerm)
+        (p.purchaseInvoiceNumber?.toLowerCase() || '').includes(searchTerm)
       );
     }
     
@@ -76,5 +96,9 @@ export class PaymentsComponent {
   getSortIcon(column: SortColumn) {
     if (this.sortColumn() !== column) return '';
     return this.sortDirection() === 'asc' ? '▲' : '▼';
+  }
+
+  trackByPaymentId(index: number, payment: PaymentVoucher): number {
+    return payment.id;
   }
 }

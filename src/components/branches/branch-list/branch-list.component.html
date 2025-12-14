@@ -63,7 +63,7 @@
       [allowFiltering]="true"
       [allowSorting]="false"
       [allowGrouping]="true"
-      [width]="250">
+      >
     </dxi-column>
 
     <dxi-column
@@ -82,7 +82,7 @@
         valueExpr: 'value',
         displayExpr: 'displayExpr'
       }"
-      [width]="100">
+    >
     </dxi-column>
 
     <dxi-column
@@ -90,12 +90,11 @@
       [caption]="'BRANCHES.COLUMNS.CREATED' | translate"
       dataType="date"
       format="yyyy-MM-dd"
-      [width]="120">
+      >
     </dxi-column>
 
     <dxi-column
       type="buttons"
-      [width]="120"
       [caption]="'BRANCHES.COLUMNS.ACTIONS' | translate">
       <dxi-button
         [hint]="'BRANCHES.ACTIONS.EDIT' | translate"

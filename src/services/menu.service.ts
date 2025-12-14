@@ -84,8 +84,8 @@ export const menuData = [
     name: 'المبيعات',
     englishName: 'Sales',
     submenu: [
-      { id: 51, name: 'فواتير المبيعات', englishName: 'Sales Invoices', route: '/sales' },
-      { id: 52, name: 'إدارة المبيعات', englishName: 'Sale Management', route: '/sales/sale-parent' },
+      { id: 51, name: 'فواتير المبيعات النقدية', englishName: 'Sales Invoices', route: '/sales' },
+      { id: 52,  name: 'فواتير المبيعات الاجلة', englishName: 'Sales Invoices', route: '/sales/invoice-credit-list' },
       { id: 53, name: 'إدارة الأقساط', englishName: 'Installment Management', route: '/installments' },
       { id: 54, name: 'مرتجعات المبيعات', englishName: 'Sales Returns', route: '/sales/returns' },
     

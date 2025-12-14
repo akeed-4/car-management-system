@@ -4,6 +4,13 @@ import { RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
 import { ReceiptService } from '../../../services/receipt.service';
 import { ReceiptVoucher } from '../../../types/receipt-voucher.model';
 
@@ -13,7 +20,20 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-receipts',
   standalone: true,
-  imports: [RouterLink, CurrencyPipe, DatePipe, FormsModule, TranslateModule],
+  imports: [
+    RouterLink,
+    FormsModule,
+    TranslateModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+    MatToolbarModule,
+    MatFormFieldModule,
+    MatInputModule,
+    DxDataGridModule,
+    DxButtonModule,
+    DxTemplateModule,
+  ],
   templateUrl: './receipts.component.html',
   styleUrl: './receipts.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -76,5 +96,9 @@ export class ReceiptsComponent {
   getSortIcon(column: SortColumn) {
     if (this.sortColumn() !== column) return '';
     return this.sortDirection() === 'asc' ? '▲' : '▼';
+  }
+
+  trackByReceiptId(index: number, receipt: ReceiptVoucher): number {
+    return receipt.id;
   }
 }

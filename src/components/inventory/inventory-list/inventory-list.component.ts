@@ -7,8 +7,18 @@ import { ModalComponent } from '../../shared/modal/modal.component';
 import { Car, CarCondition, CarLocation } from '../../../types/car.model';
 import { FormsModule } from '@angular/forms'; // Import FormsModule for filter input
 import { VinScannerComponent } from '../../shared/vin-scanner/vin-scanner.component';
-// Fix: Import InventoryService
 import { InventoryService } from '../../../services/inventory.service';
+import { TranslateModule } from '@ngx-translate/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
 
 type SortColumn = keyof Car | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -16,7 +26,25 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-inventory-list',
   standalone: true,
-  imports: [RouterLink, CurrencyPipe, ModalComponent, FormsModule, VinScannerComponent],
+  imports: [
+    RouterLink,
+    ModalComponent,
+    FormsModule,
+    VinScannerComponent,
+    TranslateModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+    MatToolbarModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatSlideToggleModule,
+    MatTooltipModule,
+    DxDataGridModule,
+    DxButtonModule,
+    DxTemplateModule
+  ],
   templateUrl: './inventory-list.component.html',
   styleUrl: './inventory-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,6 +67,14 @@ export class InventoryListComponent {
 
   // VIN Scanner Modal state
   isScannerOpen = signal(false);
+
+  // DataGrid options
+  statusOptions = [
+    { value: 'Available', display: 'متاح' },
+    { value: 'Reserved', display: 'محجوز' },
+    { value: 'Sold', display: 'مباع' },
+    { value: 'In Maintenance', display: 'في الصيانة' }
+  ];
   
   filteredAndSortedCars = computed(() => {
     const searchTerm = this.filter().toLowerCase();
@@ -153,4 +189,71 @@ export class InventoryListComponent {
   unarchiveCar(id: number) {
     this.inventoryService.unarchiveCar(id);
   }
+
+  // DataGrid action methods
+  onEditClick = (e: any) => {
+    this.editCar(e.row.data.id);
+  };
+
+  onDeleteClick = (e: any) => {
+    this.requestDelete(e.row.data.id);
+  };
+
+  onArchiveClick = (e: any) => {
+    this.archiveCar(e.row.data.id);
+  };
+
+  onUnarchiveClick = (e: any) => {
+    this.unarchiveCar(e.row.data.id);
+  };
+
+  onDepositClick = (e: any) => {
+    this.router.navigate(['/accounts/deposits/new', e.row.data.id]);
+  };
+
+  onRowUpdated = (e: any) => {
+    if (e.key && e.newData.currentLocation !== undefined) {
+      this.inventoryService.updateCarLocation(e.key, e.newData.currentLocation);
+    }
+  };
+
+  // Visibility functions for DataGrid buttons
+  isEditVisible = (e: any) => {
+    return !this.showArchived();
+  };
+
+  isDeleteVisible = (e: any) => {
+    return !this.showArchived();
+  };
+
+  isArchiveVisible = (e: any) => {
+    return !this.showArchived() && e.row.data.status === 'Sold';
+  };
+
+  isUnarchiveVisible = (e: any) => {
+    return this.showArchived();
+  };
+
+  isDepositVisible = (e: any) => {
+    return !this.showArchived() && e.row.data.status === 'Reserved';
+  };
+
+  // Custom display functions
+  getCarDisplayValue = (rowData: any) => {
+    return `${rowData.make} ${rowData.model} (${rowData.year})`;
+  };
+
+  getStatusDisplayValue = (rowData: any) => {
+    const statusMap: { [key: string]: string } = {
+      'Available': 'متاح',
+      'Reserved': 'محجوز',
+      'Sold': 'مباع',
+      'In Maintenance': 'في الصيانة'
+    };
+    return statusMap[rowData.status] || rowData.status;
+  };
+
+  getConditionDisplayValue = (rowData: any) => {
+    return rowData.condition === 'New' ? 'جديدة' : 'مستعملة';
+  };
 }

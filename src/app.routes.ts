@@ -10,6 +10,7 @@ import { SalesInvoiceComponent } from './components/sales/sales-invoice/sales-in
 import { SalesInvoiceCashComponent } from './components/sales/sales-invoice-cash/sales-invoice-cash.component';
 import { SalesInvoiceCreditComponent } from './components/sales/sales-invoice-credit/sales-invoice-credit.component';
 import { SaleParentComponent } from './components/sales/sale-parent/sale-parent.component';
+import { InvoiceCreditListComponent } from './components/sales/invoice-credit-list/invoice-credit-list.component';
 import { PurchaseInvoiceComponent } from './components/purchases/purchase-invoice/purchase-invoice.component';
 import { CustomersComponent } from './components/entities/customers/customers-list/customers.component';
 import { SuppliersComponent } from './components/entities/suppliers/suppliers-list/suppliers.component';
@@ -103,6 +104,7 @@ export const APP_ROUTES: Routes = [
   { path: 'consignment-cars/edit/:id', component: ConsignmentFormComponent },
   { path: 'sales', component: SalesComponent },
   { path: 'sales/sale-parent', component: SaleParentComponent },
+  { path: 'sales/invoice-credit-list', component: InvoiceCreditListComponent },
   { path: 'sales/invoice/cash/new', component: SalesInvoiceCashComponent },
   { path: 'sales/invoice/credit/new', component: SalesInvoiceCreditComponent },
   { path: 'sales/invoice/new', component: SalesInvoiceComponent },

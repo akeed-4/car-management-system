@@ -1,269 +1,269 @@
 
 
-<div class="container">
-  <div class="page-header">
-    <h2>{{ pageTitle() }}</h2>
-    <a routerLink="/inventory" class="back-link">{{ 'INVENTORY.FORM.BACK_TO_INVENTORY' | translate }}</a>
-  </div>
+<mat-toolbar color="primary">
+  <span>{{ pageTitle() }}</span>
+  <span class="spacer"></span>
+  <button mat-icon-button routerLink="/inventory" matTooltip="{{ 'INVENTORY.FORM.BACK_TO_INVENTORY' | translate }}">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+</mat-toolbar>
 
-  <div class="card">
-    <form #carForm="ngForm" (ngSubmit)="saveCar()">
+<mat-card>
+  <mat-card-content>
+    <form [formGroup]="carForm" (ngSubmit)="saveCar()">
       <!-- Main Details Section -->
-      <section class="form-section">
-        <h3 class="form-section-title">{{ 'INVENTORY.FORM.MAIN_DETAILS' | translate }}</h3>
-        <div class="form-grid cols-4">
-          <div>
-            <label for="make" class="form-label">{{ 'INVENTORY.FORM.MANUFACTURER' | translate }}</label>
-            <select id="make" name="make" #make="ngModel" [ngModel]="car().make" (ngModelChange)="updateCarField('make', $event)" required class="form-select">
-              <option [ngValue]="undefined" disabled>-- اختر الشركة --</option>
-              @for (manufacturer of manufacturers(); track manufacturer.id) {
-                <option [value]="manufacturer.name">{{ manufacturer.name }}</option>
-              }
-            </select>
-          </div>
-          <div>
-            <label for="model" class="form-label">{{ 'INVENTORY.FORM.MODEL' | translate }}</label>
-             <select id="model" name="model" #model="ngModel" [ngModel]="car().model" (ngModelChange)="updateCarField('model', $event)" required [disabled]="!car().make" class="form-select">
-              <option [ngValue]="undefined" disabled>-- اختر الموديل --</option>
-              @for (carModel of filteredModels(); track carModel.id) {
-                <option [value]="carModel.name">{{ carModel.name }}</option>
-              }
-            </select>
-          </div>
-          <div>
-            <label for="year" class="form-label">{{ 'INVENTORY.FORM.YEAR' | translate }}</label>
-             <select id="year" name="year" #year="ngModel" [ngModel]="car().year" (ngModelChange)="updateCarField('year', +$event)" required class="form-select">
-              <option [ngValue]="undefined" disabled>-- اختر السنة --</option>
-              @for (y of years(); track y) {
-                <option [value]="y">{{ y }}</option>
-              }
-            </select>
-          </div>
-          <div>
-            <label for="currentLocation" class="form-label">{{ 'INVENTORY.FORM.CURRENT_LOCATION' | translate }}</label>
-            <input 
-              type="text"
-              id="currentLocation"
-              name="currentLocation"
-              [ngModel]="car().currentLocation"
-              (ngModelChange)="updateCarField('currentLocation', $event)"
-              required
-              placeholder="e.g., Showroom A, Lot 3"
-              class="form-input">
-          </div>
+      <div class="form-section">
+        <h3 class="section-title">{{ 'INVENTORY.FORM.MAIN_DETAILS' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.MANUFACTURER' | translate }}</mat-label>
+            <mat-select formControlName="make">
+              <mat-option [value]="undefined" disabled>{{ 'INVENTORY.FORM.SELECT_MANUFACTURER' | translate }}</mat-option>
+              <mat-option *ngFor="let manufacturer of manufacturers()" [value]="manufacturer.name">
+                {{ manufacturer.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.MODEL' | translate }}</mat-label>
+            <mat-select formControlName="model" [disabled]="!carForm.get('make')?.value">
+              <mat-option [value]="undefined" disabled>{{ 'INVENTORY.FORM.SELECT_MODEL' | translate }}</mat-option>
+              <mat-option *ngFor="let carModel of filteredModels()" [value]="carModel.name">
+                {{ carModel.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.YEAR' | translate }}</mat-label>
+            <mat-select formControlName="year">
+              <mat-option [value]="undefined" disabled>{{ 'INVENTORY.FORM.SELECT_YEAR' | translate }}</mat-option>
+              <mat-option *ngFor="let y of years()" [value]="y">
+                {{ y }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.CURRENT_LOCATION' | translate }}</mat-label>
+            <input matInput type="text" formControlName="currentLocation" placeholder="e.g., Showroom A, Lot 3">
+          </mat-form-field>
         </div>
-        <div class="form-grid" style="margin-top: 1.5rem;">
-            <div>
-                <label class="form-label">{{ 'INVENTORY.FORM.CONDITION' | translate }}</label>
-                <div class="radio-group">
-                    <label class="radio-label">
-                        <input type="radio" name="condition" value="Used" [ngModel]="car().condition" (ngModelChange)="onConditionChange($event)">
-                        <span>{{ 'INVENTORY.FORM.USED' | translate }}</span>
-                    </label>
-                    <label class="radio-label">
-                        <input type="radio" name="condition" value="New" [ngModel]="car().condition" (ngModelChange)="onConditionChange($event)">
-                        <span>{{ 'INVENTORY.FORM.NEW' | translate }}</span>
-                    </label>
-                </div>
-            </div>
+
+        <div class="form-row">
+          <mat-radio-group formControlName="condition" class="radio-group">
+            <mat-radio-button value="Used">{{ 'INVENTORY.FORM.USED' | translate }}</mat-radio-button>
+            <mat-radio-button value="New">{{ 'INVENTORY.FORM.NEW' | translate }}</mat-radio-button>
+          </mat-radio-group>
         </div>
-      </section>
+      </div>
 
       <!-- Saudi Specific Details -->
-       <section class="form-section">
-        <h3 class="form-section-title">{{ 'INVENTORY.FORM.MAIN_DETAILS' | translate }}</h3>
-        <div class="form-grid cols-3">
-          <div>
-              <label for="vin" class="form-label">{{ 'INVENTORY.FORM.VIN' | translate }}</label>
-            <div class="input-group">
-              <input type="text" id="vin" name="vin" [ngModel]="car().vin" (ngModelChange)="updateCarField('vin', $event)" required class="form-input" dir="ltr">
-                <button (click)="isScannerOpen.set(true)" type="button" class="input-group-btn">
-                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" /></svg>
-                <span>{{ 'INVENTORY.FORM.SCAN' | translate }}</span>
-              </button>
-            </div>
-          </div>
-          <div>
-            <label for="plateNumber" class="form-label">{{ 'INVENTORY.FORM.PLATE_NUMBER' | translate }}</label>
-            <input type="text" id="plateNumber" name="plateNumber" [ngModel]="car().plateNumber" (ngModelChange)="updateCarField('plateNumber', $event)" required class="form-input">
-          </div>
-          <div>
-            <label for="istimaraExpiry" class="form-label">{{ 'INVENTORY.FORM.ISTIMARA_EXPIRY' | translate }}</label>
-            <input type="date" id="istimaraExpiry" name="istimaraExpiry" [ngModel]="car().istimaraExpiry" (ngModelChange)="updateCarField('istimaraExpiry', $event)" class="form-input">
-          </div>
-          <div>
-            <label for="fahasStatus" class="form-label">{{ 'INVENTORY.FORM.FAHAS_STATUS' | translate }}</label>
-            <select id="fahasStatus" name="fahasStatus" [ngModel]="car().fahasStatus" (ngModelChange)="updateCarField('fahasStatus', $event)" class="form-select">
-              <option value="Valid">{{ 'INVENTORY.FORM.FAHAS_VALID' | translate }}</option>
-              <option value="Expired">{{ 'INVENTORY.FORM.FAHAS_EXPIRED' | translate }}</option>
-              <option value="Not Required">{{ 'INVENTORY.FORM.FAHAS_NOT_REQUIRED' | translate }}</option>
-            </select>
-          </div>
-        </div>
-      </section>
+      <div class="form-section">
+        <h3 class="section-title">{{ 'INVENTORY.FORM.SAUDI_DETAILS' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.VIN' | translate }}</mat-label>
+            <input matInput type="text" formControlName="vin" dir="ltr">
+            <button mat-icon-button matSuffix (click)="isScannerOpen.set(true)" matTooltip="{{ 'INVENTORY.FORM.SCAN' | translate }}">
+              <mat-icon>qr_code_scanner</mat-icon>
+            </button>
+          </mat-form-field>
 
-       <!-- Technical & Visual Details -->
-      <section class="form-section">
-        <h3 class="form-section-title">{{ 'INVENTORY.FORM.TECHNICAL' | translate }}</h3>
-        <div class="form-grid cols-4">
-           <div>
-            <label for="mileage" class="form-label">{{ 'INVENTORY.FORM.MILEAGE' | translate }}</label>
-            <input type="number" id="mileage" name="mileage" [ngModel]="car().mileage" (ngModelChange)="updateCarField('mileage', +$event)" required [disabled]="car().condition === 'New'" class="form-input">
-          </div>
-           <div>
-            <label for="exteriorColor" class="form-label">{{ 'INVENTORY.FORM.EXTERIOR_COLOR' | translate }}</label>
-            <input type="text" id="exteriorColor" name="exteriorColor" [ngModel]="car().exteriorColor" (ngModelChange)="updateCarField('exteriorColor', $event)" class="form-input">
-          </div>
-           <div>
-            <label for="interiorColor" class="form-label">{{ 'INVENTORY.FORM.INTERIOR_COLOR' | translate }}</label>
-            <input type="text" id="interiorColor" name="interiorColor" [ngModel]="car().interiorColor" (ngModelChange)="updateCarField('interiorColor', $event)" class="form-input">
-          </div>
-          <div>
-            <label for="transmission" class="form-label">{{ 'INVENTORY.FORM.TRANSMISSION' | translate }}</label>
-            <select id="transmission" name="transmission" [ngModel]="car().transmission" (ngModelChange)="updateCarField('transmission', $event)" class="form-select">
-              <option value="Automatic">{{ 'INVENTORY.FORM.AUTOMATIC' | translate }}</option>
-              <option value="Manual">{{ 'INVENTORY.FORM.MANUAL' | translate }}</option>
-            </select>
-          </div>
-           <div>
-            <label for="engineSize" class="form-label">حجم المحرك</label>
-            <input type="text" id="engineSize" name="engineSize" [ngModel]="car().engineSize" (ngModelChange)="updateCarField('engineSize', $event)" class="form-input">
-          </div>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.PLATE_NUMBER' | translate }}</mat-label>
+            <input matInput type="text" formControlName="plateNumber">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.ISTIMARA_EXPIRY' | translate }}</mat-label>
+            <input matInput [matDatepicker]="istimaraPicker" formControlName="istimaraExpiry">
+            <mat-datepicker-toggle matIconSuffix [for]="istimaraPicker"></mat-datepicker-toggle>
+            <mat-datepicker #istimaraPicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.FAHAS_STATUS' | translate }}</mat-label>
+            <mat-select formControlName="fahasStatus">
+              <mat-option value="Valid">{{ 'INVENTORY.FORM.FAHAS_VALID' | translate }}</mat-option>
+              <mat-option value="Expired">{{ 'INVENTORY.FORM.FAHAS_EXPIRED' | translate }}</mat-option>
+              <mat-option value="Not Required">{{ 'INVENTORY.FORM.FAHAS_NOT_REQUIRED' | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
-      </section>
+      </div>
+
+      <!-- Technical & Visual Details -->
+      <div class="form-section">
+        <h3 class="section-title">{{ 'INVENTORY.FORM.TECHNICAL' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.MILEAGE' | translate }}</mat-label>
+            <input matInput type="number" formControlName="mileage" [disabled]="carForm.get('condition')?.value === 'New'">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.EXTERIOR_COLOR' | translate }}</mat-label>
+            <input matInput type="text" formControlName="exteriorColor">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.INTERIOR_COLOR' | translate }}</mat-label>
+            <input matInput type="text" formControlName="interiorColor">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.TRANSMISSION' | translate }}</mat-label>
+            <mat-select formControlName="transmission">
+              <mat-option value="Automatic">{{ 'INVENTORY.FORM.AUTOMATIC' | translate }}</mat-option>
+              <mat-option value="Manual">{{ 'INVENTORY.FORM.MANUAL' | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.ENGINE_SIZE' | translate }}</mat-label>
+            <input matInput type="text" formControlName="engineCapacity">
+          </mat-form-field>
+        </div>
+      </div>
 
       <!-- Financials -->
-      <section class="form-section">
-        <h3 class="form-section-title">{{ 'INVENTORY.FORM.FINANCIALS' | translate }}</h3>
-         <div class="form-grid cols-4">
-           <div>
-            <label for="purchasePrice" class="form-label">{{ 'INVENTORY.FORM.PURCHASE_PRICE' | translate }}</label>
-            <input type="number" id="purchasePrice" name="purchasePrice" [ngModel]="car().purchasePrice" (ngModelChange)="updateCarField('purchasePrice', +$event)" required class="form-input">
-          </div>
-           <div>
-            <label for="additionalCosts" class="form-label">{{ 'INVENTORY.FORM.ADDITIONAL_COSTS' | translate }}</label>
-            <input type="number" id="additionalCosts" name="additionalCosts" [ngModel]="car().additionalCosts" (ngModelChange)="updateCarField('additionalCosts', +$event)" class="form-input">
-          </div>
-          <div>
-            <label for="trueTotalCost" class="form-label">{{ 'INVENTORY.FORM.TRUE_TOTAL_COST' | translate }}</label>
-            <input type="text" id="trueTotalCost" name="trueTotalCost" [value]="calculatedTotalCost() | currency:'SAR'" readonly class="form-input font-mono">
-          </div>
-           <div>
-            <label for="salePrice" class="form-label">{{ 'INVENTORY.FORM.SALE_PRICE' | translate }}</label>
-             <div class="price-suggester">
-                <input type="number" id="salePrice" name="salePrice" [ngModel]="car().salePrice" (ngModelChange)="updateCarField('salePrice', +$event)" required class="form-input">
-                <button type="button" (click)="suggestPrice()" [disabled]="isSuggestingPrice() || !canSuggestPrice()" title="اقتراح سعر باستخدام الذكاء الاصطناعي" class="price-suggester-btn">
-                  @if(isSuggestingPrice()) {
-                    <span class="spinner"></span>
-                  } @else {
-                    <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z" /></svg>
-                  }
-                </button>
-            </div>
-             @if (priceSuggestion(); as suggestion) {
-              <div class="suggestion-box">
-                  <button type="button" (click)="applySuggestedPrice(suggestion.low)" class="suggestion-item low">{{ 'INVENTORY.FORM.SUGGESTION_LOW' | translate }}: {{suggestion.low | currency:'SAR':'symbol':'1.0-0'}}</button>
-                <button type="button" (click)="applySuggestedPrice(suggestion.average)" class="suggestion-item average">{{ 'INVENTORY.FORM.SUGGESTION_AVG' | translate }}: {{suggestion.average | currency:'SAR':'symbol':'1.0-0'}}</button>
-                <button type="button" (click)="applySuggestedPrice(suggestion.high)" class="suggestion-item high">{{ 'INVENTORY.FORM.SUGGESTION_HIGH' | translate }}: {{suggestion.high | currency:'SAR':'symbol':'1.0-0'}}</button>
-              </div>
-            }
-            @if(priceSuggestionError()) {
-                <p class="error-text">{{ priceSuggestionError() }}</p>
-            }
-          </div>
-         </div>
-         <div class="form-grid cols-3" style="margin-top: 1.5rem;">
-            <div>
-              <label for="purchaseDate" class="form-label">تاريخ الشراء</label>
-              <input type="date" id="purchaseDate" name="purchaseDate" [ngModel]="car().purchaseDate" (ngModelChange)="updateCarField('purchaseDate', $event)" class="form-input">
-            </div>
-            <div>
-              <label for="floorPlanId" class="form-label">خطة التمويل (اختياري)</label>
-              <select id="floorPlanId" name="floorPlanId" [ngModel]="car().floorPlanId" (ngModelChange)="updateCarField('floorPlanId', $event ? +$event : undefined)" class="form-select">
-                <option [ngValue]="undefined">-- بدون تمويل --</option>
-                @for (plan of floorPlans(); track plan.id) {
-                  <option [value]="plan.id">{{ plan.planName }} - {{ plan.financier }}</option>
-                }
-              </select>
-            </div>
-         </div>
-      </section>
+      <div class="form-section">
+        <h3 class="section-title">{{ 'INVENTORY.FORM.FINANCIALS' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.PURCHASE_PRICE' | translate }}</mat-label>
+            <input matInput type="number" formControlName="purchasePrice">
+          </mat-form-field>
 
-      @if (editMode() && associatedExpenses().length > 0) {
-        <section class="form-section">
-          <h3 class="form-section-title">{{ 'INVENTORY.FORM.RELATED_COSTS' | translate }}</h3>
-          <div class="table-wrapper">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>التاريخ</th>
-                  <th>الوصف</th>
-                  <th>المبلغ</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for(expense of associatedExpenses(); track expense.id) {
-                  <tr>
-                    <td>{{expense.date}}</td>
-                    <td>{{expense.description}}</td>
-                    <td class="font-mono">{{expense.amount | currency:'SAR'}}</td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        </section>
-      }
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.ADDITIONAL_COSTS' | translate }}</mat-label>
+            <input matInput type="number" formControlName="additionalCosts">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.TRUE_TOTAL_COST' | translate }}</mat-label>
+            <input matInput [value]="calculatedTotalCost() | currency:'SAR'" readonly>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.SALE_PRICE' | translate }}</mat-label>
+            <input matInput type="number" formControlName="salePrice">
+            <button mat-icon-button matSuffix (click)="suggestPrice()" [disabled]="isSuggestingPrice() || !canSuggestPrice()" matTooltip="{{ 'INVENTORY.FORM.SUGGEST_PRICE' | translate }}">
+              <mat-icon *ngIf="!isSuggestingPrice()">lightbulb</mat-icon>
+              <mat-icon *ngIf="isSuggestingPrice()" class="spin">refresh</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+
+        <div *ngIf="priceSuggestion() as suggestion" class="price-suggestions">
+          <button mat-stroked-button color="primary" (click)="applySuggestedPrice(suggestion.low)">
+            {{ 'INVENTORY.FORM.SUGGESTION_LOW' | translate }}: {{ suggestion.low | currency:'SAR':'symbol':'1.0-0' }}
+          </button>
+          <button mat-stroked-button color="accent" (click)="applySuggestedPrice(suggestion.average)">
+            {{ 'INVENTORY.FORM.SUGGESTION_AVG' | translate }}: {{ suggestion.average | currency:'SAR':'symbol':'1.0-0' }}
+          </button>
+          <button mat-stroked-button color="warn" (click)="applySuggestedPrice(suggestion.high)">
+            {{ 'INVENTORY.FORM.SUGGESTION_HIGH' | translate }}: {{ suggestion.high | currency:'SAR':'symbol':'1.0-0' }}
+          </button>
+        </div>
+
+        <div *ngIf="priceSuggestionError()" class="error-message">
+          {{ priceSuggestionError() }}
+        </div>
+
+        <div class="form-grid" style="margin-top: 1.5rem;">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.PURCHASE_DATE' | translate }}</mat-label>
+            <input matInput [matDatepicker]="purchasePicker" formControlName="purchaseDate">
+            <mat-datepicker-toggle matIconSuffix [for]="purchasePicker"></mat-datepicker-toggle>
+            <mat-datepicker #purchasePicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.FLOOR_PLAN' | translate }}</mat-label>
+            <mat-select formControlName="floorPlanId">
+              <mat-option [value]="null">{{ 'INVENTORY.FORM.NO_FINANCING' | translate }}</mat-option>
+              <mat-option *ngFor="let plan of floorPlans()" [value]="plan.id">
+                {{ plan.planName }} - {{ plan.financier }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div *ngIf="editMode() && associatedExpenses().length > 0" class="form-section">
+        <h3 class="section-title">{{ 'INVENTORY.FORM.RELATED_COSTS' | translate }}</h3>
+        <table mat-table [dataSource]="associatedExpenses()" class="expenses-table">
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef>{{ 'INVENTORY.FORM.DATE' | translate }}</th>
+            <td mat-cell *matCellDef="let expense">{{ expense.date }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="description">
+            <th mat-header-cell *matHeaderCellDef>{{ 'INVENTORY.FORM.DESCRIPTION' | translate }}</th>
+            <td mat-cell *matCellDef="let expense">{{ expense.description }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="amount">
+            <th mat-header-cell *matHeaderCellDef>{{ 'INVENTORY.FORM.AMOUNT' | translate }}</th>
+            <td mat-cell *matCellDef="let expense">{{ expense.amount | currency:'SAR' }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </div>
 
       <!-- Description and Photos -->
-      <section class="form-section">
-        <h3 class="form-section-title">{{ 'INVENTORY.FORM.DESCRIPTION_PHOTOS' | translate }}</h3>
-        <div class="form-grid cols-2">
-          <div>
-            <label for="description" class="form-label">الوصف التسويقي</label>
-            <textarea id="description" name="description" [ngModel]="car().description" (ngModelChange)="updateCarField('description', $event)" rows="6" class="form-input"></textarea>
-          </div>
-          <div>
-            <label class="form-label">الصور</label>
-            <div class="photo-upload-box">
-                <div class="photo-upload-content">
-                    <svg class="icon" stroke="currentColor" fill="none" viewBox="0 0 48 48"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                    <p>
-                        <button type="button" class="upload-btn">
-                              {{ 'INVENTORY.FORM.UPLOAD_FILE' | translate }}
-                            </button>
-                    </p>
-                </div>
+      <div class="form-section">
+        <h3 class="section-title">{{ 'INVENTORY.FORM.DESCRIPTION_PHOTOS' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'INVENTORY.FORM.MARKETING_DESCRIPTION' | translate }}</mat-label>
+            <textarea matInput rows="6" formControlName="description"></textarea>
+          </mat-form-field>
+
+          <div class="photo-upload-section">
+            <mat-label>{{ 'INVENTORY.FORM.PHOTOS' | translate }}</mat-label>
+            <div class="photo-upload-area">
+              <div class="upload-content">
+                <mat-icon class="upload-icon">cloud_upload</mat-icon>
+                <p>{{ 'INVENTORY.FORM.UPLOAD_FILE' | translate }}</p>
+                <button mat-stroked-button type="button">{{ 'INVENTORY.FORM.CHOOSE_FILE' | translate }}</button>
+              </div>
             </div>
-            @if(car()?.photos?.[0]) {
-              <img [src]="car()?.photos?.[0]" alt="Car image" class="photo-preview">
-            }
+            <img *ngIf="carForm.value?.photos?.[0]" [src]="carForm.value?.photos?.[0]" alt="Car image" class="photo-preview">
           </div>
         </div>
-      </section>
+      </div>
 
       <!-- Form Actions -->
       <div class="form-actions">
-        <a routerLink="/inventory" class="btn btn-light">{{ 'INVENTORY.FORM.CANCEL' | translate }}</a>
-        @if(editMode()) {
-            <button type="button" (click)="isPublishModalOpen.set(true)" class="btn btn-secondary">
-            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" /></svg>
-            <span>{{ 'INVENTORY.FORM.PUBLISH' | translate }}</span>
-          </button>
-          @if(car()?.status === 'Reserved') {
-            <button type="button" (click)="navigateToDepositForm()" class="btn btn-secondary">
-              <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15A2.25 2.25 0 0 0 2.25 6.75v10.5A2.25 2.25 0 0 0 4.5 19.5Z" /></svg>
-              <span>{{ 'INVENTORY.FORM.DEPOSIT_VOUCHER' | translate }}</span>
-            </button>
-          }
-        }
-        <button type="submit" [disabled]="carForm.invalid" class="btn btn-primary">
-        {{ editMode() ? ( 'INVENTORY.FORM.SAVE_CHANGES' | translate ) : ( 'INVENTORY.FORM.ADD_CAR' | translate ) }}
-      </button>
+        <button mat-stroked-button routerLink="/inventory">
+          <mat-icon>cancel</mat-icon>
+          {{ 'INVENTORY.FORM.CANCEL' | translate }}
+        </button>
+
+        <button *ngIf="editMode()" mat-stroked-button color="accent" (click)="isPublishModalOpen.set(true)">
+          <mat-icon>publish</mat-icon>
+          {{ 'INVENTORY.FORM.PUBLISH' | translate }}
+        </button>
+
+        <button *ngIf="editMode() && carForm.value?.status === 'Reserved'" mat-stroked-button color="primary" (click)="navigateToDepositForm()">
+          <mat-icon>payment</mat-icon>
+          {{ 'INVENTORY.FORM.DEPOSIT_VOUCHER' | translate }}
+        </button>
+
+        <button mat-raised-button color="primary" type="submit" [disabled]="carForm.invalid">
+          <mat-icon>{{ editMode() ? 'save' : 'add' }}</mat-icon>
+          {{ editMode() ? ('INVENTORY.FORM.SAVE_CHANGES' | translate) : ('INVENTORY.FORM.ADD_CAR' | translate) }}
+        </button>
       </div>
     </form>
-  </div>
-</div>
+  </mat-card-content>
+</mat-card>
 
 <app-vin-scanner 
   [isOpen]="isScannerOpen()" 
@@ -273,6 +273,6 @@
 
 <app-publish-modal
   [isOpen]="isPublishModalOpen()"
-  [car]="car()"
+  [car]="carForm.value"
   (close)="isPublishModalOpen.set(false)">
 </app-publish-modal>

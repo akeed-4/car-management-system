@@ -5,11 +5,23 @@ import { Delivery, ChecklistItem } from '../../../types/delivery.model';
 import { DeliveryService } from '../../../services/delivery.service';
 import { inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-delivery-checklist-modal',
   standalone: true,
-  imports: [FormsModule],
+  imports: [
+    FormsModule,
+    TranslateModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDialogModule,
+    MatCheckboxModule
+  ],
   templateUrl: './delivery-checklist-modal.component.html',
   styleUrl: './delivery-checklist-modal.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

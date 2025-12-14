@@ -5,11 +5,26 @@ import { StockTakeService } from '../../../services/stock-take.service';
 import { DatePipe } from '@angular/common';
 import { ModalComponent } from '../../shared/modal/modal.component';
 import { TranslateModule } from '@ngx-translate/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
 
 @Component({
   selector: 'app-stock-taking',
   standalone: true,
-  imports: [RouterLink, DatePipe, ModalComponent, TranslateModule],
+  imports: [
+    RouterLink,
+    ModalComponent,
+    TranslateModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+    MatToolbarModule,
+    DxDataGridModule,
+    DxButtonModule
+  ],
   templateUrl: './stock-taking.component.html',
   styleUrl: './stock-taking.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,6 +38,27 @@ export class StockTakingComponent {
   // Modal state
   isDeleteModalOpen = signal(false);
   itemToDeleteId = signal<number | null>(null);
+
+  statusLookup = [
+    { value: 'Pending', display: 'معلق' },
+    { value: 'Approved', display: 'معتمد' }
+  ];
+
+  onEditClick = (e: any) => {
+    this.editStockTake(e.row.data.id);
+  };
+
+  onDeleteClick = (e: any) => {
+    this.requestDelete(e.row.data.id);
+  };
+
+  isEditVisible = (e: any) => {
+    return e.row.data.status !== 'Approved';
+  };
+
+  isDeleteVisible = (e: any) => {
+    return e.row.data.status !== 'Approved';
+  };
 
   editStockTake(id: number) {
     this.router.navigate(['/inventory/stock-taking/edit', id]);

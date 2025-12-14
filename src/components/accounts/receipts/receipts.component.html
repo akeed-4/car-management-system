@@ -1,49 +1,112 @@
-<div class="container">
-  <div class="page-header">
-    <h2>{{ 'ACCOUNTS.RECEIPTS.LIST_TITLE' | translate }}</h2>
-    <a routerLink="/accounts/receipts/new"  class="bg-primary-600 text-white px-4 py-2 rounded-lg shadow hover:bg-primary-700 transition duration-300 flex items-center text-sm">
-      <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-      <span>{{ 'ACCOUNTS.RECEIPTS.NEW' | translate }}</span>
+<mat-toolbar color="primary" class="page-header">
+  <mat-toolbar-row>
+    <span>{{ 'ACCOUNTS.RECEIPTS.LIST_TITLE' | translate }}</span>
+    <span class="spacer"></span>
+    <a mat-raised-button color="accent" routerLink="/accounts/receipts/new">
+      <mat-icon>add</mat-icon>
+      {{ 'ACCOUNTS.RECEIPTS.NEW' | translate }}
     </a>
-  </div>
+  </mat-toolbar-row>
+</mat-toolbar>
 
-  <div class="card">
-    <div class="table-controls">
-      <input 
-      type="text" 
-      placeholder="{{ 'ACCOUNTS.RECEIPTS.SEARCH_PLACEHOLDER' | translate }}"
-        class="form-input search-input"
-        (input)="onFilter($event)">
+<mat-card class="receipts-card">
+  <mat-card-content>
+    <div class="search-section">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>{{ 'ACCOUNTS.RECEIPTS.SEARCH_PLACEHOLDER' | translate }}</mat-label>
+        <input matInput type="text" (input)="onFilter($event)">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
     </div>
-    <div class="table-wrapper">
-      <table class="table">
-        <thead>
-          <tr>
-            <th (click)="onSort('voucherNumber')">{{ 'ACCOUNTS.RECEIPTS.COL_VOUCHER_NUMBER' | translate }} {{ getSortIcon('voucherNumber') }}</th>
-            <th (click)="onSort('date')">{{ 'ACCOUNTS.RECEIPTS.COL_DATE' | translate }} {{ getSortIcon('date') }}</th>
-            <th (click)="onSort('customerName')">{{ 'ACCOUNTS.RECEIPTS.COL_CUSTOMER' | translate }} {{ getSortIcon('customerName') }}</th>
-            <th (click)="onSort('salesInvoiceNumber')">{{ 'ACCOUNTS.RECEIPTS.COL_INVOICE' | translate }} {{ getSortIcon('salesInvoiceNumber') }}</th>
-            <th (click)="onSort('amount')">{{ 'ACCOUNTS.RECEIPTS.COL_AMOUNT' | translate }} {{ getSortIcon('amount') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (receipt of filteredAndSortedReceipts(); track receipt.id) {
-            <tr>
-              <td class="font-mono">{{ receipt.voucherNumber }}</td>
-              <td>{{ receipt.date | date:'yyyy-MM-dd' }}</td>
-              <td>{{ receipt.customerName }}</td>
-              <td class="font-mono">{{ receipt.salesInvoiceNumber }}</td>
-              <td class="font-mono">{{ receipt.amount | currency:'SAR':'symbol':'1.0-0' }}</td>
-            </tr>
-          } @empty {
-            <tr>
-                <td colspan="5" class="empty-state">
-                {{ 'ACCOUNTS.RECEIPTS.NO_RECEIPTS' | translate }}
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
+
+    <dx-data-grid
+      [dataSource]="filteredAndSortedReceipts()"
+      [showBorders]="true"
+      [showRowLines]="true"
+      [showColumnLines]="true"
+      [rtlEnabled]="true"
+      [wordWrapEnabled]="false"
+      [columnAutoWidth]="true"
+      [allowColumnReordering]="true"
+      [allowColumnResizing]="true"
+      keyExpr="id"
+      class="receipts-grid">
+
+      <dxo-search-panel
+        [visible]="false">
+      </dxo-search-panel>
+
+      <dxo-grouping [autoExpandAll]="false"></dxo-grouping>
+
+      <dxo-paging
+        [pageSize]="10">
+        <dxo-pager
+          [visible]="true"
+          [allowedPageSizes]="[5, 10, 20]"
+          [displayMode]="'compact'"
+          [showPageSizeSelector]="true"
+          [showInfo]="true"
+          [showNavigationButtons]="true">
+        </dxo-pager>
+      </dxo-paging>
+
+      <dxo-filter-row [visible]="true"></dxo-filter-row>
+
+      <dxo-header-filter [visible]="true"></dxo-header-filter>
+
+      <dxi-column
+        dataField="voucherNumber"
+        [caption]="'ACCOUNTS.RECEIPTS.COL_VOUCHER_NUMBER' | translate"
+        [alignment]="'right'"
+       >
+      </dxi-column>
+
+      <dxi-column
+        dataField="date"
+        [caption]="'ACCOUNTS.RECEIPTS.COL_DATE' | translate"
+        dataType="date"
+        format="yyyy-MM-dd"
+        [alignment]="'right'"
+        >
+      </dxi-column>
+
+      <dxi-column
+        dataField="customerName"
+        [caption]="'ACCOUNTS.RECEIPTS.COL_CUSTOMER' | translate"
+        [alignment]="'right'"
+      >
+      </dxi-column>
+
+      <dxi-column
+        dataField="salesInvoiceNumber"
+        [caption]="'ACCOUNTS.RECEIPTS.COL_INVOICE' | translate"
+        [alignment]="'right'"
+       >
+      </dxi-column>
+
+      <dxi-column
+        dataField="amount"
+        [caption]="'ACCOUNTS.RECEIPTS.COL_AMOUNT' | translate"
+        dataType="number"
+        format="currency"
+        [alignment]="'right'"
+        >
+        <dxo-format
+          type="currency"
+          [precision]="2"
+          currency="SAR">
+        </dxo-format>
+      </dxi-column>
+
+      <dxo-summary>
+        <dxi-total-item
+          column="amount"
+          summaryType="sum"
+          [alignment]="'right'"
+          [displayFormat]="'ACCOUNTS.RECEIPTS.TOTAL_AMOUNT' | translate">
+        </dxi-total-item>
+      </dxo-summary>
+
+    </dx-data-grid>
+  </mat-card-content>
+</mat-card>

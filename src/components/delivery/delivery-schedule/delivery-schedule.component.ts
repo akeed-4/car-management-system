@@ -1,11 +1,17 @@
 
 
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { DeliveryService } from '../../../services/delivery.service';
 import { Delivery, ChecklistItem, DeliveryStatus } from '../../../types/delivery.model';
 import { DeliveryChecklistModalComponent } from '../delivery-checklist-modal/delivery-checklist-modal.component';
+import { TranslateModule } from '@ngx-translate/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatChipsModule } from '@angular/material/chips';
 
 interface DaySchedule {
   date: Date;
@@ -15,7 +21,17 @@ interface DaySchedule {
 @Component({
   selector: 'app-delivery-schedule',
   standalone: true,
-  imports: [RouterLink, DatePipe, DeliveryChecklistModalComponent],
+  imports: [
+    RouterLink,
+    DatePipe,
+    DeliveryChecklistModalComponent,
+    TranslateModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+    MatToolbarModule,
+    MatChipsModule
+  ],
   templateUrl: './delivery-schedule.component.html',
   styleUrl: './delivery-schedule.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -78,6 +94,26 @@ export class DeliveryScheduleComponent {
 
     const updatedDelivery = { ...delivery, status: newStatus };
     this.deliveryService.updateDelivery(updatedDelivery);
+  }
+
+  getStatusClass(status: DeliveryStatus): string {
+    switch (status) {
+      case 'Scheduled': return 'status-scheduled';
+      case 'In Progress': return 'status-in-progress';
+      case 'Completed': return 'status-completed';
+      case 'Canceled': return 'status-canceled';
+      default: return '';
+    }
+  }
+
+  getStatusText(status: DeliveryStatus): string {
+    switch (status) {
+      case 'Scheduled': return 'مجدولة';
+      case 'In Progress': return 'قيد التجهيز';
+      case 'Completed': return 'تم التسليم';
+      case 'Canceled': return 'ملغاة';
+      default: return status;
+    }
   }
 }
     

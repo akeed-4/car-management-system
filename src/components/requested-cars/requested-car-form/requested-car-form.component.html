@@ -1,82 +1,118 @@
+<mat-toolbar color="primary" class="toolbar">
+  <mat-toolbar-row>
+    <span>{{ pageTitle() }}</span>
+    <span class="spacer"></span>
+    <button mat-icon-button routerLink="/requested-cars" matTooltip="{{ 'REQUESTED_CARS.FORM.BACK_TO_LIST' | translate }}">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+  </mat-toolbar-row>
+</mat-toolbar>
+
 <div class="container">
-  <div class="page-header">
-    <h2>{{ pageTitle() }}</h2>
-    <a routerLink="/requested-cars" class="back-link">&larr; العودة إلى قائمة الطلبات</a>
-  </div>
+  <mat-card class="form-card">
+    <mat-card-content>
+      <form [formGroup]="requestForm" (ngSubmit)="saveRequest()">
 
-  <div class="card form-container">
-    <form #requestForm="ngForm" (ngSubmit)="saveRequest()">
-      
-      <section class="form-section">
-        <h3 class="form-section-title">بيانات العميل</h3>
-        <div class="form-grid cols-2">
-          <div>
-            <label for="customerName" class="form-label">اسم العميل</label>
-            <input type="text" id="customerName" name="customerName" [ngModel]="request().customerName" (ngModelChange)="updateRequestField('customerName', $event)" required class="form-input">
-          </div>
-          <div>
-            <label for="customerPhone" class="form-label">رقم الجوال</label>
-            <input type="tel" id="customerPhone" name="customerPhone" [ngModel]="request().customerPhone" (ngModelChange)="updateRequestField('customerPhone', $event)" required class="form-input">
+        <div class="form-section">
+          <h3 class="section-title">{{ 'REQUESTED_CARS.FORM.CUSTOMER_DETAILS' | translate }}</h3>
+          <div class="form-grid cols-2">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'REQUESTED_CARS.FORM.CUSTOMER_NAME' | translate }}</mat-label>
+              <input
+                matInput
+                type="text"
+                formControlName="customerName">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'REQUESTED_CARS.FORM.CUSTOMER_PHONE' | translate }}</mat-label>
+              <input
+                matInput
+                type="tel"
+                formControlName="customerPhone">
+            </mat-form-field>
           </div>
         </div>
-      </section>
 
-      <section class="form-section">
-        <h3 class="form-section-title">مواصفات السيارة المطلوبة</h3>
-        <div class="form-grid cols-3">
-          <div>
-            <label for="make" class="form-label">الشركة المصنعة</label>
-            <select id="make" name="make" [ngModel]="request().make" (ngModelChange)="updateRequestField('make', $event)" required class="form-select">
-                <option value="" disabled>-- اختر الشركة --</option>
-                @for(m of manufacturers(); track m.id) {
-                    <option [value]="m.name">{{m.name}}</option>
-                }
-            </select>
-          </div>
-          <div>
-            <label for="model" class="form-label">الموديل</label>
-            <select id="model" name="model" [ngModel]="request().model" (ngModelChange)="updateRequestField('model', $event)" required [disabled]="!request().make" class="form-select">
-              <option [ngValue]="undefined" disabled>-- اختر الموديل --</option>
-              @for (carModel of filteredModels(); track carModel.id) {
-                <option [value]="carModel.name">{{ carModel.name }}</option>
-              }
-            </select>
-          </div>
-          <div>
-            <label for="year" class="form-label">سنة الصنع (اختياري)</label>
-            <select id="year" name="year" [ngModel]="request().year" (ngModelChange)="updateRequestField('year', +$event)" class="form-select">
-              <option [ngValue]="undefined">-- اختر السنة --</option>
-              @for (y of years(); track y) {
-                <option [value]="y">{{ y }}</option>
-              }
-            </select>
-          </div>
-          <div>
-            <label for="color" class="form-label">اللون (اختياري)</label>
-            <input type="text" id="color" name="color" [ngModel]="request().color" (ngModelChange)="updateRequestField('color', $event)" class="form-input">
-          </div>
-           <div class="col-span-2">
-            <label for="status" class="form-label">حالة الطلب</label>
-             <select id="status" name="status" [ngModel]="request().status" (ngModelChange)="updateRequestField('status', $event)" required class="form-select">
-              <option value="New">جديد</option>
-              <option value="Contacted">تم التواصل</option>
-              <option value="Sourced">تم توفيرها</option>
-              <option value="Closed">مغلق</option>
-            </select>
-          </div>
-          <div class="col-span-3">
-            <label for="notes" class="form-label">ملاحظات إضافية</label>
-            <textarea id="notes" name="notes" rows="3" [ngModel]="request().notes" (ngModelChange)="updateRequestField('notes', $event)" class="form-input"></textarea>
+        <div class="form-section">
+          <h3 class="section-title">{{ 'REQUESTED_CARS.FORM.CAR_SPECIFICATIONS' | translate }}</h3>
+          <div class="form-grid cols-3">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'REQUESTED_CARS.FORM.MANUFACTURER' | translate }}</mat-label>
+              <mat-select
+                formControlName="make">
+                <mat-option value="" disabled>{{ 'REQUESTED_CARS.FORM.SELECT_MANUFACTURER' | translate }}</mat-option>
+                <mat-option *ngFor="let m of manufacturers(); trackBy: trackByManufacturer" [value]="m.name">
+                  {{m.name}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'REQUESTED_CARS.FORM.MODEL' | translate }}</mat-label>
+              <mat-select
+                formControlName="model"
+                [disabled]="!requestForm.get('make')?.value">
+                <mat-option [value]="undefined" disabled>{{ 'REQUESTED_CARS.FORM.SELECT_MODEL' | translate }}</mat-option>
+                <mat-option *ngFor="let carModel of filteredModels(); trackBy: trackByModel" [value]="carModel.name">
+                  {{ carModel.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'REQUESTED_CARS.FORM.YEAR_OPTIONAL' | translate }}</mat-label>
+              <mat-select
+                formControlName="year">
+                <mat-option [value]="undefined">{{ 'REQUESTED_CARS.FORM.SELECT_YEAR' | translate }}</mat-option>
+                <mat-option *ngFor="let y of years(); trackBy: trackByYear" [value]="y">
+                  {{ y }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'REQUESTED_CARS.FORM.COLOR_OPTIONAL' | translate }}</mat-label>
+              <input
+                matInput
+                type="text"
+                formControlName="color">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="col-span-2">
+              <mat-label>{{ 'REQUESTED_CARS.FORM.STATUS' | translate }}</mat-label>
+              <mat-select
+                formControlName="status">
+                <mat-option value="New">{{ 'REQUESTED_CARS.STATUS.NEW' | translate }}</mat-option>
+                <mat-option value="Contacted">{{ 'REQUESTED_CARS.STATUS.CONTACTED' | translate }}</mat-option>
+                <mat-option value="Sourced">{{ 'REQUESTED_CARS.STATUS.SOURCED' | translate }}</mat-option>
+                <mat-option value="Closed">{{ 'REQUESTED_CARS.STATUS.CLOSED' | translate }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="col-span-3">
+              <mat-label>{{ 'REQUESTED_CARS.FORM.ADDITIONAL_NOTES' | translate }}</mat-label>
+              <textarea
+                matInput
+                formControlName="notes"
+                rows="3"></textarea>
+            </mat-form-field>
           </div>
         </div>
-      </section>
 
-      <div class="form-actions">
-        <a routerLink="/requested-cars" class="btn btn-light">إلغاء</a>
-        <button type="submit" [disabled]="requestForm.invalid" class="btn btn-primary">
-          {{ editMode() ? 'حفظ التغييرات' : 'حفظ الطلب' }}
-        </button>
-      </div>
-    </form>
-  </div>
+        <div class="form-actions">
+          <button mat-button routerLink="/requested-cars" type="button">
+            {{ 'REQUESTED_CARS.FORM.CANCEL' | translate }}
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="requestForm.invalid">
+            {{ editMode() ? ('REQUESTED_CARS.FORM.SAVE_CHANGES' | translate) : ('REQUESTED_CARS.FORM.SAVE_REQUEST' | translate) }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
 </div>

@@ -41,7 +41,9 @@
     "ALREADY_ADDED": "This car is already added to the invoice",
     "QUANTITY_LABEL": "Quantity:",
     "costPrice": "Cost Price",
-    "INVALID_PRICE": "Please enter a valid price greater than 0"
+    "INVALID_PRICE": "Please enter a valid price greater than 0",
+    "CAR_NOT_FOUND": "Car not found in inventory",
+    "INVALID_QUANTITY": "Please enter a valid quantity greater than 0"
   },
   "COMMON": {
     "ALERT": {
@@ -291,6 +293,7 @@
       "MARKETING_DESCRIPTION": "Marketing Description",
       "PHOTOS": "Photos",
       "UPLOAD_FILE": "Upload a file",
+      "CHOOSE_FILE": "Choose file",
       "CANCEL": "Cancel",
       "PUBLISH": "Publish to platforms",
       "DEPOSIT_VOUCHER": "Deposit Voucher",
@@ -317,7 +320,28 @@
       "ERROR_NAME_USER": "Please enter stock take name and responsible user.",
       "ERROR_NO_ITEMS": "Please add at least one car to the stock take.",
       "ERROR_SELECT_CAR": "Please select a car for every row in the table."
-    }
+    },
+    "TITLE": "Inventory",
+    "SCAN_VIN": "Scan VIN",
+    "ADD_NEW_CAR": "Add New Car",
+    "CONDITION_FILTER": "Condition Filter",
+    "ALL": "All",
+    "NEW_CARS": "New Cars",
+    "USED_CARS": "Used Cars",
+    "SHOW_ARCHIVED": "Show Archived",
+    "CAR": "Car",
+    "VIN": "VIN",
+    "SALE_PRICE": "Sale Price",
+    "STATUS": "Status",
+    "CURRENT_LOCATION": "Current Location",
+    "ACTIONS": "Actions",
+    "EDIT": "Edit",
+    "DELETE": "Delete",
+    "ARCHIVE": "Archive",
+    "UNARCHIVE": "Unarchive",
+    "DEPOSIT_VOUCHER": "Deposit Voucher",
+    "DELETE_CONFIRM_TITLE": "Delete Car",
+    "DELETE_CONFIRM_MESSAGE": "Are you sure you want to delete this car?"
   },
   "PURCHASES": {
     "TITLE": "Purchase Invoices",
@@ -348,6 +372,8 @@
     "BACK_TO_PURCHASES": "Back to Purchases",
     "MAIN_DATA": "Main Invoice Data",
     "SUPPLIER": "Supplier",
+    "CAR": "Car",
+    "UNIT_PRICE": "Unit Price",
     "SELECT_SUPPLIER": "-- Select supplier --",
     "STORE": "Store",
     "SELECT_STORE": "-- Select store --",
@@ -375,7 +401,8 @@
     "ERROR_SELECT_CAR": "Please select a car.",
     "ERROR_ALREADY_ADDED": "This car is already added to the invoice.",
     "SAVED_SUCCESS": "Purchase invoice saved and inventory updated.",
-    "SAVE_ERROR": "Error saving purchase invoice."
+    "SAVE_ERROR": "Error saving purchase invoice.",
+    "tools": " Tools"
   },
   "PROCUREMENT.PURCHASE_RETURN": {
     "CREATE_TITLE": "Create Purchase Return",
@@ -515,6 +542,19 @@
       "APPROVED": "Contract Approved",
       "EDITABLE_BEFORE_APPROVAL": "Editable before approval",
       "READONLY_AFTER_APPROVAL": "Read-only after approval"
+    },
+
+    "CREDIT_LIST": {
+      "TITLE": "Credit Sales Invoices",
+      "BACK_TO_SALES": "Back to Sales",
+      "INVOICE_NUMBER": "Invoice Number",
+      "CUSTOMER": "Customer",
+      "INVOICE_DATE": "Invoice Date",
+      "DUE_DATE": "Due Date",
+      "TOTAL_AMOUNT": "Total Amount",
+      "PAYMENT_METHOD": "Payment Method",
+      "STATUS": "Status",
+      "NO_DATA": "No credit invoices found."
     }
   }
 
@@ -677,7 +717,8 @@
       "CANCEL": "Cancel",
       "SAVE": "Save Receipt",
       "FILL_REQUIRED": "Please fill all required fields correctly.",
-      "AMOUNT_EXCEEDS": "Paid amount is greater than the outstanding amount."
+      "AMOUNT_EXCEEDS": "Paid amount is greater than the outstanding amount.",
+      "SAVED": "Receipt voucher saved and invoice updated."
     }
   },
   "MANUFACTURERS": {
@@ -734,6 +775,10 @@
     "PASSWORD_ERROR": "Password is required and must be at least 6 characters",
     "SUBMIT": "Login",
     "INVALID_CREDENTIALS": "Invalid credentials",
+    "FILL_REQUIRED_FIELDS": "Please fill in all required fields"
+  },
+  "REGISTRATION": {
+    "PASSWORD_MISMATCH": "Passwords do not match",
     "FILL_REQUIRED_FIELDS": "Please fill in all required fields"
   },
   "CUSTOMERS": {
@@ -1014,5 +1059,146 @@
       "EDIT": "Edit",
       "DELETE": "Delete"
     }
+  },
+  "CONSIGNMENT": {
+    "LIST_TITLE": "Consignment Cars",
+    "ADD_NEW": "Add Consignment Car",
+    "SHOW_ARCHIVED": "Show Archived",
+    "SEARCH_PLACEHOLDER": "Search consignment cars...",
+    "COLUMNS": {
+      "CAR": "Car",
+      "OWNER": "Owner",
+      "AGREED_SALE_PRICE": "Agreed Sale Price",
+      "COMMISSION_RATE": "Commission Rate",
+      "STATUS": "Status",
+      "ACTIONS": "Actions"
+    },
+    "STATUS": {
+      "AVAILABLE": "Available",
+      "SOLD": "Sold",
+      "ARCHIVED": "Archived"
+    },
+    "ACTIONS": {
+      "SELL": "Sell",
+      "EDIT": "Edit",
+      "DELETE": "Delete",
+      "ARCHIVE": "Archive",
+      "UNARCHIVE": "Unarchive"
+    },
+    "FORM": {
+      "TITLE_NEW": "Add New Consignment Car",
+      "TITLE_EDIT": "Edit Consignment Car",
+      "BACK_TO_LIST": "Back to Consignment List",
+      "OWNER_DETAILS": "Owner Details",
+      "OWNER_NAME": "Owner Name",
+      "OWNER_PHONE": "Owner Phone",
+      "CAR_DETAILS": "Car Details",
+      "MANUFACTURER": "Manufacturer",
+      "MODEL": "Model",
+      "YEAR": "Year",
+      "EXTERIOR_COLOR": "Exterior Color",
+      "MILEAGE": "Mileage (km)",
+      "PLATE_NUMBER": "Plate Number",
+      "VIN": "VIN",
+      "FINANCIAL_DETAILS": "Consignment Financial Details",
+      "AGREED_SALE_PRICE": "Agreed Sale Price with Owner",
+      "COMMISSION_RATE": "Commission Rate (%)",
+      "RECEIPT_DATE": "Receipt Date",
+      "NOTES": "Notes (Optional)",
+      "CANCEL": "Cancel",
+      "SAVE_NEW": "Add Consignment Car",
+      "SAVE_CHANGES": "Save Changes"
+    },
+    "SELL_MODAL_TITLE": "Sell Consignment Car",
+    "SELL_MODAL_MESSAGE": "Are you sure you want to sell this car?",
+    "SELL_MODAL_PRICE_LABEL": "Sale Price",
+    "DELETE_MODAL_TITLE": "Confirm Car Deletion",
+    "DELETE_MODAL_MESSAGE": "Are you sure you want to delete this consignment car? This action cannot be undone."
+  },
+  "REQUESTED_CARS": {
+    "LIST_TITLE": "Requested Cars List",
+    "ADD_NEW": "Add New Request",
+    "ADD_NEW_REQUEST": "Add New Request",
+    "SHOW_ARCHIVED": "Show Archived",
+    "SEARCH_PLACEHOLDER": "Search in requests...",
+    "COLUMNS": {
+      "REQUEST_DATE": "Request Date",
+      "CUSTOMER_INFO": "Customer Info",
+      "CAR_REQUESTED": "Requested Car",
+      "STATUS": "Status",
+      "ACTIONS": "Actions"
+    },
+    "STATUS": {
+      "PENDING": "Pending",
+      "IN_PROGRESS": "In Progress",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled",
+      "NEW": "New",
+      "CONTACTED": "Contacted",
+      "SOURCED": "Sourced",
+      "CLOSED": "Closed"
+    },
+    "ACTIONS": {
+      "EDIT": "Edit",
+      "DELETE": "Delete",
+      "ARCHIVE": "Archive",
+      "UNARCHIVE": "Unarchive"
+    },
+    "FORM": {
+      "TITLE_NEW": "Add New Car Request",
+      "TITLE_EDIT": "Edit Car Request",
+      "BACK_TO_LIST": "Back to Requests List",
+      "CUSTOMER_DETAILS": "Customer Details",
+      "CUSTOMER_NAME": "Customer Name",
+      "CUSTOMER_PHONE": "Phone Number",
+      "CAR_SPECIFICATIONS": "Requested Car Specifications",
+      "MANUFACTURER": "Manufacturer",
+      "MODEL": "Model",
+      "YEAR": "Year (Optional)",
+      "YEAR_OPTIONAL": "Year (Optional)",
+      "COLOR": "Color (Optional)",
+      "COLOR_OPTIONAL": "Color (Optional)",
+      "STATUS": "Request Status",
+      "NOTES": "Additional Notes",
+      "ADDITIONAL_NOTES": "Additional Notes",
+      "SELECT_MANUFACTURER": "Select Manufacturer",
+      "SELECT_MODEL": "Select Model",
+      "SELECT_YEAR": "Select Year",
+      "CANCEL": "Cancel",
+      "SAVE_NEW": "Save Request",
+      "SAVE_REQUEST": "Save Request",
+      "SAVE_CHANGES": "Save Changes"
+    },
+    "MODAL": {
+      "DELETE_TITLE": "Confirm Delete Request",
+      "DELETE_MESSAGE": "Are you sure you want to delete this request? This action cannot be undone."
+    }
+  },
+  "STOCK_TAKING_APPROVAL": {
+    "TITLE": "Stock Taking Approvals",
+    "CREATE_NEW": "Create New Approval",
+    "APPROVAL_DATE": "Approval Date",
+    "APPROVER_NAME": "Approver Name",
+    "STOCK_TAKE_DOCUMENT": "Stock Take Document",
+    "ACTIONS": "Actions",
+    "EDIT": "Edit",
+    "VIEW": "View"
+  },
+  "STOCK_TAKING_APPROVAL_FORM": {
+    "TITLE": "Stock Taking Approval Form",
+    "APPROVAL_DETAILS": "Approval Details",
+    "STOCK_TAKE_DOCUMENT": "Stock Take Document",
+    "SELECT_STOCK_TAKE": "Select Stock Take",
+    "APPROVAL_DATE": "Approval Date",
+    "APPROVER_NAME": "Approver Name",
+    "APPROVER_PLACEHOLDER": "Enter approver name",
+    "QUANTITY_COMPARISON": "Quantity Comparison",
+    "CAR": "Car",
+    "SYSTEM_QUANTITY": "System Quantity",
+    "COUNTED_QUANTITY": "Counted Quantity",
+    "DIFFERENCE": "Difference",
+    "SELECT_STOCK_TAKE_MESSAGE": "Please select a stock take document to proceed",
+    "CANCEL": "Cancel",
+    "APPROVE_AND_UPDATE": "Approve and Update Inventory"
   }
 }

@@ -1,68 +1,85 @@
 
 
-<div class="container">
-  <div class="page-header">
-    <h2>جدول التسليم</h2>
-    <a routerLink="/deliveries/schedule" class="btn btn-primary">
-      <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-      <span>جدولة تسليم جديد</span>
-    </a>
-  </div>
+<mat-toolbar color="primary">
+  <span>{{ 'DELIVERY_SCHEDULE.TITLE' | translate }}</span>
+  <span class="spacer"></span>
+  <button mat-raised-button color="accent" routerLink="/deliveries/schedule/new">
+    <mat-icon>add</mat-icon>
+    {{ 'DELIVERY_SCHEDULE.CREATE_NEW' | translate }}
+  </button>
+</mat-toolbar>
 
-  <div class="card">
-    <div class="schedule-grid">
-      @for (day of schedule(); track day.date) {
-        <div class="day-column">
-          <h3 class="day-header">
-            {{ day.date | date:'fullDate':'':'ar' }}
-          </h3>
+<div class="schedule-container">
+  <div class="schedule-grid">
+    @for (day of schedule(); track day.date) {
+      <mat-card class="day-card">
+        <mat-card-header>
+          <mat-card-title>{{ day.date | date:'fullDate':'':'ar' }}</mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
           @if (day.deliveries.length > 0) {
             <div class="delivery-list">
               @for (delivery of day.deliveries; track delivery.id) {
-                <div class="delivery-card"
-                     [class.status-scheduled]="delivery.status === 'Scheduled'"
-                     [class.status-in-progress]="delivery.status === 'In Progress'"
-                     [class.status-completed]="delivery.status === 'Completed'"
-                     [class.status-canceled]="delivery.status === 'Canceled'">
-                  <div>
-                    <div class="flex justify-between items-start">
-                      <p class="delivery-title">{{ delivery.carDescription }}</p>
-                      <span class="delivery-badge">
-                        {{ delivery.status === 'Scheduled' ? 'مجدولة' : 
-                           (delivery.status === 'In Progress' ? 'قيد التجهيز' : 
-                             (delivery.status === 'Completed' ? 'تم التسليم' : 'ملغاة')) }}
-                      </span>
+                <mat-card class="delivery-card"
+                         [class.status-scheduled]="delivery.status === 'Scheduled'"
+                         [class.status-in-progress]="delivery.status === 'In Progress'"
+                         [class.status-completed]="delivery.status === 'Completed'"
+                         [class.status-canceled]="delivery.status === 'Canceled'">
+                  <mat-card-content>
+                    <div class="delivery-header">
+                      <h4 class="delivery-title">{{ delivery.carDescription }}</h4>
+                      <mat-chip
+                        [class]="getStatusClass(delivery.status)"
+                        selected>
+                        {{ getStatusText(delivery.status) }}
+                      </mat-chip>
                     </div>
-                    <p class="delivery-time">
-                      <span class="font-mono">{{ delivery.scheduledTime }}</span>
-                    </p>
-                    <p class="delivery-info">العميل: <span>{{ delivery.customerName }}</span></p>
-                    <p class="delivery-info">الفاتورة: <span class="font-mono">{{ delivery.salesInvoiceNumber }}</span></p>
-                    <p class="delivery-info">الموظف: <span>{{ delivery.deliveryAgentName }}</span></p>
-                  </div>
-                  <div class="card-actions">
+
+                    <div class="delivery-details">
+                      <p class="delivery-time">
+                        <mat-icon>schedule</mat-icon>
+                        <span>{{ delivery.scheduledTime }}</span>
+                      </p>
+                      <p class="delivery-info">
+                        <mat-icon>person</mat-icon>
+                        <span>{{ delivery.customerName }}</span>
+                      </p>
+                      <p class="delivery-info">
+                        <mat-icon>receipt</mat-icon>
+                        <span>{{ delivery.salesInvoiceNumber }}</span>
+                      </p>
+                      <p class="delivery-info">
+                        <mat-icon>engineering</mat-icon>
+                        <span>{{ delivery.deliveryAgentName }}</span>
+                      </p>
+                    </div>
+
                     @if (delivery.status === 'Scheduled' || delivery.status === 'In Progress') {
-                      <button (click)="openChecklist(delivery)" class="btn btn-small btn-secondary">
-                        <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-                        <span>قائمة التحقق</span>
-                      </button>
-                      <button (click)="updateDeliveryStatus(delivery, 'Canceled')" class="btn btn-small btn-light">
-                        <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75 12 12m0 0 2.25 2.25M12 12l2.25-2.25M12 12l-2.25 2.25M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-                        <span>إلغاء</span>
-                      </button>
+                      <div class="delivery-actions">
+                        <button mat-stroked-button (click)="openChecklist(delivery)">
+                          <mat-icon>checklist</mat-icon>
+                          {{ 'DELIVERY_SCHEDULE.CHECKLIST' | translate }}
+                        </button>
+                        <button mat-stroked-button color="warn" (click)="updateDeliveryStatus(delivery, 'Canceled')">
+                          <mat-icon>cancel</mat-icon>
+                          {{ 'DELIVERY_SCHEDULE.CANCEL' | translate }}
+                        </button>
+                      </div>
                     }
-                  </div>
-                </div>
+                  </mat-card-content>
+                </mat-card>
               }
             </div>
           } @else {
             <div class="empty-day-state">
-              لا توجد عمليات تسليم مجدولة.
+              <mat-icon>event_busy</mat-icon>
+              <p>{{ 'DELIVERY_SCHEDULE.NO_DELIVERIES' | translate }}</p>
             </div>
           }
-        </div>
-      }
-    </div>
+        </mat-card-content>
+      </mat-card>
+    }
   </div>
 </div>
 

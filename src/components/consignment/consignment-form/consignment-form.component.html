@@ -1,189 +1,172 @@
 
+<mat-toolbar color="primary" class="toolbar">
+  <mat-toolbar-row>
+    <span>{{ pageTitle() }}</span>
+    <span class="spacer"></span>
+    <button mat-icon-button routerLink="/consignment-cars" matTooltip="{{ 'CONSIGNMENT.FORM.BACK_TO_LIST' | translate }}">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+  </mat-toolbar-row>
+</mat-toolbar>
+
 <div class="container">
-  <div class="page-header">
-    <h2>{{ pageTitle() }}</h2>
-    <a routerLink="/consignment-cars" class="back-link">
-      <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-      <span>العودة إلى سيارات العهدة</span>
-    </a>
-  </div>
+  <mat-card class="form-card">
+    <mat-card-content>
+      <form [formGroup]="consignmentForm" (ngSubmit)="saveConsignmentCar()">
+        <!-- Owner Details -->
+        <div class="form-section">
+          <h3 class="section-title">{{ 'CONSIGNMENT.FORM.OWNER_DETAILS' | translate }}</h3>
+          <div class="form-grid cols-2">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CONSIGNMENT.FORM.OWNER_NAME' | translate }}</mat-label>
+              <input
+                matInput
+                type="text"
+                formControlName="ownerName"
+                required>
+            </mat-form-field>
 
-  <div class="card">
-    <form #consignmentForm="ngForm" (ngSubmit)="saveConsignmentCar()">
-      <!-- Owner Details -->
-      <section class="form-section">
-        <h3 class="form-section-title">بيانات المالك</h3>
-        <div class="form-grid cols-2">
-          <div>
-            <label for="ownerName" class="form-label">اسم المالك</label>
-            <input 
-              type="text" 
-              id="ownerName" 
-              name="ownerName" 
-              [ngModel]="car().ownerName" 
-              (ngModelChange)="updateCarField('ownerName', $event)" 
-              required 
-              class="form-input">
-          </div>
-          <div>
-            <label for="ownerPhone" class="form-label">رقم جوال المالك</label>
-            <input 
-              type="tel" 
-              id="ownerPhone" 
-              name="ownerPhone" 
-              [ngModel]="car().ownerPhone" 
-              (ngModelChange)="updateCarField('ownerPhone', $event)" 
-              required 
-              class="form-input">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CONSIGNMENT.FORM.OWNER_PHONE' | translate }}</mat-label>
+              <input
+                matInput
+                type="tel"
+                formControlName="ownerPhone"
+                required>
+            </mat-form-field>
           </div>
         </div>
-      </section>
 
-      <!-- Car Details -->
-      <section class="form-section">
-        <h3 class="form-section-title">تفاصيل السيارة</h3>
-        <div class="form-grid cols-3">
-          <div>
-            <label for="make" class="form-label">الشركة المصنعة</label>
-            <input 
-              type="text" 
-              id="make" 
-              name="make" 
-              [ngModel]="car().make" 
-              (ngModelChange)="updateCarField('make', $event)" 
-              required 
-              class="form-input">
-          </div>
-          <div>
-            <label for="model" class="form-label">الموديل</label>
-            <input 
-              type="text" 
-              id="model" 
-              name="model" 
-              [ngModel]="car().model" 
-              (ngModelChange)="updateCarField('model', $event)" 
-              required 
-              class="form-input">
-          </div>
-          <div>
-            <label for="year" class="form-label">سنة الصنع</label>
-            <input 
-              type="number" 
-              id="year" 
-              name="year" 
-              [ngModel]="car().year" 
-              (ngModelChange)="updateCarField('year', +$event)" 
-              required 
-              class="form-input">
-          </div>
-          <div>
-            <label for="exteriorColor" class="form-label">اللون الخارجي</label>
-            <input 
-              type="text" 
-              id="exteriorColor" 
-              name="exteriorColor" 
-              [ngModel]="car().exteriorColor" 
-              (ngModelChange)="updateCarField('exteriorColor', $event)" 
-              class="form-input">
-          </div>
-          <div>
-            <label for="mileage" class="form-label">الممشى (كم)</label>
-            <input 
-              type="number" 
-              id="mileage" 
-              name="mileage" 
-              [ngModel]="car().mileage" 
-              (ngModelChange)="updateCarField('mileage', +$event)" 
-              class="form-input">
-          </div>
-          <div>
-            <label for="plateNumber" class="form-label">رقم اللوحة</label>
-            <input 
-              type="text" 
-              id="plateNumber" 
-              name="plateNumber" 
-              [ngModel]="car().plateNumber" 
-              (ngModelChange)="updateCarField('plateNumber', $event)" 
-              class="form-input">
-          </div>
-           <div>
-            <label for="vin" class="form-label">رقم الهيكل (VIN)</label>
-            <input 
-              type="text" 
-              id="vin" 
-              name="vin" 
-              [ngModel]="car().vin" 
-              (ngModelChange)="updateCarField('vin', $event)" 
-              class="form-input" dir="ltr">
+        <!-- Car Details -->
+        <div class="form-section">
+          <h3 class="section-title">{{ 'CONSIGNMENT.FORM.CAR_DETAILS' | translate }}</h3>
+          <div class="form-grid cols-3">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CONSIGNMENT.FORM.MANUFACTURER' | translate }}</mat-label>
+              <input
+                matInput
+                type="text"
+                formControlName="make"
+                required>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CONSIGNMENT.FORM.MODEL' | translate }}</mat-label>
+              <input
+                matInput
+                type="text"
+                formControlName="model"
+                required>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CONSIGNMENT.FORM.YEAR' | translate }}</mat-label>
+              <input
+                matInput
+                type="number"
+                formControlName="year"
+                required>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CONSIGNMENT.FORM.EXTERIOR_COLOR' | translate }}</mat-label>
+              <input
+                matInput
+                type="text"
+                formControlName="exteriorColor">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CONSIGNMENT.FORM.MILEAGE' | translate }}</mat-label>
+              <input
+                matInput
+                type="number"
+                formControlName="mileage">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CONSIGNMENT.FORM.PLATE_NUMBER' | translate }}</mat-label>
+              <input
+                matInput
+                type="text"
+                formControlName="plateNumber">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CONSIGNMENT.FORM.VIN' | translate }}</mat-label>
+              <input
+                matInput
+                type="text"
+                formControlName="vin"
+                dir="ltr">
+            </mat-form-field>
           </div>
         </div>
-      </section>
 
-      <!-- Financial Details -->
-      <section class="form-section">
-        <h3 class="form-section-title">البيانات المالية للعهدة</h3>
-        <div class="form-grid cols-2">
-          <div>
-            <label for="agreedSalePrice" class="form-label">سعر البيع المتفق عليه مع المالك</label>
-            <input 
-              type="number" 
-              id="agreedSalePrice" 
-              name="agreedSalePrice" 
-              [ngModel]="car().agreedSalePrice" 
-              (ngModelChange)="updateCarField('agreedSalePrice', +$event)" 
-              required 
-              min="0"
-              class="form-input">
-          </div>
-          <div>
-            <label for="commissionRate" class="form-label">نسبة العمولة (%)</label>
-            <input 
-              type="number" 
-              id="commissionRate" 
-              name="commissionRate" 
-              [ngModel]="(car().commissionRate ?? 0) * 100" 
-              (ngModelChange)="updateCarField('commissionRate', +$event / 100)" 
-              required 
-              min="0" 
-              max="100"
-              class="form-input">
-          </div>
-          <div>
-            <label for="dateReceived" class="form-label">تاريخ الاستلام</label>
-            <input 
-              type="date" 
-              id="dateReceived" 
-              name="dateReceived" 
-              [ngModel]="car().dateReceived" 
-              (ngModelChange)="updateCarField('dateReceived', $event)" 
-              required 
-              class="form-input">
+        <!-- Financial Details -->
+        <div class="form-section">
+          <h3 class="section-title">{{ 'CONSIGNMENT.FORM.FINANCIAL_DETAILS' | translate }}</h3>
+          <div class="form-grid cols-2">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CONSIGNMENT.FORM.AGREED_SALE_PRICE' | translate }}</mat-label>
+              <input
+                matInput
+                type="number"
+                formControlName="agreedSalePrice"
+                required
+                min="0">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CONSIGNMENT.FORM.COMMISSION_RATE' | translate }}</mat-label>
+              <input
+                matInput
+                type="number"
+                formControlName="commissionRate"
+                required
+                min="0"
+                max="100">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CONSIGNMENT.FORM.RECEIPT_DATE' | translate }}</mat-label>
+              <input
+                matInput
+                [matDatepicker]="dateReceivedPicker"
+                formControlName="dateReceived"
+                required>
+              <mat-datepicker-toggle matIconSuffix [for]="dateReceivedPicker"></mat-datepicker-toggle>
+              <mat-datepicker #dateReceivedPicker></mat-datepicker>
+            </mat-form-field>
           </div>
         </div>
-      </section>
 
-      <!-- Notes -->
-      <section class="form-section">
-        <label for="notes" class="form-label">ملاحظات (اختياري)</label>
-        <textarea 
-          id="notes" 
-          name="notes" 
-          rows="3" 
-          [ngModel]="car().notes" 
-          (ngModelChange)="updateCarField('notes', $event)" 
-          class="form-input"></textarea>
-      </section>
+        <!-- Notes -->
+        <div class="form-section">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'CONSIGNMENT.FORM.NOTES' | translate }}</mat-label>
+            <textarea
+              matInput
+              name="notes"
+              rows="3"
+              formControlName="notes"></textarea>
+          </mat-form-field>
+        </div>
 
-      <!-- Form Actions -->
-      <div class="form-actions">
-        <a routerLink="/consignment-cars" class="btn btn-light">إلغاء</a>
-        <button 
-          type="submit" 
-          [disabled]="consignmentForm.invalid" 
-          class="btn btn-primary">
-          {{ editMode() ? 'حفظ التغييرات' : 'إضافة سيارة العهدة' }}
-        </button>
-      </div>
-    </form>
-  </div>
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button mat-button routerLink="/consignment-cars" type="button">
+            {{ 'CONSIGNMENT.FORM.CANCEL' | translate }}
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="consignmentForm.invalid">
+            {{ editMode() ? ('CONSIGNMENT.FORM.SAVE_CHANGES' | translate) : ('CONSIGNMENT.FORM.SAVE_NEW' | translate) }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
 </div>

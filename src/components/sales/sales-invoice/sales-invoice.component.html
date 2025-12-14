@@ -18,31 +18,31 @@
       <section class="form-section">
         <h3 class="form-section-title">{{ 'INVOICE.MAIN_DATA' | translate }}</h3>
         <div class="form-grid">
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'INVOICE.CUSTOMER' | translate }}</mat-label>
-            <mat-select formControlName="customer" required>
-              <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_CUSTOMER_OPTION' | translate }}</mat-option>
-              <mat-option *ngFor="let customer of customers()" [value]="customer.id">
-                {{ customer.name }} ({{ customer.nationalId }})
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'INVOICE.STORE' | translate }}</mat-label>
-            <mat-select formControlName="store" required>
-              <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_STORE_OPTION' | translate }}</mat-option>
-              <mat-option *ngFor="let store of stores()" [value]="store.id">
-                {{ store.name }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
+       
 
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'INVOICE.INVOICE_NUMBER' | translate }}</mat-label>
             <input matInput [value]="invoiceNumber()" disabled readonly>
           </mat-form-field>
-
+  <mat-form-field appearance="outline" class="form-field">
+    <mat-label>{{ 'INVOICE.CUSTOMER' | translate }}</mat-label>
+    <mat-select formControlName="customer" required>
+      <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_CUSTOMER_OPTION' | translate }}</mat-option>
+      <mat-option *ngFor="let customer of customers()" [value]="customer.id">
+        {{ customer.name }} ({{ customer.nationalId }})
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  
+  <mat-form-field appearance="outline" class="form-field">
+    <mat-label>{{ 'INVOICE.STORE' | translate }}</mat-label>
+    <mat-select formControlName="store" required>
+      <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_STORE_OPTION' | translate }}</mat-option>
+      <mat-option *ngFor="let store of stores()" [value]="store.id">
+        {{ store.name }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'INVOICE.INVOICE_DATE' | translate }}</mat-label>
             <input matInput [matDatepicker]="invoiceDatePicker" formControlName="invoiceDate" required>

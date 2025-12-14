@@ -1,59 +1,127 @@
-.container { max-width: 1280px; margin: 0 auto; }
-
-.header-actions .icon {
-  width: 1.25rem;
-  height: 1.25rem;
-  margin-left: 0.5rem;
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 16px;
 }
 
-.table-controls {
+.toolbar {
+  margin-bottom: 16px;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.list-card {
+  margin-bottom: 16px;
+}
+
+.controls-section {
+  margin-bottom: 16px;
   display: flex;
   justify-content: flex-end;
-  align-items: center;
-  margin-bottom: 1rem;
 }
 
-.toggle-switch {
+/* Status Chip Styles */
+.status-chip-new {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.status-chip-contacted {
+  background-color: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.status-chip-sourced {
+  background-color: #e0f2f1;
+  color: #00695c;
+}
+
+.status-chip-closed {
+  background-color: #f5f5f5;
+  color: #616161;
+}
+
+.status-chip-default {
+  background-color: #f5f5f5;
+  color: #616161;
+}
+
+/* DataGrid Styles */
+::ng-deep .dx-datagrid {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+::ng-deep .dx-datagrid-headers {
+  background-color: #f5f5f5;
+  font-weight: 600;
+}
+
+::ng-deep .dx-datagrid-rowsview .dx-row-alt > td {
+  background-color: #fafafa;
+}
+
+/* Customer and Car Info Styles */
+.customer-info {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.toggle-switch label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--color-gray-700);
+  flex-direction: column;
+  gap: 4px;
 }
 
-.font-medium { font-weight: 600; }
-.sub-text { font-size: 0.75rem; color: var(--color-gray-500); }
+.customer-name {
+  font-weight: 600;
+  font-size: 14px;
+}
 
-.badge-blue { background-color: #dbeafe; color: #1d4ed8; }
-.badge-purple { background-color: #e9d5ff; color: #5b21b6; }
-.badge-teal { background-color: #ccfbf1; color: #0f766e; }
-.badge-gray { background-color: var(--color-gray-200); color: var(--color-gray-800); }
+.customer-phone {
+  font-size: 12px;
+  color: #666;
+  font-family: 'Courier New', monospace;
+}
 
-.actions-header { text-align: center; }
+.car-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.car-model {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.car-details {
+  font-size: 12px;
+  color: #666;
+}
+
 .actions-cell {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-}
-.actions-cell .icon {
-  width: 1.25rem;
-  height: 1.25rem;
+  gap: 8px;
 }
 
-.btn-icon-danger:hover { color: var(--color-danger-600); }
-.btn-icon-success:hover { color: var(--color-success-500); }
-
-.archived-row {
-  background-color: var(--color-gray-100);
-  color: var(--color-gray-500);
+/* RTL Support */
+[dir="rtl"] .controls-section {
+  justify-content: flex-start;
 }
 
-.empty-state {
-  text-align: center;
-  padding: 2rem;
-  color: var(--color-gray-500);
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 8px;
+  }
+
+  .toolbar .mat-toolbar-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .spacer {
+    display: none;
+  }
 }

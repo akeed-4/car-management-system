@@ -3,11 +3,33 @@ import { Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { ModalComponent } from '../../shared/modal/modal.component';
 import { RequestedCarService } from '../../../services/requested-car.service';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatChipsModule } from '@angular/material/chips';
+import { DxDataGridModule, DxButtonModule, DxTemplateModule, DxTemplateHost } from 'devextreme-angular';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-requested-cars',
   standalone: true,
-  imports: [RouterLink, DatePipe, ModalComponent],
+  imports: [
+    RouterLink,
+    ModalComponent,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+    MatToolbarModule,
+    MatSlideToggleModule,
+    MatChipsModule,
+    DxDataGridModule,
+    DxButtonModule,
+    DxTemplateModule,
+    TranslateModule
+  ],
+  providers: [DxTemplateHost],
   templateUrl: './requested-cars.component.html',
   styleUrl: './requested-cars.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -56,5 +78,25 @@ export class RequestedCarsComponent {
 
   unarchiveRequest(id: number) {
     this.requestedCarService.unarchiveRequest(id);
+  }
+
+  getStatusClass(status: string): string {
+    switch (status) {
+      case 'New': return 'status-chip-new';
+      case 'Contacted': return 'status-chip-contacted';
+      case 'Sourced': return 'status-chip-sourced';
+      case 'Closed': return 'status-chip-closed';
+      default: return 'status-chip-default';
+    }
+  }
+
+  getStatusText(status: string): string {
+    switch (status) {
+      case 'New': return 'جديد';
+      case 'Contacted': return 'تم التواصل';
+      case 'Sourced': return 'تم توفيرها';
+      case 'Closed': return 'مغلق';
+      default: return status;
+    }
   }
 }

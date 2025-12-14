@@ -49,7 +49,7 @@
     /* Safari */
     user-select: none;
     float: right;
-    width: 240px;
+    /* width: 240px; */
 }
 
 .full-width {

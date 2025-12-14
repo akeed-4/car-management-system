@@ -1,38 +1,43 @@
-<div class="container mx-auto">
-  <div class="flex justify-between items-center mb-6">
-    <h2 class="text-2xl font-semibold text-gray-800">قائمة اعتمادات الجرد</h2>
-    <a routerLink="/inventory/stock-taking-approval/new" class="bg-primary-600 text-white px-4 py-2 rounded-lg shadow hover:bg-primary-700 transition duration-300 flex items-center text-sm">
-      <svg class="w-5 h-5 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-      اعتماد جديد
-    </a>
-  </div>
+<mat-toolbar color="primary">
+  <span>{{ 'STOCK_TAKING_APPROVAL.TITLE' | translate }}</span>
+  <span class="spacer"></span>
+  <button mat-raised-button color="accent" routerLink="/inventory/stock-taking-approval/new">
+    <mat-icon>add</mat-icon>
+    {{ 'STOCK_TAKING_APPROVAL.CREATE_NEW' | translate }}
+  </button>
+</mat-toolbar>
 
-  <div class="bg-white p-6 rounded-lg shadow-md">
-    <div class="overflow-x-auto">
-      <table class="min-w-full bg-white">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">تاريخ الاعتماد</th>
-            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">اسم المعتمد</th>
-            <th class="text-right py-3 px-4 font-semibold text-sm text-gray-600 uppercase">مستند الجرد المعتمد</th>
-          </tr>
-        </thead>
-        <tbody class="text-gray-700">
-          @for (approval of approvals(); track approval.id) {
-            <tr class="border-b hover:bg-gray-50">
-              <td class="py-3 px-4 text-sm whitespace-nowrap">{{ approval.date | date:'yyyy-MM-dd' }}</td>
-              <td class="py-3 px-4 text-sm whitespace-nowrap">{{ approval.approverName }}</td>
-              <td class="py-3 px-4 text-sm whitespace-nowrap font-medium">{{ approval.stockTakeName }}</td>
-            </tr>
-          } @empty {
-            <tr>
-              <td colspan="3" class="text-center py-8 text-gray-500">
-                لا توجد اعتمادات مسجلة بعد.
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
+<mat-card>
+  <mat-card-content>
+    <dx-data-grid
+      [dataSource]="approvals()"
+      [showBorders]="true"
+      [showRowLines]="true"
+      [showColumnLines]="true"
+      [rowAlternationEnabled]="true"
+      [allowColumnReordering]="true"
+      [allowColumnResizing]="true"
+      [columnAutoWidth]="true"
+      [wordWrapEnabled]="true"
+      [rtlEnabled]="true">
+
+      <dxo-paging [pageSize]="10"></dxo-paging>
+      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
+      <dxo-filter-row [visible]="true"></dxo-filter-row>
+      <dxo-header-filter [visible]="true"></dxo-header-filter>
+      <dxo-search-panel [visible]="true" [placeholder]="'البحث...'"></dxo-search-panel>
+
+      <dxi-column dataField="date" caption="{{ 'STOCK_TAKING_APPROVAL.APPROVAL_DATE' | translate }}" dataType="date" format="yyyy-MM-dd" ></dxi-column>
+      <dxi-column dataField="approverName" caption="{{ 'STOCK_TAKING_APPROVAL.APPROVER_NAME' | translate }}"></dxi-column>
+      <dxi-column dataField="stockTakeName" caption="{{ 'STOCK_TAKING_APPROVAL.STOCK_TAKE_DOCUMENT' | translate }}" ></dxi-column>
+
+      <dxi-column type="buttons" caption="{{ 'STOCK_TAKING_APPROVAL.ACTIONS' | translate }}" >
+        <dxi-button name="edit" [onClick]="onEditClick" icon="edit" hint="{{ 'STOCK_TAKING_APPROVAL.EDIT' | translate }}"></dxi-button>
+        <dxi-button name="view" [onClick]="onViewClick" icon="eye" hint="{{ 'STOCK_TAKING_APPROVAL.VIEW' | translate }}"></dxi-button>
+      </dxi-column>
+
+      <dxo-editing mode="popup" [allowUpdating]="false" [allowDeleting]="false" [allowAdding]="false"></dxo-editing>
+
+    </dx-data-grid>
+  </mat-card-content>
+</mat-card>

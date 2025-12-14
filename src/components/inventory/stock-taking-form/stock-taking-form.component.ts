@@ -1,31 +1,55 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
+import { FormGroup, FormControl, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { InventoryService } from '../../../services/inventory.service';
 import { StockTakeService } from '../../../services/stock-take.service';
 import { StockTake } from '../../../types/stock-take.model';
 import { StockTakeItem } from '../../../types/stock-take-item.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatTableModule } from '@angular/material/table';
 
 @Component({
   selector: 'app-stock-taking-form',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslateModule],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    TranslateModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+    MatToolbarModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatTableModule
+  ],
   templateUrl: './stock-taking-form.component.html',
   styleUrl: './stock-taking-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class StockTakingFormComponent {
+export class StockTakingFormComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private inventoryService = inject(InventoryService);
   private stockTakeService = inject(StockTakeService);
   private translate = inject(TranslateService);
 
-  stockTake = signal<Partial<StockTake>>({
-    date: new Date().toISOString().split('T')[0],
-    items: []
-  });
+  stockTakeForm!: FormGroup;
+
+  // Table columns
+  displayedColumns = ['car', 'systemQuantity', 'actualQuantity', 'actions'];
 
   editMode = signal(false);
   pageTitle = signal('إنشاء مستند جرد جديد');
@@ -34,101 +58,126 @@ export class StockTakingFormComponent {
   
   // Get a list of car IDs that are already in the items list to disable them in dropdowns
   selectedCarIds = computed(() => {
-    return this.stockTake().items?.map(item => item.carId) ?? [];
+    const items = this.stockTakeForm?.get('items') as FormArray;
+    if (!items) return [];
+    return items.controls
+      .map(control => control.get('carId')?.value)
+      .filter(id => id && id !== 0);
   });
 
-  constructor() {
-    effect(() => {
-      const idParam = this.route.snapshot.params['id'];
-      if (idParam) { // Edit mode
-        const id = Number(idParam);
-        this.editMode.set(true);
-        this.pageTitle.set('تعديل مستند الجرد');
-        this.stockTakeService.getStockTakeById(id).subscribe(existingDoc => {
-          this.stockTake.set({ ...existingDoc });
-        }, error => {
-          console.error('Error loading stock take:', error);
-          this.router.navigate(['/inventory/stock-taking']);
-        });
-      }
-      // For new mode, it starts empty by default
-    }, { allowSignalWrites: true });
+  ngOnInit() {
+    this.initForm();
+    
+    // Handle route params for editing
+    const idParam = this.route.snapshot.params['id'];
+    if (idParam) {
+      const id = Number(idParam);
+      this.editMode.set(true);
+      this.pageTitle.set('تعديل مستند الجرد');
+      this.stockTakeService.getStockTakeById(id).subscribe(existingDoc => {
+        this.populateForm(existingDoc);
+      }, error => {
+        console.error('Error loading stock take:', error);
+        this.router.navigate(['/inventory/stock-taking']);
+      });
+    }
   }
 
-  updateHeaderField<K extends keyof StockTake>(field: K, value: StockTake[K]) {
-    this.stockTake.update(st => ({ ...st, [field]: value }));
+  private initForm() {
+    this.stockTakeForm = new FormGroup({
+      name: new FormControl('', Validators.required),
+      date: new FormControl(new Date().toISOString().split('T')[0], Validators.required),
+      user: new FormControl('', Validators.required),
+      items: new FormArray([])
+    });
+  }
+
+  private populateForm(stockTake: StockTake) {
+    this.stockTakeForm.patchValue({
+      name: stockTake.name,
+      date: stockTake.date,
+      user: stockTake.user
+    });
+
+    const itemsArray = this.stockTakeForm.get('items') as FormArray;
+    itemsArray.clear();
+
+    stockTake.items.forEach(item => {
+      itemsArray.push(new FormGroup({
+        carId: new FormControl(item.carId, Validators.required),
+        carDescription: new FormControl(item.carDescription),
+        systemQuantity: new FormControl(item.systemQuantity),
+        countedQuantity: new FormControl(item.countedQuantity, [Validators.required, Validators.min(0)])
+      }));
+    });
+  }
+
+  get items(): FormArray {
+    return this.stockTakeForm.get('items') as FormArray;
   }
 
   addNewItemRow() {
-    const newItem: StockTakeItem = {
-      carId: 0, // Placeholder
-      carDescription: '',
-      systemQuantity: 0,
-      countedQuantity: 0,
-    };
-    this.stockTake.update(st => ({ ...st, items: [...(st.items ?? []), newItem] }));
+    const newItem = new FormGroup({
+      carId: new FormControl(0, Validators.required),
+      carDescription: new FormControl(''),
+      systemQuantity: new FormControl(0),
+      countedQuantity: new FormControl(0, [Validators.required, Validators.min(0)])
+    });
+    this.items.push(newItem);
   }
 
   removeItem(index: number) {
-    this.stockTake.update(st => {
-      if (!st.items) return st;
-      const updatedItems = [...st.items];
-      updatedItems.splice(index, 1);
-      return { ...st, items: updatedItems };
-    });
+    this.items.removeAt(index);
   }
 
   updateItemCar(carId: number, index: number) {
     this.inventoryService.getCarById(carId).subscribe(car => {
-      const systemQty = car.quantity;
-
-      this.stockTake.update(st => {
-        if (!st.items) return st;
-        const updatedItems = [...st.items];
-        updatedItems[index] = {
-          ...updatedItems[index],
-          carId: car.id,
-          carDescription: `${car.make} ${car.model} (${car.year})`,
-          systemQuantity: systemQty,
-          countedQuantity: systemQty, // Default counted quantity to system quantity on selection
-        };
-        return { ...st, items: updatedItems };
+      const itemGroup = this.items.at(index) as FormGroup;
+      itemGroup.patchValue({
+        carId: car.id,
+        carDescription: `${car.make} ${car.model} (${car.year})`,
+        systemQuantity: car.quantity,
+        countedQuantity: car.quantity // Default counted quantity to system quantity on selection
       });
     });
   }
 
   updateItemCountedQuantity(quantity: number, index: number) {
-    this.stockTake.update(st => {
-      if (!st.items) return st;
-      const updatedItems = [...st.items];
-      updatedItems[index] = {
-        ...updatedItems[index],
-        countedQuantity: quantity >= 0 ? quantity : 0,
-      };
-      return { ...st, items: updatedItems };
+    const itemGroup = this.items.at(index) as FormGroup;
+    itemGroup.patchValue({
+      countedQuantity: quantity >= 0 ? quantity : 0
     });
   }
 
   saveStockTake() {
-    const stockTakeData = this.stockTake();
-    if (!stockTakeData.name || !stockTakeData.user) {
-      alert(this.translate.instant('INVENTORY.STOCK_TAKING_FORM.ERROR_NAME_USER'));
+    if (this.stockTakeForm.invalid) {
       return;
     }
 
-    if (!stockTakeData.items || stockTakeData.items.length === 0) {
+    const formValue = this.stockTakeForm.value;
+    
+    if (this.items.length === 0) {
       alert(this.translate.instant('INVENTORY.STOCK_TAKING_FORM.ERROR_NO_ITEMS'));
       return;
     }
 
     // Validate that all rows have a car selected
-    if (stockTakeData.items.some(item => item.carId === 0)) {
+    if (this.items.controls.some(control => control.get('carId')?.value === 0)) {
       alert(this.translate.instant('INVENTORY.STOCK_TAKING_FORM.ERROR_SELECT_CAR'));
       return;
     }
 
+    const stockTakeData: StockTake = {
+      id: this.editMode() ? 0 : undefined, // Will be set by service for new items
+      name: formValue.name,
+      date: formValue.date,
+      user: formValue.user,
+      status: 'Pending',
+      items: formValue.items
+    };
+
     if (this.editMode()) {
-      this.stockTakeService.updateStockTake(stockTakeData as StockTake);
+      this.stockTakeService.updateStockTake(stockTakeData);
     } else {
       const { id, status, ...newDoc } = stockTakeData;
       this.stockTakeService.addStockTake(newDoc as Omit<StockTake, 'id' | 'status'>);

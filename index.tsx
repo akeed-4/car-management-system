@@ -4,6 +4,8 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, withHashLocation } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
+import { registerLocaleData } from '@angular/common';
+import localeAr from '@angular/common/locales/ar';
 import { AppComponent } from './src/app.component';
 import { APP_ROUTES } from './src/app.routes';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
@@ -13,6 +15,9 @@ import { HttpClient } from '@angular/common/http';
 import { provideAuth } from 'angular-auth-oidc-client';
 
 
+
+// Register Arabic locale data
+registerLocaleData(localeAr);
 
 bootstrapApplication(AppComponent, {
   providers: [

@@ -1,60 +1,97 @@
 
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, OnInit } from '@angular/core';
+import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { ConsignmentService } from '../../../services/consignment.service';
 import { ConsignmentCar } from '../../../types/consignment-car.model';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { matTooltipAnimations, MatTooltipModule } from '@angular/material/tooltip';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-consignment-form',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+    MatToolbarModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    TranslateModule,
+    MatTooltipModule
+  ],
   templateUrl: './consignment-form.component.html',
   styleUrl: './consignment-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ConsignmentFormComponent {
+export class ConsignmentFormComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private consignmentService = inject(ConsignmentService);
 
-  car = signal<Partial<ConsignmentCar>>({
-    status: 'Available',
-    commissionRate: 0.05, // Default 5% commission
-    dateReceived: new Date().toISOString().split('T')[0],
-  });
+  consignmentForm!: FormGroup;
   editMode = signal(false);
   pageTitle = signal('إضافة سيارة للعهدة');
 
-  constructor() {
-    effect(() => {
-      const idParam = this.route.snapshot.params['id'];
-      if (idParam) {
-        const id = Number(idParam);
-        this.editMode.set(true);
-        this.pageTitle.set('تعديل بيانات سيارة العهدة');
-        this.consignmentService.getById(id).subscribe(existingCar => {
-          this.car.set({ ...existingCar });
-        }, error => {
-          console.error('Error loading consignment car:', error);
-          this.router.navigate(['/consignment-cars']);
-        });
-      }
+  ngOnInit() {
+    this.initForm();
+    
+    // Handle route params for editing
+    const idParam = this.route.snapshot.params['id'];
+    if (idParam) {
+      const id = Number(idParam);
+      this.editMode.set(true);
+      this.pageTitle.set('تعديل بيانات سيارة العهدة');
+      this.consignmentService.getById(id).subscribe(existingCar => {
+        this.consignmentForm.patchValue(existingCar);
+      }, error => {
+        console.error('Error loading consignment car:', error);
+        this.router.navigate(['/consignment-cars']);
+      });
+    }
+  }
+
+  private initForm() {
+    this.consignmentForm = new FormGroup({
+      ownerName: new FormControl('', Validators.required),
+      ownerPhone: new FormControl('', Validators.required),
+      make: new FormControl('', Validators.required),
+      model: new FormControl('', Validators.required),
+      year: new FormControl(null, Validators.required),
+      exteriorColor: new FormControl(''),
+      mileage: new FormControl(null),
+      plateNumber: new FormControl(''),
+      vin: new FormControl(''),
+      agreedSalePrice: new FormControl(null, Validators.required),
+      commissionRate: new FormControl(0.05, Validators.required),
+      dateReceived: new FormControl(new Date().toISOString().split('T')[0], Validators.required),
+      notes: new FormControl('')
     });
   }
 
-  updateCarField<K extends keyof ConsignmentCar>(field: K, value: ConsignmentCar[K]) {
-    this.car.update(c => ({ ...c, [field]: value }));
-  }
-
   saveConsignmentCar() {
-    const carToSave = this.car();
-
-    if (!carToSave.make || !carToSave.model || !carToSave.year || !carToSave.ownerName || !carToSave.ownerPhone || !carToSave.agreedSalePrice || !carToSave.commissionRate) {
-      alert('الرجاء تعبئة جميع الحقول المطلوبة.');
+    if (this.consignmentForm.invalid) {
       return;
     }
+
+    const formValue = this.consignmentForm.value;
+    const carToSave = {
+      ...formValue,
+      status: 'Available' as const
+    };
 
     if (this.editMode()) {
       this.consignmentService.updateConsignmentCar(carToSave as ConsignmentCar);

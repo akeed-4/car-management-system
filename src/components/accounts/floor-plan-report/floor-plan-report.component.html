@@ -1,52 +1,118 @@
-<div class="container">
-  <h2 class="page-title">{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.TITLE') }}</h2>
+<mat-toolbar color="primary" class="toolbar">
+  <span>{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.TITLE') }}</span>
+</mat-toolbar>
 
+<div class="container">
   <!-- Summary Cards -->
   <div class="stats-grid">
-    <div class="stat-card">
-      <p class="stat-label">{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.TOTAL_FINANCED') }}</p>
-      <p class="stat-value">{{ totalFinancedValue() | currency:'SAR':'symbol':'1.0-0' }}</p>
-    </div>
-    <div class="stat-card">
-      <p class="stat-label">{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.TOTAL_ACCRUED_COST') }}</p>
-      <p class="stat-value stat-warning">{{ totalAccruedCost() | currency:'SAR':'symbol':'1.0-0' }}</p>
-    </div>
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <p class="stat-label">{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.TOTAL_FINANCED') }}</p>
+        <p class="stat-value">{{ totalFinancedValue() | currency:'SAR':'symbol':'1.0-0' }}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <p class="stat-label">{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.TOTAL_ACCRUED_COST') }}</p>
+        <p class="stat-value stat-warning">{{ totalAccruedCost() | currency:'SAR':'symbol':'1.0-0' }}</p>
+      </mat-card-content>
+    </mat-card>
   </div>
 
   <!-- Detailed Report Table -->
-  <div class="card">
-     <h3 class="card-title">{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.DETAILS_TITLE') }}</h3>
-     <div class="table-wrapper">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.CAR') }}</th>
-            <th>{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.PURCHASE_PRICE') }}</th>
-            <th>{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.PURCHASE_DATE') }}</th>
-            <th>{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.PLAN') }}</th>
-            <th class="text-center">{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.DAYS_IN_STOCK') }}</th>
-            <th>{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.ACCRUED_COST') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (item of financedCarsReport(); track item.carId) {
-            <tr>
-              <td>{{ item.carDescription }}</td>
-              <td class="font-mono">{{ item.purchasePrice | currency:'SAR' }}</td>
-              <td>{{ item.purchaseDate | date:'yyyy-MM-dd' }}</td>
-              <td>{{ item.planName }} ({{ item.financier }})</td>
-              <td class="text-center days-badge" [class.days-warning]="item.daysInStock > 60">{{ item.daysInStock }}</td>
-              <td class="font-mono cost-value">{{ item.accruedCost | currency:'SAR' }}</td>
-            </tr>
-          } @empty {
-            <tr>
-              <td colspan="6" class="empty-state">
-                {{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.NO_FINANCED_CARS') }}
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  </div>
+  <mat-card class="report-card">
+    <mat-card-header>
+      <mat-card-title>{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.DETAILS_TITLE') }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <dx-data-grid
+        [dataSource]="financedCarsReport()"
+        [showBorders]="true"
+        [showRowLines]="true"
+        [showColumnLines]="true"
+        [rowAlternationEnabled]="true"
+        [allowColumnReordering]="true"
+        [allowColumnResizing]="true"
+        [columnAutoWidth]="true"
+        [rtlEnabled]="true"
+        keyExpr="carId">
+
+        <dxo-paging [pageSize]="10"></dxo-paging>
+        <dxo-pager
+          [showPageSizeSelector]="true"
+          [allowedPageSizes]="[5, 10, 20]"
+          [showInfo]="true">
+        </dxo-pager>
+
+        <dxo-filter-row [visible]="true"></dxo-filter-row>
+        <dxo-header-filter [visible]="true"></dxo-header-filter>
+        <dxo-search-panel
+          [visible]="true"
+          placeholder="البحث في التقرير...">
+        </dxo-search-panel>
+
+        <dxi-column
+          dataField="carDescription"
+          caption="{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.CAR') }}"
+          >
+        </dxi-column>
+
+        <dxi-column
+          dataField="purchasePrice"
+          caption="{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.PURCHASE_PRICE') }}"
+          dataType="number"
+          format="currency"
+          >
+        </dxi-column>
+
+        <dxi-column
+          dataField="purchaseDate"
+          caption="{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.PURCHASE_DATE') }}"
+          dataType="date"
+          format="yyyy-MM-dd"
+          >
+        </dxi-column>
+
+        <dxi-column
+          caption="{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.PLAN') }}"
+          cellTemplate="planTemplate">
+        </dxi-column>
+
+        <dxi-column
+          dataField="daysInStock"
+          caption="{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.DAYS_IN_STOCK') }}"
+          dataType="number"
+          [width]="120"
+          cellTemplate="daysTemplate">
+        </dxi-column>
+
+        <dxi-column
+          dataField="accruedCost"
+          caption="{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.ACCRUED_COST') }}"
+          dataType="number"
+          format="currency"
+          
+          cellTemplate="costTemplate">
+        </dxi-column>
+
+        <!-- Templates -->
+        <div *dxTemplate="let data of 'planTemplate'">
+          {{ data.planName }} ({{ data.financier }})
+        </div>
+
+        <div *dxTemplate="let data of 'daysTemplate'">
+          <span class="days-badge" [class.days-warning]="data.daysInStock > 60">
+            {{ data.daysInStock }}
+          </span>
+        </div>
+
+        <div *dxTemplate="let data of 'costTemplate'">
+          <span class="cost-value">
+            {{ data.accruedCost | currency:'SAR' }}
+          </span>
+        </div>
+      </dx-data-grid>
+    </mat-card-content>
+  </mat-card>
 </div>

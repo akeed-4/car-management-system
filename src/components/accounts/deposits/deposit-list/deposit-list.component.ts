@@ -1,10 +1,17 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { CurrencyPipe, DatePipe, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DepositService } from '../../../../services/deposit.service';
 import { DepositVoucher } from '../../../../types/deposit-voucher.model';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { DxDataGridModule, DxButtonModule, DxTemplateModule, DxTemplateHost } from 'devextreme-angular';
 
 type SortColumn = keyof DepositVoucher | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -12,7 +19,22 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-deposit-list',
   standalone: true,
-  imports: [RouterLink, CurrencyPipe, DatePipe, FormsModule, TranslateModule],
+  imports: [
+    RouterLink,
+    FormsModule,
+    CommonModule,
+    TranslateModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+    MatToolbarModule,
+    MatFormFieldModule,
+    MatInputModule,
+    DxDataGridModule,
+    DxButtonModule,
+    DxTemplateModule
+  ],
+  providers: [DxTemplateHost],
   templateUrl: './deposit-list.component.html',
   styleUrl: './deposit-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
