@@ -17,6 +17,9 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTabsModule } from '@angular/material/tabs';
 
+// DevExtreme Modules
+import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
+
 // Components
 import { AccountingComponent } from './accounting/accounting.component';
 import { ChartOfAccountsComponent } from './chart-of-accounts/chart-of-accounts.component';
@@ -43,7 +46,9 @@ import { JournalEntriesComponent } from './journal-entries/journal-entries.compo
     MatDatepickerModule,
     MatNativeDateModule,
     MatToolbarModule,
-    MatTabsModule
+    MatTabsModule,
+    DxDataGridModule,
+    DxButtonModule
   ],
   exports: [
     AccountingComponent,

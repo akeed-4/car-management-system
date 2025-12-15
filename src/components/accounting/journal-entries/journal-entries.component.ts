@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
-import { MatTableDataSource } from '@angular/material/table';
+import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
 import { Observable } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { AccountingService } from '../accounting.service';
@@ -14,8 +14,53 @@ import { JournalEntry, JournalEntryLine, CreateJournalEntryDto, UpdateJournalEnt
 export class JournalEntriesComponent implements OnInit {
   journalEntries$: Observable<JournalEntry[]>;
   accounts$: Observable<Account[]>;
-  displayedColumns: string[] = ['date', 'description', 'reference', 'debit', 'credit', 'actions'];
-  dataSource = new MatTableDataSource<JournalEntry>();
+  journalEntries: JournalEntry[] = [];
+
+  // DevExtreme DataGrid columns configuration
+  columns = [
+    {
+      dataField: 'date',
+      caption: 'ACCOUNTING.DATE',
+      dataType: 'date',
+      format: 'short'
+    },
+    {
+      dataField: 'description',
+      caption: 'ACCOUNTING.DESCRIPTION'
+    },
+    {
+      dataField: 'reference',
+      caption: 'ACCOUNTING.REFERENCE'
+    },
+    {
+      dataField: 'totalDebit',
+      caption: 'ACCOUNTING.TOTAL_DEBIT',
+      dataType: 'number',
+      format: { type: 'currency', currency: 'SAR', precision: 2 }
+    },
+    {
+      dataField: 'totalCredit',
+      caption: 'ACCOUNTING.TOTAL_CREDIT',
+      dataType: 'number',
+      format: { type: 'currency', currency: 'SAR', precision: 2 }
+    },
+    {
+      caption: 'ACCOUNTING.ACTIONS',
+      type: 'buttons',
+      buttons: [
+        {
+          hint: 'Edit',
+          icon: 'edit',
+          onClick: (e: any) => this.onEditEntry(e.row.data)
+        },
+        {
+          hint: 'Delete',
+          icon: 'trash',
+          onClick: (e: any) => this.onDeleteEntry(e.row.data)
+        }
+      ]
+    }
+  ];
 
   journalEntryForm: FormGroup;
   isEditing = false;
@@ -40,7 +85,7 @@ export class JournalEntriesComponent implements OnInit {
 
   ngOnInit() {
     this.journalEntries$.subscribe(entries => {
-      this.dataSource.data = entries;
+      this.journalEntries = entries;
     });
 
     this.accounts$.subscribe(accounts => {
