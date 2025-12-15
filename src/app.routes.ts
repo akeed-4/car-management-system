@@ -58,6 +58,7 @@ import { RegistrationComponent } from './components/auth/registration/registrati
 import { LayoutComponent } from './components/shared/layout/layout.component';
 import { CarCardComponent } from './components/setup/car/car-card/car-card.component';
 import { CarListComponent } from './components/setup/car/car-list/car-list.component';
+import { CarGridListComponent } from './components/setup/car/car-grid-list/car-grid-list.component';
 import { BranchListComponent } from './components/branches/branch-list/branch-list.component';
 import { BranchFormComponent } from './components/branches/branch-form/branch-form.component';
 import { CompanyListComponent } from './components/companies/company-list/company-list.component';
@@ -68,6 +69,8 @@ import { ChartOfAccountsComponent } from './components/accounting/chart-of-accou
 import { JournalEntriesComponent } from './components/accounting/journal-entries/journal-entries.component';
 import { JournalEntriesListComponent } from './components/accounting/journal-entries-list/journal-entries-list.component';
 import { ChartOfAccountsTreeComponent } from './components/accounting/chart-of-accounts-tree/chart-of-accounts-tree.component';
+import { CostCenterListComponent } from './components/setup/cost-center/cost-center-list/cost-center-list.component';
+import { CostCenterFormComponent } from './components/setup/cost-center/cost-center-form/cost-center-form.component';
 
 export const APP_ROUTES: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -83,6 +86,7 @@ export const APP_ROUTES: Routes = [
   { path: 'setup/year', component: ManufactureYearComponent },
       { path: 'setup/card', component :CarCardComponent },
       { path: 'setup/cars', component :CarListComponent },
+      { path: 'setup/cars-grid', component :CarGridListComponent },
       { path: 'setup/branches', component: BranchListComponent },
       { path: 'setup/branches/new', component: BranchFormComponent },
       { path: 'setup/branches/edit/:id', component: BranchFormComponent },
@@ -91,7 +95,11 @@ export const APP_ROUTES: Routes = [
       { path: 'setup/companies/edit/:id', component: CompanyFormComponent },
       { path: 'setup/stores', component: StoreListComponent },
       { path: 'setup/stores/new', component: StoreFormComponent },
-      { path: 'setup/stores/edit/:id', component: StoreFormComponent }, // Redirect to the functional inventory form
+      { path: 'setup/stores/edit/:id', component: StoreFormComponent },
+      { path: 'cost-centers', component: CostCenterListComponent },
+      { path: 'cost-centers/new', component: CostCenterFormComponent },
+      { path: 'cost-centers/edit/:id', component: CostCenterFormComponent },
+      // Redirect to the functional inventory form
       { path: 'inventory', component: InventoryListComponent },
   { path: 'inventory/new', component: InventoryFormComponent },
   { path: 'inventory/edit/:id', component: InventoryFormComponent },

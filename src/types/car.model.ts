@@ -6,6 +6,8 @@ export type CarLocation = string;
 export type CarCondition = 'New' | 'Used';
 
 export interface Car {
+  imageUrl: string;
+  createdAt: any;
   id: number;
   vin: string;
   plateNumber: string;
@@ -32,4 +34,29 @@ export interface Car {
   floorPlanId?: number;
   isArchived?: boolean;
   quantity: number; // Current quantity in inventory
+
+  // New fields
+  carType?: string;
+  transportationType?: 'Private' | 'Public' | 'Taxi';
+  chassisNumber?: string;
+  ownerName?: string;
+  ownerIdNumber?: string;
+  ownerPhone?: string;
+  authorizedSellerName?: string;
+  authorizedSellerIdNumber?: string;
+  authorizedSellerPhone?: string;
+  authorizationDocumentNumber?: string;
+  authorizationDocumentDate?: string;
+  authorizationDocumentAttachment?: string;
+  bankName?: string;
+  accountNumber?: string;
+  iban?: string;
+  buyerName?: string;
+  buyerIdNumber?: string;
+  buyerPhone?: string;
+  showroomCommission?: number;
+  floorFees?: number;
+  costCenter?: string;
+  documentImages?: string[];
+  allowEntryToShowroom?: boolean;
 }

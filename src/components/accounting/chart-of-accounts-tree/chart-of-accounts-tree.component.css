@@ -34,6 +34,137 @@
 ::ng-deep .dx-treelist {
   border: none !important;
   border-radius: 10px;
+  font-size: 16px !important;
+}
+
+/* Level Cell Styling */
+.level-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.level-cell i {
+  font-size: 24px !important;
+}
+
+.level-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(33, 150, 243, 0.2));
+  border: 2px solid currentColor;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* Name Cell Styling */
+.name-cell {
+  padding: 8px 0;
+}
+
+.account-name {
+  font-weight: 600;
+  color: #1a1a1a;
+  line-height: 1.4;
+}
+
+.name-cell.has-children .account-name {
+  font-weight: 700;
+  color: #1976D2;
+}
+
+/* Code Column Styling */
+::ng-deep .code-column {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: #424242 !important;
+}
+
+/* TreeList Row Styling */
+::ng-deep .dx-treelist .dx-row {
+  font-size: 16px !important;
+  min-height: 50px !important;
+}
+
+::ng-deep .dx-treelist .dx-data-row {
+  transition: all 0.3s ease;
+}
+
+::ng-deep .dx-treelist .dx-data-row:hover {
+  background-color: rgba(33, 150, 243, 0.08) !important;
+  transform: translateX(-2px);
+}
+
+/* Header Styling */
+::ng-deep .dx-treelist .dx-header-row {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  background: linear-gradient(135deg, #1976D2, #2196F3) !important;
+  color: white !important;
+}
+
+::ng-deep .dx-treelist .dx-header-row td {
+  padding: 16px 12px !important;
+  border-bottom: 3px solid #1565C0 !important;
+}
+
+/* TreeList Cell Padding */
+::ng-deep .dx-treelist .dx-treelist-text-content {
+  padding: 12px 8px !important;
+  font-size: 16px !important;
+}
+
+/* Expand/Collapse Icon Styling */
+::ng-deep .dx-treelist .dx-treelist-icon-container {
+  width: 40px !important;
+}
+
+::ng-deep .dx-treelist .dx-treelist-icon-container .dx-icon {
+  font-size: 20px !important;
+  color: #1976D2 !important;
+}
+
+/* Action Buttons Enhancement */
+::ng-deep .dx-treelist .dx-command-edit .dx-link {
+  font-size: 20px !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 8px !important;
+  margin: 0 4px !important;
+  transition: all 0.3s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 2px solid transparent !important;
+}
+
+::ng-deep .dx-treelist .dx-command-edit .dx-link:hover {
+  transform: scale(1.15) !important;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2) !important;
+}
+
+::ng-deep .dx-treelist .dx-command-edit .dx-icon {
+  font-size: 22px !important;
+  font-weight: bold !important;
+}
+
+/* Balance Column Styling */
+::ng-deep .dx-treelist td[aria-colindex="5"] {
+  font-size: 17px !important;
+  font-weight: 600 !important;
+  color: #2E7D32 !important;
+}
+
+/* Alternating Row Colors */
+::ng-deep .dx-treelist .dx-row-alt {
+  background-color: rgba(158, 158, 158, 0.03) !important;
 }
 
 @media (max-width: 768px) {

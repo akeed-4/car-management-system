@@ -304,4 +304,32 @@ mat-card {
   }
 }
 
+/* Payment Tracking Styles */
+.payment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.payment-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.payment-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+}
+
+.exit-status {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.exit-status mat-chip {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
 /* --- End Professional Invoice Branding --- */

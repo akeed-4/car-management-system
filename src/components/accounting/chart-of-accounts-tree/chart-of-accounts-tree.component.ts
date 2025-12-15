@@ -55,15 +55,21 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
       {
         dataField: 'level',
         caption: this.translate.instant('ACCOUNTING.LEVEL'),
+        width: 100,
+        alignment: 'center',
+        cellTemplate: 'levelTemplate',
         calculateCellValue: (rowData: Account) => this.getAccountLevel(rowData)
       },
       {
         dataField: 'code',
         caption: this.translate.instant('ACCOUNTING.ACCOUNT_CODE'),
+        width: 150,
+        cssClass: 'code-column'
       },
       {
         dataField: 'name',
         caption: this.translate.instant('ACCOUNTING.ACCOUNT_NAME'),
+        cellTemplate: 'nameTemplate',
         calculateCellValue: (rowData: Account) => this.translateAccountName(rowData.name)
       },
       {
@@ -165,5 +171,31 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
 
   translateAccountName(accountName: string): string {
     return this.accountingService.translateAccountName(accountName);
+  }
+
+  getLevelIcon(level: number): string {
+    const icons: { [key: number]: string } = {
+      1: 'folder',
+      2: 'folder',
+      3: 'folder',
+      4: 'activefolder',
+      5: 'activefolder'
+    };
+    return icons[level] || 'folder';
+  }
+
+  getLevelColor(level: number): string {
+    const colors: { [key: number]: string } = {
+      1: '#1976D2',
+      2: '#2196F3',
+      3: '#64B5F6',
+      4: '#90CAF9',
+      5: '#BBDEFB'
+    };
+    return colors[level] || '#1976D2';
+  }
+
+  hasChildren(account: Account): boolean {
+    return this.accounts.some(acc => acc.parentId === account.id);
   }
 }

@@ -128,6 +128,170 @@
         </div>
       </div>
 
+      <!-- Car Type & Transportation -->
+      <div class="form-section">
+        <h3 class="section-title">{{ 'INVENTORY.FORM.CAR_TYPE_TRANSPORTATION' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.CAR_TYPE' | translate }}</mat-label>
+            <input matInput type="text" formControlName="carType">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.TRANSPORTATION_TYPE' | translate }}</mat-label>
+            <mat-select formControlName="transportationType">
+              <mat-option value="Private">{{ 'INVENTORY.FORM.PRIVATE' | translate }}</mat-option>
+              <mat-option value="Public">{{ 'INVENTORY.FORM.PUBLIC' | translate }}</mat-option>
+              <mat-option value="Taxi">{{ 'INVENTORY.FORM.TAXI' | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.CHASSIS_NUMBER' | translate }}</mat-label>
+            <input matInput type="text" formControlName="chassisNumber" dir="ltr">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Owner & Authorized Seller Details -->
+      <div class="form-section">
+        <h3 class="section-title">{{ 'INVENTORY.FORM.OWNER_SELLER_DETAILS' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.OWNER_NAME' | translate }}</mat-label>
+            <input matInput type="text" formControlName="ownerName">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.OWNER_ID_NUMBER' | translate }}</mat-label>
+            <input matInput type="text" formControlName="ownerIdNumber" dir="ltr">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.OWNER_PHONE' | translate }}</mat-label>
+            <input matInput type="text" formControlName="ownerPhone" dir="ltr">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.AUTHORIZED_SELLER_NAME' | translate }}</mat-label>
+            <input matInput type="text" formControlName="authorizedSellerName">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.AUTHORIZED_SELLER_ID_NUMBER' | translate }}</mat-label>
+            <input matInput type="text" formControlName="authorizedSellerIdNumber" dir="ltr">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.AUTHORIZED_SELLER_PHONE' | translate }}</mat-label>
+            <input matInput type="text" formControlName="authorizedSellerPhone" dir="ltr">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Authorization Document -->
+      <div class="form-section">
+        <h3 class="section-title">{{ 'INVENTORY.FORM.AUTHORIZATION_DOCUMENT' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.DOCUMENT_NUMBER' | translate }}</mat-label>
+            <input matInput type="text" formControlName="authorizationDocumentNumber" dir="ltr">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.DOCUMENT_DATE' | translate }}</mat-label>
+            <input matInput [matDatepicker]="authDocPicker" formControlName="authorizationDocumentDate">
+            <mat-datepicker-toggle matIconSuffix [for]="authDocPicker"></mat-datepicker-toggle>
+            <mat-datepicker #authDocPicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.DOCUMENT_ATTACHMENT' | translate }}</mat-label>
+            <input matInput type="text" formControlName="authorizationDocumentAttachment" placeholder="File path or URL">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Banking Information -->
+      <div class="form-section">
+        <h3 class="section-title">{{ 'INVENTORY.FORM.BANKING_INFORMATION' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.BANK_NAME' | translate }}</mat-label>
+            <input matInput type="text" formControlName="bankName">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.ACCOUNT_NUMBER' | translate }}</mat-label>
+            <input matInput type="text" formControlName="accountNumber" dir="ltr">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.IBAN' | translate }}</mat-label>
+            <input matInput type="text" formControlName="iban" dir="ltr">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Buyer Information -->
+      <div class="form-section">
+        <h3 class="section-title">{{ 'INVENTORY.FORM.BUYER_INFORMATION' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.BUYER_NAME' | translate }}</mat-label>
+            <input matInput type="text" formControlName="buyerName">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.BUYER_ID_NUMBER' | translate }}</mat-label>
+            <input matInput type="text" formControlName="buyerIdNumber" dir="ltr">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.BUYER_PHONE' | translate }}</mat-label>
+            <input matInput type="text" formControlName="buyerPhone" dir="ltr">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Sales & Commission -->
+      <div class="form-section">
+        <h3 class="section-title">{{ 'INVENTORY.FORM.SALES_COMMISSION' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.SHOWROOM_COMMISSION' | translate }}</mat-label>
+            <input matInput type="number" formControlName="showroomCommission">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.FLOOR_FEES' | translate }}</mat-label>
+            <input matInput type="number" formControlName="floorFees">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.COST_CENTER' | translate }}</mat-label>
+            <input matInput type="text" formControlName="costCenter">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Document Upload & Entry Permission -->
+      <div class="form-section">
+        <h3 class="section-title">{{ 'INVENTORY.FORM.DOCUMENTS_ENTRY' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'INVENTORY.FORM.DOCUMENT_IMAGES' | translate }}</mat-label>
+            <input matInput type="text" formControlName="documentImages" placeholder="Comma-separated URLs">
+          </mat-form-field>
+
+          <div class="form-row">
+            <mat-slide-toggle formControlName="allowEntryToShowroom" color="primary">
+              {{ 'INVENTORY.FORM.ALLOW_ENTRY_TO_SHOWROOM' | translate }}
+            </mat-slide-toggle>
+          </div>
+        </div>
+      </div>
+
       <!-- Financials -->
       <div class="form-section">
         <h3 class="section-title">{{ 'INVENTORY.FORM.FINANCIALS' | translate }}</h3>

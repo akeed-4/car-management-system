@@ -1,0 +1,297 @@
+<div class="car-grid-list-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="title-section">
+      <h2>{{ 'CARS.LIST_TITLE' | translate }}</h2>
+      <p class="subtitle">{{ 'CARS.LIST_SUBTITLE' | translate }}</p>
+    </div>
+    <button
+      mat-raised-button
+      color="primary"
+      class="add-button"
+      (click)="onCreate()"
+      appHasPermission="car.create">
+      <mat-icon>add</mat-icon>
+      {{ 'CARS.ADD_NEW' | translate }}
+    </button>
+  </div>
+
+  <!-- Filters and Controls Section -->
+  <div class="controls-section">
+    <div class="filters-row">
+      <!-- Search Input -->
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>{{ 'CARS.SEARCH_PLACEHOLDER' | translate }}</mat-label>
+        <input
+          matInput
+          [(ngModel)]="filter"
+          [placeholder]="'CARS.SEARCH_PLACEHOLDER' | translate">
+        <mat-icon matPrefix>search</mat-icon>
+        <button mat-icon-button matSuffix *ngIf="filter()" (click)="filter.set('')">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+
+      <!-- Status Filter -->
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>{{ 'CARS.FILTER_STATUS' | translate }}</mat-label>
+        <mat-select [(ngModel)]="statusFilter">
+          <mat-option value="all">{{ 'CARS.ALL_STATUS' | translate }}</mat-option>
+          <mat-option value="Available">{{ 'CARS.STATUS.AVAILABLE' | translate }}</mat-option>
+          <mat-option value="Reserved">{{ 'CARS.STATUS.RESERVED' | translate }}</mat-option>
+          <mat-option value="Sold">{{ 'CARS.STATUS.SOLD' | translate }}</mat-option>
+          <mat-option value="In Maintenance">{{ 'CARS.STATUS.IN_MAINTENANCE' | translate }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Condition Filter -->
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>{{ 'CARS.FILTER_CONDITION' | translate }}</mat-label>
+        <mat-select [(ngModel)]="conditionFilter">
+          <mat-option value="all">{{ 'CARS.ALL_CONDITIONS' | translate }}</mat-option>
+          <mat-option value="New">{{ 'CARS.CONDITION.NEW' | translate }}</mat-option>
+          <mat-option value="Used">{{ 'CARS.CONDITION.USED' | translate }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Sort By -->
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>{{ 'CARS.SORT_BY' | translate }}</mat-label>
+        <mat-select [(ngModel)]="sortBy">
+          <mat-option value="createdAt">{{ 'CARS.SORT.NEWEST' | translate }}</mat-option>
+          <mat-option value="salePrice">{{ 'CARS.SORT.PRICE_HIGH' | translate }}</mat-option>
+          <mat-option value="year">{{ 'CARS.SORT.YEAR_NEW' | translate }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Clear Filters Button -->
+      <button mat-stroked-button color="warn" (click)="clearFilters()" class="clear-btn">
+        <mat-icon>clear_all</mat-icon>
+        {{ 'CARS.CLEAR_FILTERS' | translate }}
+      </button>
+    </div>
+
+    <div class="view-toggle-row">
+      <div class="results-count">
+        <mat-icon>directions_car</mat-icon>
+        <span>{{ filteredCars().length }} {{ 'CARS.TOTAL_CARS' | translate }}</span>
+      </div>
+      
+      <mat-button-toggle-group
+        [value]="viewMode()"
+        (change)="toggleView($event.value)"
+        class="view-toggle">
+        <mat-button-toggle value="grid">
+          <mat-icon>grid_view</mat-icon>
+          {{ 'CARS.VIEW.GRID' | translate }}
+        </mat-button-toggle>
+        <mat-button-toggle value="list">
+          <mat-icon>view_list</mat-icon>
+          {{ 'CARS.VIEW.LIST' | translate }}
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+  </div>
+
+  <!-- Grid View -->
+  <div class="cars-grid" *ngIf="viewMode() === 'grid'">
+    <mat-card
+      *ngFor="let car of filteredCars()"
+      class="car-card"
+      (click)="onViewCar(car)">
+      
+      <!-- Car Image -->
+      <div class="car-image-container">
+        <img
+          [src]="getCarImage(car)"
+          [alt]="car.make + ' ' + car.model"
+          class="car-image"
+          (error)="$event.target.src='assets/images/car-placeholder.png'">
+        
+        <!-- Status Badge -->
+        <div class="status-badge" [class]="getStatusColor(car.status)">
+          {{ 'CARS.STATUS.' + car.status?.toUpperCase().replace(' ', '_') | translate }}
+        </div>
+        
+        <!-- Condition Badge -->
+        <div class="condition-badge">
+          <mat-icon>{{ getConditionIcon(car.condition) }}</mat-icon>
+          {{ 'CARS.CONDITION.' + car.condition?.toUpperCase() | translate }}
+        </div>
+      </div>
+
+      <mat-card-content class="car-details">
+        <!-- Car Title -->
+        <h3 class="car-title">{{ car.year }} {{ car.make }} {{ car.model }}</h3>
+        
+        <!-- Car Info -->
+        <div class="car-info">
+          <div class="info-item">
+            <mat-icon class="info-icon">confirmation_number</mat-icon>
+            <span class="info-label">{{ 'CARS.VIN' | translate }}:</span>
+            <span class="info-value">{{ car.vin }}</span>
+          </div>
+          
+          <div class="info-item" *ngIf="car.plateNumber">
+            <mat-icon class="info-icon">pin</mat-icon>
+            <span class="info-label">{{ 'CARS.PLATE' | translate }}:</span>
+            <span class="info-value">{{ car.plateNumber }}</span>
+          </div>
+          
+          <div class="info-item" *ngIf="car.color">
+            <mat-icon class="info-icon">palette</mat-icon>
+            <span class="info-label">{{ 'CARS.COLOR' | translate }}:</span>
+            <span class="info-value">{{ car.color }}</span>
+          </div>
+          
+          <div class="info-item" *ngIf="car.mileage">
+            <mat-icon class="info-icon">speed</mat-icon>
+            <span class="info-label">{{ 'CARS.MILEAGE' | translate }}:</span>
+            <span class="info-value">{{ car.mileage | number }} km</span>
+          </div>
+          
+          <div class="info-item" *ngIf="car.currentLocation">
+            <mat-icon class="info-icon">location_on</mat-icon>
+            <span class="info-label">{{ 'CARS.LOCATION' | translate }}:</span>
+            <span class="info-value">{{ car.currentLocation }}</span>
+          </div>
+        </div>
+
+        <!-- Price Section -->
+        <div class="price-section">
+          <div class="price-label">{{ 'CARS.SALE_PRICE' | translate }}</div>
+          <div class="price-value">{{ car.salePrice | currency:'SAR':'symbol':'1.2-2' }}</div>
+        </div>
+
+        <!-- Actions -->
+        <div class="card-actions">
+          <button
+            mat-button
+            color="primary"
+            (click)="onViewCar(car); $event.stopPropagation()"
+            class="action-btn">
+            <mat-icon>visibility</mat-icon>
+            {{ 'CARS.ACTIONS.VIEW' | translate }}
+          </button>
+          <button
+            mat-button
+            color="accent"
+            (click)="onEdit(car); $event.stopPropagation()"
+            appHasPermission="car.update"
+            class="action-btn">
+            <mat-icon>edit</mat-icon>
+            {{ 'CARS.ACTIONS.EDIT' | translate }}
+          </button>
+          <button
+            mat-icon-button
+            color="warn"
+            (click)="onDelete(car); $event.stopPropagation()"
+            appHasPermission="car.delete"
+            [matTooltip]="'CARS.ACTIONS.DELETE' | translate">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- List View -->
+  <div class="cars-list" *ngIf="viewMode() === 'list'">
+    <mat-card
+      *ngFor="let car of filteredCars()"
+      class="car-list-item"
+      (click)="onViewCar(car)">
+      <div class="list-content">
+        <!-- Car Image Thumbnail -->
+        <div class="list-image-container">
+          <img
+            [src]="getCarImage(car)"
+            [alt]="car.make + ' ' + car.model"
+            class="list-image"
+            (error)="$event.target.src='assets/images/car-placeholder.png'">
+        </div>
+
+        <!-- Car Info -->
+        <div class="list-details">
+          <div class="list-header">
+            <h3 class="list-title">{{ car.year }} {{ car.make }} {{ car.model }}</h3>
+            <mat-chip [color]="getStatusColor(car.status)" selected>
+              {{ 'CARS.STATUS.' + car.status?.toUpperCase().replace(' ', '_') | translate }}
+            </mat-chip>
+          </div>
+
+          <div class="list-info-grid">
+            <div class="list-info-item">
+              <mat-icon>confirmation_number</mat-icon>
+              <span>{{ car.vin }}</span>
+            </div>
+            <div class="list-info-item" *ngIf="car.plateNumber">
+              <mat-icon>pin</mat-icon>
+              <span>{{ car.plateNumber }}</span>
+            </div>
+            <div class="list-info-item" *ngIf="car.color">
+              <mat-icon>palette</mat-icon>
+              <span>{{ car.color }}</span>
+            </div>
+            <div class="list-info-item" *ngIf="car.mileage">
+              <mat-icon>speed</mat-icon>
+              <span>{{ car.mileage | number }} km</span>
+            </div>
+            <div class="list-info-item">
+              <mat-icon>{{ getConditionIcon(car.condition) }}</mat-icon>
+              <span>{{ 'CARS.CONDITION.' + car.condition?.toUpperCase() | translate }}</span>
+            </div>
+            <div class="list-info-item" *ngIf="car.currentLocation">
+              <mat-icon>location_on</mat-icon>
+              <span>{{ car.currentLocation }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Price and Actions -->
+        <div class="list-actions-section">
+          <div class="list-price">
+            <div class="list-price-label">{{ 'CARS.SALE_PRICE' | translate }}</div>
+            <div class="list-price-value">{{ car.salePrice | currency:'SAR':'symbol':'1.2-2' }}</div>
+          </div>
+          <div class="list-actions">
+            <button
+              mat-icon-button
+              color="primary"
+              (click)="onViewCar(car); $event.stopPropagation()"
+              [matTooltip]="'CARS.ACTIONS.VIEW' | translate">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              color="accent"
+              (click)="onEdit(car); $event.stopPropagation()"
+              appHasPermission="car.update"
+              [matTooltip]="'CARS.ACTIONS.EDIT' | translate">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              color="warn"
+              (click)="onDelete(car); $event.stopPropagation()"
+              appHasPermission="car.delete"
+              [matTooltip]="'CARS.ACTIONS.DELETE' | translate">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </mat-card>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="filteredCars().length === 0">
+    <mat-icon class="empty-icon">directions_car_filled</mat-icon>
+    <h3>{{ 'CARS.NO_CARS_FOUND' | translate }}</h3>
+    <p>{{ 'CARS.NO_CARS_DESCRIPTION' | translate }}</p>
+    <button mat-raised-button color="primary" (click)="onCreate()" appHasPermission="car.create">
+      <mat-icon>add</mat-icon>
+      {{ 'CARS.ADD_FIRST_CAR' | translate }}
+    </button>
+  </div>
+</div>

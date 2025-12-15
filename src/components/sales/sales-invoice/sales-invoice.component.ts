@@ -29,7 +29,6 @@ import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
 import { InvoiceItemDialogComponent } from '../invoice-item-dialog/invoice-item-dialog.component';
-import { VehicleLookupModalComponent } from '../../shared/vehicle-lookup-modal/vehicle-lookup-modal.component';
 import { DxoValueErrorBarComponent } from 'devextreme-angular/ui/nested';
 import { ToastService } from '../../../services/toast.service';
 
@@ -92,9 +91,6 @@ export class SalesInvoiceComponent implements OnInit {
 
   selectedCustomer = signal<Customer | null>(null);
 
-  // Selected vehicle for invoice
-  selectedVehicle = signal<Car | null>(null);
-
   constructor(
     private inventoryService: InventoryService,
     private customerService: CustomerService,
@@ -108,71 +104,6 @@ export class SalesInvoiceComponent implements OnInit {
     private toastService: ToastService
   ) {
     this.invoiceNumber.set(`INV-${Date.now()}`);
-  }
-
-  /**
-   * Open Vehicle Lookup Modal
-   * User selects one available vehicle
-   * Modal returns selected vehicle or null
-   */
-  openVehicleLookupModal(): void {
-    const dialogRef = this.dialog.open(VehicleLookupModalComponent, {
-      width: '1400px',
-      maxWidth: '90vw',
-      disableClose: false,
-    });
-
-    dialogRef.afterClosed().subscribe((selectedVehicle: Car | null) => {
-      if (selectedVehicle) {
-        this.selectVehicleForInvoice(selectedVehicle);
-      }
-    });
-  }
-
-  /**
-   * Handle vehicle selection from modal
-   * - Store selected vehicle
-   * - Auto-fill price fields
-   * - Lock vehicle status to Reserved
-   */
-  private selectVehicleForInvoice(vehicle: Car): void {
-    this.selectedVehicle.set(vehicle);
-    
-    // Auto-fill unit price with suggested sale price
-    if (vehicle.salePrice) {
-      this.invoiceForm.patchValue({
-        selectedCostPrice: vehicle.salePrice,
-      });
-    }
-
-    // Mark vehicle as Reserved (locked)
-    this.inventoryService.updateCarStatus(vehicle.id, 'Reserved').subscribe({
-      next: () => {
-        this.toastService.showSuccess(this.translate.instant('SALES_INVOICE.VEHICLE_SELECTED_SUCCESS'));
-      },
-      error: (err) => {
-        console.error('Error locking vehicle:', err);
-        this.toastService.showError(this.translate.instant('SALES_INVOICE.VEHICLE_LOCK_ERROR'));
-      }
-    });
-  }
-
-  /**
-   * Clear selected vehicle and restore status to Available
-   */
-  clearSelectedVehicle(): void {
-    const vehicle = this.selectedVehicle();
-    if (vehicle) {
-      this.inventoryService.updateCarStatus(vehicle.id, 'Available').subscribe({
-        next: () => {
-          this.selectedVehicle.set(null);
-          this.toastService.showSuccess(this.translate.instant('SALES_INVOICE.VEHICLE_CLEARED'));
-        },
-        error: (err) => {
-          console.error('Error restoring vehicle status:', err);
-        }
-      });
-    }
   }
 
   ngOnInit() {

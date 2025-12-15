@@ -1,0 +1,160 @@
+<div class="cost-center-form-container">
+  <!-- Header -->
+  <div class="form-header">
+    <div class="header-content">
+      <button mat-icon-button (click)="onCancel()" class="back-button">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-text">
+        <h2>{{ (isEditMode ? 'COST_CENTER.EDIT_TITLE' : 'COST_CENTER.CREATE_TITLE') | translate }}</h2>
+        <p class="subtitle">{{ (isEditMode ? 'COST_CENTER.EDIT_SUBTITLE' : 'COST_CENTER.CREATE_SUBTITLE') | translate }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Card -->
+  <mat-card class="form-card">
+    <mat-card-content>
+      <form [formGroup]="costCenterForm" (ngSubmit)="onSubmit()">
+        
+        <!-- Basic Information Section -->
+        <div class="section-header">
+          <mat-icon>info</mat-icon>
+          <h3>{{ 'COST_CENTER.BASIC_INFO' | translate }}</h3>
+        </div>
+
+        <div class="form-row">
+          <!-- Code -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'COST_CENTER.CODE' | translate }}</mat-label>
+            <input
+              matInput
+              formControlName="code"
+              [placeholder]="'COST_CENTER.CODE_PLACEHOLDER' | translate"
+              required>
+            <mat-icon matPrefix>tag</mat-icon>
+            <mat-error *ngIf="costCenterForm.get('code')?.hasError('required')">
+              {{ 'COST_CENTER.CODE_REQUIRED' | translate }}
+            </mat-error>
+            <mat-error *ngIf="costCenterForm.get('code')?.hasError('maxlength')">
+              {{ 'COST_CENTER.CODE_MAX_LENGTH' | translate }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <!-- Name (English) -->
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>{{ 'COST_CENTER.NAME' | translate }}</mat-label>
+            <input
+              matInput
+              formControlName="name"
+              [placeholder]="'COST_CENTER.NAME_PLACEHOLDER' | translate"
+              required>
+            <mat-icon matPrefix>label</mat-icon>
+            <mat-error *ngIf="costCenterForm.get('name')?.hasError('required')">
+              {{ 'COST_CENTER.NAME_REQUIRED' | translate }}
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Name (Arabic) -->
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>{{ 'COST_CENTER.NAME_AR' | translate }}</mat-label>
+            <input
+              matInput
+              formControlName="nameAr"
+              [placeholder]="'COST_CENTER.NAME_AR_PLACEHOLDER' | translate"
+              required>
+            <mat-icon matPrefix>label</mat-icon>
+            <mat-error *ngIf="costCenterForm.get('nameAr')?.hasError('required')">
+              {{ 'COST_CENTER.NAME_AR_REQUIRED' | translate }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <!-- Description -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'COST_CENTER.DESCRIPTION' | translate }}</mat-label>
+            <textarea
+              matInput
+              formControlName="description"
+              [placeholder]="'COST_CENTER.DESCRIPTION_PLACEHOLDER' | translate"
+              rows="3">
+            </textarea>
+            <mat-icon matPrefix>description</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <!-- Linking Section -->
+        <div class="section-header">
+          <mat-icon>link</mat-icon>
+          <h3>{{ 'COST_CENTER.LINKING_INFO' | translate }}</h3>
+        </div>
+
+        <div class="form-row">
+          <!-- Car Selection -->
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>{{ 'COST_CENTER.SELECT_CAR' | translate }}</mat-label>
+            <mat-select
+              formControlName="carId"
+              (selectionChange)="onCarSelected($event.value)">
+              <mat-option [value]="null">{{ 'COST_CENTER.NO_CAR' | translate }}</mat-option>
+              <mat-option *ngFor="let car of cars" [value]="car.id">
+                {{ getCarDisplay(car) }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>directions_car</mat-icon>
+            <mat-hint>{{ 'COST_CENTER.CAR_HINT' | translate }}</mat-hint>
+          </mat-form-field>
+
+          <!-- Parent Cost Center -->
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>{{ 'COST_CENTER.PARENT' | translate }}</mat-label>
+            <mat-select formControlName="parentId">
+              <mat-option [value]="null">{{ 'COST_CENTER.NO_PARENT' | translate }}</mat-option>
+              <mat-option *ngFor="let parent of parentCostCenters" [value]="parent.id">
+                {{ parent.code }} - {{ parent.name }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>account_tree</mat-icon>
+            <mat-hint>{{ 'COST_CENTER.PARENT_HINT' | translate }}</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <!-- Status Section -->
+        <div class="section-header">
+          <mat-icon>settings</mat-icon>
+          <h3>{{ 'COST_CENTER.STATUS_INFO' | translate }}</h3>
+        </div>
+
+        <div class="form-row">
+          <mat-checkbox formControlName="isActive" class="status-checkbox">
+            {{ 'COST_CENTER.IS_ACTIVE' | translate }}
+          </mat-checkbox>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="form-actions">
+          <button
+            mat-raised-button
+            type="button"
+            (click)="onCancel()"
+            [disabled]="isLoading">
+            <mat-icon>cancel</mat-icon>
+            {{ 'COST_CENTER.CANCEL' | translate }}
+          </button>
+          
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="isLoading || costCenterForm.invalid">
+            <mat-icon>{{ isLoading ? 'hourglass_empty' : 'save' }}</mat-icon>
+            {{ (isLoading ? 'COST_CENTER.SAVING' : 'COST_CENTER.SAVE') | translate }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
