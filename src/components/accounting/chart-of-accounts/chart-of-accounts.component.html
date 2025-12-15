@@ -8,44 +8,6 @@
   </div>
 
   <div class="content">
-    <div class="tree-section">
-      <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
-        <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
-          <button mat-icon-button disabled></button>
-          <mat-icon>{{ node.type === 'ASSET' ? 'account_balance' : node.type === 'LIABILITY' ? 'credit_card' : 'trending_up' }}</mat-icon>
-          <span class="account-info">
-            <strong>{{ node.code }}</strong> - {{ node.name }}
-            <span class="balance">({{ node.balance | currency:'SAR':'symbol':'1.2-2' }})</span>
-          </span>
-          <button mat-icon-button (click)="onEditAccount(node)">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button color="warn" (click)="onDeleteAccount(node)">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </mat-tree-node>
-
-        <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
-          <button mat-icon-button matTreeNodeToggle
-                  [attr.aria-label]="'Toggle ' + node.name">
-            <mat-icon class="mat-icon-rtl-mirror">
-              {{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}
-            </mat-icon>
-          </button>
-          <mat-icon>{{ node.type === 'ASSET' ? 'account_balance' : node.type === 'LIABILITY' ? 'credit_card' : 'trending_up' }}</mat-icon>
-          <span class="account-info">
-            <strong>{{ node.code }}</strong> - {{ node.name }}
-            <span class="balance">({{ node.balance | currency:'SAR':'symbol':'1.2-2' }})</span>
-          </span>
-          <button mat-icon-button (click)="onEditAccount(node)">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button color="warn" (click)="onDeleteAccount(node)">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </mat-tree-node>
-      </mat-tree>
-    </div>
 
     <div class="form-section">
       <mat-card>

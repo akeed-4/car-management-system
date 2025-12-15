@@ -18,18 +18,19 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTabsModule } from '@angular/material/tabs';
 
 // DevExtreme Modules
-import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
+import { DxDataGridModule, DxButtonModule, DxTreeListModule } from 'devextreme-angular';
 
 // Components
 import { AccountingComponent } from './accounting/accounting.component';
 import { ChartOfAccountsComponent } from './chart-of-accounts/chart-of-accounts.component';
 import { JournalEntriesComponent } from './journal-entries/journal-entries.component';
+import { ChartOfAccountsTreeComponent } from './chart-of-accounts-tree/chart-of-accounts-tree.component';
 
 @NgModule({
   declarations: [
     AccountingComponent,
-    ChartOfAccountsComponent,
-    JournalEntriesComponent
+    JournalEntriesComponent,
+    ChartOfAccountsTreeComponent
   ],
   imports: [
     CommonModule,
@@ -47,12 +48,14 @@ import { JournalEntriesComponent } from './journal-entries/journal-entries.compo
     MatNativeDateModule,
     MatToolbarModule,
     MatTabsModule,
+    MatTabsModule,
     DxDataGridModule,
-    DxButtonModule
+    DxButtonModule,
+    DxTreeListModule,
+    ChartOfAccountsComponent
   ],
   exports: [
     AccountingComponent,
-    ChartOfAccountsComponent,
     JournalEntriesComponent
   ]
 })

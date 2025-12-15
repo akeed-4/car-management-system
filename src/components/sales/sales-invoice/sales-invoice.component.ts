@@ -117,7 +117,7 @@ export class SalesInvoiceComponent implements OnInit {
    */
   openVehicleLookupModal(): void {
     const dialogRef = this.dialog.open(VehicleLookupModalComponent, {
-      width: '1200px',
+      width: '1400px',
       maxWidth: '90vw',
       disableClose: false,
     });

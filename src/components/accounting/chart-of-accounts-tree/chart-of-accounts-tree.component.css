@@ -1,0 +1,60 @@
+.tree-container {
+  padding: 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  color: white;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.header h2 {
+  margin: 0 0 10px 0;
+  font-size: 2.5rem;
+  font-weight: 300;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin: 0;
+}
+
+.tree-section {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  backdrop-filter: blur(10px);
+}
+
+::ng-deep .dx-treelist {
+  border: none !important;
+  border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+  .tree-container {
+    padding: 10px;
+  }
+
+  .header h2 {
+    font-size: 2rem;
+  }
+
+  ::ng-deep .dx-treelist .dx-command-edit {
+    width: 120px !important;
+  }
+
+  ::ng-deep .dx-treelist .dx-command-edit .dx-link {
+    width: 32px !important;
+    font-size: 16px !important;
+  }
+
+  ::ng-deep .dx-treelist .dx-command-edit .dx-icon {
+    font-size: 18px !important;
+  }
+}

@@ -1,0 +1,22 @@
+<div class="tree-container" dir="rtl">
+  <div class="header">
+    <h2>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS_HIERARCHY' | translate }}</h2>
+    <p class="subtitle">{{ 'ACCOUNTING.HIERARCHICAL_VIEW_DESCRIPTION' | translate }}</p>
+  </div>
+
+  <div class="tree-section">
+    <dx-tree-list
+      id="accountsHierarchyTreeList"
+      [dataSource]="accounts"
+      keyExpr="id"
+      parentIdExpr="parentId"
+      [columns]="columns"
+      [showRowLines]="true"
+      [showBorders]="true"
+      [columnAutoWidth]="true"
+      [wordWrapEnabled]="true"
+      [rtlEnabled]="true"
+      [autoExpandAll]="true">
+    </dx-tree-list>
+  </div>
+</div>

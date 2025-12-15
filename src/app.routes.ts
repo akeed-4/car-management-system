@@ -64,6 +64,10 @@ import { CompanyListComponent } from './components/companies/company-list/compan
 import { CompanyFormComponent } from './components/companies/company-form/company-form.component';
 import { StoreListComponent } from './components/stores/store-list/store-list.component';
 import { StoreFormComponent } from './components/stores/store-form/store-form.component';
+import { ChartOfAccountsComponent } from './components/accounting/chart-of-accounts/chart-of-accounts.component';
+import { JournalEntriesComponent } from './components/accounting/journal-entries/journal-entries.component';
+import { JournalEntriesListComponent } from './components/accounting/journal-entries-list/journal-entries-list.component';
+import { ChartOfAccountsTreeComponent } from './components/accounting/chart-of-accounts-tree/chart-of-accounts-tree.component';
 
 export const APP_ROUTES: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -131,6 +135,11 @@ export const APP_ROUTES: Routes = [
   { path: 'accounts/deposits/new', component: DepositFormComponent }, // New Deposit Form
   { path: 'accounts/deposits/new/:carId', component: DepositFormComponent }, // New Deposit Form with pre-selected car
   { path: 'accounts/floor-plan-financing', component: FloorPlanReportComponent },
+  { path: 'accounts/chart-of-accounts', component: ChartOfAccountsTreeComponent },
+  { path: 'accounts/chart-of-accounts-new', component: ChartOfAccountsComponent },
+  { path: 'accounts/journal-entries', component: JournalEntriesComponent },
+  { path: 'accounts/journal-entries-list', component: JournalEntriesListComponent },
+  {path: 'accounts/', component: SalesReturnInvoiceComponent }, // Added route for sales returns approval
   { path: 'entities/customers', component: CustomersComponent },
   { path: 'entities/customers/new', component: CustomerFormComponent },
   { path: 'entities/customers/edit/:id', component: CustomerFormComponent },

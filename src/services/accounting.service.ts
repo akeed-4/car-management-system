@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 import {
   SalesReturn,
   PurchaseReturn,
@@ -15,7 +16,7 @@ import {
 export class AccountingService {
   private apiUrl = '/api/accounting';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private translate: TranslateService) {}
 
   /**
    * Create automatic journal entries for sales return
@@ -234,5 +235,43 @@ export class AccountingService {
         endDate: endDate.toISOString()
       }
     });
+  }
+
+  /**
+   * Translate account name based on current language
+   */
+  translateAccountName(accountName: string): string {
+    const accountTranslations: { [key: string]: string } = {
+      // English to translation keys mapping
+      'Cash - Bank': 'ACCOUNTING.ACCOUNT_CASH_BANK',
+      'Customer Deposits': 'ACCOUNTING.ACCOUNT_CUSTOMER_DEPOSITS',
+      'Sales Returns & Allowances': 'ACCOUNTING.ACCOUNT_SALES_RETURNS',
+      'VAT Receivable': 'ACCOUNTING.ACCOUNT_VAT_RECEIVABLE',
+      'Supplier Payables': 'ACCOUNTING.ACCOUNT_SUPPLIER_PAYABLES',
+      'Inventory': 'ACCOUNTING.ACCOUNT_INVENTORY',
+      'Sales Revenue': 'ACCOUNTING.ACCOUNT_SALES_REVENUE',
+      'VAT Payable': 'ACCOUNTING.ACCOUNT_VAT_PAYABLE',
+      'Cost of Goods Sold': 'ACCOUNTING.ACCOUNT_COST_OF_GOODS_SOLD',
+      'Purchase Returns': 'ACCOUNTING.ACCOUNT_PURCHASE_RETURNS',
+      'Accounts Receivable': 'ACCOUNTING.ACCOUNT_ACCOUNTS_RECEIVABLE',
+      'Accounts Payable': 'ACCOUNTING.ACCOUNT_ACCOUNTS_PAYABLE',
+      'Retained Earnings': 'ACCOUNTING.ACCOUNT_RETAINED_EARNINGS',
+      'Capital': 'ACCOUNTING.ACCOUNT_CAPITAL',
+      'Current Assets': 'ACCOUNTING.ACCOUNT_CURRENT_ASSETS',
+      'Fixed Assets': 'ACCOUNTING.ACCOUNT_FIXED_ASSETS',
+      'Current Liabilities': 'ACCOUNTING.ACCOUNT_CURRENT_LIABILITIES',
+      'Long-term Liabilities': 'ACCOUNTING.ACCOUNT_LONG_TERM_LIABILITIES',
+      'Equity': 'ACCOUNTING.ACCOUNT_EQUITY',
+      'Revenue': 'ACCOUNTING.ACCOUNT_REVENUE',
+      'Expenses': 'ACCOUNTING.ACCOUNT_EXPENSES'
+    };
+
+    const translationKey = accountTranslations[accountName];
+    if (translationKey) {
+      return this.translate.instant(translationKey);
+    }
+
+    // If no translation found, return the original name
+    return accountName;
   }
 }

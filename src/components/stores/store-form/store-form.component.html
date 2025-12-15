@@ -1,3 +1,8 @@
+<div class="form-header">
+  <h2>{{ isEdit ? ('STORES.FORM.EDIT_STORE' | translate) : ('STORES.FORM.ADD_STORE' | translate) }}</h2>
+  <p class="form-subtitle">{{ 'STORES.FORM.FILL_DETAILS' | translate }}</p>
+</div>
+
 <form [formGroup]="storeForm" (ngSubmit)="onSubmit()" class="store-form">
   <div class="form-grid">
     <!-- Basic Information -->

@@ -1,26 +1,11 @@
 <div class="accounting-container" dir="rtl">
   <div class="header">
     <h2>{{ 'ACCOUNTING.JOURNAL_ENTRIES' | translate }}</h2>
-    <button mat-raised-button color="primary" (click)="onAddEntry()">
-      <mat-icon>add</mat-icon>
-      {{ 'ACCOUNTING.ADD_ENTRY' | translate }}
-    </button>
+    
   </div>
 
   <div class="content">
-    <div class="table-section">
-      <dx-data-grid
-        [dataSource]="journalEntries"
-        [columns]="columns"
-        [showBorders]="true"
-        [showRowLines]="true"
-        [showColumnLines]="true"
-        [allowColumnReordering]="true"
-        [allowColumnResizing]="true"
-        [columnAutoWidth]="true"
-        [wordWrapEnabled]="true">
-      </dx-data-grid>
-    </div>
+  
 
     <div class="form-section">
       <mat-card>

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { TranslateService } from '@ngx-translate/core';
 import { Account, JournalEntry, CreateAccountDto, UpdateAccountDto, CreateJournalEntryDto, UpdateJournalEntryDto } from './models';
 
 @Injectable({
@@ -14,7 +15,7 @@ export class AccountingService {
   public accounts$ = this.accountsSubject.asObservable();
   public journalEntries$ = this.journalEntriesSubject.asObservable();
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private translate: TranslateService) {
     this.loadSampleData();
   }
 
@@ -137,14 +138,40 @@ export class AccountingService {
   }
 
   private loadSampleData() {
-    // Sample accounts
+    // Sample accounts with hierarchical structure
     const sampleAccounts: Account[] = [
-      { id: 1, code: '1000', name: 'Cash', type: 'ASSET', balance: 50000, isActive: true, createdDate: new Date(), updatedDate: new Date() },
-      { id: 2, code: '1100', name: 'Accounts Receivable', type: 'ASSET', balance: 25000, isActive: true, createdDate: new Date(), updatedDate: new Date() },
-      { id: 3, code: '2000', name: 'Accounts Payable', type: 'LIABILITY', balance: 15000, isActive: true, createdDate: new Date(), updatedDate: new Date() },
-      { id: 4, code: '3000', name: 'Owner Equity', type: 'EQUITY', balance: 60000, isActive: true, createdDate: new Date(), updatedDate: new Date() },
-      { id: 5, code: '4000', name: 'Sales Revenue', type: 'REVENUE', balance: 0, isActive: true, createdDate: new Date(), updatedDate: new Date() },
-      { id: 6, code: '5000', name: 'Cost of Goods Sold', type: 'EXPENSE', balance: 0, isActive: true, createdDate: new Date(), updatedDate: new Date() }
+      // Level 1 - Main Accounts
+      { id: 1, code: '1', name: 'Assets', type: 'ASSET', balance: 75000, isActive: true, createdDate: new Date(), updatedDate: new Date() },
+      { id: 2, code: '2', name: 'Liabilities', type: 'LIABILITY', balance: 15000, isActive: true, createdDate: new Date(), updatedDate: new Date() },
+      { id: 3, code: '3', name: 'Equity', type: 'EQUITY', balance: 60000, isActive: true, createdDate: new Date(), updatedDate: new Date() },
+      { id: 4, code: '4', name: 'Revenue', type: 'REVENUE', balance: 0, isActive: true, createdDate: new Date(), updatedDate: new Date() },
+      { id: 5, code: '5', name: 'Expenses', type: 'EXPENSE', balance: 0, isActive: true, createdDate: new Date(), updatedDate: new Date() },
+      
+      // Level 2 - Sub-Accounts under Assets
+      { id: 6, code: '1.1', name: 'Current Assets', type: 'ASSET', parentId: 1, balance: 75000, isActive: true, createdDate: new Date(), updatedDate: new Date() },
+      { id: 7, code: '1.2', name: 'Fixed Assets', type: 'ASSET', parentId: 1, balance: 0, isActive: true, createdDate: new Date(), updatedDate: new Date() },
+      
+      // Level 3 - Sub-Accounts under Current Assets
+      { id: 8, code: '1.1.1', name: 'Cash and Cash Equivalents', type: 'ASSET', parentId: 6, balance: 50000, isActive: true, createdDate: new Date(), updatedDate: new Date() },
+      { id: 9, code: '1.1.2', name: 'Accounts Receivable', type: 'ASSET', parentId: 6, balance: 25000, isActive: true, createdDate: new Date(), updatedDate: new Date() },
+      
+      // Level 4 - Sub-Accounts under Cash
+      { id: 10, code: '1.1.1.1', name: 'Petty Cash', type: 'ASSET', parentId: 8, balance: 1000, isActive: true, createdDate: new Date(), updatedDate: new Date() },
+      { id: 11, code: '1.1.1.2', name: 'Bank Account', type: 'ASSET', parentId: 8, balance: 49000, isActive: true, createdDate: new Date(), updatedDate: new Date() },
+      
+      // Level 2 - Sub-Accounts under Liabilities
+      { id: 12, code: '2.1', name: 'Current Liabilities', type: 'LIABILITY', parentId: 2, balance: 15000, isActive: true, createdDate: new Date(), updatedDate: new Date() },
+      
+      // Level 3 - Sub-Accounts under Current Liabilities
+      { id: 13, code: '2.1.1', name: 'Accounts Payable', type: 'LIABILITY', parentId: 12, balance: 15000, isActive: true, createdDate: new Date(), updatedDate: new Date() },
+      
+      // Level 2 - Sub-Accounts under Expenses
+      { id: 14, code: '5.1', name: 'Operating Expenses', type: 'EXPENSE', parentId: 5, balance: 0, isActive: true, createdDate: new Date(), updatedDate: new Date() },
+      { id: 15, code: '5.2', name: 'Administrative Expenses', type: 'EXPENSE', parentId: 5, balance: 0, isActive: true, createdDate: new Date(), updatedDate: new Date() },
+      
+      // Level 3 - Sub-Accounts under Operating Expenses
+      { id: 16, code: '5.1.1', name: 'Cost of Goods Sold', type: 'EXPENSE', parentId: 14, balance: 0, isActive: true, createdDate: new Date(), updatedDate: new Date() },
+      { id: 17, code: '5.1.2', name: 'Marketing Expenses', type: 'EXPENSE', parentId: 14, balance: 0, isActive: true, createdDate: new Date(), updatedDate: new Date() }
     ];
 
     // Sample journal entries
@@ -168,5 +195,43 @@ export class AccountingService {
 
     this.accountsSubject.next(sampleAccounts);
     this.journalEntriesSubject.next(sampleEntries);
+  }
+
+  /**
+   * Translate account name based on current language
+   */
+  translateAccountName(accountName: string): string {
+    const accountTranslations: { [key: string]: string } = {
+      // English to translation keys mapping
+      'Cash - Bank': 'ACCOUNTING.ACCOUNT_CASH_BANK',
+      'Customer Deposits': 'ACCOUNTING.ACCOUNT_CUSTOMER_DEPOSITS',
+      'Sales Returns & Allowances': 'ACCOUNTING.ACCOUNT_SALES_RETURNS',
+      'VAT Receivable': 'ACCOUNTING.ACCOUNT_VAT_RECEIVABLE',
+      'Supplier Payables': 'ACCOUNTING.ACCOUNT_SUPPLIER_PAYABLES',
+      'Inventory': 'ACCOUNTING.ACCOUNT_INVENTORY',
+      'Sales Revenue': 'ACCOUNTING.ACCOUNT_SALES_REVENUE',
+      'VAT Payable': 'ACCOUNTING.ACCOUNT_VAT_PAYABLE',
+      'Cost of Goods Sold': 'ACCOUNTING.ACCOUNT_COST_OF_GOODS_SOLD',
+      'Purchase Returns': 'ACCOUNTING.ACCOUNT_PURCHASE_RETURNS',
+      'Accounts Receivable': 'ACCOUNTING.ACCOUNT_ACCOUNTS_RECEIVABLE',
+      'Accounts Payable': 'ACCOUNTING.ACCOUNT_ACCOUNTS_PAYABLE',
+      'Retained Earnings': 'ACCOUNTING.ACCOUNT_RETAINED_EARNINGS',
+      'Capital': 'ACCOUNTING.ACCOUNT_CAPITAL',
+      'Current Assets': 'ACCOUNTING.ACCOUNT_CURRENT_ASSETS',
+      'Fixed Assets': 'ACCOUNTING.ACCOUNT_FIXED_ASSETS',
+      'Current Liabilities': 'ACCOUNTING.ACCOUNT_CURRENT_LIABILITIES',
+      'Long-term Liabilities': 'ACCOUNTING.ACCOUNT_LONG_TERM_LIABILITIES',
+      'Equity': 'ACCOUNTING.ACCOUNT_EQUITY',
+      'Revenue': 'ACCOUNTING.ACCOUNT_REVENUE',
+      'Expenses': 'ACCOUNTING.ACCOUNT_EXPENSES'
+    };
+
+    const translationKey = accountTranslations[accountName];
+    if (translationKey) {
+      return this.translate.instant(translationKey);
+    }
+
+    // If no translation found, return the original name
+    return accountName;
   }
 }

@@ -1,0 +1,58 @@
+<div class="journal-entries-list-container">
+  <div class="page-header">
+    <div class="header-info">
+      <h2 class="page-title">{{ 'ACCOUNTING.JOURNAL_ENTRIES_LIST' | translate }}</h2>
+      <p class="page-subtitle">{{ 'ACCOUNTING.JOURNAL_ENTRIES_LIST_SUBTITLE' | translate }}</p>
+    </div>
+    <div class="header-actions">
+      <button mat-raised-button color="primary" (click)="onAddNew()" class="add-button">
+        <mat-icon>add</mat-icon>
+        <span>{{ 'ACCOUNTING.ADD_NEW_ENTRY' | translate }}</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="data-grid-container">
+      <dx-data-grid
+        [dataSource]="journalEntries"
+        [columns]="columns"
+        [showBorders]="true"
+        [showRowLines]="true"
+        [showColumnLines]="true"
+        [allowColumnReordering]="true"
+        [allowColumnResizing]="true"
+        [columnAutoWidth]="true"
+        [wordWrapEnabled]="true"
+        [rtlEnabled]="true"
+        [height]="600"
+        [noDataText]="translate.instant('ACCOUNTING.NO_JOURNAL_ENTRIES')"
+        [showBorders]="true"
+        [rowAlternationEnabled]="true"
+        [filterRow]="{ visible: true }"
+        [headerFilter]="{ visible: true }"
+        [groupPanel]="{ visible: true }"
+        [scrolling]="{ mode: 'standard' }"
+        [paging]="{ pageSize: 20 }"
+        [pager]="{
+          showPageSizeSelector: true,
+          allowedPageSizes: [10, 20, 50],
+          showInfo: true,
+          showNavigationButtons: true
+        }"
+        [searchPanel]="{ visible: true, placeholder: translate.instant('ACCOUNTING.SEARCH_JOURNAL_ENTRIES') }"
+        [export]="{ enabled: true, fileName: 'journal-entries' }"
+      >
+        <dxo-filter-row [visible]="true"></dxo-filter-row>
+        <dxo-header-filter [visible]="true"></dxo-header-filter>
+        <dxo-grouping [autoExpandAll]="false" [contextMenuEnabled]="true"></dxo-grouping>
+        <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false"
+          [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
+        <dxo-selection mode="single"></dxo-selection>
+        <dxo-paging [pageSize]="20"></dxo-paging>
+        <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]" [showInfo]="true"></dxo-pager>
+        <dxo-export [enabled]="true" [fileName]="'journal-entries'"></dxo-export>
+      </dx-data-grid>
+    </div>
+  </div>
+</div>

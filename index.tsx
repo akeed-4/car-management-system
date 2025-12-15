@@ -13,6 +13,7 @@ import { importProvidersFrom } from '@angular/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { HttpClient } from '@angular/common/http';
 import { provideAuth } from 'angular-auth-oidc-client';
+import { provideNativeDateAdapter } from '@angular/material/core';
 
 
 
@@ -24,6 +25,7 @@ bootstrapApplication(AppComponent, {
     provideRouter(APP_ROUTES, withHashLocation()),
     provideHttpClient(),
     provideAnimations(),
+    provideNativeDateAdapter(),
     provideAuth({
       config: {
         authority: 'https://example.com',
