@@ -11,7 +11,7 @@ import { PaymentGatewayService } from '../../../services/payment-gateway.service
 import { PosPaymentStatus } from '../../../types/pos-payment-status.model';
 import { DealJacketModalComponent } from '../../shared/deal-jacket-modal/deal-jacket-modal.component';
 import { SalesService } from '../../../services/sales.service';
-import { DxDataGridModule } from 'devextreme-angular';
+import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
 import { LanguageService } from '../../../services/language.service';
 
 type SortColumn = keyof SalesInvoice | '';
@@ -20,7 +20,7 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-sales',
   standalone: true,
-  imports: [RouterLink, FormsModule, PosPaymentModalComponent, DealJacketModalComponent, TranslateModule, DxDataGridModule],
+  imports: [RouterLink, FormsModule, PosPaymentModalComponent, DealJacketModalComponent, TranslateModule, DxDataGridModule, DxButtonModule],
   templateUrl: './sales.component.html',
   styleUrl: './sales.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,7 +31,7 @@ export class SalesComponent {
   private translate = inject(TranslateService);
   languageService = inject(LanguageService);
   private paymentGatewayService = inject(PaymentGatewayService);
-  private router = inject(Router);
+  router = inject(Router);
   
   invoices = toSignal(this.salesService.getInvoices(), { initialValue: [] });
   filter = signal('');

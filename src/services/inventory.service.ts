@@ -14,6 +14,9 @@ export class InventoryService {
   private cars = signal<Car[]>([]);
   public cars$ = this.cars.asReadonly();
 
+  // Computed signal for available vehicles (excluding sold or reserved)
+  public availableVehicles$ = this.cars.asReadonly();
+
   constructor(private http: HttpClient) {
     this.loadCars();
   }
@@ -31,6 +34,19 @@ export class InventoryService {
 
   getCarById(id: number): Observable<Car> {
     return this.http.get<Car>(`${this.apiUrl}/${id}`);
+  }
+
+  /**
+   * Get only available vehicles (status = 'Available', not sold or reserved)
+   * Used by Vehicle Lookup Modal in Sales Invoice
+   */
+  getAvailableVehicles(): Observable<Car[]> {
+    return this.getCars().pipe(
+      tap(cars => {
+        const available = cars.filter(car => car.status === 'Available');
+        this.cars.set(available);
+      })
+    );
   }
 
   // =======================

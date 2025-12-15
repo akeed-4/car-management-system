@@ -7,11 +7,12 @@ import { Customer } from '../../../types/customer.model';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { Location } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-printable-sales-invoice',
   standalone: true,
-  imports: [CurrencyPipe, TranslateModule],
+  imports: [CurrencyPipe, TranslateModule,MatIconModule],
   templateUrl: './printable-sales-invoice.component.html',
   styleUrl: './printable-sales-invoice.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -273,3 +273,38 @@
 ::ng-deep .dx-datagrid-filter-row .dx-texteditor {
   border-radius: 4px;
 }
+/* Action Buttons Group */
+.action-buttons-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-buttons-group dx-button {
+  min-width: 36px;
+  min-height: 36px;
+}
+
+::ng-deep .action-buttons-group .dx-button {
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  min-width: 36px;
+  min-height: 36px;
+}
+
+::ng-deep .action-buttons-group .dx-button .dx-icon {
+  font-size: 16px;
+}
+
+::ng-deep .action-buttons-group .btn-danger .dx-button-content {
+  color: #dc2626;
+}
+
+::ng-deep .action-buttons-group .btn-success .dx-button-content {
+  color: #16a34a;
+}
+
+::ng-deep .action-buttons-group .dx-button:hover .dx-button-content {
+  opacity: 0.8;
+}
