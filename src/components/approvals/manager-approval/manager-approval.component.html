@@ -1,0 +1,258 @@
+<div class="container">
+  <div class="page-header">
+    <h2 class="page-title">{{ 'MANAGER_APPROVAL.TITLE' | translate }}</h2>
+  </div>
+
+  <!-- Sales Returns Tab -->
+  <div class="card">
+    <div class="card-header">
+      <h3>{{ 'MANAGER_APPROVAL.SALES_RETURNS' | translate }}</h3>
+    </div>
+    <div class="card-body">
+      @if (pendingSalesReturns().length > 0) {
+        <dx-data-grid
+          [dataSource]="pendingSalesReturns()"
+          [showBorders]="true"
+          [columnAutoWidth]="true"
+          [rowAlternationEnabled]="true"
+          [wordWrapEnabled]="true"
+          height="500px"
+          keyExpr="id">
+
+          <dxi-column
+            dataField="returnNo"
+            caption="{{ 'MANAGER_APPROVAL.RETURN_NO' | translate }}"
+            [allowSorting]="true">
+          </dxi-column>
+
+          <dxi-column
+            dataField="invoiceId"
+            caption="{{ 'MANAGER_APPROVAL.INVOICE_NO' | translate }}"
+            [allowSorting]="true">
+          </dxi-column>
+
+          <dxi-column
+            dataField="vin"
+            caption="{{ 'MANAGER_APPROVAL.VIN' | translate }}"
+            [allowSorting]="true">
+          </dxi-column>
+
+          <dxi-column
+            dataField="salePrice"
+            caption="{{ 'MANAGER_APPROVAL.SALE_PRICE' | translate }}"
+            dataType="number"
+            format="currency"
+            [allowSorting]="true">
+          </dxi-column>
+
+          <dxi-column
+            dataField="refundableAmount"
+            caption="{{ 'MANAGER_APPROVAL.REFUNDABLE_AMOUNT' | translate }}"
+            dataType="number"
+            format="currency"
+            [allowSorting]="true">
+          </dxi-column>
+
+          <dxi-column
+            dataField="reason"
+            caption="{{ 'MANAGER_APPROVAL.REASON' | translate }}"
+            [width]="200">
+          </dxi-column>
+
+          <dxi-column
+            dataField="status"
+            caption="{{ 'MANAGER_APPROVAL.STATUS' | translate }}"
+            [allowSorting]="true"
+            cellTemplate="statusTemplate">
+          </dxi-column>
+
+          <dxi-column
+            caption="{{ 'MANAGER_APPROVAL.ACTIONS' | translate }}"
+            cellTemplate="salesActionsTemplate"
+            [width]="250"
+            [allowSorting]="false">
+          </dxi-column>
+
+          <div *dxTemplate="let data of 'statusTemplate'">
+            <span [class]="'badge badge-' + (data.data.status === 'DRAFT' ? 'warning' : 'info')">
+              {{ data.data.status }}
+            </span>
+          </div>
+
+          <div *dxTemplate="let data of 'salesActionsTemplate'">
+            <div class="action-buttons">
+              <dx-button
+                icon="check"
+                [hint]="'MANAGER_APPROVAL.APPROVE' | translate"
+                stylingMode="outlined"
+                [disabled]="isApproving().has(data.data.id)"
+                (onClick)="approveSalesReturn(data.data)">
+              </dx-button>
+              <dx-button
+                icon="close"
+                [hint]="'MANAGER_APPROVAL.REJECT' | translate"
+                stylingMode="outlined"
+                [disabled]="isRejecting().has(data.data.id)"
+                (onClick)="openRejectionDialog(data.data, 'sales')">
+              </dx-button>
+            </div>
+          </div>
+
+          <dxo-paging [pageSize]="10"></dxo-paging>
+          <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]"></dxo-pager>
+          <dxo-filter-row [visible]="true"></dxo-filter-row>
+        </dx-data-grid>
+      } @else {
+        <div class="no-data">{{ 'MANAGER_APPROVAL.NO_PENDING_SALES' | translate }}</div>
+      }
+    </div>
+  </div>
+
+  <!-- Purchase Returns Tab -->
+  <div class="card" style="margin-top: 20px;">
+    <div class="card-header">
+      <h3>{{ 'MANAGER_APPROVAL.PURCHASE_RETURNS' | translate }}</h3>
+    </div>
+    <div class="card-body">
+      @if (pendingPurchaseReturns().length > 0) {
+        <dx-data-grid
+          [dataSource]="pendingPurchaseReturns()"
+          [showBorders]="true"
+          [columnAutoWidth]="true"
+          [rowAlternationEnabled]="true"
+          [wordWrapEnabled]="true"
+          height="500px"
+          keyExpr="id">
+
+          <dxi-column
+            dataField="returnNo"
+            caption="{{ 'MANAGER_APPROVAL.RETURN_NO' | translate }}"
+            [allowSorting]="true">
+          </dxi-column>
+
+          <dxi-column
+            dataField="purchaseInvoiceId"
+            caption="{{ 'MANAGER_APPROVAL.PURCHASE_INVOICE_NO' | translate }}"
+            [allowSorting]="true">
+          </dxi-column>
+
+          <dxi-column
+            dataField="vin"
+            caption="{{ 'MANAGER_APPROVAL.VIN' | translate }}"
+            [allowSorting]="true">
+          </dxi-column>
+
+          <dxi-column
+            dataField="purchasePrice"
+            caption="{{ 'MANAGER_APPROVAL.PURCHASE_PRICE' | translate }}"
+            dataType="number"
+            format="currency"
+            [allowSorting]="true">
+          </dxi-column>
+
+          <dxi-column
+            dataField="refundableAmount"
+            caption="{{ 'MANAGER_APPROVAL.REFUNDABLE_AMOUNT' | translate }}"
+            dataType="number"
+            format="currency"
+            [allowSorting]="true">
+          </dxi-column>
+
+          <dxi-column
+            dataField="reason"
+            caption="{{ 'MANAGER_APPROVAL.REASON' | translate }}"
+            [width]="200">
+          </dxi-column>
+
+          <dxi-column
+            dataField="status"
+            caption="{{ 'MANAGER_APPROVAL.STATUS' | translate }}"
+            [allowSorting]="true"
+            cellTemplate="statusTemplate">
+          </dxi-column>
+
+          <dxi-column
+            caption="{{ 'MANAGER_APPROVAL.ACTIONS' | translate }}"
+            cellTemplate="purchaseActionsTemplate"
+            [width]="250"
+            [allowSorting]="false">
+          </dxi-column>
+
+          <div *dxTemplate="let data of 'statusTemplate'">
+            <span [class]="'badge badge-' + (data.data.status === 'DRAFT' ? 'badge-warning' : 'badge-info')">
+              {{ data.data.status }}
+            </span>
+          </div>
+
+          <div *dxTemplate="let data of 'purchaseActionsTemplate'">
+            <div class="action-buttons">
+              <dx-button
+                icon="check"
+                [hint]="'MANAGER_APPROVAL.APPROVE' | translate"
+                stylingMode="outlined"
+                [disabled]="isApproving().has(data.data.id)"
+                (onClick)="approvePurchaseReturn(data.data)">
+              </dx-button>
+              <dx-button
+                icon="close"
+                [hint]="'MANAGER_APPROVAL.REJECT' | translate"
+                stylingMode="outlined"
+                [disabled]="isRejecting().has(data.data.id)"
+                (onClick)="openRejectionDialog(data.data, 'purchase')">
+              </dx-button>
+            </div>
+          </div>
+
+          <dxo-paging [pageSize]="10"></dxo-paging>
+          <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]"></dxo-pager>
+          <dxo-filter-row [visible]="true"></dxo-filter-row>
+        </dx-data-grid>
+      } @else {
+        <div class="no-data">{{ 'MANAGER_APPROVAL.NO_PENDING_PURCHASES' | translate }}</div>
+      }
+    </div>
+  </div>
+
+  <!-- Rejection Dialog -->
+  <dx-popup
+    [visible]="showRejectionDialog()"
+    [width]="500"
+    [height]="300"
+    [title]="'MANAGER_APPROVAL.REJECTION_REASON' | translate"
+    (onHiding)="closeRejectionDialog()">
+    <div class="popup-content">
+      <form [formGroup]="rejectionForm" (ngSubmit)="rejectReturn()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'MANAGER_APPROVAL.REASON' | translate }}</mat-label>
+          <textarea
+            matInput
+            formControlName="reason"
+            rows="5"
+            placeholder="{{ 'MANAGER_APPROVAL.REASON_PLACEHOLDER' | translate }}">
+          </textarea>
+          @if (rejectionForm.get('reason')?.hasError('required')) {
+            <mat-error>{{ 'COMMON.REQUIRED' | translate }}</mat-error>
+          }
+          @if (rejectionForm.get('reason')?.hasError('minlength')) {
+            <mat-error>{{ 'MANAGER_APPROVAL.MIN_LENGTH' | translate }}</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="button-group">
+          <button
+            type="button"
+            class="btn-cancel"
+            (click)="closeRejectionDialog()">
+            {{ 'COMMON.CANCEL' | translate }}
+          </button>
+          <button
+            type="submit"
+            [disabled]="!rejectionForm.valid"
+            class="btn-submit">
+            {{ 'MANAGER_APPROVAL.CONFIRM_REJECTION' | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </dx-popup>
+</div>

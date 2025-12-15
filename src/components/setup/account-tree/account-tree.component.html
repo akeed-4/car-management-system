@@ -1,0 +1,321 @@
+<div class="account-tree-container" dir="rtl">
+  <!-- Header Section -->
+  <div class="account-tree-header">
+    <div class="header-content">
+      <h1 class="header-title">{{ 'CHART_OF_ACCOUNTS.TREE_TITLE' | translate }}</h1>
+      <button 
+        type="button"
+        class="btn-add-account"
+        (click)="openAddDialog()"
+        [disabled]="isLoading()">
+        <span class="btn-icon">+</span>
+        {{ 'CHART_OF_ACCOUNTS.ADD_ACCOUNT' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>{{ 'COMMON.LOADING' | translate }}</p>
+    </div>
+  }
+
+  <!-- TreeList -->
+  @if (!isLoading() && accountsData().length > 0) {
+    <div class="treelist-container">
+      <dx-tree-list
+        [dataSource]="accountsData()"
+        [columns]="treeListColumns"
+        [showBorders]="true"
+        [columnAutoWidth]="true"
+        [columnHidingEnabled]="true"
+        [wordWrapEnabled]="true"
+        idField="id"
+        parentIdField="parentId"
+        keyExpr="id"
+        [allowColumnReordering]="true"
+        [allowColumnResizing]="true"
+        [expanded]="false"
+        class="account-tree-list">
+
+        <!-- Custom Actions Column -->
+        <dxi-column
+          type="buttons"
+          caption="{{ 'COMMON.ACTIONS' | translate }}"
+          width="200"
+          alignment="center">
+          <dxi-button
+            name="edit"
+            hint="{{ 'COMMON.EDIT' | translate }}"
+            cssClass="btn-action btn-edit">
+          </dxi-button>
+          <dxi-button
+            name="delete"
+            hint="{{ 'COMMON.DELETE' | translate }}"
+            [disabled]="!canDelete"
+            cssClass="btn-action btn-delete">
+          </dxi-button>
+        </dxi-column>
+
+        <!-- Row Click Handler -->
+        <dxo-editing
+          mode="row"
+          [allowAdding]="false"
+          [allowUpdating]="false"
+          [allowDeleting]="false">
+        </dxo-editing>
+
+      </dx-tree-list>
+
+      <!-- Action Buttons Row for TreeList Selection -->
+      <div class="actions-row">
+        @for (account of accountsData(); track account.id) {
+          <div class="account-row-actions" [hidden]="!selectedAccount() || selectedAccount()?.id !== account.id">
+            <button 
+              type="button"
+              class="btn-action btn-edit"
+              (click)="openEditDialog(account)">
+              <mat-icon>edit</mat-icon>
+              {{ 'COMMON.EDIT' | translate }}
+            </button>
+            @if (canDelete(account)) {
+              <button 
+                type="button"
+                class="btn-action btn-delete"
+                (click)="openDeleteDialog(account)">
+                <mat-icon>delete</mat-icon>
+                {{ 'COMMON.DELETE' | translate }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!isLoading() && accountsData().length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">📊</div>
+      <p class="empty-message">{{ 'CHART_OF_ACCOUNTS.NO_ACCOUNTS' | translate }}</p>
+      <button 
+        type="button"
+        class="btn-add-account"
+        (click)="openAddDialog()">
+        {{ 'CHART_OF_ACCOUNTS.CREATE_FIRST' | translate }}
+      </button>
+    </div>
+  }
+
+  <!-- Add Account Dialog -->
+  <div class="modal-overlay" [hidden]="!isAddDialogOpen()">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h2>{{ 'CHART_OF_ACCOUNTS.ADD_NEW_ACCOUNT' | translate }}</h2>
+        <button 
+          type="button"
+          class="btn-close"
+          (click)="closeAddDialog()"
+          aria-label="Close">
+          ×
+        </button>
+      </div>
+
+      <form [formGroup]="addAccountForm" class="modal-body">
+        <div class="form-group">
+          <label>{{ 'CHART_OF_ACCOUNTS.CODE' | translate }} *</label>
+          <input 
+            type="text"
+            class="form-control"
+            formControlName="code"
+            placeholder="1000"
+            dir="ltr">
+          @if (addAccountForm.get('code')?.hasError('required') && addAccountForm.get('code')?.touched) {
+            <span class="error-message">{{ 'COMMON.FIELD_REQUIRED' | translate }}</span>
+          }
+          @if (addAccountForm.get('code')?.hasError('minlength') && addAccountForm.get('code')?.touched) {
+            <span class="error-message">{{ 'COMMON.MIN_LENGTH_3' | translate }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label>{{ 'CHART_OF_ACCOUNTS.NAME' | translate }} *</label>
+          <input 
+            type="text"
+            class="form-control"
+            formControlName="name"
+            placeholder="Account Name">
+          @if (addAccountForm.get('name')?.hasError('required') && addAccountForm.get('name')?.touched) {
+            <span class="error-message">{{ 'COMMON.FIELD_REQUIRED' | translate }}</span>
+          }
+          @if (addAccountForm.get('name')?.hasError('minlength') && addAccountForm.get('name')?.touched) {
+            <span class="error-message">{{ 'COMMON.MIN_LENGTH_2' | translate }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label>{{ 'CHART_OF_ACCOUNTS.TYPE' | translate }} *</label>
+          <select class="form-control" formControlName="type">
+            @for (type of accountTypeOptions; track type.id) {
+              <option [value]="type.id">{{ type.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>{{ 'CHART_OF_ACCOUNTS.PARENT_ACCOUNT' | translate }}</label>
+          <select class="form-control" formControlName="parentId">
+            <option [value]="null">{{ 'CHART_OF_ACCOUNTS.NO_PARENT' | translate }}</option>
+            @for (parent of getParentAccounts(); track parent.id) {
+              <option [value]="parent.id">{{ parent.code }} - {{ parent.name }}</option>
+            }
+          </select>
+        </div>
+      </form>
+
+      <div class="modal-footer">
+        <button 
+          type="button"
+          class="btn-cancel"
+          (click)="closeAddDialog()">
+          {{ 'COMMON.CANCEL' | translate }}
+        </button>
+        <button 
+          type="button"
+          class="btn-save"
+          (click)="saveNewAccount()"
+          [disabled]="!addAccountForm.valid || isLoading()">
+          {{ 'COMMON.SAVE' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Account Dialog -->
+  <div class="modal-overlay" [hidden]="!isEditDialogOpen()">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h2>{{ 'CHART_OF_ACCOUNTS.EDIT_ACCOUNT' | translate }}</h2>
+        <button 
+          type="button"
+          class="btn-close"
+          (click)="closeEditDialog()"
+          aria-label="Close">
+          ×
+        </button>
+      </div>
+
+      <form [formGroup]="editAccountForm" class="modal-body">
+        <div class="form-group">
+          <label>{{ 'CHART_OF_ACCOUNTS.CODE' | translate }} *</label>
+          <input 
+            type="text"
+            class="form-control"
+            formControlName="code"
+            placeholder="1000"
+            dir="ltr">
+          @if (editAccountForm.get('code')?.hasError('required') && editAccountForm.get('code')?.touched) {
+            <span class="error-message">{{ 'COMMON.FIELD_REQUIRED' | translate }}</span>
+          }
+          @if (editAccountForm.get('code')?.hasError('minlength') && editAccountForm.get('code')?.touched) {
+            <span class="error-message">{{ 'COMMON.MIN_LENGTH_3' | translate }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label>{{ 'CHART_OF_ACCOUNTS.NAME' | translate }} *</label>
+          <input 
+            type="text"
+            class="form-control"
+            formControlName="name"
+            placeholder="Account Name">
+          @if (editAccountForm.get('name')?.hasError('required') && editAccountForm.get('name')?.touched) {
+            <span class="error-message">{{ 'COMMON.FIELD_REQUIRED' | translate }}</span>
+          }
+          @if (editAccountForm.get('name')?.hasError('minlength') && editAccountForm.get('name')?.touched) {
+            <span class="error-message">{{ 'COMMON.MIN_LENGTH_2' | translate }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label>{{ 'CHART_OF_ACCOUNTS.TYPE' | translate }} *</label>
+          <select class="form-control" formControlName="type">
+            @for (type of accountTypeOptions; track type.id) {
+              <option [value]="type.id">{{ type.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>{{ 'CHART_OF_ACCOUNTS.PARENT_ACCOUNT' | translate }}</label>
+          <select class="form-control" formControlName="parentId">
+            <option [value]="null">{{ 'CHART_OF_ACCOUNTS.NO_PARENT' | translate }}</option>
+            @for (parent of getParentAccounts(); track parent.id) {
+              @if (parent.id !== editAccountForm.get('id')?.value) {
+                <option [value]="parent.id">{{ parent.code }} - {{ parent.name }}</option>
+              }
+            }
+          </select>
+        </div>
+      </form>
+
+      <div class="modal-footer">
+        <button 
+          type="button"
+          class="btn-cancel"
+          (click)="closeEditDialog()">
+          {{ 'COMMON.CANCEL' | translate }}
+        </button>
+        <button 
+          type="button"
+          class="btn-save"
+          (click)="updateAccount()"
+          [disabled]="!editAccountForm.valid || isLoading()">
+          {{ 'COMMON.UPDATE' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Dialog -->
+  <div class="modal-overlay" [hidden]="!isDeleteDialogOpen()">
+    <div class="modal-dialog modal-confirm">
+      <div class="modal-header">
+        <h2>{{ 'COMMON.CONFIRM_DELETE' | translate }}</h2>
+      </div>
+
+      <div class="modal-body">
+        @if (selectedAccount(); as account) {
+          <p class="confirmation-text">
+            {{ 'CHART_OF_ACCOUNTS.DELETE_CONFIRM' | translate: {code: account.code, name: account.name} }}
+          </p>
+          <div class="account-info">
+            <p><strong>{{ 'CHART_OF_ACCOUNTS.CODE' | translate }}:</strong> {{ account.code }}</p>
+            <p><strong>{{ 'CHART_OF_ACCOUNTS.NAME' | translate }}:</strong> {{ account.name }}</p>
+            @if (account.balance) {
+              <p><strong>{{ 'CHART_OF_ACCOUNTS.BALANCE' | translate }}:</strong> {{ formatCurrency(account.balance) }}</p>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="modal-footer">
+        <button 
+          type="button"
+          class="btn-cancel"
+          (click)="closeDeleteDialog()">
+          {{ 'COMMON.CANCEL' | translate }}
+        </button>
+        <button 
+          type="button"
+          class="btn-delete-confirm"
+          (click)="deleteAccount()"
+          [disabled]="isLoading()">
+          {{ 'COMMON.DELETE' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -74,6 +74,7 @@
   "COMMON": {
     "RESET": "Reset",
     "CANCEL": "Cancel",
+    "REQUIRED": "This field is required",
     "ALERT": {
       "EXPIRE_REGISTRATION": "Expire Registration",
       "PERIODIC_INSPECTION": "Periodic Inspection"
@@ -519,7 +520,22 @@
       "CANCEL": "Cancel",
       "SAVE": "Save Return",
       "ERROR_NO_ITEMS": "Please specify returned quantities.",
-      "SAVED_SUCCESS": "Return invoice saved and inventory updated."
+      "SAVED_SUCCESS": "Return invoice saved and inventory updated.",
+      "REASON_SECTION": "Return Reason & Notes",
+      "REASON": "Reason for Return",
+      "NOTES": "Additional Notes",
+      "DEPOSIT_SECTION": "Deposit Refund Information",
+      "DEPOSIT_REFUNDABLE": "Refund Customer Deposit",
+      "DEPOSIT_AMOUNT": "Deposit Amount to Refund",
+      "REFUND_CALCULATION": "Refund Calculation Summary",
+      "RETURNED_AMOUNT": "Returned Amount",
+      "DEPRECIATION": "Depreciation (10%)",
+      "RESTOCKING_FEE": "Restocking Fee (5%)",
+      "TAXABLE_REFUND": "Taxable Refund Amount",
+      "VAT_ON_REFUND": "VAT on Refund (15%)",
+      "DEPOSIT_REFUND": "Deposit Refund",
+      "NET_REFUND": "Net Refund Amount",
+      "SAVE_AND_SEND_APPROVAL": "Save & Send for Approval"
     },
 
     "PRINTABLE": {
@@ -607,6 +623,32 @@
       "STATUS": "Status",
       "NO_DATA": "No credit invoices found."
     }
+  },
+
+  "MANAGER_APPROVAL": {
+    "TITLE": "Manager Approval - Returns",
+    "SALES_RETURNS": "Sales Returns",
+    "PURCHASE_RETURNS": "Purchase Returns",
+    "RETURN_NO": "Return No.",
+    "INVOICE_NO": "Invoice No.",
+    "PURCHASE_INVOICE_NO": "Purchase Invoice No.",
+    "VIN": "VIN",
+    "SALE_PRICE": "Sale Price",
+    "PURCHASE_PRICE": "Purchase Price",
+    "REFUNDABLE_AMOUNT": "Refundable Amount",
+    "REASON": "Reason",
+    "STATUS": "Status",
+    "ACTIONS": "Actions",
+    "APPROVE": "Approve",
+    "REJECT": "Reject",
+    "NO_PENDING_SALES": "No pending sales returns for approval",
+    "NO_PENDING_PURCHASES": "No pending purchase returns for approval",
+    "REJECTION_REASON": "Rejection Reason",
+    "REASON_PLACEHOLDER": "Enter the reason for rejection (minimum 10 characters)...",
+    "MIN_LENGTH": "Reason must be at least 10 characters",
+    "CONFIRM_REJECTION": "Confirm Rejection",
+    "APPROVAL_SUCCESS": "Return approved successfully",
+    "REJECTION_SUCCESS": "Return rejected successfully"
   }
 
   ,
@@ -1251,5 +1293,29 @@
     "SELECT_STOCK_TAKE_MESSAGE": "Please select a stock take document to proceed",
     "CANCEL": "Cancel",
     "APPROVE_AND_UPDATE": "Approve and Update Inventory"
+  },
+
+  "CHART_OF_ACCOUNTS": {
+    "TREE_TITLE": "Chart of Accounts",
+    "ADD_ACCOUNT": "Add Account",
+    "ADD_NEW_ACCOUNT": "Add New Account",
+    "EDIT_ACCOUNT": "Edit Account",
+    "CODE": "Account Code",
+    "NAME": "Account Name",
+    "TYPE": "Account Type",
+    "PARENT_ACCOUNT": "Parent Account",
+    "LEAF_ACCOUNT": "Leaf Account",
+    "BALANCE": "Balance",
+    "NO_PARENT": "No Parent Account",
+    "NO_ACCOUNTS": "No accounts found in the chart of accounts.",
+    "CREATE_FIRST": "Create First Account",
+    "DELETE_CONFIRM": "Are you sure you want to delete account {{code}} - {{name}}? This action cannot be undone.",
+    "ACCOUNT_CREATED": "Account created successfully",
+    "ACCOUNT_UPDATED": "Account updated successfully",
+    "ACCOUNT_DELETED": "Account deleted successfully",
+    "ERROR_CREATE": "Error creating account",
+    "ERROR_UPDATE": "Error updating account",
+    "ERROR_DELETE": "Error deleting account",
+    "CANNOT_DELETE": "Cannot delete account with child accounts"
   }
 }

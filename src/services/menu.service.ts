@@ -37,7 +37,7 @@ export const menuData = [
       { id: 26, name: 'موديلات السيارات', englishName: 'Car Models', route: '/setup/models' },
       { id: 27, name: 'سنة الصنع', englishName: 'Manufacture Year', route: '/setup/year' },
       { id: 28, name: 'بطاقة السيارة', englishName: 'Car Card', route: '/setup/cars' },
-     
+      { id: 29, name: 'الشجرة المحاسبية', englishName: 'Chart of Accounts', route: '/setup/chart-of-accounts' }
     ]
   },
 
@@ -88,7 +88,7 @@ export const menuData = [
       { id: 52,  name: 'فواتير المبيعات الاجلة', englishName: 'Sales Invoices', route: '/sales/invoice-credit-list' },
       { id: 53, name: 'إدارة الأقساط', englishName: 'Installment Management', route: '/installments' },
       { id: 54, name: 'مرتجعات المبيعات', englishName: 'Sales Returns', route: '/sales/returns' },
-    
+      { id: 55, name: 'اعتماد مرتجعات المبيعات', englishName: 'Approve Sales Returns', route: '/sales/returns-approval' }
     ]
 
   },

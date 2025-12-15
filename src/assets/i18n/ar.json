@@ -75,6 +75,7 @@
   "COMMON": {
     "RESET": "إعادة تعيين",
     "CANCEL": "إلغاء",
+    "REQUIRED": "هذا الحقل مطلوب",
     "ALERT": {
       "EXPIRE_REGISTRATION": "انتهاء الاستمارة",
       "PERIODIC_INSPECTION": "فحص دوري"
@@ -528,7 +529,22 @@
       "CANCEL": "إلغاء",
       "SAVE": "حفظ المرتجع",
       "ERROR_NO_ITEMS": "الرجاء تحديد الكميات المرتجعة.",
-      "SAVED_SUCCESS": "تم إنشاء فاتورة المرتجع بنجاح وتحديث المخزون."
+      "SAVED_SUCCESS": "تم إنشاء فاتورة المرتجع بنجاح وتحديث المخزون.",
+      "REASON_SECTION": "سبب المرتجع والملاحظات",
+      "REASON": "سبب المرتجع",
+      "NOTES": "ملاحظات إضافية",
+      "DEPOSIT_SECTION": "معلومات استرجاع الدفعة المقدمة",
+      "DEPOSIT_REFUNDABLE": "استرجاع الدفعة المقدمة للعميل",
+      "DEPOSIT_AMOUNT": "مبلغ الدفعة المقدمة المراد استرجاعه",
+      "REFUND_CALCULATION": "ملخص حساب المستردات",
+      "RETURNED_AMOUNT": "مبلغ المرتجع",
+      "DEPRECIATION": "الاستهلاك (10%)",
+      "RESTOCKING_FEE": "رسوم إعادة التخزين (5%)",
+      "TAXABLE_REFUND": "مبلغ المسترد الخاضع للضريبة",
+      "VAT_ON_REFUND": "ضريبة المسترد (15%)",
+      "DEPOSIT_REFUND": "استرجاع الدفعة المقدمة",
+      "NET_REFUND": "صافي المبلغ المسترد",
+      "SAVE_AND_SEND_APPROVAL": "حفظ وإرسال للموافقة"
     },
 
     "PRINTABLE": {
@@ -616,6 +632,32 @@
       "STATUS": "الحالة",
       "NO_DATA": "لا توجد فواتير ائتمانية."
     }
+  },
+
+  "MANAGER_APPROVAL": {
+    "TITLE": "موافقة المدير - المرتجعات",
+    "SALES_RETURNS": "مرتجعات المبيعات",
+    "PURCHASE_RETURNS": "مرتجعات المشتريات",
+    "RETURN_NO": "رقم المرتجع",
+    "INVOICE_NO": "رقم الفاتورة",
+    "PURCHASE_INVOICE_NO": "رقم فاتورة الشراء",
+    "VIN": "رقم الهيكل",
+    "SALE_PRICE": "سعر البيع",
+    "PURCHASE_PRICE": "سعر الشراء",
+    "REFUNDABLE_AMOUNT": "مبلغ المسترجع",
+    "REASON": "السبب",
+    "STATUS": "الحالة",
+    "ACTIONS": "الإجراءات",
+    "APPROVE": "موافقة",
+    "REJECT": "رفض",
+    "NO_PENDING_SALES": "لا توجد مرتجعات مبيعات قيد الانتظار",
+    "NO_PENDING_PURCHASES": "لا توجد مرتجعات مشتريات قيد الانتظار",
+    "REJECTION_REASON": "سبب الرفض",
+    "REASON_PLACEHOLDER": "أدخل سبب الرفض (10 أحرف على الأقل)...",
+    "MIN_LENGTH": "يجب أن يكون السبب 10 أحرف على الأقل",
+    "CONFIRM_REJECTION": "تأكيد الرفض",
+    "APPROVAL_SUCCESS": "تمت الموافقة على المرتجع بنجاح",
+    "REJECTION_SUCCESS": "تم رفض المرتجع بنجاح"
   },
 
   "INSTALLMENT": {
@@ -1259,5 +1301,29 @@
     "SELECT_STOCK_TAKE_MESSAGE": "يرجى اختيار مستند جرد للمتابعة",
     "CANCEL": "إلغاء",
     "APPROVE_AND_UPDATE": "اعتماد وتحديث المخزون"
+  },
+
+  "CHART_OF_ACCOUNTS": {
+    "TREE_TITLE": "الشجرة المحاسبية",
+    "ADD_ACCOUNT": "إضافة حساب",
+    "ADD_NEW_ACCOUNT": "إضافة حساب جديد",
+    "EDIT_ACCOUNT": "تعديل الحساب",
+    "CODE": "رمز الحساب",
+    "NAME": "اسم الحساب",
+    "TYPE": "نوع الحساب",
+    "PARENT_ACCOUNT": "الحساب الأب",
+    "LEAF_ACCOUNT": "حساب نهائي",
+    "BALANCE": "الرصيد",
+    "NO_PARENT": "بدون حساب أب",
+    "NO_ACCOUNTS": "لا توجد حسابات في الشجرة المحاسبية.",
+    "CREATE_FIRST": "إنشاء أول حساب",
+    "DELETE_CONFIRM": "هل أنت متأكد من رغبتك في حذف الحساب {{code}} - {{name}}؟ لا يمكن التراجع عن هذا الإجراء.",
+    "ACCOUNT_CREATED": "تم إنشاء الحساب بنجاح",
+    "ACCOUNT_UPDATED": "تم تحديث الحساب بنجاح",
+    "ACCOUNT_DELETED": "تم حذف الحساب بنجاح",
+    "ERROR_CREATE": "خطأ في إنشاء الحساب",
+    "ERROR_UPDATE": "خطأ في تحديث الحساب",
+    "ERROR_DELETE": "خطأ في حذف الحساب",
+    "CANNOT_DELETE": "لا يمكن حذف حساب يحتوي على حسابات فرعية"
   }
 }

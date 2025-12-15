@@ -1,0 +1,537 @@
+/* Account Tree Component Styling */
+
+.account-tree-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header Section */
+.account-tree-header {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e0e0e0;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.header-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a237e;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Add Account Button */
+.btn-add-account {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+  white-space: nowrap;
+}
+
+.btn-add-account:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(33, 150, 243, 0.4);
+  background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+}
+
+.btn-add-account:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-icon {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* TreeList Container */
+.treelist-container {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e0e0e0;
+  overflow-x: auto;
+}
+
+/* TreeList Styling */
+.account-tree-list {
+  width: 100%;
+  border: none;
+  font-size: 0.95rem;
+}
+
+.account-tree-list ::ng-deep {
+  .dx-treelist {
+    border: none;
+  }
+
+  .dx-treelist-headers {
+    background: linear-gradient(180deg, #f5f7fa 0%, #ede7f6 100%);
+    border-bottom: 2px solid #e0e0e0;
+  }
+
+  .dx-treelist-header-row {
+    padding: 1rem 0.5rem;
+  }
+
+  .dx-header-row {
+    font-weight: 600;
+    color: #1a237e;
+    text-align: right;
+  }
+
+  .dx-data-row {
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+  }
+
+  .dx-data-row:hover {
+    background-color: #f5f9ff;
+  }
+
+  .dx-row-focused {
+    background-color: #e3f2fd;
+  }
+
+  .dx-cell {
+    padding: 1rem 0.5rem;
+    text-align: right;
+  }
+
+  .dx-treelist-cell-expandable {
+    padding-right: 0;
+  }
+
+  .dx-treelist-expand-icon {
+    margin: 0 0.5rem;
+  }
+}
+
+/* Action Buttons in TreeList */
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  margin: 0 0.25rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-edit {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.btn-edit:hover {
+  background-color: #bbdefb;
+  transform: translateY(-1px);
+}
+
+.btn-delete {
+  background-color: #ffebee;
+  color: #d32f2f;
+}
+
+.btn-delete:hover:not(:disabled) {
+  background-color: #ef5350;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.btn-delete:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Loading State */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 1rem;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #2196f3;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  background: white;
+  border-radius: 12px;
+  gap: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.empty-icon {
+  font-size: 4rem;
+  opacity: 0.5;
+}
+
+.empty-message {
+  font-size: 1.1rem;
+  color: #666;
+  text-align: center;
+}
+
+/* Modal Styling */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-dialog {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e0e0e0;
+  background: linear-gradient(180deg, #f5f7fa 0%, #ede7f6 100%);
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1a237e;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #999;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.btn-close:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  border-top: 1px solid #e0e0e0;
+  justify-content: flex-end;
+  background: #f9f9f9;
+}
+
+/* Form Styling */
+.form-group {
+  margin-bottom: 1.2rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #1a237e;
+  font-size: 0.95rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  background-color: #fafafa;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #2196f3;
+  background-color: white;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.form-control:disabled {
+  background-color: #f0f0f0;
+  color: #999;
+}
+
+.error-message {
+  display: block;
+  color: #d32f2f;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+/* Buttons */
+.btn-cancel {
+  padding: 0.75rem 1.5rem;
+  background-color: #f5f5f5;
+  color: #666;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cancel:hover {
+  background-color: #efefef;
+  border-color: #ccc;
+}
+
+.btn-save,
+.btn-update {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.btn-save:hover:not(:disabled),
+.btn-update:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+  background: linear-gradient(135deg, #45a049 0%, #2e7d32 100%);
+}
+
+.btn-save:disabled,
+.btn-update:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-delete-confirm {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+}
+
+.btn-delete-confirm:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(244, 67, 54, 0.4);
+  background: linear-gradient(135deg, #e53935 0%, #c62828 100%);
+}
+
+.btn-delete-confirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Confirmation Dialog */
+.modal-confirm .modal-body {
+  text-align: center;
+}
+
+.confirmation-text {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.account-info {
+  background: #f5f5f5;
+  padding: 1rem;
+  border-radius: 6px;
+  text-align: right;
+  margin-bottom: 1rem;
+}
+
+.account-info p {
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.account-info strong {
+  color: #1a237e;
+}
+
+/* RTL Direction */
+[dir="rtl"] .form-group label,
+[dir="rtl"] .account-info {
+  text-align: right;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .account-tree-container {
+    padding: 1rem;
+  }
+
+  .header-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-add-account {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .modal-dialog {
+    max-width: 95%;
+  }
+
+  .treelist-container {
+    padding: 1rem;
+  }
+
+  .header-title {
+    font-size: 1.4rem;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .btn-cancel,
+  .btn-save,
+  .btn-delete-confirm {
+    width: 100%;
+  }
+
+  .account-tree-list ::ng-deep .dx-cell {
+    padding: 0.75rem 0.25rem;
+    font-size: 0.85rem;
+  }
+
+  .btn-action {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-title {
+    font-size: 1.2rem;
+  }
+
+  .modal-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .btn-action {
+    display: block;
+    width: 100%;
+    margin: 0.25rem 0;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .account-tree-header,
+  .btn-add-account,
+  .modal-overlay,
+  .actions-row {
+    display: none;
+  }
+
+  .account-tree-list {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+}
