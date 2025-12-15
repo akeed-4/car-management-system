@@ -40,6 +40,23 @@
         [expanded]="false"
         class="account-tree-list">
 
+        <!-- Custom Icon Column -->
+        <dxi-column
+          caption=""
+          width="50"
+          alignment="center"
+          cellTemplate="iconCellTemplate">
+        </dxi-column>
+
+        <!-- Custom Name Column with Icon -->
+        <dxi-column
+          dataField="name"
+          caption="{{ 'CHART_OF_ACCOUNTS.NAME' | translate }}"
+          dataType="string"
+          width="300"
+          cellTemplate="nameCellTemplate">
+        </dxi-column>
+
         <!-- Custom Actions Column -->
         <dxi-column
           type="buttons"
@@ -58,6 +75,27 @@
             cssClass="btn-action btn-delete">
           </dxi-button>
         </dxi-column>
+
+        <!-- Icon Cell Template -->
+        <div *dxTemplate="let cell of 'iconCellTemplate'">
+          <div class="account-icon"
+               [style.color]="getAccountCategoryColor(cell.data)"
+               [title]="cell.data.type === 'PARENT' ? ('CHART_OF_ACCOUNTS.PARENT_ACCOUNT' | translate) : ('CHART_OF_ACCOUNTS.LEAF_ACCOUNT' | translate)">
+            {{ getAccountIcon(cell.data) }}
+          </div>
+        </div>
+
+        <!-- Name Cell Template -->
+        <div *dxTemplate="let cell of 'nameCellTemplate'">
+          <div class="account-name-cell">
+            <span class="account-name">{{ cell.value }}</span>
+            @if (cell.data.type === 'PARENT') {
+              <span class="account-badge badge-parent">{{ 'CHART_OF_ACCOUNTS.PARENT_ACCOUNT' | translate }}</span>
+            } @else {
+              <span class="account-badge badge-leaf">{{ 'CHART_OF_ACCOUNTS.LEAF_ACCOUNT' | translate }}</span>
+            }
+          </div>
+        </div>
 
         <!-- Row Click Handler -->
         <dxo-editing
