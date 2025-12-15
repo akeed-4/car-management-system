@@ -107,10 +107,12 @@ export const menuData = [
     name: 'المعاملات المحاسبية',
     englishName: 'Accounts',
     submenu: [
-      { id: 81, name: 'سندات القبض', englishName: 'Receipt Vouchers', route: '/accounts/receipts' },
-      { id: 82, name: 'سندات الصرف', englishName: 'Payment Vouchers', route: '/accounts/payments' },
-      { id: 83, name: 'سندات العربون', englishName: 'Deposit Vouchers', route: '/accounts/deposits' },
-      { id: 84, name: 'تمويل المخزون', englishName: 'Floor Plan Financing', route: '/accounts/floor-plan-financing' }
+      { id: 81, name: 'شجرة الحسابات', englishName: 'Chart of Accounts', route: '/accounting/chart-of-accounts' },
+      { id: 82, name: 'قيود اليومية', englishName: 'Journal Entries', route: '/accounting/journal-entries' },
+      { id: 83, name: 'سندات القبض', englishName: 'Receipt Vouchers', route: '/accounts/receipts' },
+      { id: 84, name: 'سندات الصرف', englishName: 'Payment Vouchers', route: '/accounts/payments' },
+      { id: 85, name: 'سندات العربون', englishName: 'Deposit Vouchers', route: '/accounts/deposits' },
+      { id: 86, name: 'تمويل المخزون', englishName: 'Floor Plan Financing', route: '/accounts/floor-plan-financing' }
     ]
   },
   

@@ -1,0 +1,93 @@
+.accounting-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header h2 {
+  margin: 0;
+  color: #3f51b5;
+}
+
+.content {
+  display: flex;
+  gap: 20px;
+}
+
+.tree-section,
+.form-section {
+  flex: 1;
+}
+
+.tree-section {
+  min-width: 400px;
+}
+
+.form-section {
+  min-width: 350px;
+}
+
+.account-info {
+  flex: 1;
+  margin: 0 10px;
+}
+
+.balance {
+  color: #4caf50;
+  font-weight: bold;
+  margin-left: 10px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  justify-content: flex-end;
+}
+
+/* Mat Tree Customization */
+.mat-tree-node {
+  min-height: 40px;
+  align-items: center;
+}
+
+.mat-tree-node .mat-icon {
+  margin-right: 8px;
+}
+
+.mat-icon-rtl-mirror {
+  transform: scaleX(-1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .content {
+    flex-direction: column;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .tree-section,
+  .form-section {
+    min-width: unset;
+  }
+
+  .account-info {
+    font-size: 14px;
+  }
+}

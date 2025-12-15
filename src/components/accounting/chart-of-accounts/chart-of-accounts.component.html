@@ -1,0 +1,93 @@
+<div class="accounting-container" dir="rtl">
+  <div class="header">
+    <h2>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS' | translate }}</h2>
+    <button mat-raised-button color="primary" (click)="onAddAccount()">
+      <mat-icon>add</mat-icon>
+      {{ 'ACCOUNTING.ADD_ACCOUNT' | translate }}
+    </button>
+  </div>
+
+  <div class="content">
+    <div class="tree-section">
+      <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+        <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+          <button mat-icon-button disabled></button>
+          <mat-icon>{{ node.type === 'ASSET' ? 'account_balance' : node.type === 'LIABILITY' ? 'credit_card' : 'trending_up' }}</mat-icon>
+          <span class="account-info">
+            <strong>{{ node.code }}</strong> - {{ node.name }}
+            <span class="balance">({{ node.balance | currency:'SAR':'symbol':'1.2-2' }})</span>
+          </span>
+          <button mat-icon-button (click)="onEditAccount(node)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="onDeleteAccount(node)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-tree-node>
+
+        <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+          <button mat-icon-button matTreeNodeToggle
+                  [attr.aria-label]="'Toggle ' + node.name">
+            <mat-icon class="mat-icon-rtl-mirror">
+              {{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}
+            </mat-icon>
+          </button>
+          <mat-icon>{{ node.type === 'ASSET' ? 'account_balance' : node.type === 'LIABILITY' ? 'credit_card' : 'trending_up' }}</mat-icon>
+          <span class="account-info">
+            <strong>{{ node.code }}</strong> - {{ node.name }}
+            <span class="balance">({{ node.balance | currency:'SAR':'symbol':'1.2-2' }})</span>
+          </span>
+          <button mat-icon-button (click)="onEditAccount(node)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="onDeleteAccount(node)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-tree-node>
+      </mat-tree>
+    </div>
+
+    <div class="form-section">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>{{ (isEditing ? 'ACCOUNTING.EDIT_ACCOUNT' : 'ACCOUNTING.ADD_ACCOUNT') | translate }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="accountForm" (ngSubmit)="onSaveAccount()">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'ACCOUNTING.ACCOUNT_CODE' | translate }}</mat-label>
+              <input matInput formControlName="code" required>
+              <mat-error *ngIf="accountForm.get('code')?.invalid">{{ 'ACCOUNTING.CODE_REQUIRED' | translate }}</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'ACCOUNTING.ACCOUNT_NAME' | translate }}</mat-label>
+              <input matInput formControlName="name" required>
+              <mat-error *ngIf="accountForm.get('name')?.invalid">{{ 'ACCOUNTING.NAME_REQUIRED' | translate }}</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'ACCOUNTING.ACCOUNT_TYPE' | translate }}</mat-label>
+              <mat-select formControlName="type" required>
+                <mat-option value="ASSET">{{ 'ACCOUNTING.TYPE_ASSET' | translate }}</mat-option>
+                <mat-option value="LIABILITY">{{ 'ACCOUNTING.TYPE_LIABILITY' | translate }}</mat-option>
+                <mat-option value="EQUITY">{{ 'ACCOUNTING.TYPE_EQUITY' | translate }}</mat-option>
+                <mat-option value="REVENUE">{{ 'ACCOUNTING.TYPE_REVENUE' | translate }}</mat-option>
+                <mat-option value="EXPENSE">{{ 'ACCOUNTING.TYPE_EXPENSE' | translate }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <div class="form-actions">
+              <button mat-raised-button color="primary" type="submit" [disabled]="accountForm.invalid">
+                {{ 'ACCOUNTING.SAVE' | translate }}
+              </button>
+              <button mat-button type="button" (click)="onCancel()">
+                {{ 'ACCOUNTING.CANCEL' | translate }}
+              </button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

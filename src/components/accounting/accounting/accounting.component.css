@@ -1,0 +1,24 @@
+.accounting-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.accounting-toolbar {
+  margin-bottom: 20px;
+}
+
+.mat-tab-group {
+  margin-top: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .accounting-container {
+    padding: 10px;
+  }
+
+  .accounting-toolbar {
+    margin-bottom: 10px;
+  }
+}
