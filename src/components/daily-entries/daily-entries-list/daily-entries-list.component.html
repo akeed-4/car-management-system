@@ -1,0 +1,125 @@
+<div class="daily-entries-container">
+  <div class="header-section">
+    <h2>{{ 'DAILY_ENTRIES.TITLE' | translate }}</h2>
+    <div class="header-actions">
+      <button mat-raised-button color="primary" routerLink="/daily-entries/new">
+        <mat-icon>add</mat-icon>
+        {{ 'DAILY_ENTRIES.ADD_NEW' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <mat-card class="filters-card">
+    <mat-card-content>
+      <div class="filters-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DAILY_ENTRIES.FILTERS.ENTRY_TYPE' | translate }}</mat-label>
+          <mat-select [(ngModel)]="selectedEntryType" (selectionChange)="applyFilters()">
+            <mat-option value="">{{ 'DAILY_ENTRIES.FILTERS.ALL_TYPES' | translate }}</mat-option>
+            <mat-option value="maintenance">{{ 'DAILY_ENTRIES.TYPES.MAINTENANCE' | translate }}</mat-option>
+            <mat-option value="ownership_transfer">{{ 'DAILY_ENTRIES.TYPES.OWNERSHIP_TRANSFER' | translate }}</mat-option>
+            <mat-option value="insurance">{{ 'DAILY_ENTRIES.TYPES.INSURANCE' | translate }}</mat-option>
+            <mat-option value="periodic_inspection">{{ 'DAILY_ENTRIES.TYPES.PERIODIC_INSPECTION' | translate }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DAILY_ENTRIES.FILTERS.DATE_FROM' | translate }}</mat-label>
+          <input matInput [matDatepicker]="fromPicker" [(ngModel)]="dateFrom" (dateChange)="applyFilters()">
+          <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
+          <mat-datepicker #fromPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DAILY_ENTRIES.FILTERS.DATE_TO' | translate }}</mat-label>
+          <input matInput [matDatepicker]="toPicker" [(ngModel)]="dateTo" (dateChange)="applyFilters()">
+          <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
+          <mat-datepicker #toPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'DAILY_ENTRIES.FILTERS.SEARCH' | translate }}</mat-label>
+          <input matInput [(ngModel)]="searchTerm" (input)="applyFilters()" [placeholder]="'DAILY_ENTRIES.FILTERS.SEARCH_PLACEHOLDER' | translate">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Entries Table -->
+  <mat-card class="entries-card">
+    <mat-card-content>
+      <div class="table-container" *ngIf="filteredEntries().length > 0; else noEntries">
+        <table mat-table [dataSource]="filteredEntries()" class="entries-table">
+
+          <!-- Entry Date Column -->
+          <ng-container matColumnDef="entryDate">
+            <th mat-header-cell *matHeaderCellDef>{{ 'DAILY_ENTRIES.COLUMNS.DATE' | translate }}</th>
+            <td mat-cell *matCellDef="let entry">{{ entry.entryDate | date:'short' }}</td>
+          </ng-container>
+
+          <!-- Entry Type Column -->
+          <ng-container matColumnDef="entryType">
+            <th mat-header-cell *matHeaderCellDef>{{ 'DAILY_ENTRIES.COLUMNS.TYPE' | translate }}</th>
+            <td mat-cell *matCellDef="let entry">
+              <span class="entry-type-chip" [ngClass]="entry.entryType">
+                {{ 'DAILY_ENTRIES.TYPES.' + entry.entryType.toUpperCase() | translate }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Car Info Column -->
+          <ng-container matColumnDef="carInfo">
+            <th mat-header-cell *matHeaderCellDef>{{ 'DAILY_ENTRIES.COLUMNS.CAR' | translate }}</th>
+            <td mat-cell *matCellDef="let entry">{{ getCarInfo(entry.carId) }}</td>
+          </ng-container>
+
+          <!-- Details Column -->
+          <ng-container matColumnDef="details">
+            <th mat-header-cell *matHeaderCellDef>{{ 'DAILY_ENTRIES.COLUMNS.DETAILS' | translate }}</th>
+            <td mat-cell *matCellDef="let entry">{{ getEntrySummary(entry) }}</td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>{{ 'DAILY_ENTRIES.COLUMNS.ACTIONS' | translate }}</th>
+            <td mat-cell *matCellDef="let entry">
+              <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Entry actions">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="viewEntry(entry)">
+                  <mat-icon>visibility</mat-icon>
+                  <span>{{ 'DAILY_ENTRIES.ACTIONS.VIEW' | translate }}</span>
+                </button>
+                <button mat-menu-item (click)="editEntry(entry)">
+                  <mat-icon>edit</mat-icon>
+                  <span>{{ 'DAILY_ENTRIES.ACTIONS.EDIT' | translate }}</span>
+                </button>
+                <button mat-menu-item (click)="deleteEntry(entry)" class="delete-action">
+                  <mat-icon>delete</mat-icon>
+                  <span>{{ 'DAILY_ENTRIES.ACTIONS.DELETE' | translate }}</span>
+                </button>
+              </mat-menu>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </div>
+
+      <ng-template #noEntries>
+        <div class="no-entries">
+          <mat-icon class="no-entries-icon">assignment</mat-icon>
+          <h3>{{ 'DAILY_ENTRIES.NO_ENTRIES' | translate }}</h3>
+          <p>{{ 'DAILY_ENTRIES.NO_ENTRIES_DESC' | translate }}</p>
+          <button mat-raised-button color="primary" routerLink="/daily-entries/new">
+            {{ 'DAILY_ENTRIES.ADD_FIRST_ENTRY' | translate }}
+          </button>
+        </div>
+      </ng-template>
+    </mat-card-content>
+  </mat-card>
+</div>

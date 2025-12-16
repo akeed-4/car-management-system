@@ -475,3 +475,82 @@
     font-size: 1.5rem;
   }
 }
+
+/* Showroom Entry Styling */
+.showroom-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.showroom-badge.success {
+  background: rgba(76, 175, 80, 0.9);
+  color: white;
+}
+
+.showroom-badge.warn {
+  background: rgba(255, 152, 0, 0.9);
+  color: white;
+}
+
+.showroom-status {
+  border-top: 1px solid #e0e0e0;
+  padding-top: 8px;
+  margin-top: 8px;
+}
+
+.showroom-status .info-icon.allowed {
+  color: #4caf50;
+}
+
+.showroom-status .info-icon.denied {
+  color: #f44336;
+}
+
+.showroom-status .info-value.allowed {
+  color: #4caf50;
+  font-weight: 600;
+}
+
+.showroom-status .info-value.denied {
+  color: #f44336;
+  font-weight: 600;
+}
+
+/* Enhanced Car Info Styling */
+.car-info {
+  margin: 16px 0;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.info-icon {
+  font-size: 16px;
+  color: #666;
+  min-width: 16px;
+}
+
+.info-label {
+  font-weight: 500;
+  color: #555;
+  min-width: 80px;
+}
+
+.info-value {
+  color: #333;
+  flex: 1;
+}

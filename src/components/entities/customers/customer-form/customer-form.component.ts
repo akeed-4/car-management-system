@@ -83,32 +83,7 @@ export class CustomerFormComponent implements OnInit {
                     const car = carsMap.get(item.carId);
                     if(car) {
                         const carWithSaleDate: Car & { saleDate: string } = {
-                            id: car.id,
-                            vin: car.vin,
-                            plateNumber: car.plateNumber,
-                            istimaraExpiry: car.istimaraExpiry,
-                            fahasStatus: car.fahasStatus,
-                            make: car.make,
-                            model: car.model,
-                            year: car.year,
-                            condition: car.condition,
-                            exteriorColor: car.exteriorColor,
-                            interiorColor: car.interiorColor,
-                            mileage: car.mileage,
-                            transmission: car.transmission,
-                            engineSize: car.engineSize,
-                            status: car.status,
-                            currentLocation: car.currentLocation,
-                            photos: car.photos,
-                            purchasePrice: car.purchasePrice,
-                            additionalCosts: car.additionalCosts,
-                            totalCost: car.totalCost,
-                            salePrice: car.salePrice,
-                            description: car.description,
-                            quantity: car.quantity,
-                            purchaseDate: car.purchaseDate,
-                            floorPlanId: car.floorPlanId,
-                            isArchived: car.isArchived,
+                            ...car,
                             saleDate: inv.invoiceDate // Add saleDate from invoice
                         };
                         cars.push(carWithSaleDate);

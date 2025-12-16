@@ -16,7 +16,7 @@
         <!-- Owner Details -->
         <div class="form-section">
           <h3 class="section-title">{{ 'CONSIGNMENT.FORM.OWNER_DETAILS' | translate }}</h3>
-          <div class="form-grid cols-2">
+          <div class="form-grid cols-3">
             <mat-form-field appearance="outline">
               <mat-label>{{ 'CONSIGNMENT.FORM.OWNER_NAME' | translate }}</mat-label>
               <input
@@ -24,6 +24,14 @@
                 type="text"
                 formControlName="ownerName"
                 required>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CONSIGNMENT.FORM.OWNER_ID' | translate }}</mat-label>
+              <input
+                matInput
+                type="text"
+                formControlName="ownerIdNumber">
             </mat-form-field>
 
             <mat-form-field appearance="outline">
@@ -37,10 +45,74 @@
           </div>
         </div>
 
+        <!-- Authorized Seller Details -->
+        <div class="form-section">
+          <h3 class="section-title">{{ 'CONSIGNMENT.FORM.AUTHORIZED_SELLER_DETAILS' | translate }}</h3>
+          <div class="form-grid cols-2">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CONSIGNMENT.FORM.AUTHORIZED_SELLER_NAME' | translate }}</mat-label>
+              <input
+                matInput
+                type="text"
+                formControlName="authorizedSellerName">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CONSIGNMENT.FORM.AUTHORIZED_SELLER_ID' | translate }}</mat-label>
+              <input
+                matInput
+                type="text"
+                formControlName="authorizedSellerIdNumber">
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Document Images Upload -->
+        <div class="form-section">
+          <h3 class="section-title">{{ 'CONSIGNMENT.FORM.DOCUMENT_IMAGES' | translate }}</h3>
+          <div class="document-upload-section">
+            <div class="upload-area">
+              <input
+                type="file"
+                #fileInput
+                (change)="onFileSelected($event)"
+                multiple
+                accept="image/*"
+                style="display: none;">
+              <button
+                mat-raised-button
+                color="accent"
+                type="button"
+                (click)="fileInput.click()">
+                <mat-icon>cloud_upload</mat-icon>
+                {{ 'CONSIGNMENT.FORM.UPLOAD_IMAGES' | translate }}
+              </button>
+              <p class="upload-hint">{{ 'CONSIGNMENT.FORM.UPLOAD_HINT' | translate }}</p>
+            </div>
+
+            <!-- Uploaded Images Preview -->
+            <div class="uploaded-images" *ngIf="uploadedImages.length > 0">
+              <h4>{{ 'CONSIGNMENT.FORM.UPLOADED_IMAGES' | translate }}</h4>
+              <div class="image-grid">
+                <div class="image-item" *ngFor="let image of uploadedImages; let i = index">
+                  <img [src]="image" [alt]="'Document ' + (i + 1)" class="preview-image">
+                  <button
+                    mat-icon-button
+                    color="warn"
+                    (click)="removeImage(i)"
+                    class="remove-btn">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Car Details -->
         <div class="form-section">
           <h3 class="section-title">{{ 'CONSIGNMENT.FORM.CAR_DETAILS' | translate }}</h3>
-          <div class="form-grid cols-3">
+          <div class="form-grid cols-4">
             <mat-form-field appearance="outline">
               <mat-label>{{ 'CONSIGNMENT.FORM.MANUFACTURER' | translate }}</mat-label>
               <input
@@ -66,6 +138,32 @@
                 type="number"
                 formControlName="year"
                 required>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CONSIGNMENT.FORM.CAR_TYPE' | translate }}</mat-label>
+              <input
+                matInput
+                type="text"
+                formControlName="carType">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CONSIGNMENT.FORM.TRANSMISSION_TYPE' | translate }}</mat-label>
+              <mat-select formControlName="transmissionType">
+                <mat-option value="Private">{{ 'CONSIGNMENT.FORM.TRANSMISSION.PRIVATE' | translate }}</mat-option>
+                <mat-option value="Public">{{ 'CONSIGNMENT.FORM.TRANSMISSION.PUBLIC' | translate }}</mat-option>
+                <mat-option value="Taxi">{{ 'CONSIGNMENT.FORM.TRANSMISSION.TAXI' | translate }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CONSIGNMENT.FORM.CHASSIS_NUMBER' | translate }}</mat-label>
+              <input
+                matInput
+                type="text"
+                formControlName="chassisNumber"
+                dir="ltr">
             </mat-form-field>
 
             <mat-form-field appearance="outline">
@@ -129,6 +227,15 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline">
+              <mat-label>{{ 'CONSIGNMENT.FORM.EXHIBITION_FEE' | translate }}</mat-label>
+              <input
+                matInput
+                type="number"
+                formControlName="exhibitionFee"
+                min="0">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
               <mat-label>{{ 'CONSIGNMENT.FORM.RECEIPT_DATE' | translate }}</mat-label>
               <input
                 matInput
@@ -137,6 +244,129 @@
                 required>
               <mat-datepicker-toggle matIconSuffix [for]="dateReceivedPicker"></mat-datepicker-toggle>
               <mat-datepicker #dateReceivedPicker></mat-datepicker>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Sale Type Selection -->
+        <div class="form-section">
+          <h3 class="section-title">{{ 'CONSIGNMENT.FORM.SALE_TYPE' | translate }}</h3>
+          <mat-checkbox formControlName="isForSale" color="primary">
+            {{ 'CONSIGNMENT.FORM.IS_FOR_SALE' | translate }}
+          </mat-checkbox>
+        </div>
+
+        <!-- Buyer Details (shown only when isForSale is true) -->
+        <div class="form-section" *ngIf="consignmentForm.get('isForSale')?.value">
+          <h3 class="section-title">{{ 'CONSIGNMENT.FORM.BUYER_DETAILS' | translate }}</h3>
+          <div class="form-grid cols-3">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CONSIGNMENT.FORM.BUYER_NAME' | translate }}</mat-label>
+              <input
+                matInput
+                type="text"
+                formControlName="buyerName">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CONSIGNMENT.FORM.BUYER_ID' | translate }}</mat-label>
+              <input
+                matInput
+                type="text"
+                formControlName="buyerIdNumber">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CONSIGNMENT.FORM.BUYER_PHONE' | translate }}</mat-label>
+              <input
+                matInput
+                type="tel"
+                formControlName="buyerPhone">
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Sale Options (shown only when isForSale is true) -->
+        <div class="form-section" *ngIf="consignmentForm.get('isForSale')?.value">
+          <h3 class="section-title">{{ 'CONSIGNMENT.FORM.SALE_OPTIONS' | translate }}</h3>
+          <div class="sale-options-grid">
+            <mat-checkbox formControlName="saleOptions.net" color="primary">
+              {{ 'CONSIGNMENT.FORM.OPTIONS.NET' | translate }}
+            </mat-checkbox>
+
+            <div class="option-with-cost">
+              <mat-checkbox formControlName="saleOptions.withInsurance" color="primary">
+                {{ 'CONSIGNMENT.FORM.OPTIONS.INSURANCE' | translate }}
+              </mat-checkbox>
+              <span class="cost-display">{{ insuranceCost | currency:'SAR':'symbol':'1.0-0' }}</span>
+            </div>
+
+            <div class="option-with-cost">
+              <mat-checkbox formControlName="saleOptions.withInspection" color="primary">
+                {{ 'CONSIGNMENT.FORM.OPTIONS.INSPECTION' | translate }}
+              </mat-checkbox>
+              <span class="cost-display">{{ inspectionCost | currency:'SAR':'symbol':'1.0-0' }}</span>
+            </div>
+
+            <div class="option-with-cost">
+              <mat-checkbox formControlName="saleOptions.withDelivery" color="primary">
+                {{ 'CONSIGNMENT.FORM.OPTIONS.DELIVERY' | translate }}
+              </mat-checkbox>
+              <span class="cost-display">{{ deliveryCost | currency:'SAR':'symbol':'1.0-0' }}</span>
+            </div>
+
+            <div class="option-with-cost">
+              <mat-checkbox formControlName="saleOptions.withFollowUp" color="primary">
+                {{ 'CONSIGNMENT.FORM.OPTIONS.FOLLOW_UP' | translate }}
+              </mat-checkbox>
+              <span class="cost-display">{{ followUpCost | currency:'SAR':'symbol':'1.0-0' }}</span>
+            </div>
+          </div>
+
+          <!-- Total Price Display -->
+          <div class="total-price-display">
+            <strong>{{ 'CONSIGNMENT.FORM.TOTAL_SALE_PRICE' | translate }}: {{ consignmentForm.get('totalSalePrice')?.value | currency:'SAR':'symbol':'1.0-0' }}</strong>
+          </div>
+        </div>
+
+        <!-- Payment Details (shown only when isForSale is true) -->
+        <div class="form-section" *ngIf="consignmentForm.get('isForSale')?.value">
+          <h3 class="section-title">{{ 'CONSIGNMENT.FORM.PAYMENT_DETAILS' | translate }}</h3>
+          <div class="form-grid cols-2">
+            <mat-checkbox formControlName="carPricePaid" color="primary">
+              {{ 'CONSIGNMENT.FORM.CAR_PRICE_PAID' | translate }}
+            </mat-checkbox>
+
+            <mat-checkbox formControlName="exhibitionFeePaid" color="primary">
+              {{ 'CONSIGNMENT.FORM.EXHIBITION_FEE_PAID' | translate }}
+            </mat-checkbox>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CONSIGNMENT.FORM.PAYMENT_DATE' | translate }}</mat-label>
+              <input
+                matInput
+                [matDatepicker]="paymentDatePicker"
+                formControlName="paymentDate">
+              <mat-datepicker-toggle matIconSuffix [for]="paymentDatePicker"></mat-datepicker-toggle>
+              <mat-datepicker #paymentDatePicker></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CONSIGNMENT.FORM.PAYMENT_METHOD' | translate }}</mat-label>
+              <mat-select formControlName="paymentMethod">
+                <mat-option value="Cash">{{ 'CONSIGNMENT.FORM.PAYMENT_METHODS.CASH' | translate }}</mat-option>
+                <mat-option value="Bank Transfer">{{ 'CONSIGNMENT.FORM.PAYMENT_METHODS.BANK_TRANSFER' | translate }}</mat-option>
+                <mat-option value="Credit Card">{{ 'CONSIGNMENT.FORM.PAYMENT_METHODS.CREDIT_CARD' | translate }}</mat-option>
+                <mat-option value="Check">{{ 'CONSIGNMENT.FORM.PAYMENT_METHODS.CHECK' | translate }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'CONSIGNMENT.FORM.PAYMENT_REFERENCE' | translate }}</mat-label>
+              <input
+                matInput
+                type="text"
+                formControlName="paymentReference">
             </mat-form-field>
           </div>
         </div>

@@ -57,7 +57,8 @@ export const menuData = [
     submenu: [
       { id: 41, name: 'السيارات المطلوبة', englishName: 'Requested Cars', route: '/requested-cars' },
       { id: 42, name: 'سيارات لدى الغير', englishName: 'Consignment Cars', route: '/consignment-cars' },
-      { id: 43, name: 'جدول التسليم', englishName: 'Delivery Schedule', route: '/deliveries' }
+      { id: 43, name: 'الإدخالات اليومية', englishName: 'Daily Entries', route: '/daily-entries' },
+      { id: 44, name: 'جدول التسليم', englishName: 'Delivery Schedule', route: '/deliveries' }
     ]
   },
   {

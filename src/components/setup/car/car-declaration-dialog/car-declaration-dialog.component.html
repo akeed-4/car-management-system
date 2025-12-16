@@ -1,0 +1,58 @@
+<div class="declaration-dialog">
+  <div class="dialog-header">
+    <mat-icon class="header-icon">gavel</mat-icon>
+    <h2>{{ 'CARS.DECLARATION_TITLE' | translate }}</h2>
+  </div>
+
+  <mat-card class="declaration-content">
+    <div class="declaration-text">
+      <h3>{{ 'CARS.DECLARATION_ITEM_23' | translate }}</h3>
+      <div class="declaration-points">
+        <p>{{ 'CARS.DECLARATION_POINT_1' | translate }}</p>
+        <p>{{ 'CARS.DECLARATION_POINT_2' | translate }}</p>
+        <p>{{ 'CARS.DECLARATION_POINT_3' | translate }}</p>
+        <p>{{ 'CARS.DECLARATION_POINT_4' | translate }}</p>
+        <p>{{ 'CARS.DECLARATION_POINT_5' | translate }}</p>
+      </div>
+    </div>
+
+    <div class="signature-section">
+      <mat-checkbox [formControl]="acceptDeclarationControl" color="primary">
+        {{ 'CARS.DECLARATION_ACCEPT' | translate }}
+      </mat-checkbox>
+
+      <div class="signature-field" *ngIf="acceptDeclarationControl.value">
+        <label>{{ 'CARS.SIGNATURE_LABEL' | translate }}</label>
+        <div class="signature-pad">
+          <canvas
+            #signatureCanvas
+            class="signature-canvas"
+            width="400"
+            height="150"
+            (mousedown)="startDrawing($event)"
+            (mousemove)="draw($event)"
+            (mouseup)="stopDrawing()"
+            (mouseout)="stopDrawing()">
+          </canvas>
+          <button mat-button type="button" (click)="clearSignature()" class="clear-btn">
+            <mat-icon>clear</mat-icon>
+            {{ 'CARS.CLEAR_SIGNATURE' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </mat-card>
+
+  <div class="dialog-actions">
+    <button mat-button (click)="onCancel()">
+      {{ 'CARS.CANCEL' | translate }}
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="onConfirm()"
+      [disabled]="!acceptDeclarationControl.value || !hasSignature">
+      {{ 'CARS.CONFIRM_ADD_CAR' | translate }}
+    </button>
+  </div>
+</div>

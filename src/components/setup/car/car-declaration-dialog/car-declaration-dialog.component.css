@@ -1,0 +1,77 @@
+.declaration-dialog {
+  padding: 24px;
+  max-width: 600px;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  text-align: center;
+  justify-content: center;
+}
+
+.header-icon {
+  font-size: 32px;
+  color: #1976d2;
+}
+
+.declaration-content {
+  margin-bottom: 24px;
+  padding: 20px;
+}
+
+.declaration-text h3 {
+  color: #1976d2;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+.declaration-points p {
+  margin: 8px 0;
+  line-height: 1.5;
+  color: #555;
+}
+
+.signature-section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.signature-field {
+  margin-top: 16px;
+}
+
+.signature-field label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+.signature-pad {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 12px;
+  background: #f9f9f9;
+}
+
+.signature-canvas {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: crosshair;
+  background: white;
+}
+
+.clear-btn {
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}

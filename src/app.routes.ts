@@ -51,6 +51,8 @@ import { DeliveryScheduleComponent } from './components/delivery/delivery-schedu
 import { DeliveryFormComponent } from './components/delivery/delivery-form/delivery-form.component';
 import { ConsignmentListComponent } from './components/consignment/consignment-list/consignment-list.component';
 import { ConsignmentFormComponent } from './components/consignment/consignment-form/consignment-form.component';
+import { DailyEntriesListComponent } from './components/daily-entries/daily-entries-list/daily-entries-list.component';
+import { DailyEntryFormComponent } from './components/daily-entries/daily-entry-form/daily-entry-form.component';
 import { DepositListComponent } from './components/accounts/deposits/deposit-list/deposit-list.component';
 import { DepositFormComponent } from './components/accounts/deposits/deposit-form/deposit-form.component';
 import { LoginComponent } from './components/auth/login/login.component';
@@ -114,6 +116,9 @@ export const APP_ROUTES: Routes = [
   { path: 'consignment-cars', component: ConsignmentListComponent },
   { path: 'consignment-cars/new', component: ConsignmentFormComponent },
   { path: 'consignment-cars/edit/:id', component: ConsignmentFormComponent },
+  { path: 'daily-entries', component: DailyEntriesListComponent },
+  { path: 'daily-entries/new', component: DailyEntryFormComponent },
+  { path: 'daily-entries/:id/edit', component: DailyEntryFormComponent },
   { path: 'sales', component: SalesComponent },
   { path: 'sales/sale-parent', component: SaleParentComponent },
   { path: 'sales/invoice-credit-list', component: InvoiceCreditListComponent },

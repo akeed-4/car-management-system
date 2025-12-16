@@ -1,0 +1,266 @@
+<div class="daily-entry-form-container">
+  <div class="form-header">
+    <h2>{{ isEdit ? ('DAILY_ENTRIES.EDIT_ENTRY' | translate) : ('DAILY_ENTRIES.ADD_NEW_ENTRY' | translate) }}</h2>
+    <p class="form-subtitle">{{ 'DAILY_ENTRIES.FILL_DETAILS' | translate }}</p>
+  </div>
+
+  <mat-card class="form-card">
+    <mat-card-content>
+      <form [formGroup]="entryForm" (ngSubmit)="onSubmit()" class="entry-form">
+
+        <!-- Entry Type Selection -->
+        <div class="form-section">
+          <h3>{{ 'DAILY_ENTRIES.FORM.ENTRY_TYPE' | translate }}</h3>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'DAILY_ENTRIES.FORM.SELECT_TYPE' | translate }}</mat-label>
+            <mat-select formControlName="entryType" (selectionChange)="onEntryTypeChange()">
+              <mat-option value="maintenance">{{ 'DAILY_ENTRIES.TYPES.MAINTENANCE' | translate }}</mat-option>
+              <mat-option value="ownership_transfer">{{ 'DAILY_ENTRIES.TYPES.OWNERSHIP_TRANSFER' | translate }}</mat-option>
+              <mat-option value="insurance">{{ 'DAILY_ENTRIES.TYPES.INSURANCE' | translate }}</mat-option>
+              <mat-option value="periodic_inspection">{{ 'DAILY_ENTRIES.TYPES.PERIODIC_INSPECTION' | translate }}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="entryForm.get('entryType')?.invalid && entryForm.get('entryType')?.touched">
+              {{ 'DAILY_ENTRIES.FORM.TYPE_REQUIRED' | translate }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Car Selection -->
+        <div class="form-section">
+          <h3>{{ 'DAILY_ENTRIES.FORM.CAR_INFO' | translate }}</h3>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'DAILY_ENTRIES.FORM.SELECT_CAR' | translate }}</mat-label>
+            <mat-select formControlName="carId">
+              <mat-option *ngFor="let car of availableCars" [value]="car.id">
+                {{ car.make }} {{ car.model }} - {{ car.plateNumber }} ({{ car.vin }})
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="entryForm.get('carId')?.invalid && entryForm.get('carId')?.touched">
+              {{ 'DAILY_ENTRIES.FORM.CAR_REQUIRED' | translate }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Entry Date -->
+        <div class="form-section">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DAILY_ENTRIES.FORM.ENTRY_DATE' | translate }}</mat-label>
+            <input matInput [matDatepicker]="entryDatePicker" formControlName="entryDate">
+            <mat-datepicker-toggle matIconSuffix [for]="entryDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #entryDatePicker></mat-datepicker>
+            <mat-error *ngIf="entryForm.get('entryDate')?.invalid && entryForm.get('entryDate')?.touched">
+              {{ 'DAILY_ENTRIES.FORM.DATE_REQUIRED' | translate }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Dynamic Form Sections Based on Entry Type -->
+        <div class="dynamic-sections">
+
+          <!-- Maintenance Form -->
+          <div *ngIf="entryForm.get('entryType')?.value === 'maintenance'" class="form-section">
+            <h3>{{ 'DAILY_ENTRIES.FORM.MAINTENANCE_DETAILS' | translate }}</h3>
+            <div class="form-grid cols-2">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.MAINTENANCE_TYPE' | translate }}</mat-label>
+                <mat-select formControlName="maintenanceType">
+                  <mat-option value="oil_change">{{ 'DAILY_ENTRIES.MAINTENANCE.OIL_CHANGE' | translate }}</mat-option>
+                  <mat-option value="tire_replacement">{{ 'DAILY_ENTRIES.MAINTENANCE.TIRE_REPLACEMENT' | translate }}</mat-option>
+                  <mat-option value="brake_service">{{ 'DAILY_ENTRIES.MAINTENANCE.BRAKE_SERVICE' | translate }}</mat-option>
+                  <mat-option value="engine_repair">{{ 'DAILY_ENTRIES.MAINTENANCE.ENGINE_REPAIR' | translate }}</mat-option>
+                  <mat-option value="general_service">{{ 'DAILY_ENTRIES.MAINTENANCE.GENERAL_SERVICE' | translate }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.COST' | translate }}</mat-label>
+                <input matInput type="number" formControlName="cost" min="0" step="0.01">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.PERFORMED_BY' | translate }}</mat-label>
+                <input matInput formControlName="performedBy">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.MILEAGE' | translate }}</mat-label>
+                <input matInput type="number" formControlName="mileage" min="0">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.PARTS_REPLACED' | translate }}</mat-label>
+                <input matInput formControlName="partsReplaced">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.NEXT_MAINTENANCE' | translate }}</mat-label>
+                <input matInput [matDatepicker]="nextMaintenancePicker" formControlName="nextMaintenanceDate">
+                <mat-datepicker-toggle matIconSuffix [for]="nextMaintenancePicker"></mat-datepicker-toggle>
+                <mat-datepicker #nextMaintenancePicker></mat-datepicker>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Ownership Transfer Form -->
+          <div *ngIf="entryForm.get('entryType')?.value === 'ownership_transfer'" class="form-section">
+            <h3>{{ 'DAILY_ENTRIES.FORM.TRANSFER_DETAILS' | translate }}</h3>
+            <div class="form-grid cols-2">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.PREVIOUS_OWNER_NAME' | translate }}</mat-label>
+                <input matInput formControlName="previousOwnerName">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.PREVIOUS_OWNER_ID' | translate }}</mat-label>
+                <input matInput formControlName="previousOwnerId">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.NEW_OWNER_NAME' | translate }}</mat-label>
+                <input matInput formControlName="newOwnerName">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.NEW_OWNER_ID' | translate }}</mat-label>
+                <input matInput formControlName="newOwnerId">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.TRANSFER_AMOUNT' | translate }}</mat-label>
+                <input matInput type="number" formControlName="transferAmount" min="0" step="0.01">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.TRANSFER_DOCUMENT' | translate }}</mat-label>
+                <input matInput formControlName="transferDocumentNumber">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.TRANSFER_DATE' | translate }}</mat-label>
+                <input matInput [matDatepicker]="transferDatePicker" formControlName="transferDate">
+                <mat-datepicker-toggle matIconSuffix [for]="transferDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #transferDatePicker></mat-datepicker>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Insurance Form -->
+          <div *ngIf="entryForm.get('entryType')?.value === 'insurance'" class="form-section">
+            <h3>{{ 'DAILY_ENTRIES.FORM.INSURANCE_DETAILS' | translate }}</h3>
+            <div class="form-grid cols-2">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.INSURANCE_COMPANY' | translate }}</mat-label>
+                <input matInput formControlName="insuranceCompany">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.POLICY_NUMBER' | translate }}</mat-label>
+                <input matInput formControlName="policyNumber">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.INSURANCE_TYPE' | translate }}</mat-label>
+                <mat-select formControlName="insuranceType">
+                  <mat-option value="comprehensive">{{ 'DAILY_ENTRIES.INSURANCE.COMPREHENSIVE' | translate }}</mat-option>
+                  <mat-option value="third_party">{{ 'DAILY_ENTRIES.INSURANCE.THIRD_PARTY' | translate }}</mat-option>
+                  <mat-option value="personal_accident">{{ 'DAILY_ENTRIES.INSURANCE.PERSONAL_ACCIDENT' | translate }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.COVERAGE_AMOUNT' | translate }}</mat-label>
+                <input matInput type="number" formControlName="coverageAmount" min="0" step="0.01">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.PREMIUM_AMOUNT' | translate }}</mat-label>
+                <input matInput type="number" formControlName="premiumAmount" min="0" step="0.01">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.START_DATE' | translate }}</mat-label>
+                <input matInput [matDatepicker]="startDatePicker" formControlName="startDate">
+                <mat-datepicker-toggle matIconSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #startDatePicker></mat-datepicker>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.END_DATE' | translate }}</mat-label>
+                <input matInput [matDatepicker]="endDatePicker" formControlName="endDate">
+                <mat-datepicker-toggle matIconSuffix [for]="endDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #endDatePicker></mat-datepicker>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Periodic Inspection Form -->
+          <div *ngIf="entryForm.get('entryType')?.value === 'periodic_inspection'" class="form-section">
+            <h3>{{ 'DAILY_ENTRIES.FORM.INSPECTION_DETAILS' | translate }}</h3>
+            <div class="form-grid cols-2">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.INSPECTION_CENTER' | translate }}</mat-label>
+                <input matInput formControlName="inspectionCenter">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.INSPECTION_RESULT' | translate }}</mat-label>
+                <mat-select formControlName="inspectionResult">
+                  <mat-option value="passed">{{ 'DAILY_ENTRIES.INSPECTION.PASSED' | translate }}</mat-option>
+                  <mat-option value="failed">{{ 'DAILY_ENTRIES.INSPECTION.FAILED' | translate }}</mat-option>
+                  <mat-option value="conditional">{{ 'DAILY_ENTRIES.INSPECTION.CONDITIONAL' | translate }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.INSPECTOR_NAME' | translate }}</mat-label>
+                <input matInput formControlName="inspectorName">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.INSPECTION_DATE' | translate }}</mat-label>
+                <input matInput [matDatepicker]="inspectionDatePicker" formControlName="inspectionDate">
+                <mat-datepicker-toggle matIconSuffix [for]="inspectionDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #inspectionDatePicker></mat-datepicker>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.EXPIRY_DATE' | translate }}</mat-label>
+                <input matInput [matDatepicker]="expiryDatePicker" formControlName="expiryDate">
+                <mat-datepicker-toggle matIconSuffix [for]="expiryDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #expiryDatePicker></mat-datepicker>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.VIOLATIONS' | translate }}</mat-label>
+                <textarea matInput formControlName="violations" rows="3"></textarea>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'DAILY_ENTRIES.FORM.RECOMMENDATIONS' | translate }}</mat-label>
+                <textarea matInput formControlName="recommendations" rows="3"></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Notes -->
+        <div class="form-section">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'DAILY_ENTRIES.FORM.NOTES' | translate }}</mat-label>
+            <textarea matInput formControlName="notes" rows="3" [placeholder]="'DAILY_ENTRIES.FORM.NOTES_PLACEHOLDER' | translate"></textarea>
+          </mat-form-field>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button mat-button type="button" (click)="onCancel()">{{ 'DAILY_ENTRIES.FORM.CANCEL' | translate }}</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="!entryForm.valid">
+            {{ isEdit ? ('DAILY_ENTRIES.FORM.UPDATE' | translate) : ('DAILY_ENTRIES.FORM.CREATE' | translate) }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
+

@@ -1,3 +1,8 @@
+<div class="form-header">
+  <h2>{{ isEdit ? ('COMPANIES.FORM.EDIT_COMPANY' | translate) : ('COMPANIES.FORM.ADD_COMPANY' | translate) }}</h2>
+  <p class="form-subtitle">{{ 'COMPANIES.FORM.FILL_DETAILS' | translate }}</p>
+</div>
+
 <form [formGroup]="companyForm" (ngSubmit)="onSubmit()" class="company-form">
   <div class="form-grid">
     <!-- Basic Information -->

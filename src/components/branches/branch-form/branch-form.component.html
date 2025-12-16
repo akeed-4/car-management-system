@@ -1,3 +1,8 @@
+<div class="form-header">
+  <h2>{{ isEdit ? ('BRANCHES.FORM.EDIT_BRANCH' | translate) : ('BRANCHES.FORM.ADD_BRANCH' | translate) }}</h2>
+  <p class="form-subtitle">{{ 'BRANCHES.FORM.FILL_DETAILS' | translate }}</p>
+</div>
+
 <form [formGroup]="branchForm" (ngSubmit)="onSubmit()" class="branch-form">
   <div class="form-grid">
     <!-- Basic Information -->

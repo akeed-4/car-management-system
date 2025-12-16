@@ -1,0 +1,134 @@
+.daily-entries-container { padding: 16px; }
+.header-section { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.filters-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px; }
+.entries-card { margin-top:12px; }
+.no-entries { text-align:center; padding:24px; }
+.entry-type-chip { padding:4px 8px; border-radius:12px; font-size:12px; }
+.daily-entries-container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.header-section h2 {
+  margin: 0;
+  color: #333;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.filters-card {
+  margin-bottom: 24px;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  align-items: end;
+}
+
+.entries-card {
+  margin-bottom: 24px;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.entries-table {
+  width: 100%;
+  min-width: 800px;
+}
+
+.entry-type-chip {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.entry-type-chip.maintenance {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.entry-type-chip.ownership_transfer {
+  background-color: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.entry-type-chip.insurance {
+  background-color: #e8f5e8;
+  color: #388e3c;
+}
+
+.entry-type-chip.periodic_inspection {
+  background-color: #fff3e0;
+  color: #f57c00;
+}
+
+.delete-action {
+  color: #f44336;
+}
+
+.no-entries {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.no-entries-icon {
+  font-size: 64px;
+  height: 64px;
+  width: 64px;
+  color: #ccc;
+  margin-bottom: 16px;
+}
+
+.no-entries h3 {
+  margin: 0 0 8px 0;
+  color: #666;
+}
+
+.no-entries p {
+  margin: 0 0 24px 0;
+  color: #999;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .daily-entries-container {
+    padding: 16px;
+  }
+
+  .header-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .table-container {
+    font-size: 0.875rem;
+  }
+
+  .entries-table th,
+  .entries-table td {
+    padding: 8px 4px;
+  }
+}

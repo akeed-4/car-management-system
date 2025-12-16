@@ -118,6 +118,12 @@
           <mat-icon>{{ getConditionIcon(car.condition) }}</mat-icon>
           {{ 'CARS.CONDITION.' + car.condition?.toUpperCase() | translate }}
         </div>
+
+        <!-- Showroom Entry Badge -->
+        <div class="showroom-badge" [class]="getShowroomStatusColor(car)">
+          <mat-icon>{{ canEnterShowroom(car) ? 'check_circle' : 'cancel' }}</mat-icon>
+          {{ 'CARS.SHOWROOM_' + getShowroomStatus(car) | translate }}
+        </div>
       </div>
 
       <mat-card-content class="car-details">
@@ -138,10 +144,10 @@
             <span class="info-value">{{ car.plateNumber }}</span>
           </div>
           
-          <div class="info-item" *ngIf="car.color">
+          <div class="info-item" *ngIf="car.exteriorColor">
             <mat-icon class="info-icon">palette</mat-icon>
-            <span class="info-label">{{ 'CARS.COLOR' | translate }}:</span>
-            <span class="info-value">{{ car.color }}</span>
+            <span class="info-label">{{ 'CARS.EXTERIOR_COLOR' | translate }}:</span>
+            <span class="info-value">{{ car.exteriorColor }}</span>
           </div>
           
           <div class="info-item" *ngIf="car.mileage">
@@ -150,10 +156,33 @@
             <span class="info-value">{{ car.mileage | number }} km</span>
           </div>
           
+          <div class="info-item" *ngIf="car.transmission">
+            <mat-icon class="info-icon">settings</mat-icon>
+            <span class="info-label">{{ 'CARS.TRANSMISSION' | translate }}:</span>
+            <span class="info-value">{{ car.transmission }}</span>
+          </div>
+          
+          <div class="info-item" *ngIf="car.engineSize">
+            <mat-icon class="info-icon">build</mat-icon>
+            <span class="info-label">{{ 'CARS.ENGINE' | translate }}:</span>
+            <span class="info-value">{{ car.engineSize }}</span>
+          </div>
+          
           <div class="info-item" *ngIf="car.currentLocation">
             <mat-icon class="info-icon">location_on</mat-icon>
             <span class="info-label">{{ 'CARS.LOCATION' | translate }}:</span>
             <span class="info-value">{{ car.currentLocation }}</span>
+          </div>
+
+          <!-- Showroom Entry Status -->
+          <div class="info-item showroom-status">
+            <mat-icon class="info-icon" [class.allowed]="canEnterShowroom(car)" [class.denied]="!canEnterShowroom(car)">
+              {{ canEnterShowroom(car) ? 'check_circle' : 'cancel' }}
+            </mat-icon>
+            <span class="info-label">{{ 'CARS.SHOWROOM_ENTRY' | translate }}:</span>
+            <span class="info-value" [class.allowed]="canEnterShowroom(car)" [class.denied]="!canEnterShowroom(car)">
+              {{ 'CARS.SHOWROOM_' + getShowroomStatus(car) | translate }}
+            </span>
           </div>
         </div>
 

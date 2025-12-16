@@ -11,11 +11,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 import { Car } from '../../../../types/car.model';
 import { InventoryService } from '../../../../services/inventory.service';
 import { HasPermissionDirective } from '../../../shared/permission.directive';
+import { CarDeclarationDialogComponent } from '../car-declaration-dialog/car-declaration-dialog.component';
 
 @Component({
   selector: 'app-car-grid-list',
@@ -32,6 +36,8 @@ import { HasPermissionDirective } from '../../../shared/permission.directive';
     MatInputModule,
     MatSelectModule,
     MatButtonToggleModule,
+    MatDialogModule,
+    MatCheckboxModule,
     TranslateModule,
     FormsModule,
     HasPermissionDirective
@@ -42,6 +48,7 @@ import { HasPermissionDirective } from '../../../shared/permission.directive';
 export class CarGridListComponent implements OnInit {
   private inventoryService = inject(InventoryService);
   private router = inject(Router);
+  private dialog = inject(MatDialog);
   public translate = inject(TranslateService);
 
   cars = this.inventoryService.cars$;
@@ -112,18 +119,33 @@ export class CarGridListComponent implements OnInit {
   }
 
   onCreate(): void {
-    this.router.navigate(['/setup/card']);
+    // Show declaration and signature dialog before allowing car creation
+    this.showDeclarationDialog().subscribe(result => {
+      if (result) {
+        this.router.navigate(['/inventory/new']);
+      }
+    });
+  }
+
+  showDeclarationDialog(): Observable<boolean> {
+    const dialogRef = this.dialog.open(CarDeclarationDialogComponent, {
+      width: '600px',
+      disableClose: true,
+      data: {}
+    });
+
+    return dialogRef.afterClosed();
   }
 
   onViewCar(car: Car): void {
-    this.router.navigate(['/setup/card'], { 
-      queryParams: { id: car.id, mode: 'view' } 
+    this.router.navigate(['/setup/card'], {
+      queryParams: { id: car.id, mode: 'view' }
     });
   }
 
   onEdit(car: Car): void {
-    this.router.navigate(['/setup/card'], { 
-      queryParams: { id: car.id, mode: 'edit' } 
+    this.router.navigate(['/setup/card'], {
+      queryParams: { id: car.id, mode: 'edit' }
     });
   }
 
@@ -161,6 +183,19 @@ export class CarGridListComponent implements OnInit {
 
   getCarImage(car: Car): string {
     return car.imageUrl || 'assets/images/car-placeholder.png';
+  }
+
+  canEnterShowroom(car: Car): boolean {
+    // Check if car has showroom entry permission
+    return car.allowEntryToShowroom === true;
+  }
+
+  getShowroomStatus(car: Car): string {
+    return this.canEnterShowroom(car) ? 'ALLOWED' : 'NOT_ALLOWED';
+  }
+
+  getShowroomStatusColor(car: Car): string {
+    return this.canEnterShowroom(car) ? 'success' : 'warn';
   }
 
   clearFilters(): void {

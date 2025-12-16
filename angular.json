@@ -18,7 +18,9 @@
             },
             "index": "index.html",
             "browser": "index.tsx",
-            "polyfills": ["zone.js"],
+            "polyfills": [
+              "zone.js"
+            ],
             "tsConfig": "tsconfig.json",
             "styles": [
               "node_modules/devextreme/dist/css/dx.light.css",
@@ -59,11 +61,23 @@
             }
           },
           "defaultConfiguration": "development"
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              ".//**/*.ts",
+              ".//**/*.html"
+            ]
+          }
         }
       }
     }
   },
   "cli": {
-    "analytics": "ade24918-8511-4f13-bb4d-294a583d4254"
+    "analytics": "ade24918-8511-4f13-bb4d-294a583d4254",
+    "schematicCollections": [
+      "angular-eslint"
+    ]
   }
 }
