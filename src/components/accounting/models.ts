@@ -1,11 +1,40 @@
 export interface Account {
   id: number;
-  code: string;
-  name: string;
-  type: 'ASSET' | 'LIABILITY' | 'EQUITY' | 'REVENUE' | 'EXPENSE';
+  accountCode: string;
+  accountNameAr: string;
+  accountNameEn: string;
+  accountId: number;
+  companyId: number;
+  accountCategoryId: number;
+  accountTypeId: number;
+  accountLevel: number;
+  isMainAccount: boolean;
+  mainAccountId: number;
+  mainAccountCode: string;
+  mainAccountName: string;
   parentId?: number;
-  balance: number;
+  currencyId: number;
+  hasCostCenter: boolean;
+  costCenterId: number;
+  isRetired: boolean;
   isActive: boolean;
+  inActiveReasons: string;
+  isPrivate: boolean;
+  hasRemarks: boolean;
+  remarksAr: string;
+  remarksEn: string;
+  notesAr: string;
+  notesEn: string;
+  createNewClient: boolean;
+  createNewSupplier: boolean;
+  createNewBank: boolean;
+  clientId: number | null;
+  clientName: string;
+  supplierId: number | null;
+  supplierName: string;
+  bankId: number | null;
+  bankName: string;
+  balance: number;
   createdDate: Date;
   updatedDate: Date;
 }
@@ -34,19 +63,76 @@ export interface JournalEntryLine {
 }
 
 export interface CreateAccountDto {
-  code: string;
-  name: string;
-  type: 'ASSET' | 'LIABILITY' | 'EQUITY' | 'REVENUE' | 'EXPENSE';
-  parentId?: number;
+  accountCode: string;
+  accountNameAr: string;
+  accountNameEn: string;
+  accountId: number;
+  companyId: number;
+  accountCategoryId: number;
+  accountTypeId: number;
+  accountLevel: number;
+  isMainAccount: boolean;
+  mainAccountId: number;
+  mainAccountCode: string;
+  mainAccountName: string;
+  currencyId: number;
+  hasCostCenter: boolean;
+  costCenterId: number;
+  isRetired: boolean;
+  isActive: boolean;
+  inActiveReasons: string;
+  isPrivate: boolean;
+  hasRemarks: boolean;
+  remarksAr: string;
+  remarksEn: string;
+  notesAr: string;
+  notesEn: string;
+  createNewClient: boolean;
+  createNewSupplier: boolean;
+  createNewBank: boolean;
+  clientId: number | null;
+  clientName: string;
+  supplierId: number | null;
+  supplierName: string;
+  bankId: number | null;
+  bankName: string;
 }
 
 export interface UpdateAccountDto {
   id: number;
-  code: string;
-  name: string;
-  type: 'ASSET' | 'LIABILITY' | 'EQUITY' | 'REVENUE' | 'EXPENSE';
-  parentId?: number;
+  accountCode: string;
+  accountNameAr: string;
+  accountNameEn: string;
+  accountId: number;
+  companyId: number;
+  accountCategoryId: number;
+  accountTypeId: number;
+  accountLevel: number;
+  isMainAccount: boolean;
+  mainAccountId: number;
+  mainAccountCode: string;
+  mainAccountName: string;
+  currencyId: number;
+  hasCostCenter: boolean;
+  costCenterId: number;
+  isRetired: boolean;
   isActive: boolean;
+  inActiveReasons: string;
+  isPrivate: boolean;
+  hasRemarks: boolean;
+  remarksAr: string;
+  remarksEn: string;
+  notesAr: string;
+  notesEn: string;
+  createNewClient: boolean;
+  createNewSupplier: boolean;
+  createNewBank: boolean;
+  clientId: number | null;
+  clientName: string;
+  supplierId: number | null;
+  supplierName: string;
+  bankId: number | null;
+  bankName: string;
 }
 
 export interface CreateJournalEntryDto {

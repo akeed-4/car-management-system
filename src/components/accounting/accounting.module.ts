@@ -25,6 +25,7 @@ import { AccountingComponent } from './accounting/accounting.component';
 import { ChartOfAccountsComponent } from './chart-of-accounts/chart-of-accounts.component';
 import { JournalEntriesComponent } from './journal-entries/journal-entries.component';
 import { ChartOfAccountsTreeComponent } from './chart-of-accounts-tree/chart-of-accounts-tree.component';
+import { AddAccountComponent } from './add-account/add-account.component';
 
 @NgModule({
   declarations: [

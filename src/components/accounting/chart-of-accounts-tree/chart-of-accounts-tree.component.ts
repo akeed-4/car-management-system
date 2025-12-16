@@ -67,10 +67,10 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
         cssClass: 'code-column'
       },
       {
-        dataField: 'name',
+        dataField: 'accountNameEn',
         caption: this.translate.instant('ACCOUNTING.ACCOUNT_NAME'),
         cellTemplate: 'nameTemplate',
-        calculateCellValue: (rowData: Account) => this.translateAccountName(rowData.name)
+        calculateCellValue: (rowData: Account) => this.translateAccountName(rowData.accountNameEn)
       },
       {
         dataField: 'type',

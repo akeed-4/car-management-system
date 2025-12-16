@@ -118,7 +118,7 @@ export class JournalEntriesComponent implements OnInit {
 
   getAccountName(accountId: number): string {
     const account = this.accounts.find(acc => acc.id === accountId);
-    return account ? account.name : '';
+    return account ? account.accountNameEn : '';
   }
 
   getTotalDebit(): number {

@@ -56,7 +56,7 @@ export interface CreateCostCenterEntryDto {
   costCenterId: number;
   entryDate: Date;
   description: string;
-  costType: string;
+  costType: 'Maintenance' | 'Ownership Transfer' | 'Processing Fees' | 'Periodic Inspection' | 'Insurance' | 'Storage' | 'Other';
   amount: number;
   referenceNumber?: string;
   documentUrl?: string;

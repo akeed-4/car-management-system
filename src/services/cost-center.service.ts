@@ -77,7 +77,14 @@ export class CostCenterService {
   createEntry(dto: CreateCostCenterEntryDto): Observable<CostCenterEntry> {
     const newEntry: CostCenterEntry = {
       id: Date.now(),
-      ...dto,
+      costCenterId: dto.costCenterId,
+      entryDate: dto.entryDate,
+      description: dto.description,
+      costType: dto.costType,
+      amount: dto.amount,
+      referenceNumber: dto.referenceNumber,
+      documentUrl: dto.documentUrl,
+      notes: dto.notes,
       costCenterName: '',
       createdAt: new Date(),
       updatedAt: new Date()

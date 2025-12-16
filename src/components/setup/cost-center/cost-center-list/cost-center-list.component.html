@@ -16,153 +16,62 @@
     </button>
   </div>
 
-  <!-- DataGrid -->
-  <div class="grid-section">
-    <dx-data-grid
+  <!-- TreeList -->
+  <div class="tree-section">
+    <dx-tree-list
+      id="costCentersTreeList"
       [dataSource]="costCenters"
-      [showBorders]="true"
+      keyExpr="id"
+      parentIdExpr="parentId"
+      [columns]="columns"
       [showRowLines]="true"
-      [showColumnLines]="true"
-      [rowAlternationEnabled]="true"
-      [allowColumnReordering]="true"
-      [allowColumnResizing]="true"
+      [showBorders]="true"
       [columnAutoWidth]="true"
       [wordWrapEnabled]="true"
       [rtlEnabled]="true"
+      [autoExpandAll]="true"
       [hoverStateEnabled]="true"
-      (onRowClick)="onRowClick($event)"
-      height="75vh">
+      [rowAlternationEnabled]="true"
+      [allowColumnReordering]="true"
+      [allowColumnResizing]="true">
 
       <dxo-load-panel [enabled]="true"></dxo-load-panel>
       <dxo-scrolling mode="virtual"></dxo-scrolling>
       <dxo-paging [pageSize]="20"></dxo-paging>
-      <dxo-pager 
-        [showPageSizeSelector]="true" 
-        [allowedPageSizes]="[10, 20, 50]" 
+      <dxo-pager
+        [showPageSizeSelector]="true"
+        [allowedPageSizes]="[10, 20, 50]"
         [showInfo]="true">
       </dxo-pager>
       <dxo-filter-row [visible]="true"></dxo-filter-row>
       <dxo-header-filter [visible]="true"></dxo-header-filter>
-      <dxo-search-panel 
-        [visible]="true" 
+      <dxo-search-panel
+        [visible]="true"
         [placeholder]="'COST_CENTER.SEARCH_PLACEHOLDER' | translate">
       </dxo-search-panel>
-      <dxo-export [enabled]="true" fileName="cost-centers"></dxo-export>
-      <dxo-grouping [autoExpandAll]="false"></dxo-grouping>
-      <dxo-sorting mode="multiple"></dxo-sorting>
 
-      <!-- Code Column -->
-      <dxi-column
-        dataField="code"
-        [caption]="'COST_CENTER.CODE' | translate"
-        [allowFiltering]="true"
-        [allowSorting]="true"
-        width="120">
-      </dxi-column>
-
-      <!-- Name Column -->
-      <dxi-column
-        dataField="name"
-        [caption]="'COST_CENTER.NAME' | translate"
-        [allowFiltering]="true"
-        [allowSorting]="true">
-      </dxi-column>
-
-      <!-- Arabic Name Column -->
-      <dxi-column
-        dataField="nameAr"
-        [caption]="'COST_CENTER.NAME_AR' | translate"
-        [allowFiltering]="true"
-        [allowSorting]="true">
-      </dxi-column>
-
-      <!-- Car Info Column -->
-      <dxi-column
-        dataField="carInfo"
-        [caption]="'COST_CENTER.CAR_INFO' | translate"
-        [allowFiltering]="true"
-        [allowSorting]="true">
-        <div *dxTemplate="let data of 'cellTemplate'">
-          <div class="car-info-cell" *ngIf="data.value">
-            <mat-icon class="car-icon">directions_car</mat-icon>
-            <span>{{ data.value }}</span>
-          </div>
-          <span *ngIf="!data.value" class="no-car">-</span>
+      <!-- Name Column Template -->
+      <div *dxTemplate="let data of 'nameTemplate'">
+        <div class="name-cell" [class.has-children]="hasChildren(data.data)">
+          <span class="cost-center-name">{{ data.value }}</span>
         </div>
-      </dxi-column>
+      </div>
 
-      <!-- Parent Column -->
-      <dxi-column
-        dataField="parentName"
-        [caption]="'COST_CENTER.PARENT' | translate"
-        [allowFiltering]="true"
-        [allowSorting]="true">
-      </dxi-column>
-
-      <!-- Total Costs Column -->
-      <dxi-column
-        dataField="totalCosts"
-        [caption]="'COST_CENTER.TOTAL_COSTS' | translate"
-        dataType="number"
-        format="currency"
-        [allowFiltering]="true"
-        [allowSorting]="true"
-        alignment="right"
-        width="150">
-        <div *dxTemplate="let data of 'cellTemplate'">
-          <div class="cost-cell">
-            {{ data.value | currency:'SAR':'symbol':'1.2-2' }}
-          </div>
+      <!-- Car Info Column Template -->
+      <div *dxTemplate="let data of 'carInfoTemplate'">
+        <div class="car-info-cell" *ngIf="data.value">
+          <mat-icon class="car-icon">directions_car</mat-icon>
+          <span>{{ data.value }}</span>
         </div>
-      </dxi-column>
+        <span *ngIf="!data.value" class="no-car">-</span>
+      </div>
 
-      <!-- Status Column -->
-      <dxi-column
-        dataField="isActive"
-        [caption]="'COST_CENTER.STATUS' | translate"
-        [allowFiltering]="true"
-        [allowSorting]="true"
-        width="120"
-        alignment="center">
-        <div *dxTemplate="let data of 'cellTemplate'">
-          <mat-chip [color]="getStatusColor(data.value)" selected>
-            {{ getStatusText(data.value) | translate }}
-          </mat-chip>
-        </div>
-      </dxi-column>
-
-      <!-- Created Date Column -->
-      <dxi-column
-        dataField="createdAt"
-        [caption]="'COST_CENTER.CREATED_AT' | translate"
-        dataType="date"
-        format="yyyy-MM-dd"
-        width="120">
-      </dxi-column>
-
-      <!-- Actions Column -->
-      <dxi-column
-        type="buttons"
-        [width]="150"
-        [caption]="'COST_CENTER.ACTIONS' | translate">
-        <dxi-button
-          [hint]="'COST_CENTER.VIEW_ENTRIES' | translate"
-          icon="chart"
-          [onClick]="onViewEntries">
-        </dxi-button>
-        <dxi-button
-          [hint]="'COST_CENTER.EDIT' | translate"
-          icon="edit"
-          [onClick]="onEdit"
-          appHasPermission="cost-center.update">
-        </dxi-button>
-        <dxi-button
-          [hint]="'COST_CENTER.DELETE' | translate"
-          icon="trash"
-          [onClick]="onDelete"
-          appHasPermission="cost-center.delete">
-        </dxi-button>
-      </dxi-column>
-    </dx-data-grid>
+      <!-- Status Column Template -->
+      <div *dxTemplate="let data of 'statusTemplate'">
+        <mat-chip [color]="getStatusColor(data.value)" selected>
+          {{ getStatusText(data.value) | translate }}
+        </mat-chip>
+      </div>
+    </dx-tree-list>
   </div>
 </div>

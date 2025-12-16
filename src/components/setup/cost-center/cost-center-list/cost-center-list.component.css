@@ -41,8 +41,8 @@
   box-shadow: 0 6px 16px rgba(63, 81, 181, 0.4);
 }
 
-/* Grid Section */
-.grid-section {
+/* Tree Section */
+.tree-section {
   background: white;
   border-radius: 16px;
   padding: 24px;
@@ -72,31 +72,45 @@
   font-size: 1.05rem;
 }
 
-/* DevExtreme Grid Customization */
-::ng-deep .dx-datagrid {
+/* Tree-specific styling */
+.name-cell {
+  display: flex;
+  align-items: center;
+}
+
+.name-cell.has-children {
+  font-weight: 600;
+}
+
+.cost-center-name {
   font-size: 14px;
 }
 
-::ng-deep .dx-datagrid-headers {
+/* DevExtreme TreeList Customization */
+::ng-deep .dx-treelist {
+  font-size: 14px;
+}
+
+::ng-deep .dx-treelist-headers {
   font-weight: 600;
   background: linear-gradient(135deg, #3f51b5, #5c6bc0);
   color: white;
 }
 
-::ng-deep .dx-datagrid-headers .dx-header-row td {
+::ng-deep .dx-treelist-headers .dx-header-row td {
   border-bottom: 3px solid #303f9f;
 }
 
-::ng-deep .dx-datagrid-rowsview .dx-row {
+::ng-deep .dx-treelist-rowsview .dx-row {
   transition: all 0.3s ease;
 }
 
-::ng-deep .dx-datagrid-rowsview .dx-row:hover {
+::ng-deep .dx-treelist-rowsview .dx-row:hover {
   background-color: rgba(63, 81, 181, 0.05);
   cursor: pointer;
 }
 
-::ng-deep .dx-datagrid-rowsview .dx-row-alt {
+::ng-deep .dx-treelist-rowsview .dx-row-alt {
   background-color: rgba(0, 0, 0, 0.02);
 }
 

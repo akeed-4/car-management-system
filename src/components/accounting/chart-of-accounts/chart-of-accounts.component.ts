@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { DxTreeListModule } from 'devextreme-angular';
 import { Observable } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
@@ -14,6 +13,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { AccountingService } from '../accounting.service';
 import { Account, CreateAccountDto, UpdateAccountDto } from '../models';
+import { AddAccountComponent } from '../add-account/add-account.component';
 
 @Component({
   selector: 'app-chart-of-accounts',
@@ -22,7 +22,6 @@ import { Account, CreateAccountDto, UpdateAccountDto } from '../models';
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
     DxTreeListModule,
     MatCardModule,
     MatFormFieldModule,
@@ -30,15 +29,15 @@ import { Account, CreateAccountDto, UpdateAccountDto } from '../models';
     MatSelectModule,
     MatButtonModule,
     MatIconModule,
-    TranslateModule
+    TranslateModule,
+    AddAccountComponent
   ]
 })
 export class ChartOfAccountsComponent implements OnInit {
   accounts$: Observable<Account[]>;
   accounts: Account[] = [];
-  accountForm: FormGroup;
   isEditing = false;
-  editingAccountId: number | null = null;
+  editingAccount: Account | null = null;
 
   // DevExtreme TreeList columns configuration with translation
   columns = [
@@ -95,18 +94,11 @@ export class ChartOfAccountsComponent implements OnInit {
 
   constructor(
     private accountingService: AccountingService,
-    private fb: FormBuilder,
     private translate: TranslateService,
     private route: ActivatedRoute,
     private router: Router
   ) {
     this.accounts$ = this.accountingService.accounts$;
-    this.accountForm = this.fb.group({
-      code: ['', [Validators.required, Validators.minLength(3)]],
-      name: ['', [Validators.required, Validators.minLength(2)]],
-      type: ['ASSET', Validators.required],
-      parentId: [null]
-    });
   }
 
   ngOnInit() {
@@ -144,41 +136,17 @@ export class ChartOfAccountsComponent implements OnInit {
 
   onAddAccount() {
     this.isEditing = false;
-    this.editingAccountId = null;
-    this.accountForm.reset({ type: 'ASSET' });
+    this.editingAccount = null;
   }
 
   onEditAccount(account: Account) {
     this.isEditing = true;
-    this.editingAccountId = account.id;
-    this.accountForm.patchValue({
-      code: account.code,
-      name: account.name,
-      type: account.type,
-      parentId: account.parentId
-    });
+    this.editingAccount = account;
   }
 
-  onSaveAccount() {
-    if (this.accountForm.valid) {
-      const formValue = this.accountForm.value;
-
-      if (this.isEditing && this.editingAccountId) {
-        const updateDto: UpdateAccountDto = {
-          id: this.editingAccountId,
-          ...formValue,
-          isActive: true
-        };
-        this.accountingService.updateAccount(updateDto).subscribe();
-      } else {
-        const createDto: CreateAccountDto = formValue;
-        this.accountingService.createAccount(createDto).subscribe();
-      }
-
-      this.accountForm.reset({ type: 'ASSET' });
-      this.isEditing = false;
-      this.editingAccountId = null;
-    }
+  onAccountSaved(account: Account) {
+    this.isEditing = false;
+    this.editingAccount = null;
   }
 
   onDeleteAccount(node: any) {
@@ -188,9 +156,8 @@ export class ChartOfAccountsComponent implements OnInit {
   }
 
   onCancel() {
-    this.accountForm.reset({ type: 'ASSET' });
     this.isEditing = false;
-    this.editingAccountId = null;
+    this.editingAccount = null;
   }
 
   private loadAccountForEdit(accountId: number) {
@@ -203,8 +170,6 @@ export class ChartOfAccountsComponent implements OnInit {
 
   private prepareAddSubAccount(parentId: number) {
     this.isEditing = false;
-    this.editingAccountId = null;
-    this.accountForm.reset({ type: 'ASSET' });
-    this.accountForm.patchValue({ parentId: parentId });
+    this.editingAccount = null;
   }
 }
