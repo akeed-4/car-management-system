@@ -73,6 +73,8 @@ import { JournalEntriesListComponent } from './components/accounting/journal-ent
 import { ChartOfAccountsTreeComponent } from './components/accounting/chart-of-accounts-tree/chart-of-accounts-tree.component';
 import { CostCenterListComponent } from './components/setup/cost-center/cost-center-list/cost-center-list.component';
 import { CostCenterFormComponent } from './components/setup/cost-center/cost-center-form/cost-center-form.component';
+import { BankListComponent } from './components/bank/bank-list/bank-list.component';
+import { BankFormComponent } from './components/bank/bank-form/bank-form.component';
 
 export const APP_ROUTES: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -101,6 +103,9 @@ export const APP_ROUTES: Routes = [
       { path: 'cost-centers', component: CostCenterListComponent },
       { path: 'cost-centers/new', component: CostCenterFormComponent },
       { path: 'cost-centers/edit/:id', component: CostCenterFormComponent },
+      { path: 'bank/list', component: BankListComponent },
+      { path: 'bank/form', component: BankFormComponent },
+      { path: 'bank/form/:id', component: BankFormComponent },
       // Redirect to the functional inventory form
       { path: 'inventory', component: InventoryListComponent },
   { path: 'inventory/new', component: InventoryFormComponent },

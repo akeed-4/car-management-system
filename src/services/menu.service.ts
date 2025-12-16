@@ -37,6 +37,8 @@ export const menuData = [
       { id: 26, name: 'موديلات السيارات', englishName: 'Car Models', route: '/setup/models' },
       { id: 27, name: 'سنة الصنع', englishName: 'Manufacture Year', route: '/setup/year' },
       { id: 28, name: 'بطاقة السيارة', englishName: 'Car Card', route: '/setup/cars' },
+      { id: 29, name: 'مراكز التكلفة', englishName: 'Cost Centers', route: '/cost-centers' },
+      { id: 30, name: 'معلومات البنوك', englishName: 'Info Bank', route: '/bank/list' }
     ]
   },
 
