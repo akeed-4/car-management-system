@@ -60,10 +60,11 @@
         <mat-card class="car-card" (click)="openCarDetails(car)">
           <!-- Car Image -->
           <div class="car-image-container">
-            <img [src]="car.imageUrl || '/assets/images/car-placeholder.jpg'"
+            <img [src]="car.imageUrl || '/assets/images/car.jpg'"
                  [alt]="car.make + ' ' + car.model"
                  class="car-image"
-                 loading="lazy">
+                 loading="lazy"
+                 (error)="onImageError($event)">
             <div class="car-overlay">
               <button mat-raised-button color="primary" class="view-details-btn" (click)="openCarDetails(car); $event.stopPropagation()">
                 <mat-icon>visibility</mat-icon>

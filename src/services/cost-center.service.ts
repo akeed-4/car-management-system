@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { CostCenter, CostCenterEntry, CreateCostCenterDto, UpdateCostCenterDto, CreateCostCenterEntryDto } from '../types/cost-center.model';
+import { environment } from '../environments/environment.development';
 
 @Injectable({
   providedIn: 'root'
@@ -14,99 +15,149 @@ export class CostCenterService {
   public costCenters$ = this.costCentersSubject.asObservable();
   public entries$ = this.entriesSubject.asObservable();
 
+  private apiUrl = environment.origin + 'api/CostCenters';
+  private headers = new HttpHeaders({
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  });
+
   constructor(private http: HttpClient) {
-    this.loadSampleData();
+    // Removed loadSampleData() call to use real API
   }
 
   // Cost Center CRUD
   getCostCenters(): Observable<CostCenter[]> {
-    return this.costCenters$;
+    console.log('Making GET request to:', `${this.apiUrl}`);
+    return this.http.get<CostCenter[]>(`${this.apiUrl}`, { headers: this.headers }).pipe(
+      map(costCenters => {
+        console.log('Received cost centers:', costCenters);
+        this.costCentersSubject.next(costCenters);
+        return costCenters;
+      }),
+      catchError(error => {
+        console.error('Error fetching cost centers:', error);
+        return throwError(() => new Error('Failed to fetch cost centers'));
+      })
+    );
   }
 
   getCostCenterById(id: number): Observable<CostCenter | undefined> {
-    return this.costCenters$.pipe(
-      map(centers => centers.find(c => c.id === id))
+    return this.http.get<CostCenter>(`${this.apiUrl}/${id}`).pipe(
+      catchError(error => {
+        console.error(`Error fetching cost center ${id}:`, error);
+        return throwError(() => new Error(`Failed to fetch cost center ${id}`));
+      })
     );
   }
 
   getCostCentersByCarId(carId: number): Observable<CostCenter[]> {
-    return this.costCenters$.pipe(
-      map(centers => centers.filter(c => c.carId === carId))
+    return this.http.get<CostCenter[]>(`${this.apiUrl}?carId=${carId}`).pipe(
+      catchError(error => {
+        console.error(`Error fetching cost centers for car ${carId}:`, error);
+        return throwError(() => new Error(`Failed to fetch cost centers for car ${carId}`));
+      })
     );
   }
 
   createCostCenter(dto: CreateCostCenterDto): Observable<CostCenter> {
-    const newCenter: CostCenter = {
-      id: Date.now(),
-      ...dto,
-      totalCosts: 0,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    const current = this.costCentersSubject.value;
-    this.costCentersSubject.next([...current, newCenter]);
-    return of(newCenter);
+    console.log('Making POST request to:', `${this.apiUrl}`);
+    console.log('Sending DTO:', dto);
+    return this.http.post<CostCenter>(`${this.apiUrl}`, dto, { headers: this.headers }).pipe(
+      map(costCenter => {
+        // Update local state
+        const current = this.costCentersSubject.value;
+        this.costCentersSubject.next([...current, costCenter]);
+        return costCenter;
+      }),
+      catchError(error => {
+        console.error('Error creating cost center:', error);
+        return throwError(() => new Error('Failed to create cost center'));
+      })
+    );
   }
 
   updateCostCenter(dto: UpdateCostCenterDto): Observable<CostCenter> {
-    const current = this.costCentersSubject.value;
-    const index = current.findIndex(c => c.id === dto.id);
-    if (index !== -1) {
-      const updated = { ...current[index], ...dto, updatedAt: new Date() };
-      current[index] = updated;
-      this.costCentersSubject.next([...current]);
-      return of(updated);
-    }
-    throw new Error('Cost center not found');
+    return this.http.put<CostCenter>(`${this.apiUrl}/${dto.id}`, dto).pipe(
+      map(costCenter => {
+        // Update local state
+        const current = this.costCentersSubject.value;
+        const index = current.findIndex(c => c.id === dto.id);
+        if (index !== -1) {
+          current[index] = costCenter;
+          this.costCentersSubject.next([...current]);
+        }
+        return costCenter;
+      }),
+      catchError(error => {
+        console.error(`Error updating cost center ${dto.id}:`, error);
+        return throwError(() => new Error(`Failed to update cost center ${dto.id}`));
+      })
+    );
   }
 
   deleteCostCenter(id: number): Observable<void> {
-    const current = this.costCentersSubject.value;
-    const filtered = current.filter(c => c.id !== id);
-    this.costCentersSubject.next(filtered);
-    return of(void 0);
+    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+      map(() => {
+        // Update local state
+        const current = this.costCentersSubject.value;
+        const filtered = current.filter(c => c.id !== id);
+        this.costCentersSubject.next(filtered);
+      }),
+      catchError(error => {
+        console.error(`Error deleting cost center ${id}:`, error);
+        return throwError(() => new Error(`Failed to delete cost center ${id}`));
+      })
+    );
   }
 
   // Cost Center Entries
   getEntriesByCostCenter(costCenterId: number): Observable<CostCenterEntry[]> {
-    return this.entries$.pipe(
-      map(entries => entries.filter(e => e.costCenterId === costCenterId))
+    return this.http.get<CostCenterEntry[]>(`${this.apiUrl}/${costCenterId}/entries`).pipe(
+      map(entries => {
+        this.entriesSubject.next(entries);
+        return entries;
+      }),
+      catchError(error => {
+        console.error(`Error fetching entries for cost center ${costCenterId}:`, error);
+        return throwError(() => new Error(`Failed to fetch entries for cost center ${costCenterId}`));
+      })
     );
   }
 
   createEntry(dto: CreateCostCenterEntryDto): Observable<CostCenterEntry> {
-    const newEntry: CostCenterEntry = {
-      id: Date.now(),
-      costCenterId: dto.costCenterId,
-      entryDate: dto.entryDate,
-      description: dto.description,
-      costType: dto.costType,
-      amount: dto.amount,
-      referenceNumber: dto.referenceNumber,
-      documentUrl: dto.documentUrl,
-      notes: dto.notes,
-      costCenterName: '',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    const current = this.entriesSubject.value;
-    this.entriesSubject.next([...current, newEntry]);
-    
-    // Update total costs
-    this.updateCostCenterTotal(dto.costCenterId, dto.amount);
-    
-    return of(newEntry);
+    return this.http.post<CostCenterEntry>(`${this.apiUrl}/entries`, dto, { headers: this.headers }).pipe(
+      map(entry => {
+        // Update local state
+        const current = this.entriesSubject.value;
+        this.entriesSubject.next([...current, entry]);
+        // Update total costs
+        this.updateCostCenterTotal(dto.costCenterId, dto.amount);
+        return entry;
+      }),
+      catchError(error => {
+        console.error('Error creating entry:', error);
+        return throwError(() => new Error('Failed to create entry'));
+      })
+    );
   }
 
   deleteEntry(id: number): Observable<void> {
-    const current = this.entriesSubject.value;
-    const entry = current.find(e => e.id === id);
-    if (entry) {
-      this.updateCostCenterTotal(entry.costCenterId, -entry.amount);
-    }
-    const filtered = current.filter(e => e.id !== id);
-    this.entriesSubject.next(filtered);
-    return of(void 0);
+    return this.http.delete<void>(`${this.apiUrl}/entries/${id}`).pipe(
+      map(() => {
+        // Update local state
+        const current = this.entriesSubject.value;
+        const entry = current.find(e => e.id === id);
+        if (entry) {
+          this.updateCostCenterTotal(entry.costCenterId, -entry.amount);
+        }
+        const filtered = current.filter(e => e.id !== id);
+        this.entriesSubject.next(filtered);
+      }),
+      catchError(error => {
+        console.error(`Error deleting entry ${id}:`, error);
+        return throwError(() => new Error(`Failed to delete entry ${id}`));
+      })
+    );
   }
 
   private updateCostCenterTotal(costCenterId: number, amountDelta: number): void {
@@ -117,90 +168,5 @@ export class CostCenterService {
       center.updatedAt = new Date();
       this.costCentersSubject.next([...centers]);
     }
-  }
-
-  private loadSampleData(): void {
-    const sampleCostCenters: CostCenter[] = [
-      {
-        id: 1,
-        code: 'CC-001',
-        name: 'Vehicle Operations',
-        nameAr: 'عمليات المركبات',
-        description: 'General vehicle operations cost center',
-        isActive: true,
-        totalCosts: 15000,
-        createdAt: new Date('2025-01-01'),
-        updatedAt: new Date('2025-12-10')
-      },
-      {
-        id: 2,
-        code: 'CC-002',
-        name: 'Maintenance Department',
-        nameAr: 'قسم الصيانة',
-        description: 'Vehicle maintenance and repairs',
-        parentId: 1,
-        parentName: 'Vehicle Operations',
-        isActive: true,
-        totalCosts: 8500,
-        createdAt: new Date('2025-01-15'),
-        updatedAt: new Date('2025-12-12')
-      },
-      {
-        id: 3,
-        code: 'CC-CAR-12345',
-        name: 'Toyota Camry 2024',
-        nameAr: 'تويوتا كامري 2024',
-        description: 'Cost center for VIN: 1HGBH41JXMN109186',
-        carId: 1,
-        carVin: '1HGBH41JXMN109186',
-        carInfo: '2024 Toyota Camry',
-        isActive: true,
-        totalCosts: 5200,
-        createdAt: new Date('2025-02-01'),
-        updatedAt: new Date('2025-12-13')
-      }
-    ];
-
-    const sampleEntries: CostCenterEntry[] = [
-      {
-        id: 1,
-        costCenterId: 3,
-        costCenterName: 'Toyota Camry 2024',
-        entryDate: new Date('2025-11-01'),
-        description: 'Engine oil change and filter replacement',
-        costType: 'Maintenance',
-        amount: 850,
-        referenceNumber: 'MNT-2025-001',
-        createdAt: new Date('2025-11-01'),
-        updatedAt: new Date('2025-11-01')
-      },
-      {
-        id: 2,
-        costCenterId: 3,
-        costCenterName: 'Toyota Camry 2024',
-        entryDate: new Date('2025-11-15'),
-        description: 'Ownership transfer registration',
-        costType: 'Ownership Transfer',
-        amount: 1500,
-        referenceNumber: 'OWN-2025-045',
-        createdAt: new Date('2025-11-15'),
-        updatedAt: new Date('2025-11-15')
-      },
-      {
-        id: 3,
-        costCenterId: 3,
-        costCenterName: 'Toyota Camry 2024',
-        entryDate: new Date('2025-12-01'),
-        description: 'Comprehensive insurance coverage',
-        costType: 'Insurance',
-        amount: 2850,
-        referenceNumber: 'INS-2025-234',
-        createdAt: new Date('2025-12-01'),
-        updatedAt: new Date('2025-12-01')
-      }
-    ];
-
-    this.costCentersSubject.next(sampleCostCenters);
-    this.entriesSubject.next(sampleEntries);
   }
 }

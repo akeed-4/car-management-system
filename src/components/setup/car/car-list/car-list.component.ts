@@ -172,4 +172,9 @@ export class CarListComponent {
   trackByCarId(index: number, car: Car): number {
     return car.id;
   }
+
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.src = '/assets/images/car-placeholder.svg';
+  }
 }

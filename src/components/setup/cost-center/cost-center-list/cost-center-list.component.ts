@@ -123,6 +123,11 @@ export class CostCenterListComponent implements OnInit, OnDestroy {
         caption: this.translate.instant('COST_CENTER.ACTIONS'),
         buttons: [
           {
+            hint: this.translate.instant('COST_CENTER.ADD_CHILD'),
+            icon: 'add',
+            onClick: (e: any) => this.onAddChild(e)
+          },
+          {
             hint: this.translate.instant('COST_CENTER.VIEW_ENTRIES'),
             icon: 'chart',
             onClick: this.onViewEntries
@@ -155,6 +160,11 @@ export class CostCenterListComponent implements OnInit, OnDestroy {
 
   onCreate(): void {
     this.router.navigate(['/cost-centers/new']);
+  }
+
+  onAddChild(e: any): void {
+    const parent = e.row.data;
+    this.router.navigate(['/cost-centers/new'], { queryParams: { parentId: parent.id } });
   }
 
   onEdit(e: any): void {

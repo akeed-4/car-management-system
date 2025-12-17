@@ -8,110 +8,14 @@
   </div>
 
   <div class="content">
-    <!-- Operation Type Selection -->
-    <mat-card class="operation-card">
-      <mat-card-header>
-        <mat-card-title>{{ 'ACCOUNTING.OPERATION_TYPE' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <form [formGroup]="linkForm">
-          <div class="form-row">
-            <mat-radio-group formControlName="operationType" class="radio-group">
-              <mat-radio-button value="create" class="radio-button">
-                <mat-icon>account_balance</mat-icon>
-                {{ 'ACCOUNTING.CREATE_NEW_ENTITY_ACCOUNT' | translate }}
-              </mat-radio-button>
-              <mat-radio-button value="link" class="radio-button">
-                <mat-icon>link</mat-icon>
-                {{ 'ACCOUNTING.LINK_EXISTING_ENTITY' | translate }}
-              </mat-radio-button>
-            </mat-radio-group>
-          </div>
-        </form>
-      </mat-card-content>
-    </mat-card>
-
     <!-- Create New Account Section -->
-    <div *ngIf="linkForm.get('operationType')?.value === 'create'" class="form-section">
+    <div class="form-section">
       <app-add-account
         [isEditing]="isEditing"
         [editingAccount]="editingAccount"
         (accountSaved)="onAccountSaved($event)"
         (cancelled)="onCancel()">
       </app-add-account>
-    </div>
-
-    <!-- Link Existing Entity Section -->
-    <div *ngIf="linkForm.get('operationType')?.value === 'link'" class="form-section">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{ 'ACCOUNTING.LINK_ENTITY_TO_ACCOUNT' | translate }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <form [formGroup]="linkForm">
-            <!-- Entity Type Selection -->
-            <div class="form-row">
-              <mat-form-field appearance="outline" class="form-field">
-                <mat-label>{{ 'ACCOUNTING.ENTITY_TYPE' | translate }}</mat-label>
-                <mat-select formControlName="entityType">
-                  <mat-option *ngFor="let type of entityTypes" [value]="type.value">
-                    {{ type.label | translate }}
-                  </mat-option>
-                </mat-select>
-                <mat-icon matPrefix>category</mat-icon>
-              </mat-form-field>
-            </div>
-
-            <!-- Entity Search -->
-            <div class="form-row">
-              <mat-form-field appearance="outline" class="form-field">
-                <mat-label>{{ 'ACCOUNTING.SEARCH_ENTITY' | translate }}</mat-label>
-                <dx-autocomplete
-                  [dataSource]="getEntityDataSource()"
-                  [displayExpr]="getEntityDisplayExpr()"
-                  [valueExpr]="'id'"
-                  formControlName="selectedEntity"
-                  (onSelectionChanged)="onEntitySelected($event)"
-                  placeholder="{{ 'ACCOUNTING.SEARCH_ENTITY_PLACEHOLDER' | translate }}">
-                </dx-autocomplete>
-                <mat-icon matPrefix>search</mat-icon>
-              </mat-form-field>
-            </div>
-
-            <!-- Account Details -->
-            <div class="form-row">
-              <mat-form-field appearance="outline" class="form-field">
-                <mat-label>{{ 'ACCOUNTING.ACCOUNT_CODE' | translate }}</mat-label>
-                <input matInput formControlName="accountCode" required>
-                <mat-icon matPrefix>tag</mat-icon>
-                <mat-error *ngIf="linkForm.get('accountCode')?.invalid && linkForm.get('accountCode')?.touched">
-                  {{ 'ACCOUNTING.CODE_REQUIRED' | translate }}
-                </mat-error>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline" class="form-field">
-                <mat-label>{{ 'ACCOUNTING.ACCOUNT_NAME' | translate }}</mat-label>
-                <input matInput formControlName="accountName" required>
-                <mat-icon matPrefix>label</mat-icon>
-                <mat-error *ngIf="linkForm.get('accountName')?.invalid && linkForm.get('accountName')?.touched">
-                  {{ 'ACCOUNTING.NAME_REQUIRED' | translate }}
-                </mat-error>
-              </mat-form-field>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="form-actions">
-              <button mat-raised-button color="primary" (click)="onLinkAccount()" [disabled]="linkForm.invalid">
-                <mat-icon>link</mat-icon>
-                {{ 'ACCOUNTING.LINK_ACCOUNT' | translate }}
-              </button>
-              <button mat-button (click)="onCancel()">
-                {{ 'ACCOUNTING.CANCEL' | translate }}
-              </button>
-            </div>
-          </form>
-        </mat-card-content>
-      </mat-card>
     </div>
   </div>
 </div>

@@ -26,6 +26,11 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
   isLoading = signal<boolean>(false);
   error = signal<string | null>(null);
 
+  // Form properties
+  isEditing = false;
+  editingAccount: Account | null = null;
+  parentId: number | null = null;
+
   // Computed signal for processed accounts data
   processedAccounts = computed(() => {
     const accounts = this.accounts();
@@ -99,23 +104,37 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
     return level;
   }
 
-  onAddSubAccount(account: Account) {
+  onAddSubAccount(e: any) {
+    const accountId = e.row.data.id;
     // Navigate to add sub-account form with parentId as query parameter
-    console.log('Add sub-account for:', account);
+    console.log('Add sub-account for id:', accountId);
     this.router.navigate(['/accounts/chart-of-accounts-new'], {
-      queryParams: { parentId: account.id, mode: 'add' }
+      queryParams: { parentId: accountId, mode: 'add' }
     });
   }
 
-  onEditAccount(account: Account) {
+  onEditAccount(accountOrEvent: any) {
+    // DevExtreme sometimes passes an event object; support both event and Account
+    const account: Account = accountOrEvent && accountOrEvent.row && accountOrEvent.row.data
+      ? accountOrEvent.row.data
+      : accountOrEvent;
+
     console.log('Edit account clicked:', account);
+    if (!account || !account.id) {
+      console.error('Edit navigation failed: account id is missing', accountOrEvent);
+      return;
+    }
+
     // Navigate to edit form with account ID as route parameter
     this.router.navigate(['/accounts/chart-of-accounts-new', account.id], {
       queryParams: { mode: 'edit' }
     });
   }
 
-  onDeleteAccount(account: Account) {
+  onDeleteAccount(accountOrEvent: any) {
+        const account: Account = accountOrEvent && accountOrEvent.row && accountOrEvent.row.data
+      ? accountOrEvent.row.data
+      : accountOrEvent;
     if (confirm(this.translate.instant('ACCOUNTING.CONFIRM_DELETE'))) {
       this.accountingService.deleteAccount(account.id).subscribe();
     }

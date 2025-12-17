@@ -37,7 +37,6 @@ export const menuData = [
       { id: 26, name: 'موديلات السيارات', englishName: 'Car Models', route: '/setup/models' },
       { id: 27, name: 'سنة الصنع', englishName: 'Manufacture Year', route: '/setup/year' },
       { id: 28, name: 'بطاقة السيارة', englishName: 'Car Card', route: '/setup/cars' },
-      { id: 29, name: 'مراكز التكلفة', englishName: 'Cost Centers', route: '/cost-centers' },
       { id: 30, name: 'معلومات البنوك', englishName: 'Info Bank', route: '/bank/list' }
     ]
   },
@@ -109,12 +108,13 @@ export const menuData = [
     name: 'المعاملات المحاسبية',
     englishName: 'Accounts',
     submenu: [
-      { id: 81, name: 'شجرة الحسابات', englishName: 'Chart of Accounts', route: '/accounts/chart-of-accounts' },
-      { id: 83, name: 'قائمة قيود اليومية', englishName: 'Journal Entries List', route: '/accounts/journal-entries-list' },
-      { id: 83, name: 'سندات القبض', englishName: 'Receipt Vouchers', route: '/accounts/receipts' },
-      { id: 84, name: 'سندات الصرف', englishName: 'Payment Vouchers', route: '/accounts/payments' },
-      { id: 85, name: 'سندات العربون', englishName: 'Deposit Vouchers', route: '/accounts/deposits' },
-      { id: 86, name: 'تمويل المخزون', englishName: 'Floor Plan Financing', route: '/accounts/floor-plan-financing' }
+      { id: 81, name: 'شجرة الحسابات (شجرة)', englishName: 'Chart of Accounts (Tree)', route: '/accounts/chart-of-accounts' },
+      { id: 82, name: ' قيود اليومية', englishName: 'Journal Entries',route: '/accounts/journal-entries-list' },
+      { id: 83, name: 'مراكز التكلفة', englishName: 'Cost Centers', route: '/cost-centers' },
+      { id: 85, name: 'سندات القبض', englishName: 'Receipt Vouchers', route: '/accounts/receipts' },
+      { id: 86, name: 'سندات الصرف', englishName: 'Payment Vouchers', route: '/accounts/payments' },
+      { id: 87, name: 'سندات العربون', englishName: 'Deposit Vouchers', route: '/accounts/deposits' },
+      { id: 88, name: 'تمويل المخزون', englishName: 'Floor Plan Financing', route: '/accounts/floor-plan-financing' }
     ]
   },
   

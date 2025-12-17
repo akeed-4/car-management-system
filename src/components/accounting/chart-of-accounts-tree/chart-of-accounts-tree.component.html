@@ -130,7 +130,7 @@
         [caption]="translate.instant('ACCOUNTING.ACTIONS')" 
         alignment="center"
         [fixed]="true"
-        fixedPosition="right"
+        fixedPosition="left"
         cssClass="actions-column">
         <dxi-button 
           [hint]="translate.instant('ACCOUNTING.ADD_ACCOUNT')"
@@ -150,5 +150,16 @@
       </dxi-column>
       
     </dx-tree-list>
+  </div>
+
+  <!-- Account Form Section -->
+  <div class="form-section" *ngIf="isEditing || parentId">
+    <app-add-account
+      [isEditing]="isEditing"
+      [editingAccount]="editingAccount"
+      [parentId]="parentId"
+      (accountSaved)="onAccountSaved($event)"
+      (cancelled)="onCancel()">
+    </app-add-account>
   </div>
 </div>

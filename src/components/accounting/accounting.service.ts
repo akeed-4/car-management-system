@@ -90,7 +90,7 @@ export class AccountingService {
   }
 
   updateAccount(dto: UpdateAccountDto): Observable<Account> {
-    return this.http.put<Account>(`${this.Url}/accounts/${dto.id}`, dto).pipe(
+    return this.http.put<Account>(`${this.Url}/UpdateAccount/${dto.id}`, dto).pipe(
       map(account => {
         // Set parentId for partial accounts
         if (!account.isMainAccount && account.mainAccountId) {
@@ -114,6 +114,7 @@ export class AccountingService {
   }
 
   deleteAccount(id: number): Observable<void> {
+    alert('Deleting account with id: ' + id);
     return this.http.delete<void>(`${this.Url}/DeleteAccount/${id}`).pipe(
       map(() => {
         // Update local state
