@@ -1623,7 +1623,20 @@
     "ACCOUNT_LONG_TERM_LIABILITIES": "Long-term Liabilities",
     "ACCOUNT_EQUITY": "Equity",
     "ACCOUNT_REVENUE": "Revenue",
-    "ACCOUNT_EXPENSES": "Expenses"
+    "ACCOUNT_EXPENSES": "Expenses",
+    "OPERATION_TYPE": "Operation Type",
+    "CREATE_NEW_ENTITY_ACCOUNT": "Create new account for Bank/Customer/Supplier",
+    "LINK_EXISTING_ENTITY": "Link existing Bank/Customer/Supplier to account",
+    "LINK_ENTITY_TO_ACCOUNT": "Link Entity to Account",
+    "ENTITY_TYPE": "Entity Type",
+    "CUSTOMER": "Customer",
+    "SUPPLIER": "Supplier",
+    "BANK": "Bank",
+    "SEARCH_ENTITY": "Search Entity",
+    "SEARCH_ENTITY_PLACEHOLDER": "Type to search for entities...",
+    "LINK_ACCOUNT": "Link Account",
+    "ACCOUNT_LINKED_SUCCESSFULLY": "Account linked successfully",
+    "ERROR_LINKING_ACCOUNT": "Error linking account"
   },
 
   "COST_CENTER": {

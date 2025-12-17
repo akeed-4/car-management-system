@@ -1631,7 +1631,20 @@
     "ACCOUNT_LONG_TERM_LIABILITIES": "الخصوم طويلة الأجل",
     "ACCOUNT_EQUITY": "حقوق الملكية",
     "ACCOUNT_REVENUE": "الإيرادات",
-    "ACCOUNT_EXPENSES": "المصروفات"
+    "ACCOUNT_EXPENSES": "المصروفات",
+    "OPERATION_TYPE": "نوع العملية",
+    "CREATE_NEW_ENTITY_ACCOUNT": "إنشاء حساب جديد للبنك/العميل/المورد",
+    "LINK_EXISTING_ENTITY": "ربط البنك/العميل/المورد الموجود بحساب",
+    "LINK_ENTITY_TO_ACCOUNT": "ربط الكيان بالحساب",
+    "ENTITY_TYPE": "نوع الكيان",
+    "CUSTOMER": "العميل",
+    "SUPPLIER": "المورد",
+    "BANK": "البنك",
+    "SEARCH_ENTITY": "البحث عن الكيان",
+    "SEARCH_ENTITY_PLACEHOLDER": "اكتب للبحث عن الكيانات...",
+    "LINK_ACCOUNT": "ربط الحساب",
+    "ACCOUNT_LINKED_SUCCESSFULLY": "تم ربط الحساب بنجاح",
+    "ERROR_LINKING_ACCOUNT": "خطأ في ربط الحساب"
   },
 
   "COST_CENTER": {
