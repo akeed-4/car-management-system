@@ -1,0 +1,176 @@
+<div class="car-details-dialog">
+  <!-- Material Dialog Header -->
+  <div class="dialog-header" mat-dialog-title>
+    <div class="header-title">
+      <mat-icon class="title-icon">directions_car</mat-icon>
+      <h2>{{ data.make }} {{ data.model }} ({{ data.year }})</h2>
+    </div>
+    <button mat-icon-button (click)="close()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Dialog Content -->
+  <div class="dialog-content" mat-dialog-content>
+    <!-- Main Car Image -->
+    <div class="main-image-section">
+      <img [src]="data.imageUrl || '/assets/images/car-placeholder.jpg'"
+           [alt]="data.make + ' ' + data.model"
+           class="main-image"
+           mat-card-image>
+    </div>
+
+    <!-- Basic Information Card -->
+    <mat-card class="detail-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>info</mat-icon>
+          {{ 'CARS.BASIC_INFO' | translate }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-row">
+          <span class="label">{{ 'CARS.VIN' | translate }}:</span>
+          <span class="value">{{ data.vin }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">{{ 'CARS.PLATE_NUMBER' | translate }}:</span>
+          <span class="value">{{ data.plateNumber }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">{{ 'CARS.YEAR' | translate }}:</span>
+          <span class="value">{{ data.year }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">{{ 'CARS.CONDITION' | translate }}:</span>
+          <span class="value">{{ data.condition }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">{{ 'CARS.STATUS' | translate }}:</span>
+          <mat-chip-set aria-label="Status">
+            <mat-chip [color]="getStatusColor(data.status)" selected>
+              <mat-icon matChipAvatar>flag</mat-icon>
+              {{ data.status }}
+            </mat-chip>
+          </mat-chip-set>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Specifications Card -->
+    <mat-card class="detail-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>tune</mat-icon>
+          {{ 'CARS.SPECIFICATIONS' | translate }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-row">
+          <span class="label">{{ 'CARS.EXTERIOR_COLOR' | translate }}:</span>
+          <div class="color-display">
+            <span class="color-box" [style.background-color]="data.exteriorColor || '#999'"></span>
+            <span class="value">{{ data.exteriorColor }}</span>
+          </div>
+        </div>
+        <div class="info-row">
+          <span class="label">{{ 'CARS.INTERIOR_COLOR' | translate }}:</span>
+          <div class="color-display">
+            <span class="color-box" [style.background-color]="data.interiorColor || '#999'"></span>
+            <span class="value">{{ data.interiorColor }}</span>
+          </div>
+        </div>
+        <div class="info-row">
+          <span class="label">{{ 'CARS.MILEAGE' | translate }}:</span>
+          <span class="value">{{ data.mileage | number }} km</span>
+        </div>
+        <div class="info-row">
+          <span class="label">{{ 'CARS.TRANSMISSION' | translate }}:</span>
+          <mat-chip-set aria-label="Transmission">
+            <mat-chip>{{ data.transmission }}</mat-chip>
+          </mat-chip-set>
+        </div>
+        <div class="info-row">
+          <span class="label">{{ 'CARS.ENGINE_SIZE' | translate }}:</span>
+          <span class="value">{{ data.engineSize }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Financial Information Card -->
+    <mat-card class="detail-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>attach_money</mat-icon>
+          {{ 'CARS.FINANCIAL_INFO' | translate }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-row">
+          <span class="label">{{ 'CARS.PURCHASE_PRICE' | translate }}:</span>
+          <span class="value price-value">{{ data.purchasePrice | currency:'SAR':'symbol':'1.0-0' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">{{ 'CARS.ADDITIONAL_COSTS' | translate }}:</span>
+          <span class="value price-value">{{ data.additionalCosts | currency:'SAR':'symbol':'1.0-0' }}</span>
+        </div>
+        <mat-divider></mat-divider>
+        <div class="info-row total-row">
+          <span class="label">{{ 'CARS.TOTAL_COST' | translate }}:</span>
+          <span class="value total-value">{{ data.totalCost | currency:'SAR':'symbol':'1.0-0' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">{{ 'CARS.SALE_PRICE' | translate }}:</span>
+          <span class="value price-value sale-price">{{ data.salePrice | currency:'SAR':'symbol':'1.0-0' }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Description Card -->
+    <mat-card class="detail-card" *ngIf="data.description">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>description</mat-icon>
+          {{ 'CARS.DESCRIPTION' | translate }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="description-text">{{ data.description }}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Photos Gallery Section -->
+    <div class="photos-section" *ngIf="data.photos && data.photos.length > 0">
+      <mat-card class="detail-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>image</mat-icon>
+            {{ 'CARS.PHOTOS' | translate }} ({{ data.photos.length }})
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="photos-grid">
+            <div class="photo-item" *ngFor="let photo of data.photos">
+              <img [src]="photo"
+                   [alt]="data.make + ' ' + data.model"
+                   class="photo-thumbnail"
+                   mat-card-image>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Material Dialog Actions -->
+  <div mat-dialog-actions class="dialog-actions">
+    <button mat-button (click)="close()">
+      <mat-icon>close</mat-icon>
+      {{ 'COMMON.CLOSE' | translate }}
+    </button>
+    <button mat-raised-button color="primary">
+      <mat-icon>edit</mat-icon>
+      {{ 'COMMON.EDIT' | translate }}
+    </button>
+  </div>
+</div>

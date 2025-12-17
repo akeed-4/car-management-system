@@ -1,186 +1,119 @@
-<div >
-  <div class="">
-    <h2>{{ 'CARS.LIST_TITLE' | translate }}</h2>
-    <div class="actions">
-      <input
-        type="text"
-        [(ngModel)]="filter"
-        placeholder="{{ 'CARS.SEARCH_PLACEHOLDER' | translate }}"
-        class="search-input"
-      />
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="onCreate()"
-        >
+<div class="car-list-container" dir="rtl">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="header-content">
+      <h2 class="page-title">{{ 'CARS.LIST_TITLE' | translate }}</h2>
+      <button mat-raised-button color="primary" (click)="onCreate()" class="add-button">
         <mat-icon>add</mat-icon>
         {{ 'CARS.ADD_NEW' | translate }}
       </button>
     </div>
-  <dx-data-grid
-    [dataSource]="filteredCars()"
-    [showBorders]="true"
-    [showRowLines]="true"
-    [showColumnLines]="true"
-    [rowAlternationEnabled]="true"
-    [allowColumnReordering]="true"
-    [allowColumnResizing]="true"
-    [columnAutoWidth]="true"
-    [wordWrapEnabled]="true"
-    [rtlEnabled]="true"
-    [hoverStateEnabled]="true"
-    [selection]="{ mode: 'single' }"
-    (onRowClick)="onRowClick($event)"
-    height="70vh">
+  </div>
 
-    <dxo-load-panel [enabled]="true"></dxo-load-panel>
-    <dxo-scrolling mode="virtual"></dxo-scrolling>
-    <dxo-paging [pageSize]="10"></dxo-paging>
-    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
-    <dxo-filter-row [visible]="true"></dxo-filter-row>
-    <dxo-header-filter [visible]="true"></dxo-header-filter>
-    <dxo-search-panel [visible]="true" [placeholder]="'CARS.SEARCH_PLACEHOLDER' | translate"></dxo-search-panel>
-    <dxo-export [enabled]="true" fileName="cars"></dxo-export>
-    <dxo-grouping [autoExpandAll]="false"></dxo-grouping>
-    <dxo-sorting mode="multiple"></dxo-sorting>
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <mat-card class="filters-card">
+      <mat-card-content>
+        <div class="filters-grid">
+          <!-- Search Input -->
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>{{ 'CARS.SEARCH' | translate }}</mat-label>
+            <input matInput
+                   [(ngModel)]="searchTerm"
+                   placeholder="{{ 'CARS.SEARCH_PLACEHOLDER' | translate }}"
+                   autocomplete="off">
+            <mat-icon matPrefix>search</mat-icon>
+          </mat-form-field>
 
-    <dxi-column
-      dataField="vin"
-      [caption]="'CARS.COLUMNS.VIN' | translate"
-      [allowFiltering]="true"
-      [allowSorting]="true"
-      [allowGrouping]="true"
-      [width]="150">
-    </dxi-column>
+          <!-- Brand Filter -->
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>{{ 'CARS.BRAND' | translate }}</mat-label>
+            <mat-select [(ngModel)]="selectedBrand">
+              <mat-option value="">{{ 'CARS.ALL_BRANDS' | translate }}</mat-option>
+              <mat-option *ngFor="let brand of brands()" [value]="brand">
+                {{ brand }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>directions_car</mat-icon>
+          </mat-form-field>
 
-    <dxi-column
-      dataField="plateNumber"
-      [caption]="'CARS.COLUMNS.PLATE_NUMBER' | translate"
-      [allowFiltering]="true"
-      [allowSorting]="true"
-      [allowGrouping]="true"
-      >
-    </dxi-column>
+          <!-- Status Filter -->
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>{{ 'CARS.STATUS' | translate }}</mat-label>
+            <mat-select [(ngModel)]="selectedStatus">
+              <mat-option value="">{{ 'CARS.ALL_STATUSES' | translate }}</mat-option>
+              <mat-option *ngFor="let status of statuses()" [value]="status">
+                {{ status }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>info</mat-icon>
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
 
-    <dxi-column
-      dataField="make"
-      [caption]="'CARS.COLUMNS.MAKE' | translate"
-      [allowFiltering]="true"
-      [allowSorting]="true"
-      [allowGrouping]="true"
-      [width]="100">
-    </dxi-column>
+  <!-- Cars Grid -->
+  <div class="cars-grid-section">
+    <mat-grid-list [cols]="getGridCols()" rowHeight="400px" gutterSize="16px" class="cars-grid">
+      <mat-grid-tile *ngFor="let car of filteredCars(); trackBy: trackByCarId">
+        <mat-card class="car-card" (click)="openCarDetails(car)">
+          <!-- Car Image -->
+          <div class="car-image-container">
+            <img [src]="car.imageUrl || '/assets/images/car-placeholder.jpg'"
+                 [alt]="car.make + ' ' + car.model"
+                 class="car-image"
+                 loading="lazy">
+            <div class="car-overlay">
+              <button mat-raised-button color="primary" class="view-details-btn" (click)="openCarDetails(car); $event.stopPropagation()">
+                <mat-icon>visibility</mat-icon>
+                {{ 'CARS.VIEW_DETAILS' | translate }}
+              </button>
+            </div>
+          </div>
 
-    <dxi-column
-      dataField="model"
-      [caption]="'CARS.COLUMNS.MODEL' | translate"
-      [allowFiltering]="true"
-      [allowSorting]="true"
-      [allowGrouping]="true"
-      [width]="100">
-    </dxi-column>
+          <!-- Car Info -->
+          <mat-card-content class="car-content">
+            <div class="car-header">
+              <h3 class="car-title">{{ car.make }} {{ car.model }}</h3>
+              <p class="car-year">{{ car.year }}</p>
+            </div>
 
-    <dxi-column
-      dataField="year"
-      [caption]="'CARS.COLUMNS.YEAR' | translate"
-      [allowFiltering]="true"
-      [allowSorting]="true"
-      [allowGrouping]="true"
-      [width]="80">
-    </dxi-column>
+            <div class="car-details">
+              <div class="car-price">
+                <span class="price-label">{{ 'CARS.PRICE' | translate }}:</span>
+                <span class="price-value">{{ car.salePrice | currency:'SAR':'symbol':'1.0-0' }}</span>
+              </div>
 
-    <dxi-column
-      dataField="condition"
-      [caption]="'CARS.COLUMNS.CONDITION' | translate"
-      [allowFiltering]="true"
-      [allowSorting]="true"
-      [allowGrouping]="true"
-      [dataType]="'string'"
-      [lookup]="{
-        dataSource: [
-          { value: 'New', displayExpr: 'CARS.CONDITION.NEW' | translate },
-          { value: 'Used', displayExpr: 'CARS.CONDITION.USED' | translate }
-        ],
-        valueExpr: 'value',
-        displayExpr: 'displayExpr'
-      }"
-      [width]="100">
-    </dxi-column>
+              <div class="car-status">
+                <mat-chip [color]="getStatusColor(car.status)" selected class="status-chip">
+                  <mat-icon>{{ getStatusIcon(car.status) }}</mat-icon>
+                  {{ car.status }}
+                </mat-chip>
+              </div>
+            </div>
 
-    <dxi-column
-      dataField="status"
-      [caption]="'CARS.COLUMNS.STATUS' | translate"
-      [allowFiltering]="true"
-      [allowSorting]="true"
-      [allowGrouping]="true"
-      [dataType]="'string'"
-      [lookup]="{
-        dataSource: [
-          { value: 'Available', displayExpr: 'CARS.STATUS.AVAILABLE' | translate },
-          { value: 'Reserved', displayExpr: 'CARS.STATUS.RESERVED' | translate },
-          { value: 'Sold', displayExpr: 'CARS.STATUS.SOLD' | translate },
-          { value: 'In Maintenance', displayExpr: 'CARS.STATUS.IN_MAINTENANCE' | translate }
-        ],
-        valueExpr: 'value',
-        displayExpr: 'displayExpr'
-      }"
-      >
-    </dxi-column>
+            <!-- Action Buttons -->
+            <div class="car-actions">
+              <button mat-stroked-button color="primary" (click)="onEdit(car); $event.stopPropagation()" class="action-btn">
+                <mat-icon>edit</mat-icon>
+                {{ 'CARS.EDIT' | translate }}
+              </button>
+              <button mat-stroked-button color="warn" (click)="onDelete(car); $event.stopPropagation()" class="action-btn">
+                <mat-icon>delete</mat-icon>
+                {{ 'CARS.DELETE' | translate }}
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </mat-grid-tile>
+    </mat-grid-list>
 
-    <dxi-column
-      dataField="currentLocation"
-      [caption]="'CARS.COLUMNS.LOCATION' | translate"
-      [allowFiltering]="true"
-      [allowSorting]="true"
-      [allowGrouping]="true"
-      [width]="150">
-    </dxi-column>
-
-    <dxi-column
-      dataField="salePrice"
-      [caption]="'CARS.COLUMNS.SALE_PRICE' | translate"
-      dataType="number"
-      format="currency"
-      [allowFiltering]="true"
-      [allowSorting]="true"
-      [allowGrouping]="true"
-      >
-    </dxi-column>
-
-    <dxi-column
-      dataField="quantity"
-      [caption]="'CARS.COLUMNS.QUANTITY' | translate"
-      dataType="number"
-      [allowFiltering]="true"
-      [allowSorting]="true"
-      [allowGrouping]="true"
-      [width]="80">
-    </dxi-column>
-
-    <dxi-column
-      dataField="createdAt"
-      [caption]="'CARS.COLUMNS.CREATED' | translate"
-      dataType="date"
-      format="yyyy-MM-dd"
-      >
-    </dxi-column>
-
-    <dxi-column
-      type="buttons"
-      [width]="120"
-      [caption]="'CARS.COLUMNS.ACTIONS' | translate">
-      <dxi-button
-        [hint]="'CARS.ACTIONS.EDIT' | translate"
-        icon="edit"
-        [onClick]="onEdit"
-        appHasPermission="car.update">
-      </dxi-button>
-      <dxi-button
-        [hint]="'CARS.ACTIONS.DELETE' | translate"
-        icon="trash"
-        [onClick]="onDelete"
-        appHasPermission="car.delete">
-      </dxi-button>
-    </dxi-column>
-  </dx-data-grid>
+    <!-- No Cars Message -->
+    <div class="no-cars" *ngIf="filteredCars().length === 0">
+      <mat-icon class="no-cars-icon">directions_car</mat-icon>
+      <h3>{{ 'CARS.NO_CARS_FOUND' | translate }}</h3>
+      <p>{{ 'CARS.TRY_DIFFERENT_FILTERS' | translate }}</p>
+    </div>
+  </div>
 </div>
