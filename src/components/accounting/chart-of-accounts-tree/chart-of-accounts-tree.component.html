@@ -41,13 +41,32 @@
       [scrolling]="{ mode: 'virtual' }"
       [filterRow]="{ visible: true }"
       [headerFilter]="{ visible: true }"
-      [searchPanel]="{ visible: true, width: 240, placeholder: translate.instant('ACCOUNTING.SEARCH') }"
-      [columnChooser]="{ enabled: true }">
+      [searchPanel]="{ visible: true, width: 240, placeholder: translate.instant('ACCOUNTING.SEARCH') }">
+      
+      <dxo-column-chooser #columnChooser [enabled]="true" mode="select" title="{{'dxDataGrid.columnChooser' | translate}}">
+        <dxo-search [enabled]="true" [editorOptions]="true"></dxo-search>
+        <dxo-selection [allowSelectAll]="true" [selectByClick]="true" [recursive]="true"></dxo-selection>
+      </dxo-column-chooser>
+
+
+      <dxo-filter-row [visible]="true"></dxo-filter-row>
+      <dxo-header-filter [visible]="true"></dxo-header-filter>
+      <dxo-selection mode="single"></dxo-selection>
+      <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false" [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
+      <dxo-paging [pageSize]="20"></dxo-paging>
+      <dxo-pager
+        [visible]="true"
+        [allowedPageSizes]="[10,20,50,100,'all']"
+        [displayMode]="'compact'"
+        [showPageSizeSelector]="true"
+        [showInfo]="true"
+        [showNavigationButtons]="true">
+      </dxo-pager>
+      <dxo-sorting mode="multiple"></dxo-sorting>
       
       <dxi-column 
         dataField="level" 
         [caption]="translate.instant('ACCOUNTING.LEVEL')" 
-        [width]="100" 
         alignment="center"
         [allowFiltering]="false"
         cssClass="level-column">
@@ -56,21 +75,19 @@
       <dxi-column 
         dataField="code" 
         [caption]="translate.instant('ACCOUNTING.ACCOUNT_CODE')" 
-        [width]="150"
         cssClass="code-column">
       </dxi-column>
 
       <dxi-column 
         dataField="translatedName" 
         [caption]="translate.instant('ACCOUNTING.ACCOUNT_NAME')"
-        [minWidth]="250"
         cssClass="name-column">
       </dxi-column>
 
       <dxi-column 
         dataField="accountTypeId" 
         [caption]="translate.instant('ACCOUNTING.ACCOUNT_TYPE')"
-        [width]="150">
+       >
         <dxo-lookup 
           [dataSource]="[
             { value: 1, display: translate.instant('ACCOUNTING.TYPE_ASSET') },
@@ -88,7 +105,6 @@
         dataField="balance" 
         [caption]="translate.instant('ACCOUNTING.BALANCE')" 
         dataType="number"
-        [width]="150"
         alignment="right"
         cssClass="balance-column"
         [format]="{ type: 'currency', currency: 'SAR', precision: 2 }">
@@ -97,7 +113,6 @@
       <dxi-column 
         dataField="isActive" 
         [caption]="translate.instant('ACCOUNTING.STATUS')"
-        [width]="120"
         alignment="center"
         cssClass="status-column">
         <dxo-lookup 
@@ -113,7 +128,6 @@
       <dxi-column 
         type="buttons" 
         [caption]="translate.instant('ACCOUNTING.ACTIONS')" 
-        [width]="180"
         alignment="center"
         [fixed]="true"
         fixedPosition="right"
