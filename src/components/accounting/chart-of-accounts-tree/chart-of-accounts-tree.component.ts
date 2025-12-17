@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, effect } from '@angular/core';
 import { DxTreeListModule } from 'devextreme-angular';
-import { Observable, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
@@ -15,8 +15,22 @@ import { TranslateModule } from '@ngx-translate/core';
   styleUrl: './chart-of-accounts-tree.component.css'
 })
 export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
-  accounts$: Observable<Account[]>;
-  accounts: Account[] = [];
+  // Signals for reactive state management
+  accounts = signal<Account[]>([]);
+  isLoading = signal<boolean>(false);
+  error = signal<string | null>(null);
+
+  // Computed signal for processed accounts data
+  processedAccounts = computed(() => {
+    const accounts = this.accounts();
+    return accounts.map(account => ({
+      ...account,
+      level: this.getAccountLevel(account),
+      translatedName: this.translateAccountName(account.accountNameEn),
+      hasChildren: accounts.some(acc => acc.parentId === account.id)
+    }));
+  });
+
   private destroy$ = new Subject<void>();
 
   // DevExtreme TreeList columns configuration with dynamic translation
@@ -27,20 +41,26 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
     private translate: TranslateService,
     private router: Router
   ) {
-    this.accounts$ = this.accountingService.accounts$;
     this.onAddSubAccount = this.onAddSubAccount.bind(this);
     this.onEditAccount = this.onEditAccount.bind(this);
     this.onDeleteAccount = this.onDeleteAccount.bind(this);
   }
 
   ngOnInit() {
-    this.loadAccounts();
     this.initializeColumns();
+
+    // Load accounts data using effect
+    this.loadAccounts();
 
     // Subscribe to language changes to update column translations and refresh data
     this.translate.onLangChange.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.initializeColumns();
       // Force refresh of accounts data to update translated names
+      this.loadAccounts();
+    });
+
+    // Subscribe to refresh events from service
+    this.accountingService.refresh$.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.loadAccounts();
     });
   }
@@ -56,9 +76,7 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
         dataField: 'level',
         caption: this.translate.instant('ACCOUNTING.LEVEL'),
         width: 100,
-        alignment: 'center',
-        cellTemplate: 'levelTemplate',
-        calculateCellValue: (rowData: Account) => this.getAccountLevel(rowData)
+        alignment: 'center'
       },
       {
         dataField: 'code',
@@ -67,21 +85,19 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
         cssClass: 'code-column'
       },
       {
-        dataField: 'accountNameEn',
-        caption: this.translate.instant('ACCOUNTING.ACCOUNT_NAME'),
-        cellTemplate: 'nameTemplate',
-        calculateCellValue: (rowData: Account) => this.translateAccountName(rowData.accountNameEn)
+        dataField: 'translatedName',
+        caption: this.translate.instant('ACCOUNTING.ACCOUNT_NAME')
       },
       {
-        dataField: 'type',
+        dataField: 'accountTypeId',
         caption: this.translate.instant('ACCOUNTING.ACCOUNT_TYPE'),
         lookup: {
           dataSource: [
-            { value: 'ASSET', display: this.translate.instant('ACCOUNTING.TYPE_ASSET') },
-            { value: 'LIABILITY', display: this.translate.instant('ACCOUNTING.TYPE_LIABILITY') },
-            { value: 'EQUITY', display: this.translate.instant('ACCOUNTING.TYPE_EQUITY') },
-            { value: 'REVENUE', display: this.translate.instant('ACCOUNTING.TYPE_REVENUE') },
-            { value: 'EXPENSE', display: this.translate.instant('ACCOUNTING.TYPE_EXPENSE') }
+            { value: 1, display: this.translate.instant('ACCOUNTING.TYPE_ASSET') },
+            { value: 2, display: this.translate.instant('ACCOUNTING.TYPE_LIABILITY') },
+            { value: 3, display: this.translate.instant('ACCOUNTING.TYPE_EQUITY') },
+            { value: 4, display: this.translate.instant('ACCOUNTING.TYPE_REVENUE') },
+            { value: 5, display: this.translate.instant('ACCOUNTING.TYPE_EXPENSE') }
           ],
           valueExpr: 'value',
           displayExpr: 'display'
@@ -108,6 +124,7 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
       {
         caption: this.translate.instant('ACCOUNTING.ACTIONS'),
         type: 'buttons',
+        width: 150,
         buttons: [
           {
             hint: this.translate.instant('ACCOUNTING.ADD_ACCOUNT'),
@@ -130,18 +147,31 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
   }
 
   loadAccounts() {
-    this.accounts$.subscribe(accounts => {
-      this.accounts = accounts;
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    this.accountingService.getAccounts().subscribe({
+      next: (accounts) => {
+        this.accounts.set(accounts);
+        this.isLoading.set(false);
+        console.log('Accounts loaded:', accounts);
+      },
+      error: (error) => {
+        console.error('Error loading accounts:', error);
+        this.error.set('Failed to load accounts. Please try again.');
+        this.isLoading.set(false);
+      }
     });
   }
 
   getAccountLevel(account: Account): number {
     let level = 1;
     let current = account;
+    const accounts = this.accounts(); // Get current accounts from signal
     while (current.parentId) {
       level++;
       // Find parent account
-      current = this.accounts.find(acc => acc.id === current.parentId)!;
+      current = accounts.find(acc => acc.id === current.parentId)!;
       if (!current) break;
     }
     return level;
@@ -156,7 +186,7 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
   }
 
   onEditAccount(account: Account) {
-    console.log('Edit account:', account);
+    console.log('Edit account clicked:', account);
     // Navigate to edit form with account ID as route parameter
     this.router.navigate(['/accounts/chart-of-accounts-new', account.id], {
       queryParams: { mode: 'edit' }
@@ -196,6 +226,7 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
   }
 
   hasChildren(account: Account): boolean {
-    return this.accounts.some(acc => acc.parentId === account.id);
+    const accounts = this.accounts(); // Get current accounts from signal
+    return accounts.some(acc => acc.parentId === account.id);
   }
 }

@@ -7,7 +7,7 @@
   <div class="tree-section">
     <dx-tree-list
       id="accountsHierarchyTreeList"
-      [dataSource]="accounts"
+      [dataSource]="processedAccounts()"
       keyExpr="id"
       parentIdExpr="parentId"
       [columns]="columns"
@@ -18,22 +18,12 @@
       [rtlEnabled]="true"
       [autoExpandAll]="true"
       [hoverStateEnabled]="true"
-      [rowAlternationEnabled]="true">
+      [rowAlternationEnabled]="true"
+      [scrolling]="{ mode: 'virtual' }">
       
       <!-- Level Column Template with Icon and Number -->
-      <div *dxTemplate="let data of 'levelTemplate'">
-        <div class="level-cell" [style.color]="getLevelColor(data.value)">
-          <i class="dx-icon dx-icon-{{ getLevelIcon(data.value) }}"></i>
-          <span class="level-number">{{ data.value }}</span>
-        </div>
-      </div>
-
       <!-- Name Column Template with Hierarchy Indication -->
-      <div *dxTemplate="let data of 'nameTemplate'">
-        <div class="name-cell" [class.has-children]="hasChildren(data.data)">
-          <span class="account-name" [style.font-size]="(20 - data.value) + 'px'">{{ data.value }}</span>
-        </div>
-      </div>
+      
     </dx-tree-list>
   </div>
 </div>

@@ -1543,6 +1543,10 @@
     "TYPE_EXPENSE": "Expense",
     "MAIN_ACCOUNT": "Main Account",
     "PARTIAL_ACCOUNT": "Partial Account",
+    "SELECT_ACCOUNT_TYPE": "Select Account Type",
+    "SELECT_ACCOUNT_TYPE_DESC": "Choose the type of account you want to create",
+    "MAIN_ACCOUNT_DESC": "A primary account that serves as the foundation for sub-accounts",
+    "PARTIAL_ACCOUNT_DESC": "A detailed sub-account under a main account with full configuration options",
     "ACCOUNT_LEVEL": "Account Level",
     "ACCOUNT_CATEGORY": "Account Category",
     "IS_MAIN_ACCOUNT": "Is Main Account",
@@ -1587,6 +1591,7 @@
     "UNBALANCED": "Unbalanced",
     "CODE_REQUIRED": "Account code is required",
     "NAME_REQUIRED": "Account name is required",
+    "OPTIONAL_FIELD": "Optional field",
     "DESCRIPTION_REQUIRED": "Description is required",
     "CONFIRM_DELETE": "Are you sure you want to delete this account?",
     "CONFIRM_DELETE_ENTRY": "Are you sure you want to delete this journal entry?",
@@ -1636,7 +1641,8 @@
     "SEARCH_ENTITY_PLACEHOLDER": "Type to search for entities...",
     "LINK_ACCOUNT": "Link Account",
     "ACCOUNT_LINKED_SUCCESSFULLY": "Account linked successfully",
-    "ERROR_LINKING_ACCOUNT": "Error linking account"
+    "ERROR_LINKING_ACCOUNT": "Error linking account",
+    "BALANCE":"Balance"
   },
 
   "COST_CENTER": {

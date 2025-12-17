@@ -1551,6 +1551,10 @@
     "TYPE_EXPENSE": "مصروف",
     "MAIN_ACCOUNT": "الحساب الرئيسي",
     "PARTIAL_ACCOUNT": "الحساب الجزئي",
+    "SELECT_ACCOUNT_TYPE": "اختر نوع الحساب",
+    "SELECT_ACCOUNT_TYPE_DESC": "اختر نوع الحساب الذي تريد إنشاءه",
+    "MAIN_ACCOUNT_DESC": "حساب أساسي يعمل كأساس للحسابات الفرعية",
+    "PARTIAL_ACCOUNT_DESC": "حساب فرعي مفصل تحت حساب رئيسي مع خيارات التكوين الكاملة",
     "ACCOUNT_LEVEL": "مستوى الحساب",
     "ACCOUNT_CATEGORY": "فئة الحساب",
     "IS_MAIN_ACCOUNT": "هو حساب رئيسي",
@@ -1595,6 +1599,7 @@
     "UNBALANCED": "غير متوازن",
     "CODE_REQUIRED": "رمز الحساب مطلوب",
     "NAME_REQUIRED": "اسم الحساب مطلوب",
+    "OPTIONAL_FIELD": "حقل اختياري",
     "DESCRIPTION_REQUIRED": "الوصف مطلوب",
     "CONFIRM_DELETE": "هل أنت متأكد من حذف هذا الحساب؟",
     "CONFIRM_DELETE_ENTRY": "هل أنت متأكد من حذف هذا القيد اليومي؟",
@@ -1644,7 +1649,9 @@
     "SEARCH_ENTITY_PLACEHOLDER": "اكتب للبحث عن الكيانات...",
     "LINK_ACCOUNT": "ربط الحساب",
     "ACCOUNT_LINKED_SUCCESSFULLY": "تم ربط الحساب بنجاح",
-    "ERROR_LINKING_ACCOUNT": "خطأ في ربط الحساب"
+    "ERROR_LINKING_ACCOUNT": "خطأ في ربط الحساب",
+    "BALANCE": "الرصيد"
+
   },
 
   "COST_CENTER": {
