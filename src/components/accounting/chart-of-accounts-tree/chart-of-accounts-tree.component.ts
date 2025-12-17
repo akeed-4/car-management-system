@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, computed, effect } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { DxTreeListModule } from 'devextreme-angular';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -11,6 +11,12 @@ import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-chart-of-accounts-tree',
+  standalone: true,
+  imports: [
+    CommonModule,
+    DxTreeListModule,
+    TranslateModule
+  ],
   templateUrl: './chart-of-accounts-tree.component.html',
   styleUrl: './chart-of-accounts-tree.component.css'
 })
@@ -33,12 +39,9 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  // DevExtreme TreeList columns configuration with dynamic translation
-  columns: any[] = [];
-
   constructor(
+    public translate: TranslateService,
     private accountingService: AccountingService,
-    private translate: TranslateService,
     private router: Router
   ) {
     this.onAddSubAccount = this.onAddSubAccount.bind(this);
@@ -47,15 +50,10 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.initializeColumns();
-
-    // Load accounts data using effect
     this.loadAccounts();
 
-    // Subscribe to language changes to update column translations and refresh data
+    // Subscribe to language changes to refresh data with updated translations
     this.translate.onLangChange.pipe(takeUntil(this.destroy$)).subscribe(() => {
-      this.initializeColumns();
-      // Force refresh of accounts data to update translated names
       this.loadAccounts();
     });
 
@@ -68,82 +66,6 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  initializeColumns() {
-    this.columns = [
-      {
-        dataField: 'level',
-        caption: this.translate.instant('ACCOUNTING.LEVEL'),
-        width: 100,
-        alignment: 'center'
-      },
-      {
-        dataField: 'code',
-        caption: this.translate.instant('ACCOUNTING.ACCOUNT_CODE'),
-        width: 150,
-        cssClass: 'code-column'
-      },
-      {
-        dataField: 'translatedName',
-        caption: this.translate.instant('ACCOUNTING.ACCOUNT_NAME')
-      },
-      {
-        dataField: 'accountTypeId',
-        caption: this.translate.instant('ACCOUNTING.ACCOUNT_TYPE'),
-        lookup: {
-          dataSource: [
-            { value: 1, display: this.translate.instant('ACCOUNTING.TYPE_ASSET') },
-            { value: 2, display: this.translate.instant('ACCOUNTING.TYPE_LIABILITY') },
-            { value: 3, display: this.translate.instant('ACCOUNTING.TYPE_EQUITY') },
-            { value: 4, display: this.translate.instant('ACCOUNTING.TYPE_REVENUE') },
-            { value: 5, display: this.translate.instant('ACCOUNTING.TYPE_EXPENSE') }
-          ],
-          valueExpr: 'value',
-          displayExpr: 'display'
-        }
-      },
-      {
-        dataField: 'balance',
-        caption: this.translate.instant('ACCOUNTING.BALANCE'),
-        dataType: 'number',
-        format: { type: 'currency', currency: 'SAR', precision: 2 },
-      },
-      {
-        dataField: 'isActive',
-        caption: this.translate.instant('ACCOUNTING.STATUS'),
-        lookup: {
-          dataSource: [
-            { value: true, display: this.translate.instant('ACCOUNTING.ACTIVE') },
-            { value: false, display: this.translate.instant('ACCOUNTING.INACTIVE') }
-          ],
-          valueExpr: 'value',
-          displayExpr: 'display'
-        }
-      },
-      {
-        caption: this.translate.instant('ACCOUNTING.ACTIONS'),
-        type: 'buttons',
-        width: 150,
-        buttons: [
-          {
-            hint: this.translate.instant('ACCOUNTING.ADD_ACCOUNT'),
-            icon: 'add',
-            onClick: (e: any) => this.onAddSubAccount(e.row.data)
-          },
-          {
-            hint: this.translate.instant('ACCOUNTING.EDIT_ACCOUNT'),
-            icon: 'edit',
-            onClick: (e: any) => this.onEditAccount(e.row.data)
-          },
-          {
-            hint: this.translate.instant('ACCOUNTING.DELETE_ACCOUNT'),
-            icon: 'trash',
-            onClick: (e: any) => this.onDeleteAccount(e.row.data)
-          }
-        ]
-      }
-    ];
   }
 
   loadAccounts() {

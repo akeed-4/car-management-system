@@ -29,9 +29,7 @@ import { AddAccountComponent } from './add-account/add-account.component';
 
 @NgModule({
   declarations: [
-    AccountingComponent,
-    JournalEntriesComponent,
-    ChartOfAccountsTreeComponent
+    JournalEntriesComponent
   ],
   imports: [
     CommonModule,
@@ -56,7 +54,6 @@ import { AddAccountComponent } from './add-account/add-account.component';
     ChartOfAccountsComponent
   ],
   exports: [
-    AccountingComponent,
     JournalEntriesComponent
   ]
 })
