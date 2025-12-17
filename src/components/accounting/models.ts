@@ -75,6 +75,7 @@ export interface CreateAccountDto {
   mainAccountId: number;
   mainAccountCode: string;
   mainAccountName: string;
+  parentId?: number;
   currencyId: number;
   hasCostCenter: boolean;
   costCenterId: number;
@@ -112,6 +113,7 @@ export interface UpdateAccountDto {
   mainAccountId: number;
   mainAccountCode: string;
   mainAccountName: string;
+  parentId?: number;
   currencyId: number;
   hasCostCenter: boolean;
   costCenterId: number;

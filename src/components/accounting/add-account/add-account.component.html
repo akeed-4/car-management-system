@@ -3,19 +3,59 @@
     <mat-card-title>{{ (isEditing ? 'ACCOUNTING.EDIT_ACCOUNT' : 'ACCOUNTING.ADD_ACCOUNT') | translate }}</mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <form [formGroup]="accountForm" (ngSubmit)="onSave()">
-      <!-- Account Type Selection -->
-      <div class="account-type-selection">
-        <mat-radio-group formControlName="accountTypeSelection" class="radio-group">
-          <mat-radio-button value="main" class="radio-button">
-            <mat-icon>account_balance</mat-icon>
-            {{ 'ACCOUNTING.MAIN_ACCOUNT' | translate }}
-          </mat-radio-button>
-          <mat-radio-button value="partial" class="radio-button">
-            <mat-icon>account_tree</mat-icon>
-            {{ 'ACCOUNTING.PARTIAL_ACCOUNT' | translate }}
-          </mat-radio-button>
-        </mat-radio-group>
+    <form [formGroup]="accountForm" (ngSubmit)="onSave()" class="form">
+
+      <!-- Account Type Selection - Professional Design -->
+      <div class="account-type-selection-section">
+        <div class="section-header">
+          <h3 class="section-title">
+            <mat-icon>account_balance_wallet</mat-icon>
+            {{ 'ACCOUNTING.SELECT_ACCOUNT_TYPE' | translate }}
+          </h3>
+          <p class="section-subtitle">{{ 'ACCOUNTING.SELECT_ACCOUNT_TYPE_DESC' | translate }}</p>
+        </div>
+
+        <div class="account-type-cards">
+          <mat-card
+            class="account-type-card"
+            [class.selected]="accountForm.get('accountTypeSelection')?.value === 'main'"
+            (click)="accountForm.get('accountTypeSelection')?.setValue('main')">
+            <mat-card-content class="card-content">
+              <div class="card-icon">
+                <mat-icon>account_balance</mat-icon>
+              </div>
+              <div class="card-text">
+                <h4>{{ 'ACCOUNTING.MAIN_ACCOUNT' | translate }}</h4>
+                <p>{{ 'ACCOUNTING.MAIN_ACCOUNT_DESC' | translate }}</p>
+              </div>
+              <mat-radio-button
+                value="main"
+                formControlName="accountTypeSelection"
+                class="card-radio">
+              </mat-radio-button>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card
+            class="account-type-card"
+            [class.selected]="accountForm.get('accountTypeSelection')?.value === 'partial'"
+            (click)="accountForm.get('accountTypeSelection')?.setValue('partial')">
+            <mat-card-content class="card-content">
+              <div class="card-icon">
+                <mat-icon>account_tree</mat-icon>
+              </div>
+              <div class="card-text">
+                <h4>{{ 'ACCOUNTING.PARTIAL_ACCOUNT' | translate }}</h4>
+                <p>{{ 'ACCOUNTING.PARTIAL_ACCOUNT_DESC' | translate }}</p>
+              </div>
+              <mat-radio-button
+                value="partial"
+                formControlName="accountTypeSelection"
+                class="card-radio">
+              </mat-radio-button>
+            </mat-card-content>
+          </mat-card>
+        </div>
       </div>
 
       <!-- Main Account Form (Simple) -->
@@ -33,6 +73,13 @@
             <input matInput formControlName="accountNameEn" required>
             <mat-icon matPrefix>label</mat-icon>
             <mat-error *ngIf="accountForm.get('accountNameEn')?.invalid">{{ 'ACCOUNTING.NAME_REQUIRED' | translate }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'ACCOUNTING.ACCOUNT_NAME_AR' | translate }}</mat-label>
+            <input matInput formControlName="accountNameAr">
+            <mat-icon matPrefix>label</mat-icon>
+            <mat-hint>{{ 'ACCOUNTING.OPTIONAL_FIELD' | translate }}</mat-hint>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="form-field">

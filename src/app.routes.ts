@@ -155,6 +155,7 @@ export const APP_ROUTES: Routes = [
   { path: 'accounts/floor-plan-financing', component: FloorPlanReportComponent },
   { path: 'accounts/chart-of-accounts', component: ChartOfAccountsTreeComponent },
   { path: 'accounts/chart-of-accounts-new', component: ChartOfAccountsComponent },
+  { path: 'accounts/chart-of-accounts-new/:id', component: ChartOfAccountsComponent },
   { path: 'accounts/journal-entries', component: JournalEntriesComponent },
   { path: 'accounts/journal-entries-list', component: JournalEntriesListComponent },
   {path: 'accounts/', component: SalesReturnInvoiceComponent }, // Added route for sales returns approval

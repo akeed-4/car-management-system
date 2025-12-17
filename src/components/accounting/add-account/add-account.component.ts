@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { AccountingService } from '../accounting.service';
@@ -13,6 +13,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-add-account',
@@ -33,7 +34,7 @@ import { TranslateModule } from '@ngx-translate/core';
     TranslateModule
   ]
 })
-export class AddAccountComponent {
+export class AddAccountComponent implements OnChanges, OnInit {
   @Input() isEditing = false;
   @Input() editingAccount: Account | null = null;
   @Output() accountSaved = new EventEmitter<Account>();
@@ -72,50 +73,116 @@ export class AddAccountComponent {
   constructor(
     private fb: FormBuilder,
     private accountingService: AccountingService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private route: ActivatedRoute
   ) {
     this.accountForm = this.fb.group({
       accountTypeSelection: ['main'], // Default to main account
-      accountCode: [{value:'', disabled: this.infoMode}, {
-        validators: [Validators.required]
-      }],
-      accountNameAr: [{value: this.accountNameAr, disabled: this.infoMode}, {
-        validators: [Validators.required, Validators.minLength(3)]
-      }],
-      accountNameEn: [{value: this.accountNameEn, disabled: this.infoMode}, {
-        validators: [Validators.required, Validators.minLength(3)]
-      }],
-      accountId: [{value: 0, disabled: this.infoMode}],
-      companyId: [{value: this.companyId, disabled: this.infoMode}],
-      accountCategoryId: [{value: this.accountCategoryId, disabled: this.infoMode}],
-      accountTypeId: [{value: this.accountTypeId, disabled: this.infoMode}],
-      accountLevel: [{value: this.accountLevel, disabled: this.infoMode}],
-      isMainAccount: [{value: this.isMainAccount, disabled: this.infoMode}],
-      mainAccountId: [{value: this.accountId, disabled: this.infoMode}],
-      mainAccountCode: [{value: this.accountCode, disabled: !this.accountDialogMode}],
-      mainAccountName: [{value: this.accountNameEn, disabled: !this.accountDialogMode}],
-      currencyId: [{value: this.currencyId, disabled: this.infoMode}],
-      hasCostCenter: [{value: false, disabled: this.infoMode}],
-      costCenterId: [{value: 0, disabled: this.infoMode}],
-      isRetired: [{value: false, disabled: this.infoMode}],
-      isActive: [{value: true, disabled: this.infoMode}],
-      inActiveReasons: [{value: '', disabled: this.infoMode}],
-      isPrivate: [{value: false, disabled: this.infoMode}],
-      hasRemarks: [{value: false, disabled: this.infoMode}],
-      remarksAr: [{value: '', disabled: this.infoMode}],
-      remarksEn: [{value: '', disabled: this.infoMode}],
-      notesAr: [{value: '', disabled: this.infoMode}],
-      notesEn: [{value: '', disabled: this.infoMode}],
-      createNewClient: [{value: this.createNewClient, disabled: this.infoMode}],
-      createNewSupplier: [{value: this.createNewSupplier, disabled: this.infoMode}],
-      createNewBank: [{value: this.createNewBank, disabled: this.infoMode}],
-      clientId: [{value: null, disabled: this.infoMode}],
-      clientName: [{value: '', disabled: this.infoMode}],
-      supplierId: [{value: null, disabled: this.infoMode}],
-      supplierName: [{value: '', disabled: this.infoMode}],
-      bankId: [{value: null, disabled: this.infoMode}],
-      bankName: [{value: '', disabled: this.infoMode}],
+      accountCode: ['', Validators.required],
+      accountNameAr: [''], // Will be set as required for partial accounts only
+      accountNameEn: ['', Validators.required],
+      accountId: [0],
+      companyId: [this.companyId],
+      accountCategoryId: [this.accountCategoryId],
+      accountTypeId: [this.accountTypeId],
+      accountLevel: [this.accountLevel],
+      isMainAccount: [this.isMainAccount],
+      mainAccountId: [this.accountId],
+      mainAccountCode: [''],
+      mainAccountName: [''],
+      parentId: [null],
+      currencyId: [this.currencyId],
+      hasCostCenter: [false],
+      costCenterId: [0],
+      isRetired: [false],
+      isActive: [true],
+      inActiveReasons: [''],
+      isPrivate: [false],
+      hasRemarks: [false],
+      remarksAr: [''],
+      remarksEn: [''],
+      notesAr: [''],
+      notesEn: [''],
+      createNewClient: [this.createNewClient],
+      createNewSupplier: [this.createNewSupplier],
+      createNewBank: [this.createNewBank],
+      clientId: [null],
+      clientName: [''],
+      supplierId: [null],
+      supplierName: [''],
+      bankId: [null],
+      bankName: [''],
     });
+
+    // Watch for account type selection changes to update validation
+    this.accountForm.get('accountTypeSelection')?.valueChanges.subscribe(value => {
+      this.updateValidationBasedOnAccountType(value);
+    });
+
+    // Watch for isMainAccount changes to update mainAccountCode validation
+    this.accountForm.get('isMainAccount')?.valueChanges.subscribe(isMain => {
+      const mainAccountCodeControl = this.accountForm.get('mainAccountCode');
+      if (!isMain) {
+        mainAccountCodeControl?.setValidators([Validators.required]);
+      } else {
+        mainAccountCodeControl?.clearValidators();
+      }
+      mainAccountCodeControl?.updateValueAndValidity();
+    });
+
+    // Watch for mainAccountCode changes to auto-fill mainAccountName
+    this.accountForm.get('mainAccountCode')?.valueChanges.subscribe(code => {
+      if (code) {
+        const mainAccount = this.accountingService.getAccountByCode(code);
+        if (mainAccount) {
+          this.accountForm.get('mainAccountName')?.setValue(mainAccount.accountNameEn);
+        }
+      }
+    });
+
+    // Set initial validation
+    this.updateValidationBasedOnAccountType('main');
+  }
+
+  ngOnInit() {
+    // Read query params for parentId and mode
+    this.route.queryParams.subscribe(params => {
+      const parentId = params['parentId'];
+      const mode = params['mode'];
+      if (parentId && mode === 'add') {
+        // Set as partial account with parentId
+        this.accountForm.patchValue({
+          accountTypeSelection: 'partial',
+          isMainAccount: false,
+          parentId: +parentId // Convert to number
+        });
+        // Find parent account to set mainAccountId, mainAccountCode, mainAccountName
+        const accounts = this.accountingService.getCurrentAccounts();
+        const parentAccount = accounts.find(acc => acc.id === +parentId);
+        if (parentAccount) {
+          this.accountForm.patchValue({
+            mainAccountId: parentAccount.id,
+            mainAccountCode: parentAccount.accountCode,
+            mainAccountName: parentAccount.accountNameEn
+          });
+        }
+      }
+    });
+  }
+
+  private updateValidationBasedOnAccountType(accountType: string) {
+    const accountNameArControl = this.accountForm.get('accountNameAr');
+
+    if (accountType === 'main') {
+      // For main accounts, Arabic name is optional
+      accountNameArControl?.clearValidators();
+    } else {
+      // For partial accounts, Arabic name is required
+      accountNameArControl?.setValidators([Validators.required, Validators.minLength(3)]);
+    }
+
+    // Update validation
+    accountNameArControl?.updateValueAndValidity();
   }
 
   ngOnChanges() {
@@ -134,6 +201,7 @@ export class AddAccountComponent {
         mainAccountId: this.editingAccount.mainAccountId,
         mainAccountCode: this.editingAccount.mainAccountCode,
         mainAccountName: this.editingAccount.mainAccountName,
+        parentId: this.editingAccount.parentId,
         currencyId: this.editingAccount.currencyId,
         hasCostCenter: this.editingAccount.hasCostCenter,
         costCenterId: this.editingAccount.costCenterId,
@@ -156,6 +224,7 @@ export class AddAccountComponent {
         bankId: this.editingAccount.bankId,
         bankName: this.editingAccount.bankName
       });
+      this.updateValidationBasedOnAccountType('partial');
     } else {
       this.accountForm.reset({
         accountTypeSelection: 'main',
@@ -171,6 +240,7 @@ export class AddAccountComponent {
         mainAccountId: 0,
         mainAccountCode: '',
         mainAccountName: '',
+        parentId: null,
         currencyId: this.currencyId,
         hasCostCenter: false,
         costCenterId: 0,
@@ -193,6 +263,7 @@ export class AddAccountComponent {
         bankId: null,
         bankName: ''
       });
+      this.updateValidationBasedOnAccountType('main');
     }
   }
 
@@ -200,21 +271,55 @@ export class AddAccountComponent {
     if (this.accountForm.valid) {
       const formValue = this.accountForm.value;
 
+      // Remove the accountTypeSelection field as it's not part of the DTO
+      const { accountTypeSelection, ...dtoData } = formValue;
+
+      const processedData = { ...dtoData };
+
+      // For partial accounts, resolve mainAccountId from mainAccountCode
+      if (!processedData.isMainAccount && processedData.mainAccountCode) {
+        const mainAccount = this.accountingService.getAccountByCode(processedData.mainAccountCode);
+        if (mainAccount) {
+          processedData.mainAccountId = mainAccount.id;
+          processedData.mainAccountName = mainAccount.accountNameEn; // Update name if needed
+        } else {
+          console.error('Main account not found for code:', processedData.mainAccountCode);
+          // Optionally show error to user
+        }
+      }
+
       if (this.isEditing && this.editingAccount) {
         const updateDto: UpdateAccountDto = {
           id: this.editingAccount.id,
-          ...formValue,
+          ...processedData,
           isActive: true
         };
-        this.accountingService.updateAccount(updateDto).subscribe(account => {
-          this.accountSaved.emit(account);
+        console.log('Sending update DTO:', updateDto);
+        this.accountingService.updateAccount(updateDto).subscribe({
+          next: (account) => {
+            console.log('Account updated successfully:', account);
+            this.accountSaved.emit(account);
+          },
+          error: (error) => {
+            console.error('Error updating account:', error);
+          }
         });
       } else {
-        const createDto: CreateAccountDto = formValue;
-        this.accountingService.createAccount(createDto).subscribe(account => {
-          this.accountSaved.emit(account);
+        const createDto: CreateAccountDto = processedData;
+        console.log('Sending create DTO:', createDto);
+        this.accountingService.createAccount(createDto).subscribe({
+          next: (account) => {
+            console.log('Account created successfully:', account);
+            this.accountSaved.emit(account);
+          },
+          error: (error) => {
+            console.error('Error creating account:', error);
+          }
         });
       }
+    } else {
+      console.log('Form is invalid:', this.accountForm.errors);
+      console.log('Form controls:', this.accountForm.controls);
     }
   }
 
