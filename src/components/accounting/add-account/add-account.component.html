@@ -96,6 +96,53 @@
         </div>
       </div>
 
+      <!-- Integration for Main Account -->
+      <div *ngIf="accountForm.get('accountTypeSelection')?.value === 'main'&&accountForm.get('accountTypeId')?.value == '2'" class="form-section">
+        <h3>{{ 'ACCOUNTING.INTEGRATION' | translate }}</h3>
+
+        <div class="form-row" *ngIf="accountForm.get('accountTypeId')?.value == '2'">
+          <mat-checkbox formControlName="createNewClient">{{ 'ACCOUNTING.CREATE_NEW_CLIENT' | translate }}</mat-checkbox>
+          <mat-form-field appearance="outline" class="form-field" *ngIf="!accountForm.get('createNewClient')?.value">
+            <mat-label>{{ 'ACCOUNTING.CLIENT_ID' | translate }}</mat-label>
+            <input matInput type="number" formControlName="clientId">
+            <mat-icon matPrefix>person</mat-icon>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="form-field" *ngIf="!accountForm.get('createNewClient')?.value">
+            <mat-label>{{ 'ACCOUNTING.CLIENT_NAME' | translate }}</mat-label>
+            <input matInput formControlName="clientName">
+            <mat-icon matPrefix>person_outline</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row" *ngIf="accountForm.get('accountTypeId')?.value == '2'">
+          <mat-checkbox formControlName="createNewSupplier">{{ 'ACCOUNTING.CREATE_NEW_SUPPLIER' | translate }}</mat-checkbox>
+          <mat-form-field appearance="outline" class="form-field" *ngIf="!accountForm.get('createNewSupplier')?.value">
+            <mat-label>{{ 'ACCOUNTING.SUPPLIER_ID' | translate }}</mat-label>
+            <input matInput type="number" formControlName="supplierId">
+            <mat-icon matPrefix>store</mat-icon>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="form-field" *ngIf="!accountForm.get('createNewSupplier')?.value">
+            <mat-label>{{ 'ACCOUNTING.SUPPLIER_NAME' | translate }}</mat-label>
+            <input matInput formControlName="supplierName">
+            <mat-icon matPrefix>storefront</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row" *ngIf="accountForm.get('accountTypeId')?.value == '2'">
+          <mat-checkbox formControlName="createNewBank">{{ 'ACCOUNTING.CREATE_NEW_BANK' | translate }}</mat-checkbox>
+          <mat-form-field appearance="outline" class="form-field" *ngIf="!accountForm.get('createNewBank')?.value">
+            <mat-label>{{ 'ACCOUNTING.BANK_ID' | translate }}</mat-label>
+            <input matInput type="number" formControlName="bankId">
+            <mat-icon matPrefix>account_balance</mat-icon>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="form-field" *ngIf="!accountForm.get('createNewBank')?.value">
+            <mat-label>{{ 'ACCOUNTING.BANK_NAME' | translate }}</mat-label>
+            <input matInput formControlName="bankName">
+            <mat-icon matPrefix>account_balance_wallet</mat-icon>
+          </mat-form-field>
+        </div>
+      </div>
+
       <!-- Partial Account Form (Comprehensive) -->
       <div *ngIf="accountForm.get('accountTypeSelection')?.value === 'partial'" class="account-form-section">
         <!-- Basic Account Information -->
@@ -234,12 +281,12 @@
         <h3>{{ 'ACCOUNTING.INTEGRATION' | translate }}</h3>
 
         <div class="form-row">
-          <mat-checkbox formControlName="createNewClient">{{ 'ACCOUNTING.CREATE_NEW_CLIENT' | translate }}</mat-checkbox>
+          <mat-checkbox formControlName="createNewClient" >{{ 'ACCOUNTING.CREATE_NEW_CLIENT' | translate }}</mat-checkbox>
           <mat-checkbox formControlName="createNewSupplier">{{ 'ACCOUNTING.CREATE_NEW_SUPPLIER' | translate }}</mat-checkbox>
           <mat-checkbox formControlName="createNewBank">{{ 'ACCOUNTING.CREATE_NEW_BANK' | translate }}</mat-checkbox>
         </div>
 
-        <div class="form-row" *ngIf="!accountForm.get('createNewClient')?.value">
+        <div class="form-row" *ngIf="accountForm.get('accountTypeId')?.value == '1' && !accountForm.get('createNewClient')?.value">
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'ACCOUNTING.CLIENT_ID' | translate }}</mat-label>
             <input matInput type="number" formControlName="clientId">
@@ -253,7 +300,7 @@
           </mat-form-field>
         </div>
 
-        <div class="form-row" *ngIf="!accountForm.get('createNewSupplier')?.value">
+        <div class="form-row" *ngIf="accountForm.get('accountTypeId')?.value == '3' && !accountForm.get('createNewSupplier')?.value">
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'ACCOUNTING.SUPPLIER_ID' | translate }}</mat-label>
             <input matInput type="number" formControlName="supplierId">
@@ -267,7 +314,7 @@
           </mat-form-field>
         </div>
 
-        <div class="form-row" *ngIf="!accountForm.get('createNewBank')?.value">
+        <div class="form-row" *ngIf="accountForm.get('accountTypeId')?.value == '2' && !accountForm.get('createNewBank')?.value">
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'ACCOUNTING.BANK_ID' | translate }}</mat-label>
             <input matInput type="number" formControlName="bankId">

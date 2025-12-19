@@ -114,6 +114,29 @@
   background-color: rgba(0, 0, 0, 0.02);
 }
 
+/* Level Indicator */
+.level-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.level-indicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  color: #666;
+  font-size: 14px;
+}
+
+.level-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: #1976d2;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .cost-center-container {

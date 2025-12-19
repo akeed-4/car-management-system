@@ -68,8 +68,7 @@
         dataField="level" 
         [caption]="translate.instant('ACCOUNTING.LEVEL')" 
         alignment="center"
-        [allowFiltering]="false"
-        cssClass="level-column">
+       >
       </dxi-column>
 
       <dxi-column 
@@ -151,6 +150,15 @@
       
     </dx-tree-list>
   </div>
+ 
+  <ng-template #levelTemplate let-data>
+    <div class="level-cell">
+      <span class="level-indicator">
+        <span class="level-arrow">▶</span>
+        Level {{ data.value }}
+      </span>
+    </div>
+  </ng-template>
 
   <!-- Account Form Section -->
   <div class="form-section" *ngIf="isEditing || parentId">

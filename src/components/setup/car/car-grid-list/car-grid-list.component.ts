@@ -20,6 +20,7 @@ import { Car } from '../../../../types/car.model';
 import { InventoryService } from '../../../../services/inventory.service';
 import { HasPermissionDirective } from '../../../shared/permission.directive';
 import { CarDeclarationDialogComponent } from '../car-declaration-dialog/car-declaration-dialog.component';
+import { CarDetailsDialogComponent } from '../car-details-dialog/car-details-dialog.component';
 
 @Component({
   selector: 'app-car-grid-list',
@@ -138,8 +139,12 @@ export class CarGridListComponent implements OnInit {
   }
 
   onViewCar(car: Car): void {
-    this.router.navigate(['/setup/card'], {
-      queryParams: { id: car.id, mode: 'view' }
+    this.dialog.open(CarDetailsDialogComponent, {
+      width: '90vw',
+      maxWidth: '1200px',
+      height: '90vh',
+      data: car,
+      disableClose: false
     });
   }
 

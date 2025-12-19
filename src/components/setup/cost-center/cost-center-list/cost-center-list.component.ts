@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -15,8 +15,6 @@ import { FormsModule } from '@angular/forms';
 import { CostCenter } from '../../../../types/cost-center.model';
 import { CostCenterService } from '../../../../services/cost-center.service';
 import { HasPermissionDirective } from '../../../shared/permission.directive';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-cost-center-list',
@@ -39,123 +37,66 @@ import { takeUntil } from 'rxjs/operators';
   templateUrl: './cost-center-list.component.html',
   styleUrls: ['./cost-center-list.component.css']
 })
-export class CostCenterListComponent implements OnInit, OnDestroy {
+export class CostCenterListComponent implements OnInit {
   private costCenterService = inject(CostCenterService);
   private router = inject(Router);
   public translate = inject(TranslateService);
-  private destroy$ = new Subject<void>();
 
-  costCenters: CostCenter[] = [];
-  filterText = '';
+  // Signals for reactive state
+  costCenters = signal<CostCenter[]>([]);
 
-  // DevExtreme TreeList columns configuration
-  columns: any[] = [];
+  // Computed properties for reactive data
+  costCentersWithLevels = computed(() => this.calculateLevels(this.costCenters()));
+  totalCostCenters = computed(() => this.costCenters().length);
+  activeCostCenters = computed(() => this.costCenters().filter(cc => cc.isActive).length);
 
   constructor() {
     this.onCreate = this.onCreate.bind(this);
+    this.onAddChild = this.onAddChild.bind(this);
     this.onEdit = this.onEdit.bind(this);
     this.onDelete = this.onDelete.bind(this);
     this.onViewEntries = this.onViewEntries.bind(this);
+
+    // Bind methods for DevExtreme buttons
+    this.addChildClick = this.addChildClick.bind(this);
+    this.viewEntriesClick = this.viewEntriesClick.bind(this);
+    this.editClick = this.editClick.bind(this);
+    this.deleteClick = this.deleteClick.bind(this);
   }
 
   ngOnInit(): void {
     this.loadCostCenters();
-    this.initializeColumns();
-
-    // Subscribe to language changes to update column translations
-    this.translate.onLangChange.pipe(takeUntil(this.destroy$)).subscribe(() => {
-      this.initializeColumns();
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  initializeColumns() {
-    this.columns = [
-      {
-        dataField: 'code',
-        caption: this.translate.instant('COST_CENTER.CODE'),
-        width: 120,
-        cssClass: 'code-column'
-      },
-      {
-        dataField: 'name',
-        caption: this.translate.instant('COST_CENTER.NAME'),
-        cellTemplate: 'nameTemplate'
-      },
-      {
-        dataField: 'nameAr',
-        caption: this.translate.instant('COST_CENTER.NAME_AR')
-      },
-      {
-        dataField: 'carInfo',
-        caption: this.translate.instant('COST_CENTER.CAR_INFO'),
-        cellTemplate: 'carInfoTemplate'
-      },
-      {
-        dataField: 'totalCosts',
-        caption: this.translate.instant('COST_CENTER.TOTAL_COSTS'),
-        dataType: 'number',
-        format: { type: 'currency', currency: 'SAR', precision: 2 },
-        alignment: 'right',
-        width: 150
-      },
-      {
-        dataField: 'isActive',
-        caption: this.translate.instant('COST_CENTER.STATUS'),
-        cellTemplate: 'statusTemplate',
-        width: 120,
-        alignment: 'center'
-      },
-      {
-        dataField: 'createdAt',
-        caption: this.translate.instant('COST_CENTER.CREATED_AT'),
-        dataType: 'date',
-        format: 'yyyy-MM-dd',
-        width: 120
-      },
-      {
-        type: 'buttons',
-        width: 150,
-        caption: this.translate.instant('COST_CENTER.ACTIONS'),
-        buttons: [
-          {
-            hint: this.translate.instant('COST_CENTER.ADD_CHILD'),
-            icon: 'add',
-            onClick: (e: any) => this.onAddChild(e)
-          },
-          {
-            hint: this.translate.instant('COST_CENTER.VIEW_ENTRIES'),
-            icon: 'chart',
-            onClick: this.onViewEntries
-          },
-          {
-            hint: this.translate.instant('COST_CENTER.EDIT'),
-            icon: 'edit',
-            onClick: this.onEdit
-          },
-          {
-            hint: this.translate.instant('COST_CENTER.DELETE'),
-            icon: 'trash',
-            onClick: this.onDelete
-          }
-        ]
-      }
-    ];
   }
 
   loadCostCenters(): void {
     this.costCenterService.getCostCenters().subscribe({
       next: (data) => {
-        this.costCenters = data;
+        this.costCenters.set(data);
       },
       error: (error) => {
         console.error('Error loading cost centers:', error);
       }
     });
+  }
+
+  calculateLevels(costCenters: CostCenter[]): CostCenter[] {
+    const result: CostCenter[] = [];
+    const processed = new Set<number>();
+
+    const processLevel = (parentId: number | null, level: number): void => {
+      const children = costCenters.filter(cc => cc.parentId === parentId && !processed.has(cc.id));
+      children.forEach(child => {
+        processed.add(child.id);
+        (child as any).level = level;
+        result.push(child);
+        processLevel(child.id, level + 1);
+      });
+    };
+
+    // Start with root level (parentId is null)
+    processLevel(null, 1);
+
+    return result;
   }
 
   onCreate(): void {
@@ -192,6 +133,23 @@ export class CostCenterListComponent implements OnInit, OnDestroy {
     this.router.navigate(['/cost-centers', costCenter.id, 'entries']);
   }
 
+  // DevExtreme button click handlers
+  addChildClick(e: any): void {
+    this.onAddChild(e);
+  }
+
+  viewEntriesClick(e: any): void {
+    this.onViewEntries(e);
+  }
+
+  editClick(e: any): void {
+    this.onEdit(e);
+  }
+
+  deleteClick(e: any): void {
+    this.onDelete(e);
+  }
+
   onRowClick(e: any): void {
     if (e.data) {
       this.router.navigate(['/cost-centers/edit', e.data.id]);
@@ -207,6 +165,6 @@ export class CostCenterListComponent implements OnInit, OnDestroy {
   }
 
   hasChildren(costCenter: CostCenter): boolean {
-    return this.costCenters.some(cc => cc.parentId === costCenter.id);
+    return this.costCenters().some(cc => cc.parentId === costCenter.id);
   }
 }

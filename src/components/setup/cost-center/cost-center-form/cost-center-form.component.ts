@@ -53,9 +53,22 @@ export class CostCenterFormComponent implements OnInit {
   cars: Car[] = [];
   parentCostCenters: CostCenter[] = [];
   isLoading = false;
+  tempParentId?: number;
 
   ngOnInit(): void {
     this.initForm();
+    
+    // Check for parentId in query parameters first
+    this.route.queryParams.subscribe(queryParams => {
+      if (queryParams['parentId']) {
+        const parentId = +queryParams['parentId'];
+        // Store it temporarily until form is ready
+        this.tempParentId = parentId;
+        // Set it in form once parent cost centers are loaded
+        this.setParentIdInForm(parentId);
+      }
+    });
+    
     this.loadCars();
     this.loadParentCostCenters();
     
@@ -95,11 +108,27 @@ export class CostCenterFormComponent implements OnInit {
     this.costCenterService.getCostCenters().subscribe({
       next: (centers) => {
         this.parentCostCenters = centers.filter(c => !this.costCenterId || c.id !== this.costCenterId);
+        // Set parentId if it was passed in query params
+        if (this.tempParentId) {
+          this.setParentIdInForm(this.tempParentId);
+        }
       },
       error: (error) => {
         console.error('Error loading parent cost centers:', error);
       }
     });
+  }
+
+  setParentIdInForm(parentId: number): void {
+    // Check if the parentId exists in the loaded parent cost centers
+    const parentExists = this.parentCostCenters.some(pc => pc.id === parentId);
+    if (parentExists) {
+      this.costCenterForm.patchValue({ parentId });
+      // Optionally disable the parent field to prevent changes
+      // this.costCenterForm.get('parentId')?.disable();
+    } else {
+      console.warn('Parent cost center with id', parentId, 'not found');
+    }
   }
 
   loadCostCenter(id: number): void {

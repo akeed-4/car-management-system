@@ -20,10 +20,9 @@
   <div class="tree-section">
     <dx-tree-list
       id="costCentersTreeList"
-      [dataSource]="costCenters"
+      [dataSource]="costCentersWithLevels()"
       keyExpr="id"
       parentIdExpr="parentId"
-      [columns]="columns"
       [showRowLines]="true"
       [showBorders]="true"
       [columnAutoWidth]="true"
@@ -49,6 +48,108 @@
         [visible]="true"
         [placeholder]="'COST_CENTER.SEARCH_PLACEHOLDER' | translate">
       </dxo-search-panel>
+
+      <!-- Level Column -->
+      <dxi-column
+        dataField="level"
+        [caption]="translate.instant('COST_CENTER.LEVEL')"
+        [width]="80"
+        alignment="center"
+        cellTemplate="levelTemplate">
+      </dxi-column>
+
+      <!-- Code Column -->
+      <dxi-column
+        dataField="code"
+        [caption]="translate.instant('COST_CENTER.CODE')"
+        [width]="120"
+        cssClass="code-column">
+      </dxi-column>
+
+      <!-- Name Column -->
+      <dxi-column
+        dataField="name"
+        [caption]="translate.instant('COST_CENTER.NAME')"
+        cellTemplate="nameTemplate">
+      </dxi-column>
+
+      <!-- Name Arabic Column -->
+      <dxi-column
+        dataField="nameAr"
+        [caption]="translate.instant('COST_CENTER.NAME_AR')">
+      </dxi-column>
+
+      <!-- Car Info Column -->
+      <dxi-column
+        dataField="carInfo"
+        [caption]="translate.instant('COST_CENTER.CAR_INFO')"
+        cellTemplate="carInfoTemplate">
+      </dxi-column>
+
+      <!-- Total Costs Column -->
+      <dxi-column
+        dataField="totalCosts"
+        [caption]="translate.instant('COST_CENTER.TOTAL_COSTS')"
+        dataType="number"
+        [format]="{ type: 'currency', currency: 'SAR', precision: 2 }"
+        alignment="right"
+        [width]="150">
+      </dxi-column>
+
+      <!-- Status Column -->
+      <dxi-column
+        dataField="isActive"
+        [caption]="translate.instant('COST_CENTER.STATUS')"
+        cellTemplate="statusTemplate"
+        [width]="120"
+        alignment="center">
+      </dxi-column>
+
+      <!-- Created At Column -->
+      <dxi-column
+        dataField="createdAt"
+        [caption]="translate.instant('COST_CENTER.CREATED_AT')"
+        dataType="date"
+        format="yyyy-MM-dd"
+        [width]="120">
+      </dxi-column>
+
+      <!-- Actions Column -->
+      <dxi-column
+        type="buttons"
+        [width]="150"
+        [caption]="translate.instant('COST_CENTER.ACTIONS')">
+        <dxi-button
+          [hint]="translate.instant('COST_CENTER.ADD_CHILD')"
+          icon="add"
+          [onClick]="addChildClick">
+        </dxi-button>
+        <dxi-button
+          [hint]="translate.instant('COST_CENTER.VIEW_ENTRIES')"
+          icon="chart"
+          [onClick]="viewEntriesClick">
+        </dxi-button>
+        <dxi-button
+          [hint]="translate.instant('COST_CENTER.EDIT')"
+          icon="edit"
+          [onClick]="editClick">
+        </dxi-button>
+        <dxi-button
+          [hint]="translate.instant('COST_CENTER.DELETE')"
+          icon="trash"
+          [onClick]="deleteClick">
+        </dxi-button>
+      </dxi-column>
+
+      <!-- Level Column Template -->
+      <div *dxTemplate="let data of 'levelTemplate'">
+        <div class="level-cell">
+          <span class="level-indicator" [style.margin-left.px]="(data.value - 1) * 20">
+            <mat-icon class="level-icon">subdirectory_arrow_left</mat-icon>
+            {{ data.value }}
+          </span>
+        </div>
+      </div>
 
       <!-- Name Column Template -->
       <div *dxTemplate="let data of 'nameTemplate'">

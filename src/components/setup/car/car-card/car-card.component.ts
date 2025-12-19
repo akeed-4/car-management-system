@@ -162,7 +162,7 @@ export class CarCardComponent implements OnInit {
       engineSize: [''],
       status: ['Available'],
       currentLocation: ['In Showroom'],
-      photos: [['https://picsum.photos/800/600?random=10']],
+      photos: [[]], // Initialize as empty array
       purchasePrice: [0],
       additionalCosts: [0],
       totalCost: [0],
@@ -184,6 +184,13 @@ export class CarCardComponent implements OnInit {
   private loadCarForEdit(id: number): void {
     this.inventoryService.getCarById(id).subscribe({
       next: (existingCar) => {
+        // Ensure photos is an array of strings
+        if (!existingCar.photos || !Array.isArray(existingCar.photos)) {
+          existingCar.photos = [];
+        } else {
+          // Filter to ensure all elements are strings
+          existingCar.photos = existingCar.photos.filter((photo): photo is string => typeof photo === 'string');
+        }
         this.carForm.patchValue(existingCar);
         // Set modelId from model name
         const model = this.allModels().find(m => m.name === existingCar.model);
@@ -197,7 +204,7 @@ export class CarCardComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading car:', error);
-    this.router.navigate(['/setup/card']);
+        this.router.navigate(['/setup/card']);
       }
     });
   }
@@ -234,7 +241,9 @@ backToCard(): void {
           await this.inventoryService.addCar(newCar as Omit<Car, 'id'>);
           this.toastService.showSuccess('TOAST.ADD_SUCCESS');
         }
-        // this.router.navigate(['/inventory']);
+        // Refresh the cars list
+        this.inventoryService.loadCars();
+        this.router.navigate(['/setup/cars']);
       } catch (error) {
         console.error('Error saving car:', error);
         this.toastService.showError('TOAST.SAVE_ERROR');

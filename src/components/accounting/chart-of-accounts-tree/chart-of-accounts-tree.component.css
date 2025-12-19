@@ -199,6 +199,29 @@
   font-size: 15px;
 }
 
+/* Level Template Styles */
+.level-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.level-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #667eea;
+}
+
+.level-arrow {
+  font-size: 14px;
+  color: #667eea;
+  margin-right: 4px;
+  display: inline-block;
+}
+
 ::ng-deep .code-column {
   font-family: 'Courier New', monospace;
   font-weight: 600;

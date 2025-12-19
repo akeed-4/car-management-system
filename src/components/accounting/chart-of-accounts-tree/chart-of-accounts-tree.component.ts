@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
-import { DxTreeListModule } from 'devextreme-angular';
+import { DxTreeListModule, DxTemplateModule } from 'devextreme-angular';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
@@ -15,6 +15,7 @@ import { TranslateModule } from '@ngx-translate/core';
   imports: [
     CommonModule,
     DxTreeListModule,
+    DxTemplateModule,
     TranslateModule
   ],
   templateUrl: './chart-of-accounts-tree.component.html',

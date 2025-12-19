@@ -80,7 +80,14 @@
       "PERIODIC_INSPECTION": "Periodic Inspection"
     },
     "STOCK_LESS": "requested quantity is greater than available stock",
-    "CURRENCY": "SAR"
+    "CURRENCY": "SAR",
+    "VIEW": "View",
+    "EDIT": "Edit",
+    "DELETE": "Delete",
+    "YES": "Yes",
+    "NO": "No",
+    "ARCHIVED": "Archived",
+    "CLOSE": "Close"
   },
   "SALE": {
     "MANAGEMENT": "Sale Management",
@@ -1220,7 +1227,35 @@
       "VIEW": "View Details",
       "EDIT": "Edit",
       "DELETE": "Delete"
-    }
+    },
+    "VIN": "VIN",
+    "PLATE_NUMBER": "Plate Number",
+    "YEAR": "Year",
+    "CONDITION": "Condition",
+    "STATUS": "Status",
+    "ISTIMARA_EXPIRY": "Istimara Expiry",
+    "FAHAS_STATUS": "Fahas Status",
+    "CURRENT_LOCATION": "Current Location",
+    "PURCHASE_DATE": "Purchase Date",
+    "FLOOR_PLAN_ID": "Floor Plan ID",
+    "CAR_TYPE": "Car Type",
+    "TRANSPORTATION_TYPE": "Transportation Type",
+    "CHASSIS_NUMBER": "Chassis Number",
+    "OWNER_NAME": "Owner Name",
+    "OWNER_ID_NUMBER": "Owner ID Number",
+    "OWNER_PHONE": "Owner Phone",
+    "AUTHORIZED_SELLER_NAME": "Authorized Seller Name",
+    "AUTHORIZED_SELLER_ID_NUMBER": "Authorized Seller ID Number",
+    "AUTHORIZED_SELLER_PHONE": "Authorized Seller Phone",
+    "AUTHORIZATION_DOCUMENT_NUMBER": "Authorization Document Number",
+    "AUTHORIZATION_DOCUMENT_DATE": "Authorization Document Date",
+    "AUTHORIZATION_DOCUMENT_ATTACHMENT": "Authorization Document Attachment",
+    "SALE_PRICE": "Sale Price",
+    "QUANTITY": "Quantity",
+    "LOCATION": "Location",
+    "DOCUMENTATION": "Documentation",
+    "OWNER_INFO": "Owner Information",
+    "SELLER_INFO": "Authorized Seller Information"
   },
   "CONSIGNMENT": {
     "LIST_TITLE": "Consignment Cars",

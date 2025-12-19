@@ -14,14 +14,14 @@
   <div class="dialog-content" mat-dialog-content>
     <!-- Main Car Image -->
     <div class="main-image-section">
-      <img [src]="data.imageUrl || '/assets/images/car-placeholder.jpg'"
+      <img [src]="data.imageUrl || '/assets/images/car.jpg'"
            [alt]="data.make + ' ' + data.model"
            class="main-image"
            mat-card-image>
     </div>
 
     <!-- Basic Information Card -->
-    <mat-card class="detail-card">
+    <mat-card >
       <mat-card-header>
         <mat-card-title>
           <mat-icon>info</mat-icon>
@@ -58,7 +58,7 @@
     </mat-card>
 
     <!-- Specifications Card -->
-    <mat-card class="detail-card">
+    <mat-card >
       <mat-card-header>
         <mat-card-title>
           <mat-icon>tune</mat-icon>
@@ -98,7 +98,7 @@
     </mat-card>
 
     <!-- Financial Information Card -->
-    <mat-card class="detail-card">
+    <mat-card >
       <mat-card-header>
         <mat-card-title>
           <mat-icon>attach_money</mat-icon>
@@ -126,16 +126,142 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- Description Card -->
-    <mat-card class="detail-card" *ngIf="data.description">
+    <!-- Documentation Card -->
+    <mat-card >
       <mat-card-header>
         <mat-card-title>
           <mat-icon>description</mat-icon>
-          {{ 'CARS.DESCRIPTION' | translate }}
+          {{ 'CARS.DOCUMENTATION' | translate }}
         </mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <p class="description-text">{{ data.description }}</p>
+        <div class="info-row">
+          <span class="label">{{ 'CARS.ISTIMARA_EXPIRY' | translate }}:</span>
+          <span class="value">{{ data.istimaraExpiry | date:'mediumDate' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">{{ 'CARS.FAHAS_STATUS' | translate }}:</span>
+          <mat-chip-set aria-label="Fahas Status">
+            <mat-chip [color]="getFahasStatusColor(data.fahasStatus)" selected>
+              <mat-icon matChipAvatar>verified</mat-icon>
+              {{ data.fahasStatus }}
+            </mat-chip>
+          </mat-chip-set>
+        </div>
+        <div class="info-row" *ngIf="data.chassisNumber">
+          <span class="label">{{ 'CARS.CHASSIS_NUMBER' | translate }}:</span>
+          <span class="value">{{ data.chassisNumber }}</span>
+        </div>
+        <div class="info-row" *ngIf="data.purchaseDate">
+          <span class="label">{{ 'CARS.PURCHASE_DATE' | translate }}:</span>
+          <span class="value">{{ data.purchaseDate | date:'mediumDate' }}</span>
+        </div>
+        <div class="info-row" *ngIf="data.floorPlanId">
+          <span class="label">{{ 'CARS.FLOOR_PLAN_ID' | translate }}:</span>
+          <span class="value">{{ data.floorPlanId }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Owner Information Card -->
+    <mat-card *ngIf="data.ownerName || data.ownerIdNumber || data.ownerPhone">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>person</mat-icon>
+          {{ 'CARS.OWNER_INFO' | translate }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-row" *ngIf="data.ownerName">
+          <span class="label">{{ 'CARS.OWNER_NAME' | translate }}:</span>
+          <span class="value">{{ data.ownerName }}</span>
+        </div>
+        <div class="info-row" *ngIf="data.ownerIdNumber">
+          <span class="label">{{ 'CARS.OWNER_ID_NUMBER' | translate }}:</span>
+          <span class="value">{{ data.ownerIdNumber }}</span>
+        </div>
+        <div class="info-row" *ngIf="data.ownerPhone">
+          <span class="label">{{ 'CARS.OWNER_PHONE' | translate }}:</span>
+          <span class="value">{{ data.ownerPhone }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Authorized Seller Information Card -->
+    <mat-card class="detail-card" *ngIf="data.authorizedSellerName || data.authorizedSellerIdNumber || data.authorizedSellerPhone || data.authorizationDocumentNumber">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>store</mat-icon>
+          {{ 'CARS.SELLER_INFO' | translate }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-row" *ngIf="data.authorizedSellerName">
+          <span class="label">{{ 'CARS.AUTHORIZED_SELLER_NAME' | translate }}:</span>
+          <span class="value">{{ data.authorizedSellerName }}</span>
+        </div>
+        <div class="info-row" *ngIf="data.authorizedSellerIdNumber">
+          <span class="label">{{ 'CARS.AUTHORIZED_SELLER_ID_NUMBER' | translate }}:</span>
+          <span class="value">{{ data.authorizedSellerIdNumber }}</span>
+        </div>
+        <div class="info-row" *ngIf="data.authorizedSellerPhone">
+          <span class="label">{{ 'CARS.AUTHORIZED_SELLER_PHONE' | translate }}:</span>
+          <span class="value">{{ data.authorizedSellerPhone }}</span>
+        </div>
+        <div class="info-row" *ngIf="data.authorizationDocumentNumber">
+          <span class="label">{{ 'CARS.AUTHORIZATION_DOCUMENT_NUMBER' | translate }}:</span>
+          <span class="value">{{ data.authorizationDocumentNumber }}</span>
+        </div>
+        <div class="info-row" *ngIf="data.authorizationDocumentDate">
+          <span class="label">{{ 'CARS.AUTHORIZATION_DOCUMENT_DATE' | translate }}:</span>
+          <span class="value">{{ data.authorizationDocumentDate | date:'mediumDate' }}</span>
+        </div>
+        <div class="info-row" *ngIf="data.authorizationDocumentAttachment">
+          <span class="label">{{ 'CARS.AUTHORIZATION_DOCUMENT_ATTACHMENT' | translate }}:</span>
+          <span class="value">
+            <a [href]="data.authorizationDocumentAttachment" target="_blank" class="attachment-link">
+              <mat-icon>attachment</mat-icon>
+              {{ 'COMMON.VIEW' | translate }}
+            </a>
+          </span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Additional Information Card -->
+    <mat-card class="detail-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>info_outline</mat-icon>
+          {{ 'CARS.BASIC_INFO' | translate }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-row" *ngIf="data.carType">
+          <span class="label">{{ 'CARS.CAR_TYPE' | translate }}:</span>
+          <span class="value">{{ data.carType }}</span>
+        </div>
+        <div class="info-row" *ngIf="data.transportationType">
+          <span class="label">{{ 'CARS.TRANSPORTATION_TYPE' | translate }}:</span>
+          <span class="value">{{ data.transportationType }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">{{ 'CARS.CURRENT_LOCATION' | translate }}:</span>
+          <span class="value">{{ data.currentLocation }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">{{ 'CARS.QUANTITY' | translate }}:</span>
+          <span class="value">{{ data.quantity }}</span>
+        </div>
+        <div class="info-row" *ngIf="data.isArchived !== undefined">
+          <span class="label">{{ 'COMMON.ARCHIVED' | translate }}:</span>
+          <mat-chip-set aria-label="Archived">
+            <mat-chip [color]="data.isArchived ? 'warn' : 'primary'" selected>
+              <mat-icon matChipAvatar>{{ data.isArchived ? 'archive' : 'unarchive' }}</mat-icon>
+              {{ data.isArchived ? 'COMMON.YES' : 'COMMON.NO' | translate }}
+            </mat-chip>
+          </mat-chip-set>
+        </div>
       </mat-card-content>
     </mat-card>
 

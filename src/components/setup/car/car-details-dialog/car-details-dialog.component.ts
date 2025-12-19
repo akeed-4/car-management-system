@@ -49,4 +49,17 @@ export class CarDetailsDialogComponent {
         return 'basic';
     }
   }
+
+  getFahasStatusColor(status: string): string {
+    switch (status) {
+      case 'Valid':
+        return 'primary';
+      case 'Expired':
+        return 'warn';
+      case 'Not Required':
+        return 'accent';
+      default:
+        return 'basic';
+    }
+  }
 }

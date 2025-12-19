@@ -2,9 +2,17 @@
   display: flex;
   flex-direction: column;
   max-width: 1000px;
+  height: 90vh;
   max-height: 90vh;
-  overflow-y: auto;
   background: #fafafa;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Panel class for Material Dialog */
+::ng-deep .car-details-dialog-panel .mat-mdc-dialog-container {
+  border-radius: 8px !important;
+  overflow: hidden;
 }
 
 /* ===== Dialog Header ===== */
@@ -58,9 +66,31 @@
   padding: 24px;
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   gap: 20px;
+  scrollbar-width: thin;
+  scrollbar-color: #1976d2 #f0f0f0;
+}
+
+/* Custom scrollbar for webkit browsers */
+.dialog-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dialog-content::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 4px;
+}
+
+.dialog-content::-webkit-scrollbar-thumb {
+  background: #1976d2;
+  border-radius: 4px;
+}
+
+.dialog-content::-webkit-scrollbar-thumb:hover {
+  background: #1565c0;
 }
 
 /* Main Image Section */
@@ -110,6 +140,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
 }
 
 ::ng-deep .detail-card .mat-mdc-card-title mat-icon {

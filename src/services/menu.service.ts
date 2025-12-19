@@ -21,12 +21,25 @@ export const menuData = [
   name: 'البيانات الأساسية',
   englishName: 'Master Data',
   submenu: [
-    { id: 12, name: 'الشركات', route: '/setup/companies' },
+    { id: 12, name: 'الانشطة', route: '/setup/companies' },
     { id: 13, name: 'الفروع', route: '/setup/branches' },
     { id: 14, name: 'المعارض', route: '/setup/stores' }
   ]
 },
-
+  {
+    id: 8,
+    name: 'المعاملات المحاسبية',
+    englishName: 'Accounts',
+    submenu: [
+      { id: 81, name: 'شجرة الحسابات (شجرة)', englishName: 'Chart of Accounts (Tree)', route: '/accounts/chart-of-accounts' },
+      { id: 83, name: 'مراكز التكلفة', englishName: 'Cost Centers', route: '/cost-centers' },
+      { id: 82, name: ' قيود اليومية', englishName: 'Journal Entries',route: '/accounts/journal-entries-list' },
+      { id: 85, name: 'سندات القبض', englishName: 'Receipt Vouchers', route: '/accounts/receipts' },
+      { id: 86, name: 'سندات الصرف', englishName: 'Payment Vouchers', route: '/accounts/payments' },
+      { id: 87, name: 'سندات العربون', englishName: 'Deposit Vouchers', route: '/accounts/deposits' },
+      { id: 88, name: 'تمويل المخزون', englishName: 'Floor Plan Financing', route: '/accounts/floor-plan-financing' }
+    ]
+  },
   {
     id: 2,
     name: 'التأسيس',
@@ -103,20 +116,7 @@ export const menuData = [
       { id: 72, name: 'إدارة الصيانة', englishName: 'Maintenance Management', route: '/maintenance' }
     ]
   },
-  {
-    id: 8,
-    name: 'المعاملات المحاسبية',
-    englishName: 'Accounts',
-    submenu: [
-      { id: 81, name: 'شجرة الحسابات (شجرة)', englishName: 'Chart of Accounts (Tree)', route: '/accounts/chart-of-accounts' },
-      { id: 82, name: ' قيود اليومية', englishName: 'Journal Entries',route: '/accounts/journal-entries-list' },
-      { id: 83, name: 'مراكز التكلفة', englishName: 'Cost Centers', route: '/cost-centers' },
-      { id: 85, name: 'سندات القبض', englishName: 'Receipt Vouchers', route: '/accounts/receipts' },
-      { id: 86, name: 'سندات الصرف', englishName: 'Payment Vouchers', route: '/accounts/payments' },
-      { id: 87, name: 'سندات العربون', englishName: 'Deposit Vouchers', route: '/accounts/deposits' },
-      { id: 88, name: 'تمويل المخزون', englishName: 'Floor Plan Financing', route: '/accounts/floor-plan-financing' }
-    ]
-  },
+
   
   {
     id: 10,

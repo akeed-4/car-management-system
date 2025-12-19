@@ -65,25 +65,37 @@ async addCar(car: Omit<Car, 'id' | 'totalCost'>): Promise<Car> {
   } else {
     newCar.istimaraExpiry = null;
   }
-  return firstValueFrom(this.http.post<Car>(this.apiUrl + '/Create', newCar));
+  const addedCar = await firstValueFrom(this.http.post<Car>(this.apiUrl + '/Create', newCar));
+  // Refresh the cars list
+  this.loadCars();
+  return addedCar;
 }
   // =======================
   // PUT / PATCH
   // =======================
   updateCar(updatedCar: Car): Observable<Car> {
-    return this.http.put<Car>(`${this.apiUrl}/${updatedCar.id}`, updatedCar);
+    console.log('Updating car', updatedCar);
+    return this.http.put<Car>(`${this.apiUrl}/Update/${updatedCar.id}`, updatedCar).pipe(
+      tap(() => this.loadCars())
+    );
   }
 
   updateCarStatus(id: number, status: CarStatus): Observable<Car> {
-    return this.http.patch<Car>(`${this.apiUrl}/${id}`, { status });
+    return this.http.patch<Car>(`${this.apiUrl}/${id}`, { status }).pipe(
+      tap(() => this.loadCars())
+    );
   }
 
   updateCarLocation(id: number, location: CarLocation): Observable<Car> {
-    return this.http.patch<Car>(`${this.apiUrl}/${id}`, { currentLocation: location });
+    return this.http.patch<Car>(`${this.apiUrl}/${id}`, { currentLocation: location }).pipe(
+      tap(() => this.loadCars())
+    );
   }
 
   setCarQuantity(id: number, quantity: number): Observable<Car> {
-    return this.http.patch<Car>(`${this.apiUrl}/${id}`, { quantity });
+    return this.http.patch<Car>(`${this.apiUrl}/${id}`, { quantity }).pipe(
+      tap(() => this.loadCars())
+    );
   }
 
   incrementCarQuantity(id: number, increment: number): Observable<Car> {
@@ -102,14 +114,20 @@ async addCar(car: Omit<Car, 'id' | 'totalCost'>): Promise<Car> {
   // DELETE
   // =======================
   deleteCar(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/Delete/${id}`).pipe(
+      tap(() => this.loadCars())
+    );
   }
 
   archiveCar(id: number): Observable<Car> {
-    return this.http.patch<Car>(`${this.apiUrl}/${id}`, { isArchived: true });
+    return this.http.patch<Car>(`${this.apiUrl}/${id}`, { isArchived: true }).pipe(
+      tap(() => this.loadCars())
+    );
   }
 
   unarchiveCar(id: number): Observable<Car> {
-    return this.http.patch<Car>(`${this.apiUrl}/${id}`, { isArchived: false });
+    return this.http.patch<Car>(`${this.apiUrl}/${id}`, { isArchived: false }).pipe(
+      tap(() => this.loadCars())
+    );
   }
 }

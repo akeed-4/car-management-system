@@ -28,7 +28,7 @@ export class CostCenterService {
   // Cost Center CRUD
   getCostCenters(): Observable<CostCenter[]> {
     console.log('Making GET request to:', `${this.apiUrl}`);
-    return this.http.get<CostCenter[]>(`${this.apiUrl}`, { headers: this.headers }).pipe(
+    return this.http.get<CostCenter[]>(`${this.apiUrl}/GetAll`, { headers: this.headers }).pipe(
       map(costCenters => {
         console.log('Received cost centers:', costCenters);
         this.costCentersSubject.next(costCenters);
@@ -60,9 +60,9 @@ export class CostCenterService {
   }
 
   createCostCenter(dto: CreateCostCenterDto): Observable<CostCenter> {
-    console.log('Making POST request to:', `${this.apiUrl}`);
+    console.log('Making POST request to:', `${this.apiUrl}/Create`);
     console.log('Sending DTO:', dto);
-    return this.http.post<CostCenter>(`${this.apiUrl}`, dto, { headers: this.headers }).pipe(
+    return this.http.post<CostCenter>(`${this.apiUrl}/Create`, dto, { headers: this.headers }).pipe(
       map(costCenter => {
         // Update local state
         const current = this.costCentersSubject.value;
@@ -77,7 +77,7 @@ export class CostCenterService {
   }
 
   updateCostCenter(dto: UpdateCostCenterDto): Observable<CostCenter> {
-    return this.http.put<CostCenter>(`${this.apiUrl}/${dto.id}`, dto).pipe(
+    return this.http.put<CostCenter>(`${this.apiUrl}/Update/${dto.id}`, dto).pipe(
       map(costCenter => {
         // Update local state
         const current = this.costCentersSubject.value;
@@ -96,7 +96,7 @@ export class CostCenterService {
   }
 
   deleteCostCenter(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+    return this.http.delete<void>(`${this.apiUrl}/Delete/${id}`).pipe(
       map(() => {
         // Update local state
         const current = this.costCentersSubject.value;

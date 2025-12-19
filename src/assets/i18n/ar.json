@@ -81,7 +81,14 @@
       "PERIODIC_INSPECTION": "فحص دوري"
     },
     "STOCK_LESS": "الكمية المطلوبة أكبر من الكمية المتاحة في المخزون",
-    "CURRENCY": "ريال"
+    "CURRENCY": "ريال",
+    "VIEW": "عرض",
+    "EDIT": "تعديل",
+    "DELETE": "حذف",
+    "YES": "نعم",
+    "NO": "لا",
+    "ARCHIVED": "مؤرشف",
+    "CLOSE": "إغلاق"
   },
   "SALE": {
     "MANAGEMENT": "إدارة المبيعات",
@@ -1228,7 +1235,35 @@
       "VIEW": "عرض التفاصيل",
       "EDIT": "تعديل",
       "DELETE": "حذف"
-    }
+    },
+    "VIN": "رقم الهيكل",
+    "PLATE_NUMBER": "رقم اللوحة",
+    "YEAR": "السنة",
+    "CONDITION": "الحالة",
+    "STATUS": "الحالة",
+    "ISTIMARA_EXPIRY": "انتهاء الاستمارة",
+    "FAHAS_STATUS": "حالة الفحص",
+    "CURRENT_LOCATION": "الموقع الحالي",
+    "PURCHASE_DATE": "تاريخ الشراء",
+    "FLOOR_PLAN_ID": "معرف خطة الأرضية",
+    "CAR_TYPE": "نوع السيارة",
+    "TRANSPORTATION_TYPE": "نوع النقل",
+    "CHASSIS_NUMBER": "رقم الهيكل",
+    "OWNER_NAME": "اسم المالك",
+    "OWNER_ID_NUMBER": "رقم هوية المالك",
+    "OWNER_PHONE": "هاتف المالك",
+    "AUTHORIZED_SELLER_NAME": "اسم البائع المعتمد",
+    "AUTHORIZED_SELLER_ID_NUMBER": "رقم هوية البائع المعتمد",
+    "AUTHORIZED_SELLER_PHONE": "هاتف البائع المعتمد",
+    "AUTHORIZATION_DOCUMENT_NUMBER": "رقم وثيقة التفويض",
+    "AUTHORIZATION_DOCUMENT_DATE": "تاريخ وثيقة التفويض",
+    "AUTHORIZATION_DOCUMENT_ATTACHMENT": "مرفق وثيقة التفويض",
+    "SALE_PRICE": "سعر البيع",
+    "QUANTITY": "الكمية",
+    "LOCATION": "الموقع",
+    "DOCUMENTATION": "التوثيق",
+    "OWNER_INFO": "معلومات المالك",
+    "SELLER_INFO": "معلومات البائع المعتمد"
   },
   "CONSIGNMENT": {
     "LIST_TITLE": "سيارات لدى الغير (عهدة)",
