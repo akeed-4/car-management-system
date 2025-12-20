@@ -104,12 +104,12 @@
           <mat-checkbox formControlName="createNewClient">{{ 'ACCOUNTING.CREATE_NEW_CLIENT' | translate }}</mat-checkbox>
           <mat-form-field appearance="outline" class="form-field" *ngIf="!accountForm.get('createNewClient')?.value">
             <mat-label>{{ 'ACCOUNTING.CLIENT_ID' | translate }}</mat-label>
-            <input matInput type="number" formControlName="clientId">
+            <input matInput type="number" formControlName="customerId">
             <mat-icon matPrefix>person</mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" class="form-field" *ngIf="!accountForm.get('createNewClient')?.value">
             <mat-label>{{ 'ACCOUNTING.CLIENT_NAME' | translate }}</mat-label>
-            <input matInput formControlName="clientName">
+            <input matInput formControlName="customerName">
             <mat-icon matPrefix>person_outline</mat-icon>
           </mat-form-field>
         </div>
@@ -289,13 +289,13 @@
         <div class="form-row" *ngIf="accountForm.get('accountTypeId')?.value == '1' && !accountForm.get('createNewClient')?.value">
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'ACCOUNTING.CLIENT_ID' | translate }}</mat-label>
-            <input matInput type="number" formControlName="clientId">
+            <input matInput type="number" formControlName="customerId">
             <mat-icon matPrefix>person</mat-icon>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'ACCOUNTING.CLIENT_NAME' | translate }}</mat-label>
-            <input matInput formControlName="clientName">
+            <input matInput formControlName="customerName">
             <mat-icon matPrefix>person_outline</mat-icon>
           </mat-form-field>
         </div>

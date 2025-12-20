@@ -62,8 +62,8 @@ export class AddAccountComponent implements OnChanges, OnInit {
   createNewClient = false;
   createNewSupplier = false;
   createNewBank = false;
-  clientId: number | null = null;
-  clientName = '';
+  customerId: number | null = null;
+  customerName = '';
   supplierId: number | null = null;
   supplierName = '';
   bankId: number | null = null;
@@ -107,8 +107,8 @@ export class AddAccountComponent implements OnChanges, OnInit {
       createNewClient: [this.createNewClient],
       createNewSupplier: [this.createNewSupplier],
       createNewBank: [this.createNewBank],
-      clientId: [null],
-      clientName: [''],
+      customerId: [null],
+      customerName: [''],
       supplierId: [null],
       supplierName: [''],
       bankId: [null],
@@ -175,10 +175,16 @@ export class AddAccountComponent implements OnChanges, OnInit {
               if (!parentAccount.isMainAccount && parentAccount.mainAccountId) {
                 mainAccount = accounts.find(acc => acc.id === parentAccount.mainAccountId) || parentAccount;
               }
+              // Inherit properties from parent account
               this.accountForm.patchValue({
                 mainAccountId: mainAccount.id,
                 mainAccountCode: mainAccount.accountCode,
-                mainAccountName: mainAccount.accountNameEn
+                mainAccountName: mainAccount.accountNameEn,
+                accountLevel: parentAccount.accountLevel + 1,
+                accountCategoryId: parentAccount.accountCategoryId,
+                accountTypeId: parentAccount.accountTypeId,
+                currencyId: parentAccount.currencyId,
+                companyId: parentAccount.companyId
               });
             }
           }
@@ -331,8 +337,8 @@ export class AddAccountComponent implements OnChanges, OnInit {
         createNewClient: this.editingAccount.createNewClient,
         createNewSupplier: this.editingAccount.createNewSupplier,
         createNewBank: this.editingAccount.createNewBank,
-        clientId: this.editingAccount.clientId,
-        clientName: this.editingAccount.clientName,
+        customerId: this.editingAccount.customerId,
+        customerName: this.editingAccount.customerName,
         supplierId: this.editingAccount.supplierId,
         supplierName: this.editingAccount.supplierName,
         bankId: this.editingAccount.bankId,
@@ -410,8 +416,8 @@ export class AddAccountComponent implements OnChanges, OnInit {
         createNewClient: false,
         createNewSupplier: false,
         createNewBank: false,
-        clientId: null,
-        clientName: '',
+        customerId: null,
+        customerName: '',
         supplierId: null,
         supplierName: '',
         bankId: null,
@@ -439,10 +445,16 @@ export class AddAccountComponent implements OnChanges, OnInit {
             if (!parentAccount.isMainAccount && parentAccount.mainAccountId) {
               mainAccount = accounts.find(acc => acc.id === parentAccount.mainAccountId) || parentAccount;
             }
+            // Inherit properties from parent account
             this.accountForm.patchValue({
               mainAccountId: mainAccount.id,
               mainAccountCode: mainAccount.accountCode,
-              mainAccountName: mainAccount.accountNameEn
+              mainAccountName: mainAccount.accountNameEn,
+              accountLevel: parentAccount.accountLevel + 1,
+              accountCategoryId: parentAccount.accountCategoryId,
+              accountTypeId: parentAccount.accountTypeId,
+              currencyId: parentAccount.currencyId,
+              companyId: parentAccount.companyId
             });
           }
         }

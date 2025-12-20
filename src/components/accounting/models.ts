@@ -28,8 +28,8 @@ export interface Account {
   createNewClient: boolean;
   createNewSupplier: boolean;
   createNewBank: boolean;
-  clientId: number | null;
-  clientName: string;
+  customerId: number | null;
+  customerName: string;
   supplierId: number | null;
   supplierName: string;
   bankId: number | null;
@@ -115,8 +115,8 @@ export interface CreateAccountDto {
   createNewClient: boolean;
   createNewSupplier: boolean;
   createNewBank: boolean;
-  clientId: number | null;
-  clientName: string;
+  customerId: number | null;
+  customerName: string;
   supplierId: number | null;
   supplierName: string;
   bankId: number | null;
@@ -153,8 +153,8 @@ export interface UpdateAccountDto {
   createNewClient: boolean;
   createNewSupplier: boolean;
   createNewBank: boolean;
-  clientId: number | null;
-  clientName: string;
+  customerId: number | null;
+  customerName: string;
   supplierId: number | null;
   supplierName: string;
   bankId: number | null;
