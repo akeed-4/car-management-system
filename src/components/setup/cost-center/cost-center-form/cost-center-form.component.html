@@ -92,9 +92,34 @@
           <h3>{{ 'COST_CENTER.LINKING_INFO' | translate }}</h3>
         </div>
 
+        <!-- Cost Center Type -->
         <div class="form-row">
-          <!-- Car Selection -->
-          <mat-form-field appearance="outline" class="half-width">
+          <div class="type-selection-container">
+            <label class="type-label">
+              <mat-icon>category</mat-icon>
+              {{ 'COST_CENTER.COST_CENTER_TYPE' | translate }}
+            </label>
+            <mat-radio-group
+              formControlName="type"
+              (change)="onTypeChange($event.value)"
+              class="type-radio-group">
+              <mat-radio-button value="general">
+                {{ 'COST_CENTER.TYPE_GENERAL' | translate }}
+              </mat-radio-button>
+              <mat-radio-button value="specific">
+                {{ 'COST_CENTER.TYPE_SPECIFIC' | translate }}
+              </mat-radio-button>
+            </mat-radio-group>
+            <p class="type-hint">{{ 'COST_CENTER.TYPE_HINT' | translate }}</p>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <!-- Car Selection (conditionally shown) -->
+          <mat-form-field 
+            appearance="outline" 
+            class="half-width"
+            *ngIf="costCenterForm.get('type')?.value === 'specific'">
             <mat-label>{{ 'COST_CENTER.SELECT_CAR' | translate }}</mat-label>
             <mat-select
               formControlName="carId"
@@ -109,7 +134,10 @@
           </mat-form-field>
 
           <!-- Parent Cost Center -->
-          <mat-form-field appearance="outline" class="half-width">
+          <mat-form-field 
+            appearance="outline" 
+            [class.half-width]="costCenterForm.get('type')?.value === 'specific'"
+            [class.full-width]="costCenterForm.get('type')?.value === 'general'">
             <mat-label>{{ 'COST_CENTER.PARENT' | translate }}</mat-label>
             <mat-select formControlName="parentId">
               <mat-option [value]="null">{{ 'COST_CENTER.NO_PARENT' | translate }}</mat-option>

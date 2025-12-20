@@ -1143,7 +1143,7 @@
     "SEARCH": "Search",
     "BRAND": "Brand",
     "ALL_BRANDS": "All Brands",
-    "STATUS": "Status",
+    "STATUS_LABEL": "Status",
     "ALL_STATUSES": "All Statuses",
     "PRICE": "Price",
     "VIEW_DETAILS": "View Details",
@@ -1231,8 +1231,8 @@
     "VIN": "VIN",
     "PLATE_NUMBER": "Plate Number",
     "YEAR": "Year",
-    "CONDITION": "Condition",
-    "STATUS": "Status",
+    "CONDITION_LABEL": "Condition",
+    "STATUS_FIELD": "Status",
     "ISTIMARA_EXPIRY": "Istimara Expiry",
     "FAHAS_STATUS": "Fahas Status",
     "CURRENT_LOCATION": "Current Location",
@@ -1343,7 +1343,7 @@
         "CHECK": "Check"
       },
       "PAYMENT_REFERENCE": "Payment Reference",
-      "DOCUMENT_IMAGES": "Document Images",
+      "PAYMENT_DOCUMENT_IMAGES": "Document Images",
       "UPLOAD_IMAGES": "Upload Images",
       "UPLOAD_HINT": "Click to select images or drag and drop them here",
       "UPLOADED_IMAGES": "Uploaded Images",
@@ -1697,8 +1697,11 @@
     "LINK_ACCOUNT": "Link Account",
     "ACCOUNT_LINKED_SUCCESSFULLY": "Account linked successfully",
     "ERROR_LINKING_ACCOUNT": "Error linking account",
-    "BALANCE":"Balance"
-  },
+    "JOURNAL_NUMBER": "Journal Number",
+    "DRAFT": "Draft",
+    "POSTED": "Posted",
+    "LINE_NUMBER": "Line Number",
+    "DIFFERENCE": "Difference",
 
   "COST_CENTER": {
     "LIST_TITLE": "Cost Centers",
@@ -1739,6 +1742,10 @@
     "SELECT_CAR": "Select Vehicle",
     "NO_CAR": "No Vehicle",
     "CAR_HINT": "Link this cost center to a specific vehicle",
+    "COST_CENTER_TYPE": "Cost Center Type",
+    "TYPE_GENERAL": "General",
+    "TYPE_SPECIFIC": "Specific",
+    "TYPE_HINT": "Select whether this is a general or car-specific cost center",
     "NO_PARENT": "No Parent (Top Level)",
     "PARENT_HINT": "Select a parent cost center for hierarchy",
     "IS_ACTIVE": "Cost Center is Active",
@@ -1790,4 +1797,4 @@
     "IBAN": "IBAN",
     "IS_ACTIVE": "Is Active"
   }
-}
+}}

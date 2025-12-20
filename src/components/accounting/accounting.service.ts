@@ -15,6 +15,8 @@ export class AccountingService {
   private journalEntriesSubject = new BehaviorSubject<JournalEntry[]>([]);
   private refreshSubject = new Subject<void>();
   private Url = environment.origin + 'api/Accounting';
+  private Urljournal = environment.origin + 'api/JournalEntries';
+
   private headers = new HttpHeaders({
     'Content-Type': 'application/json',
     'Accept': 'application/json'
@@ -132,7 +134,7 @@ export class AccountingService {
 
   // Journal Entry CRUD
   getJournalEntries(): Observable<JournalEntry[]> {
-    return this.http.get<JournalEntry[]>(`${this.Url}/journal-entries`).pipe(
+    return this.http.get<JournalEntry[]>(`${this.Urljournal}/GetAll`).pipe(
       map(entries => {
         this.journalEntriesSubject.next(entries);
         return entries;
@@ -145,7 +147,7 @@ export class AccountingService {
   }
 
   getJournalEntryById(id: number): Observable<JournalEntry | undefined> {
-    return this.http.get<JournalEntry>(`${this.Url}/journal-entries/${id}`).pipe(
+    return this.http.get<JournalEntry>(`${this.Urljournal}/GetById/${id}`).pipe(
       catchError(error => {
         console.error(`Error fetching journal entry ${id}:`, error);
         return throwError(() => new Error(`Failed to fetch journal entry ${id}`));
@@ -154,9 +156,9 @@ export class AccountingService {
   }
 
   createJournalEntry(dto: CreateJournalEntryDto): Observable<JournalEntry> {
-    return this.http.post<JournalEntry>(`${this.Url}/journal-entries`, dto).pipe(
+    return this.http.post<JournalEntry>(`${this.Urljournal}/Create`, dto).pipe(
       map(entry => {
-        // Update local state
+        // Update local stat
         const currentEntries = this.journalEntriesSubject.value;
         this.journalEntriesSubject.next([...currentEntries, entry]);
         return entry;
@@ -169,7 +171,7 @@ export class AccountingService {
   }
 
   updateJournalEntry(dto: UpdateJournalEntryDto): Observable<JournalEntry> {
-    return this.http.put<JournalEntry>(`${this.Url}/journal-entries/${dto.id}`, dto).pipe(
+    return this.http.put<JournalEntry>(`${this.Urljournal}/Update/${dto.id}`, dto).pipe(
       map(entry => {
         // Update local state
         const currentEntries = this.journalEntriesSubject.value;
@@ -188,7 +190,7 @@ export class AccountingService {
   }
 
   deleteJournalEntry(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.Url}/journal-entries/${id}`).pipe(
+    return this.http.delete<void>(`${this.Urljournal}/Delete/${id}`).pipe(
       map(() => {
         // Update local state
         const currentEntries = this.journalEntriesSubject.value;

@@ -41,22 +41,46 @@ export interface Account {
 
 export interface JournalEntry {
   id: number;
-  date: Date;
+  journalEntryNumber: string;
+  journalDate: Date;
+  referenceNumber?: string;
   description: string;
-  reference?: string;
-  lines: JournalEntryLine[];
+  status: string;
+  costCenterId?: number;
+  costCenterName?: string;
   totalDebit: number;
   totalCredit: number;
+  difference: number;
   isBalanced: boolean;
-  createdDate: Date;
-  updatedDate: Date;
+  createdAt: Date;
+  updatedAt?: Date;
+  // Legacy fields
+  transactionId?: string;
+  accountCode?: string;
+  debit?: number;
+  credit?: number;
+  referenceType?: string;
+  referenceId?: number;
+  entryDate?: Date;
+  reference?: string;
+  lines: JournalEntryLine[];
 }
 
 export interface JournalEntryLine {
   id: number;
+  journalEntryId: number;
+  lineNumber: number;
   accountId: number;
   accountCode: string;
   accountName: string;
+  accountType: string;
+  accountBalance: number;
+  debitAmount: number;
+  creditAmount: number;
+  costCenterId?: number;
+  costCenterName?: string;
+  lineDescription?: string;
+  // Legacy fields
   debit: number;
   credit: number;
   description?: string;
@@ -137,17 +161,27 @@ export interface UpdateAccountDto {
   bankName: string;
 }
 
+export interface CreateJournalEntryLineDto {
+  AccountId: number;
+  DebitAmount: number;
+  CreditAmount: number;
+  CostCenterId?: number;
+  LineDescription?: string;
+}
+
 export interface CreateJournalEntryDto {
-  date: Date;
-  description: string;
-  reference?: string;
-  lines: Omit<JournalEntryLine, 'id' | 'accountCode' | 'accountName'>[];
+  JournalDate: Date;
+  ReferenceNumber?: string;
+  Description: string;
+  CostCenterId?: number;
+  Lines: CreateJournalEntryLineDto[];
 }
 
 export interface UpdateJournalEntryDto {
   id: number;
-  date: Date;
-  description: string;
-  reference?: string;
-  lines: Omit<JournalEntryLine, 'id' | 'accountCode' | 'accountName'>[];
+  JournalDate: Date;
+  ReferenceNumber?: string;
+  Description: string;
+  CostCenterId?: number;
+  Lines: CreateJournalEntryLineDto[];
 }

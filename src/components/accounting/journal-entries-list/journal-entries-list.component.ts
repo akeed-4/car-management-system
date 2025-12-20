@@ -1,10 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { Observable } from 'rxjs';
 import { AccountingService } from '../accounting.service';
 import { JournalEntry } from '../models';
 import { Router } from '@angular/router';
@@ -24,14 +23,12 @@ import { Router } from '@angular/router';
 })
 export class JournalEntriesListComponent implements OnInit {
 
-  journalEntries$: Observable<JournalEntry[]>;
-  journalEntries: JournalEntry[] = [];
+  journalEntries = signal<JournalEntry[]>([]);
 
   constructor(private accountingService: AccountingService, private router: Router, public translate: TranslateService) {
     this.onAddNew = this.onAddNew.bind(this);
     this.onDelete = this.onDelete.bind(this);
     this.onEdit = this.onEdit.bind(this);
-    this.journalEntries$ = this.accountingService.getJournalEntries();
   }
 
   // DevExtreme DataGrid columns configuration with translation
@@ -111,7 +108,7 @@ export class JournalEntriesListComponent implements OnInit {
   loadJournalEntries(): void {
     this.accountingService.getJournalEntries().subscribe({
       next: (entries) => {
-        this.journalEntries = entries;
+        this.journalEntries.set(entries);
       },
       error: (error) => {
         console.error('Error loading journal entries:', error);
@@ -125,8 +122,8 @@ export class JournalEntriesListComponent implements OnInit {
   }
 
   onEdit(entry: JournalEntry): void {
-    // Navigate to edit form
-    console.log('Edit entry:', entry);
+    // Navigate to edit form with entry ID
+    this.router.navigate(['accounts/journal-entries', entry.id]);
   }
 
   onDelete(entry: JournalEntry): void {

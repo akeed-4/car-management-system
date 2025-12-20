@@ -1151,7 +1151,7 @@
     "SEARCH": "البحث",
     "BRAND": "الماركة",
     "ALL_BRANDS": "جميع الماركات",
-    "STATUS": "الحالة",
+    "STATUS_LABEL": "الحالة",
     "ALL_STATUSES": "جميع الحالات",
     "PRICE": "السعر",
     "VIEW_DETAILS": "عرض التفاصيل",
@@ -1239,8 +1239,8 @@
     "VIN": "رقم الهيكل",
     "PLATE_NUMBER": "رقم اللوحة",
     "YEAR": "السنة",
-    "CONDITION": "الحالة",
-    "STATUS": "الحالة",
+    "CONDITION_LABEL": "الحالة",
+    "STATUS_FIELD": "الحالة",
     "ISTIMARA_EXPIRY": "انتهاء الاستمارة",
     "FAHAS_STATUS": "حالة الفحص",
     "CURRENT_LOCATION": "الموقع الحالي",
@@ -1351,7 +1351,7 @@
         "CHECK": "شيك"
       },
       "PAYMENT_REFERENCE": "مرجع الدفع",
-      "DOCUMENT_IMAGES": "صور الوثائق",
+      "PAYMENT_DOCUMENT_IMAGES": "صور الوثائق",
       "UPLOAD_IMAGES": "رفع الصور",
       "UPLOAD_HINT": "انقر لاختيار الصور أو اسحب وأفلتها هنا",
       "UPLOADED_IMAGES": "الصور المرفوعة",
@@ -1705,9 +1705,11 @@
     "LINK_ACCOUNT": "ربط الحساب",
     "ACCOUNT_LINKED_SUCCESSFULLY": "تم ربط الحساب بنجاح",
     "ERROR_LINKING_ACCOUNT": "خطأ في ربط الحساب",
-    "BALANCE": "الرصيد"
-
-  },
+    "JOURNAL_NUMBER": "رقم القيد",
+    "DRAFT": "مسودة",
+    "POSTED": "مُرحل",
+    "LINE_NUMBER": "رقم السطر",
+    "DIFFERENCE": "الفرق",
 
   "COST_CENTER": {
     "LIST_TITLE": "مراكز التكلفة",
@@ -1748,6 +1750,10 @@
     "SELECT_CAR": "اختر المركبة",
     "NO_CAR": "بدون مركبة",
     "CAR_HINT": "ربط مركز التكلفة بمركبة محددة",
+    "COST_CENTER_TYPE": "نوع مركز التكلفة",
+    "TYPE_GENERAL": "عام",
+    "TYPE_SPECIFIC": "خاص بمركبة",
+    "TYPE_HINT": "اختر ما إذا كان هذا مركز تكلفة عام أو خاص بمركبة",
     "NO_PARENT": "بدون أب (المستوى الأعلى)",
     "PARENT_HINT": "اختر مركز تكلفة أب للتسلسل الهرمي",
     "IS_ACTIVE": "مركز التكلفة نشط",
@@ -1799,4 +1805,4 @@
     "IBAN": "رقم IBAN",
     "IS_ACTIVE": "نشط"
   }
-}
+}}

@@ -12,6 +12,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatRadioModule } from '@angular/material/radio';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CostCenterService } from '../../../../services/cost-center.service';
 import { InventoryService } from '../../../../services/inventory.service';
@@ -34,6 +35,7 @@ import { Car } from '../../../../types/car.model';
     MatDatepickerModule,
     MatNativeDateModule,
     MatTooltipModule,
+    MatRadioModule,
     TranslateModule
   ],
   templateUrl: './cost-center-form.component.html',
@@ -87,7 +89,8 @@ export class CostCenterFormComponent implements OnInit {
       name: ['', [Validators.required, Validators.maxLength(200)]],
       nameAr: ['', [Validators.required, Validators.maxLength(200)]],
       description: ['', Validators.maxLength(500)],
-      carId: [null],
+      type: ['general'], // Add type control
+      carId: [{ value: null, disabled: true }],
       parentId: [null],
       isActive: [true]
     });
@@ -136,15 +139,24 @@ export class CostCenterFormComponent implements OnInit {
     this.costCenterService.getCostCenterById(id).subscribe({
       next: (costCenter) => {
         if (costCenter) {
+          // Determine type based on whether car is assigned
+          const costCenterType = costCenter.carId ? 'specific' : 'general';
+          
           this.costCenterForm.patchValue({
             code: costCenter.code,
             name: costCenter.name,
             nameAr: costCenter.nameAr,
             description: costCenter.description || '',
+            type: costCenterType, // Set type in form
             carId: costCenter.carId,
             parentId: costCenter.parentId,
             isActive: costCenter.isActive
           });
+          
+          // Enable carId if type is specific
+          if (costCenterType === 'specific') {
+            this.costCenterForm.get('carId')?.enable();
+          }
         }
         this.isLoading = false;
       },
@@ -216,5 +228,16 @@ export class CostCenterFormComponent implements OnInit {
 
   getCarDisplay(car: Car): string {
     return `${car.year} ${car.make} ${car.model} (${car.vin})`;
+  }
+
+  onTypeChange(type: 'general' | 'specific'): void {
+    const carIdControl = this.costCenterForm.get('carId');
+    
+    if (type === 'specific') {
+      carIdControl?.enable();
+    } else {
+      carIdControl?.disable();
+      carIdControl?.setValue(null);
+    }
   }
 }
