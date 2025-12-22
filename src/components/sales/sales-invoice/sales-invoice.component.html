@@ -74,29 +74,22 @@
         </div>
       </section>
 
-      <section class="form-section">
-        <h3 class="form-section-title">{{ 'INVOICE.ITEMS_SECTION' | translate }}</h3>
-        <div class="add-item-section">
-          <div class="form-grid">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'INVOICE.SELECT_CAR' | translate }}</mat-label>
-              <mat-select formControlName="selectedCarId">
-                <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_CAR_OPTION' | translate }}</mat-option>
-                <mat-option *ngFor="let car of availableCars()" [value]="car.carId">
-                  {{ car.carName }} - {{ 'INVOICE.QUANTITY_LABEL' | translate }} {{ car.availableQuantity }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
+  <section class="form-section">
+    <h3 class="form-section-title">{{ 'INVOICE.SELECT_CAR_CARD' | translate }}</h3>
+  
+    <div class="car-cards-container">
+      <div *ngFor="let car of carCards()" class="car-card">
+        <img [src]="car.imageUrl" alt="{{car.carName}}" class="car-image">
+        <h4>{{ car.carName }}</h4>
+        <p>{{ car.specs }}</p>
+        <p>{{ 'INVOICE.QUANTITY_LABEL' | translate }}: {{ car.availableQuantity }}</p>
+        <button mat-raised-button color="primary" (click)="addCarToInvoice(car)">
+          {{ 'INVOICE.ADD_TO_INVOICE' | translate }}
+        </button>
+      </div>
+    </div>
+  </section>
 
-            <div class="form-field">
-              <button mat-raised-button color="primary" (click)="addItemToInvoice()" [disabled]="!invoiceForm.get('selectedCarId')?.valid" class="add-button">
-                <mat-icon>add</mat-icon>
-                <span>{{ 'INVOICE.ADD' | translate }}</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <section class="form-section">
         <div class="table-wrapper premium-table">

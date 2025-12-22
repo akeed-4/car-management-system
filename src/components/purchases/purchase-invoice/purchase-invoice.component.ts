@@ -26,10 +26,12 @@ import { InvoiceItem } from '../../../types/invoice-item.model';
 import { Car } from '../../../types/car.model';
 import { Supplier } from '../../../types/supplier.model';
 import { StoreCarStockDto } from '../../../types/store-car-stock.model';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { InvoiceItemDialogComponent } from '../../sales/invoice-item-dialog/invoice-item-dialog.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Direction } from '@angular/cdk/bidi';
+import { ToastService } from '@/src/services/toast.service';
 import { LanguageService } from '@/src/services/language.service';
-import { ToastService } from '../../../services/toast.service';
+import { Direction } from '@angular/cdk/bidi';
 
 const VAT_RATE = 0.15; // 15% VAT
 
@@ -50,6 +52,7 @@ const VAT_RATE = 0.15; // 15% VAT
     MatTableModule,
     MatCardModule,
     MatDatepickerModule,
+    MatDialogModule,
     DxDataGridModule
   ],
   providers: [provideNativeDateAdapter()],
@@ -70,6 +73,7 @@ export class PurchaseInvoiceComponent {
   private fb = inject(FormBuilder);
   private toastService = inject(ToastService);
   private route = inject(ActivatedRoute);
+  private dialog = inject(MatDialog);
 
   // Services state
   suppliers = signal<Supplier[]>([]);
@@ -157,6 +161,17 @@ export class PurchaseInvoiceComponent {
   vatAmount = computed(() => this.subtotal() * VAT_RATE);
   totalAmount = computed(() => this.subtotal() + this.vatAmount());
 
+  // Computed property for car cards display
+  carCards = computed(() => {
+    return this.cars().map(car => ({
+      ...car,
+      imageUrl: car.photos?.[0] || 'https://via.placeholder.com/300x200?text=' + encodeURIComponent(car.make + ' ' + car.model),
+      carName: `${car.make} ${car.model}`,
+      specs: `${car.year} - ${car.condition} - ${car.mileage} km`,
+      availableQuantity: car.quantity || 0
+    }));
+  });
+
   // Methods
   loadCarStocks(storeId: number): void {
     this.salesService.getStocksByStore(storeId).subscribe({
@@ -234,6 +249,45 @@ export class PurchaseInvoiceComponent {
       this.purchasePrice.set(0);
       this.selectedCar.set(null);
     }
+  }
+
+  // Method for adding car from card selection
+  addCarToPurchase(car: any): void {
+    const dialogRef = this.dialog.open(InvoiceItemDialogComponent, {
+      width: '400px',
+      data: {
+        carName: car.carName,
+        quantity: 1,
+        unitPrice: car.purchasePrice || 0,
+        maxQuantity: 999 // For purchases, no stock limit
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.confirmed) {
+        const { quantity, unitPrice } = result;
+
+        // Check if already exists
+        const alreadyExists = this.invoiceItems().some(item => item.carId === car.id);
+        if (alreadyExists) {
+          this.toastService.showError('PURCHASE_INVOICE.ERROR_ALREADY_ADDED');
+          return;
+        }
+
+        // Create invoice item
+        const newItem: InvoiceItem = {
+          carId: car.id,
+          carDescription: car.carName,
+          quantity,
+          unitPrice,
+          lineTotal: unitPrice * quantity,
+          carImage: car.imageUrl
+        };
+
+        // Add to invoice items
+        this.invoiceItems.update(items => [...items, newItem]);
+      }
+    });
   }
 
   saveInvoice(): void {

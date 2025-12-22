@@ -216,7 +216,63 @@ export class SalesInvoiceComponent implements OnInit {
     return this.invoiceItems().some(item => item.installmentDetails);
   });
 
+  // Computed property for car cards display
+  carCards = computed(() => {
+    return this.availableCars().map(car => ({
+      ...car,
+      imageUrl: 'https://via.placeholder.com/300x200?text=' + encodeURIComponent(car.carName), // Placeholder image with car name
+      carName: car.carName,
+      specs: car.carDescription || 'No description available',
+      availableQuantity: car.availableQuantity
+    }));
+  });
+
   // Methods for managing invoice items
+  addCarToInvoice(car: any): void {
+    const dialogRef = this.dialog.open(InvoiceItemDialogComponent, {
+      width: '400px',
+      data: {
+        carName: car.carName,
+        quantity: 1,
+        unitPrice: car.salePrice || 0,
+        maxQuantity: car.availableQuantity
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.confirmed) {
+        const { quantity, unitPrice } = result;
+
+        // Check if already exists
+        const alreadyExists = this.invoiceItems().some(item => item.carId === car.carId);
+        if (alreadyExists) {
+          this.toastService.showError('INVOICE.ALREADY_ADDED');
+          return;
+        }
+
+        // Check quantity
+        if (quantity > car.availableQuantity) {
+          this.toastService.showError('INVOICE.INSUFFICIENT_STOCK');
+          return;
+        }
+
+        // Create invoice item
+        const newItem: InvoiceItem = {
+          carId: car.carId,
+          carName: car.carName,
+          carDescription: car.carName,
+          quantity,
+          unitPrice,
+          lineTotal: unitPrice * quantity,
+          carImage: car.imageUrl
+        };
+
+        // Add to invoice items
+        this.invoiceItems.update(items => [...items, newItem]);
+      }
+    });
+  }
+
  addItemToInvoice(): void {
 
   const customerId = this.invoiceForm.get('customer')?.value;
