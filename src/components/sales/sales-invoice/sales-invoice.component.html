@@ -76,18 +76,10 @@
 
   <section class="form-section">
     <h3 class="form-section-title">{{ 'INVOICE.SELECT_CAR_CARD' | translate }}</h3>
-  
-    <div class="car-cards-container">
-      <div *ngFor="let car of carCards()" class="car-card">
-        <img [src]="car.imageUrl" alt="{{car.carName}}" class="car-image">
-        <h4>{{ car.carName }}</h4>
-        <p>{{ car.specs }}</p>
-        <p>{{ 'INVOICE.QUANTITY_LABEL' | translate }}: {{ car.availableQuantity }}</p>
-        <button mat-raised-button color="primary" (click)="addCarToInvoice(car)">
-          {{ 'INVOICE.ADD_TO_INVOICE' | translate }}
-        </button>
-      </div>
-    </div>
+    
+    <button mat-raised-button color="primary" (click)="openCarSelectionDialog()">
+      {{ 'INVOICE.SELECT_CAR' | translate }}
+    </button>
   </section>
 
 

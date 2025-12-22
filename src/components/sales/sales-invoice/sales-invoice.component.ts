@@ -29,6 +29,7 @@ import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
 import { InvoiceItemDialogComponent } from '../invoice-item-dialog/invoice-item-dialog.component';
+import { CarSelectionDialogComponent } from '../car-selection-dialog/car-selection-dialog.component';
 import { DxoValueErrorBarComponent } from 'devextreme-angular/ui/nested';
 import { ToastService } from '../../../services/toast.service';
 
@@ -269,6 +270,19 @@ export class SalesInvoiceComponent implements OnInit {
 
         // Add to invoice items
         this.invoiceItems.update(items => [...items, newItem]);
+      }
+    });
+  }
+
+  openCarSelectionDialog(): void {
+    const dialogRef = this.dialog.open(CarSelectionDialogComponent, {
+      width: '800px',
+      data: { cars: this.carCards() }
+    });
+
+    dialogRef.afterClosed().subscribe(selectedCar => {
+      if (selectedCar) {
+        this.addCarToInvoice(selectedCar);
       }
     });
   }

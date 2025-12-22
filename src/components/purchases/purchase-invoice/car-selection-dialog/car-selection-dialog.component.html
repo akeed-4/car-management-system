@@ -1,0 +1,25 @@
+<h2 mat-dialog-title>{{ 'PURCHASE_INVOICE.SELECT_CAR' | translate }}</h2>
+<mat-dialog-content>
+  <mat-form-field appearance="outline" class="search-field">
+    <mat-label>{{ 'COMMON.SEARCH' | translate }}</mat-label>
+    <input matInput [(ngModel)]="searchTerm" (input)="filterCars()" placeholder="{{ 'PURCHASE_INVOICE.SEARCH_CARS' | translate }}">
+  </mat-form-field>
+  <div class="car-cards-container">
+    <mat-card *ngFor="let car of filteredCars() | slice:0:3" class="car-card">
+      <img mat-card-image [src]="car.imageUrl" alt="{{car.carName}}" class="car-image">
+      <mat-card-content>
+        <h4>{{ car.carName }}</h4>
+        <p>{{ car.specs }}</p>
+        <p>{{ 'PURCHASE_INVOICE.AVAILABLE_QUANTITY' | translate }}: {{ car.availableQuantity }}</p>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-raised-button color="primary" (click)="selectCar(car)">
+          {{ 'PURCHASE_INVOICE.ADD_TO_INVOICE' | translate }}
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="close()">{{ 'COMMON.CANCEL' | translate }}</button>
+</mat-dialog-actions>
