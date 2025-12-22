@@ -12,7 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { AccountingService } from '@/src/services/accounting.service';
+import { AccountingService } from '../../accounting/accounting.service';
 import { OpeningBalanceInventory } from '../../accounting/models';
 import { DxiColumnModule } from 'devextreme-angular/ui/nested';
 
@@ -88,34 +88,16 @@ export class OpeningBalancesInventoryComponent implements OnInit {
   }
 
   loadOpeningBalances() {
-    // TODO: Implement API call
-    // For now, using mock data
-    this.openingBalances.set([
-      {
-        id: 1,
-        itemId: 2001,
-        itemName: 'Toyota Camry 2020',
-        category: 'CAR',
-        quantity: 5,
-        unitCost: 150000,
-        totalCost: 750000,
-        location: 'SHOWROOM_A',
-        notes: 'Initial car inventory',
-        entryDate: new Date('2024-01-01')
+    this.accountingService.getOpeningBalancesInventory().subscribe({
+      next: (balances) => {
+        this.openingBalances.set(balances);
       },
-      {
-        id: 2,
-        itemId: 2002,
-        itemName: 'Engine Oil Filter',
-        category: 'SPARE_PART',
-        quantity: 100,
-        unitCost: 50,
-        totalCost: 5000,
-        location: 'WAREHOUSE',
-        notes: 'Spare parts inventory',
-        entryDate: new Date('2024-01-01')
+      error: (error) => {
+        console.error('Error loading opening balances:', error);
+        // Fallback to empty array if API fails
+        this.openingBalances.set([]);
       }
-    ]);
+    });
   }
 
   onAddNew() {
@@ -154,35 +136,62 @@ export class OpeningBalancesInventoryComponent implements OnInit {
   onDelete(e: any) {
     const data = e.row.data;
     if (confirm(this.translate.instant('ACCOUNTING.CONFIRM_DELETE_OPENING_BALANCE'))) {
-      // TODO: Implement delete API call
-      const current = this.openingBalances();
-      this.openingBalances.set(current.filter(item => item.id !== data.id));
+      this.accountingService.deleteOpeningBalanceInventory(data.id).subscribe({
+        next: () => {
+          // Remove from local state
+          const current = this.openingBalances();
+          this.openingBalances.set(current.filter(item => item.id !== data.id));
+        },
+        error: (error) => {
+          console.error('Error deleting opening balance:', error);
+        }
+      });
     }
   }
 
   onSave() {
     if (this.form.valid) {
       const formValue = this.form.value;
-      const balance: OpeningBalanceInventory = {
-        ...formValue,
+      const balanceData = {
+        itemId: formValue.itemId,
+        itemName: formValue.itemName,
+        category: formValue.category,
+        quantity: formValue.quantity,
+        unitCost: formValue.unitCost,
         totalCost: formValue.quantity * formValue.unitCost,
-        id: this.editingId || Date.now() // Mock ID
+        location: formValue.location,
+        notes: formValue.notes,
+        entryDate: formValue.entryDate
       };
 
-      if (this.isEditing) {
+      if (this.isEditing && this.editingId) {
         // Update existing
-        const current = this.openingBalances();
-        const index = current.findIndex(item => item.id === this.editingId);
-        if (index !== -1) {
-          current[index] = balance;
-          this.openingBalances.set([...current]);
-        }
+        this.accountingService.updateOpeningBalanceInventory(this.editingId, { ...balanceData, id: this.editingId }).subscribe({
+          next: (updatedBalance) => {
+            const current = this.openingBalances();
+            const index = current.findIndex(item => item.id === this.editingId);
+            if (index !== -1) {
+              current[index] = updatedBalance;
+              this.openingBalances.set([...current]);
+            }
+            this.onCancel();
+          },
+          error: (error) => {
+            console.error('Error updating opening balance:', error);
+          }
+        });
       } else {
-        // Add new
-        this.openingBalances.set([...this.openingBalances(), balance]);
+        // Create new
+        this.accountingService.createOpeningBalanceInventory(balanceData).subscribe({
+          next: (newBalance) => {
+            this.openingBalances.set([...this.openingBalances(), newBalance]);
+            this.onCancel();
+          },
+          error: (error) => {
+            console.error('Error creating opening balance:', error);
+          }
+        });
       }
-
-      this.onCancel();
     }
   }
 

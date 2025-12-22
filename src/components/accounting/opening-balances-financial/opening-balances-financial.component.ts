@@ -74,30 +74,16 @@ export class OpeningBalancesFinancialComponent implements OnInit {
   }
 
   loadOpeningBalances() {
-    // TODO: Implement API call
-    // For now, using mock data
-    this.openingBalances.set([
-      {
-        id: 1,
-        accountId: 1001,
-        accountName: 'Cash on Hand',
-        openingBalance: 50000,
-        currency: 'SAR',
-        accountType: 'CASH',
-        notes: 'Initial cash balance',
-        entryDate: new Date('2024-01-01')
+    this.accountingService.getOpeningBalancesFinancial().subscribe({
+      next: (balances) => {
+        this.openingBalances.set(balances);
       },
-      {
-        id: 2,
-        accountId: 1002,
-        accountName: 'Bank Account',
-        openingBalance: 200000,
-        currency: 'SAR',
-        accountType: 'BANK',
-        notes: 'Main bank account balance',
-        entryDate: new Date('2024-01-01')
+      error: (error) => {
+        console.error('Error loading opening balances:', error);
+        // Fallback to empty array if API fails
+        this.openingBalances.set([]);
       }
-    ]);
+    });
   }
 
   onAddNew() {
@@ -132,34 +118,60 @@ export class OpeningBalancesFinancialComponent implements OnInit {
   onDelete(e: any) {
     const data = e.row.data;
     if (confirm(this.translate.instant('ACCOUNTING.CONFIRM_DELETE_OPENING_BALANCE'))) {
-      // TODO: Implement delete API call
-      const current = this.openingBalances();
-      this.openingBalances.set(current.filter(item => item.id !== data.id));
+      this.accountingService.deleteOpeningBalanceFinancial(data.id).subscribe({
+        next: () => {
+          // Remove from local state
+          const current = this.openingBalances();
+          this.openingBalances.set(current.filter(item => item.id !== data.id));
+        },
+        error: (error) => {
+          console.error('Error deleting opening balance:', error);
+        }
+      });
     }
   }
 
   onSave() {
     if (this.form.valid) {
       const formValue = this.form.value;
-      const balance: OpeningBalanceFinancial = {
-        ...formValue,
-        id: this.editingId || Date.now() // Mock ID
+      const balanceData = {
+        accountId: formValue.accountId,
+        accountName: formValue.accountName,
+        openingBalance: formValue.openingBalance,
+        currency: formValue.currency,
+        accountType: formValue.accountType,
+        notes: formValue.notes,
+        entryDate: formValue.entryDate
       };
 
-      if (this.isEditing) {
+      if (this.isEditing && this.editingId) {
         // Update existing
-        const current = this.openingBalances();
-        const index = current.findIndex(item => item.id === this.editingId);
-        if (index !== -1) {
-          current[index] = balance;
-          this.openingBalances.set([...current]);
-        }
+        this.accountingService.updateOpeningBalanceFinancial(this.editingId, { ...balanceData, id: this.editingId }).subscribe({
+          next: (updatedBalance) => {
+            const current = this.openingBalances();
+            const index = current.findIndex(item => item.id === this.editingId);
+            if (index !== -1) {
+              current[index] = updatedBalance;
+              this.openingBalances.set([...current]);
+            }
+            this.onCancel();
+          },
+          error: (error) => {
+            console.error('Error updating opening balance:', error);
+          }
+        });
       } else {
-        // Add new
-        this.openingBalances.set([...this.openingBalances(), balance]);
+        // Create new
+        this.accountingService.createOpeningBalanceFinancial(balanceData).subscribe({
+          next: (newBalance) => {
+            this.openingBalances.set([...this.openingBalances(), newBalance]);
+            this.onCancel();
+          },
+          error: (error) => {
+            console.error('Error creating opening balance:', error);
+          }
+        });
       }
-
-      this.onCancel();
     }
   }
 

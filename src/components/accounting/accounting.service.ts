@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
-import { Account, JournalEntry, CreateAccountDto, UpdateAccountDto, CreateJournalEntryDto, UpdateJournalEntryDto } from './models';
+import { Account, JournalEntry, CreateAccountDto, UpdateAccountDto, CreateJournalEntryDto, UpdateJournalEntryDto, OpeningBalanceFinancial, OpeningBalanceInventory } from './models';
 import { environment } from '@/src/environments/environment.development';
 
 @Injectable({
@@ -200,6 +200,80 @@ export class AccountingService {
       catchError(error => {
         console.error(`Error deleting journal entry ${id}:`, error);
         return throwError(() => new Error(`Failed to delete journal entry ${id}`));
+      })
+    );
+  }
+
+  // Opening Balance Financial CRUD
+  getOpeningBalancesFinancial(): Observable<OpeningBalanceFinancial[]> {
+    return this.http.get<OpeningBalanceFinancial[]>(`${this.Url}/opening-balances-financial`).pipe(
+      catchError(error => {
+        console.error('Error fetching opening balances financial:', error);
+        return throwError(() => new Error('Failed to fetch opening balances financial'));
+      })
+    );
+  }
+
+  createOpeningBalanceFinancial(dto: Omit<OpeningBalanceFinancial, 'id'>): Observable<OpeningBalanceFinancial> {
+    return this.http.post<OpeningBalanceFinancial>(`${this.Url}/opening-balances-financial`, dto, { headers: this.headers }).pipe(
+      catchError(error => {
+        console.error('Error creating opening balance financial:', error);
+        return throwError(() => new Error('Failed to create opening balance financial'));
+      })
+    );
+  }
+
+  updateOpeningBalanceFinancial(id: number, dto: OpeningBalanceFinancial): Observable<OpeningBalanceFinancial> {
+    return this.http.put<OpeningBalanceFinancial>(`${this.Url}/opening-balances-financial/${id}`, dto, { headers: this.headers }).pipe(
+      catchError(error => {
+        console.error(`Error updating opening balance financial ${id}:`, error);
+        return throwError(() => new Error(`Failed to update opening balance financial ${id}`));
+      })
+    );
+  }
+
+  deleteOpeningBalanceFinancial(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.Url}/opening-balances-financial/${id}`).pipe(
+      catchError(error => {
+        console.error(`Error deleting opening balance financial ${id}:`, error);
+        return throwError(() => new Error(`Failed to delete opening balance financial ${id}`));
+      })
+    );
+  }
+
+  // Opening Balance Inventory CRUD
+  getOpeningBalancesInventory(): Observable<OpeningBalanceInventory[]> {
+    return this.http.get<OpeningBalanceInventory[]>(`${this.Url}/opening-balances-inventory`).pipe(
+      catchError(error => {
+        console.error('Error fetching opening balances inventory:', error);
+        return throwError(() => new Error('Failed to fetch opening balances inventory'));
+      })
+    );
+  }
+
+  createOpeningBalanceInventory(dto: Omit<OpeningBalanceInventory, 'id'>): Observable<OpeningBalanceInventory> {
+    return this.http.post<OpeningBalanceInventory>(`${this.Url}/opening-balances-inventory`, dto, { headers: this.headers }).pipe(
+      catchError(error => {
+        console.error('Error creating opening balance inventory:', error);
+        return throwError(() => new Error('Failed to create opening balance inventory'));
+      })
+    );
+  }
+
+  updateOpeningBalanceInventory(id: number, dto: OpeningBalanceInventory): Observable<OpeningBalanceInventory> {
+    return this.http.put<OpeningBalanceInventory>(`${this.Url}/opening-balances-inventory/${id}`, dto, { headers: this.headers }).pipe(
+      catchError(error => {
+        console.error(`Error updating opening balance inventory ${id}:`, error);
+        return throwError(() => new Error(`Failed to update opening balance inventory ${id}`));
+      })
+    );
+  }
+
+  deleteOpeningBalanceInventory(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.Url}/opening-balances-inventory/${id}`).pipe(
+      catchError(error => {
+        console.error(`Error deleting opening balance inventory ${id}:`, error);
+        return throwError(() => new Error(`Failed to delete opening balance inventory ${id}`));
       })
     );
   }
