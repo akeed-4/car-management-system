@@ -4,4 +4,6 @@ export interface StockTakeApproval {
   approverName: string;
   stockTakeId: number;
   stockTakeName: string;
+  status: string;
+  notes: string;
 }

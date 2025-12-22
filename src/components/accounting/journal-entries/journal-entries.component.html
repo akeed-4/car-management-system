@@ -1,22 +1,24 @@
 <div class="accounting-container" dir="rtl">
   <div class="header">
     <h2>{{ 'ACCOUNTING.JOURNAL_ENTRIES' | translate }}</h2>
-    
+
   </div>
 
   <div class="content">
-  
+
 
     <div class="form-section">
       <mat-card>
         <mat-card-header>
-          <mat-card-title>{{ (isEditing ? 'ACCOUNTING.EDIT_ENTRY' : 'ACCOUNTING.ADD_ENTRY') | translate }}</mat-card-title>
+          <mat-card-title>{{ (isEditing ? 'ACCOUNTING.EDIT_ENTRY' : 'ACCOUNTING.ADD_ENTRY') | translate
+            }}</mat-card-title>
           <div class="status-display" *ngIf="journalEntryForm.get('status')?.value">
             <span class="status-badge" [ngClass]="{
               'status-draft': journalEntryForm.get('status')?.value === 'draft',
               'status-posted': journalEntryForm.get('status')?.value === 'posted'
             }">
-              {{ (journalEntryForm.get('status')?.value === 'draft' ? 'ACCOUNTING.DRAFT' : 'ACCOUNTING.POSTED') | translate }}
+              {{ (journalEntryForm.get('status')?.value === 'draft' ? 'ACCOUNTING.DRAFT' : 'ACCOUNTING.POSTED') |
+              translate }}
             </span>
             <span class="balance-badge" [ngClass]="{
               'balance-balanced': isBalanced,
@@ -33,7 +35,7 @@
               <div class="form-row">
                 <mat-form-field appearance="outline">
                   <mat-label>{{ 'ACCOUNTING.JOURNAL_NUMBER' | translate }}</mat-label>
-                  <input matInput formControlName="journalNumber" >
+                  <input matInput formControlName="journalNumber">
                 </mat-form-field>
 
                 <mat-form-field appearance="outline">
@@ -62,51 +64,45 @@
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>{{ 'ACCOUNTING.DESCRIPTION' | translate }}</mat-label>
                 <textarea matInput formControlName="description" rows="3" required></textarea>
-                <mat-error *ngIf="journalEntryForm.get('description')?.invalid">{{ 'ACCOUNTING.DESCRIPTION_REQUIRED' | translate }}</mat-error>
+                <mat-error *ngIf="journalEntryForm.get('description')?.invalid">{{ 'ACCOUNTING.DESCRIPTION_REQUIRED' |
+                  translate }}</mat-error>
               </mat-form-field>
 
-             
+
             </div>
 
             <!-- Details Grid -->
             <div class="details-section">
               <h3>{{ 'ACCOUNTING.JOURNAL_LINES' | translate }}</h3>
-              <dx-data-grid
-                [dataSource]="linesData"
-                [showBorders]="true"
-                [allowColumnReordering]="true"
-                [showColumnLines]="true"
-                [showRowLines]="true"
-                [height]="200"
-                [columnAutoWidth]="true"
+              <dx-data-grid [dataSource]="linesData" [showBorders]="true" [allowColumnReordering]="true"
+                [showColumnLines]="true" [showRowLines]="true" [height]="200" [columnAutoWidth]="true"
                 [allowColumnResizing]="true"
                 [editing]="{ mode: 'cell', allowUpdating: true, allowDeleting: true, allowAdding: false }"
-                (onRowRemoved)="onRowRemoved($event)"
-                (onRowUpdated)="onRowUpdated($event)"
-                (onCellPrepared)="onCellPrepared($event)"
-              >
-                <dxi-column dataField="lineNumber" caption="{{ 'ACCOUNTING.LINE_NUMBER' | translate }}" [allowEditing]="false"></dxi-column>
-              <dxi-column
-  dataField="accountId"
-  caption="{{ 'ACCOUNTING.ACCOUNT' | translate }}"
-  [calculateDisplayValue]="calculateAccountDisplay">
+                (onRowRemoved)="onRowRemoved($event)" (onRowUpdated)="onRowUpdated($event)"
+                (onCellPrepared)="onCellPrepared($event)">
+                <dxi-column dataField="lineNumber" caption="{{ 'ACCOUNTING.LINE_NUMBER' | translate }}"
+                  [allowEditing]="false"></dxi-column>
+                <dxi-column dataField="accountId" caption="{{ 'ACCOUNTING.ACCOUNT' | translate }}"
+                  [calculateDisplayValue]="calculateAccountDisplay">
 
-  <dxo-lookup
-    [dataSource]="accounts"
-    valueExpr="id"
-    displayExpr="accountNameAr">
-  </dxo-lookup>
+                  <dxo-lookup [dataSource]="accounts" valueExpr="accountId" displayExpr="accountNameAr">
+                  </dxo-lookup>
 
-</dxi-column>
+                </dxi-column>
 
-                <dxi-column dataField="accountCode" caption="{{ 'ACCOUNTING.ACCOUNT_CODE' | translate }}" [allowEditing]="false" [calculateCellValue]="calculateAccountCode"></dxi-column>
-                <dxi-column dataField="accountName" caption="{{ 'ACCOUNTING.ACCOUNT_NAME' | translate }}" [allowEditing]="false" [calculateCellValue]="calculateAccountName"></dxi-column>
-                <dxi-column dataField="debit" caption="{{ 'ACCOUNTING.DEBIT' | translate }}" dataType="number" ></dxi-column>
-                <dxi-column dataField="credit" caption="{{ 'ACCOUNTING.CREDIT' | translate }}" dataType="number" ></dxi-column>
+                <dxi-column dataField="accountCode" caption="{{ 'ACCOUNTING.ACCOUNT_CODE' | translate }}"
+                  [allowEditing]="false" [calculateCellValue]="calculateAccountCode"></dxi-column>
+                <dxi-column dataField="accountName" caption="{{ 'ACCOUNTING.ACCOUNT_NAME' | translate }}"
+                  [allowEditing]="false" [calculateCellValue]="calculateAccountName"></dxi-column>
+                <dxi-column dataField="debit" caption="{{ 'ACCOUNTING.DEBIT' | translate }}"
+                  dataType="number"></dxi-column>
+                <dxi-column dataField="credit" caption="{{ 'ACCOUNTING.CREDIT' | translate }}"
+                  dataType="number"></dxi-column>
                 <dxi-column dataField="costCenter" caption="{{ 'COST_CENTER.LIST_TITLE' | translate }}">
                   <dxo-lookup [dataSource]="costCenters" valueExpr="id" displayExpr="name"></dxo-lookup>
                 </dxi-column>
-                <dxi-column dataField="description" caption="{{ 'ACCOUNTING.LINE_DESCRIPTION' | translate }}"></dxi-column>
+                <dxi-column dataField="description"
+                  caption="{{ 'ACCOUNTING.LINE_DESCRIPTION' | translate }}"></dxi-column>
               </dx-data-grid>
 
               <button mat-stroked-button type="button" (click)="addLine()">
@@ -118,30 +114,35 @@
             <!-- Footer Section -->
             <div class="footer-section">
               <div class="totals">
-                <div><strong>{{ 'ACCOUNTING.TOTAL_DEBIT' | translate }}:</strong> {{ totalDebit | currency:'SAR':'symbol':'1.2-2' }}</div>
-                <div><strong>{{ 'ACCOUNTING.TOTAL_CREDIT' | translate }}:</strong> {{ totalCredit | currency:'SAR':'symbol':'1.2-2' }}</div>
-                <div><strong>{{ 'ACCOUNTING.DIFFERENCE' | translate }}:</strong> {{ difference | currency:'SAR':'symbol':'1.2-2' }}</div>
-             
-             <div><span class="balance-badge" [ngClass]="{
+                <div><strong>{{ 'ACCOUNTING.TOTAL_DEBIT' | translate }}:</strong> {{ totalDebit |
+                  currency:'SAR':'symbol':'1.2-2' }}</div>
+                <div><strong>{{ 'ACCOUNTING.TOTAL_CREDIT' | translate }}:</strong> {{ totalCredit |
+                  currency:'SAR':'symbol':'1.2-2' }}</div>
+                <div><strong>{{ 'ACCOUNTING.DIFFERENCE' | translate }}:</strong> {{ difference |
+                  currency:'SAR':'symbol':'1.2-2' }}</div>
+
+                <div><span class="balance-badge" [ngClass]="{
               'balance-balanced': isBalanced,
               'balance-unbalanced': !isBalanced
             }">
-              {{ (isBalanced ? 'ACCOUNTING.BALANCED' : 'ACCOUNTING.UNBALANCED') | translate }}
-            </span></div> </div>
+                    {{ (isBalanced ? 'ACCOUNTING.BALANCED' : 'ACCOUNTING.UNBALANCED') | translate }}
+                  </span></div>
+              </div>
             </div>
-  
+
             <div class="form-actions">
-              <button mat-raised-button color="primary" type="submit" [disabled]="journalEntryForm.invalid || !isBalanced || lines.length < 2">
+              <button mat-raised-button color="primary" type="submit"
+                [disabled]="journalEntryForm.invalid || !isBalanced || lines.length < 2">
                 {{ (isEditing ? 'ACCOUNTING.UPDATE' : 'ACCOUNTING.SAVE') | translate }}
               </button>
               <button mat-button type="button" (click)="onCancel()">
                 {{ 'ACCOUNTING.CANCEL' | translate }}
               </button>
             </div>
-          
+
           </form>
         </mat-card-content>
-        
+
       </mat-card>
     </div>
   </div>

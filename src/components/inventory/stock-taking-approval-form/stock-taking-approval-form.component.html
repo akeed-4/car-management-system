@@ -20,7 +20,7 @@
               formControlName="stockTake">
               <mat-option [value]="null" disabled>{{ 'STOCK_TAKING_APPROVAL_FORM.SELECT_STOCK_TAKE' | translate }}</mat-option>
               <mat-option *ngFor="let st of pendingStockTakes()" [value]="st.id">
-                {{ st.name }} ({{ st.date | date:'yyyy-MM-dd' }})
+                {{ st.documentCode }} ({{ st.documentDate | date:'yyyy-MM-dd' }})
               </mat-option>
             </mat-select>
           </mat-form-field>
@@ -39,10 +39,25 @@
               formControlName="approverName"
               [placeholder]="'STOCK_TAKING_APPROVAL_FORM.APPROVER_PLACEHOLDER' | translate">
           </mat-form-field>
-        </div>
-      </div>
 
-      <!-- Comparison Table -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'STOCK_TAKING_APPROVAL_FORM.APPROVAL_STATUS' | translate }}</mat-label>
+            <mat-select formControlName="approvalStatus">
+              <mat-option value="Approved">{{ 'STOCK_TAKING_APPROVAL_FORM.STATUS_APPROVED' | translate }}</mat-option>
+              <mat-option value="Rejected">{{ 'STOCK_TAKING_APPROVAL_FORM.STATUS_REJECTED' | translate }}</mat-option>
+              <mat-option value="Pending">{{ 'STOCK_TAKING_APPROVAL_FORM.STATUS_PENDING' | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <mat-label>{{ 'STOCK_TAKING_APPROVAL_FORM.NOTES' | translate }}</mat-label>
+          <textarea matInput
+            formControlName="notes"
+            rows="3"
+            [placeholder]="'STOCK_TAKING_APPROVAL_FORM.NOTES_PLACEHOLDER' | translate"></textarea>
+        </mat-form-field>
+      </div>
       <div *ngIf="selectedStockTake() as stockTake" class="table-section">
         <h3 class="section-title">{{ 'STOCK_TAKING_APPROVAL_FORM.QUANTITY_COMPARISON' | translate }}</h3>
 
@@ -57,16 +72,12 @@
           [columnAutoWidth]="true"
           [wordWrapEnabled]="true">
 
-          <dxi-column dataField="carDescription" caption="{{ 'STOCK_TAKING_APPROVAL_FORM.CAR' | translate }}"></dxi-column>
-          <dxi-column dataField="systemQuantity" caption="{{ 'STOCK_TAKING_APPROVAL_FORM.SYSTEM_QUANTITY' | translate }}" dataType="number" alignment="center"></dxi-column>
-          <dxi-column dataField="countedQuantity" caption="{{ 'STOCK_TAKING_APPROVAL_FORM.COUNTED_QUANTITY' | translate }}" dataType="number" alignment="center"></dxi-column>
-          <dxi-column
-            dataField="difference"
-            caption="{{ 'STOCK_TAKING_APPROVAL_FORM.DIFFERENCE' | translate }}"
-            dataType="number"
-            alignment="center"
-            [calculateDisplayValue]="getDifferenceDisplayValue">
-          </dxi-column>
+          <dxi-column dataField="itemName" caption="{{ 'STOCK_TAKING_APPROVAL_FORM.ITEM' | translate }}"></dxi-column>
+          <dxi-column dataField="category" caption="{{ 'STOCK_TAKING_APPROVAL_FORM.CATEGORY' | translate }}"></dxi-column>
+          <dxi-column dataField="quantityCounted" caption="{{ 'STOCK_TAKING_APPROVAL_FORM.COUNTED_QUANTITY' | translate }}" dataType="number" alignment="center"></dxi-column>
+          <dxi-column dataField="unitCost" caption="{{ 'STOCK_TAKING_APPROVAL_FORM.UNIT_COST' | translate }}" dataType="number" alignment="center"></dxi-column>
+          <dxi-column dataField="totalCost" caption="{{ 'STOCK_TAKING_APPROVAL_FORM.TOTAL_COST' | translate }}" dataType="number" alignment="center"></dxi-column>
+          <dxi-column dataField="notes" caption="{{ 'STOCK_TAKING_APPROVAL_FORM.NOTES' | translate }}"></dxi-column>
 
         </dx-data-grid>
       </div>
@@ -82,7 +93,9 @@
           {{ 'STOCK_TAKING_APPROVAL_FORM.CANCEL' | translate }}
         </button>
         <button mat-raised-button color="primary" type="submit" [disabled]="approvalForm.invalid">
-          {{ 'STOCK_TAKING_APPROVAL_FORM.APPROVE_AND_UPDATE' | translate }}
+          {{ approvalForm.get('approvalStatus')?.value === 'Approved' ? ('STOCK_TAKING_APPROVAL_FORM.APPROVE_AND_UPDATE' | translate) : 
+             approvalForm.get('approvalStatus')?.value === 'Rejected' ? ('STOCK_TAKING_APPROVAL_FORM.REJECT' | translate) : 
+             ('STOCK_TAKING_APPROVAL_FORM.SUBMIT' | translate) }}
         </button>
       </div>
     </form>

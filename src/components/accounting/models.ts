@@ -185,3 +185,27 @@ export interface UpdateJournalEntryDto {
   CostCenterId?: number;
   Lines: CreateJournalEntryLineDto[];
 }
+
+export interface OpeningBalanceFinancial {
+  id?: number;
+  accountId: number;
+  accountName: string;
+  openingBalance: number;
+  currency: string;
+  accountType: string;
+  notes: string;
+  entryDate: Date;
+}
+
+export interface OpeningBalanceInventory {
+  id?: number;
+  itemId: number;
+  itemName: string;
+  category: string;
+  quantity: number;
+  unitCost: number;
+  totalCost: number;
+  location: string;
+  notes: string;
+  entryDate: Date;
+}

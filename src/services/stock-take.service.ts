@@ -34,7 +34,7 @@ export class StockTakeService {
   }
 
   // تحديث حالة StockTake
-  updateStockTakeStatus(id: number, status: 'Pending' | 'Approved'): Observable<StockTake> {
+  updateStockTakeStatus(id: number, status: 'Draft' | 'Submitted' | 'Approved' | 'Rejected'): Observable<StockTake> {
     return this.http.patch<StockTake>(`${this.apiUrl}/${id}`, { status });
   }
 

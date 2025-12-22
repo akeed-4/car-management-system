@@ -2,9 +2,10 @@ import { StockTakeItem } from './stock-take-item.model';
 
 export interface StockTake {
   id: number;
-  name: string;
-  date: string;
-  user: string;
-  status: 'Pending' | 'Approved';
+  documentCode: string;
+  documentDate: string;
+  createdBy: string;
+  notes: string;
+  status: 'Draft' | 'Submitted' | 'Approved' | 'Rejected';
   items: StockTakeItem[];
 }

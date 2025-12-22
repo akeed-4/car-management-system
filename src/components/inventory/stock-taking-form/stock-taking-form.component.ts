@@ -16,6 +16,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTableModule } from '@angular/material/table';
+import { DxDataGridModule } from 'devextreme-angular';
 
 @Component({
   selector: 'app-stock-taking-form',
@@ -33,7 +34,8 @@ import { MatTableModule } from '@angular/material/table';
     MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatTableModule
+    MatTableModule,
+    DxDataGridModule
   ],
   templateUrl: './stock-taking-form.component.html',
   styleUrl: './stock-taking-form.component.css',
@@ -47,9 +49,10 @@ export class StockTakingFormComponent implements OnInit {
   private translate = inject(TranslateService);
 
   stockTakeForm!: FormGroup;
+  items = signal<StockTakeItem[]>([]);
 
   // Table columns
-  displayedColumns = ['car', 'systemQuantity', 'actualQuantity', 'actions'];
+  // displayedColumns = ['car', 'systemQuantity', 'actualQuantity', 'actions'];
 
   editMode = signal(false);
   pageTitle = signal('إنشاء مستند جرد جديد');
@@ -85,68 +88,61 @@ export class StockTakingFormComponent implements OnInit {
 
   private initForm() {
     this.stockTakeForm = new FormGroup({
-      name: new FormControl('', Validators.required),
-      date: new FormControl(new Date().toISOString().split('T')[0], Validators.required),
-      user: new FormControl('', Validators.required),
-      items: new FormArray([])
+      documentCode: new FormControl('', Validators.required),
+      documentDate: new FormControl(new Date().toISOString().split('T')[0], Validators.required),
+      createdBy: new FormControl('', Validators.required),
+      notes: new FormControl(''),
+      status: new FormControl('Draft', Validators.required)
     });
   }
 
   private populateForm(stockTake: StockTake) {
     this.stockTakeForm.patchValue({
-      name: stockTake.name,
-      date: stockTake.date,
-      user: stockTake.user
+      documentCode: stockTake.documentCode,
+      documentDate: stockTake.documentDate,
+      createdBy: stockTake.createdBy,
+      notes: stockTake.notes,
+      status: stockTake.status
     });
-
-    const itemsArray = this.stockTakeForm.get('items') as FormArray;
-    itemsArray.clear();
-
-    stockTake.items.forEach(item => {
-      itemsArray.push(new FormGroup({
-        carId: new FormControl(item.carId, Validators.required),
-        carDescription: new FormControl(item.carDescription),
-        systemQuantity: new FormControl(item.systemQuantity),
-        countedQuantity: new FormControl(item.countedQuantity, [Validators.required, Validators.min(0)])
-      }));
-    });
-  }
-
-  get items(): FormArray {
-    return this.stockTakeForm.get('items') as FormArray;
+    this.items.set([...stockTake.items]);
   }
 
   addNewItemRow() {
-    const newItem = new FormGroup({
-      carId: new FormControl(0, Validators.required),
-      carDescription: new FormControl(''),
-      systemQuantity: new FormControl(0),
-      countedQuantity: new FormControl(0, [Validators.required, Validators.min(0)])
-    });
-    this.items.push(newItem);
+    const newItem: StockTakeItem = {
+      itemId: 0,
+      itemName: '',
+      category: '',
+      quantityCounted: 0,
+      unitCost: 0,
+      totalCost: 0,
+      notes: ''
+    };
+    this.items.update(items => [...items, newItem]);
   }
 
   removeItem(index: number) {
-    this.items.removeAt(index);
+    this.items.update(items => items.filter((_, i) => i !== index));
   }
 
-  updateItemCar(carId: number, index: number) {
-    this.inventoryService.getCarById(carId).subscribe(car => {
-      const itemGroup = this.items.at(index) as FormGroup;
-      itemGroup.patchValue({
-        carId: car.id,
-        carDescription: `${car.make} ${car.model} (${car.year})`,
-        systemQuantity: car.quantity,
-        countedQuantity: car.quantity // Default counted quantity to system quantity on selection
-      });
+  updateItemDetails(itemId: number, index: number) {
+    // This would typically fetch item details from inventory service
+    // For now, we'll assume item details are entered manually
+  }
+
+  updateTotalCost(index: number) {
+    this.items.update(items => {
+      const updatedItems = [...items];
+      const item = updatedItems[index];
+      item.totalCost = item.quantityCounted * item.unitCost;
+      return updatedItems;
     });
   }
 
-  updateItemCountedQuantity(quantity: number, index: number) {
-    const itemGroup = this.items.at(index) as FormGroup;
-    itemGroup.patchValue({
-      countedQuantity: quantity >= 0 ? quantity : 0
-    });
+  onCellValueChanged(event: any) {
+    if (event.column.dataField === 'quantityCounted' || event.column.dataField === 'unitCost') {
+      const rowIndex = event.rowIndex;
+      this.updateTotalCost(rowIndex);
+    }
   }
 
   saveStockTake() {
@@ -156,24 +152,25 @@ export class StockTakingFormComponent implements OnInit {
 
     const formValue = this.stockTakeForm.value;
     
-    if (this.items.length === 0) {
+    if (this.items().length === 0) {
       alert(this.translate.instant('INVENTORY.STOCK_TAKING_FORM.ERROR_NO_ITEMS'));
       return;
     }
 
-    // Validate that all rows have a car selected
-    if (this.items.controls.some(control => control.get('carId')?.value === 0)) {
-      alert(this.translate.instant('INVENTORY.STOCK_TAKING_FORM.ERROR_SELECT_CAR'));
+    // Validate that all rows have an item selected
+    if (this.items().some(item => item.itemId === 0)) {
+      alert(this.translate.instant('INVENTORY.STOCK_TAKING_FORM.ERROR_SELECT_ITEM'));
       return;
     }
 
     const stockTakeData: StockTake = {
       id: this.editMode() ? 0 : undefined, // Will be set by service for new items
-      name: formValue.name,
-      date: formValue.date,
-      user: formValue.user,
-      status: 'Pending',
-      items: formValue.items
+      documentCode: formValue.documentCode,
+      documentDate: formValue.documentDate,
+      createdBy: formValue.createdBy,
+      notes: formValue.notes,
+      status: formValue.status,
+      items: this.items()
     };
 
     if (this.editMode()) {

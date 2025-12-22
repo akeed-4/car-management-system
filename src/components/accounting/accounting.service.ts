@@ -71,9 +71,9 @@ export class AccountingService {
   }
 
   createAccount(dto: CreateAccountDto): Observable<Account> {
-    console.log('Making POST request to:', `${this.Url}/accounts`);
+    console.log('Making POST request to:', `${this.Url}/CreateAccount`);
     console.log('Sending DTO:', dto);
-    return this.http.post<Account>(`${this.Url}/accounts`, dto, { headers: this.headers }).pipe(
+    return this.http.post<Account>(`${this.Url}/CreateAccount`, dto, { headers: this.headers }).pipe(
       map(account => {
         // Set parentId for partial accounts
         if (!account.isMainAccount && account.mainAccountId) {

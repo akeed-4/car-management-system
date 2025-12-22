@@ -34,6 +34,7 @@ export const menuData = [
       { id: 81, name: 'شجرة الحسابات (شجرة)', englishName: 'Chart of Accounts (Tree)', route: '/accounts/chart-of-accounts' },
       { id: 83, name: 'مراكز التكلفة', englishName: 'Cost Centers', route: '/cost-centers' },
       { id: 82, name: ' قيود اليومية', englishName: 'Journal Entries',route: '/accounts/journal-entries-list' },
+      { id: 84, name: 'الأرصدة الافتتاحية المالية', englishName: 'Opening Balances Financial', route: '/accounts/opening-balances-financial' },
       { id: 85, name: 'سندات القبض', englishName: 'Receipt Vouchers', route: '/accounts/receipts' },
       { id: 86, name: 'سندات الصرف', englishName: 'Payment Vouchers', route: '/accounts/payments' },
       { id: 87, name: 'سندات العربون', englishName: 'Deposit Vouchers', route: '/accounts/deposits' },
@@ -59,7 +60,7 @@ export const menuData = [
     name: 'إدارة المخزون',
     englishName: 'Inventory Management',
     submenu: [
-      { id: 31, name: 'الرصيد الافتتاحي', englishName: 'Opening Balance', route: '/inventory' },
+      { id: 31, name: 'الرصيد الافتتاحية للمخزون', englishName: 'Opening Balance Inventory', route: '/inventory/opening-balances' },
       { id: 32, name: 'جرد بضاعة', englishName: 'Stock Taking', route: '/inventory/stock-taking' },
       { id: 33, name: 'اعتماد جرد بضاعة', englishName: 'Stock Taking Approval', route: '/inventory/stock-taking-approval' }
     ]

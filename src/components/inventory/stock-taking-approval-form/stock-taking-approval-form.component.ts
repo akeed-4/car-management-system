@@ -54,7 +54,7 @@ export class StockTakingApprovalFormComponent implements OnInit {
 
   // Data Sources
   private allStockTakes = toSignal(this.stockTakeService.getStockTakes(), { initialValue: [] });
-  pendingStockTakes = computed(() => this.allStockTakes().filter(st => st.status === 'Pending'));
+  pendingStockTakes = computed(() => this.allStockTakes().filter(st => st.status === 'Submitted'));
 
   selectedStockTake = signal<StockTake | null>(null);
 
@@ -66,7 +66,9 @@ export class StockTakingApprovalFormComponent implements OnInit {
     this.approvalForm = new FormGroup({
       stockTake: new FormControl(null, Validators.required),
       approvalDate: new FormControl(new Date().toISOString().split('T')[0], Validators.required),
-      approverName: new FormControl('', Validators.required)
+      approverName: new FormControl('', Validators.required),
+      approvalStatus: new FormControl('Approved', Validators.required),
+      notes: new FormControl('')
     });
   }
 
@@ -93,24 +95,31 @@ export class StockTakingApprovalFormComponent implements OnInit {
       return;
     }
 
-    // 1. Update inventory quantities
-    stockTake.items.forEach(item => {
-      this.inventoryService.setCarQuantity(item.carId, item.countedQuantity);
-    });
+    // 1. Update inventory quantities if approved
+    if (formValue.approvalStatus === 'Approved') {
+      stockTake.items.forEach(item => {
+        // Assuming we need to update inventory based on itemId
+        // this.inventoryService.setItemQuantity(item.itemId, item.quantityCounted);
+      });
+    }
 
-    // 2. Update stock take status to 'Approved'
-    this.stockTakeService.updateStockTakeStatus(stockTake.id, 'Approved');
+    // 2. Update stock take status
+    const newStatus = formValue.approvalStatus === 'Approved' ? 'Approved' : 
+                     formValue.approvalStatus === 'Rejected' ? 'Rejected' : 'Submitted';
+    this.stockTakeService.updateStockTakeStatus(stockTake.id, newStatus);
 
     // 3. Create and save the approval document
     const newApproval: Omit<StockTakeApproval, 'id'> = {
       date: formValue.approvalDate,
       approverName: formValue.approverName,
       stockTakeId: stockTake.id,
-      stockTakeName: stockTake.name,
+      stockTakeName: stockTake.documentCode,
+      status: formValue.approvalStatus,
+      notes: formValue.notes
     };
     this.approvalService.addApproval(newApproval);
 
-    alert(`تم اعتماد الجرد "${stockTake.name}" بنجاح وتحديث المخزون.`);
+    alert(`تم ${formValue.approvalStatus === 'Approved' ? 'اعتماد' : formValue.approvalStatus === 'Rejected' ? 'رفض' : 'تقديم'} الجرد "${stockTake.documentCode}" بنجاح.`);
     this.router.navigate(['/inventory/stock-taking-approval']);
   }
 

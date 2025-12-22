@@ -1,6 +1,9 @@
 export interface StockTakeItem {
-  carId: number;
-  carDescription: string;
-  systemQuantity: number;
-  countedQuantity: number;
+  itemId: number;
+  itemName: string;
+  category: string;
+  quantityCounted: number;
+  unitCost: number;
+  totalCost: number;
+  notes: string;
 }
