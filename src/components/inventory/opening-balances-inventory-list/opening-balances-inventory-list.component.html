@@ -1,101 +1,22 @@
-<div class="opening-balances-inventory-container">
+<div class="opening-balances-list-container">
   <div class="page-header">
     <div class="header-info">
       <h2 class="page-title">{{ 'ACCOUNTING.OPENING_BALANCES_INVENTORY' | translate }}</h2>
       <p class="page-subtitle">{{ 'ACCOUNTING.OPENING_BALANCES_INVENTORY_SUBTITLE' | translate }}</p>
     </div>
     <div class="header-actions">
-      <button mat-raised-button color="primary" (click)="onAddNew()" class="add-button">
+      <button mat-raised-button color="primary" (click)="onNew()" class="add-button">
         <mat-icon>add</mat-icon>
         <span>{{ 'ACCOUNTING.ADD_OPENING_BALANCE' | translate }}</span>
       </button>
     </div>
   </div>
 
-  <!-- Form Section -->
-  <mat-card *ngIf="isEditing || form.get('itemName')?.value" class="form-card">
-    <mat-card-header>
-      <mat-card-title>{{ (isEditing ? 'ACCOUNTING.EDIT_OPENING_BALANCE' : 'ACCOUNTING.ADD_OPENING_BALANCE') | translate }}</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <form [formGroup]="form" (ngSubmit)="onSave()" class="balance-form">
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'ACCOUNTING.ITEM_ID' | translate }}</mat-label>
-            <input matInput formControlName="itemId" type="number" required>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'ACCOUNTING.ACCOUNT_NAME' | translate }}</mat-label>
-            <input matInput formControlName="itemName" required>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'ACCOUNTING.CATEGORY' | translate }}</mat-label>
-            <mat-select formControlName="category" required>
-              <mat-option *ngFor="let category of categories" [value]="category">
-                {{ 'ACCOUNTING.' + category | translate }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'ACCOUNTING.QUANTITY' | translate }}</mat-label>
-            <input matInput formControlName="quantity" type="number" min="0" required>
-          </mat-form-field>
-        </div>
-
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'ACCOUNTING.UNIT_COST' | translate }}</mat-label>
-            <input matInput formControlName="unitCost" type="number" step="0.01" min="0" required>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'ACCOUNTING.TOTAL_COST' | translate }}</mat-label>
-            <input matInput formControlName="totalCost" readonly>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'ACCOUNTING.LOCATION' | translate }}</mat-label>
-            <mat-select formControlName="location" required>
-              <mat-option *ngFor="let location of locations" [value]="location">
-                {{ 'ACCOUNTING.' + location | translate }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'ACCOUNTING.ENTRY_DATE' | translate }}</mat-label>
-            <input matInput [matDatepicker]="picker" formControlName="entryDate" required>
-            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
-          </mat-form-field>
-        </div>
-
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="form-field full-width">
-            <mat-label>{{ 'ACCOUNTING.NOTES_EN' | translate }}</mat-label>
-            <textarea matInput formControlName="notes" rows="3"></textarea>
-          </mat-form-field>
-        </div>
-
-        <div class="form-actions">
-          <button mat-button type="button" (click)="onCancel()">{{ 'ACCOUNTING.CANCEL' | translate }}</button>
-          <button mat-raised-button color="primary" type="submit" [disabled]="!form.valid">
-            {{ 'ACCOUNTING.SAVE' | translate }}
-          </button>
-        </div>
-      </form>
-    </mat-card-content>
-  </mat-card>
-
-  <!-- Data Grid Section -->
   <mat-card class="data-grid-card">
     <mat-card-content>
       <div class="data-grid-container">
         <dx-data-grid
-          [dataSource]="openingBalances()"
+          [dataSource]="openingBalances"
           [showBorders]="true"
           [showRowLines]="true"
           [showColumnLines]="true"

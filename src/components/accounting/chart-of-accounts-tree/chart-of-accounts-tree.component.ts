@@ -79,7 +79,7 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
     this.error.set(null);
 
     this.accountingService.getAccounts().subscribe({
-      next: (accounts) => {
+      next: (accounts:any) => {
         this.accounts.set(accounts);
         this.isLoading.set(false);
         console.log('Accounts loaded:', accounts);

@@ -32,6 +32,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastService } from '@/src/services/toast.service';
 import { LanguageService } from '@/src/services/language.service';
 import { Direction } from '@angular/cdk/bidi';
+import { CarSelectionDialogComponent } from './car-selection-dialog/car-selection-dialog.component';
 
 const VAT_RATE = 0.15; // 15% VAT
 
@@ -53,7 +54,8 @@ const VAT_RATE = 0.15; // 15% VAT
     MatCardModule,
     MatDatepickerModule,
     MatDialogModule,
-    DxDataGridModule
+    DxDataGridModule,
+    CarSelectionDialogComponent
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './purchase-invoice.component.html',
@@ -95,6 +97,22 @@ export class PurchaseInvoiceComponent {
 
   // Invoice items state
   invoiceItems = signal<InvoiceItem[]>([]);
+
+  // Methods
+  toggleCarCards(): void {
+    const dialogRef = this.dialog.open(CarSelectionDialogComponent, {
+      width: '90vw',
+      maxWidth: '1200px',
+      height: '80vh',
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.addCarToPurchase(result);
+      }
+    });
+  }
 
   // Temp state for adding a new item
   selectedCarId = signal<number | null>(null);
@@ -160,17 +178,6 @@ export class PurchaseInvoiceComponent {
   subtotal = computed(() => this.invoiceItems().reduce((sum, item) => sum + item.lineTotal, 0));
   vatAmount = computed(() => this.subtotal() * VAT_RATE);
   totalAmount = computed(() => this.subtotal() + this.vatAmount());
-
-  // Computed property for car cards display
-  carCards = computed(() => {
-    return this.cars().map(car => ({
-      ...car,
-      imageUrl: car.photos?.[0] || 'https://via.placeholder.com/300x200?text=' + encodeURIComponent(car.make + ' ' + car.model),
-      carName: `${car.make} ${car.model}`,
-      specs: `${car.year} - ${car.condition} - ${car.mileage} km`,
-      availableQuantity: car.quantity || 0
-    }));
-  });
 
   // Methods
   loadCarStocks(storeId: number): void {
@@ -253,48 +260,27 @@ export class PurchaseInvoiceComponent {
 
   // Method for adding car from card selection
   addCarToPurchase(car: any): void {
-    const dialogRef = this.dialog.open(InvoiceItemDialogComponent, {
-      width: '400px',
-      data: {
-        carName: car.carName,
-        quantity: 1,
-        unitPrice: car.purchasePrice || 0,
-        maxQuantity: 999 // For purchases, no stock limit
-      }
-    });
+    // Check if already exists
+    const alreadyExists = this.invoiceItems().some(item => item.carId === car.id);
+    if (alreadyExists) {
+      this.toastService.showError('PURCHASE_INVOICE.ERROR_ALREADY_ADDED');
+      return;
+    }
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result?.confirmed) {
-        const { quantity, unitPrice } = result;
+    // Create invoice item with default quantity of 1
+    const newItem: InvoiceItem = {
+      carId: car.id,
+      carDescription: `${car.make} ${car.model} (${car.year})`,
+      quantity: 1,
+      unitPrice: car.purchasePrice || 0,
+      lineTotal: (car.purchasePrice || 0) * 1,
+    };
 
-        // Check if already exists
-        const alreadyExists = this.invoiceItems().some(item => item.carId === car.id);
-        if (alreadyExists) {
-          this.toastService.showError('PURCHASE_INVOICE.ERROR_ALREADY_ADDED');
-          return;
-        }
-
-        // Create invoice item
-        const newItem: InvoiceItem = {
-          carId: car.id,
-          carDescription: car.carName,
-          quantity,
-          unitPrice,
-          lineTotal: unitPrice * quantity,
-          carImage: car.imageUrl
-        };
-
-        // Add to invoice items
-        this.invoiceItems.update(items => [...items, newItem]);
-      }
-    });
+    // Add to invoice items
+    this.invoiceItems.update(items => [...items, newItem]);
   }
 
   saveInvoice(): void {
-    if (this.purchaseInvoiceForm.invalid) {
-      alert('الرجاء إكمال جميع الحقول المطلوبة.');
-      return;
-    }
 
     const formValue = this.purchaseInvoiceForm.value;
     const supplierId = formValue.supplierId;
@@ -302,11 +288,11 @@ export class PurchaseInvoiceComponent {
     const items = this.invoiceItems();
 
     if (!supplierId || !supplier) {
-      alert('الرجاء اختيار المورد.');
+      this.toastService.showError('PURCHASE_INVOICE.ERROR_SELECT_SUPPLIER');
       return;
     }
     if (items.length === 0) {
-      alert('الرجاء إضافة سيارة واحدة على الأقل للفاتورة.');
+      this.toastService.showError('PURCHASE_INVOICE.ERROR_NO_ITEMS');
       return;
     }
 

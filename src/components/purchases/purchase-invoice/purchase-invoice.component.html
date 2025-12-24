@@ -13,7 +13,7 @@
 
   <mat-card>
 
-    <form [formGroup]="purchaseInvoiceForm" (ngSubmit)="saveInvoice()">
+    <form [formGroup]="purchaseInvoiceForm" >
 
       <section class="form-section">
         <h3 class="form-section-title">{{ 'PURCHASE_INVOICE.MAIN_DATA' | translate }}</h3>
@@ -70,57 +70,12 @@
       </section>
 
       <section class="form-section">
-        <h3 class="form-section-title">{{ 'PURCHASE_INVOICE.ITEMS_SECTION' | translate }}</h3>
-        <div class="add-item-box">
-          <ng-container *ngIf="layout$ | async as layout">
-            <mat-grid-list [cols]="layout.columns" rowHeight="100" gutterSize="16px">
-              <mat-grid-tile [colspan]="1" [rowspan]="1">
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>{{ 'PURCHASE_INVOICE.SELECT_CAR' | translate }}</mat-label>
-                  <mat-select [value]="selectedCarId()" (selectionChange)="onCarSelectionChange(+$event.value)">
-                    <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_CAR_OPTION' | translate }}</mat-option>
-                    @for(car of cars(); track car.id) {
-                      <mat-option [value]="car.id">{{ car.make }} {{ car.model }} ({{ car.year }}) - {{ 'PURCHASE_INVOICE.AVAILABLE_QUANTITY' | translate }}: {{ car.availableQuantity }}</mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
-              </mat-grid-tile>
-              <mat-grid-tile [colspan]="1" [rowspan]="1">
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>{{ 'PURCHASE_INVOICE.PURCHASE_PRICE' | translate }}</mat-label>
-                  <input matInput type="number" [value]="purchasePrice()" (input)="purchasePrice.set(+$event.target.value)" min="0">
-                </mat-form-field>
-              </mat-grid-tile>
-              <mat-grid-tile [colspan]="1" [rowspan]="1">
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>{{ 'PURCHASE_INVOICE.QUANTITY' | translate }}</mat-label>
-                  <input matInput type="number" [value]="selectedQuantity()" (input)="selectedQuantity.set(+$event.target.value)" min="1">
-                </mat-form-field>
-              </mat-grid-tile>
-              <mat-grid-tile [colspan]="1" [rowspan]="1">
-                <button mat-raised-button color="primary" type="button" (click)="addItemToInvoice()" [disabled]="!selectedCarId() || selectedQuantity() <= 0">
-                  <mat-icon>add</mat-icon>
-                  <span>{{ 'PURCHASE_INVOICE.ADD' | translate }}</span>
-                </button>
-              </mat-grid-tile>
-            </mat-grid-list>
-          </ng-container>
-        </div>
-      </section>
-
-      <section class="form-section">
-        <h3 class="form-section-title">{{ 'PURCHASE_INVOICE.SELECT_CAR_CARD' | translate }}</h3>
-      
-        <div class="car-cards-container">
-          <div *ngFor="let car of carCards()" class="car-card">
-            <img [src]="car.imageUrl" alt="{{car.carName}}" class="car-image">
-            <h4>{{ car.carName }}</h4>
-            <p>{{ car.specs }}</p>
-            <p>{{ 'PURCHASE_INVOICE.AVAILABLE_QUANTITY' | translate }}: {{ car.availableQuantity }}</p>
-            <button mat-raised-button color="primary" (click)="addCarToPurchase(car)">
-              {{ 'PURCHASE_INVOICE.ADD_TO_INVOICE' | translate }}
-            </button>
-          </div>
+        <div class="section-header">
+          <h3 class="form-section-title">{{ 'PURCHASE_INVOICE.SELECT_CAR_CARD' | translate }}</h3>
+          <button mat-raised-button color="accent" (click)="toggleCarCards()">
+            <mat-icon>search</mat-icon>
+            {{ 'PURCHASE_INVOICE.SELECT_CAR' | translate }}
+          </button>
         </div>
       </section>
 
@@ -181,7 +136,7 @@
 
       <div class="form-actions">
         <a routerLink="/purchases" mat-button>{{ 'PURCHASE_INVOICE.CANCEL' | translate }}</a>
-        <button mat-raised-button color="primary" type="submit" [disabled]="purchaseInvoiceForm.invalid || invoiceItems().length === 0">
+        <button mat-raised-button color="primary" (click)="saveInvoice()" [disabled]="purchaseInvoiceForm.invalid || invoiceItems().length === 0">
             <mat-icon>save</mat-icon>
             {{ 'PURCHASE_INVOICE.SAVE' | translate }}
         </button>

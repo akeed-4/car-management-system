@@ -18,7 +18,7 @@ export class CarModelService {
 
   async loadCarModelsFromApi() {
     try {
-      const data = await firstValueFrom(this.http.get<CarModel[]>(this.apiUrl));
+      const data = await firstValueFrom(this.http.get<CarModel[]>(this.apiUrl+'/GetAll'));
       this.carmodel.set(data);
     } catch (error) {
       console.error('Failed to fetch car models from API', error);
@@ -26,11 +26,11 @@ export class CarModelService {
   }
 
   getCarModels(): Observable<CarModel[]> {
-    return this.http.get<CarModel[]>(this.apiUrl);
+    return this.http.get<CarModel[]>(this.apiUrl+'/GetAll');
   }
 
  async addCarModel(model: Omit<CarModel, 'id'>): Promise<void> {
-     await firstValueFrom(this.http.post<CarModel>(this.apiUrl, model));
+     await firstValueFrom(this.http.post<CarModel>(this.apiUrl+'/create', model));
      // Reload the list from API
      await this.loadCarModelsFromApi();
   }

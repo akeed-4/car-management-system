@@ -5,8 +5,8 @@
     <input matInput [(ngModel)]="searchTerm" (input)="filterCars()" placeholder="{{ 'PURCHASE_INVOICE.SEARCH_CARS' | translate }}">
   </mat-form-field>
   <div class="car-cards-container">
-    <mat-card *ngFor="let car of filteredCars() | slice:0:3" class="car-card">
-      <img mat-card-image [src]="car.imageUrl" alt="{{car.carName}}" class="car-image">
+    <mat-card *ngFor="let car of filteredCars()" class="car-card">
+      <img mat-card-image [src]="car.imageUrl" alt="{{car.carName}}" class="car-image" (error)="$event.target.src='assets/images/car.jpg'">
       <mat-card-content>
         <h4>{{ car.carName }}</h4>
         <p>{{ car.specs }}</p>

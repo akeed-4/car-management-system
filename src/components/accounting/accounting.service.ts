@@ -16,6 +16,7 @@ export class AccountingService {
   private refreshSubject = new Subject<void>();
   private Url = environment.origin + 'api/Accounting';
   private Urljournal = environment.origin + 'api/JournalEntries';
+  private Urlopeningbalances = environment.origin + 'api/InventoryOpeningBalances';
 
   private headers = new HttpHeaders({
     'Content-Type': 'application/json',
@@ -35,9 +36,12 @@ export class AccountingService {
   // Account CRUD
   getAccounts(): Observable<Account[]> {
     console.log('Making GET request to:', `${this.Url}/accounts`);
-    return this.http.get<Account[]>(`${this.Url}/accounts`, { headers: this.headers }).pipe(
-      map(accounts => {
-        console.log('Received accounts:', accounts);
+    return this.http.get<any>(`${this.Url}/accounts`, { headers: this.headers }).pipe(
+      map(response => {
+        console.log('Received accounts response:', response);
+        // Extract the data array from the API response
+        const accounts = Array.isArray(response) ? response : (response as any).data || [];
+        console.log('Extracted accounts array:', accounts);
         // Set parentId for partial accounts
         const processedAccounts = accounts.map(account => ({
           ...account,
@@ -243,7 +247,7 @@ export class AccountingService {
 
   // Opening Balance Inventory CRUD
   getOpeningBalancesInventory(): Observable<OpeningBalanceInventory[]> {
-    return this.http.get<OpeningBalanceInventory[]>(`${this.Url}/opening-balances-inventory`).pipe(
+    return this.http.get<OpeningBalanceInventory[]>(`${this.Urlopeningbalances}/GetAll`).pipe(
       catchError(error => {
         console.error('Error fetching opening balances inventory:', error);
         return throwError(() => new Error('Failed to fetch opening balances inventory'));
@@ -252,7 +256,7 @@ export class AccountingService {
   }
 
   createOpeningBalanceInventory(dto: Omit<OpeningBalanceInventory, 'id'>): Observable<OpeningBalanceInventory> {
-    return this.http.post<OpeningBalanceInventory>(`${this.Url}/opening-balances-inventory`, dto, { headers: this.headers }).pipe(
+    return this.http.post<OpeningBalanceInventory>(`${this.Urlopeningbalances}/Create`, dto, { headers: this.headers }).pipe(
       catchError(error => {
         console.error('Error creating opening balance inventory:', error);
         return throwError(() => new Error('Failed to create opening balance inventory'));

@@ -76,7 +76,8 @@ import { CostCenterListComponent } from './components/setup/cost-center/cost-cen
 import { CostCenterFormComponent } from './components/setup/cost-center/cost-center-form/cost-center-form.component';
 import { BankListComponent } from './components/bank/bank-list/bank-list.component';
 import { BankFormComponent } from './components/bank/bank-form/bank-form.component';
-import { OpeningBalancesInventoryComponent } from './components/inventory/opening-balances-inventory/opening-balances-inventory.component';
+import { OpeningBalancesInventoryListComponent } from './components/inventory/opening-balances-inventory-list/opening-balances-inventory-list.component';
+import { OpeningBalancesInventoryFormComponent } from './components/inventory/opening-balances-inventory-form/opening-balances-inventory-form.component';
 
 export const APP_ROUTES: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -110,7 +111,9 @@ export const APP_ROUTES: Routes = [
       { path: 'bank/form/:id', component: BankFormComponent },
       // Redirect to the functional inventory form
       { path: 'inventory', component: InventoryListComponent },
-  { path: 'inventory/opening-balances', component: OpeningBalancesInventoryComponent },
+  { path: 'inventory/opening-balances', component: OpeningBalancesInventoryListComponent },
+  { path: 'inventory/opening-balances/new', component: OpeningBalancesInventoryFormComponent },
+  { path: 'inventory/opening-balances/edit/:id', component: OpeningBalancesInventoryFormComponent },
   { path: 'inventory/new', component: InventoryFormComponent },
   { path: 'inventory/edit/:id', component: InventoryFormComponent },
   { path: 'inventory/stock-taking', component: StockTakingComponent },
@@ -160,7 +163,7 @@ export const APP_ROUTES: Routes = [
   { path: 'accounts/chart-of-accounts-new', component: ChartOfAccountsComponent },
   { path: 'accounts/chart-of-accounts-new/:id', component: ChartOfAccountsComponent },
   { path: 'accounts/opening-balances-financial', component: OpeningBalancesFinancialComponent },
-  { path: 'accounts/opening-balances-inventory', component: OpeningBalancesInventoryComponent },
+  { path: 'accounts/opening-balances-inventory', component: OpeningBalancesInventoryListComponent },
   { path: 'accounts/journal-entries', component: JournalEntriesComponent },
   { path: 'accounts/opening-balances', component: OpeningBalancesFinancialComponent },
   { path: 'accounts/journal-entries/:id', component: JournalEntriesComponent },

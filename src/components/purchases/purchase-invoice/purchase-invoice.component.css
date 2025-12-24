@@ -52,6 +52,26 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.section-header h3 {
+  margin: 0;
+}
+
+.car-search-container {
+  margin-bottom: 1.5rem;
+}
+
+.search-field {
+  width: 100%;
+  max-width: 400px;
+}
+
 .back-link mat-icon {
   margin-right: 0.5rem;
   font-size: 1.1rem;
