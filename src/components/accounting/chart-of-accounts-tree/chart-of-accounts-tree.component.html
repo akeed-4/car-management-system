@@ -35,7 +35,7 @@
       [columnAutoWidth]="true"
       [wordWrapEnabled]="true"
       [rtlEnabled]="true"
-      [autoExpandAll]="true"
+      [autoExpandAll]="false"
       [hoverStateEnabled]="true"
       [rowAlternationEnabled]="true"
       [scrolling]="{ mode: 'virtual' }"
@@ -53,26 +53,18 @@
       <dxo-header-filter [visible]="true"></dxo-header-filter>
       <dxo-selection mode="single"></dxo-selection>
       <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false" [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
-      <dxo-paging [pageSize]="20"></dxo-paging>
-      <dxo-pager
-        [visible]="true"
-        [allowedPageSizes]="[10,20,50,100,'all']"
-        [displayMode]="'compact'"
-        [showPageSizeSelector]="true"
-        [showInfo]="true"
-        [showNavigationButtons]="true">
-      </dxo-pager>
+      
       <dxo-sorting mode="multiple"></dxo-sorting>
       
       <dxi-column 
         dataField="level" 
-        [caption]="translate.instant('ACCOUNTING.LEVEL')" 
+        [caption]="translate.instant('ACCOUNTING.levels')" 
         alignment="center"
-       >
+        cellTemplate="levelTemplate">
       </dxi-column>
 
       <dxi-column 
-        dataField="code" 
+        dataField="accountCode" 
         [caption]="translate.instant('ACCOUNTING.ACCOUNT_CODE')" 
         cssClass="code-column">
       </dxi-column>
@@ -143,17 +135,16 @@
         </dxi-button>
       </dxi-column>
       
+      <div *dxTemplate="let data of 'levelTemplate'">
+        <div class="level-cell">
+          <span class="level-indicator" [style.margin-left.px]="(data.value - 1) * 20">
+            <i class="material-icons level-icon">subdirectory_arrow_left</i>
+            {{ data.value }}
+          </span>
+        </div>
+      </div>
+      
     </dx-tree-list>
-  </div>
- 
-  <ng-template #levelTemplate let-data>
-    <div class="level-cell">
-      <span class="level-indicator">
-        <span class="level-arrow">▶</span>
-        Level {{ data.value }}
-      </span>
-    </div>
-  </ng-template>
 
   <!-- Account Form Section -->
   <div class="form-section" *ngIf="isEditing || parentId">

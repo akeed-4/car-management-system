@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
+import { error } from 'console';
 
 @Component({
   selector: 'app-stock-taking',
@@ -33,8 +34,11 @@ export class StockTakingComponent {
   private stockTakeService = inject(StockTakeService);
   private router = inject(Router);
 
-  stockTakes = toSignal(this.stockTakeService.getStockTakes(), { initialValue: [] });
-
+  stockTakes = toSignal(this.stockTakeService.getStockTakesByStore(1), { initialValue: [] });
+constructor() {
+  this.onDeleteClick=(this.onDeleteClick.bind(this));
+  this.onEditClick=(this.onEditClick.bind(this));
+}
   // Modal state
   isDeleteModalOpen = signal(false);
   itemToDeleteId = signal<number | null>(null);
@@ -67,6 +71,13 @@ export class StockTakingComponent {
   requestDelete(id: number) {
     this.itemToDeleteId.set(id);
     this.isDeleteModalOpen.set(true);
+      this.stockTakeService.deleteStockTake(id).subscribe(() => {
+        // تحديث القائمة بعد الحذف
+        this.stockTakes = toSignal(this.stockTakeService.getStockTakesByStore(1), { initialValue: [] });
+      }, error=> {
+        console.error('خطأ أثناء حذف الجرد:', error);
+      }
+      );
   }
 
   confirmDelete() {

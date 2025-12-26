@@ -18,6 +18,7 @@
       [allowColumnReordering]="true"
       [allowColumnResizing]="true"
       [columnAutoWidth]="true"
+      height="600px"
       [wordWrapEnabled]="true"
       [rtlEnabled]="true">
 
@@ -26,16 +27,17 @@
       <dxo-filter-row [visible]="true"></dxo-filter-row>
       <dxo-header-filter [visible]="true"></dxo-header-filter>
       <dxo-search-panel [visible]="true" [placeholder]="'البحث...'"></dxo-search-panel>
+      <dxi-column dataField="id" visible="false" caption="{{ 'INVENTORY.STOCK_TAKING.DOCUMENT_NAME' | translate }}" ></dxi-column>
 
-      <dxi-column dataField="name" caption="{{ 'INVENTORY.STOCK_TAKING.NAME' | translate }}" ></dxi-column>
-      <dxi-column dataField="date" caption="{{ 'INVENTORY.STOCK_TAKING.DATE' | translate }}" dataType="date" format="yyyy-MM-dd" ></dxi-column>
-      <dxi-column dataField="user" caption="{{ 'INVENTORY.STOCK_TAKING.CONDUCTED_BY' | translate }}" ></dxi-column>
+      <dxi-column dataField="documentName" caption="{{ 'INVENTORY.STOCK_TAKING.DOCUMENT_NAME' | translate }}" ></dxi-column>
+      <dxi-column dataField="documentDate" caption="{{ 'INVENTORY.STOCK_TAKING.DATE' | translate }}" dataType="date" format="yyyy-MM-dd" ></dxi-column>
+      <dxi-column dataField="createdBy" caption="{{ 'INVENTORY.STOCK_TAKING.CONDUCTED_BY' | translate }}" ></dxi-column>
       <dxi-column dataField="status" caption="{{ 'INVENTORY.STOCK_TAKING.STATUS' | translate }}" >
         <dxo-lookup [dataSource]="statusLookup"></dxo-lookup>
       </dxi-column>
       <dxi-column type="buttons" caption="{{ 'INVENTORY.STOCK_TAKING.ACTIONS' | translate }}" >
-        <dxi-button name="edit" [onClick]="onEditClick" [visible]="isEditVisible"></dxi-button>
-        <dxi-button name="delete" [onClick]="onDeleteClick" [visible]="isDeleteVisible"></dxi-button>
+        <dxi-button  icon="edit"   [onClick]="onEditClick" [visible]="isEditVisible"></dxi-button>
+        <dxi-button  icon="trash"  [onClick]="onDeleteClick" [visible]="isDeleteVisible"></dxi-button>
       </dxi-column>
 
       <dxo-editing mode="popup" [allowUpdating]="false" [allowDeleting]="false" [allowAdding]="false"></dxo-editing>

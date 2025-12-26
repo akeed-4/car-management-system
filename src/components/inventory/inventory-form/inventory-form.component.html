@@ -359,25 +359,62 @@
 
       <div *ngIf="editMode() && associatedExpenses().length > 0" class="form-section">
         <h3 class="section-title">{{ 'INVENTORY.FORM.RELATED_COSTS' | translate }}</h3>
-        <table mat-table [dataSource]="associatedExpenses()" class="expenses-table">
-          <ng-container matColumnDef="date">
-            <th mat-header-cell *matHeaderCellDef>{{ 'INVENTORY.FORM.DATE' | translate }}</th>
-            <td mat-cell *matCellDef="let expense">{{ expense.date }}</td>
-          </ng-container>
+        <dx-data-grid
+          [dataSource]="associatedExpenses()"
+          [showBorders]="true"
+          [showRowLines]="true"
+          [showColumnLines]="true"
+          [allowColumnReordering]="true"
+          [allowColumnResizing]="true"
+          [columnAutoWidth]="true"
+          [wordWrapEnabled]="true"
+          [rtlEnabled]="true"
+          [height]="300"
+          [noDataText]="'INVENTORY.FORM.NO_RELATED_COSTS' | translate"
+          [showBorders]="true"
+          [rowAlternationEnabled]="true"
+          [filterRow]="{ visible: true }"
+          [headerFilter]="{ visible: true }"
+          [scrolling]="{ mode: 'standard' }"
+          [paging]="{ pageSize: 10 }"
+          [pager]="{
+            showPageSizeSelector: true,
+            allowedPageSizes: [5, 10, 20],
+            showInfo: true,
+            showNavigationButtons: true
+          }"
+          [searchPanel]="{ visible: true, placeholder: 'INVENTORY.FORM.SEARCH_RELATED_COSTS' | translate }"
+        >
+          <dxi-column
+            dataField="date"
+            [caption]="'INVENTORY.FORM.DATE' | translate"
+            dataType="date"
+            format="dd/MM/yyyy">
+          </dxi-column>
 
-          <ng-container matColumnDef="description">
-            <th mat-header-cell *matHeaderCellDef>{{ 'INVENTORY.FORM.DESCRIPTION' | translate }}</th>
-            <td mat-cell *matCellDef="let expense">{{ expense.description }}</td>
-          </ng-container>
+          <dxi-column
+            dataField="description"
+            [caption]="'INVENTORY.FORM.DESCRIPTION' | translate"
+            dataType="string">
+          </dxi-column>
 
-          <ng-container matColumnDef="amount">
-            <th mat-header-cell *matHeaderCellDef>{{ 'INVENTORY.FORM.AMOUNT' | translate }}</th>
-            <td mat-cell *matCellDef="let expense">{{ expense.amount | currency:'SAR' }}</td>
-          </ng-container>
+          <dxi-column
+            dataField="amount"
+            [caption]="'INVENTORY.FORM.AMOUNT' | translate"
+            dataType="number"
+            format="currency"
+            [calculateCellValue]="calculateAmountCellValue">
+          </dxi-column>
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
+          <dxo-summary>
+            <dxi-total-item
+              column="amount"
+              summaryType="sum"
+              [displayFormat]="('INVENTORY.FORM.TOTAL_AMOUNT' | translate) + ': {0}'"
+              [valueFormat]="{ type: 'currency', currency: 'SAR' }">
+            </dxi-total-item>
+          </dxo-summary>
+        </dx-data-grid>
       </div>
 
       <!-- Description and Photos -->

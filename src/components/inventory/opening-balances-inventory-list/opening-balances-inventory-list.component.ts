@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -27,7 +27,7 @@ import { OpeningBalanceInventory } from '../../accounting/models';
 })
 export class OpeningBalancesInventoryListComponent implements OnInit {
 
-  openingBalances: OpeningBalanceInventory[] = [];
+  openingBalances = signal<OpeningBalanceInventory[]>([]);
 
   constructor(
     public translate: TranslateService,
@@ -42,11 +42,11 @@ export class OpeningBalancesInventoryListComponent implements OnInit {
   loadOpeningBalances() {
     this.accountingService.getOpeningBalancesInventory().subscribe({
       next: (balances) => {
-        this.openingBalances = balances;
+        this.openingBalances.set(balances);
       },
       error: (error) => {
         console.error('Error loading opening balances:', error);
-        this.openingBalances = [];
+        this.openingBalances.set([]);
       }
     });
   }
@@ -55,15 +55,19 @@ export class OpeningBalancesInventoryListComponent implements OnInit {
     this.router.navigate(['/inventory/opening-balances/new']);
   }
 
-  onEdit(e: any) {
-    // For future edit functionality
-    console.log('Edit', e);
-  }
+  onEditClick = (e: any) => {
+    const id = e.row && e.row.data ? e.row.data.id : null;
+    if (id) {
+      this.router.navigate(['/inventory/opening-balances/edit', id]);
+    }
+  };
 
-  onDelete(e: any) {
-    const data = e.row.data;
+  onDeleteClick = (e: any) => {
+    const id = e.row && e.row.data ? e.row.data.id : null;
+    if (!id) return;
+
     if (confirm(this.translate.instant('ACCOUNTING.CONFIRM_DELETE_OPENING_BALANCE'))) {
-      this.accountingService.deleteOpeningBalanceInventory(data.id).subscribe({
+      this.accountingService.deleteOpeningBalanceInventory(id).subscribe({
         next: () => {
           this.loadOpeningBalances(); // Reload data
         },
@@ -72,5 +76,5 @@ export class OpeningBalancesInventoryListComponent implements OnInit {
         }
       });
     }
-  }
+  };
 }

@@ -8,7 +8,7 @@
 
 <mat-card>
   <mat-card-content>
-    <form [formGroup]="approvalForm" (ngSubmit)="approveStockTake()">
+    <form [formGroup]="approvalForm" >
 
       <!-- Approval Header -->
       <div class="form-section">
@@ -17,10 +17,11 @@
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'STOCK_TAKING_APPROVAL_FORM.STOCK_TAKE_DOCUMENT' | translate }}</mat-label>
             <mat-select
-              formControlName="stockTake">
+              formControlName="stockTake"
+              (selectionChange)="onStockTakeSelect($event.value)">
               <mat-option [value]="null" disabled>{{ 'STOCK_TAKING_APPROVAL_FORM.SELECT_STOCK_TAKE' | translate }}</mat-option>
               <mat-option *ngFor="let st of pendingStockTakes()" [value]="st.id">
-                {{ st.documentCode }} ({{ st.documentDate | date:'yyyy-MM-dd' }})
+                {{ st.documentName }} ({{ st.documentDate | date:'yyyy-MM-dd' }})
               </mat-option>
             </mat-select>
           </mat-form-field>
@@ -36,7 +37,7 @@
             <mat-label>{{ 'STOCK_TAKING_APPROVAL_FORM.APPROVER_NAME' | translate }}</mat-label>
             <input matInput
               type="text"
-              formControlName="approverName"
+              formControlName="Name"
               [placeholder]="'STOCK_TAKING_APPROVAL_FORM.APPROVER_PLACEHOLDER' | translate">
           </mat-form-field>
 
@@ -73,8 +74,9 @@
           [wordWrapEnabled]="true">
 
           <dxi-column dataField="itemName" caption="{{ 'STOCK_TAKING_APPROVAL_FORM.ITEM' | translate }}"></dxi-column>
-          <dxi-column dataField="category" caption="{{ 'STOCK_TAKING_APPROVAL_FORM.CATEGORY' | translate }}"></dxi-column>
+          <dxi-column dataField="systemQuantity" caption="{{ 'STOCK_TAKING_APPROVAL_FORM.SYSTEM_QUANTITY' | translate }}" dataType="number" alignment="center"></dxi-column>
           <dxi-column dataField="quantityCounted" caption="{{ 'STOCK_TAKING_APPROVAL_FORM.COUNTED_QUANTITY' | translate }}" dataType="number" alignment="center"></dxi-column>
+          <dxi-column caption="{{ 'STOCK_TAKING_APPROVAL_FORM.DIFFERENCE' | translate }}" dataType="number" alignment="center" [calculateCellValue]="getDifferenceDisplayValue"></dxi-column>
           <dxi-column dataField="unitCost" caption="{{ 'STOCK_TAKING_APPROVAL_FORM.UNIT_COST' | translate }}" dataType="number" alignment="center"></dxi-column>
           <dxi-column dataField="totalCost" caption="{{ 'STOCK_TAKING_APPROVAL_FORM.TOTAL_COST' | translate }}" dataType="number" alignment="center"></dxi-column>
           <dxi-column dataField="notes" caption="{{ 'STOCK_TAKING_APPROVAL_FORM.NOTES' | translate }}"></dxi-column>
@@ -92,7 +94,7 @@
         <button mat-stroked-button type="button" routerLink="/inventory/stock-taking-approval" class="cancel-button">
           {{ 'STOCK_TAKING_APPROVAL_FORM.CANCEL' | translate }}
         </button>
-        <button mat-raised-button color="primary" type="submit" [disabled]="approvalForm.invalid">
+        <button mat-raised-button color="primary" (click)="approveStockTake()" [disabled]="approvalForm.invalid">
           {{ approvalForm.get('approvalStatus')?.value === 'Approved' ? ('STOCK_TAKING_APPROVAL_FORM.APPROVE_AND_UPDATE' | translate) : 
              approvalForm.get('approvalStatus')?.value === 'Rejected' ? ('STOCK_TAKING_APPROVAL_FORM.REJECT' | translate) : 
              ('STOCK_TAKING_APPROVAL_FORM.SUBMIT' | translate) }}

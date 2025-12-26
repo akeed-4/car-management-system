@@ -72,7 +72,8 @@ export interface JournalEntryLine {
   lineNumber: number;
   accountId: number;
   accountCode: string;
-  accountName: string;
+  accountNameAr: string;
+  accountNameEn: string;
   accountType: string;
   accountBalance: number;
   debitAmount: number;
@@ -208,4 +209,5 @@ export interface OpeningBalanceInventory {
   location: string;
   notes: string;
   entryDate: Date;
+  storeId: number;
 }

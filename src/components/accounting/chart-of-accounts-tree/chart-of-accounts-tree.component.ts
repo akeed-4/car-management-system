@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
-import { DxTreeListModule, DxTemplateModule } from 'devextreme-angular';
+import { DxTreeListModule, DxTemplateModule, DxTemplateHost } from 'devextreme-angular';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
@@ -8,6 +8,7 @@ import { AccountingService } from '../accounting.service';
 import { Account } from '../models';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
+import { ToastService } from '@/src/services/toast.service';
 
 @Component({
   selector: 'app-chart-of-accounts-tree',
@@ -18,6 +19,7 @@ import { TranslateModule } from '@ngx-translate/core';
     DxTemplateModule,
     TranslateModule
   ],
+  providers: [DxTemplateHost],
   templateUrl: './chart-of-accounts-tree.component.html',
   styleUrl: './chart-of-accounts-tree.component.css'
 })
@@ -35,11 +37,37 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
   // Computed signal for processed accounts data
   processedAccounts = computed(() => {
     const accounts = this.accounts();
+    if (accounts.length === 0) return [];
+
+    // Compute levels and hasChildren on the fly
+    const levels = new Map<number, number>();
+    const hasChildrenMap = new Map<number, boolean>();
+
+    // Find roots
+    const roots = accounts.filter(acc => !acc.parentId);
+    roots.forEach(root => levels.set(root.id, 1));
+
+    // BFS to set levels and hasChildren
+    const queue = [...roots];
+    while (queue.length) {
+      const current = queue.shift()!;
+      const children = accounts.filter(acc => acc.parentId === current.id);
+      if (children.length > 0) {
+        hasChildrenMap.set(current.id, true);
+      }
+      children.forEach(child => {
+        if (!levels.has(child.id)) {
+          levels.set(child.id, levels.get(current.id)! + 1);
+          queue.push(child);
+        }
+      });
+    }
+
     return accounts.map(account => ({
       ...account,
-      level: this.getAccountLevel(account),
+      level: levels.get(account.id) || 1,
       translatedName: this.translateAccountName(account.accountNameEn),
-      hasChildren: accounts.some(acc => acc.parentId === account.id)
+      hasChildren: hasChildrenMap.get(account.id) || false
     }));
   });
 
@@ -48,7 +76,8 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
   constructor(
     public translate: TranslateService,
     private accountingService: AccountingService,
-    private router: Router
+    private router: Router,
+    private toastService: ToastService
   ) {
     this.onAddSubAccount = this.onAddSubAccount.bind(this);
     this.onEditAccount = this.onEditAccount.bind(this);
@@ -79,10 +108,10 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
     this.error.set(null);
 
     this.accountingService.getAccounts().subscribe({
-      next: (accounts:any) => {
+      next: (result: any) => {
+        const accounts = result.data || result;
         this.accounts.set(accounts);
         this.isLoading.set(false);
-        console.log('Accounts loaded:', accounts);
       },
       error: (error) => {
         console.error('Error loading accounts:', error);
@@ -90,19 +119,6 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
         this.isLoading.set(false);
       }
     });
-  }
-
-  getAccountLevel(account: Account): number {
-    let level = 1;
-    let current = account;
-    const accounts = this.accounts(); // Get current accounts from signal
-    while (current.parentId) {
-      level++;
-      // Find parent account
-      current = accounts.find(acc => acc.id === current.parentId)!;
-      if (!current) break;
-    }
-    return level;
   }
 
   onAddSubAccount(e: any) {
@@ -137,7 +153,15 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
       ? accountOrEvent.row.data
       : accountOrEvent;
     if (confirm(this.translate.instant('ACCOUNTING.CONFIRM_DELETE'))) {
-      this.accountingService.deleteAccount(account.id).subscribe();
+      this.accountingService.deleteAccount(account.id).subscribe({
+        next: () => {
+          this.toastService.showSuccess('ACCOUNTING.ACCOUNT_DELETED');
+          this.loadAccounts();
+        },
+        error: (error) => {
+          this.toastService.showError('ACCOUNTING.ERROR_DELETING_ACCOUNT');
+        }
+      });
     }
   }
 
@@ -165,10 +189,5 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
       5: '#BBDEFB'
     };
     return colors[level] || '#1976D2';
-  }
-
-  hasChildren(account: Account): boolean {
-    const accounts = this.accounts(); // Get current accounts from signal
-    return accounts.some(acc => acc.parentId === account.id);
   }
 }

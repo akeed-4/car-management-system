@@ -29,7 +29,7 @@ export class InventoryService {
   // GET
   // =======================
   getCars(): Observable<Car[]> {
-    return this.http.get<Car[]>(this.apiUrl);
+    return this.http.get<Car[]>(this.apiUrl + '/GetAll');
   }
 
   getCarById(id: number): Observable<Car> {

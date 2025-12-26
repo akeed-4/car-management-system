@@ -71,6 +71,7 @@ export class CostCenterListComponent implements OnInit {
   loadCostCenters(): void {
     this.costCenterService.getCostCenters().subscribe({
       next: (data) => {
+        console.log('Loaded cost centers data:', data);
         this.costCenters.set(data);
       },
       error: (error) => {
@@ -80,6 +81,9 @@ export class CostCenterListComponent implements OnInit {
   }
 
   calculateLevels(costCenters: CostCenter[]): CostCenter[] {
+    if (!costCenters || !Array.isArray(costCenters)) {
+      return [];
+    }
     const result: CostCenter[] = [];
     const processed = new Set<number>();
 

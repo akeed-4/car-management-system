@@ -43,10 +43,17 @@ export class AccountingService {
         const accounts = Array.isArray(response) ? response : (response as any).data || [];
         console.log('Extracted accounts array:', accounts);
         // Set parentId for partial accounts
-        const processedAccounts = accounts.map(account => ({
-          ...account,
-          parentId: !account.isMainAccount && account.mainAccountId ? account.mainAccountId : account.parentId
-        }));
+        const processedAccounts = accounts.map(account => {
+          let parentId = !account.isMainAccount && account.mainAccountId ? account.mainAccountId : account.parentId;
+          // Fix self-referencing parentId
+          if (parentId === account.id) {
+            parentId = null;
+          }
+          return {
+            ...account,
+            parentId
+          };
+        });
         this.accountsSubject.next(processedAccounts);
         return processedAccounts;
       }),
@@ -256,6 +263,7 @@ export class AccountingService {
   }
 
   createOpeningBalanceInventory(dto: Omit<OpeningBalanceInventory, 'id'>): Observable<OpeningBalanceInventory> {
+    console.log('Creating Opening Balance Inventory with DTO:', dto);
     return this.http.post<OpeningBalanceInventory>(`${this.Urlopeningbalances}/Create`, dto, { headers: this.headers }).pipe(
       catchError(error => {
         console.error('Error creating opening balance inventory:', error);
@@ -265,7 +273,7 @@ export class AccountingService {
   }
 
   updateOpeningBalanceInventory(id: number, dto: OpeningBalanceInventory): Observable<OpeningBalanceInventory> {
-    return this.http.put<OpeningBalanceInventory>(`${this.Url}/opening-balances-inventory/${id}`, dto, { headers: this.headers }).pipe(
+    return this.http.put<OpeningBalanceInventory>(`${this.Urlopeningbalances}/Update/${id}`, dto, { headers: this.headers }).pipe(
       catchError(error => {
         console.error(`Error updating opening balance inventory ${id}:`, error);
         return throwError(() => new Error(`Failed to update opening balance inventory ${id}`));
@@ -274,7 +282,7 @@ export class AccountingService {
   }
 
   deleteOpeningBalanceInventory(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.Url}/opening-balances-inventory/${id}`).pipe(
+    return this.http.delete<void>(`${this.Urlopeningbalances}/Delete/${id}`).pipe(
       catchError(error => {
         console.error(`Error deleting opening balance inventory ${id}:`, error);
         return throwError(() => new Error(`Failed to delete opening balance inventory ${id}`));

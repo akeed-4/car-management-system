@@ -28,11 +28,26 @@ export class CostCenterService {
   // Cost Center CRUD
   getCostCenters(): Observable<CostCenter[]> {
     console.log('Making GET request to:', `${this.apiUrl}`);
-    return this.http.get<CostCenter[]>(`${this.apiUrl}/GetAll`, { headers: this.headers }).pipe(
-      map(costCenters => {
-        console.log('Received cost centers:', costCenters);
-        this.costCentersSubject.next(costCenters);
-        return costCenters;
+    return this.http.get<any>(`${this.apiUrl}/GetAll`, { headers: this.headers }).pipe(
+      map(response => {
+        console.log('Received cost centers response:', response);
+        // Extract the data array from the API response
+        const costCenters = Array.isArray(response) ? response : (response as any).data || [];
+        console.log('Extracted cost centers array:', costCenters);
+        // Set parentId for partial cost centers
+        const processedCostCenters = costCenters.map(costCenter => {
+          let parentId = costCenter.parentId;
+          // Fix self-referencing parentId
+          if (parentId === costCenter.id) {
+            parentId = null;
+          }
+          return {
+            ...costCenter,
+            parentId
+          };
+        });
+        this.costCentersSubject.next(processedCostCenters);
+        return processedCostCenters;
       }),
       catchError(error => {
         console.error('Error fetching cost centers:', error);

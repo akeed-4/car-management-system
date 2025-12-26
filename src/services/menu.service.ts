@@ -31,7 +31,7 @@ export const menuData = [
     name: 'المعاملات المحاسبية',
     englishName: 'Accounts',
     submenu: [
-      { id: 81, name: 'شجرة الحسابات (شجرة)', englishName: 'Chart of Accounts (Tree)', route: '/accounts/chart-of-accounts' },
+      { id: 81, name: 'شجرة الحسابات', englishName: 'Chart of Accounts (Tree)', route: '/accounts/chart-of-accounts' },
       { id: 83, name: 'مراكز التكلفة', englishName: 'Cost Centers', route: '/cost-centers' },
       { id: 82, name: ' قيود اليومية', englishName: 'Journal Entries',route: '/accounts/journal-entries-list' },
       { id: 84, name: 'الأرصدة الافتتاحية المالية', englishName: 'Opening Balances Financial', route: '/accounts/opening-balances-financial' },

@@ -29,6 +29,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { DxDataGridModule } from 'devextreme-angular';
 
 @Component({
   selector: 'app-inventory-form',
@@ -52,7 +53,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatDatepickerModule,
     MatNativeDateModule,
     MatTableModule,
-    MatTooltipModule
+    MatTooltipModule,
+    DxDataGridModule
   ],
   templateUrl: './inventory-form.component.html',
   styleUrl: './inventory-form.component.css',
@@ -247,6 +249,10 @@ export class InventoryFormComponent implements OnInit {
   updateExpense<K extends keyof Expense>(expenseId: string, field: K, value: Expense[K]) {
     // This method would update an expense in the associated expenses
     // Implementation depends on how expenses are managed
+  }
+
+  calculateAmountCellValue(rowData: any) {
+    return rowData.amount;
   }
 
   resetForm() {

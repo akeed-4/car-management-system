@@ -82,10 +82,9 @@
                 (onCellPrepared)="onCellPrepared($event)">
                 <dxi-column dataField="lineNumber" caption="{{ 'ACCOUNTING.LINE_NUMBER' | translate }}"
                   [allowEditing]="false"></dxi-column>
-                <dxi-column dataField="accountId" caption="{{ 'ACCOUNTING.ACCOUNT' | translate }}"
-                  [calculateDisplayValue]="calculateAccountDisplay">
+                <dxi-column dataField="accountId" caption="{{ 'ACCOUNTING.ACCOUNT' | translate }}">
 
-                  <dxo-lookup [dataSource]="accounts" valueExpr="accountId" displayExpr="accountNameAr">
+                  <dxo-lookup [dataSource]="accounts" valueExpr="id" displayExpr="accountNameAr">
                   </dxo-lookup>
 
                 </dxi-column>
@@ -103,6 +102,9 @@
                 </dxi-column>
                 <dxi-column dataField="description"
                   caption="{{ 'ACCOUNTING.LINE_DESCRIPTION' | translate }}"></dxi-column>
+                  <dxi-column type="buttons">
+                  <dxi-button name="delete" icon="trash" onclick="deleteEntry" hint="{{ 'ACCOUNTING.DELETE' | translate }}"></dxi-button>
+                </dxi-column>
               </dx-data-grid>
 
               <button mat-stroked-button type="button" (click)="addLine()">

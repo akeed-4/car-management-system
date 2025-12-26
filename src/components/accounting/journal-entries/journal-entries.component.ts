@@ -6,6 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { AccountingService } from '../accounting.service';
 import { JournalEntry, JournalEntryLine, CreateJournalEntryDto, UpdateJournalEntryDto, Account, CreateJournalEntryLineDto } from '../models';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ToastService } from '@/src/services/toast.service';
 
 @Component({
   selector: 'app-journal-entries',
@@ -17,52 +18,6 @@ export class JournalEntriesComponent implements OnInit {
   journalEntries$: Observable<JournalEntry[]>;
   accounts$: Observable<Account[]>;
   journalEntries: JournalEntry[] = [];
-
-  // DevExtreme DataGrid columns configuration
-  columns = [
-    {
-      dataField: 'date',
-      caption: 'ACCOUNTING.DATE',
-      dataType: 'date',
-      format: 'short'
-    },
-    {
-      dataField: 'description',
-      caption: 'ACCOUNTING.DESCRIPTION'
-    },
-    {
-      dataField: 'reference',
-      caption: 'ACCOUNTING.REFERENCE'
-    },
-    {
-      dataField: 'totalDebit',
-      caption: 'ACCOUNTING.TOTAL_DEBIT',
-      dataType: 'number',
-      format: { type: 'currency', currency: 'SAR', precision: 2 }
-    },
-    {
-      dataField: 'totalCredit',
-      caption: 'ACCOUNTING.TOTAL_CREDIT',
-      dataType: 'number',
-      format: { type: 'currency', currency: 'SAR', precision: 2 }
-    },
-    {
-      caption: 'ACCOUNTING.ACTIONS',
-      type: 'buttons',
-      buttons: [
-        {
-          hint: 'Edit',
-          icon: 'edit',
-          onClick: (e: any) => this.onEditEntry(e.row.data)
-        },
-        {
-          hint: 'Delete',
-          icon: 'trash',
-          onClick: (e: any) => this.onDeleteEntry(e.row.data)
-        }
-      ]
-    }
-  ];
 
   journalEntryForm: FormGroup;
   isEditing = false;
@@ -76,7 +31,8 @@ export class JournalEntriesComponent implements OnInit {
     private fb: FormBuilder,
     private translate: TranslateService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private toastService: ToastService
   ) {
     this.journalEntries$ = this.accountingService.journalEntries$;
     this.accounts$ = this.accountingService.accounts$;
@@ -257,8 +213,10 @@ export class JournalEntriesComponent implements OnInit {
     if (entry.lines && entry.lines.length > 0) {
       entry.lines.forEach((line: JournalEntryLine, index: number) => {
         // Add to FormArray - use debitAmount/creditAmount from API
+        console.log('Adding line to form:', line);
         const lineForm = this.fb.group({
           accountId: [line.accountId, Validators.required],
+          accountCode: [line.accountCode ?? ''],
           debit: [line.debitAmount || line.debit || 0, [Validators.required, Validators.min(0)]],
           credit: [line.creditAmount || line.credit || 0, [Validators.required, Validators.min(0)]],
           costCenter: [line.costCenterId ?? null],
@@ -271,7 +229,7 @@ export class JournalEntriesComponent implements OnInit {
           lineNumber: line.lineNumber || (index + 1),
           accountId: line.accountId,
           accountCode: line.accountCode ?? '',
-          accountName: line.accountName ?? '',
+          accountName: line.accountNameAr ?? '',
           debit: line.debitAmount || line.debit || 0,
           credit: line.creditAmount || line.credit || 0,
           costCenter: line.costCenterId ?? null,
@@ -310,11 +268,13 @@ export class JournalEntriesComponent implements OnInit {
         };
         this.accountingService.updateJournalEntry(updateDto).subscribe({
           next: () => {
+            this.toastService.showSuccess('ACCOUNTING.JOURNAL_ENTRY_UPDATED');
             localStorage.removeItem('journalEntryDraft');
             this.router.navigate(['accounts/journal-entries-list']);
           },
           error: (error) => {
             console.error('Failed to update journal entry:', error);
+            this.toastService.showError('ACCOUNTING.ERROR_UPDATING_ENTRY');
           }
         });
       } else {
@@ -327,11 +287,13 @@ export class JournalEntriesComponent implements OnInit {
         };
         this.accountingService.createJournalEntry(createDto).subscribe({
           next: () => {
+            this.toastService.showSuccess('ACCOUNTING.JOURNAL_ENTRY_CREATED');
             localStorage.removeItem('journalEntryDraft');
             this.onAddEntry();
           },
           error: (error) => {
             console.error('Failed to create journal entry:', error);
+            this.toastService.showError('ACCOUNTING.ERROR_CREATING_ENTRY');
           }
         });
       }
@@ -340,12 +302,22 @@ export class JournalEntriesComponent implements OnInit {
 
   onDeleteEntry(entry: JournalEntry) {
     if (confirm(this.translate.instant('ACCOUNTING.CONFIRM_DELETE_ENTRY'))) {
-      this.accountingService.deleteJournalEntry(entry.id).subscribe();
+      this.accountingService.deleteJournalEntry(entry.id).subscribe({
+        next: () => {
+          this.toastService.showSuccess('ACCOUNTING.JOURNAL_ENTRY_DELETED');
+          // Refresh the list
+          this.accountingService.getJournalEntries().subscribe();
+        },
+        error: (error) => {
+          this.toastService.showError('ACCOUNTING.ERROR_DELETING_ENTRY');
+        }
+      });
     }
   }
 
   onCancel() {
     this.onAddEntry();
+    this.router.navigate(['accounts/journal-entries-list']);
   }
 
   // DevExtreme DataGrid methods

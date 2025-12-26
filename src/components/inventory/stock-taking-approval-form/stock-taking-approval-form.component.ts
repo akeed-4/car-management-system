@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { CommonModule } from '@angular/common';
 import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { StockTakeService } from '../../../services/stock-take.service';
@@ -25,6 +26,7 @@ import { DxDataGridModule } from 'devextreme-angular';
   selector: 'app-stock-taking-approval-form',
   standalone: true,
   imports: [
+    CommonModule,
     ReactiveFormsModule,
     RouterLink,
     DatePipe,
@@ -54,19 +56,31 @@ export class StockTakingApprovalFormComponent implements OnInit {
 
   // Data Sources
   private allStockTakes = toSignal(this.stockTakeService.getStockTakes(), { initialValue: [] });
-  pendingStockTakes = computed(() => this.allStockTakes().filter(st => st.status === 'Submitted'));
-
+  pendingStockTakes = signal<StockTake[]>([]);
+constructor() {
+  this.onStockTakeSelect=(this.onStockTakeSelect.bind(this));
+  this.approveStockTake=(this.approveStockTake.bind(this));
+  this.getDifferenceDisplayValue=(this.getDifferenceDisplayValue.bind(this));
+}
   selectedStockTake = signal<StockTake | null>(null);
 
   ngOnInit() {
     this.initForm();
+    this.loadstockTake(1);
+  }
+  loadstockTake(arg0: number) {
+    this.stockTakeService.getStockTakesByStore(1).subscribe(result => {
+      // Filter for pending/submitted stock takes
+      const filtered = result;
+      this.pendingStockTakes.set(filtered);
+    });
   }
 
   private initForm() {
     this.approvalForm = new FormGroup({
       stockTake: new FormControl(null, Validators.required),
       approvalDate: new FormControl(new Date().toISOString().split('T')[0], Validators.required),
-      approverName: new FormControl('', Validators.required),
+      Name: new FormControl('', Validators.required),
       approvalStatus: new FormControl('Approved', Validators.required),
       notes: new FormControl('')
     });
@@ -76,11 +90,14 @@ export class StockTakingApprovalFormComponent implements OnInit {
     this.approvalForm.patchValue({ stockTake: id });
     if (id) {
       this.stockTakeService.getStockTakeById(id).subscribe(stockTake => {
-        this.selectedStockTake.set(stockTake ?? null);
+        if (stockTake) {
+          // Fetch system quantities for each item
+            this.selectedStockTake.set(stockTake);
+        } else {
+          this.selectedStockTake.set(null);
+        }
       });
-    } else {
-      this.selectedStockTake.set(null);
-    }
+    } 
   }
 
   approveStockTake(): void {
@@ -95,32 +112,26 @@ export class StockTakingApprovalFormComponent implements OnInit {
       return;
     }
 
-    // 1. Update inventory quantities if approved
-    if (formValue.approvalStatus === 'Approved') {
-      stockTake.items.forEach(item => {
-        // Assuming we need to update inventory based on itemId
-        // this.inventoryService.setItemQuantity(item.itemId, item.quantityCounted);
-      });
-    }
-
-    // 2. Update stock take status
-    const newStatus = formValue.approvalStatus === 'Approved' ? 'Approved' : 
-                     formValue.approvalStatus === 'Rejected' ? 'Rejected' : 'Submitted';
-    this.stockTakeService.updateStockTakeStatus(stockTake.id, newStatus);
-
-    // 3. Create and save the approval document
+    // Create and save the approval document
     const newApproval: Omit<StockTakeApproval, 'id'> = {
       date: formValue.approvalDate,
-      approverName: formValue.approverName,
+      Name: formValue.Name,
       stockTakeId: stockTake.id,
-      stockTakeName: stockTake.documentCode,
+      stockTakeName: stockTake.documentName,
       status: formValue.approvalStatus,
-      notes: formValue.notes
+      storeId: stockTake.storeId,
+      notes: formValue.notes,
+      items: stockTake.items
     };
-    this.approvalService.addApproval(newApproval);
-
-    alert(`تم ${formValue.approvalStatus === 'Approved' ? 'اعتماد' : formValue.approvalStatus === 'Rejected' ? 'رفض' : 'تقديم'} الجرد "${stockTake.documentCode}" بنجاح.`);
-    this.router.navigate(['/inventory/stock-taking-approval']);
+    this.approvalService.addApproval(newApproval).subscribe(() => {
+      // Update stock take status
+      const newStatus = formValue.approvalStatus === 'Approved' ? 'Approved' : 
+                       formValue.approvalStatus === 'Rejected' ? 'Rejected' : 'Submitted';
+      this.stockTakeService.updateStockTakeStatus(stockTake.id, newStatus).subscribe(() => {
+        alert(`تم ${formValue.approvalStatus === 'Approved' ? 'اعتماد' : formValue.approvalStatus === 'Rejected' ? 'رفض' : 'تقديم'} الجرد "${stockTake.documentName}" بنجاح.`);
+        this.router.navigate(['/inventory/stock-taking-approval']);
+      });
+    });
   }
 
   getDifference(countedQuantity: number, systemQuantity: number): number {
@@ -128,7 +139,12 @@ export class StockTakingApprovalFormComponent implements OnInit {
   }
 
   getDifferenceDisplayValue = (rowData: any) => {
-    const diff = this.getDifference(rowData.countedQuantity, rowData.systemQuantity);
+    const counted = Number(rowData.quantityCounted);
+    const system = Number(rowData.systemQuantity);
+    if (isNaN(counted) || isNaN(system)) {
+      return 'N/A';
+    }
+    const diff = this.getDifference(counted, system);
     return diff > 0 ? '+' + diff : diff.toString();
   };
 }

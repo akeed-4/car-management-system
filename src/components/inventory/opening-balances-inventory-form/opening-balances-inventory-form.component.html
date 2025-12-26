@@ -8,7 +8,7 @@
         <div class="item-id-container">
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'ACCOUNTING.ITEM_ID' | translate }}</mat-label>
-            <input matInput formControlName="itemId" readonly required>
+            <input matInput formControlName="itemId" required>
             <button mat-icon-button matSuffix (click)="openCarSelectionDialog()" type="button">
               <mat-icon>search</mat-icon>
             </button>
@@ -47,12 +47,11 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="form-field">
-          <mat-label>{{ 'ACCOUNTING.LOCATION' | translate }}</mat-label>
-          <mat-select formControlName="location" required>
-            <mat-option *ngFor="let location of locations" [value]="location">
-              {{ 'ACCOUNTING.' + location | translate }}
-            </mat-option>
-          </mat-select>
+          <mat-label>{{ 'ACCOUNTING.STORE' | translate }}</mat-label>
+           <mat-select formControlName="storeId" (selectionChange)="onStoreSelectionChange(+$event.value)" required>
+                    <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_STORE' | translate }}</mat-option>
+                    <mat-option *ngFor="let store of stores; trackBy: trackByStoreId" [value]="store.id">{{ store.name }}</mat-option>
+                  </mat-select>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="form-field">
@@ -73,7 +72,7 @@
       <div class="form-actions">
         <button mat-button type="button" (click)="onCancel()">{{ 'ACCOUNTING.CANCEL' | translate }}</button>
         <button mat-raised-button color="primary" type="submit" [disabled]="!form.valid">
-          {{ 'ACCOUNTING.SAVE' | translate }}
+          {{ (isEditing ? 'ACCOUNTING.UPDATE' : 'ACCOUNTING.SAVE') | translate }}
         </button>
       </div>
     </form>

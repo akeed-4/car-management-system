@@ -10,7 +10,7 @@
 <mat-card>
   <mat-card-content>
     <dx-data-grid
-      [dataSource]="approvals()"
+      [dataSource]="stockTakes()"
       [showBorders]="true"
       [showRowLines]="true"
       [showColumnLines]="true"
@@ -27,9 +27,9 @@
       <dxo-header-filter [visible]="true"></dxo-header-filter>
       <dxo-search-panel [visible]="true" [placeholder]="'البحث...'"></dxo-search-panel>
 
-      <dxi-column dataField="date" caption="{{ 'STOCK_TAKING_APPROVAL.APPROVAL_DATE' | translate }}" dataType="date" format="yyyy-MM-dd" ></dxi-column>
-      <dxi-column dataField="approverName" caption="{{ 'STOCK_TAKING_APPROVAL.APPROVER_NAME' | translate }}"></dxi-column>
-      <dxi-column dataField="stockTakeName" caption="{{ 'STOCK_TAKING_APPROVAL.STOCK_TAKE_DOCUMENT' | translate }}" ></dxi-column>
+      <dxi-column dataField="documentDate" caption="{{ 'STOCK_TAKING_APPROVAL.APPROVAL_DATE' | translate }}" dataType="date" format="yyyy-MM-dd" ></dxi-column>
+      <dxi-column dataField="status" caption="{{ 'STOCK_TAKING_APPROVAL.STATUS' | translate }}"></dxi-column>
+      <dxi-column dataField="createdBy" caption="{{ 'STOCK_TAKING_APPROVAL.APPROVER_NAME' | translate }}" ></dxi-column>
 
       <dxi-column type="buttons" caption="{{ 'STOCK_TAKING_APPROVAL.ACTIONS' | translate }}" >
         <dxi-button name="edit" [onClick]="onEditClick" icon="edit" hint="{{ 'STOCK_TAKING_APPROVAL.EDIT' | translate }}"></dxi-button>
@@ -37,7 +37,11 @@
       </dxi-column>
 
       <dxo-editing mode="popup" [allowUpdating]="false" [allowDeleting]="false" [allowAdding]="false"></dxo-editing>
+<dxi-column type="buttons" caption="{{ 'INVENTORY.STOCK_TAKING_APPROVAL.ACTIONS' | translate }}" >
+        <dxi-button  icon="edit"   [onClick]="onEditClick"></dxi-button>
+        <dxi-button  icon="trash"  [onClick]="onDeleteClick" ></dxi-button>
 
+</dxi-column>
     </dx-data-grid>
   </mat-card-content>
 </mat-card>

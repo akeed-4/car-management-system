@@ -71,13 +71,14 @@ import { ChartOfAccountsComponent } from './components/accounting/chart-of-accou
 import { JournalEntriesComponent } from './components/accounting/journal-entries/journal-entries.component';
 import { JournalEntriesListComponent } from './components/accounting/journal-entries-list/journal-entries-list.component';
 import { ChartOfAccountsTreeComponent } from './components/accounting/chart-of-accounts-tree/chart-of-accounts-tree.component';
-import { OpeningBalancesFinancialComponent } from './components/accounting/opening-balances-financial/opening-balances-financial.component';
 import { CostCenterListComponent } from './components/setup/cost-center/cost-center-list/cost-center-list.component';
 import { CostCenterFormComponent } from './components/setup/cost-center/cost-center-form/cost-center-form.component';
 import { BankListComponent } from './components/bank/bank-list/bank-list.component';
 import { BankFormComponent } from './components/bank/bank-form/bank-form.component';
 import { OpeningBalancesInventoryListComponent } from './components/inventory/opening-balances-inventory-list/opening-balances-inventory-list.component';
 import { OpeningBalancesInventoryFormComponent } from './components/inventory/opening-balances-inventory-form/opening-balances-inventory-form.component';
+import { OpeningBalancesFinancialListComponent } from './components/accounting/opening-balances-financial/opening-balances-financial-list/opening-balances-financial-list.component';
+import { OpeningBalancesFinancialFormComponent } from './components/accounting/opening-balances-financial/opening-balances-financial-form/opening-balances-financial-form.component';
 
 export const APP_ROUTES: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -162,10 +163,12 @@ export const APP_ROUTES: Routes = [
   { path: 'accounts/chart-of-accounts', component: ChartOfAccountsTreeComponent },
   { path: 'accounts/chart-of-accounts-new', component: ChartOfAccountsComponent },
   { path: 'accounts/chart-of-accounts-new/:id', component: ChartOfAccountsComponent },
-  { path: 'accounts/opening-balances-financial', component: OpeningBalancesFinancialComponent },
+  { path: 'accounts/opening-balances-financial', component: OpeningBalancesFinancialListComponent },
+  { path: 'accounts/opening-balances-financial/new', component: OpeningBalancesFinancialFormComponent },
+  { path: 'accounts/opening-balances-financial/new/:id', component: OpeningBalancesFinancialFormComponent },
   { path: 'accounts/opening-balances-inventory', component: OpeningBalancesInventoryListComponent },
   { path: 'accounts/journal-entries', component: JournalEntriesComponent },
-  { path: 'accounts/opening-balances', component: OpeningBalancesFinancialComponent },
+  { path: 'accounts/opening-balances', component: OpeningBalancesFinancialListComponent },
   { path: 'accounts/journal-entries/:id', component: JournalEntriesComponent },
   { path: 'accounts/journal-entries-list', component: JournalEntriesListComponent },
   {path: 'accounts/', component: SalesReturnInvoiceComponent }, // Added route for sales returns approval

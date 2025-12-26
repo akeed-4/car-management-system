@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { TranslateService } from '@ngx-translate/core';
 import { AccountingService } from '../accounting.service';
 import { CreateAccountDto, UpdateAccountDto, Account } from '../models';
+import { ToastService } from '../../../services/toast.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -13,7 +14,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-add-account',
@@ -75,7 +76,9 @@ export class AddAccountComponent implements OnChanges, OnInit {
     private fb: FormBuilder,
     private accountingService: AccountingService,
     private translate: TranslateService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private toastService: ToastService,
+    private router: Router
   ) {
     this.accountForm = this.fb.group({
       accountTypeSelection: ['main'], // Default to main account
@@ -273,10 +276,12 @@ export class AddAccountComponent implements OnChanges, OnInit {
         this.accountingService.updateAccount(updateDto).subscribe({
           next: (account) => {
             console.log('Account updated successfully:', account);
+            this.toastService.showSuccess('ACCOUNTING.ACCOUNT_UPDATED');
             this.accountSaved.emit(account);
           },
           error: (error) => {
             console.error('Error updating account:', error);
+            this.toastService.showError('ACCOUNTING.ERROR_UPDATING_ACCOUNT');
           }
         });
       } else {
@@ -285,10 +290,12 @@ export class AddAccountComponent implements OnChanges, OnInit {
         this.accountingService.createAccount(createDto).subscribe({
           next: (account) => {
             console.log('Account created successfully:', account);
+            this.toastService.showSuccess('ACCOUNTING.ACCOUNT_CREATED');
             this.accountSaved.emit(account);
           },
           error: (error) => {
             console.error('Error creating account:', error);
+            this.toastService.showError('ACCOUNTING.ERROR_CREATING_ACCOUNT');
           }
         });
       }
@@ -300,6 +307,7 @@ export class AddAccountComponent implements OnChanges, OnInit {
 
   onCancel() {
     this.cancelled.emit();
+    this.router.navigate(['/accounts/chart-of-accounts']);
   }
 
   private updateFormForEditing() {

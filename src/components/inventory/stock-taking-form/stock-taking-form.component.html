@@ -8,18 +8,17 @@
 
 <mat-card>
   <mat-card-content>
-    <form [formGroup]="stockTakeForm" (ngSubmit)="saveStockTake()">
+    <form [formGroup]="stockTakeForm">
 
       <!-- Stock Take Header -->
       <div class="form-section">
         <h3 class="section-title">{{ 'INVENTORY.STOCK_TAKING_FORM.HEADER_TITLE' | translate }}</h3>
         <div class="form-grid">
           <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'INVENTORY.STOCK_TAKING_FORM.DOCUMENT_CODE' | translate }}</mat-label>
+            <mat-label>{{ 'INVENTORY.STOCK_TAKING_FORM.DOCUMENT_NAME' | translate }}</mat-label>
             <input matInput
               type="text"
-              formControlName="documentCode"
-              [placeholder]="'INVENTORY.STOCK_TAKING_FORM.DOCUMENT_CODE_PLACEHOLDER' | translate">
+              formControlName="documentName">
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="form-field">
@@ -40,11 +39,20 @@
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'INVENTORY.STOCK_TAKING_FORM.STATUS' | translate }}</mat-label>
             <mat-select formControlName="status">
-              <mat-option value="Draft">{{ 'INVENTORY.STOCK_TAKING_FORM.STATUS_DRAFT' | translate }}</mat-option>
+              <mat-option value="Pending">{{ 'INVENTORY.STOCK_TAKING_FORM.STATUS_DRAFT' | translate }}</mat-option>
               <mat-option value="Submitted">{{ 'INVENTORY.STOCK_TAKING_FORM.STATUS_SUBMITTED' | translate }}</mat-option>
               <mat-option value="Approved">{{ 'INVENTORY.STOCK_TAKING_FORM.STATUS_APPROVED' | translate }}</mat-option>
             </mat-select>
           </mat-form-field>
+
+           <mat-form-field appearance="outline" class="form-field">
+          <mat-label>{{ 'ACCOUNTING.STORE' | translate }}</mat-label>
+          <mat-select formControlName="storeId" required>
+            <mat-option *ngFor="let store of stores" [value]="store.id">
+              {{ store.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
         </div>
 
         <mat-form-field appearance="outline" class="form-field full-width">
@@ -55,12 +63,21 @@
             [placeholder]="'INVENTORY.STOCK_TAKING_FORM.NOTES_PLACEHOLDER' | translate"></textarea>
         </mat-form-field>
       </div>
+      <section class="form-section">
+        <div class="section-header">
+          <h3 class="form-section-title">{{ 'PURCHASE_INVOICE.SELECT_CAR_CARD' | translate }}</h3>
+          <button mat-raised-button color="accent" (click)="toggleCarCards()">
+            <mat-icon>search</mat-icon>
+            {{ 'PURCHASE_INVOICE.SELECT_CAR' | translate }}
+          </button>
+        </div>
+      </section>
       <div class="table-section">
         <div class="table-header">
           <h3 class="section-title">{{ 'INVENTORY.STOCK_TAKING_FORM.ITEMS_TITLE' | translate }}</h3>
           <button mat-raised-button color="accent" type="button" (click)="addNewItemRow()">
             <mat-icon>add</mat-icon>
-            {{ 'INVENTORY.STOCK_TAKING_FORM.ADD_CAR' | translate }}
+            {{ 'INVENTORY.STOCK_TAKING_FORM.ADD_ITEM' | translate }}
           </button>
         </div>
 
@@ -74,18 +91,38 @@
           [allowColumnResizing]="true"
           [columnAutoWidth]="true"
           [wordWrapEnabled]="true"
+          [height]="400"
           [editing]="{ mode: 'cell', allowUpdating: true, allowAdding: true, allowDeleting: true }"
+          [noDataText]="'INVENTORY.STOCK_TAKING_FORM.NO_ITEMS' | translate"
+          [filterRow]="{ visible: true }"
+          [headerFilter]="{ visible: true }"
+          [searchPanel]="{ visible: true, placeholder: 'INVENTORY.STOCK_TAKING_FORM.SEARCH_ITEMS' | translate }"
+          [scrolling]="{ mode: 'standard' }"
+          [paging]="{ pageSize: 10 }"
+          [pager]="{
+            showPageSizeSelector: true,
+            allowedPageSizes: [5, 10, 20],
+            showInfo: true,
+            showNavigationButtons: true
+          }"
           (onRowInserted)="addNewItemRow()"
           (onRowRemoved)="removeItem($event.rowIndex)"
           (onCellValueChanged)="onCellValueChanged($event)">
 
-          <dxi-column dataField="itemId" caption="{{ 'INVENTORY.STOCK_TAKING_FORM.ITEM_ID' | translate }}" dataType="number" alignment="center"></dxi-column>
-          <dxi-column dataField="itemName" caption="{{ 'INVENTORY.STOCK_TAKING_FORM.ITEM_NAME' | translate }}"></dxi-column>
-          <dxi-column dataField="category" caption="{{ 'INVENTORY.STOCK_TAKING_FORM.CATEGORY' | translate }}"></dxi-column>
+          <dxi-column dataField="itemId" caption="{{ 'INVENTORY.STOCK_TAKING_FORM.ITEM_ID' | translate }}" dataType="number" alignment="center">
+           <dxo-lookup
+              [dataSource]="availableItems()"
+              displayExpr="name"
+              valueExpr="id"
+              searchMode="contains">
+            </dxo-lookup>
+          </dxi-column>
+          <dxi-column dataField="itemName"  caption="{{ 'INVENTORY.STOCK_TAKING_FORM.ITEM_NAME' | translate }}" [allowEditing]="false"></dxi-column>
           <dxi-column dataField="quantityCounted" caption="{{ 'INVENTORY.STOCK_TAKING_FORM.QUANTITY_COUNTED' | translate }}" dataType="number" alignment="center"></dxi-column>
           <dxi-column dataField="unitCost" caption="{{ 'INVENTORY.STOCK_TAKING_FORM.UNIT_COST' | translate }}" dataType="number" alignment="center"></dxi-column>
           <dxi-column dataField="totalCost" caption="{{ 'INVENTORY.STOCK_TAKING_FORM.TOTAL_COST' | translate }}" dataType="number" alignment="center" [allowEditing]="false"></dxi-column>
           <dxi-column dataField="notes" caption="{{ 'INVENTORY.STOCK_TAKING_FORM.NOTES' | translate }}"></dxi-column>
+
 
         </dx-data-grid>
 
@@ -100,7 +137,7 @@
         <button mat-stroked-button type="button" routerLink="/inventory/stock-taking" class="cancel-button">
           {{ 'INVENTORY.STOCK_TAKING_FORM.CANCEL' | translate }}
         </button>
-        <button mat-raised-button color="primary" type="submit" [disabled]="stockTakeForm.invalid">
+        <button mat-raised-button color="primary" (click)="saveStockTake()" [disabled]="stockTakeForm.invalid">
           {{ editMode() ? ('INVENTORY.STOCK_TAKING_FORM.SAVE_CHANGES' | translate) : ('INVENTORY.STOCK_TAKING_FORM.SAVE_TAKE' | translate) }}
         </button>
       </div>

@@ -1,0 +1,90 @@
+<mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="header-icon">{{ isEditing ? 'edit' : 'add_circle' }}</mat-icon>
+        {{ (isEditing ? 'ACCOUNTING.EDIT_OPENING_BALANCE' : 'ACCOUNTING.ADD_OPENING_BALANCE') | translate }}
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="safeForm" (ngSubmit)="onSave()" class="balance-form">
+
+        <!-- Account Information Section -->
+        <div class="form-section">
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'ACCOUNTING.ACCOUNT_ID' | translate }}</mat-label>
+              <input matInput formControlName="accountId" type="number" required>
+              <mat-icon matSuffix>tag</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'ACCOUNTING.ACCOUNT_NAME' | translate }}</mat-label>
+              <input matInput formControlName="accountName" required>
+              <mat-icon matSuffix>account_balance</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'ACCOUNTING.ACCOUNT_TYPE' | translate }}</mat-label>
+              <mat-select formControlName="accountType" required>
+                <mat-option *ngFor="let type of accountTypes" [value]="type">
+                  {{ 'ACCOUNTING.' + type | translate }}
+                </mat-option>
+              </mat-select>
+              <mat-icon matSuffix>category</mat-icon>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Financial Information Section -->
+        <div class="form-section">
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'ACCOUNTING.OPENING_BALANCE' | translate }}</mat-label>
+              <input matInput formControlName="openingBalance" type="number" step="0.01" required>
+              <mat-icon matSuffix>attach_money</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'ACCOUNTING.CURRENCY' | translate }}</mat-label>
+              <mat-select formControlName="currency" required>
+                <mat-option *ngFor="let currency of currencies" [value]="currency">
+                  {{ currency }}
+                </mat-option>
+              </mat-select>
+              <mat-icon matSuffix>currency_exchange</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'ACCOUNTING.ENTRY_DATE' | translate }}</mat-label>
+              <input matInput [matDatepicker]="picker" formControlName="entryDate" required>
+              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Additional Information Section -->
+        <div class="form-section">
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field full-width">
+              <mat-label>{{ 'ACCOUNTING.NOTES_EN' | translate }}</mat-label>
+              <textarea matInput formControlName="notes" rows="4" placeholder="{{ 'ACCOUNTING.NOTES_PLACEHOLDER' | translate }}"></textarea>
+              <mat-icon matSuffix>notes</mat-icon>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button mat-stroked-button type="button" (click)="onCancel()" color="accent">
+            <mat-icon>cancel</mat-icon>
+            {{ 'ACCOUNTING.CANCEL' | translate }}
+          </button>
+          <button mat-raised-button type="submit" [disabled]="!safeForm.valid" color="primary">
+            <mat-icon>{{ isEditing ? 'save' : 'add' }}</mat-icon>
+            {{ (isEditing ? 'ACCOUNTING.UPDATE' : 'ACCOUNTING.SAVE') | translate }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>

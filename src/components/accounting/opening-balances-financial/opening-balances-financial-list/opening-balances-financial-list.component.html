@@ -1,22 +1,16 @@
-<div class="opening-balances-list-container">
-  <div class="page-header">
-    <div class="header-info">
-      <h2 class="page-title">{{ 'ACCOUNTING.OPENING_BALANCES_INVENTORY' | translate }}</h2>
-      <p class="page-subtitle">{{ 'ACCOUNTING.OPENING_BALANCES_INVENTORY_SUBTITLE' | translate }}</p>
-    </div>
-    <div class="header-actions">
-      <button mat-raised-button color="primary" (click)="onNew()" class="add-button">
+<mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ translate.instant('ACCOUNTING.OPENING_BALANCES_FINANCIAL') }}</mat-card-title>
+      <div class="spacer"></div>
+      <button mat-raised-button color="primary" (click)="navigateToNewForm()">
         <mat-icon>add</mat-icon>
-        <span>{{ 'ACCOUNTING.ADD_OPENING_BALANCE' | translate }}</span>
+        {{ translate.instant('COMMON.NEW') }}
       </button>
-    </div>
-  </div>
-
-  <mat-card class="data-grid-card">
+    </mat-card-header>
     <mat-card-content>
       <div class="data-grid-container">
         <dx-data-grid
-          [dataSource]="openingBalances()"
+          [dataSource]="openingBalances"
           [showBorders]="true"
           [showRowLines]="true"
           [showColumnLines]="true"
@@ -49,41 +43,24 @@
           }"
         >
           <dxi-column
-            dataField="itemId"
-            [caption]="translate.instant('ACCOUNTING.ITEM_ID')"
-            dataType="number">
-          </dxi-column>
-          <dxi-column
-            dataField="itemName"
+            dataField="accountName"
             [caption]="translate.instant('ACCOUNTING.ACCOUNT_NAME')"
             dataType="string">
           </dxi-column>
           <dxi-column
-            dataField="category"
-            [caption]="translate.instant('ACCOUNTING.CATEGORY')"
+            dataField="accountType"
+            [caption]="translate.instant('ACCOUNTING.ACCOUNT_TYPE')"
             dataType="string">
           </dxi-column>
           <dxi-column
-            dataField="quantity"
-            [caption]="translate.instant('ACCOUNTING.QUANTITY')"
-            dataType="number">
-          </dxi-column>
-          <dxi-column
-            dataField="unitCost"
-            [caption]="translate.instant('ACCOUNTING.UNIT_COST')"
+            dataField="openingBalance"
+            [caption]="translate.instant('ACCOUNTING.OPENING_BALANCE')"
             dataType="number"
             format="currency">
           </dxi-column>
           <dxi-column
-            dataField="totalCost"
-            [caption]="translate.instant('ACCOUNTING.TOTAL_COST')"
-            dataType="number"
-            format="currency"
-            [allowEditing]="false">
-          </dxi-column>
-          <dxi-column
-            dataField="location"
-            [caption]="translate.instant('ACCOUNTING.LOCATION')"
+            dataField="currency"
+            [caption]="translate.instant('ACCOUNTING.CURRENCY')"
             dataType="string">
           </dxi-column>
           <dxi-column
@@ -98,8 +75,8 @@
             format="dd/MM/yyyy">
           </dxi-column>
           <dxi-column type="buttons">
-            <dxi-button  [hint]="translate.instant('ACCOUNTING.EDIT')" icon="edit" [onClick]="onEditClick"></dxi-button>
-            <dxi-button [hint]="translate.instant('ACCOUNTING.DELETE')" icon="trash" [onClick]="onDeleteClick"></dxi-button>
+            <dxi-button name="edit" [hint]="translate.instant('ACCOUNTING.EDIT')" icon="edit" (onClick)="onEdit($event.row.data)"></dxi-button>
+            <dxi-button name="delete" [hint]="translate.instant('ACCOUNTING.DELETE')" icon="trash" (onClick)="onDelete($event.row.data)"></dxi-button>
           </dxi-column>
 
           <dxo-filter-row [visible]="true"></dxo-filter-row>
@@ -117,4 +94,3 @@
       </div>
     </mat-card-content>
   </mat-card>
-</div>

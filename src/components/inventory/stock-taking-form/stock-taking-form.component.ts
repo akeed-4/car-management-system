@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormGroup, FormControl, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { InventoryService } from '../../../services/inventory.service';
@@ -17,11 +18,15 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTableModule } from '@angular/material/table';
 import { DxDataGridModule } from 'devextreme-angular';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { CarSelectionDialogComponent } from '../../purchases/purchase-invoice/car-selection-dialog/car-selection-dialog.component';
+import { StoreService } from '../../../services/store.service';
 
 @Component({
   selector: 'app-stock-taking-form',
   standalone: true,
   imports: [
+    CommonModule,
     ReactiveFormsModule,
     RouterLink,
     TranslateModule,
@@ -36,6 +41,8 @@ import { DxDataGridModule } from 'devextreme-angular';
     MatNativeDateModule,
     MatTableModule,
     DxDataGridModule
+    ,MatDialogModule,
+    CarSelectionDialogComponent
   ],
   templateUrl: './stock-taking-form.component.html',
   styleUrl: './stock-taking-form.component.css',
@@ -47,9 +54,14 @@ export class StockTakingFormComponent implements OnInit {
   private inventoryService = inject(InventoryService);
   private stockTakeService = inject(StockTakeService);
   private translate = inject(TranslateService);
-
+  private storeService = inject(StoreService);
+  private dialog = inject(MatDialog);
+  stores$ = this.storeService.stores$;
   stockTakeForm!: FormGroup;
   items = signal<StockTakeItem[]>([]);
+get stores() {
+    return this.storeService.stores$();
+  }
 
   // Table columns
   // displayedColumns = ['car', 'systemQuantity', 'actualQuantity', 'actions'];
@@ -58,6 +70,14 @@ export class StockTakingFormComponent implements OnInit {
   pageTitle = signal('إنشاء مستند جرد جديد');
 
   allCars = this.inventoryService.cars$;
+  
+  // Available items for lookup
+  availableItems = computed(() => {
+    return this.allCars().map(car => ({
+      id: car.id,
+      name: `${car.make} ${car.model} ${car.year} - ${car.vin || car.plateNumber || 'N/A'}`
+    }));
+  });
   
   // Get a list of car IDs that are already in the items list to disable them in dropdowns
   selectedCarIds = computed(() => {
@@ -78,6 +98,7 @@ export class StockTakingFormComponent implements OnInit {
       this.editMode.set(true);
       this.pageTitle.set('تعديل مستند الجرد');
       this.stockTakeService.getStockTakeById(id).subscribe(existingDoc => {
+        console.log('Loaded stock take for editing:', existingDoc);
         this.populateForm(existingDoc);
       }, error => {
         console.error('Error loading stock take:', error);
@@ -88,21 +109,23 @@ export class StockTakingFormComponent implements OnInit {
 
   private initForm() {
     this.stockTakeForm = new FormGroup({
-      documentCode: new FormControl('', Validators.required),
+      documentName: new FormControl('', Validators.required),
       documentDate: new FormControl(new Date().toISOString().split('T')[0], Validators.required),
       createdBy: new FormControl('', Validators.required),
       notes: new FormControl(''),
-      status: new FormControl('Draft', Validators.required)
+      status: new FormControl('Draft', Validators.required),
+      storeId: new FormControl('', Validators.required)
     });
   }
 
   private populateForm(stockTake: StockTake) {
     this.stockTakeForm.patchValue({
-      documentCode: stockTake.documentCode,
+      documentName: stockTake.documentName,
       documentDate: stockTake.documentDate,
       createdBy: stockTake.createdBy,
       notes: stockTake.notes,
-      status: stockTake.status
+      status: stockTake.status,
+      storeId: stockTake.storeId
     });
     this.items.set([...stockTake.items]);
   }
@@ -142,9 +165,79 @@ export class StockTakingFormComponent implements OnInit {
     if (event.column.dataField === 'quantityCounted' || event.column.dataField === 'unitCost') {
       const rowIndex = event.rowIndex;
       this.updateTotalCost(rowIndex);
+      return;
+    }
+
+    if (event.column.dataField === 'itemId') {
+      // When itemId changes, update all car-related fields
+      const cars = typeof this.allCars === 'function' ? this.allCars() : (this.allCars as any);
+      const selectedCar = Array.isArray(cars) ? cars.find(c => c.id === event.value) : undefined;
+      if (!selectedCar) return;
+
+      const sel = selectedCar as any;
+      // Update grid cell directly so the change is visible immediately
+      try {
+        event.component.cellValue(event.rowIndex, 'itemName', `${sel.make ?? ''} ${sel.model ?? ''} ${sel.year ?? ''}`.trim());
+      } catch (e) {
+        // some grid events may not provide component or rowIndex — ignore safely
+      }
+
+      this.items.update(items => {
+        const updatedItems = [...items];
+        const idx = event.rowIndex ?? updatedItems.length - 1;
+        updatedItems[idx] = {
+          ...updatedItems[idx],
+          itemId: Number(event.value) || 0,
+          itemName: `${sel.make ?? ''} ${sel.model ?? ''} ${sel.year ?? ''}`.trim(),
+          category: sel.condition ?? 'Unknown',
+          unitCost: Number(sel.purchasePrice) || 0,
+          quantityCounted: 1,
+          totalCost: (Number(sel.purchasePrice) || 0) * 1,
+          notes: `VIN: ${sel.vin ?? 'N/A'} | Plate: ${sel.plateNumber ?? 'N/A'}`
+        };
+        return updatedItems;
+      });
     }
   }
 
+  // Open the car selection dialog (reused from purchase invoice) and add selected car to items
+  toggleCarCards(): void {
+    const dialogRef = this.dialog.open(CarSelectionDialogComponent, {
+      width: '90vw',
+      maxWidth: '1200px',
+      height: '80vh',
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.addCarToStockTake(result);
+      }
+    });
+  }
+
+  // Add selected car to the stock-taking items grid (pre-fill fields)
+  addCarToStockTake(car: any): void {
+    // Prevent duplicates by itemId (car.id)
+    const exists = this.items().some(i => i.itemId === car.id);
+    if (exists) {
+      // Optionally show a toast or alert; keep simple for now
+      alert(this.translate.instant ? this.translate.instant('INVENTORY.STOCK_TAKING_FORM.ERROR_ALREADY_ADDED') : 'Item already added');
+      return;
+    }
+
+    const newItem: StockTakeItem = {
+      itemId: car.id,
+      itemName: `${car.make} ${car.model} ${car.year}`.trim(),
+      category: car.condition ?? '',
+      quantityCounted: 1,
+      unitCost: Number(car.purchasePrice) || 0,
+      totalCost: (Number(car.purchasePrice) || 0) * 1,
+      notes: `VIN: ${car.vin ?? 'N/A'} | Plate: ${car.plateNumber ?? 'N/A'}`
+    };
+
+    this.items.update(items => [...items, newItem]);
+  }
   saveStockTake() {
     if (this.stockTakeForm.invalid) {
       return;
@@ -164,21 +257,38 @@ export class StockTakingFormComponent implements OnInit {
     }
 
     const stockTakeData: StockTake = {
-      id: this.editMode() ? 0 : undefined, // Will be set by service for new items
-      documentCode: formValue.documentCode,
+      id: this.editMode() ? this.route.snapshot.params['id'] : undefined,
+      documentName: formValue.documentName,
       documentDate: formValue.documentDate,
       createdBy: formValue.createdBy,
       notes: formValue.notes,
       status: formValue.status,
+      storeId: formValue.storeId,
       items: this.items()
     };
 
     if (this.editMode()) {
-      this.stockTakeService.updateStockTake(stockTakeData);
+      this.stockTakeService.updateStockTake(stockTakeData).subscribe({
+        next: (result) => {
+          console.log('Stock take updated successfully:', result);
+          this.router.navigate(['/inventory/stock-taking']);
+        },
+        error: (error) => {
+          console.error('Error updating stock take:', error);
+          alert(this.translate.instant('INVENTORY.STOCK_TAKING_FORM.ERROR_UPDATE'));
+        }
+      });
     } else {
-      const { id, status, ...newDoc } = stockTakeData;
-      this.stockTakeService.addStockTake(newDoc as Omit<StockTake, 'id' | 'status'>);
+      this.stockTakeService.addStockTake(stockTakeData as Omit<StockTake, 'id'>).subscribe({
+        next: (result) => {
+          console.log('Stock take created successfully:', result);
+          this.router.navigate(['/inventory/stock-taking']);
+        },
+        error: (error) => {
+          console.error('Error creating stock take:', error);
+          alert(this.translate.instant('INVENTORY.STOCK_TAKING_FORM.ERROR_CREATE'));
+        }
+      });
     }
-    this.router.navigate(['/inventory/stock-taking']);
   }
 }

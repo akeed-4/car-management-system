@@ -2,19 +2,20 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { StockTakeApproval } from '../types/stock-take-approval.model';
+import { environment } from '../environments/environment.development';
 
 @Injectable({
   providedIn: 'root',
 })
 export class StockTakeApprovalService {
   private http = inject(HttpClient);
-  private apiUrl = 'https://api.example.com/stock-take-approvals'; // رابط الـ API الحقيقي
+  private apiUrl = environment.origin + 'api/stockTakes'; // رابط الـ API الحقيقي
 
   constructor() {}
 
   // جلب كل الموافقات
   getApprovals(): Observable<StockTakeApproval[]> {
-    return this.http.get<StockTakeApproval[]>(this.apiUrl);
+    return this.http.get<StockTakeApproval[]>(this.apiUrl + '/GetAll');
   }
 
   // جلب موافقة واحدة حسب ID
@@ -24,7 +25,7 @@ export class StockTakeApprovalService {
 
   // إضافة موافقة جديدة
   addApproval(approval: Omit<StockTakeApproval, 'id'>): Observable<StockTakeApproval> {
-    return this.http.post<StockTakeApproval>(this.apiUrl, approval);
+    return this.http.post<StockTakeApproval>(`${this.apiUrl}/CreateApproval`, approval);
   }
 
   // تحديث موافقة موجودة
