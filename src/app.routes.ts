@@ -122,6 +122,7 @@ export const APP_ROUTES: Routes = [
   { path: 'inventory/stock-taking/edit/:id', component: StockTakingFormComponent },
   { path: 'inventory/stock-taking-approval', component: StockTakingApprovalComponent },
   { path: 'inventory/stock-taking-approval/new', component: StockTakingApprovalFormComponent },
+  { path: 'inventory/stock-taking-approval/edit/:id', component: StockTakingApprovalFormComponent },
   { path: 'requested-cars', component: RequestedCarsComponent },
   { path: 'requested-cars/new', component: RequestedCarFormComponent },
   { path: 'requested-cars/edit/:id', component: RequestedCarFormComponent },

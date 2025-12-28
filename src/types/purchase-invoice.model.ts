@@ -1,18 +1,27 @@
 import { InvoiceItem } from './invoice-item.model';
+import { Supplier } from './supplier.model';
+import { AccountNode } from './account-node.model';
 
 export interface PurchaseInvoice {
   id: number;
-  invoiceNumber: string; // Added for consistency
+  invoiceNumber: string;
   invoiceDate: string;
   supplierId: number;
-  supplierName: string;
-  storeId?: number;
-  paymentMethod?: 'Cash' | 'Bank Transfer';
-  items: InvoiceItem[];
+  debitAccountId: number; // Inventory or expense account
+  creditAccountId: number; // Supplier, cash, or bank account
+  paymentMethod?: string; // Cash, Bank Transfer
   totalAmount: number;
-  amountPaid: number; // New field
-  amountDue: number;  // New field
+  amountPaid: number;
+  amountDue: number;
   notes?: string;
-  status: 'Paid' | 'Unpaid'; // Changed from Unpaid to reflect status like SalesInvoice
+  status: string; // Paid, Unpaid
   isArchived?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+
+  // Navigation properties
+  supplier?: Supplier;
+  debitAccount?: AccountNode;
+  creditAccount?: AccountNode;
+  items: InvoiceItem[];
 }

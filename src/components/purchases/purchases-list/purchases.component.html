@@ -34,7 +34,7 @@
       >
         <dxi-column dataField="invoiceNumber" caption="{{ 'PURCHASES.INVOICE_NUMBER' | translate }}" [allowSorting]="true"></dxi-column>
         <dxi-column dataField="invoiceDate" caption="{{ 'PURCHASES.INVOICE_DATE' | translate }}" dataType="date" format="yyyy-MM-dd" [allowSorting]="true"></dxi-column>
-        <dxi-column dataField="supplierName" caption="{{ 'PURCHASES.SUPPLIER' | translate }}" [allowSorting]="true"></dxi-column>
+        <dxi-column dataField="supplierName" caption="{{ 'PURCHASES.SUPPLIER' | translate }}" [allowSorting]="true" cellTemplate="supplierTemplate"></dxi-column>
         <dxi-column caption="{{ 'PURCHASES.CONTENTS' | translate }}" [allowSorting]="false" cellTemplate="contentsTemplate"></dxi-column>
         <dxi-column dataField="totalAmount" caption="{{ 'PURCHASES.TOTAL_COST' | translate }}" dataType="number" format="currency" [allowSorting]="true"></dxi-column>
         <dxi-column dataField="amountPaid" caption="{{ 'PURCHASES.AMOUNT_PAID' | translate }}" dataType="number" format="currency" [allowSorting]="true" cssClass="text-success"></dxi-column>
@@ -49,6 +49,10 @@
               <span class="more-items">+ {{ data.data.items.length - 1 }}</span>
             }
           }
+        </div>
+
+        <div *dxTemplate="let data of 'supplierTemplate'">
+          {{ data.data.supplier?.name || 'N/A' }}
         </div>
 
         <div *dxTemplate="let data of 'statusTemplate'">

@@ -21,7 +21,7 @@ export class PurchasesService {
     return this.http.get<PurchaseInvoice>(`${this.apiUrl}/${id}`);
   }
 
-  addInvoice(invoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue'>): Observable<PurchaseInvoice> {
+  addInvoice(invoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue' | 'createdAt' | 'updatedAt' | 'supplier' | 'debitAccount' | 'creditAccount'>): Observable<PurchaseInvoice> {
     const payload = {
       ...invoice,
       amountPaid: 0,

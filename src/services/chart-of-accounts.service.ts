@@ -373,7 +373,38 @@ export class ChartOfAccountsService {
    * Get accounts by category
    */
   getAccountsByCategory(category: string): Observable<AccountNode[]> {
-    return this.http.get<AccountNode[]>(`${this.apiUrl}/category/${category}`);
+    // For now, filter sample data based on category
+    const allAccounts = this.accountsSource.value;
+    let filteredAccounts: AccountNode[];
+
+    switch (category) {
+      case 'debit':
+        // Inventory and expense accounts
+        filteredAccounts = allAccounts.filter(account =>
+          account.type === 'ACCOUNT' && (
+            account.code.startsWith('13') || // Inventory
+            account.code.startsWith('5')     // Expenses
+          )
+        );
+        break;
+      case 'credit':
+        // Supplier, cash, and bank accounts
+        filteredAccounts = allAccounts.filter(account =>
+          account.type === 'ACCOUNT' && (
+            account.code.startsWith('111') || // Cash
+            account.code.startsWith('112') || // Bank
+            account.code.startsWith('211')    // Suppliers
+          )
+        );
+        break;
+      default:
+        filteredAccounts = allAccounts.filter(account => account.type === 'ACCOUNT');
+    }
+
+    return new Observable(subscriber => {
+      subscriber.next(filteredAccounts);
+      subscriber.complete();
+    });
   }
 }
 

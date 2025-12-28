@@ -10,7 +10,7 @@
 <mat-card>
   <mat-card-content>
     <dx-data-grid
-      [dataSource]="stockTakes()"
+      [dataSource]="stockTakesApproval()"
       [showBorders]="true"
       [showRowLines]="true"
       [showColumnLines]="true"
@@ -37,11 +37,6 @@
       </dxi-column>
 
       <dxo-editing mode="popup" [allowUpdating]="false" [allowDeleting]="false" [allowAdding]="false"></dxo-editing>
-<dxi-column type="buttons" caption="{{ 'INVENTORY.STOCK_TAKING_APPROVAL.ACTIONS' | translate }}" >
-        <dxi-button  icon="edit"   [onClick]="onEditClick"></dxi-button>
-        <dxi-button  icon="trash"  [onClick]="onDeleteClick" ></dxi-button>
-
-</dxi-column>
     </dx-data-grid>
   </mat-card-content>
 </mat-card>

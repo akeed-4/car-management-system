@@ -2,7 +2,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
-import { ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -21,10 +21,12 @@ import { PurchasesService } from '../../../services/purchases.service';
 import { CurrentSettingService } from '../../../services/current-setting.service';
 import { StoreService } from '../../../services/store.service';
 import { SalesService } from '../../../services/sales.service';
+import { ChartOfAccountsService } from '../../../services/chart-of-accounts.service';
 import { PurchaseInvoice } from '../../../types/purchase-invoice.model';
 import { InvoiceItem } from '../../../types/invoice-item.model';
 import { Car } from '../../../types/car.model';
 import { Supplier } from '../../../types/supplier.model';
+import { AccountNode } from '../../../types/account-node.model';
 import { StoreCarStockDto } from '../../../types/store-car-stock.model';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { InvoiceItemDialogComponent } from '../../sales/invoice-item-dialog/invoice-item-dialog.component';
@@ -69,6 +71,7 @@ export class PurchaseInvoiceComponent {
   private currentSettingService = inject(CurrentSettingService);
   private storeService = inject(StoreService);
   private salesService = inject(SalesService);
+  private chartOfAccountsService = inject(ChartOfAccountsService);
   private languageService = inject(LanguageService);
   private router = inject(Router);
   private translate = inject(TranslateService);
@@ -80,8 +83,10 @@ export class PurchaseInvoiceComponent {
   // Services state
   suppliers = signal<Supplier[]>([]);
   stores = this.storeService.stores$;
-  cars = this.inventoryService.cars$; // Use this to select existing car definitions
+  cars = this.inventoryService.cars$;
   carStocks = signal<StoreCarStockDto[]>([]);
+  debitAccounts = signal<AccountNode[]>([]);
+  creditAccounts = signal<AccountNode[]>([]);
   textDir: Direction = this.languageService.getCurrentLanguage() == 'en' ? 'ltr' : 'rtl';
   // Layout for responsive design
   layout$ = this.currentSettingService.getCardLayout(4);
@@ -133,21 +138,46 @@ export class PurchaseInvoiceComponent {
     this.supplierService.getSuppliers().subscribe(suppliers => {
       this.suppliers.set(suppliers);
     });
+
+    // Load accounts
+    this.loadAccounts();
+  }
+
+  private loadAccounts(): void {
+    // Load debit accounts (inventory/expense)
+    this.chartOfAccountsService.getAccountsByCategory('debit').subscribe(accounts => {
+      this.debitAccounts.set(accounts);
+    });
+
+    // Load credit accounts (supplier/cash/bank)
+    this.chartOfAccountsService.getAccountsByCategory('credit').subscribe(accounts => {
+      this.creditAccounts.set(accounts);
+    });
   }
 
   private initForm(): void {
     this.purchaseInvoiceForm = this.fb.group({
       supplierId: [null, Validators.required],
-      storeId: [null, Validators.required],
+      debitAccountId: [null, Validators.required],
+      creditAccountId: [null, Validators.required],
       invoiceDate: [new Date(), Validators.required],
       paymentMethod: ['Bank Transfer'],
       notes: ['']
-    });
+    }, { validators: this.accountValidator });
 
     // Generate invoice number
     this.purchaseInvoiceForm.patchValue({
       invoiceNumber: `PO-${Date.now()}`
     });
+  }
+
+  private accountValidator(group: AbstractControl): { [key: string]: any } | null {
+    const debitAccountId = group.get('debitAccountId')?.value;
+    const creditAccountId = group.get('creditAccountId')?.value;
+    if (debitAccountId && creditAccountId && debitAccountId === creditAccountId) {
+      return { sameAccount: true };
+    }
+    return null;
   }
 
   loadInvoiceForEdit(invoiceId: number) {
@@ -156,12 +186,13 @@ export class PurchaseInvoiceComponent {
         // Initialize form with existing invoice data
         this.purchaseInvoiceForm = this.fb.group({
           supplierId: [invoice.supplierId, Validators.required],
-          storeId: [invoice.storeId, Validators.required],
+          debitAccountId: [invoice.debitAccountId, Validators.required],
+          creditAccountId: [invoice.creditAccountId, Validators.required],
           invoiceDate: [new Date(invoice.invoiceDate), Validators.required],
           paymentMethod: [invoice.paymentMethod || 'Bank Transfer'],
           notes: [invoice.notes || ''],
           invoiceNumber: [invoice.invoiceNumber]
-        });
+        }, { validators: this.accountValidator });
 
         // Set invoice items
         this.invoiceItems.set(invoice.items || []);
@@ -281,6 +312,10 @@ export class PurchaseInvoiceComponent {
   }
 
   saveInvoice(): void {
+    if (this.purchaseInvoiceForm.invalid) {
+      this.toastService.showError('Please fill all required fields correctly');
+      return;
+    }
 
     const formValue = this.purchaseInvoiceForm.value;
     const supplierId = formValue.supplierId;
@@ -295,18 +330,23 @@ export class PurchaseInvoiceComponent {
       this.toastService.showError('PURCHASE_INVOICE.ERROR_NO_ITEMS');
       return;
     }
+    if (this.totalAmount() <= 0) {
+      this.toastService.showError('Total amount must be greater than 0');
+      return;
+    }
 
-    const newInvoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue'> = {
+    const newInvoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue' | 'createdAt' | 'updatedAt' | 'supplier' | 'debitAccount' | 'creditAccount'> = {
         invoiceNumber: `PO-${Date.now()}`, // Generate new invoice number
-        invoiceDate: formValue.invoiceDate,
+        invoiceDate: formValue.invoiceDate.toISOString(),
         supplierId: supplierId,
-        supplierName: supplier.name,
-        storeId: formValue.storeId,
+        debitAccountId: formValue.debitAccountId,
+        creditAccountId: formValue.creditAccountId,
         paymentMethod: formValue.paymentMethod,
         items: items,
         totalAmount: this.totalAmount(),
         notes: formValue.notes,
-        status: 'Unpaid', // Default status
+        status: 'Unpaid',
+        isArchived: false
     };
 
     this.procurementService.addInvoice(newInvoice).subscribe({
@@ -317,7 +357,7 @@ export class PurchaseInvoiceComponent {
         });
 
         this.toastService.showSuccess('TOAST.ADD_SUCCESS');
-        // this.router.navigate(['/purchases']);
+        this.router.navigate(['/purchases']);
       },
       error: (error) => {
         console.error('Error saving purchase invoice:', error);

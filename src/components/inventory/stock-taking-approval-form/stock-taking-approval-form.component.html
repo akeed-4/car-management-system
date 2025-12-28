@@ -63,7 +63,7 @@
         <h3 class="section-title">{{ 'STOCK_TAKING_APPROVAL_FORM.QUANTITY_COMPARISON' | translate }}</h3>
 
         <dx-data-grid
-          [dataSource]="stockTake.items"
+          [dataSource]="selectedStockTake().items"
           [showBorders]="true"
           [showRowLines]="true"
           [showColumnLines]="true"
@@ -94,10 +94,11 @@
         <button mat-stroked-button type="button" routerLink="/inventory/stock-taking-approval" class="cancel-button">
           {{ 'STOCK_TAKING_APPROVAL_FORM.CANCEL' | translate }}
         </button>
-        <button mat-raised-button color="primary" (click)="approveStockTake()" [disabled]="approvalForm.invalid">
-          {{ approvalForm.get('approvalStatus')?.value === 'Approved' ? ('STOCK_TAKING_APPROVAL_FORM.APPROVE_AND_UPDATE' | translate) : 
-             approvalForm.get('approvalStatus')?.value === 'Rejected' ? ('STOCK_TAKING_APPROVAL_FORM.REJECT' | translate) : 
-             ('STOCK_TAKING_APPROVAL_FORM.SUBMIT' | translate) }}
+        <button mat-raised-button color="primary" (click)="saveApproval()" [disabled]="approvalForm.invalid">
+          {{ isEditMode() ? ('STOCK_TAKING_APPROVAL_FORM.UPDATE' | translate) : 
+             (approvalForm.get('approvalStatus')?.value === 'Approved' ? ('STOCK_TAKING_APPROVAL_FORM.APPROVE_AND_UPDATE' | translate) : 
+              approvalForm.get('approvalStatus')?.value === 'Rejected' ? ('STOCK_TAKING_APPROVAL_FORM.REJECT' | translate) : 
+              ('STOCK_TAKING_APPROVAL_FORM.SUBMIT' | translate)) }}
         </button>
       </div>
     </form>

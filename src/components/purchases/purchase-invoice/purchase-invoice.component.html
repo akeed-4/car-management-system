@@ -39,11 +39,22 @@
               </mat-grid-tile>
               <mat-grid-tile [colspan]="1" [rowspan]="1">
                 <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>{{ 'PURCHASE_INVOICE.STORE' | translate }}</mat-label>
-                  <mat-select formControlName="storeId" (selectionChange)="onStoreSelectionChange(+$event.value)" required>
-                    <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_STORE' | translate }}</mat-option>
-                    @for(store of stores(); track store.id) {
-                    <mat-option [value]="store.id">{{ store.name }}</mat-option>
+                  <mat-label>{{ 'PURCHASE_INVOICE.DEBIT_ACCOUNT' | translate }}</mat-label>
+                  <mat-select formControlName="debitAccountId" required>
+                    <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_DEBIT_ACCOUNT' | translate }}</mat-option>
+                    @for(account of debitAccounts(); track account.id) {
+                    <mat-option [value]="account.id">{{ account.code }} - {{ account.name }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </mat-grid-tile>
+              <mat-grid-tile [colspan]="1" [rowspan]="1">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'PURCHASE_INVOICE.CREDIT_ACCOUNT' | translate }}</mat-label>
+                  <mat-select formControlName="creditAccountId" required>
+                    <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_CREDIT_ACCOUNT' | translate }}</mat-option>
+                    @for(account of creditAccounts(); track account.id) {
+                    <mat-option [value]="account.id">{{ account.code }} - {{ account.name }}</mat-option>
                     }
                   </mat-select>
                 </mat-form-field>
@@ -62,11 +73,17 @@
                 <mat-select formControlName="paymentMethod">
                   <mat-option value="Cash">{{ 'PURCHASE_INVOICE.PAYMENT_CASH' | translate }}</mat-option>
                   <mat-option value="Bank Transfer">{{ 'PURCHASE_INVOICE.PAYMENT_BANK_TRANSFER' | translate }}</mat-option>
+                  <mat-option value="Check">{{ 'PURCHASE_INVOICE.PAYMENT_CHECK' | translate }}</mat-option>
                 </mat-select>
               </mat-form-field>
             </mat-grid-tile>
           </mat-grid-list>
         </ng-container>
+
+        <!-- Validation Errors -->
+        <div *ngIf="purchaseInvoiceForm.errors?.['sameAccount']" class="error-message">
+          <mat-error>{{ 'PURCHASE_INVOICE.ERROR_SAME_ACCOUNT' | translate }}</mat-error>
+        </div>
       </section>
 
       <section class="form-section">

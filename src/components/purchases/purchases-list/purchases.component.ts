@@ -43,7 +43,7 @@ export class PurchasesComponent {
       if (searchTerm) {
         invoices = invoices.filter(invoice => 
           invoice.invoiceNumber.toLowerCase().includes(searchTerm) ||
-          invoice.supplierName.toLowerCase().includes(searchTerm) ||
+          (invoice.supplier?.name || '').toLowerCase().includes(searchTerm) ||
           invoice.status.toLowerCase().includes(searchTerm) ||
           invoice.items.some(item => item.carDescription.toLowerCase().includes(searchTerm))
         );
@@ -55,9 +55,9 @@ export class PurchasesComponent {
           let aValue: any;
           let bValue: any;
 
-          if (column === 'supplierName') {
-            aValue = a.supplierName;
-            bValue = b.supplierName;
+          if (column === 'supplier') {
+            aValue = a.supplier?.name || '';
+            bValue = b.supplier?.name || '';
           } else if (column === 'invoiceDate') {
             aValue = new Date(a.invoiceDate);
             bValue = new Date(b.invoiceDate);

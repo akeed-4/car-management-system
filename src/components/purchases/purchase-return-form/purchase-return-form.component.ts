@@ -50,7 +50,8 @@ export class PurchaseReturnFormComponent implements OnInit {
       invoiceNumber: 'INV-001',
       invoiceDate: '2025-12-01',
       supplierId: 1,
-      supplierName: 'ABC Suppliers',
+      debitAccountId: 9, // Inventory account
+      creditAccountId: 22, // Supplier account
       status: 'Unpaid',
       items: [
         {
@@ -71,7 +72,8 @@ export class PurchaseReturnFormComponent implements OnInit {
       invoiceNumber: 'INV-002',
       invoiceDate: '2025-12-05',
       supplierId: 2,
-      supplierName: 'XYZ Auto Parts',
+      debitAccountId: 9,
+      creditAccountId: 22,
       status: 'Unpaid',
       items: [
         {
@@ -175,7 +177,7 @@ export class PurchaseReturnFormComponent implements OnInit {
       returnInvoiceDate: this.returnInvoiceDate(),
       originalInvoiceId: originalInvoice.id,
       supplierId: originalInvoice.supplierId,
-      supplierName: originalInvoice.supplierName,
+      supplierName: originalInvoice.supplier?.name || '',
       items: itemsToReturn,
       totalAmount: this.totalAmount(),
     };

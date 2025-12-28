@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } 
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { StockTakeService } from '../../../services/stock-take.service';
 import { StockTakeApprovalService } from '../../../services/stock-take-approval.service';
 import { InventoryService } from '../../../services/inventory.service';
@@ -48,25 +48,47 @@ import { DxDataGridModule } from 'devextreme-angular';
 })
 export class StockTakingApprovalFormComponent implements OnInit {
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private stockTakeService = inject(StockTakeService);
   private approvalService = inject(StockTakeApprovalService);
   private inventoryService = inject(InventoryService);
+  private stockTakeApprovalService = inject(StockTakeApprovalService);
 
   approvalForm!: FormGroup;
 
   // Data Sources
-  private allStockTakes = toSignal(this.stockTakeService.getStockTakes(), { initialValue: [] });
+  allStockTakes = toSignal(this.stockTakeService.getStockTakes(), { initialValue: [] });
   pendingStockTakes = signal<StockTake[]>([]);
+  isEditMode = signal(false);
 constructor() {
   this.onStockTakeSelect=(this.onStockTakeSelect.bind(this));
-  this.approveStockTake=(this.approveStockTake.bind(this));
+  this.saveApproval=(this.saveApproval.bind(this));
   this.getDifferenceDisplayValue=(this.getDifferenceDisplayValue.bind(this));
 }
   selectedStockTake = signal<StockTake | null>(null);
-
+ selectedStockTakeApproval = signal<StockTakeApproval | null>(null);
   ngOnInit() {
     this.initForm();
-    this.loadstockTake(1);
+    const id = this.route.snapshot.params['id'];
+    if (id) {
+      this.isEditMode.set(true);
+      this.stockTakeApprovalService.getApprovalById(id).subscribe(approval => {
+        this.selectedStockTakeApproval.set(approval);
+        console.log('Loaded approval for editing:', approval);
+        this.stockTakeService.getStockTakeById(approval.id).subscribe(stockTake => {
+          this.selectedStockTake.set(stockTake);
+          this.approvalForm.patchValue({
+            stockTake: stockTake.id,
+            approvalDate: approval.date,
+            Name: approval.Name,
+            approvalStatus: approval.status,
+            notes: approval.notes
+          });
+        });
+      });
+    } else {
+      this.loadstockTake(1);
+    }
   }
   loadstockTake(arg0: number) {
     this.stockTakeService.getStockTakesByStore(1).subscribe(result => {
@@ -100,7 +122,7 @@ constructor() {
     } 
   }
 
-  approveStockTake(): void {
+  saveApproval(): void {
     if (this.approvalForm.invalid) {
       return;
     }
@@ -112,8 +134,7 @@ constructor() {
       return;
     }
 
-    // Create and save the approval document
-    const newApproval: Omit<StockTakeApproval, 'id'> = {
+    const approvalData: Omit<StockTakeApproval, 'id'> = {
       date: formValue.approvalDate,
       Name: formValue.Name,
       stockTakeId: stockTake.id,
@@ -121,17 +142,37 @@ constructor() {
       status: formValue.approvalStatus,
       storeId: stockTake.storeId,
       notes: formValue.notes,
-      items: stockTake.items
+      items: this.selectedStockTakeApproval()?.items || stockTake.items
     };
-    this.approvalService.addApproval(newApproval).subscribe(() => {
-      // Update stock take status
-      const newStatus = formValue.approvalStatus === 'Approved' ? 'Approved' : 
-                       formValue.approvalStatus === 'Rejected' ? 'Rejected' : 'Submitted';
-      this.stockTakeService.updateStockTakeStatus(stockTake.id, newStatus).subscribe(() => {
-        alert(`تم ${formValue.approvalStatus === 'Approved' ? 'اعتماد' : formValue.approvalStatus === 'Rejected' ? 'رفض' : 'تقديم'} الجرد "${stockTake.documentName}" بنجاح.`);
-        this.router.navigate(['/inventory/stock-taking-approval']);
+
+    if (this.isEditMode()) {
+      const approvalId = this.selectedStockTakeApproval()?.id;
+      if (approvalId) {
+        const approval: StockTakeApproval = {
+          id: approvalId,
+          ...approvalData
+        };
+        this.approvalService.updateApproval(approval).subscribe(() => {
+          // Update stock take status
+          const newStatus = formValue.approvalStatus === 'Approved' ? 'Approved' : 
+                           formValue.approvalStatus === 'Rejected' ? 'Rejected' : 'Submitted';
+          this.stockTakeService.updateStockTakeStatus(stockTake.id, newStatus).subscribe(() => {
+            alert(`تم تحديث ${formValue.approvalStatus === 'Approved' ? 'الاعتماد' : formValue.approvalStatus === 'Rejected' ? 'الرفض' : 'التقديم'} للجرد "${stockTake.documentName}" بنجاح.`);
+            this.router.navigate(['/inventory/stock-taking-approval']);
+          });
+        });
+      }
+    } else {
+      this.approvalService.addApproval(approvalData).subscribe(() => {
+        // Update stock take status
+        const newStatus = formValue.approvalStatus === 'Approved' ? 'Approved' : 
+                         formValue.approvalStatus === 'Rejected' ? 'Rejected' : 'Submitted';
+        this.stockTakeService.updateStockTakeStatus(stockTake.id, newStatus).subscribe(() => {
+          alert(`تم ${formValue.approvalStatus === 'Approved' ? 'اعتماد' : formValue.approvalStatus === 'Rejected' ? 'رفض' : 'تقديم'} الجرد "${stockTake.documentName}" بنجاح.`);
+          this.router.navigate(['/inventory/stock-taking-approval']);
+        });
       });
-    });
+    }
   }
 
   getDifference(countedQuantity: number, systemQuantity: number): number {

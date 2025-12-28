@@ -76,6 +76,8 @@
     "BACK_TO_PURCHASES": "Back to Purchases",
     "MAIN_DATA": "Main Invoice Data",
     "SUPPLIER": "Supplier",
+    "DEBIT_ACCOUNT": "Debit Account",
+    "CREDIT_ACCOUNT": "Credit Account",
     "STORE": "Store",
     "INVOICE_NUMBER": "Invoice Number",
     "INVOICE_DATE": "Invoice Date",
@@ -91,10 +93,13 @@
     "TOTAL": "Total",
     "tools": "Actions",
     "SELECT_SUPPLIER": "Please select a supplier",
+    "SELECT_DEBIT_ACCOUNT": "Please select a debit account",
+    "SELECT_CREDIT_ACCOUNT": "Please select a credit account",
     "SELECT_STORE": "Please select a store",
     "SELECT_CAR_OPTION": "Please select a car",
     "PAYMENT_CASH": "Cash",
     "PAYMENT_BANK_TRANSFER": "Bank Transfer",
+    "PAYMENT_CHECK": "Check",
     "NOTES": "Notes",
     "NOTES_PLACEHOLDER": "Any additional notes on the invoice...",
     "INVOICE_SUMMARY": "Invoice Summary",
@@ -109,6 +114,7 @@
     "SEARCH_CARS_PLACEHOLDER": "Search by make, model, or specs...",
     "ADD_TO_INVOICE": "Add to Invoice",
     "ERROR_SELECT_SUPPLIER": "Please select a supplier",
+    "ERROR_SAME_ACCOUNT": "Debit and credit accounts cannot be the same",
     "ERROR_NO_ITEMS": "Please add at least one item to the invoice",
     "CANCEL": "Cancel",
     "SAVE": "Save Invoice"
@@ -1594,7 +1600,8 @@
     "STOCK_TAKE_DOCUMENT": "Stock Take Document",
     "ACTIONS": "Actions",
     "EDIT": "Edit",
-    "VIEW": "View"
+    "VIEW": "View",
+    "STATUS": "Status"
   },
   "STOCK_TAKING_APPROVAL_FORM": {
     "TITLE": "Stock Taking Approval Form",

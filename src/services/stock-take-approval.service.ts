@@ -20,7 +20,7 @@ export class StockTakeApprovalService {
 
   // جلب موافقة واحدة حسب ID
   getApprovalById(id: number): Observable<StockTakeApproval> {
-    return this.http.get<StockTakeApproval>(`${this.apiUrl}/${id}`);
+    return this.http.get<StockTakeApproval>(`${this.apiUrl}/GetById/${id}`);
   }
 
   // إضافة موافقة جديدة

@@ -36,8 +36,8 @@
         <dxo-lookup [dataSource]="statusLookup"></dxo-lookup>
       </dxi-column>
       <dxi-column type="buttons" caption="{{ 'INVENTORY.STOCK_TAKING.ACTIONS' | translate }}" >
-        <dxi-button  icon="edit"   [onClick]="onEditClick" [visible]="isEditVisible"></dxi-button>
-        <dxi-button  icon="trash"  [onClick]="onDeleteClick" [visible]="isDeleteVisible"></dxi-button>
+        <dxi-button  icon="edit"   [onClick]="onEditClick" ></dxi-button>
+        <dxi-button  icon="trash"  [onClick]="onDeleteClick" ></dxi-button>
       </dxi-column>
 
       <dxo-editing mode="popup" [allowUpdating]="false" [allowDeleting]="false" [allowAdding]="false"></dxo-editing>

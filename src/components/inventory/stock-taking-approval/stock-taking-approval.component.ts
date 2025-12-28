@@ -9,6 +9,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
+import { StockTakeApprovalService } from '@/src/services/stock-take-approval.service';
+import { StockTakeApproval } from '@/src/types/stock-take-approval.model';
 
 @Component({
   selector: 'app-stock-taking-approval',
@@ -29,17 +31,20 @@ import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
 })
 export class StockTakingApprovalComponent implements OnInit {
   private stockTakeService = inject(StockTakeService);
+    private stockTakeApprovalService = inject(StockTakeApprovalService);
   private router = inject(Router);
 
   stockTakes = signal<StockTake[]>([]);
-
+ stockTakesApproval = signal<StockTakeApproval[]>([]);
   ngOnInit() {
     this.loadStockTakes();
   }
-
+constructor() {
+  this.loadStockTakes=(this.loadStockTakes.bind(this));
+  this.onEditClick=(this.onEditClick.bind(this));}
   loadStockTakes() {
-    this.stockTakeService.getStockTakesByStore(1).subscribe(result => {
-      this.stockTakes.set(result);
+    this.stockTakeApprovalService.getApprovals().subscribe(result => {
+      this.stockTakesApproval.set(result);
     });
   }
 
