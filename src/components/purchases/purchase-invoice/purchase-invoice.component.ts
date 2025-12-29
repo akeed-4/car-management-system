@@ -1,8 +1,8 @@
 
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, effect } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
-import { ReactiveFormsModule, FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
+import { ReactiveFormsModule, FormGroup, FormBuilder, Validators, AbstractControl, FormControl } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -38,6 +38,9 @@ import { CarSelectionDialogComponent } from './car-selection-dialog/car-selectio
 
 const VAT_RATE = 0.15; // 15% VAT
 
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
+import { AccountingService } from '../../accounting/accounting.service';
+
 @Component({
   selector: 'app-purchase-invoice',
   standalone: true,
@@ -57,7 +60,8 @@ const VAT_RATE = 0.15; // 15% VAT
     MatDatepickerModule,
     MatDialogModule,
     DxDataGridModule,
-    CarSelectionDialogComponent
+    NgxMatSelectSearchModule,
+    
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './purchase-invoice.component.html',
@@ -71,7 +75,7 @@ export class PurchaseInvoiceComponent {
   private currentSettingService = inject(CurrentSettingService);
   private storeService = inject(StoreService);
   private salesService = inject(SalesService);
-  private chartOfAccountsService = inject(ChartOfAccountsService);
+  private accountingService = inject(AccountingService);
   private languageService = inject(LanguageService);
   private router = inject(Router);
   private translate = inject(TranslateService);
@@ -88,6 +92,51 @@ export class PurchaseInvoiceComponent {
   debitAccounts = signal<AccountNode[]>([]);
   creditAccounts = signal<AccountNode[]>([]);
   textDir: Direction = this.languageService.getCurrentLanguage() == 'en' ? 'ltr' : 'rtl';
+  
+  // Filter controls for mat-select search
+  supplierFilterCtrl = new FormControl('');
+  debitAccountFilterCtrl = new FormControl('');
+  creditAccountFilterCtrl = new FormControl('');
+  paymentMethodFilterCtrl = new FormControl('');
+  
+  // Convert filter controls to signals
+  private supplierFilterSignal = toSignal(this.supplierFilterCtrl.valueChanges, { initialValue: '' });
+  private debitAccountFilterSignal = toSignal(this.debitAccountFilterCtrl.valueChanges, { initialValue: '' });
+  private creditAccountFilterSignal = toSignal(this.creditAccountFilterCtrl.valueChanges, { initialValue: '' });
+  private paymentMethodFilterSignal = toSignal(this.paymentMethodFilterCtrl.valueChanges, { initialValue: '' });
+  
+  // Filtered signals
+  filteredSuppliers = computed(() => {
+    const filter = this.supplierFilterSignal()?.toLowerCase() || '';
+    return this.suppliers().filter(s => s.name.toLowerCase().includes(filter));
+  });
+  
+  filteredDebitAccounts = computed(() => {
+    const filter = this.debitAccountFilterSignal()?.toLowerCase() || '';
+    return this.debitAccounts().filter(a => 
+      a.name.toLowerCase().includes(filter) || a.code.toLowerCase().includes(filter)
+    );
+  });
+  
+  filteredCreditAccounts = computed(() => {
+    const filter = this.creditAccountFilterSignal()?.toLowerCase() || '';
+    return this.creditAccounts().filter(a => 
+      a.name.toLowerCase().includes(filter) || a.code.toLowerCase().includes(filter)
+    );
+  });
+  
+  paymentMethods = [
+    { value: 'Cash', label: 'PURCHASE_INVOICE.PAYMENT_CASH' },
+    { value: 'Bank Transfer', label: 'PURCHASE_INVOICE.PAYMENT_BANK_TRANSFER' },
+    { value: 'Check', label: 'PURCHASE_INVOICE.PAYMENT_CHECK' }
+  ];
+  
+  filteredPaymentMethods = computed(() => {
+    const filter = this.paymentMethodFilterSignal()?.toLowerCase() || '';
+    return this.paymentMethods.filter(p => 
+      this.translate.instant(p.label).toLowerCase().includes(filter)
+    );
+  });
   // Layout for responsive design
   layout$ = this.currentSettingService.getCardLayout(4);
 
@@ -145,12 +194,12 @@ export class PurchaseInvoiceComponent {
 
   private loadAccounts(): void {
     // Load debit accounts (inventory/expense)
-    this.chartOfAccountsService.getAccountsByCategory('debit').subscribe(accounts => {
+    this.accountingService.getAccountsByCategory('debit').subscribe(accounts => {
       this.debitAccounts.set(accounts);
     });
 
     // Load credit accounts (supplier/cash/bank)
-    this.chartOfAccountsService.getAccountsByCategory('credit').subscribe(accounts => {
+    this.accountingService.getAccountsByCategory('credit').subscribe(accounts => {
       this.creditAccounts.set(accounts);
     });
   }

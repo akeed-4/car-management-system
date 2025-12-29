@@ -116,6 +116,9 @@
     "ERROR_SELECT_SUPPLIER": "Please select a supplier",
     "ERROR_SAME_ACCOUNT": "Debit and credit accounts cannot be the same",
     "ERROR_NO_ITEMS": "Please add at least one item to the invoice",
+    "ERROR_ALREADY_ADDED": "This car is already added to the invoice",
+    "SEARCH": "Search...",
+    "NO_RESULTS": "No results found",
     "CANCEL": "Cancel",
     "SAVE": "Save Invoice"
   },

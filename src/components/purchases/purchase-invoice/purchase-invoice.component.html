@@ -30,8 +30,14 @@
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>{{ 'PURCHASE_INVOICE.SUPPLIER' | translate }}</mat-label>
                   <mat-select formControlName="supplierId" required>
+                    <mat-option>
+                      <ngx-mat-select-search [formControl]="supplierFilterCtrl" 
+                        placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
+                        noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
+                      </ngx-mat-select-search>
+                    </mat-option>
                     <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_SUPPLIER' | translate }}</mat-option>
-                    @for(supplier of suppliers(); track supplier.id) {
+                    @for(supplier of filteredSuppliers(); track supplier.id) {
                     <mat-option [value]="supplier.id">{{ supplier.name }}</mat-option>
                     }
                   </mat-select>
@@ -41,8 +47,14 @@
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>{{ 'PURCHASE_INVOICE.DEBIT_ACCOUNT' | translate }}</mat-label>
                   <mat-select formControlName="debitAccountId" required>
+                    <mat-option>
+                      <ngx-mat-select-search [formControl]="debitAccountFilterCtrl" 
+                        placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
+                        noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
+                      </ngx-mat-select-search>
+                    </mat-option>
                     <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_DEBIT_ACCOUNT' | translate }}</mat-option>
-                    @for(account of debitAccounts(); track account.id) {
+                    @for(account of filteredDebitAccounts(); track account.id) {
                     <mat-option [value]="account.id">{{ account.code }} - {{ account.name }}</mat-option>
                     }
                   </mat-select>
@@ -52,8 +64,14 @@
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>{{ 'PURCHASE_INVOICE.CREDIT_ACCOUNT' | translate }}</mat-label>
                   <mat-select formControlName="creditAccountId" required>
+                    <mat-option>
+                      <ngx-mat-select-search [formControl]="creditAccountFilterCtrl" 
+                        placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
+                        noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
+                      </ngx-mat-select-search>
+                    </mat-option>
                     <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_CREDIT_ACCOUNT' | translate }}</mat-option>
-                    @for(account of creditAccounts(); track account.id) {
+                    @for(account of filteredCreditAccounts(); track account.id) {
                     <mat-option [value]="account.id">{{ account.code }} - {{ account.name }}</mat-option>
                     }
                   </mat-select>
@@ -71,9 +89,15 @@
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>{{ 'PURCHASE_INVOICE.PAYMENT_METHOD' | translate }}</mat-label>
                 <mat-select formControlName="paymentMethod">
-                  <mat-option value="Cash">{{ 'PURCHASE_INVOICE.PAYMENT_CASH' | translate }}</mat-option>
-                  <mat-option value="Bank Transfer">{{ 'PURCHASE_INVOICE.PAYMENT_BANK_TRANSFER' | translate }}</mat-option>
-                  <mat-option value="Check">{{ 'PURCHASE_INVOICE.PAYMENT_CHECK' | translate }}</mat-option>
+                  <mat-option>
+                    <ngx-mat-select-search [formControl]="paymentMethodFilterCtrl" 
+                      placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
+                      noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
+                    </ngx-mat-select-search>
+                  </mat-option>
+                  @for(method of filteredPaymentMethods(); track method.value) {
+                  <mat-option [value]="method.value">{{ method.label | translate }}</mat-option>
+                  }
                 </mat-select>
               </mat-form-field>
             </mat-grid-tile>

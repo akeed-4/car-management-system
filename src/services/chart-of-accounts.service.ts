@@ -15,8 +15,24 @@ export class ChartOfAccountsService {
   accounts$ = this.accountsSource.asObservable();
 
   constructor() {
-    // Initialize with sample data for development
-    this.loadSampleData();
+    // Load accounts from API on initialization
+    this.loadAccounts();
+  }
+
+  /**
+   * Load accounts from API
+   */
+  private loadAccounts(): void {
+    this.http.get<AccountNode[]>(this.apiUrl).subscribe({
+      next: (accounts) => {
+        this.accountsSource.next(accounts);
+      },
+      error: (error) => {
+        console.error('Failed to load accounts from API:', error);
+        // Fallback to sample data if API fails
+        this.loadSampleData();
+      }
+    });
   }
 
   /**
@@ -330,8 +346,7 @@ export class ChartOfAccountsService {
    * Get all chart of accounts
    */
   getAccounts(): Observable<AccountNode[]> {
-    // For now, return sample data. Replace with HTTP call when backend is ready
-    return this.accounts$;
+    return this.http.get<AccountNode[]>(this.apiUrl);
   }
 
   /**
@@ -365,47 +380,7 @@ export class ChartOfAccountsService {
   /**
    * Get hierarchical structure (flattened for TreeList)
    */
-  getHierarchicalAccounts(): Observable<AccountNodeFlat[]> {
-    return this.accounts$;
-  }
 
-  /**
-   * Get accounts by category
-   */
-  getAccountsByCategory(category: string): Observable<AccountNode[]> {
-    // For now, filter sample data based on category
-    const allAccounts = this.accountsSource.value;
-    let filteredAccounts: AccountNode[];
-
-    switch (category) {
-      case 'debit':
-        // Inventory and expense accounts
-        filteredAccounts = allAccounts.filter(account =>
-          account.type === 'ACCOUNT' && (
-            account.code.startsWith('13') || // Inventory
-            account.code.startsWith('5')     // Expenses
-          )
-        );
-        break;
-      case 'credit':
-        // Supplier, cash, and bank accounts
-        filteredAccounts = allAccounts.filter(account =>
-          account.type === 'ACCOUNT' && (
-            account.code.startsWith('111') || // Cash
-            account.code.startsWith('112') || // Bank
-            account.code.startsWith('211')    // Suppliers
-          )
-        );
-        break;
-      default:
-        filteredAccounts = allAccounts.filter(account => account.type === 'ACCOUNT');
-    }
-
-    return new Observable(subscriber => {
-      subscriber.next(filteredAccounts);
-      subscriber.complete();
-    });
-  }
 }
 
 interface AccountNodeFlat extends AccountNode {

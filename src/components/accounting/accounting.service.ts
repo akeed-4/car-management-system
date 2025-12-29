@@ -6,6 +6,7 @@ import { throwError } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { Account, JournalEntry, CreateAccountDto, UpdateAccountDto, CreateJournalEntryDto, UpdateJournalEntryDto, OpeningBalanceFinancial, OpeningBalanceInventory } from './models';
 import { environment } from '@/src/environments/environment.development';
+import { AccountNode } from '@/src/types/account-node.model';
 
 @Injectable({
   providedIn: 'root'
@@ -326,5 +327,15 @@ export class AccountingService {
 
     // If no translation found, return the original name
     return accountName;
+  }
+    getHierarchicalAccounts(): Observable<AccountNode[]> {
+    return this.http.get<AccountNode[]>(`${this.Url}/hierarchical`);
+  }
+
+  /**
+   * Get accounts by category
+   */
+  getAccountsByCategory(category: string): Observable<AccountNode[]> {
+    return this.http.get<AccountNode[]>(`${this.Url}/category/${category}`);
   }
 }
