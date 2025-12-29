@@ -112,20 +112,22 @@ export class PurchaseInvoiceComponent {
   // Filtered signals
   filteredSuppliers = computed(() => {
     const filter = this.supplierFilterSignal()?.toLowerCase() || '';
-    return this.suppliers().filter(s => s.name.toLowerCase().includes(filter));
+    return this.suppliers().filter(s => 
+      s.name?.toLowerCase().includes(filter) ?? false
+    );
   });
   
   filteredDebitAccounts = computed(() => {
     const filter = this.debitAccountFilterSignal()?.toLowerCase() || '';
     return this.debitAccounts().filter(a => 
-      a.name.toLowerCase().includes(filter) || a.code.toLowerCase().includes(filter)
+      (a.name?.toLowerCase().includes(filter) ?? false) || (a.code?.toLowerCase().includes(filter) ?? false)
     );
   });
   
   filteredCreditAccounts = computed(() => {
     const filter = this.creditAccountFilterSignal()?.toLowerCase() || '';
     return this.creditAccounts().filter(a => 
-      a.name.toLowerCase().includes(filter) || a.code.toLowerCase().includes(filter)
+      (a.name?.toLowerCase().includes(filter) ?? false) || (a.code?.toLowerCase().includes(filter) ?? false)
     );
   });
   
@@ -200,11 +202,13 @@ export class PurchaseInvoiceComponent {
     // Load debit accounts (inventory/expense)
     this.accountingService.getAccountsByCategory('debit').subscribe(accounts => {
       this.debitAccounts.set(accounts);
+    console.log('Debit accounts loaded', accounts);
     });
 
     // Load credit accounts (supplier/cash/bank)
     this.accountingService.getAccountsByCategory('credit').subscribe(accounts => {
       this.creditAccounts.set(accounts);
+      console.log('Credit accounts loaded', accounts);
     });
   }
 

@@ -54,15 +54,15 @@
                       </ngx-mat-select-search>
                     </mat-option>
                     <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_DEBIT_ACCOUNT' | translate }}</mat-option>
-                    @for(account of filteredDebitAccounts(); track account.id) {
-                    <mat-option [value]="account.id">{{ account.code }} - {{ account.name }}</mat-option>
+                    @for(account of debitAccounts(); track account.id) {
+                    <mat-option [value]="account.id">{{ account.accountCode }} - {{ account.accountNameAr }}</mat-option>
                     }
                   </mat-select>
                 </mat-form-field>
               </mat-grid-tile>
           </mat-grid-list>
         </ng-container>
-                <ng-container *ngIf="cardLayout2 | async as layout">
+                <ng-container *ngIf="cardLayout3 | async as layout">
                   <mat-grid-list [cols]="layout.columns" rowHeight="80" gutterSize="8px">
               <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
                 <mat-form-field appearance="outline" class="full-width">
@@ -75,8 +75,8 @@
                       </ngx-mat-select-search>
                     </mat-option>
                     <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_CREDIT_ACCOUNT' | translate }}</mat-option>
-                    @for(account of filteredCreditAccounts(); track account.id) {
-                    <mat-option [value]="account.id">{{ account.code }} - {{ account.name }}</mat-option>
+                    @for(account of creditAccounts(); track account.id) {
+                    <mat-option [value]="account.id">{{ account.accountCode }} - {{ account.accountNameAr }}</mat-option>
                     }
                   </mat-select>
                 </mat-form-field>

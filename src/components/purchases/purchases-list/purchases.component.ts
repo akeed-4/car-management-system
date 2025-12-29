@@ -2,7 +2,7 @@
 
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { PurchaseInvoice } from '../../../types/purchase-invoice.model';
 import { FormsModule } from '@angular/forms';
@@ -24,6 +24,7 @@ type SortDirection = 'asc' | 'desc' | '';
 export class PurchasesComponent {
     private procurementService = inject(PurchasesService);
   private translate = inject(TranslateService);
+  private router = inject(Router);
     invoices = toSignal(this.procurementService.getInvoices(), { initialValue: [] });
 
     filter = signal('');
@@ -120,15 +121,16 @@ export class PurchasesComponent {
       return '';
     }
 
-    archiveInvoice(id: number) {
-      this.procurementService.archiveInvoice(id);
+    archiveInvoice(data: any) {
+      this.procurementService.archiveInvoice(data.row.data.id);
     }
 
-    unarchiveInvoice(id: number) {
-      this.procurementService.unarchiveInvoice(id);
+    unarchiveInvoice(data: any) {
+      this.procurementService.unarchiveInvoice(data.row.data.id);
     }
 
-    deleteInvoice(id: number) {
+    deleteInvoice(data: any) {
+      const id = data.row.data.id;
       if (confirm(this.translate.instant('PURCHASES.DELETE_INVOICE_CONFIRM'))) {
         this.procurementService.deleteInvoice(id).subscribe({
           next: () => {
@@ -141,5 +143,21 @@ export class PurchasesComponent {
           }
         });
       }
+    }
+
+    printInvoice(data: any) {
+      this.router.navigate(['/purchases/invoice/print', data.row.data.id]);
+    }
+
+    editInvoice(data: any) {
+      this.router.navigate(['/purchases/invoice/edit', data.row.data.id]);
+    }
+
+    shouldShowArchiveButton(data: any) {
+      return !this.showArchived() && data.row.data.status === 'Paid';
+    }
+
+    shouldShowUnarchiveButton(data: any) {
+      return this.showArchived();
     }
 }
