@@ -83,7 +83,11 @@ export class PurchaseInvoiceComponent {
   private toastService = inject(ToastService);
   private route = inject(ActivatedRoute);
   private dialog = inject(MatDialog);
-
+ cardLayout2 = this.currentSettingService.getCardLayout(2);
+  cardLayout3 = this.currentSettingService.getCardLayout(3);
+  cardLayout4 = this.currentSettingService.getCardLayout(4);
+  cardLayout5 = this.currentSettingService.getCardLayout(5);
+  cardLayout6 = this.currentSettingService.getCardLayout(6);
   // Services state
   suppliers = signal<Supplier[]>([]);
   stores = this.storeService.stores$;

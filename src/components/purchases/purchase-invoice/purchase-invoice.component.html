@@ -17,16 +17,16 @@
 
       <section class="form-section">
         <h3 class="form-section-title">{{ 'PURCHASE_INVOICE.MAIN_DATA' | translate }}</h3>
-        <ng-container *ngIf="layout$ | async as layout">
+        <ng-container *ngIf="cardLayout3 | async as layout">
           <mat-grid-list [cols]="layout.columns" rowHeight="80" gutterSize="8px">
          
-            <mat-grid-tile [colspan]="1" [rowspan]="1">
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>{{ 'PURCHASE_INVOICE.INVOICE_NUMBER' | translate }}</mat-label>
                 <input matInput [value]="invoiceNumber()" readonly>
               </mat-form-field>
             </mat-grid-tile>
-              <mat-grid-tile [colspan]="1" [rowspan]="1">
+              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>{{ 'PURCHASE_INVOICE.SUPPLIER' | translate }}</mat-label>
                   <mat-select formControlName="supplierId" required>
@@ -42,8 +42,8 @@
                     }
                   </mat-select>
                 </mat-form-field>
-              </mat-grid-tile>
-              <mat-grid-tile [colspan]="1" [rowspan]="1">
+              </mat-grid-tile >
+              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>{{ 'PURCHASE_INVOICE.DEBIT_ACCOUNT' | translate }}</mat-label>
                   <mat-select formControlName="debitAccountId" required>
@@ -60,7 +60,11 @@
                   </mat-select>
                 </mat-form-field>
               </mat-grid-tile>
-              <mat-grid-tile [colspan]="1" [rowspan]="1">
+          </mat-grid-list>
+        </ng-container>
+                <ng-container *ngIf="cardLayout2 | async as layout">
+                  <mat-grid-list [cols]="layout.columns" rowHeight="80" gutterSize="8px">
+              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>{{ 'PURCHASE_INVOICE.CREDIT_ACCOUNT' | translate }}</mat-label>
                   <mat-select formControlName="creditAccountId" required>
@@ -77,7 +81,7 @@
                   </mat-select>
                 </mat-form-field>
               </mat-grid-tile>
-            <mat-grid-tile [colspan]="1" [rowspan]="1">
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>{{ 'PURCHASE_INVOICE.INVOICE_DATE' | translate }}</mat-label>
                 <input matInput [matDatepicker]="invoiceDatePicker" formControlName="invoiceDate" required>
@@ -85,7 +89,7 @@
                 <mat-datepicker #invoiceDatePicker></mat-datepicker>
               </mat-form-field>
             </mat-grid-tile>
-            <mat-grid-tile [colspan]="1" [rowspan]="1">
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>{{ 'PURCHASE_INVOICE.PAYMENT_METHOD' | translate }}</mat-label>
                 <mat-select formControlName="paymentMethod">
