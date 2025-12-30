@@ -42,7 +42,7 @@ export class CarSelectionDialogComponent implements OnInit {
       ...car,
       imageUrl: car.photos?.[0] || 'https://via.placeholder.com/300x200?text=' + encodeURIComponent(car.make + ' ' + car.model),
       carName: `${car.make} ${car.model}`,
-      specs: `${car.year} - ${car.condition} - ${car.mileage} km`,
+      specs: `${car.year}  - ${car.mileage} km`,
       availableQuantity: car.quantity || 0
     }));
     this.cars.set(carCards);

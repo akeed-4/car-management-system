@@ -108,7 +108,7 @@ export class PurchaseInvoiceComponent {
   private debitAccountFilterSignal = toSignal(this.debitAccountFilterCtrl.valueChanges, { initialValue: '' });
   private creditAccountFilterSignal = toSignal(this.creditAccountFilterCtrl.valueChanges, { initialValue: '' });
   private paymentMethodFilterSignal = toSignal(this.paymentMethodFilterCtrl.valueChanges, { initialValue: '' });
-  
+
   // Filtered signals
   filteredSuppliers = computed(() => {
     const filter = this.supplierFilterSignal()?.toLowerCase() || '';
@@ -120,14 +120,14 @@ export class PurchaseInvoiceComponent {
   filteredDebitAccounts = computed(() => {
     const filter = this.debitAccountFilterSignal()?.toLowerCase() || '';
     return this.debitAccounts().filter(a => 
-      (a.name?.toLowerCase().includes(filter) ?? false) || (a.code?.toLowerCase().includes(filter) ?? false)
+      (a.accountNameAr?.toLowerCase().includes(filter) ?? false) || (a.accountCode?.toLowerCase().includes(filter) ?? false)
     );
   });
   
   filteredCreditAccounts = computed(() => {
     const filter = this.creditAccountFilterSignal()?.toLowerCase() || '';
     return this.creditAccounts().filter(a => 
-      (a.name?.toLowerCase().includes(filter) ?? false) || (a.code?.toLowerCase().includes(filter) ?? false)
+      (a.accountNameAr?.toLowerCase().includes(filter) ?? false) || (a.accountCode?.toLowerCase().includes(filter) ?? false)
     );
   });
   

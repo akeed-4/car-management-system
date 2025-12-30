@@ -1,0 +1,44 @@
+.invoice-container {
+  max-width: 210mm;
+  margin: auto;
+  padding: 20px;
+  background: #fff;
+  font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  border-bottom: 1px solid #d1d5db;
+  padding: 8px;
+  font-weight: 600;
+}
+
+tbody td {
+  padding: 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.bg-gray-50 {
+  background: #f9fafb;
+}
+
+.font-mono {
+  font-family: monospace;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    margin: 0;
+    color: #000;
+  }
+  .shadow, .shadow-lg {
+    box-shadow: none !important;
+  }
+}

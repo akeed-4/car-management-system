@@ -1,8 +1,8 @@
 <h2 mat-dialog-title>{{ 'PURCHASE_INVOICE.SELECT_CAR' | translate }}</h2>
 <mat-dialog-content>
   <mat-form-field appearance="outline" class="search-field">
-    <mat-label>{{ 'COMMON.SEARCH' | translate }}</mat-label>
-    <input matInput [(ngModel)]="searchTerm" (input)="filterCars()" placeholder="{{ 'PURCHASE_INVOICE.SEARCH_CARS' | translate }}">
+    <mat-label>"{{ 'PURCHASE_INVOICE.SEARCH_CARS' | translate }}"</mat-label>
+    <input matInput [(ngModel)]="searchTerm" (input)="filterCars()" >
   </mat-form-field>
   <div class="car-cards-container">
     <mat-card *ngFor="let car of filteredCars()" class="car-card">

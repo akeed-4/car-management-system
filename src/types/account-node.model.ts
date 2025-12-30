@@ -2,8 +2,8 @@
 export interface AccountNode {
   id: number;
   parentId: number | null;
-  code: string;
-  name: string;
+  accountCode: string;
+  accountNameAr: string;
   type: 'PARENT' | 'ACCOUNT';
   balance?: number;
   createdDate?: Date;

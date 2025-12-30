@@ -179,17 +179,7 @@ export class AccountTreeComponent implements OnInit {
   /**
    * Open edit dialog
    */
-  openEditDialog(account: AccountNode): void {
-    this.selectedAccount.set(account);
-    this.editAccountForm.patchValue({
-      id: account.id,
-      code: account.code,
-      name: account.name,
-      type: account.type,
-      parentId: account.parentId
-    });
-    this.isEditDialogOpen.set(true);
-  }
+
 
   /**
    * Close edit dialog
@@ -282,12 +272,6 @@ export class AccountTreeComponent implements OnInit {
 
   /**
    * Get parent account name
-   */
-  getParentAccountName(parentId: number | null): string {
-    if (!parentId) return 'No Parent';
-    const parent = this.accountsData().find(a => a.id === parentId);
-    return parent ? parent.name : 'Unknown';
-  }
 
   /**
    * Get available parent accounts (for dropdown)
@@ -299,73 +283,12 @@ export class AccountTreeComponent implements OnInit {
   /**
    * Get icon for account based on type and category
    */
-  getAccountIcon(account: AccountNode): string {
-    if (account.type === 'PARENT') {
-      // Parent accounts - folder icons based on category
-      if (account.code.startsWith('1')) return '📁'; // Assets
-      if (account.code.startsWith('2')) return '🏦'; // Liabilities
-      if (account.code.startsWith('3')) return '💰'; // Equity
-      if (account.code.startsWith('4')) return '💸'; // Revenue
-      if (account.code.startsWith('5')) return '💳'; // Expenses
-      return '📂'; // Default folder
-    } else {
-      // Leaf accounts - specific icons based on account type
-      const code = account.code.toLowerCase();
-      const name = account.name.toLowerCase();
 
-      // Cash and bank accounts
-      if (code.includes('cash') || code.includes('bank') || name.includes('نقد') || name.includes('بنك')) {
-        return '💵';
-      }
-      // Inventory accounts
-      if (code.includes('inventory') || name.includes('مخزون') || name.includes('بضاعة')) {
-        return '📦';
-      }
-      // Fixed assets
-      if (code.includes('fixed') || code.includes('asset') || name.includes('أصول') || name.includes('معدات')) {
-        return '🏗️';
-      }
-      // Accounts receivable
-      if (code.includes('receivable') || name.includes('مدينون') || name.includes('دائنون')) {
-        return '📊';
-      }
-      // Accounts payable
-      if (code.includes('payable') || name.includes('دائنون') || name.includes('موردون')) {
-        return '📋';
-      }
-      // Revenue accounts
-      if (code.startsWith('4') || name.includes('إيراد') || name.includes('مبيعات')) {
-        return '📈';
-      }
-      // Expense accounts
-      if (code.startsWith('5') || name.includes('مصروف') || name.includes('تكلفة')) {
-        return '📉';
-      }
-      // Capital accounts
-      if (code.includes('capital') || name.includes('رأس المال')) {
-        return '💎';
-      }
-      // Loan accounts
-      if (code.includes('loan') || name.includes('قرض') || name.includes('دين')) {
-        return '🏦';
-      }
-
-      // Default leaf account icon
-      return '📄';
-    }
-  }
 
   /**
    * Get account category color for styling
    */
-  getAccountCategoryColor(account: AccountNode): string {
-    if (account.code.startsWith('1')) return '#4CAF50'; // Assets - Green
-    if (account.code.startsWith('2')) return '#FF9800'; // Liabilities - Orange
-    if (account.code.startsWith('3')) return '#2196F3'; // Equity - Blue
-    if (account.code.startsWith('4')) return '#9C27B0'; // Revenue - Purple
-    if (account.code.startsWith('5')) return '#F44336'; // Expenses - Red
-    return '#607D8B'; // Default - Blue Grey
-  }
+  
 
   /**
    * Get action buttons visibility

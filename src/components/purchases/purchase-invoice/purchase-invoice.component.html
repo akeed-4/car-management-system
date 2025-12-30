@@ -17,7 +17,7 @@
 
       <section class="form-section">
         <h3 class="form-section-title">{{ 'PURCHASE_INVOICE.MAIN_DATA' | translate }}</h3>
-        <ng-container *ngIf="cardLayout3 | async as layout">
+        <ng-container *ngIf="cardLayout2 | async as layout">
           <mat-grid-list [cols]="layout.columns" rowHeight="80" gutterSize="8px">
          
             <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
@@ -37,13 +37,17 @@
                       </ngx-mat-select-search>
                     </mat-option>
                     <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_SUPPLIER' | translate }}</mat-option>
-                    @for(supplier of filteredSuppliers(); track supplier.id) {
-                    <mat-option [value]="supplier.id">{{ supplier.name }}</mat-option>
-                    }
+                    <mat-option *ngFor="let supplier of filteredSuppliers()" [value]="supplier.id">{{ supplier.name }}</mat-option>
                   </mat-select>
                 </mat-form-field>
               </mat-grid-tile >
-              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+            
+          </mat-grid-list>
+        </ng-container>
+                <ng-container *ngIf="cardLayout3 | async as layout">
+                  <mat-grid-list [cols]="layout.columns" rowHeight="80" gutterSize="8px">
+
+                      <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>{{ 'PURCHASE_INVOICE.DEBIT_ACCOUNT' | translate }}</mat-label>
                   <mat-select formControlName="debitAccountId" required>
@@ -54,16 +58,10 @@
                       </ngx-mat-select-search>
                     </mat-option>
                     <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_DEBIT_ACCOUNT' | translate }}</mat-option>
-                    @for(account of debitAccounts(); track account.id) {
-                    <mat-option [value]="account.id">{{ account.accountCode }} - {{ account.accountNameAr }}</mat-option>
-                    }
+                    <mat-option *ngFor="let account of filteredDebitAccounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameAr }}</mat-option>
                   </mat-select>
                 </mat-form-field>
               </mat-grid-tile>
-          </mat-grid-list>
-        </ng-container>
-                <ng-container *ngIf="cardLayout3 | async as layout">
-                  <mat-grid-list [cols]="layout.columns" rowHeight="80" gutterSize="8px">
               <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>{{ 'PURCHASE_INVOICE.CREDIT_ACCOUNT' | translate }}</mat-label>
@@ -75,9 +73,7 @@
                       </ngx-mat-select-search>
                     </mat-option>
                     <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_CREDIT_ACCOUNT' | translate }}</mat-option>
-                    @for(account of creditAccounts(); track account.id) {
-                    <mat-option [value]="account.id">{{ account.accountCode }} - {{ account.accountNameAr }}</mat-option>
-                    }
+                    <mat-option *ngFor="let account of filteredCreditAccounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameAr }}</mat-option>
                   </mat-select>
                 </mat-form-field>
               </mat-grid-tile>
@@ -99,9 +95,7 @@
                       noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
                     </ngx-mat-select-search>
                   </mat-option>
-                  @for(method of filteredPaymentMethods(); track method.value) {
-                  <mat-option [value]="method.value">{{ method.label | translate }}</mat-option>
-                  }
+                  <mat-option *ngFor="let method of filteredPaymentMethods()" [value]="method.value">{{ method.label | translate }}</mat-option>
                 </mat-select>
               </mat-form-field>
             </mat-grid-tile>
