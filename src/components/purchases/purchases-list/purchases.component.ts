@@ -2,7 +2,7 @@
 
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { PurchaseInvoice } from '../../../types/purchase-invoice.model';
 import { FormsModule } from '@angular/forms';
@@ -24,6 +24,7 @@ type SortDirection = 'asc' | 'desc' | '';
 export class PurchasesComponent {
     private procurementService = inject(PurchasesService);
   private translate = inject(TranslateService);
+  private router = inject(Router);
     invoices = toSignal(this.procurementService.getInvoices(), { initialValue: [] });
 
     filter = signal('');
@@ -142,4 +143,34 @@ export class PurchasesComponent {
         });
       }
     }
-}
+
+    // DevExtreme button click handlers
+    onPrintClick = (e: any) => {
+      this.router.navigate(['/purchases/invoice/print', e.row.data.id]);
+    }
+
+    onEditClick = (e: any) => {
+      this.router.navigate(['/purchases/invoice/edit', e.row.data.id]);
+    }
+
+    onDeleteClick = (e: any) => {
+      this.deleteInvoice(e.row.data.id);
+    }
+
+    onArchiveClick = (e: any) => {
+      this.archiveInvoice(e.row.data.id);
+    }
+
+    onUnarchiveClick = (e: any) => {
+      this.unarchiveInvoice(e.row.data.id);
+    }
+
+    isArchiveButtonVisible = (e: any) => {
+      return !this.showArchived() && e.row.data.status === 'Paid';
+    }
+
+    isUnarchiveButtonVisible = (e: any) => {
+      return this.showArchived();
+    }
+    }
+
