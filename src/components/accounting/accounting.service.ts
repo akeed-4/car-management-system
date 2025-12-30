@@ -7,6 +7,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Account, JournalEntry, CreateAccountDto, UpdateAccountDto, CreateJournalEntryDto, UpdateJournalEntryDto, OpeningBalanceFinancial, OpeningBalanceInventory } from './models';
 import { environment } from '@/src/environments/environment.development';
 import { AccountNode } from '@/src/types/account-node.model';
+import { PurchaseReturnJournalEntry } from '@/src/types/sales-return.model';
 
 @Injectable({
   providedIn: 'root'
@@ -337,5 +338,71 @@ export class AccountingService {
    */
   getAccountsByCategory(category: string): Observable<AccountNode[]> {
     return this.http.get<AccountNode[]>(`${this.Url}/category/${category}`);
+  }
+
+  /**
+   * Create journal entries for sales return
+   */
+  createSalesReturnEntry(salesReturn: any): import('@/src/types/sales-return.model').JournalEntry[] {
+    // This is a placeholder implementation
+    // In a real application, you'd determine the appropriate accounts based on business logic
+    const entry1: import('@/src/types/sales-return.model').JournalEntry = {
+      id: 0,
+      salesReturnId: salesReturn.id,
+      accountCode: '', // Sales Returns account
+      accountName: '',
+      debit: salesReturn.refundableAmount,
+      credit: 0,
+      entryDate: new Date(),
+      reference: salesReturn.returnNo,
+      description: 'Sales Return'
+    };
+
+    const entry2: import('@/src/types/sales-return.model').JournalEntry = {
+      id: 0,
+      salesReturnId: salesReturn.id,
+      accountCode: '', // Accounts Receivable or Cash
+      accountName: '',
+      debit: 0,
+      credit: salesReturn.refundableAmount,
+      entryDate: new Date(),
+      reference: salesReturn.returnNo,
+      description: 'Refund'
+    };
+
+    return [entry1, entry2];
+  }
+
+  /**
+   * Create journal entries for purchase return
+   */
+  createPurchaseReturnEntry(purchaseReturn: any): PurchaseReturnJournalEntry[] {
+    // This is a placeholder implementation
+    // In a real application, you'd determine the appropriate accounts based on business logic
+    const entry1: PurchaseReturnJournalEntry = {
+      id: 0,
+      purchaseReturnId: purchaseReturn.id,
+      accountCode: '', // Accounts Payable
+      accountName: '',
+      debit: purchaseReturn.refundableAmount,
+      credit: 0,
+      entryDate: new Date(),
+      reference: purchaseReturn.returnNo,
+      description: 'Purchase Return'
+    };
+
+    const entry2: PurchaseReturnJournalEntry = {
+      id: 0,
+      purchaseReturnId: purchaseReturn.id,
+      accountCode: '', // Inventory or Purchase Returns
+      accountName: '',
+      debit: 0,
+      credit: purchaseReturn.refundableAmount,
+      entryDate: new Date(),
+      reference: purchaseReturn.returnNo,
+      description: 'Return to Inventory'
+    };
+
+    return [entry1, entry2];
   }
 }

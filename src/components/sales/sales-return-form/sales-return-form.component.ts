@@ -13,7 +13,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { SalesService } from '../../../services/sales.service';
 import { SalesReturnService } from '../../../services/sales-return.service';
 import { InventoryService } from '../../../services/inventory.service';
-import { AccountingService } from '../../../services/accounting.service';
+import { AccountingService } from '../../../components/accounting/accounting.service';
 import { InvoiceIntegrationService } from '../../../services/invoice-integration.service';
 import { ReturnInvoiceItem } from '../../../types/return-invoice-item.model';
 import { SalesReturn } from '../../../types/sales-return.model';

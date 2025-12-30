@@ -15,7 +15,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { SalesReturn, PurchaseReturn } from '../../../types/sales-return.model';
 import { SalesReturnService } from '../../../services/sales-return.service';
 import { PurchaseReturnService } from '../../../services/purchase-return.service';
-import { AccountingService } from '../../../services/accounting.service';
+import { AccountingService } from '../../../components/accounting/accounting.service';
 import { AlertsService } from '../../../services/alerts.service';
 
 @Component({

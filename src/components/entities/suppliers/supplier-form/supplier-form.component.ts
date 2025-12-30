@@ -105,7 +105,16 @@ export class SupplierFormComponent implements OnInit {
           createdDate: currentDate,
           lastUpdated: currentDate
         };
-        this.supplierService.addSupplier(newSupplier);
+        this.supplierService.addSupplier(newSupplier).subscribe({
+          next: () => {
+            this.supplierForm.reset();
+            this.supplierForm.markAsPristine();
+            alert('Supplier added successfully!');
+          },
+          error: (error) => {
+            console.error('Failed to add supplier:', error);
+          }
+        });
       }
       // this.router.navigate(['/entities/suppliers']);
     }

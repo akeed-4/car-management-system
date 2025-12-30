@@ -33,7 +33,7 @@ export class InventoryService {
   }
 
   getCarById(id: number): Observable<Car> {
-    return this.http.get<Car>(`${this.apiUrl}/${id}`);
+    return this.http.get<Car>(`${this.apiUrl + '/GetById'}/${id}`);
   }
 
   /**

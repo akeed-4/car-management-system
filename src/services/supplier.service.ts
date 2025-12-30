@@ -44,14 +44,13 @@ export class SupplierService {
   }
 
 
-  addSupplier(supplier: Omit<Supplier, 'id'>) {
-    this.http.post<Supplier>(this.apiUrl+'/Create', supplier)
+  addSupplier(supplier: Omit<Supplier, 'id'>): Observable<Supplier> {
+    return this.http.post<Supplier>(this.apiUrl+'/Create', supplier)
       .pipe(
         tap(newSupplier => {
           this.suppliers.update(s => [...s, newSupplier]);
         })
       )
-      .subscribe();
   }
 
   // تحديث مورد موجود
