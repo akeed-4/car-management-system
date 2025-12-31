@@ -130,7 +130,11 @@
     "SEARCH": "Search...",
     "NO_RESULTS": "No results found",
     "CANCEL": "Cancel",
-    "SAVE": "Save Invoice"
+    "SAVE": "Save Invoice",
+    "CASH_INVOICE_LIST_TITLE": "Cash Purchase Invoices",
+    "CREDIT_INVOICE_LIST_TITLE": "Credit Purchase Invoices",
+    "NEW_CASH_INVOICE": "New Cash Invoice",
+    "NEW_CREDIT_INVOICE": "New Credit Invoice"
   },
   "COMMON": {
     "RESET": "Reset",

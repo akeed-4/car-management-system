@@ -35,6 +35,8 @@ import { StockTakingApprovalFormComponent } from './components/inventory/stock-t
 import { UserFormComponent } from './components/users/user-form/user-form.component';
 import { PurchaseCashInvoiceComponent } from './components/purchases/purchase-invoice-form/purchase-cash-invoice/purchase-cash-invoice.component';
 import { PurchaseCreditInvoiceComponent } from './components/purchases/purchase-invoice-form/purchase-credit-invoice/purchase-credit-invoice.component';
+import { CashPurchaseInvoiceListComponent } from './components/purchases/purchase-invoice-list/cash-purchase-invoice-list/cash-purchase-invoice-list.component';
+import { CreditPurchaseInvoiceListComponent } from './components/purchases/purchase-invoice-list/credit-purchase-invoice-list/credit-purchase-invoice-list.component';
 import { CashPurchaseReturnComponent } from './components/purchases/purchase-returns/cash-purchase-return/cash-purchase-return.component';
 import { CreditPurchaseReturnComponent } from './components/purchases/purchase-returns/credit-purchase-return/credit-purchase-return.component';
 import { RolesComponent } from './components/users/roles/roles.component';
@@ -148,8 +150,10 @@ export const APP_ROUTES: Routes = [
   { path: 'sales/returns', component: SalesReturnInvoiceComponent }, // Added plural route
   { path: 'sales/return/new', component: SalesReturnFormComponent },
   { path: 'purchases', component: PurchasesComponent },
-  { path: 'purchases/invoice/cash', component: PurchaseCashInvoiceComponent },
-  { path: 'purchases/invoice/credit', component: PurchaseCreditInvoiceComponent },
+  { path: 'purchases/invoice/cash', component: CashPurchaseInvoiceListComponent },
+  { path: 'purchases/invoice/credit', component: CreditPurchaseInvoiceListComponent },
+  { path: 'purchases/invoice/cash/new', component: PurchaseCashInvoiceComponent },
+  { path: 'purchases/invoice/credit/new', component: PurchaseCreditInvoiceComponent },
   { path: 'purchases/invoice/new', component: PurchaseInvoiceComponent },
   { path: 'purchases/invoice/edit/:id', component: PurchaseInvoiceComponent },
   { path: 'purchases/invoice/print/:id', component: PrintablePurchaseInvoiceComponent },

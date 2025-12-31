@@ -161,14 +161,14 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
         returnDate: [today, Validators.required],
         originalInvoice: [null, Validators.required],
         debitAccountId: [null, Validators.required] // Cash/Bank account for cash returns
-      }, { validators: [this.accountValidator] });
+      });
     } else {
       // CREDIT return
       this.returnForm = this.fb.group({
         returnDate: [today, Validators.required],
         originalInvoice: [null, Validators.required],
         creditAccountId: [null, Validators.required] // Supplier account for credit returns
-      }, { validators: [this.accountValidator] });
+      });
     }
 
     // Listen to return date changes
@@ -184,22 +184,6 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
     this.returnForm.get('originalInvoice')?.valueChanges.subscribe(value => {
       this.onInvoiceSelect(+value);
     });
-  }
-
-  private accountValidator(group: AbstractControl): { [key: string]: any } | null {
-    if (this.returnType === 'CASH') {
-      const debitAccountId = group.get('debitAccountId')?.value;
-      if (!debitAccountId) {
-        return { debitAccountRequired: true };
-      }
-    } else {
-      // CREDIT return
-      const creditAccountId = group.get('creditAccountId')?.value;
-      if (!creditAccountId) {
-        return { creditAccountRequired: true };
-      }
-    }
-    return null;
   }
 
   getQuantityOptions = (rowData: any) => {

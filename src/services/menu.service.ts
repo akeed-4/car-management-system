@@ -90,8 +90,10 @@ export const menuData = [
     name: 'المشتريات',
     englishName: 'Purchases',
     submenu: [
-      { id: 61, name: 'فواتير المشتريات', englishName: 'Purchase Invoices', route: '/purchases' },
-      { id: 62, name: 'مرتجعات المشتريات', englishName: 'Purchase Returns', route: '/purchases/returns' }
+      { id: 61, name: 'فواتير المشتريات النقدية', englishName: 'Cash Purchase Invoices', route: '/purchases/invoice/cash' },
+      { id: 62, name: 'فواتير المشتريات الاجلة', englishName: 'Credit Purchase Invoices', route: '/purchases/invoice/credit' },
+      { id: 63, name: 'مرتجعات المشتريات النقدية', englishName: 'Cash Purchase Returns', route: '/purchases/return/cash' },
+      { id: 64, name: 'مرتجعات المشتريات الاجلة', englishName: 'Credit Purchase Returns', route: '/purchases/return/credit' }
     ]
   },
   {

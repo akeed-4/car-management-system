@@ -44,7 +44,6 @@
     "CASH_PAYMENT_BADGE": "دفع نقدي",
     "CREDIT_PAYMENT_BADGE": "دفع آجل",
     "PAYMENT_METHOD_LOCKED": "طريقة الدفع مقفلة لهذا النوع من الفواتير",
-    "DUE_DATE": "تاريخ الاستحقاق",
     "DUE_DATE_REQUIRED": "تاريخ الاستحقاق مطلوب للفواتير الآجلة",
     "NOTES_PLACEHOLDER": "أي ملاحظات إضافية على الفاتورة...",
     "ADD_AT_LEAST_ONE": "يرجى إضافة عنصر واحد على الأقل إلى الفاتورة",
@@ -132,7 +131,11 @@
     "SEARCH": "بحث...",
     "NO_RESULTS": "لا توجد نتائج",
     "CANCEL": "إلغاء",
-    "SAVE": "حفظ الفاتورة"
+    "SAVE": "حفظ الفاتورة",
+    "CASH_INVOICE_LIST_TITLE": "فواتير المشتريات النقدية",
+    "CREDIT_INVOICE_LIST_TITLE": "فواتير المشتريات الآجلة",
+    "NEW_CASH_INVOICE": "فاتورة شراء نقدية جديدة",
+    "NEW_CREDIT_INVOICE": "فاتورة شراء آجلة جديدة"
   },
   "COMMON": {
     "RESET": "إعادة تعيين",

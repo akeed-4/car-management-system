@@ -2,8 +2,8 @@
 
 <div class="container">
   <div class="page-header">
-    <h2>{{ customTitle || ('PURCHASE_INVOICE.CREATE_TITLE' | translate) }}</h2>
-    <a routerLink="/purchases" class="back-link">
+    <h2>{{ getTitle() }}</h2>
+    <a [routerLink]="backRoute()" class="back-link">
       <button mat-icon-button>
         <mat-icon>arrow_back</mat-icon>
       </button>
@@ -102,7 +102,7 @@
             <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows" *ngIf="purchaseInvoiceForm.get('paymentMethod')?.value === 'Credit (Deferred)'">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>{{ 'PURCHASE_INVOICE.DUE_DATE' | translate }}</mat-label>
-                <input matInput [matDatepicker]="dueDatePicker" formControlName="dueDate" required>
+                <input matInput [matDatepicker]="dueDatePicker" formControlName="dueDate">
                 <mat-datepicker-toggle matSuffix [for]="dueDatePicker"></mat-datepicker-toggle>
                 <mat-datepicker #dueDatePicker></mat-datepicker>
               </mat-form-field>
@@ -185,7 +185,7 @@
       </section>
 
       <div class="form-actions">
-        <a routerLink="/purchases" mat-button>{{ 'PURCHASE_INVOICE.CANCEL' | translate }}</a>
+        <a [routerLink]="backRoute()" mat-button>{{ 'PURCHASE_INVOICE.CANCEL' | translate }}</a>
         <button mat-raised-button color="primary" (click)="saveInvoice()" [disabled]="purchaseInvoiceForm.invalid || invoiceItems().length === 0">
             <mat-icon>save</mat-icon>
             {{ 'PURCHASE_INVOICE.SAVE' | translate }}

@@ -85,7 +85,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnChanges {
    * Input property to set a custom title for the invoice
    * If not provided, uses default title
    */
-  @Input() customTitle: string = '';
+  @Input() customTitle:any;
 
   inventoryService = inject(InventoryService);
   private supplierService = inject(SupplierService);
@@ -189,7 +189,18 @@ export class PurchaseInvoiceComponent implements OnInit, OnChanges {
   // Computed properties
   subtotal = computed(() => this.invoiceItems().reduce((sum, item) => sum + item.lineTotal, 0));
   vatAmount = computed(() => this.subtotal() * VAT_RATE);
-  totalAmount = computed(() => this.subtotal() + this.vatAmount());
+  totalAmount = computed(() => Math.round(this.subtotal() + this.vatAmount())) ;
+
+  // Back route computed property
+  backRoute = computed(() => {
+    const paymentMethod = this.purchaseInvoiceForm?.get('paymentMethod')?.value;
+    if (paymentMethod === 'Cash') {
+      return '/purchases/invoice/cash';
+    } else if (paymentMethod === 'Credit (Deferred)') {
+      return '/purchases/invoice/credit';
+    }
+    return '/purchases';
+  });
 
   constructor() {
     // Check if we're editing an existing invoice
@@ -219,8 +230,11 @@ export class PurchaseInvoiceComponent implements OnInit, OnChanges {
   }
 
   /**
-   * Angular lifecycle method - called when input properties change
+   * Get the translated title for the invoice
    */
+  getTitle(): string {
+    return this.customTitle ?  this.translate.instant('PURCHASE_INVOICE.CREATE_TITLE'):this.translate.instant("PURCHASE_INVOICE.CASH_INVOICE_TITLE");
+  }
   ngOnChanges(changes: SimpleChanges): void {
     // Handle payment method locking when inputs change
     if (changes['lockPaymentMethod'] || changes['fixedPaymentMethod']) {

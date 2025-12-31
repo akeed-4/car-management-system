@@ -14,7 +14,7 @@ export class PurchasesService {
   constructor() {}
 
   getInvoices(): Observable<PurchaseInvoice[]> {
-    return this.http.get<PurchaseInvoice[]>(this.apiUrl);
+    return this.http.get<PurchaseInvoice[]>(this.apiUrl+'/GetAll');
   }
 
   getInvoiceById(id: number): Observable<PurchaseInvoice> {
