@@ -1,90 +1,212 @@
-<div class="bg-white p-4 md:p-8 font-sans">
+<div class="bg-white p-4 md:p-8 font-sans print:p-0">
   @if (invoice(); as inv) {
-    <div class="max-w-4xl mx-auto border rounded-lg p-6 md:p-10 shadow-lg">
-      <!-- Header with Logo -->
-       <header class="flex justify-between items-start pb-5 mb-5 border-b-2 border-gray-100">
-        <div class="flex items-center">
-          <div class="text-primary-600">
-            
+    <div class="max-w-4xl mx-auto border-2 border-gray-300 print:border-0 print:shadow-none shadow-lg print:max-w-none">
+      <!-- Company Letterhead Header -->
+      <header class="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6 print:p-4">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center space-x-4 rtl:space-x-reverse">
+            <!-- Company Logo Placeholder -->
+            <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg">
+              <span class="text-blue-600 font-bold text-xl">{{ companyInfo.name?.charAt(0) || 'C' }}</span>
+            </div>
+            <div class="text-right">
+              <h1 class="text-2xl font-bold">{{ companyInfo.name }}</h1>
+              <p class="text-sm opacity-90">{{ companyInfo.address }}</p>
+              <p class="text-sm opacity-90">رقم السجل التجاري: {{ companyInfo.crNumber }}</p>
+              <p class="text-sm opacity-90">الهاتف: {{ companyInfo.phone || 'N/A' }}</p>
+            </div>
           </div>
-          <div class="mr-4">
-            <h1 class="text-lg font-bold text-gray-800">{{ companyInfo.name }}</h1>
-            <p class="text-xs text-gray-500">{{ companyInfo.address }}</p>
-            <p class="text-xs text-gray-500">س.ت: {{ companyInfo.crNumber }}</p>
+          <div class="text-left">
+            <h2 class="text-3xl font-bold mb-2">فاتورة شراء</h2>
+            <div class="bg-white bg-opacity-20 rounded-lg p-3 text-center">
+              <p class="text-sm font-semibold">رقم الفاتورة</p>
+              <p class="text-xl font-mono font-bold">{{ inv.invoiceNumber }}</p>
+            </div>
           </div>
-        </div>
-        <div class="text-left">
-          <h2 class="text-lg font-bold text-primary-700">فاتورة شراء</h2>
-          <p class="text-sm text-gray-500">تاريخ: <span class="font-mono">{{ inv.invoiceDate | date:'yyyy-MM-dd' }}</span></p>
         </div>
       </header>
 
-      <!-- Supplier Info -->
-      <section class="mb-8">
-        <h3 class="text-sm font-semibold text-gray-500 mb-2 uppercase">بيانات المورد:</h3>
-        @if(supplier(); as sup) {
-          <div class="text-sm">
-            <p class="font-bold text-gray-800">{{ sup.name }}</p>
-            <p class="text-xs text-gray-600">{{ sup.address }}</p>
-            <p class="text-xs text-gray-600">الهاتف: {{ sup.phone }}</p>
-            <p class="text-xs text-gray-600">س.ت: {{ sup.crNumber }}</p>
+      <!-- Invoice Details Bar -->
+      <div class="bg-gray-100 border-b-2 border-gray-300 p-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+          <div class="bg-white p-3 rounded border">
+            <p class="text-gray-600 font-semibold">تاريخ الفاتورة</p>
+            <p class="font-mono font-bold">{{ inv.invoiceDate | date:'dd/MM/yyyy' }}</p>
           </div>
-        }
-      </section>
+          <div class="bg-white p-3 rounded border">
+            <p class="text-gray-600 font-semibold">تاريخ الاستحقاق</p>
+            <p class="font-mono font-bold">{{ inv.dueDate ? (inv.dueDate | date:'dd/MM/yyyy') : 'غير محدد' }}</p>
+          </div>
+          <div class="bg-white p-3 rounded border">
+            <p class="text-gray-600 font-semibold">طريقة الدفع</p>
+            <p class="font-semibold">{{ inv.paymentMethod || 'غير محدد' }}</p>
+          </div>
+          <div class="bg-white p-3 rounded border">
+            <p class="text-gray-600 font-semibold">حالة الفاتورة</p>
+            <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full
+              {{ inv.status === 'Paid' ? 'bg-green-100 text-green-800' :
+                 inv.status === 'Unpaid' ? 'bg-red-100 text-red-800' :
+                 'bg-yellow-100 text-yellow-800' }}">
+              {{ inv.status === 'Paid' ? 'مدفوعة' : inv.status === 'Unpaid' ? 'غير مدفوعة' : inv.status }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bill To Section -->
+      <div class="p-6 border-b border-gray-300">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <h3 class="text-lg font-bold text-gray-800 mb-4 border-b-2 border-blue-600 pb-1">من المورد</h3>
+            @if(supplier(); as sup) {
+              <div class="space-y-1">
+                <p class="font-bold text-lg text-gray-900">{{ sup.name }}</p>
+                <p class="text-gray-600">{{ sup.address }}</p>
+                <p class="text-gray-600">الهاتف: {{ sup.phone }}</p>
+                <p class="text-gray-600">البريد الإلكتروني: {{ sup.email || 'غير محدد' }}</p>
+                <p class="text-gray-600">رقم السجل التجاري: {{ sup.crNumber }}</p>
+              </div>
+            } @else {
+              <p class="text-gray-500">بيانات المورد غير متوفرة</p>
+            }
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-gray-800 mb-4 border-b-2 border-blue-600 pb-1">إلى الشركة</h3>
+            <div class="space-y-1">
+              <p class="font-bold text-lg text-gray-900">{{ companyInfo.name }}</p>
+              <p class="text-gray-600">{{ companyInfo.address }}</p>
+              <p class="text-gray-600">الهاتف: {{ companyInfo.phone || 'غير محدد' }}</p>
+              <p class="text-gray-600">البريد الإلكتروني: {{ companyInfo.email || 'غير محدد' }}</p>
+              <p class="text-gray-600">رقم السجل التجاري: {{ companyInfo.crNumber }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Items Table -->
-      <section class="mb-8">
-        <table class="w-full text-sm">
-          <thead class="bg-primary-50 text-primary-800">
-            <tr>
-              <th class="text-right p-3 font-semibold text-sm rounded-r-lg">البيان</th>
-              <th class="text-center p-3 font-semibold text-sm whitespace-nowrap">الكمية</th>
-              <th class="text-left p-3 font-semibold text-sm whitespace-nowrap">سعر الوحدة</th>
-              <th class="text-left p-3 font-semibold text-sm rounded-l-lg whitespace-nowrap">الإجمالي</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for(item of inv.items; track item.carId) {
-              <tr class="border-b align-top">
-                <td class="p-3 text-sm align-top">
-                  <p class="font-semibold text-gray-800">{{ item.carDescription }}</p>
-                </td>
-                <td class="p-3 text-center align-top">{{ item.quantity }}</td>
-                <td class="p-3 text-left font-mono text-sm whitespace-nowrap align-top">{{ item.unitPrice | currency:'SAR' }}</td>
-                <td class="p-3 text-left font-mono text-sm whitespace-nowrap align-top">{{ item.lineTotal | currency:'SAR' }}</td>
+      <div class="p-6">
+        <h3 class="text-lg font-bold text-gray-800 mb-4">تفاصيل الأصناف</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full border-collapse border border-gray-300 text-sm">
+            <thead>
+              <tr class="bg-gray-100">
+                <th class="border border-gray-300 p-3 text-right font-bold text-gray-800">#</th>
+                <th class="border border-gray-300 p-3 text-right font-bold text-gray-800">وصف الصنف</th>
+                <th class="border border-gray-300 p-3 text-center font-bold text-gray-800">الكمية</th>
+                <th class="border border-gray-300 p-3 text-left font-bold text-gray-800">سعر الوحدة</th>
+                <th class="border border-gray-300 p-3 text-left font-bold text-gray-800">الإجمالي</th>
               </tr>
-            }
-          </tbody>
-        </table>
-      </section>
+            </thead>
+            <tbody>
+              @for(item of inv.items; track item.carId; let i = $index) {
+                <tr class="hover:bg-gray-50">
+                  <td class="border border-gray-300 p-3 text-center font-mono">{{ i + 1 }}</td>
+                  <td class="border border-gray-300 p-3">
+                    <div class="font-semibold text-gray-900">{{ item.carDescription }}</div>
+                  </td>
+                  <td class="border border-gray-300 p-3 text-center font-mono">{{ item.quantity }}</td>
+                  <td class="border border-gray-300 p-3 text-left font-mono">{{ item.unitPrice | currency:'SAR':'symbol':'1.2-2' }}</td>
+                  <td class="border border-gray-300 p-3 text-left font-mono font-semibold">{{ item.lineTotal | currency:'SAR':'symbol':'1.2-2' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       <!-- Financial Summary -->
-      <section class="mt-8 flex justify-end">
-          <div class="w-full max-w-xs">
-              <div class="bg-gray-50 rounded-lg p-4">
-                  <div class="flex justify-between items-center font-bold text-lg">
-                      <span class="text-gray-900">التكلفة الإجمالية</span>
-                      <span class="font-mono text-primary-700">{{ inv.totalAmount | currency:'SAR':'symbol':'1.0-2' }}</span>
+      <div class="p-6 bg-gray-50 border-t border-gray-300">
+        <div class="flex justify-end">
+          <div class="w-full max-w-md">
+            <div class="bg-white border border-gray-300 rounded-lg p-6 shadow-sm">
+              <h4 class="text-lg font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2">ملخص الفاتورة</h4>
+              <div class="space-y-3">
+                <div class="flex justify-between">
+                  <span class="text-gray-600">المجموع الفرعي:</span>
+                  <span class="font-mono">{{ (inv.totalAmount / 1.15) | currency:'SAR':'symbol':'1.2-2' }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">ضريبة القيمة المضافة (15%):</span>
+                  <span class="font-mono">{{ (inv.totalAmount - (inv.totalAmount / 1.15)) | currency:'SAR':'symbol':'1.2-2' }}</span>
+                </div>
+                <div class="border-t-2 border-gray-300 pt-3 mt-3">
+                  <div class="flex justify-between text-lg font-bold">
+                    <span class="text-gray-900">الإجمالي:</span>
+                    <span class="font-mono text-blue-600">{{ inv.totalAmount | currency:'SAR':'symbol':'1.2-2' }}</span>
                   </div>
+                </div>
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">المبلغ المستحق:</span>
+                  <span class="font-mono font-semibold {{ inv.amountDue > 0 ? 'text-red-600' : 'text-green-600' }}">
+                    {{ inv.amountDue | currency:'SAR':'symbol':'1.2-2' }}
+                  </span>
+                </div>
               </div>
+            </div>
           </div>
-      </section>
+        </div>
+      </div>
+
+      <!-- Payment Terms & Notes -->
+      <div class="p-6 border-t border-gray-300">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h4 class="font-bold text-gray-800 mb-2">شروط الدفع:</h4>
+            <ul class="text-sm text-gray-600 space-y-1">
+              <li>• يرجى الدفع خلال 30 يوماً من تاريخ الفاتورة</li>
+              <li>• الدفع نقداً أو عن طريق التحويل البنكي</li>
+              <li>• في حال التأخير سيتم احتساب غرامة تأخير</li>
+            </ul>
+          </div>
+          @if(inv.notes) {
+            <div>
+              <h4 class="font-bold text-gray-800 mb-2">ملاحظات:</h4>
+              <p class="text-sm text-gray-600 bg-gray-50 p-3 rounded border">{{ inv.notes }}</p>
+            </div>
+          }
+        </div>
+      </div>
 
       <!-- Footer -->
-      <footer class="text-center text-xs text-gray-400 border-t pt-4 mt-8">
-        <p>هذه الفاتورة بمثابة سجل لعملية الشراء.</p>
+      <footer class="bg-gray-100 border-t-2 border-gray-300 p-6 text-center">
+        <div class="text-xs text-gray-500 space-y-2">
+          <p class="font-semibold">شكراً لتعاملكم معنا</p>
+          <p>هذه الفاتورة صادرة عن نظام إدارة السيارات - جميع الحقوق محفوظة © {{ currentYear }}</p>
+          <p>للاستفسارات يرجى الاتصال بنا على: {{ companyInfo.phone || 'رقم الهاتف غير محدد' }}</p>
+        </div>
+        <div class="mt-4 pt-4 border-t border-gray-300">
+          <p class="text-xs text-gray-400">
+            تم إصدار هذه الفاتورة إلكترونياً وهي سارية بدون توقيع
+          </p>
+        </div>
       </footer>
     </div>
 
+    <!-- Print Controls -->
     <div class="mt-8 text-center no-print">
-      <button (click)="goBack()" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg shadow hover:bg-gray-300 transition duration-300 ml-4">
-        &larr; رجوع
-      </button>
-      <button (click)="printInvoice()" class="bg-primary-600 text-white px-6 py-2 rounded-lg shadow hover:bg-primary-700 transition duration-300">
-        طباعة الفاتورة
-      </button>
+      <div class="flex justify-center space-x-4 rtl:space-x-reverse">
+        <button (click)="goBack()"
+                class="bg-gray-500 text-white px-6 py-2 rounded-lg shadow hover:bg-gray-600 transition duration-300 flex items-center space-x-2 rtl:space-x-reverse">
+          <mat-icon class="text-sm">arrow_back</mat-icon>
+          <span>رجوع</span>
+        </button>
+        <button (click)="printInvoice()"
+                class="bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-700 transition duration-300 flex items-center space-x-2 rtl:space-x-reverse">
+          <mat-icon class="text-sm">print</mat-icon>
+          <span>طباعة الفاتورة</span>
+        </button>
+      </div>
     </div>
   } @else {
-    <p class="text-center text-red-500">لم يتم العثور على فاتورة الشراء المطلوبة.</p>
+    <div class="max-w-2xl mx-auto mt-8">
+      <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+        <mat-icon class="text-red-500 text-4xl mb-4">error_outline</mat-icon>
+        <h3 class="text-lg font-semibold text-red-800 mb-2">فاتورة غير موجودة</h3>
+        <p class="text-red-600">لم يتم العثور على فاتورة الشراء المطلوبة. يرجى التأكد من صحة رقم الفاتورة.</p>
+        <button (click)="goBack()" class="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition duration-300">
+          العودة للقائمة
+        </button>
+      </div>
+    </div>
   }
 </div>

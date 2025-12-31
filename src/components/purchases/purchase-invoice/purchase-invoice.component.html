@@ -2,7 +2,7 @@
 
 <div class="container">
   <div class="page-header">
-    <h2>{{ 'PURCHASE_INVOICE.CREATE_TITLE' | translate }}</h2>
+    <h2>{{ customTitle || ('PURCHASE_INVOICE.CREATE_TITLE' | translate) }}</h2>
     <a routerLink="/purchases" class="back-link">
       <button mat-icon-button>
         <mat-icon>arrow_back</mat-icon>
@@ -99,12 +99,23 @@
                 </mat-select>
               </mat-form-field>
             </mat-grid-tile>
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows" *ngIf="purchaseInvoiceForm.get('paymentMethod')?.value === 'Credit (Deferred)'">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'PURCHASE_INVOICE.DUE_DATE' | translate }}</mat-label>
+                <input matInput [matDatepicker]="dueDatePicker" formControlName="dueDate" required>
+                <mat-datepicker-toggle matSuffix [for]="dueDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #dueDatePicker></mat-datepicker>
+              </mat-form-field>
+            </mat-grid-tile>
           </mat-grid-list>
         </ng-container>
 
         <!-- Validation Errors -->
         <div *ngIf="purchaseInvoiceForm.errors?.['sameAccount']" class="error-message">
           <mat-error>{{ 'PURCHASE_INVOICE.ERROR_SAME_ACCOUNT' | translate }}</mat-error>
+        </div>
+        <div *ngIf="purchaseInvoiceForm.errors?.['dueDateRequired']" class="error-message">
+          <mat-error>{{ 'PURCHASE_INVOICE.DUE_DATE_REQUIRED' | translate }}</mat-error>
         </div>
       </section>
 

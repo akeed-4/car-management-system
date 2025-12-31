@@ -31,6 +31,9 @@ export class PrintablePurchaseInvoiceComponent {
     crNumber: '1010123456',
   };
 
+  // Current year for footer
+  currentYear = new Date().getFullYear();
+
   constructor() {
     effect(() => {
       const idParam = this.route.snapshot.params['id'];

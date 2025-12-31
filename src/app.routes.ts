@@ -33,6 +33,10 @@ import { PurchaseReturnFormComponent } from './components/purchases/purchase-ret
 import { StockTakingFormComponent } from './components/inventory/stock-taking-form/stock-taking-form.component';
 import { StockTakingApprovalFormComponent } from './components/inventory/stock-taking-approval-form/stock-taking-approval-form.component';
 import { UserFormComponent } from './components/users/user-form/user-form.component';
+import { PurchaseCashInvoiceComponent } from './components/purchases/purchase-invoice-form/purchase-cash-invoice/purchase-cash-invoice.component';
+import { PurchaseCreditInvoiceComponent } from './components/purchases/purchase-invoice-form/purchase-credit-invoice/purchase-credit-invoice.component';
+import { CashPurchaseReturnComponent } from './components/purchases/purchase-returns/cash-purchase-return/cash-purchase-return.component';
+import { CreditPurchaseReturnComponent } from './components/purchases/purchase-returns/credit-purchase-return/credit-purchase-return.component';
 import { RolesComponent } from './components/users/roles/roles.component';
 import { RequestedCarsComponent } from './components/requested-cars/requested-cars-list/requested-cars.component';
 import { RequestedCarFormComponent } from './components/requested-cars/requested-car-form/requested-car-form.component';
@@ -144,12 +148,16 @@ export const APP_ROUTES: Routes = [
   { path: 'sales/returns', component: SalesReturnInvoiceComponent }, // Added plural route
   { path: 'sales/return/new', component: SalesReturnFormComponent },
   { path: 'purchases', component: PurchasesComponent },
+  { path: 'purchases/invoice/cash', component: PurchaseCashInvoiceComponent },
+  { path: 'purchases/invoice/credit', component: PurchaseCreditInvoiceComponent },
   { path: 'purchases/invoice/new', component: PurchaseInvoiceComponent },
   { path: 'purchases/invoice/edit/:id', component: PurchaseInvoiceComponent },
   { path: 'purchases/invoice/print/:id', component: PrintablePurchaseInvoiceComponent },
   { path: 'purchases/return', component: PurchaseReturnInvoiceComponent },
   { path: 'purchases/returns', component: PurchaseReturnInvoiceComponent }, // Added plural route
   { path: 'purchases/return/new', component: PurchaseReturnFormComponent },
+  { path: 'purchases/return/cash', component: CashPurchaseReturnComponent },
+  { path: 'purchases/return/credit', component: CreditPurchaseReturnComponent },
   { path: 'expenses', component: ExpensesComponent },
   { path: 'expenses/new', component: ExpenseFormComponent },
   { path: 'expenses/edit/:id', component: ExpenseFormComponent },

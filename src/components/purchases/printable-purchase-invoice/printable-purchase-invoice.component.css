@@ -34,11 +34,169 @@ tbody td {
   .no-print {
     display: none !important;
   }
+
   body {
     margin: 0;
     color: #000;
+    font-size: 12px;
+    line-height: 1.4;
   }
-  .shadow, .shadow-lg {
+
+  .shadow, .shadow-lg, .shadow-sm {
     box-shadow: none !important;
+  }
+
+  /* Ensure proper page breaks */
+  .page-break {
+    page-break-before: always;
+  }
+
+  /* Optimize colors for printing */
+  .bg-gradient-to-r {
+    background: #f0f0f0 !important;
+ 
+  }
+
+  .text-blue-600 {
+    color: #2563eb !important;
+  }
+
+  .text-blue-800 {
+    color: #1e40af !important;
+  }
+
+  .bg-blue-600 {
+    background-color: #2563eb !important;
+
+  }
+
+  .bg-blue-800 {
+    background-color: #1e40af !important;
+   
+  }
+
+  .bg-gray-100 {
+    background-color: #f3f4f6 !important;
+  }
+
+  .bg-white {
+    background-color: #ffffff !important;
+  }
+
+  .border-gray-300 {
+    border-color: #d1d5db !important;
+  }
+
+  /* Ensure table borders are visible */
+  table, th, td {
+    border-color: #000 !important;
+  }
+
+  /* Improve readability */
+  .text-xs {
+    font-size: 10px !important;
+  }
+
+  .text-sm {
+    font-size: 11px !important;
+  }
+
+  .text-lg {
+    font-size: 14px !important;
+  }
+
+  .text-xl {
+    font-size: 16px !important;
+  }
+
+  .text-2xl {
+    font-size: 18px !important;
+  }
+
+  .text-3xl {
+    font-size: 20px !important;
+  }
+
+  /* Ensure proper spacing for print */
+  .p-3 {
+    padding: 6px !important;
+  }
+
+  .p-4 {
+    padding: 8px !important;
+  }
+
+  .p-6 {
+    padding: 12px !important;
+  }
+
+  /* Hide scrollbars */
+  .overflow-x-auto {
+    overflow: visible !important;
+  }
+}
+
+/* General styles */
+.invoice-container {
+  max-width: 210mm;
+  margin: auto;
+  padding: 20px;
+  background: #fff;
+  font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  border-bottom: 1px solid #d1d5db;
+  padding: 8px;
+  font-weight: 600;
+}
+
+tbody td {
+  padding: 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.bg-gray-50 {
+  background: #f9fafb;
+}
+
+.font-mono {
+  font-family: monospace;
+}
+
+/* RTL support */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+[dir="rtl"] .text-right {
+  text-align: left;
+}
+
+/* Responsive design */
+@media screen and (max-width: 768px) {
+  .grid-cols-1.md\\:grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-cols-1.md\\:grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .text-3xl {
+    font-size: 1.5rem;
+  }
+
+  .text-2xl {
+    font-size: 1.25rem;
   }
 }

@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormControl, AbstractControl } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
@@ -12,27 +12,33 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { PurchasesService } from '../../../services/purchases.service';
 import { PurchaseReturnService } from '../../../services/purchase-return.service';
 import { InventoryService } from '../../../services/inventory.service';
+import { AccountingService } from '../../accounting/accounting.service';
 import { ReturnInvoiceItem } from '../../../types/return-invoice-item.model';
-import { PurchaseReturnInvoice } from '../../../types/purchase-return-invoice.model';
+import { PurchaseReturnInvoice, PurchaseReturnType } from '../../../types/purchase-return-invoice.model';
 import { PurchaseInvoice } from '../../../types/purchase-invoice.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { CreateJournalEntryDto } from '../../../components/accounting/models';
 
 @Component({
   selector: 'app-purchase-return-form',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatIconModule, MatDatepickerModule],
+  imports: [RouterLink, ReactiveFormsModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatIconModule, MatDatepickerModule, NgxMatSelectSearchModule],
   templateUrl: './purchase-return-form.component.html',
   styleUrl: './purchase-return-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
    providers: [provideNativeDateAdapter()],
 })
-export class PurchaseReturnFormComponent implements OnInit {
+export class PurchaseReturnFormComponent implements OnInit, OnChanges {
+  @Input() returnType: PurchaseReturnType = 'CASH';
+
   private procurementService = inject(PurchasesService);
   private purchaseReturnService = inject(PurchaseReturnService);
   private inventoryService = inject(InventoryService);
+  private accountingService = inject(AccountingService);
   private router = inject(Router);
   private translate = inject(TranslateService);
   private fb = inject(FormBuilder);
@@ -42,6 +48,33 @@ export class PurchaseReturnFormComponent implements OnInit {
   // Form State
   returnInvoiceNumber = signal(`RT-P-${Date.now()}`);
   returnInvoiceDate = signal(new Date().toISOString().split('T')[0]);
+
+  // Accounts for different return types
+  cashBankAccounts = signal<any[]>([]);
+  supplierAccounts = signal<any[]>([]);
+
+  // Filter controls for mat-select search
+  cashBankAccountFilterCtrl = new FormControl('');
+  supplierAccountFilterCtrl = new FormControl('');
+
+  // Convert filter controls to signals
+  private cashBankAccountFilterSignal = toSignal(this.cashBankAccountFilterCtrl.valueChanges, { initialValue: '' });
+  private supplierAccountFilterSignal = toSignal(this.supplierAccountFilterCtrl.valueChanges, { initialValue: '' });
+
+  // Filtered accounts
+  filteredCashBankAccounts = computed(() => {
+    const filter = this.cashBankAccountFilterSignal()?.toLowerCase() || '';
+    return this.cashBankAccounts().filter(a =>
+      (a.accountNameAr?.toLowerCase().includes(filter) ?? false) || (a.accountCode?.toLowerCase().includes(filter) ?? false)
+    );
+  });
+
+  filteredSupplierAccounts = computed(() => {
+    const filter = this.supplierAccountFilterSignal()?.toLowerCase() || '';
+    return this.supplierAccounts().filter(a =>
+      (a.accountNameAr?.toLowerCase().includes(filter) ?? false) || (a.accountCode?.toLowerCase().includes(filter) ?? false)
+    );
+  });
 
   // Mock data for development - replace with actual API call when backend is ready
   originalInvoices = signal<PurchaseInvoice[]>([
@@ -97,11 +130,46 @@ export class PurchaseReturnFormComponent implements OnInit {
   totalAmount = computed(() => this.returnItems().reduce((sum, item) => sum + item.lineTotal, 0));
 
   ngOnInit() {
-    const today = new Date();
-    this.returnForm = this.fb.group({
-      returnDate: [today, Validators.required],
-      originalInvoice: [null, Validators.required]
+    this.loadAccounts();
+    this.initForm();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['returnType']) {
+      // Re-initialize form when return type changes
+      this.initForm();
+    }
+  }
+
+  private loadAccounts(): void {
+    // Load cash/bank accounts for cash returns
+    this.accountingService.getAccountsByCategory('cash-bank').subscribe(accounts => {
+      this.cashBankAccounts.set(accounts);
     });
+
+    // Load supplier accounts for credit returns
+    this.accountingService.getAccountsByCategory('supplier').subscribe(accounts => {
+      this.supplierAccounts.set(accounts);
+    });
+  }
+
+  private initForm(): void {
+    const today = new Date();
+
+    if (this.returnType === 'CASH') {
+      this.returnForm = this.fb.group({
+        returnDate: [today, Validators.required],
+        originalInvoice: [null, Validators.required],
+        debitAccountId: [null, Validators.required] // Cash/Bank account for cash returns
+      }, { validators: [this.accountValidator] });
+    } else {
+      // CREDIT return
+      this.returnForm = this.fb.group({
+        returnDate: [today, Validators.required],
+        originalInvoice: [null, Validators.required],
+        creditAccountId: [null, Validators.required] // Supplier account for credit returns
+      }, { validators: [this.accountValidator] });
+    }
 
     // Listen to return date changes
     this.returnForm.get('returnDate')?.valueChanges.subscribe(value => {
@@ -116,6 +184,22 @@ export class PurchaseReturnFormComponent implements OnInit {
     this.returnForm.get('originalInvoice')?.valueChanges.subscribe(value => {
       this.onInvoiceSelect(+value);
     });
+  }
+
+  private accountValidator(group: AbstractControl): { [key: string]: any } | null {
+    if (this.returnType === 'CASH') {
+      const debitAccountId = group.get('debitAccountId')?.value;
+      if (!debitAccountId) {
+        return { debitAccountRequired: true };
+      }
+    } else {
+      // CREDIT return
+      const creditAccountId = group.get('creditAccountId')?.value;
+      if (!creditAccountId) {
+        return { creditAccountRequired: true };
+      }
+    }
+    return null;
   }
 
   getQuantityOptions = (rowData: any) => {
@@ -172,24 +256,102 @@ export class PurchaseReturnFormComponent implements OnInit {
       return;
     }
 
+    if (!this.returnForm.valid) {
+      alert(this.translate.instant('PURCHASES.PURCHASE_RETURN.ERROR_INVALID_FORM'));
+      return;
+    }
+
+    const formValue = this.returnForm.value;
+    const totalAmount = this.totalAmount();
+
+    let debitAccountId: number | undefined;
+    let creditAccountId: number | undefined;
+
+    if (this.returnType === 'CASH') {
+      debitAccountId = formValue.debitAccountId; // Cash/Bank account
+      // For cash returns, credit goes to inventory (reversing the original purchase)
+      creditAccountId = originalInvoice.debitAccountId; // Inventory account
+    } else {
+      // CREDIT return
+      creditAccountId = formValue.creditAccountId; // Supplier account
+      // For credit returns, debit goes to inventory (reversing the original purchase)
+      debitAccountId = originalInvoice.debitAccountId; // Inventory account
+    }
+
     const newReturn: Omit<PurchaseReturnInvoice, 'id'> = {
       returnInvoiceNumber: this.returnInvoiceNumber(),
       returnInvoiceDate: this.returnInvoiceDate(),
       originalInvoiceId: originalInvoice.id,
       supplierId: originalInvoice.supplierId,
       supplierName: originalInvoice.supplier?.name || '',
+      returnType: this.returnType,
+      debitAccountId: debitAccountId,
+      creditAccountId: creditAccountId,
       items: itemsToReturn,
-      totalAmount: this.totalAmount(),
+      totalAmount: totalAmount,
     };
-    
+
+    // Save the return invoice
     this.purchaseReturnService.addReturnInvoice(newReturn);
 
-    // Update inventory
+    // Update inventory - reduce inventory for returned items
     itemsToReturn.forEach(item => {
       this.inventoryService.decrementCarQuantity(item.carId, item.returnQuantity);
     });
-    
+
+    // Create accounting journal entry based on return type
+    this.createAccountingEntry(newReturn, originalInvoice);
+
     alert(this.translate.instant('PURCHASES.PURCHASE_RETURN.SAVED_SUCCESS'));
     this.router.navigate(['/purchases/return']);
+  }
+
+  private createAccountingEntry(returnInvoice: Omit<PurchaseReturnInvoice, 'id'>, originalInvoice: PurchaseInvoice): void {
+    const journalEntry: CreateJournalEntryDto = {
+      JournalDate: new Date(returnInvoice.returnInvoiceDate),
+      ReferenceNumber: returnInvoice.returnInvoiceNumber,
+      Description: `Purchase Return - ${returnInvoice.returnInvoiceNumber}`,
+      Lines: []
+    };
+
+    if (this.returnType === 'CASH') {
+      // Cash Return: Debit Cash/Bank, Credit Inventory
+      journalEntry.Lines = [
+        {
+          AccountId: returnInvoice.debitAccountId!,
+          DebitAmount: returnInvoice.totalAmount,
+          CreditAmount: 0,
+          LineDescription: 'Cash received for purchase return'
+        },
+        {
+          AccountId: returnInvoice.creditAccountId!,
+          DebitAmount: 0,
+          CreditAmount: returnInvoice.totalAmount,
+          LineDescription: 'Inventory reduction for purchase return'
+        }
+      ];
+    } else {
+      // Credit Return: Debit Inventory, Credit Supplier
+      journalEntry.Lines = [
+        {
+          AccountId: returnInvoice.debitAccountId!,
+          DebitAmount: returnInvoice.totalAmount,
+          CreditAmount: 0,
+          LineDescription: 'Inventory reduction for purchase return'
+        },
+        {
+          AccountId: returnInvoice.creditAccountId!,
+          DebitAmount: 0,
+          CreditAmount: returnInvoice.totalAmount,
+          LineDescription: 'Supplier balance reduction for purchase return'
+        }
+      ];
+    }
+
+    // Save journal entry
+    this.accountingService.createJournalEntry(journalEntry).subscribe({
+      next: () => console.log('Accounting entry created for purchase return'),
+      error: (error) => console.error('Failed to create accounting entry:', error)
+    });
   }
 }
