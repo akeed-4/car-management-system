@@ -1,16 +1,18 @@
-import { Component, OnInit, Inject, Optional } from '@angular/core';
+import { Component, OnInit, Inject, Optional, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { BranchService } from '@/src/services/branch.service';
+import { CompanyService } from '@/src/services/company.service';
+import { ToastService } from '@/src/services/toast.service';
+import { Branch, Company } from '@/src/types/branch.model';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { Company, Branch } from '../../../types/branch.model';
-import { CompanyService } from '../../../services/company.service';
-import { BranchService } from '../../../services/branch.service';
-import { ToastService } from '../../../services/toast.service';
 
 @Component({
   selector: 'app-company-form',
@@ -23,6 +25,7 @@ import { ToastService } from '../../../services/toast.service';
     MatSelectModule,
     MatButtonModule,
     MatDialogModule,
+    MatProgressSpinnerModule,
     TranslateModule
   ],
   templateUrl: './company-form.component.html',
@@ -31,6 +34,7 @@ import { ToastService } from '../../../services/toast.service';
 export class CompanyFormComponent implements OnInit {
   companyForm!: FormGroup;
   isEdit = false;
+  isLoading = signal(false);
   branches: Branch[] = [];
 
   constructor(
@@ -38,6 +42,8 @@ export class CompanyFormComponent implements OnInit {
     private companyService: CompanyService,
     private branchService: BranchService,
     private toastService: ToastService,
+    private route: ActivatedRoute,
+    private router: Router,
     @Optional() public dialogRef: MatDialogRef<CompanyFormComponent>,
     @Optional() @Inject(MAT_DIALOG_DATA) public data: { company?: Company }
   ) {}
@@ -60,8 +66,8 @@ export class CompanyFormComponent implements OnInit {
 
   populateForm(company: Company): void {
     this.companyForm.patchValue({
-      nameEn: company.name.en,
-      nameAr: company.name.ar,
+      nameEn: company.nameEn,
+      nameAr: company.nameAr,
       description: company.description,
       status: company.status,
       lat: company.geo.lat,
@@ -85,7 +91,8 @@ export class CompanyFormComponent implements OnInit {
       const formValue = this.companyForm.value;
       const companyData: Omit<Company, 'id' | 'createdAt' | 'updatedAt' | 'branchName'> = {
         description: formValue.description,
-        name: { en: formValue.nameEn, ar: formValue.nameAr },
+        nameAr: formValue.nameAr,
+        nameEn: formValue.nameEn,
         status: formValue.status,
         createdBy: 'currentUser',
         permissions: [],
@@ -104,7 +111,20 @@ export class CompanyFormComponent implements OnInit {
         this.companyService.update(this.data.company.id, companyData).subscribe({
           next: () => {
             this.toastService.showSuccess('TOAST.EDIT_SUCCESS');
-            this.closeDialog();
+            this.closeDialogOrNavigate();
+          },
+          error: (error) => {
+            console.error('Error updating company:', error);
+            this.toastService.showError('TOAST.SAVE_ERROR');
+          }
+        });
+      } else if (this.isEdit && this.route.snapshot.params['id']) {
+        // Handle route-based editing
+        const companyId = this.route.snapshot.params['id'];
+        this.companyService.update(companyId, companyData).subscribe({
+          next: () => {
+            this.toastService.showSuccess('TOAST.EDIT_SUCCESS');
+            this.closeDialogOrNavigate();
           },
           error: (error) => {
             console.error('Error updating company:', error);
@@ -115,7 +135,7 @@ export class CompanyFormComponent implements OnInit {
         this.companyService.create(companyData).subscribe({
           next: () => {
             this.toastService.showSuccess('TOAST.ADD_SUCCESS');
-            this.closeDialog();
+            this.closeDialogOrNavigate();
           },
           error: (error) => {
             console.error('Error creating company:', error);
@@ -129,19 +149,39 @@ export class CompanyFormComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.closeDialog();
+    this.closeDialogOrNavigate();
   }
 
-  private closeDialog(): void {
+  private closeDialogOrNavigate(): void {
     if (this.dialogRef) {
       this.dialogRef.close();
+    } else {
+      this.router.navigate(['/companies']);
     }
   }
 
   ngOnInit(): void {
     this.initForm();
     this.loadBranches();
-    if (this.data?.company) {
+
+    // Check if we're in edit mode via route or dialog
+    const routeId = this.route.snapshot.params['id'];
+    if (routeId) {
+      this.isEdit = true;
+      this.isLoading.set(true);
+      this.companyService.getById(routeId).subscribe({
+        next: (company) => {
+          this.populateForm(company);
+          this.isLoading.set(false);
+        },
+        error: (error) => {
+          console.error('Error loading company for edit:', error);
+          this.toastService.showError('TOAST.LOAD_ERROR');
+          this.isLoading.set(false);
+          this.router.navigate(['/companies']);
+        }
+      });
+    } else if (this.data?.company) {
       this.isEdit = true;
       this.populateForm(this.data.company);
     }

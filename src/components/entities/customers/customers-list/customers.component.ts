@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { CustomerService } from '../../../../services/customer.service';
-import { Router, RouterLink } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { ModalComponent } from '../../../shared/modal/modal.component';
 import { Customer } from '../../../../types/customer.model';
 import { FormsModule } from '@angular/forms';
@@ -21,7 +22,8 @@ type SortDirection = 'asc' | 'desc' | '';
   selector: 'app-customers',
   standalone: true,
   imports: [
-    RouterLink,
+    CommonModule,
+    RouterModule,
     ModalComponent,
     FormsModule,
     DxDataGridModule,
@@ -44,7 +46,10 @@ export class CustomersComponent {
   filter = signal('');
   sortColumn = signal<SortColumn>('');
   sortDirection = signal<SortDirection>('');
-
+constructor(){
+  this.editCustomer = this.editCustomer.bind(this);
+  this.requestDelete = this.requestDelete.bind(this);
+}
   // Modal state
   isDeleteModalOpen = signal(false);
   itemToDeleteId = signal<number | null>(null);
@@ -112,11 +117,14 @@ export class CustomersComponent {
   }
 
 
-  editCustomer(id: number): void {
+  editCustomer(event: any): void {
+    const id = event.row.data.id;
+    console.log('Navigating to edit customer with id:', id);
     this.router.navigate(['/entities/customers/edit', id]);
   }
 
-  requestDelete(id: number): void {
+  requestDelete(event: any): void {
+    const id = event.row.data.id;
     this.itemToDeleteId.set(id);
     this.isDeleteModalOpen.set(true);
   }

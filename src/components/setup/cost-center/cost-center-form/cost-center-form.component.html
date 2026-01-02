@@ -43,6 +43,20 @@
         </div>
 
         <div class="form-row">
+
+             <!-- Name (Arabic) -->
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>{{ 'COST_CENTER.NAME_AR' | translate }}</mat-label>
+            <input
+              matInput
+              formControlName="nameAr"
+              [placeholder]="'COST_CENTER.NAME_AR_PLACEHOLDER' | translate"
+              required>
+            <mat-icon matPrefix>label</mat-icon>
+            <mat-error *ngIf="costCenterForm.get('nameAr')?.hasError('required')">
+              {{ 'COST_CENTER.NAME_AR_REQUIRED' | translate }}
+            </mat-error>
+          </mat-form-field>
           <!-- Name (English) -->
           <mat-form-field appearance="outline" class="half-width">
             <mat-label>{{ 'COST_CENTER.NAME' | translate }}</mat-label>
@@ -57,19 +71,7 @@
             </mat-error>
           </mat-form-field>
 
-          <!-- Name (Arabic) -->
-          <mat-form-field appearance="outline" class="half-width">
-            <mat-label>{{ 'COST_CENTER.NAME_AR' | translate }}</mat-label>
-            <input
-              matInput
-              formControlName="nameAr"
-              [placeholder]="'COST_CENTER.NAME_AR_PLACEHOLDER' | translate"
-              required>
-            <mat-icon matPrefix>label</mat-icon>
-            <mat-error *ngIf="costCenterForm.get('nameAr')?.hasError('required')">
-              {{ 'COST_CENTER.NAME_AR_REQUIRED' | translate }}
-            </mat-error>
-          </mat-form-field>
+       
         </div>
 
         <div class="form-row">
@@ -164,14 +166,7 @@
 
         <!-- Action Buttons -->
         <div class="form-actions">
-          <button
-            mat-raised-button
-            type="button"
-            (click)="onCancel()"
-            [disabled]="isLoading">
-            <mat-icon>cancel</mat-icon>
-            {{ 'COST_CENTER.CANCEL' | translate }}
-          </button>
+        
           
           <button
             mat-raised-button
@@ -180,6 +175,16 @@
             [disabled]="isLoading || costCenterForm.invalid">
             <mat-icon>{{ isLoading ? 'hourglass_empty' : 'save' }}</mat-icon>
             {{ (isLoading ? 'COST_CENTER.SAVING' : 'COST_CENTER.SAVE') | translate }}
+          </button>
+
+
+            <button
+            mat-raised-button
+            type="button"
+            (click)="onCancel()"
+            [disabled]="isLoading">
+            <mat-icon>cancel</mat-icon>
+            {{ 'COST_CENTER.CANCEL' | translate }}
           </button>
         </div>
       </form>

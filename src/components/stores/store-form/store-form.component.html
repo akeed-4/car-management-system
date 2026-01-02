@@ -6,7 +6,29 @@
 <form [formGroup]="storeForm" (ngSubmit)="onSubmit()" class="store-form">
   <div class="form-grid">
     <!-- Basic Information -->
-   
+      <mat-form-field appearance="outline">
+      <mat-label>{{ 'STORES.FORM.ACTIVITY' | translate }}</mat-label>
+      <mat-select formControlName="companyId">
+        <mat-option *ngFor="let company of companies" [value]="company.id">
+          {{ company.nameAr }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="storeForm.get('companyId')?.invalid && storeForm.get('companyId')?.touched">
+        {{ 'STORES.FORM.ACTIVITY_REQUIRED' | translate }}
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'STORES.FORM.BRANCH' | translate }}</mat-label>
+      <mat-select formControlName="branchId">
+        <mat-option *ngFor="let branch of filteredBranches()" [value]="branch.id">
+          {{ branch.nameAr }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="storeForm.get('branchId')?.invalid && storeForm.get('branchId')?.touched">
+        {{ 'STORES.FORM.BRANCH_REQUIRED' | translate }}
+      </mat-error>
+    </mat-form-field>
 
     <mat-form-field appearance="outline">
       <mat-label>{{ 'STORES.FORM.NAME_AR' | translate }}</mat-label>
@@ -28,29 +50,7 @@
       <textarea matInput formControlName="description" [placeholder]="'STORES.FORM.DESCRIPTION_PLACEHOLDER' | translate" rows="3"></textarea>
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'STORES.FORM.ACTIVITY' | translate }}</mat-label>
-      <mat-select formControlName="companyId">
-        <mat-option *ngFor="let company of companies" [value]="company.id">
-          {{ company.name }}
-        </mat-option>
-      </mat-select>
-      <mat-error *ngIf="storeForm.get('companyId')?.invalid && storeForm.get('companyId')?.touched">
-        {{ 'STORES.FORM.ACTIVITY_REQUIRED' | translate }}
-      </mat-error>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'STORES.FORM.BRANCH' | translate }}</mat-label>
-      <mat-select formControlName="branchId">
-        <mat-option *ngFor="let branch of branches" [value]="branch.id">
-          {{ branch.name }}
-        </mat-option>
-      </mat-select>
-      <mat-error *ngIf="storeForm.get('branchId')?.invalid && storeForm.get('branchId')?.touched">
-        {{ 'STORES.FORM.BRANCH_REQUIRED' | translate }}
-      </mat-error>
-    </mat-form-field>
+ 
 
     <mat-form-field appearance="outline">
       <mat-label>{{ 'STORES.FORM.STATUS' | translate }}</mat-label>

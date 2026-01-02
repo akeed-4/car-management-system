@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, I
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormControl, AbstractControl } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { CurrencyPipe, DatePipe, CommonModule } from '@angular/common';
 import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -26,7 +26,7 @@ import { CreateJournalEntryDto } from '../../../components/accounting/models';
 @Component({
   selector: 'app-purchase-return-form',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatIconModule, MatDatepickerModule, NgxMatSelectSearchModule],
+  imports: [RouterLink, ReactiveFormsModule, CommonModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatIconModule, MatDatepickerModule, NgxMatSelectSearchModule],
   templateUrl: './purchase-return-form.component.html',
   styleUrl: './purchase-return-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -77,52 +77,12 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
   });
 
   // Mock data for development - replace with actual API call when backend is ready
-  originalInvoices = signal<PurchaseInvoice[]>([
-    {
-      id: 1,
-      invoiceNumber: 'INV-001',
-      invoiceDate: '2025-12-01',
-      supplierId: 1,
-      debitAccountId: 9, // Inventory account
-      creditAccountId: 22, // Supplier account
-      status: 'Unpaid',
-      items: [
-        {
-          carId: 1,
-          carDescription: 'Toyota Corolla 2022',
-          quantity: 5,
-          unitPrice: 50000,
-          lineTotal: 250000
-        },
-      ],
-      totalAmount: 415000,
-      amountPaid: 0,
-      amountDue: 415000,
-      isArchived: false
-    },
-    {
-      id: 2,
-      invoiceNumber: 'INV-002',
-      invoiceDate: '2025-12-05',
-      supplierId: 2,
-      debitAccountId: 9,
-      creditAccountId: 22,
-      status: 'Unpaid',
-      items: [
-        {
-          carId: 3,
-          carDescription: 'Ford Focus 2021',
-          quantity: 2,
-          unitPrice: 45000,
-          lineTotal: 90000
-        }
-      ],
-      totalAmount: 90000,
-      amountPaid: 0,
-      amountDue: 90000,
-      isArchived: false
-    }
-  ]);
+    invoices = toSignal(this.procurementService.getInvoices(), { initialValue: [] });
+  originalInvoices = computed(() =>
+    this.invoices().filter(inv => 
+      inv.items.some(item => item.quantity > 0) // Invoices with items in stock
+    )
+  );
   selectedOriginalInvoice = signal<PurchaseInvoice | null>(null);
   
   returnItems = signal<ReturnInvoiceItem[]>([]);
@@ -194,6 +154,20 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
   customizeTotalText = (data: any) => {
     return `الإجمالي الكلي: ${data.value?.toLocaleString('ar-SA', { style: 'currency', currency: 'SAR' }) || '0 ر.س'}`;
   };
+
+  onRowUpdated(event: any): void {
+    // Update the lineTotal when returnQuantity changes
+    const updatedData = event.data;
+    if (updatedData.returnQuantity !== undefined) {
+      updatedData.lineTotal = updatedData.unitPrice * updatedData.returnQuantity;
+    }
+    // Find and update the item in the signal
+    this.returnItems.update(items => 
+      items.map(item => 
+        item.carId === updatedData.carId ? { ...updatedData } : item
+      )
+    );
+  }
 
   onInvoiceSelect(invoiceId: number): void {
     const invoice = this.originalInvoices().find(inv => inv.id === invoiceId)??null;
@@ -276,7 +250,9 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
     };
 
     // Save the return invoice
-    this.purchaseReturnService.addReturnInvoice(newReturn);
+    this.purchaseReturnService.addReturnInvoice(newReturn).subscribe({
+      next: (createdReturn) => {
+        alert(this.translate.instant('PURCHASES.PURCHASE_RETURN.SUCCESS_RETURN_SAVED'));
 
     // Update inventory - reduce inventory for returned items
     itemsToReturn.forEach(item => {
@@ -284,58 +260,11 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
     });
 
     // Create accounting journal entry based on return type
-    this.createAccountingEntry(newReturn, originalInvoice);
 
-    alert(this.translate.instant('PURCHASES.PURCHASE_RETURN.SAVED_SUCCESS'));
-    this.router.navigate(['/purchases/return']);
-  }
+  
 
-  private createAccountingEntry(returnInvoice: Omit<PurchaseReturnInvoice, 'id'>, originalInvoice: PurchaseInvoice): void {
-    const journalEntry: CreateJournalEntryDto = {
-      JournalDate: new Date(returnInvoice.returnInvoiceDate),
-      ReferenceNumber: returnInvoice.returnInvoiceNumber,
-      Description: `Purchase Return - ${returnInvoice.returnInvoiceNumber}`,
-      Lines: []
-    };
-
-    if (this.returnType === 'CASH') {
-      // Cash Return: Debit Cash/Bank, Credit Inventory
-      journalEntry.Lines = [
-        {
-          AccountId: returnInvoice.debitAccountId!,
-          DebitAmount: returnInvoice.totalAmount,
-          CreditAmount: 0,
-          LineDescription: 'Cash received for purchase return'
-        },
-        {
-          AccountId: returnInvoice.creditAccountId!,
-          DebitAmount: 0,
-          CreditAmount: returnInvoice.totalAmount,
-          LineDescription: 'Inventory reduction for purchase return'
-        }
-      ];
-    } else {
-      // Credit Return: Debit Inventory, Credit Supplier
-      journalEntry.Lines = [
-        {
-          AccountId: returnInvoice.debitAccountId!,
-          DebitAmount: returnInvoice.totalAmount,
-          CreditAmount: 0,
-          LineDescription: 'Inventory reduction for purchase return'
-        },
-        {
-          AccountId: returnInvoice.creditAccountId!,
-          DebitAmount: 0,
-          CreditAmount: returnInvoice.totalAmount,
-          LineDescription: 'Supplier balance reduction for purchase return'
-        }
-      ];
-    }
-
-    // Save journal entry
-    this.accountingService.createJournalEntry(journalEntry).subscribe({
-      next: () => console.log('Accounting entry created for purchase return'),
-      error: (error) => console.error('Failed to create accounting entry:', error)
-    });
-  }
-}
+},      error: (error) => {
+        console.error('Error saving return invoice:', error);
+        alert(this.translate.instant('PURCHASES.PURCHASE_RETURN.ERROR_SAVING_RETURN'));
+      }
+});}}

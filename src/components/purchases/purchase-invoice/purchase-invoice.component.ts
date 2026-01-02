@@ -28,15 +28,23 @@ import { Car } from '../../../types/car.model';
 import { Supplier } from '../../../types/supplier.model';
 import { AccountNode } from '../../../types/account-node.model';
 import { StoreCarStockDto } from '../../../types/store-car-stock.model';
+import { InvoiceClassificationOption } from '../../../types/invoice-classification.model';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { InvoiceItemDialogComponent } from '../../sales/invoice-item-dialog/invoice-item-dialog.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { MatSelectChange } from '@angular/material/select';
 import { ToastService } from '@/src/services/toast.service';
 import { LanguageService } from '@/src/services/language.service';
 import { Direction } from '@angular/cdk/bidi';
 import { CarSelectionDialogComponent } from './car-selection-dialog/car-selection-dialog.component';
 
 const VAT_RATE = 0.15; // 15% VAT
+
+export enum InvoiceType {
+  Taxable = 'Taxable',
+  ZeroRated = 'Zero Rated',
+  Exempt = 'Exempt'
+}
 
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { AccountingService } from '../../accounting/accounting.service';
@@ -67,7 +75,7 @@ import { AccountingService } from '../../accounting/accounting.service';
   styleUrl: './purchase-invoice.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PurchaseInvoiceComponent implements OnInit, OnChanges {
+export class PurchaseInvoiceComponent implements OnInit {
   /**
    * Input property to lock the payment method
    * When true, payment method cannot be changed by user
@@ -79,13 +87,16 @@ export class PurchaseInvoiceComponent implements OnInit, OnChanges {
    * Used when lockPaymentMethod is true
    * Values: 'cash', 'credit', or any payment method value
    */
-  @Input() fixedPaymentMethod: string = '';
+  @Input() fixedPaymentMethod: any;
 
   /**
    * Input property to set a custom title for the invoice
    * If not provided, uses default title
    */
   @Input() customTitle:any;
+
+  // Expose enum to template
+  InvoiceType = InvoiceType;
 
   inventoryService = inject(InventoryService);
   private supplierService = inject(SupplierService);
@@ -101,7 +112,6 @@ export class PurchaseInvoiceComponent implements OnInit, OnChanges {
   private toastService = inject(ToastService);
   private route = inject(ActivatedRoute);
   private dialog = inject(MatDialog);
-
   cardLayout2 = this.currentSettingService.getCardLayout(2);
   cardLayout3 = this.currentSettingService.getCardLayout(3);
   cardLayout4 = this.currentSettingService.getCardLayout(4);
@@ -186,20 +196,43 @@ export class PurchaseInvoiceComponent implements OnInit, OnChanges {
   purchasePrice = signal(0);
   selectedCar = signal<Car | null>(null);
 
+  // Invoice type signal
+  invoiceType = signal<InvoiceType>(InvoiceType.Taxable);
+
+  // Invoice classification signals
+  invoiceClassifications = signal<InvoiceClassificationOption[]>([]);
+  selectedInvoiceClassification = signal<InvoiceClassificationOption | null>(null);
+
+  // Payment method signal
+  paymentMethodSignal = signal<string>('Bank Transfer');
+
   // Computed properties
   subtotal = computed(() => this.invoiceItems().reduce((sum, item) => sum + item.lineTotal, 0));
-  vatAmount = computed(() => this.subtotal() * VAT_RATE);
-  totalAmount = computed(() => Math.round(this.subtotal() + this.vatAmount())) ;
+  
+  vatAmount = computed(() => {
+    const classification = this.selectedInvoiceClassification();
+    const subtotalValue = this.subtotal();
+    
+    if (classification && classification.vatRate > 0) {
+      // Apply VAT rate from selected classification
+      return subtotalValue * (classification.vatRate / 100);
+    }
+    
+    // No VAT for zero-rated or exempt classifications
+    return 0;
+  });
+  
+  totalAmount = computed(() => Math.round(this.subtotal() + this.vatAmount()));
 
   // Back route computed property
   backRoute = computed(() => {
-    const paymentMethod = this.purchaseInvoiceForm?.get('paymentMethod')?.value;
-    if (paymentMethod === 'Cash') {
+    const method = this.paymentMethodSignal();
+    if (method === 'Cash') {
       return '/purchases/invoice/cash';
-    } else if (paymentMethod === 'Credit (Deferred)') {
+    } else if (method === 'Credit (Deferred)') {
       return '/purchases/invoice/credit';
     }
-    return '/purchases';
+     return '/purchases/invoice/cash';
   });
 
   constructor() {
@@ -214,6 +247,19 @@ export class PurchaseInvoiceComponent implements OnInit, OnChanges {
    * Angular lifecycle method - called after component initialization
    */
   ngOnInit(): void {
+    // Load invoice classifications from API
+    this.currentSettingService.getInvoiceClassifications().subscribe(classifications => {
+      this.invoiceClassifications.set(classifications);
+      // Set default classification if available
+      if (classifications.length > 0) {
+        this.selectedInvoiceClassification.set(classifications[0]);
+        // Update form with default classification
+        this.purchaseInvoiceForm?.patchValue({
+          ClassificationId: classifications[0].value
+        });
+      }
+    });
+
     // Initialize form if not editing
     const invoiceId = this.route.snapshot.params['id'];
     if (!invoiceId) {
@@ -235,6 +281,10 @@ export class PurchaseInvoiceComponent implements OnInit, OnChanges {
   getTitle(): string {
     return this.customTitle ?  this.translate.instant('PURCHASE_INVOICE.CREATE_TITLE'):this.translate.instant("PURCHASE_INVOICE.CASH_INVOICE_TITLE");
   }
+
+  /**
+   * Angular lifecycle method - called when input properties change
+   */
   ngOnChanges(changes: SimpleChanges): void {
     // Handle payment method locking when inputs change
     if (changes['lockPaymentMethod'] || changes['fixedPaymentMethod']) {
@@ -249,8 +299,11 @@ export class PurchaseInvoiceComponent implements OnInit, OnChanges {
     if (this.purchaseInvoiceForm && this.lockPaymentMethod && this.fixedPaymentMethod) {
       // Set the payment method value
       this.purchaseInvoiceForm.patchValue({
-        paymentMethod: this.fixedPaymentMethod
+        paymentType: this.fixedPaymentMethod
       });
+
+      // Update signal
+      this.paymentMethodSignal.set(this.fixedPaymentMethod);
 
       // Disable the payment method control
       const paymentMethodControl = this.purchaseInvoiceForm.get('paymentMethod');
@@ -260,6 +313,12 @@ export class PurchaseInvoiceComponent implements OnInit, OnChanges {
     }
   }
 
+
+
+  /**
+   * Handle payment method locking based on input properties
+   */
+ 
   private loadAccounts(): void {
     // Load debit accounts (inventory/expense)
     this.accountingService.getAccountsByCategory('debit').subscribe(accounts => {
@@ -280,10 +339,19 @@ export class PurchaseInvoiceComponent implements OnInit, OnChanges {
       debitAccountId: [null, Validators.required],
       creditAccountId: [null, Validators.required],
       invoiceDate: [new Date(), Validators.required],
-      paymentMethod: ['Bank Transfer'],
+      paymentMethod: ['cash' , Validators.required],
+      paymentType: [this.fixedPaymentMethod || 'Bank Transfer'],
       dueDate: [null], // Optional, required only for credit invoices
+      invoiceType: [InvoiceType.Taxable, Validators.required],
+      ClassificationId: [0, Validators.required],
       notes: ['']
     }, { validators: [this.accountValidator, this.dueDateValidator] });
+
+    // Set payment method signal
+    this.paymentMethodSignal.set(this.fixedPaymentMethod || 'Bank Transfer');
+
+    // Set initial invoice type
+    this.invoiceType.set(InvoiceType.Taxable);
 
     // Generate invoice number
     this.purchaseInvoiceForm.patchValue({
@@ -322,8 +390,12 @@ export class PurchaseInvoiceComponent implements OnInit, OnChanges {
           invoiceDate: [new Date(invoice.invoiceDate), Validators.required],
           paymentMethod: [invoice.paymentMethod || 'Bank Transfer'],
           dueDate: [invoice.dueDate ? new Date(invoice.dueDate) : null],
+          invoiceType: [invoice.invoiceType || InvoiceType.Taxable, Validators.required],
           notes: [invoice.notes || ''],
         }, { validators: [this.accountValidator, this.dueDateValidator] });
+
+        // Set invoice type signal
+        this.invoiceType.set((invoice.invoiceType as InvoiceType) || InvoiceType.Taxable);
 
         // Set invoice items
         this.invoiceItems.set(invoice.items || []);
@@ -483,7 +555,11 @@ export class PurchaseInvoiceComponent implements OnInit, OnChanges {
       supplierId: supplierId,
       debitAccountId: formValue.debitAccountId,
       creditAccountId: formValue.creditAccountId,
+      paymentType: formValue.paymentType,
       paymentMethod: formValue.paymentMethod,
+      dueDate: formValue.dueDate ? formValue.dueDate.toISOString() : undefined,
+      ClassificationId: parseInt(formValue.ClassificationId),
+      invoiceType: formValue.invoiceType,
       items: items,
       totalAmount: this.totalAmount(),
       notes: formValue.notes,
@@ -499,7 +575,6 @@ export class PurchaseInvoiceComponent implements OnInit, OnChanges {
         });
 
         this.toastService.showSuccess('TOAST.ADD_SUCCESS');
-        this.router.navigate(['/purchases']);
       },
       error: (error) => {
         console.error('Error saving purchase invoice:', error);

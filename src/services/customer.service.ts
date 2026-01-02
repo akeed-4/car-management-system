@@ -31,8 +31,8 @@ export class CustomerService {
   }
 
   /** Get customer by ID */
-  getCustomerById(id: number): Customer | undefined {
-    return this.customers().find(c => c.id === id);
+  getCustomerById(id: number): Promise<Customer> {
+   return this.http.get<Customer>(`${this.apiUrl}/GetById/${id}`).toPromise();
   }
 
   /** Add new customer */

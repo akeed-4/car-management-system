@@ -221,7 +221,11 @@
 
         <mat-form-field appearance="outline" class="form-field" *ngIf="accountForm.get('hasCostCenter')?.value">
           <mat-label>{{ 'ACCOUNTING.COST_CENTER' | translate }}</mat-label>
-          <input matInput type="number" formControlName="costCenterId">
+          <mat-select formControlName="costCenterId">
+            <mat-option *ngFor="let costCenter of costCenters" [value]="costCenter.id">
+              {{ costCenter.code }} - {{ costCenter.nameAr || costCenter.name }}
+            </mat-option>
+          </mat-select>
           <mat-icon matPrefix>business</mat-icon>
         </mat-form-field>
       </div>
@@ -281,9 +285,9 @@
         <h3>{{ 'ACCOUNTING.INTEGRATION' | translate }}</h3>
 
         <div class="form-row">
-          <mat-checkbox formControlName="createNewClient" >{{ 'ACCOUNTING.CREATE_NEW_CLIENT' | translate }}</mat-checkbox>
-          <mat-checkbox formControlName="createNewSupplier">{{ 'ACCOUNTING.CREATE_NEW_SUPPLIER' | translate }}</mat-checkbox>
-          <mat-checkbox formControlName="createNewBank">{{ 'ACCOUNTING.CREATE_NEW_BANK' | translate }}</mat-checkbox>
+          <mat-checkbox *ngIf="accountForm.get('accountTypeId')?.value == '1' && !accountForm.get('createNewClient')?.value" formControlName="createNewClient" >{{ 'ACCOUNTING.CREATE_NEW_CLIENT' | translate }}</mat-checkbox>
+          <mat-checkbox *ngIf="accountForm.get('accountTypeId')?.value == '3' && !accountForm.get('createNewSupplier')?.value" formControlName="createNewSupplier">{{ 'ACCOUNTING.CREATE_NEW_SUPPLIER' | translate }}</mat-checkbox>
+          <mat-checkbox *ngIf="accountForm.get('accountTypeId')?.value == '2' && !accountForm.get('createNewBank')?.value" formControlName="createNewBank">{{ 'ACCOUNTING.CREATE_NEW_BANK' | translate }}</mat-checkbox>
         </div>
 
         <div class="form-row" *ngIf="accountForm.get('accountTypeId')?.value == '1' && !accountForm.get('createNewClient')?.value">
@@ -331,10 +335,12 @@
       </div>
 
       <div class="form-actions">
-        <button mat-raised-button color="primary" type="submit" [disabled]="accountForm.invalid">
-          {{ 'ACCOUNTING.SAVE' | translate }}
+        <button mat-raised-button color="primary" type="submit" [disabled]="accountForm.invalid || isSaving">
+          <mat-progress-spinner *ngIf="isSaving" diameter="20" class="loading-spinner"></mat-progress-spinner>
+          <span *ngIf="!isSaving">{{ 'ACCOUNTING.SAVE' | translate }}</span>
+          <span *ngIf="isSaving">{{ 'ACCOUNTING.SAVING' | translate }}</span>
         </button>
-        <button mat-button type="button" (click)="onCancel()">
+        <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
           {{ 'ACCOUNTING.CANCEL' | translate }}
         </button>
       </div>

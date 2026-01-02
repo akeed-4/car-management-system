@@ -16,11 +16,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { StoreService } from '@/src/services/store.service';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
 import { DxDataGridModule } from 'devextreme-angular';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { CarSelectionDialogComponent } from '../../purchases/purchase-invoice/car-selection-dialog/car-selection-dialog.component';
-import { StoreService } from '../../../services/store.service';
+import { CarSelectionDialogComponent } from '../../sales/car-selection-dialog/car-selection-dialog.component';
 
 @Component({
   selector: 'app-stock-taking-form',
@@ -42,6 +43,7 @@ import { StoreService } from '../../../services/store.service';
     MatTableModule,
     DxDataGridModule
     ,MatDialogModule,
+    MatProgressSpinnerModule,
     CarSelectionDialogComponent
   ],
   templateUrl: './stock-taking-form.component.html',
@@ -68,6 +70,8 @@ get stores() {
 
   editMode = signal(false);
   pageTitle = signal('إنشاء مستند جرد جديد');
+  isSaving = signal(false);
+  successMessage = signal('');
 
   allCars = this.inventoryService.cars$;
   
@@ -243,15 +247,20 @@ get stores() {
       return;
     }
 
+    this.isSaving.set(true);
+    this.successMessage.set('');
+
     const formValue = this.stockTakeForm.value;
     
     if (this.items().length === 0) {
+      this.isSaving.set(false);
       alert(this.translate.instant('INVENTORY.STOCK_TAKING_FORM.ERROR_NO_ITEMS'));
       return;
     }
 
     // Validate that all rows have an item selected
     if (this.items().some(item => item.itemId === 0)) {
+      this.isSaving.set(false);
       alert(this.translate.instant('INVENTORY.STOCK_TAKING_FORM.ERROR_SELECT_ITEM'));
       return;
     }
@@ -270,10 +279,14 @@ get stores() {
     if (this.editMode()) {
       this.stockTakeService.updateStockTake(stockTakeData).subscribe({
         next: (result) => {
-          console.log('Stock take updated successfully:', result);
-          this.router.navigate(['/inventory/stock-taking']);
+          this.isSaving.set(false);
+          this.successMessage.set('Stock take updated successfully!');
+          setTimeout(() => {
+            this.router.navigate(['/inventory/stock-taking']);
+          }, 1500);
         },
         error: (error) => {
+          this.isSaving.set(false);
           console.error('Error updating stock take:', error);
           alert(this.translate.instant('INVENTORY.STOCK_TAKING_FORM.ERROR_UPDATE'));
         }
@@ -281,10 +294,14 @@ get stores() {
     } else {
       this.stockTakeService.addStockTake(stockTakeData as Omit<StockTake, 'id'>).subscribe({
         next: (result) => {
-          console.log('Stock take created successfully:', result);
-          this.router.navigate(['/inventory/stock-taking']);
+          this.isSaving.set(false);
+          this.successMessage.set('Stock take created successfully!');
+          setTimeout(() => {
+            this.router.navigate(['/inventory/stock-taking']);
+          }, 1500);
         },
         error: (error) => {
+          this.isSaving.set(false);
           console.error('Error creating stock take:', error);
           alert(this.translate.instant('INVENTORY.STOCK_TAKING_FORM.ERROR_CREATE'));
         }

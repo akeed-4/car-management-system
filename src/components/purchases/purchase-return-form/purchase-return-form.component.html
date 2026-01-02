@@ -33,7 +33,7 @@
               <mat-select formControlName="originalInvoice" required>
                 <mat-option [value]="null" disabled>{{ 'PURCHASE_RETURN.SELECT_INVOICE' | translate }}</mat-option>
                 @for (invoice of originalInvoices(); track invoice.id) {
-                  <mat-option [value]="invoice.id">{{ invoice.id }} - {{ invoice.supplierName }}</mat-option>
+                  <mat-option [value]="invoice.id">{{ invoice.invoiceNumber }} - {{ invoice.supplier?.name }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
@@ -81,7 +81,7 @@
         </div>
          @if (selectedOriginalInvoice(); as originalInvoice) {
           <div class="mt-4 p-4 bg-gray-50 rounded-lg border text-sm">
-            <p><span class="font-medium text-gray-500">{{ 'PURCHASE_RETURN.SUPPLIER' | translate }}:</span> <span class="font-semibold">{{originalInvoice.supplierName}}</span></p>
+            <p><span class="font-medium text-gray-500">{{ 'PURCHASE_RETURN.SUPPLIER' | translate }}:</span> <span class="font-semibold">{{originalInvoice.supplier?.name}}</span></p>
           </div>
         }
 
@@ -108,7 +108,10 @@
             [columnAutoWidth]="true"
             [wordWrapEnabled]="true"
             height="400px"
-            class="professional-datagrid">
+            class="professional-datagrid"
+            (onRowUpdated)="onRowUpdated($event)">
+
+            <dxo-editing mode="cell" [allowUpdating]="true"></dxo-editing>
 
             <dxo-paging [enabled]="false"></dxo-paging>
             <dxo-scrolling mode="virtual"></dxo-scrolling>
@@ -147,13 +150,10 @@
               dataField="returnQuantity"
               [caption]="'PURCHASE_RETURN.RETURN_QTY' | translate"
               [width]="120"
+              [allowEditing]="true"
               dataType="number"
               alignment="right">
-              <dxo-lookup
-                [dataSource]="getQuantityOptions"
-                valueExpr="value"
-                displayExpr="text">
-              </dxo-lookup>
+             
             </dxi-column>
 
             <dxi-column

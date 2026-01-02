@@ -28,6 +28,7 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
   accounts = signal<Account[]>([]);
   isLoading = signal<boolean>(false);
   error = signal<string | null>(null);
+  maxLevel = signal<number | null>(null);
 
   // Form properties
   isEditing = false;
@@ -37,38 +38,33 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
   // Computed signal for processed accounts data
   processedAccounts = computed(() => {
     const accounts = this.accounts();
+    const maxLevel = this.maxLevel();
     if (accounts.length === 0) return [];
 
-    // Compute levels and hasChildren on the fly
-    const levels = new Map<number, number>();
+    // Use accountLevel from data instead of computing from hierarchy
     const hasChildrenMap = new Map<number, boolean>();
 
-    // Find roots
-    const roots = accounts.filter(acc => !acc.parentId);
-    roots.forEach(root => levels.set(root.id, 1));
-
-    // BFS to set levels and hasChildren
-    const queue = [...roots];
-    while (queue.length) {
-      const current = queue.shift()!;
-      const children = accounts.filter(acc => acc.parentId === current.id);
-      if (children.length > 0) {
-        hasChildrenMap.set(current.id, true);
+    // Determine hasChildren based on whether there are accounts with higher accountLevel that could be children
+    accounts.forEach(account => {
+      const potentialChildren = accounts.filter(acc => acc.accountLevel === account.accountLevel + 1 && acc.parentId === account.id);
+      if (potentialChildren.length > 0) {
+        hasChildrenMap.set(account.id, true);
       }
-      children.forEach(child => {
-        if (!levels.has(child.id)) {
-          levels.set(child.id, levels.get(current.id)! + 1);
-          queue.push(child);
-        }
-      });
-    }
+    });
 
-    return accounts.map(account => ({
+    let filteredAccounts = accounts.map(account => ({
       ...account,
-      level: levels.get(account.id) || 1,
+      level: account.accountLevel,
       translatedName: this.translateAccountName(account.accountNameEn),
       hasChildren: hasChildrenMap.get(account.id) || false
     }));
+
+    // Filter by max level if set
+    if (maxLevel !== null) {
+      filteredAccounts = filteredAccounts.filter(account => account.level <= maxLevel);
+    }
+
+    return filteredAccounts;
   });
 
   private destroy$ = new Subject<void>();
@@ -112,6 +108,7 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
         const accounts = result.data || result;
         this.accounts.set(accounts);
         this.isLoading.set(false);
+        console.log('Accounts loaded:', accounts);
       },
       error: (error) => {
         console.error('Error loading accounts:', error);
@@ -189,5 +186,9 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
       5: '#BBDEFB'
     };
     return colors[level] || '#1976D2';
+  }
+
+  onMaxLevelChange(level: number | null) {
+    this.maxLevel.set(level);
   }
 }

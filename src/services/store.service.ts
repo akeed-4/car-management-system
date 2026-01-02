@@ -55,7 +55,8 @@ export class StoreService {
     // Transform the store object to match API expectations
     const apiPayload = {
       ...store,
-      name: typeof store.name === 'object' ? store.name.en : store.name // Extract English name as string
+      nameEn: store.nameEn,
+      nameAr: store.nameAr
     };
     return this.http.post<Store>(`${this.apiUrl}/Create`, apiPayload).pipe(
       tap(() => this.loadStores()) // Reload stores after creation
@@ -67,7 +68,8 @@ export class StoreService {
     // Transform the store object to match API expectations
     const apiPayload = {
       ...store,
-      name: typeof store.name === 'object' ? store.name.en : store.name // Extract English name if it's an object
+      nameEn: store.nameEn,
+      nameAr: store.nameAr
     };
     return this.http.put<Store>(`${this.apiUrl}/Update/${id}`, apiPayload).pipe(
       tap(() => this.loadStores()) // Reload stores after update

@@ -24,7 +24,10 @@ export class CashPurchaseInvoiceListComponent {
   private translate = inject(TranslateService);
   private router = inject(Router);
     invoices = toSignal(this.procurementService.getInvoices(), { initialValue: [] });
-
+constructor() {
+  this.onFilter = this.onFilter.bind(this);
+  this.onSort = this.onSort.bind(this); 
+}
     filter = signal('');
     sortColumn = signal<SortColumn>('');
     sortDirection = signal<SortDirection>('');
@@ -39,7 +42,7 @@ export class CashPurchaseInvoiceListComponent {
       let invoices = this.invoices().filter(inv => !!inv.isArchived === showArchived);
 
       // Filter for cash invoices only
-      invoices = invoices.filter(inv => inv.paymentMethod === 'Cash');
+       invoices = invoices.filter(inv => inv.paymentType === 'cash');
 
       // Filter
       if (searchTerm) {

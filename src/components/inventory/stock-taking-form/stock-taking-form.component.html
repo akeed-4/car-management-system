@@ -137,9 +137,14 @@
         <button mat-stroked-button type="button" routerLink="/inventory/stock-taking" class="cancel-button">
           {{ 'INVENTORY.STOCK_TAKING_FORM.CANCEL' | translate }}
         </button>
-        <button mat-raised-button color="primary" (click)="saveStockTake()" [disabled]="stockTakeForm.invalid">
-          {{ editMode() ? ('INVENTORY.STOCK_TAKING_FORM.SAVE_CHANGES' | translate) : ('INVENTORY.STOCK_TAKING_FORM.SAVE_TAKE' | translate) }}
+        <button mat-raised-button color="primary" (click)="saveStockTake()" [disabled]="stockTakeForm.invalid || isSaving()">
+          <span *ngIf="!isSaving()">{{ editMode() ? ('INVENTORY.STOCK_TAKING_FORM.SAVE_CHANGES' | translate) : ('INVENTORY.STOCK_TAKING_FORM.SAVE_TAKE' | translate) }}</span>
+          <mat-spinner *ngIf="isSaving()" diameter="20" color="accent"></mat-spinner>
         </button>
+      </div>
+
+      <div *ngIf="successMessage()" class="success-message">
+        {{ successMessage() }}
       </div>
     </form>
   </mat-card-content>

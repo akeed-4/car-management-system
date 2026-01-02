@@ -64,38 +64,44 @@ export class CustomerFormComponent implements OnInit {
 
     // Check if editing existing customer
     const idParam = this.route.snapshot.params['id'];
+    console.log('CustomerFormComponent ngOnInit, idParam:', idParam);
     if (idParam) {
       const id = Number(idParam);
+      console.log('Editing customer with id:', id);
       this.editMode.set(true);
       this.pageTitle.set('تعديل بيانات العميل');
-      const existingCustomer = this.customerService.getCustomerById(id);
-      if (existingCustomer) {
-        this.customer.set({ ...existingCustomer });
-        this.customerForm.patchValue(existingCustomer);
+      this.customerService.getCustomerById(id).then(existingCustomer => {
+        if (existingCustomer) {
+          this.customer.set(existingCustomer);
+          this.customerForm.patchValue(existingCustomer);
 
-        // Fetch sold cars for this customer
-        this.salesService.getInvoicesByCustomerId(existingCustomer.id).subscribe({
-          next: (customerInvoices) => {
-            const carsMap = new Map(this.inventoryService.cars$().map(c => [c.id, c]));
-            const cars: (Car & { saleDate: string })[] = [];
-            customerInvoices.forEach(inv => {
-                inv.items.forEach(item => {
-                    const car = carsMap.get(item.carId);
-                    if(car) {
-                        const carWithSaleDate: Car & { saleDate: string } = {
-                            ...car,
-                            saleDate: inv.invoiceDate // Add saleDate from invoice
-                        };
-                        cars.push(carWithSaleDate);
-                    }
-                });
-            });
-            this.soldCars.set(cars);
-          }
-        });
-      } else {
+          // Fetch sold cars for this customer
+          this.salesService.getInvoicesByCustomerId(existingCustomer.id).subscribe({
+            next: (customerInvoices) => {
+              const carsMap = new Map(this.inventoryService.cars$().map(c => [c.id, c]));
+              const cars: (Car & { saleDate: string })[] = [];
+              customerInvoices.forEach(inv => {
+                  inv.items.forEach(item => {
+                      const car = carsMap.get(item.carId);
+                      if(car) {
+                          const carWithSaleDate: Car & { saleDate: string } = {
+                              ...car,
+                              saleDate: inv.invoiceDate // Add saleDate from invoice
+                          };
+                          cars.push(carWithSaleDate);
+                      }
+                  });
+              });
+              this.soldCars.set(cars);
+            }
+          });
+        } else {
+          this.router.navigate(['/entities/customers']);
+        }
+      }).catch(error => {
+        console.error('Error loading customer:', error);
         this.router.navigate(['/entities/customers']);
-      }
+      });
     }
   }
 
@@ -103,7 +109,7 @@ export class CustomerFormComponent implements OnInit {
     this.customerForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
       nationalId: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
-      phone: ['', [Validators.required, Validators.pattern(/^\+966\d{9}$/)]],
+      phone: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
       phone2: [''],
       email: ['', [Validators.email]],
       address: ['', Validators.required],

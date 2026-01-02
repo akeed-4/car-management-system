@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -9,6 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { AccountingService } from '../../accounting/accounting.service';
@@ -33,6 +34,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
     MatDatepickerModule,
     MatNativeDateModule,
     MatDialogModule,
+    MatProgressSpinnerModule,
     CarSelectionDialogComponent,
   ],
   templateUrl: './opening-balances-inventory-form.component.html',
@@ -43,6 +45,8 @@ export class OpeningBalancesInventoryFormComponent implements OnInit {
   form: FormGroup;
   isEditing = false;
   editingId: number | null = null;
+  isSaving = signal(false);
+  successMessage = signal('');
 
   categories = ['CAR', 'SPARE_PART', 'ACCESSORY'];
   // locations will be provided by StoreService
@@ -127,7 +131,7 @@ export class OpeningBalancesInventoryFormComponent implements OnInit {
   onStoreSelectionChange(storeId: number): void {
     const selectedStore = this.stores.find(s => s.id === storeId);
     if (selectedStore) {
-      this.form.patchValue({ location: selectedStore.name });
+      this.form.patchValue({ location: selectedStore.nameAr });
     }
   }
 
@@ -137,6 +141,9 @@ export class OpeningBalancesInventoryFormComponent implements OnInit {
 
   onSave() {
     if (this.form.valid) {
+      this.isSaving.set(true);
+      this.successMessage.set('');
+
       const formValue = this.form.value;
       const balanceData = {
         itemId: formValue.itemId,
@@ -158,18 +165,28 @@ export class OpeningBalancesInventoryFormComponent implements OnInit {
         const updateDto: any = { id: this.editingId, ...balanceData };
         this.accountingService.updateOpeningBalanceInventory(this.editingId, updateDto).subscribe({
           next: (updated) => {
-            this.router.navigate(['/inventory/opening-balances']);
+            this.isSaving.set(false);
+            this.successMessage.set('Opening balance updated successfully!');
+            setTimeout(() => {
+              this.router.navigate(['/inventory/opening-balances']);
+            }, 1500);
           },
           error: (error) => {
+            this.isSaving.set(false);
             console.error('Error updating opening balance:', error);
           }
         });
       } else {
         this.accountingService.createOpeningBalanceInventory(balanceData).subscribe({
           next: (newBalance) => {
-            this.router.navigate(['/inventory/opening-balances']);
+            this.isSaving.set(false);
+            this.successMessage.set('Opening balance created successfully!');
+            setTimeout(() => {
+              this.router.navigate(['/inventory/opening-balances']);
+            }, 1500);
           },
           error: (error) => {
+            this.isSaving.set(false);
             console.error('Error creating opening balance:', error);
           }
         });

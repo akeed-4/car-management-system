@@ -40,7 +40,7 @@ export class SupplierService {
 
   // جلب مورد واحد حسب ID
   getSupplierById(id: number): Observable<Supplier> {
-    return this.http.get<Supplier>(`${this.apiUrl}/${id}`);
+    return this.http.get<Supplier>(`${this.apiUrl}/GetById/${id}`);
   }
 
 

@@ -26,7 +26,7 @@
     </div>
 
     <dx-tree-list
-      id="accountsHierarchyTreeList"
+      id="id"
       [dataSource]="processedAccounts()"
       keyExpr="id"
       parentIdExpr="parentId"
@@ -57,10 +57,10 @@
       <dxo-sorting mode="multiple"></dxo-sorting>
       
       <dxi-column 
-        dataField="level" 
+        dataField="accountLevel" 
         [caption]="translate.instant('ACCOUNTING.levels')" 
         alignment="center"
-        cellTemplate="levelTemplate">
+        cssClass="level-column">
       </dxi-column>
 
       <dxi-column 
@@ -70,7 +70,7 @@
       </dxi-column>
 
       <dxi-column 
-        dataField="translatedName" 
+        dataField="accountNameAr" 
         [caption]="translate.instant('ACCOUNTING.ACCOUNT_NAME')"
         cssClass="name-column">
       </dxi-column>
@@ -135,14 +135,7 @@
         </dxi-button>
       </dxi-column>
       
-      <div *dxTemplate="let data of 'levelTemplate'">
-        <div class="level-cell">
-          <span class="level-indicator" [style.margin-left.px]="(data.value - 1) * 20">
-            <i class="material-icons level-icon">subdirectory_arrow_left</i>
-            {{ data.value }}
-          </span>
-        </div>
-      </div>
+      
       
     </dx-tree-list>
 

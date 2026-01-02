@@ -71,9 +71,14 @@
 
       <div class="form-actions">
         <button mat-button type="button" (click)="onCancel()">{{ 'ACCOUNTING.CANCEL' | translate }}</button>
-        <button mat-raised-button color="primary" type="submit" [disabled]="!form.valid">
-          {{ (isEditing ? 'ACCOUNTING.UPDATE' : 'ACCOUNTING.SAVE') | translate }}
+        <button mat-raised-button color="primary" type="submit" [disabled]="!form.valid || isSaving()">
+          <span *ngIf="!isSaving()">{{ (isEditing ? 'ACCOUNTING.UPDATE' : 'ACCOUNTING.SAVE') | translate }}</span>
+          <mat-spinner *ngIf="isSaving()" diameter="20" color="accent"></mat-spinner>
         </button>
+      </div>
+
+      <div *ngIf="successMessage()" class="success-message">
+        {{ successMessage() }}
       </div>
     </form>
   </mat-card-content>

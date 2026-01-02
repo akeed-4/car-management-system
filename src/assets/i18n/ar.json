@@ -135,7 +135,12 @@
     "CASH_INVOICE_LIST_TITLE": "فواتير المشتريات النقدية",
     "CREDIT_INVOICE_LIST_TITLE": "فواتير المشتريات الآجلة",
     "NEW_CASH_INVOICE": "فاتورة شراء نقدية جديدة",
-    "NEW_CREDIT_INVOICE": "فاتورة شراء آجلة جديدة"
+    "NEW_CREDIT_INVOICE": "فاتورة شراء آجلة جديدة",
+    "INVOICE_TYPE": "نوع الفاتورة",
+    "TAXABLE": "خاضع للضريبة",
+    "ZERO_RATED": " صفري",
+    "EXEMPT": "معفى",
+    "INVOICE_CLASSIFICATION": "تصنيف الفاتورة"
   },
   "COMMON": {
     "RESET": "إعادة تعيين",
@@ -503,6 +508,12 @@
     "RETURN_DATE": "تاريخ المرتجع",
     "ORIGINAL_INVOICE": "الفاتورة الأصلية",
     "SELECT_INVOICE": "-- اختر فاتورة شراء --",
+    "CASH_BANK_ACCOUNT": "حساب النقد/البنك",
+    "SUPPLIER_ACCOUNT": "حساب المورد",
+    "SELECT_CASH_BANK_ACCOUNT": "-- اختر حساب النقد/البنك --",
+    "SELECT_SUPPLIER_ACCOUNT": "-- اختر حساب المورد --",
+    "SEARCH_ACCOUNT": "البحث في الحسابات",
+    "NO_ACCOUNTS_FOUND": "لا توجد حسابات",
     "SUPPLIER": "المورد",
     "ITEMS_HEADER": "تفاصيل الأصناف المرتجعة",
     "CAR": "السيارة",

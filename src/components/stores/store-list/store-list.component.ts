@@ -48,8 +48,8 @@ constructor(){
     }
 
     return stores.filter(store =>
-      store.name.en?.toLowerCase().includes(searchTerm) ||
-      store.name.ar?.toLowerCase().includes(searchTerm) ||
+      store.nameEn?.toLowerCase().includes(searchTerm) ||
+      store.nameAr?.toLowerCase().includes(searchTerm) ||
       store.code?.toLowerCase().includes(searchTerm)
     );
   });
@@ -69,7 +69,7 @@ constructor(){
     const dialogRef = this.dialog.open(StoreFormComponent, {
     width: '1400px',
       height: '80%',
-      data: {}
+      data: null
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -79,11 +79,11 @@ constructor(){
     });
   }
 
-  onEdit(store: Store): void {
+  onEdit(store: any): void {
     const dialogRef = this.dialog.open(StoreFormComponent, {
-      width: '800px',
-      height: '60%',
-      data: { store }
+      width: '1400px',
+      height: '90%',
+      data: store.row.data.id
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -93,8 +93,9 @@ constructor(){
     });
   }
 
-  onDelete(store: Store): void {
-    if (confirm(`Are you sure you want to delete store "${store.name.en}"?`)) {
+  onDelete(store: any): void {
+    store = store.row.data ? store.row.data : store;
+    if (confirm(`Are you sure you want to delete store "${store.nameAr}"?`)) {
       this.storeService.delete(store.id).subscribe({
         next: () => {
           this.loadStores();

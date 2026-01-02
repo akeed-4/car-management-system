@@ -3,13 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { PurchaseReturnInvoice } from '../types/purchase-return-invoice.model';
 import { PurchaseReturn, PurchaseReturnJournalEntry } from '../types/sales-return.model';
 import { Observable } from 'rxjs';
+import { environment } from '../environments/environment.development';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PurchaseReturnService {
   private http = inject(HttpClient);
-  private legacyApiUrl = 'https://api.example.com/purchase-return-invoices';
+  private legacyApiUrl = environment.origin + 'api/PurchaseReturns';
   private apiUrl = '/api/purchase-returns';
 
   constructor() {}
@@ -24,7 +25,8 @@ export class PurchaseReturnService {
   }
 
   addReturnInvoice(invoice: Omit<PurchaseReturnInvoice, 'id'>): Observable<PurchaseReturnInvoice> {
-    return this.http.post<PurchaseReturnInvoice>(this.legacyApiUrl, invoice);
+    console.log('Adding return invoice:', invoice);
+    return this.http.post<PurchaseReturnInvoice>(this.legacyApiUrl+"/Create", invoice);
   }
 
   archiveReturnInvoice(id: number): Observable<PurchaseReturnInvoice> {

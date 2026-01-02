@@ -55,7 +55,8 @@ export class CompanyService {
     // Transform the company object to match API expectations
     const apiPayload = {
       ...company,
-      name: typeof company.name === 'object' ? company.name.en : company.name // Extract English name as string
+      nameEn: typeof company.nameEn === 'object' ? company.nameEn : company.nameEn, // Extract English name as string
+      nameAr: typeof company.nameAr === 'object' ? company.nameAr : company.nameAr // Extract Arabic name as string
     };
     return this.http.post<Company>(`${this.apiUrl}/Create`, apiPayload);
   }
@@ -65,7 +66,8 @@ export class CompanyService {
     // Transform the company object to match API expectations
     const apiPayload = {
       ...company,
-      name: typeof company.name === 'object' ? company.name.en : company.name // Extract English name as string
+      nameEn: typeof company.nameEn === 'object' ? company.nameEn : company.nameEn, // Extract English name as string
+      nameAr: typeof company.nameAr === 'object' ? company.nameAr : company.nameAr // Extract Arabic name as string
     };
     return this.http.put<Company>(`${this.apiUrl}/Update/${id}`, apiPayload);
   }

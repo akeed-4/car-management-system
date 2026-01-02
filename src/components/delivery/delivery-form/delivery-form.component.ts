@@ -89,22 +89,24 @@ export class DeliveryFormComponent {
         const invoice = this.allInvoices().find(inv => inv.id === invoiceId);
         if (invoice) {
           this.selectedInvoice.set(invoice);
-          const customer = this.customerService.getCustomerById(invoice.customerId);
-          
-          this.delivery.update(d => ({
-            ...d,
-            salesInvoiceId: invoice.id,
-            salesInvoiceNumber: invoice.invoiceNumber,
-            carId: invoice.items[0]?.carId, // Assuming one car per delivery for simplicity
-            carDescription: invoice.items[0]?.carDescription,
-            customerId: customer?.id,
-            customerName: customer?.name,
-          }));
+          this.customerService.getCustomerById(invoice.customerId).then(customer => {
+            this.delivery.update(d => ({
+              ...d,
+              salesInvoiceId: invoice.id,
+              salesInvoiceNumber: invoice.invoiceNumber,
+              carId: invoice.items[0]?.carId, // Assuming one car per delivery for simplicity
+              carDescription: invoice.items[0]?.carDescription,
+              customerId: customer?.id,
+              customerName: customer?.name,
+            }));
 
-          // Update form with pre-filled data
-          this.deliveryForm.patchValue({
-            scheduledDate: this.delivery().scheduledDate,
-            scheduledTime: this.delivery().scheduledTime
+            // Update form with pre-filled data
+            this.deliveryForm.patchValue({
+              scheduledDate: this.delivery().scheduledDate,
+              scheduledTime: this.delivery().scheduledTime
+            });
+          }).catch(error => {
+            console.error('Error loading customer:', error);
           });
         } else {
           // If invoice not found, navigate back or to a generic new delivery form

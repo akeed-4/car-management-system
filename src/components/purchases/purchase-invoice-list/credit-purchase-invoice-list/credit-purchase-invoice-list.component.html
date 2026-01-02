@@ -33,7 +33,6 @@
         <dxi-column dataField="invoiceNumber" caption="{{ 'PURCHASES.INVOICE_NUMBER' | translate }}" [allowSorting]="true"></dxi-column>
         <dxi-column dataField="invoiceDate" caption="{{ 'PURCHASES.INVOICE_DATE' | translate }}" dataType="date" format="yyyy-MM-dd" [allowSorting]="true"></dxi-column>
         <dxi-column dataField="supplierName" caption="{{ 'PURCHASES.SUPPLIER' | translate }}" [allowSorting]="true" cellTemplate="supplierTemplate"></dxi-column>
-        <dxi-column caption="{{ 'PURCHASES.CONTENTS' | translate }}" [allowSorting]="false" cellTemplate="contentsTemplate"></dxi-column>
         <dxi-column dataField="totalAmount" caption="{{ 'PURCHASES.TOTAL_COST' | translate }}" dataType="number" format="currency" [allowSorting]="true"></dxi-column>
         <dxi-column dataField="amountPaid" caption="{{ 'PURCHASES.AMOUNT_PAID' | translate }}" dataType="number" format="currency" [allowSorting]="true" cssClass="text-success"></dxi-column>
         <dxi-column dataField="amountDue" caption="{{ 'PURCHASES.AMOUNT_DUE' | translate }}" dataType="number" format="currency" [allowSorting]="true" cssClass="text-danger"></dxi-column>

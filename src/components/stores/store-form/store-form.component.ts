@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, Optional } from '@angular/core';
+import { Component, OnInit, Inject, Optional, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -33,7 +33,12 @@ export class StoreFormComponent implements OnInit {
   storeForm!: FormGroup;
   isEdit = false;
   companies: Company[] = [];
-  branches: Branch[] = [];
+  private branchesSignal = signal<Branch[]>([]);
+  selectedCompanyId = signal<number | null>(null);
+  filteredBranches = computed(() => {
+    const companyId = this.selectedCompanyId();
+    return this.branchesSignal().filter(b => !companyId || b.companyId === companyId);
+  });
 
   constructor(
     private fb: FormBuilder,
@@ -42,7 +47,7 @@ export class StoreFormComponent implements OnInit {
     private branchService: BranchService,
     private toastService: ToastService,
     @Optional() public dialogRef: MatDialogRef<StoreFormComponent>,
-    @Optional() @Inject(MAT_DIALOG_DATA) public data: { store?: Store }
+    @Optional() @Inject(MAT_DIALOG_DATA) public data: number | null
   ) {}
 
   initForm(): void {
@@ -65,8 +70,8 @@ export class StoreFormComponent implements OnInit {
 
   populateForm(store: Store): void {
     this.storeForm.patchValue({
-      nameEn: store.name.en,
-      nameAr: store.name.ar,
+      nameEn: store.nameEn,
+      nameAr: store.nameAr,
       description: store.description,
       status: store.status,
       companyId: store.companyId,
@@ -89,7 +94,7 @@ export class StoreFormComponent implements OnInit {
 
   loadBranches(): void {
     this.branchService.getAll().subscribe(branches => {
-      this.branches = branches;
+      this.branchesSignal.set(branches);
     });
   }
 
@@ -97,7 +102,8 @@ export class StoreFormComponent implements OnInit {
     if (this.storeForm.valid) {
       const formValue = this.storeForm.value;
       const storeData: Omit<Store, 'id' | 'createdAt' | 'updatedAt'> = {
-        name: { en: formValue.nameEn, ar: formValue.nameAr },
+        nameEn: formValue.nameEn,
+        nameAr: formValue.nameAr,
         description: formValue.description,
         status: formValue.status,
         companyId: formValue.companyId,
@@ -115,8 +121,8 @@ export class StoreFormComponent implements OnInit {
         }
       };
 
-      if (this.isEdit && this.data?.store) {
-        this.storeService.update(this.data.store.id, storeData).subscribe({
+      if (this.isEdit && this.data) {
+        this.storeService.update(this.data, storeData).subscribe({
           next: () => {
             this.toastService.showSuccess('TOAST.EDIT_SUCCESS');
             this.closeDialog();
@@ -157,9 +163,15 @@ export class StoreFormComponent implements OnInit {
     this.initForm();
     this.loadCompanies();
     this.loadBranches();
-    if (this.data?.store) {
+    this.storeForm.get('companyId')?.valueChanges.subscribe(value => {
+      this.selectedCompanyId.set(value);
+      this.storeForm.get('branchId')?.setValue(null);
+    });
+    if (this.data) {
       this.isEdit = true;
-      this.populateForm(this.data.store);
+      this.storeService.getById(this.data).subscribe(store => {
+        this.populateForm(store);
+      });
     }
   }
 

@@ -55,7 +55,12 @@ export class PrintableSalesInvoiceComponent {
         this.salesService.getInvoiceById(id).subscribe(inv => {
           if (inv) {
             this.invoice.set(inv);
-            this.customer.set(this.customerService.getCustomerById(inv.customerId) ?? null);
+            this.customerService.getCustomerById(inv.customerId).then(customer => {
+              this.customer.set(customer ?? null);
+            }).catch(error => {
+              console.error('Error loading customer:', error);
+              this.customer.set(null);
+            });
           }
         });
       }

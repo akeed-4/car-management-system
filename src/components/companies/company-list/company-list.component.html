@@ -22,6 +22,7 @@
   <dx-data-grid
     [dataSource]="filteredCompanies()"
     [showBorders]="true"
+    keyexpr="id"
     [showRowLines]="true"
     [showColumnLines]="true"
     [rowAlternationEnabled]="true"
@@ -49,7 +50,7 @@
   
 
     <dxi-column
-      dataField="name"
+      dataField="nameAr"
       [caption]="'COMPANIES.COLUMNS.NAME_AR' | translate"
       [allowFiltering]="true"
       [allowSorting]="true"
@@ -65,14 +66,6 @@
       >
     </dxi-column>
 
-    <dxi-column
-      dataField="branchName"
-      [caption]="'COMPANIES.COLUMNS.BRANCH' | translate"
-      [allowFiltering]="true"
-      [allowSorting]="true"
-      [allowGrouping]="true"
-     >
-    </dxi-column>
 
     <dxi-column
       dataField="status"
@@ -113,7 +106,6 @@
       <dxi-button
         [hint]="'COMPANIES.ACTIONS.DELETE' | translate"
         [icon]="'trash'"
-        [cssClass]="'btn-danger'"
         [onClick]="onDelete"
         >
       </dxi-button>

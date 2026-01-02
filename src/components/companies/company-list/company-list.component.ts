@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Company } from '../../../types/branch.model';
 import { CompanyService } from '../../../services/company.service';
 import { HasPermissionDirective } from '../../shared/permission.directive';
@@ -31,7 +32,13 @@ import { CompanyFormComponent } from '../company-form/company-form.component';
 export class CompanyListComponent {
   private companyService = inject(CompanyService);
   private dialog = inject(MatDialog);
+  private router = inject(Router);
 
+constructor() {
+  this.onCreate = this.onCreate.bind(this);
+  this.onEdit = this.onEdit.bind(this);
+  this.onDelete = this.onDelete.bind(this);
+}
   companies = this.companyService.companies$;
   filter = signal('');
 
@@ -44,8 +51,8 @@ export class CompanyListComponent {
     }
 
     return companies.filter(company =>
-      company.name.en?.toLowerCase().includes(searchTerm) ||
-      company.name.ar?.toLowerCase().includes(searchTerm) ||
+      company.nameEn?.toLowerCase().includes(searchTerm) ||
+      company.nameAr?.toLowerCase().includes(searchTerm) ||
       company.code?.toLowerCase().includes(searchTerm)
     );
   });
@@ -67,40 +74,34 @@ export class CompanyListComponent {
     const dialogRef = this.dialog.open(CompanyFormComponent, {
       width: '1400px',
       height: '80%',
-      data: {}
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.loadCompanies();
-      }
     });
   }
 
-  onEdit(company: Company): void {
-    const dialogRef = this.dialog.open(CompanyFormComponent, {
-      width: '800px',
-      height: '60%',
-      data: { company }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.loadCompanies();
-      }
-    });
+  onEdit(event: any): void {
+    const company = event.row?.data || event;
+    if (company && company.id) {
+      const dialogRef = this.dialog.open(CompanyFormComponent, {
+        width: '1400px',
+        height: '80%',
+        data: { company }
+      });}
   }
 
-  onDelete(company: Company): void {
-    if (confirm(`Are you sure you want to delete company "${company.name.en}"?`)) {
-      this.companyService.delete(company.id).subscribe({
-        next: () => {
-          this.loadCompanies();
-        },
-        error: (error) => {
-          console.error('Error deleting company:', error);
-        }
-      });
+  onDelete(event: any): void {
+    const company = event.row?.data || event;
+    if (company && company.id) {
+      if (confirm(`Are you sure you want to delete company "${company.nameAr || company.nameAr}"?`)) {
+        this.companyService.delete(company.id).subscribe({
+          next: () => {
+            this.loadCompanies();
+          },
+          error: (error) => {
+            console.error('Error deleting company:', error);
+          }
+        });
+      }
+    } else {
+      console.error('Invalid company data:', company);
     }
   }
 

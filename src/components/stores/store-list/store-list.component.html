@@ -22,6 +22,7 @@
   <dx-data-grid
     [dataSource]="filteredStores()"
     [showBorders]="true"
+    keyexpr="id"
     [showRowLines]="true"
     [showColumnLines]="true"
     [rowAlternationEnabled]="true"
@@ -47,8 +48,8 @@
     <dxo-sorting mode="multiple"></dxo-sorting>
 
     <dxi-column
-      dataField="name"
-      [caption]="'STORES.COLUMNS.NAME_EN' | translate"
+      dataField="nameAr"
+      [caption]="'STORES.COLUMNS.NAME_AR' | translate"
       [allowFiltering]="true"
       [allowSorting]="true"
       [allowGrouping]="true"
@@ -122,7 +123,6 @@
       <dxi-button
         [hint]="'STORES.ACTIONS.DELETE' | translate"
         [icon]="'trash'"
-        [cssClass]="'btn-danger'"
         [onClick]="onDelete"
         >
       </dxi-button>

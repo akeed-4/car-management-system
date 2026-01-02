@@ -12,8 +12,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
+import { CostCenterService } from '../../../services/cost-center.service';
+import { CostCenter } from '../../../types/cost-center.model';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
@@ -32,6 +35,7 @@ import { ActivatedRoute, Router } from '@angular/router';
     MatIconModule,
     MatCheckboxModule,
     MatRadioModule,
+    MatProgressSpinnerModule,
     TranslateModule
   ]
 })
@@ -71,10 +75,13 @@ export class AddAccountComponent implements OnChanges, OnInit {
   bankName = '';
 
   accountForm: FormGroup;
+  costCenters: CostCenter[] = [];
+  isSaving = false;
 
   constructor(
     private fb: FormBuilder,
     private accountingService: AccountingService,
+    private costCenterService: CostCenterService,
     private translate: TranslateService,
     private route: ActivatedRoute,
     private toastService: ToastService,
@@ -149,6 +156,9 @@ export class AddAccountComponent implements OnChanges, OnInit {
   }
 
   ngOnInit() {
+    // Load cost centers
+    this.loadCostCenters();
+
     // Handle route parameters for editing
     this.route.params.subscribe(params => {
       const accountId = params['id'];
@@ -192,6 +202,18 @@ export class AddAccountComponent implements OnChanges, OnInit {
             }
           }
         });
+      }
+    });
+  }
+
+  private loadCostCenters() {
+    this.costCenterService.getCostCenters().subscribe({
+      next: (costCenters) => {
+        this.costCenters = costCenters.filter(cc => cc.isActive);
+      },
+      error: (error) => {
+        console.error('Error loading cost centers:', error);
+        this.toastService.showError('Failed to load cost centers');
       }
     });
   }
@@ -244,6 +266,7 @@ export class AddAccountComponent implements OnChanges, OnInit {
 
   onSave() {
     if (this.accountForm.valid) {
+      this.isSaving = true;
       const formValue = this.accountForm.value;
 
       // Remove the accountTypeSelection field as it's not part of the DTO
@@ -278,10 +301,12 @@ export class AddAccountComponent implements OnChanges, OnInit {
             console.log('Account updated successfully:', account);
             this.toastService.showSuccess('ACCOUNTING.ACCOUNT_UPDATED');
             this.accountSaved.emit(account);
+            this.isSaving = false;
           },
           error: (error) => {
             console.error('Error updating account:', error);
             this.toastService.showError('ACCOUNTING.ERROR_UPDATING_ACCOUNT');
+            this.isSaving = false;
           }
         });
       } else {
@@ -292,10 +317,12 @@ export class AddAccountComponent implements OnChanges, OnInit {
             console.log('Account created successfully:', account);
             this.toastService.showSuccess('ACCOUNTING.ACCOUNT_CREATED');
             this.accountSaved.emit(account);
+            this.isSaving = false;
           },
           error: (error) => {
             console.error('Error creating account:', error);
             this.toastService.showError('ACCOUNTING.ERROR_CREATING_ACCOUNT');
+            this.isSaving = false;
           }
         });
       }

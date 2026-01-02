@@ -2,10 +2,13 @@ import { LocalStorageService } from './local-storage.service';
 import { Inject, Injectable } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { Breakpoints, BreakpointObserver } from '@angular/cdk/layout';
-import { BehaviorSubject, map } from 'rxjs';
+import { BehaviorSubject, map, Observable } from 'rxjs';
 import { Title } from '@angular/platform-browser';
 import { environment } from '../environments/environment';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { InvoiceClassification } from '../types/invoice-classification.model';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root'
@@ -37,6 +40,8 @@ export class CurrentSettingService {
   constructor(private breakpointObserver: BreakpointObserver,private localStorageService:LocalStorageService,private title:Title,
     @Inject(DOCUMENT) private document: Document,
     private router: Router,
+    private http: HttpClient,
+    private translate: TranslateService
   ) {
     // Initialize documents subject with stored value
     this.documentsSubject.next(this.localStorageService.getLocalStorage('documents') || '');
@@ -523,5 +528,24 @@ export class CurrentSettingService {
         }
       })
     );
+  }
+
+  /**
+   * Get invoice classifications from API
+   * Returns observable of invoice classification options for dropdown
+   */
+  getInvoiceClassifications(): Observable<{value: number, label: string, vatRate: number}[]> {
+    return this.http.get<InvoiceClassification[]>(`${environment.origin}api/PurchaseInvoices/classifications`)
+      .pipe(
+        map(classifications => 
+          classifications
+            .filter(c => c.isActive)
+            .map(c => ({
+              value: c.id,
+              label: this.translate.currentLang === 'en' ? c.nameEn : c.nameAr,
+              vatRate: c.vatRate
+            }))
+        )
+      );
   }
 }

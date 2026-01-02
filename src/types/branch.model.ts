@@ -1,7 +1,8 @@
 export interface Branch {
   id: number;
   code?: string;
-  name: { en: string; ar: string };
+  nameAr:string;
+  nameEn:string;
   description: string;
   status: 'active' | 'inactive';
   createdBy: string;
@@ -23,7 +24,8 @@ export interface Branch {
 export interface Company {
   id: number;
   code?: string;
-  name: { en: string; ar: string };
+  nameAr:string;
+  nameEn:string;
   description: string;
   status: 'active' | 'inactive';
   createdBy: string;
@@ -44,7 +46,8 @@ export interface Company {
 export interface Store {
   id: number;
   code?: string;
-  name: { en: string; ar: string };
+  nameAr:string;
+  nameEn:string;
   description: string;
   status: 'active' | 'inactive';
   createdBy: string;

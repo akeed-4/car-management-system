@@ -39,7 +39,7 @@ export class CreditPurchaseInvoiceListComponent {
       let invoices = this.invoices().filter(inv => !!inv.isArchived === showArchived);
 
       // Filter for credit invoices only
-      invoices = invoices.filter(inv => inv.paymentMethod === 'Credit (Deferred)');
+      invoices = invoices.filter(inv => inv.paymentType === 'credit');
 
       // Filter
       if (searchTerm) {

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { SupplierService } from '../../../../services/supplier.service';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ModalComponent } from '../../../shared/modal/modal.component';
 import { Supplier } from '../../../../types/supplier.model';
 import { FormsModule } from '@angular/forms';
@@ -10,8 +11,9 @@ import {
   DxLoadPanelModule,
   DxScrollViewModule
 } from 'devextreme-angular';
-import { TranslateModule } from '@ngx-translate/core';
 import { MatIconModule } from '@angular/material/icon';
+import { TranslateModule } from '@ngx-translate/core';
+
 
 type SortColumn = keyof Supplier | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -20,7 +22,8 @@ type SortDirection = 'asc' | 'desc' | '';
   selector: 'app-suppliers',
   standalone: true,
   imports: [
-    RouterLink,
+    CommonModule,
+    RouterModule,
     ModalComponent,
     FormsModule,
     DxDataGridModule,
@@ -37,6 +40,11 @@ type SortDirection = 'asc' | 'desc' | '';
 export class SuppliersComponent {
   private supplierService = inject(SupplierService);
   private router = inject(Router);
+
+  constructor() {
+    this.editSupplier = this.editSupplier.bind(this);
+    this.requestDelete = this.requestDelete.bind(this);
+  }
   
   suppliers = this.supplierService.suppliers$;
   filter = signal('');
@@ -89,31 +97,17 @@ export class SuppliersComponent {
     this.filter.set(input.value);
   }
 
-  onSort(column: SortColumn) {
-    if (this.sortColumn() === column) {
-      this.sortDirection.update(currentDir => {
-        if (currentDir === 'asc') return 'desc';
-        if (currentDir === 'desc') return '';
-        return 'asc';
-      });
-    } else {
-      this.sortColumn.set(column);
-      this.sortDirection.set('asc');
-    }
-  }
+ 
 
-  getSortIcon(column: SortColumn) {
-    if (this.sortColumn() !== column) return '';
-    if (this.sortDirection() === 'asc') return '▲';
-    if (this.sortDirection() === 'desc') return '▼';
-    return '';
-  }
 
-  editSupplier(id: number): void {
+
+  editSupplier(event: any): void {
+    const id = event.row.data.id;
     this.router.navigate(['/entities/suppliers/edit', id]);
   }
 
-  requestDelete(id: number): void {
+  requestDelete(event: any): void {
+    const id = event.row.data.id;
     this.itemToDeleteId.set(id);
     this.isDeleteModalOpen.set(true);
   }

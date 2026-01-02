@@ -1,6 +1,9 @@
 <div class="branch-list-container">
   <div class="header">
-    <h2>{{ 'BRANCHES.LIST_TITLE' | translate }}</h2>
+    <div class="title-section">
+      <h2>{{ 'BRANCHES.LIST_TITLE' | translate }}</h2>
+     
+    </div>
     <div class="actions">
       <input
         type="text"
@@ -49,8 +52,8 @@
 
 
     <dxi-column
-      dataField="name"
-      [caption]="'BRANCHES.COLUMNS.NAME_AR' | translate"
+      dataField="nameAr"
+      [caption]="'BRANCHES.COLUMNS.NAME' | translate"
       [allowFiltering]="true"
       [allowSorting]="true"
       [allowGrouping]="true"
@@ -105,7 +108,6 @@
       <dxi-button
         [hint]="'BRANCHES.ACTIONS.DELETE' | translate"
         [icon]="'trash'"
-        [cssClass]="'btn-danger'"
         [onClick]="onDelete"
         >
       </dxi-button>

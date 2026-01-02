@@ -55,7 +55,8 @@ export class BranchService {
     // Transform the branch object to match API expectations
     const apiPayload = {
       ...branch,
-      name: typeof branch.name === 'object' ? branch.name.en : branch.name // Extract English name as string
+      nameEn: branch.nameEn,
+      nameAr: branch.nameAr
     };
     return this.http.post<Branch>(`${this.apiUrl}/Create`, apiPayload);
   }
@@ -65,7 +66,8 @@ export class BranchService {
     // Transform the branch object to match API expectations
     const apiPayload = {
       ...branch,
-      name: typeof branch.name === 'object' ? branch.name.en : branch.name // Extract English name if it's an object
+      nameEn: branch.nameEn,
+      nameAr: branch.nameAr
     };
     return this.http.put<Branch>(`${this.apiUrl}/Update/${id}`, apiPayload);
   }

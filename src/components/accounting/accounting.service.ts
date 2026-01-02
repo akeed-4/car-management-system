@@ -46,7 +46,7 @@ export class AccountingService {
         console.log('Extracted accounts array:', accounts);
         // Set parentId for partial accounts
         const processedAccounts = accounts.map(account => {
-          let parentId = !account.isMainAccount && account.mainAccountId ? account.mainAccountId : account.parentId;
+          let parentId =  account.parentId;
           // Fix self-referencing parentId
           if (parentId === account.id) {
             parentId = null;

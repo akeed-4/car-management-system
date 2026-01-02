@@ -10,6 +10,8 @@ export interface PurchaseInvoice {
   debitAccountId: number; // Inventory or expense account
   creditAccountId: number; // Supplier, cash, or bank account
   paymentMethod?: string; // Cash, Bank Transfer
+  
+  invoiceType?: string; // Taxable, Zero Rated, Exempt
   dueDate?: string; // Due date for credit invoices
   totalAmount: number;
   amountPaid: number;
@@ -19,7 +21,8 @@ export interface PurchaseInvoice {
   isArchived?: boolean;
   createdAt?: string;
   updatedAt?: string;
-
+  paymentType?: string;
+ClassificationId?: number;
   // Navigation properties
   supplier?: Supplier;
   debitAccount?: AccountNode;

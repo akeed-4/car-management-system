@@ -49,6 +49,33 @@
   align-items: center;
 }
 
+.level-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 12px;
+  border-radius: 6px;
+  backdrop-filter: blur(10px);
+}
+
+.level-filter label {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.level-filter select {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 14px;
+  color: #333;
+  min-width: 60px;
+}
+
 .btn-refresh {
   background-color: rgba(255, 255, 255, 0.2);
   color: #ffffff;
