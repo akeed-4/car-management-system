@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, Input } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormControl, Validators, FormGroup } from '@angular/forms';
@@ -36,8 +36,14 @@ import { ToastService } from '../../../services/toast.service';
 const VAT_RATE_FULL = 0.15; // 15% for new cars on full sale price
 const VAT_RATE_MARGIN = 0.15; // 15% applied to profit margin for used cars
 
+export enum InvoiceType {
+  Taxable = 'Taxable',
+  ZeroRated = 'Zero Rated',
+  Exempt = 'Exempt'
+}
+
 @Component({
-  selector: 'app-sales-invoice',
+  selector: 'app-sales-invoice-form',
   standalone: true,
   imports: [
     CommonModule,
@@ -59,11 +65,17 @@ const VAT_RATE_MARGIN = 0.15; // 15% applied to profit margin for used cars
     TranslateModule,
   ],
   providers: [provideNativeDateAdapter()],
-  templateUrl: './sales-invoice.component.html',
-  styleUrl: './sales-invoice.component.css',
+  templateUrl: './sales-invoice-form.component.html',
+  styleUrl: './sales-invoice-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SalesInvoiceComponent implements OnInit {
+export class SalesInvoiceFormComponent implements OnInit {
+    @Input() lockPaymentMethod: boolean = false;
+    @Input() fixedPaymentMethod: any;
+    @Input() customTitle:any;
+    @Input() isCash: boolean = false;
+    // Expose enum to template
+    InvoiceType = InvoiceType;
     // Utility to calculate total amount
     calculateTotalAmount(items: any[]): number {
       return items.reduce((sum, item) => sum + (item.amount || 0), 0);
@@ -91,6 +103,13 @@ export class SalesInvoiceComponent implements OnInit {
   invoiceNumber = signal('');
 
   selectedCustomer = signal<Customer | null>(null);
+
+  // Invoice type signal
+  invoiceType = signal<InvoiceType>(InvoiceType.Taxable);
+
+  // Invoice classification signals
+  invoiceClassifications = signal<any[]>([]);
+  selectedInvoiceClassification = signal<any | null>(null);
 
   constructor(
     private inventoryService: InventoryService,
@@ -120,6 +139,9 @@ export class SalesInvoiceComponent implements OnInit {
         invoiceDate: new FormControl(new Date(), Validators.required),
         dueDate: new FormControl(''),
         paymentMethod: new FormControl('Cash'),
+        paymentType: new FormControl(this.fixedPaymentMethod || 'Bank Transfer'),
+        invoiceType: new FormControl(InvoiceType.Taxable, Validators.required),
+        ClassificationId: new FormControl(0, Validators.required),
         salesperson: new FormControl(''),
         selectedCarId: new FormControl(null),
         selectedQuantity: new FormControl(1, [Validators.required, Validators.min(1)]),
@@ -127,6 +149,19 @@ export class SalesInvoiceComponent implements OnInit {
         selectedCostPrice: new FormControl(0, [Validators.required, Validators.min(0)])
       });
     }
+
+    // Load invoice classifications from API
+    this.currentSettingService.getInvoiceClassifications().subscribe(classifications => {
+      this.invoiceClassifications.set(classifications);
+      // Set default classification if available
+      if (classifications.length > 0) {
+        this.selectedInvoiceClassification.set(classifications[0]);
+        // Update form with default classification
+        this.invoiceForm?.patchValue({
+          ClassificationId: classifications[0].value
+        });
+      }
+    });
 
     // Watch for store changes to load car stocks
     this.invoiceForm.get('store')?.valueChanges.subscribe(storeId => {

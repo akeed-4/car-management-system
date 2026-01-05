@@ -1,7 +1,7 @@
 <div class="container">
   <div class="page-header strong-header">
     <div class="header-info">
-      <h2 class="strong-title">{{ 'INVOICE.CREATE_TITLE' | translate }} (Cash)</h2>
+      <h2 class="strong-title">{{ 'INVOICE.CREATE_TITLE' | translate }}</h2>
     </div>
     <div class="header-actions">
       <a routerLink="/sales" class="btn btn-secondary btn-small">
@@ -50,6 +50,50 @@
             <mat-datepicker #invoiceDatePicker></mat-datepicker>
           </mat-form-field>
 
+          <mat-form-field *ngIf="selectedCustomer()?.isCreditCustomer" appearance="outline" class="form-field">
+            <mat-label>{{ 'INVOICE.DUE_DATE' | translate }}</mat-label>
+            <input matInput [matDatepicker]="dueDatePicker" formControlName="dueDate">
+            <mat-datepicker-toggle matSuffix [for]="dueDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #dueDatePicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'INVOICE.PAYMENT_METHOD' | translate }}</mat-label>
+            <mat-select formControlName="paymentMethod">
+              <mat-option value="Cash">{{ 'INVOICE.PAYMENT_CASH' | translate }}</mat-option>
+              <mat-option *ngIf="selectedCustomer()?.isCreditCustomer" value="Bank Transfer">{{ 'INVOICE.PAYMENT_BANK_TRANSFER' | translate }}</mat-option>
+              <mat-option *ngIf="selectedCustomer()?.isCreditCustomer" value="Finance">{{ 'INVOICE.PAYMENT_FINANCE' | translate }}</mat-option>
+              <mat-option *ngIf="selectedCustomer()?.isCreditCustomer" value="Installments">{{ 'INVOICE.PAYMENT_INSTALLMENTS' | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'INVOICE.PAYMENT_TYPE' | translate }}</mat-label>
+            <mat-select formControlName="paymentType">
+              <mat-option value="Bank Transfer">{{ 'INVOICE.PAYMENT_BANK_TRANSFER' | translate }}</mat-option>
+              <mat-option value="Cash">{{ 'INVOICE.PAYMENT_CASH' | translate }}</mat-option>
+              <mat-option value="Check">{{ 'INVOICE.PAYMENT_CHECK' | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'INVOICE.INVOICE_TYPE' | translate }}</mat-label>
+            <mat-select formControlName="invoiceType">
+              <mat-option [value]="InvoiceType.Taxable">{{ 'INVOICE.TYPE_TAXABLE' | translate }}</mat-option>
+              <mat-option [value]="InvoiceType.ZeroRated">{{ 'INVOICE.TYPE_ZERO_RATED' | translate }}</mat-option>
+              <mat-option [value]="InvoiceType.Exempt">{{ 'INVOICE.TYPE_EXEMPT' | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'INVOICE.CLASSIFICATION' | translate }}</mat-label>
+            <mat-select formControlName="ClassificationId">
+              <mat-option *ngFor="let classification of invoiceClassifications()" [value]="classification.value">
+                {{ classification.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'INVOICE.SALESPERSON' | translate }}</mat-label>
             <input matInput formControlName="salesperson">
@@ -57,39 +101,14 @@
         </div>
       </section>
 
-      <section class="form-section">
-        <h3 class="form-section-title">{{ 'INVOICE.ITEMS_SECTION' | translate }}</h3>
-        <div class="add-item-section">
-          <div class="form-grid">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'INVOICE.SELECT_CAR' | translate }}</mat-label>
-              <mat-select formControlName="selectedCarId">
-                <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_CAR_OPTION' | translate }}</mat-option>
-                <mat-option *ngFor="let car of availableCars()" [value]="car.carId">
-                  {{ car.carName }} - {{ 'INVOICE.QUANTITY_LABEL' | translate }} {{ car.availableQuantity }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
+  <section class="form-section">
+    <h3 class="form-section-title">{{ 'INVOICE.SELECT_CAR_CARD' | translate }}</h3>
+    
+    <button mat-raised-button color="primary" (click)="openCarSelectionDialog()">
+      {{ 'INVOICE.SELECT_CAR' | translate }}
+    </button>
+  </section>
 
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'INVOICE.costPrice' | translate }}</mat-label>
-              <input matInput type="number" formControlName="selectedCostPrice" min="1">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'INVOICE.QUANTITY' | translate }}</mat-label>
-              <input matInput type="number" formControlName="selectedQuantity" min="1">
-            </mat-form-field>
-
-            <div class="form-field">
-              <button mat-raised-button color="primary" (click)="addItemToInvoice()" [disabled]="!invoiceForm.get('selectedCarId')?.valid || !invoiceForm.get('selectedQuantity')?.valid" class="add-button">
-                <mat-icon>add</mat-icon>
-                <span>{{ 'INVOICE.ADD' | translate }}</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <section class="form-section">
         <div class="table-wrapper premium-table">
@@ -111,6 +130,9 @@
             <dxi-column dataField="quantity" caption="{{ 'INVOICE.QUANTITY' | translate }}" [allowEditing]="false"></dxi-column>
             <dxi-column dataField="unitPrice" caption="{{ 'INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
             <dxi-column dataField="lineTotal" caption="{{ 'INVOICE.LINE_TOTAL' | translate }}" dataType="number" [allowEditing]="false" format="currency"></dxi-column>
+            <dxi-column dataField="installmentDetails.downPayment" caption="{{ 'INVOICE.DOWN_PAYMENT' | translate }}" dataType="number" format="currency" [visible]="hasInstallments()"></dxi-column>
+            <dxi-column dataField="installmentDetails.numberOfInstallments" caption="{{ 'INVOICE.NUMBER_OF_INSTALLMENTS' | translate }}" [visible]="hasInstallments()"></dxi-column>
+            <dxi-column dataField="installmentDetails.installmentAmount" caption="{{ 'INVOICE.INSTALLMENT_AMOUNT' | translate }}" dataType="number" format="currency" [visible]="hasInstallments()"></dxi-column>
             <dxi-column type="buttons">
               <dxi-button name="delete"></dxi-button>
             </dxi-column>

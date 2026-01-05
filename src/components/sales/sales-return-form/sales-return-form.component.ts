@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, Input } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router, RouterLink } from '@angular/router';
@@ -31,6 +31,10 @@ import { provideNativeDateAdapter } from '@angular/material/core';
   providers: [provideNativeDateAdapter()]
 })
 export class SalesReturnFormComponent implements OnInit {
+ @Input() lockPaymentMethod: boolean = false;
+ @Input() fixedPaymentMethod: any;
+ @Input() customTitle:any;
+ @Input() isCashReturn: boolean = false;
   private salesService = inject(SalesService);
   private salesReturnService = inject(SalesReturnService);
   private inventoryService = inject(InventoryService);

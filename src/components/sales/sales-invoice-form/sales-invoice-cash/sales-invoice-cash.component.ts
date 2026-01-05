@@ -4,15 +4,6 @@ import { ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormControl, Validators, FormGroup } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
-import { InventoryService } from '../../../services/inventory.service';
-import { CustomerService } from '../../../services/customer.service';
-import { SalesService } from '../../../services/sales.service';
-import { CurrentSettingService } from '../../../services/current-setting.service';
-import { StoreService } from '../../../services/store.service';
-import { SalesInvoice } from '../../../types/sales-invoice.model';
-import { InvoiceItem } from '../../../types/invoice-item.model';
-import { Car } from '../../../types/car.model';
-import { StoreCarStockDto } from '../../../types/store-car-stock.model';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -27,22 +18,29 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
-import { InvoiceItemDialogComponent } from '../invoice-item-dialog/invoice-item-dialog.component';
 import { DxoValueErrorBarComponent } from 'devextreme-angular/ui/nested';
-import { ToastService } from '../../../services/toast.service';
+import { CurrentSettingService } from '@/src/services/current-setting.service';
+import { CustomerService } from '@/src/services/customer.service';
+import { InventoryService } from '@/src/services/inventory.service';
+import { SalesService } from '@/src/services/sales.service';
+import { StoreService } from '@/src/services/store.service';
+import { InvoiceItem } from '@/src/types/invoice-item.model';
+import { SalesInvoice } from '@/src/types/sales-invoice.model';
+import { StoreCarStockDto } from '@/src/types/store-car-stock.model';
+import { ToastService } from '@/src/services/toast.service';
+import { SalesComponent } from "../../sales-list/sales.component";
+import { SalesInvoiceFormComponent } from '../sales-invoice-form.component';
 
 const VAT_RATE_FULL = 0.15; // 15% for new cars on full sale price
 const VAT_RATE_MARGIN = 0.15; // 15% applied to profit margin for used cars
 
 @Component({
-  selector: 'app-sales-invoice-credit',
+  selector: 'app-sales-invoice-cash',
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
     ReactiveFormsModule,
     FormsModule,
-    CurrencyPipe,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -55,13 +53,14 @@ const VAT_RATE_MARGIN = 0.15; // 15% applied to profit margin for used cars
     MatDividerModule,
     DxDataGridModule,
     TranslateModule,
-  ],
+    SalesInvoiceFormComponent,
+],
   providers: [provideNativeDateAdapter()],
-  templateUrl: './sales-invoice-credit.component.html',
-  styleUrl: './sales-invoice-credit.component.css',
+  templateUrl: './sales-invoice-cash.component.html',
+  styleUrl: './sales-invoice-cash.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SalesInvoiceCreditComponent implements OnInit {
+export class SalesInvoiceCashComponent implements OnInit {
     // Utility to calculate total amount
     calculateTotalAmount(items: any[]): number {
       return items.reduce((sum, item) => sum + (item.amount || 0), 0);
@@ -114,8 +113,6 @@ export class SalesInvoiceCreditComponent implements OnInit {
         store: new FormControl(null, Validators.required),
         customer: new FormControl(null, Validators.required),
         invoiceDate: new FormControl(new Date(), Validators.required),
-        dueDate: new FormControl(''),
-        paymentMethod: new FormControl('Finance'),
         salesperson: new FormControl(''),
         selectedCarId: new FormControl(null),
         selectedQuantity: new FormControl(1, [Validators.required, Validators.min(1)]),
@@ -142,8 +139,6 @@ export class SalesInvoiceCreditComponent implements OnInit {
           store: new FormControl(invoice.storeId, Validators.required),
           customer: new FormControl(invoice.customerId, Validators.required),
           invoiceDate: new FormControl(new Date(invoice.invoiceDate), Validators.required),
-          dueDate: new FormControl(invoice.dueDate ? new Date(invoice.dueDate) : ''),
-          paymentMethod: new FormControl(invoice.paymentMethod || 'Finance'),
           salesperson: new FormControl(invoice.salesperson || ''),
           selectedCarId: new FormControl(null),
           selectedQuantity: new FormControl(1, [Validators.required, Validators.min(1)]),
@@ -326,7 +321,7 @@ export class SalesInvoiceCreditComponent implements OnInit {
       amountPaid: 0,
       amountDue: this.totalAmount(),
       ownershipTransferStatus: 'Not Started',
-      paymentMethod: this.invoiceForm.get('paymentMethod')?.value || 'Finance'
+      paymentMethod: 'Cash'
     };
 
     this.salesService.addInvoice(invoiceData).subscribe({

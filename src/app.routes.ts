@@ -6,9 +6,7 @@ import { InventoryFormComponent } from './components/inventory/inventory-form/in
 import { SalesComponent } from './components/sales/sales-list/sales.component';
 import { PurchasesComponent } from './components/purchases/purchases-list/purchases.component';
 import { UsersComponent } from './components/users/users-list/users.component';
-import { SalesInvoiceComponent } from './components/sales/sales-invoice/sales-invoice.component';
-import { SalesInvoiceCashComponent } from './components/sales/sales-invoice-cash/sales-invoice-cash.component';
-import { SalesInvoiceCreditComponent } from './components/sales/sales-invoice-credit/sales-invoice-credit.component';
+import { SalesInvoiceFormComponent } from './components/sales/sales-invoice-form/sales-invoice-form.component';
 import { SaleParentComponent } from './components/sales/sale-parent/sale-parent.component';
 import { InvoiceCreditListComponent } from './components/sales/invoice-credit-list/invoice-credit-list.component';
 import { PurchaseInvoiceComponent } from './components/purchases/purchase-invoice/purchase-invoice.component';
@@ -85,6 +83,8 @@ import { OpeningBalancesInventoryListComponent } from './components/inventory/op
 import { OpeningBalancesInventoryFormComponent } from './components/inventory/opening-balances-inventory-form/opening-balances-inventory-form.component';
 import { OpeningBalancesFinancialListComponent } from './components/accounting/opening-balances-financial/opening-balances-financial-list/opening-balances-financial-list.component';
 import { OpeningBalancesFinancialFormComponent } from './components/accounting/opening-balances-financial/opening-balances-financial-form/opening-balances-financial-form.component';
+import { SalesInvoiceCashComponent } from './components/sales/sales-invoice-form/sales-invoice-cash/sales-invoice-cash.component';
+import { SalesInvoiceCreditComponent } from './components/sales/sales-invoice-form/sales-invoice-credit/sales-invoice-credit.component';
 
 export const APP_ROUTES: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -143,8 +143,6 @@ export const APP_ROUTES: Routes = [
   { path: 'sales/invoice-credit-list', component: InvoiceCreditListComponent },
   { path: 'sales/invoice/cash/new', component: SalesInvoiceCashComponent },
   { path: 'sales/invoice/credit/new', component: SalesInvoiceCreditComponent },
-  { path: 'sales/invoice/new', component: SalesInvoiceComponent },
-  { path: 'sales/invoice/edit/:id', component: SalesInvoiceComponent },
   { path: 'sales/invoice/print/:id', component: PrintableSalesInvoiceComponent },
   { path: 'sales/return', component: SalesReturnInvoiceComponent },
   { path: 'sales/returns', component: SalesReturnInvoiceComponent }, // Added plural route

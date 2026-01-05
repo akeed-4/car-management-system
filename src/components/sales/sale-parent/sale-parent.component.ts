@@ -8,8 +8,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { TranslateModule } from '@ngx-translate/core';
 import { SaleType } from '../../../types/sales-enhancements.model';
-import { SalesInvoiceCashComponent } from '../sales-invoice-cash/sales-invoice-cash.component';
-import { SalesInvoiceCreditComponent } from '../sales-invoice-credit/sales-invoice-credit.component';
+import { SalesInvoiceCashComponent } from '../sales-invoice-form/sales-invoice-cash/sales-invoice-cash.component';
+import { SalesInvoiceCreditComponent } from '../sales-invoice-form/sales-invoice-credit/sales-invoice-credit.component';
 import { SalesInvoiceInstallmentsComponent } from '../sales-invoice-installments/sales-invoice-installments.component';
 
 @Component({
