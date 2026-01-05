@@ -1,0 +1,92 @@
+<div class="container mx-auto">
+  <div class="page-header">
+    <div class="flex flex-col items-start gap-4">
+      <h2 class="text-2xl font-semibold text-gray-800">{{ 'CREDIT_PURCHASE_RETURN.LIST_TITLE' | translate }}</h2>
+      <a routerLink="/purchases/return/credit/new" class="btn-primary">
+      
+        {{ 'CREDIT_PURCHASE_RETURN.NEW_RETURN' | translate }}
+
+      </a>
+    </div>
+  </div>
+  <div class="bg-white p-6 rounded-lg shadow-md">
+    <div class="datagrid-container">
+      <dx-data-grid
+        [dataSource]="filteredReturnInvoices()"
+       [showBorders]="true"
+        [columnAutoWidth]="true"
+        [rowAlternationEnabled]="true"
+        [rtlEnabled]="true"
+        height="600px"
+        [showRowLines]="true"
+        [allowColumnReordering]="true"
+        [allowColumnResizing]="true">
+
+        <dxo-filter-row [visible]="true"></dxo-filter-row>
+        <dxo-header-filter [visible]="true"></dxo-header-filter>
+        <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false"
+          [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
+        <dxo-selection mode="single"></dxo-selection>
+        <dxo-grouping [autoExpandAll]="false" [contextMenuEnabled]="true"></dxo-grouping>
+        <dxo-paging [pageSize]="10"></dxo-paging>
+        <dxo-pager [visible]="true" [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
+        <dxi-column
+          dataField="returnInvoiceNumber"
+          [caption]="'PURCHASE_RETURN.COL_RETURN_NUMBER' | translate"
+          alignment="right">
+        </dxi-column>
+
+        <dxi-column
+          dataField="returnInvoiceDate"
+          [caption]="'PURCHASE_RETURN.COL_DATE' | translate"
+          dataType="date"
+          format="yyyy-MM-dd"
+          alignment="right">
+        </dxi-column>
+
+        <dxi-column
+          dataField="supplierName"
+          [caption]="'PURCHASE_RETURN.COL_SUPPLIER' | translate"
+          [minWidth]="200"
+          alignment="right">
+        </dxi-column>
+
+        <dxi-column
+          dataField="totalAmount"
+          [caption]="'PURCHASE_RETURN.COL_TOTAL' | translate"
+          dataType="number"
+          format="currency"
+          alignment="right">
+          <dxo-format type="currency" currency="SAR"></dxo-format>
+        </dxi-column>
+
+        <dxi-column type="buttons" [caption]="'PURCHASE_RETURN.ACTIONS' | translate" [width]="150">
+          <dxi-button
+            icon="print"
+            hint="{{ 'PURCHASE_RETURN.PRINT' | translate }}"
+            [onClick]="onPrintClick">
+          </dxi-button>
+          <dxi-button
+            icon="edit"
+            hint="{{ 'PURCHASE_RETURN.EDIT' | translate }}"
+            [onClick]="onEditClick">
+          </dxi-button>
+          <dxi-button
+            icon="trash"
+            hint="{{ 'PURCHASE_RETURN.DELETE' | translate }}"
+            [onClick]="onDeleteClick">
+          </dxi-button>
+        </dxi-column>
+
+        <dxo-summary>
+          <dxi-total-item
+            column="totalAmount"
+            summaryType="sum"
+            [customizeText]="customizeTotalText">
+          </dxi-total-item>
+        </dxo-summary>
+
+      </dx-data-grid>
+    </div>
+  </div>
+</div>

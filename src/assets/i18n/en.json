@@ -527,7 +527,20 @@
     "COL_DATE": "Date",
     "COL_SUPPLIER": "Supplier",
     "COL_TOTAL": "Return Total",
-    "NO_RETURNS": "No purchase return invoices yet."
+    "NO_RETURNS": "No purchase return invoices yet.",
+    "ACTIONS": "Actions",
+    "PRINT": "Print",
+    "EDIT": "Edit",
+    "DELETE": "Delete",
+    "DELETE_CONFIRM": "Are you sure you want to delete this return invoice?"
+  },
+  "CASH_PURCHASE_RETURN": {
+    "LIST_TITLE": "Cash Purchase Returns",
+    "NEW_RETURN": "Create New Cash Purchase Return"
+  },
+  "CREDIT_PURCHASE_RETURN": {
+    "LIST_TITLE": "Credit Purchase Returns",
+    "NEW_RETURN": "Create New Credit Purchase Return"
   },
   "SALES": {
     "LIST_TITLE": "Sales Invoices",

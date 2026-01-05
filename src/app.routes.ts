@@ -37,6 +37,8 @@ import { CashPurchaseInvoiceListComponent } from './components/purchases/purchas
 import { CreditPurchaseInvoiceListComponent } from './components/purchases/purchase-invoice-list/credit-purchase-invoice-list/credit-purchase-invoice-list.component';
 import { CashPurchaseReturnComponent } from './components/purchases/purchase-returns/cash-purchase-return/cash-purchase-return.component';
 import { CreditPurchaseReturnComponent } from './components/purchases/purchase-returns/credit-purchase-return/credit-purchase-return.component';
+import { CashReturnInvoiceListComponent } from './components/purchases/purchase-invoice-return-list/cash-return-invoice-list/cash-return-invoice-list.component';
+import { CreditReturnInvoiceListComponent } from './components/purchases/purchase-invoice-return-list/credit-return-invoice-list/credit-return-invoice-list.component';
 import { RolesComponent } from './components/users/roles/roles.component';
 import { RequestedCarsComponent } from './components/requested-cars/requested-cars-list/requested-cars.component';
 import { RequestedCarFormComponent } from './components/requested-cars/requested-car-form/requested-car-form.component';
@@ -87,8 +89,6 @@ import { SalesInvoiceCashComponent } from './components/sales/sales-invoice-form
 import { SalesInvoiceCreditComponent } from './components/sales/sales-invoice-form/sales-invoice-credit/sales-invoice-credit.component';
 import { CashInvoiceListComponent } from './components/sales/sales-invoice-list/cash-invoice-list/cash-invoice-list.component';
 import { CreditInvoiceListComponent } from './components/sales/sales-invoice-list/credit-invoice-list/credit-invoice-list.component';
-import { CashReturnInvoiceListComponent } from './components/sales/sales-return-invoice-list/cash-return-invoice-list/cash-return-invoice-list.component';
-import { CreditReturnInvoiceListComponent } from './components/sales/sales-return-invoice-list/credit-return-invoice-list/credit-return-invoice-list.component';
 
 export const APP_ROUTES: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -166,8 +166,10 @@ export const APP_ROUTES: Routes = [
   { path: 'purchases/return', component: PurchaseReturnInvoiceComponent },
   { path: 'purchases/returns', component: PurchaseReturnInvoiceComponent }, // Added plural route
   { path: 'purchases/return/new', component: PurchaseReturnFormComponent },
-  { path: 'purchases/return/cash', component: CashPurchaseReturnComponent },
-  { path: 'purchases/return/credit', component: CreditPurchaseReturnComponent },
+  { path: 'purchases/return/cash/new', component: CashPurchaseReturnComponent },
+  { path: 'purchases/return/credit/new', component: CreditPurchaseReturnComponent },
+  { path: 'purchases/return/cash', component: CashReturnInvoiceListComponent },
+  { path: 'purchases/return/credit', component: CreditReturnInvoiceListComponent },
   { path: 'expenses', component: ExpensesComponent },
   { path: 'expenses/new', component: ExpenseFormComponent },
   { path: 'expenses/edit/:id', component: ExpenseFormComponent },
