@@ -9,6 +9,22 @@ import { CurrentSettingService } from './current-setting.service';
 
 // Removed duplicate MenuService class
 
+@Injectable({
+  providedIn: 'root'
+})
+export class MenuService {
+  constructor(
+    private http: HttpClient,
+    private currentSettingService: CurrentSettingService,
+    @Inject(DOCUMENT) private document: Document
+  ) {}
+
+  getMenus(): Observable<any[]> {
+    // Return the static menu data
+    return of(menuData);
+  }
+}
+
 export const menuData = [
   {
     id: 1,
@@ -101,11 +117,12 @@ export const menuData = [
     name: 'المبيعات',
     englishName: 'Sales',
     submenu: [
-      { id: 51, name: 'فواتير المبيعات النقدية', englishName: 'Sales Invoices', route: '/sales' },
-      { id: 52,  name: 'فواتير المبيعات الاجلة', englishName: 'Sales Invoices', route: '/sales/invoice-credit-list' },
+      { id: 51, name: 'فواتير المبيعات النقدية', englishName: 'Cash Sales Invoices', route: '/sales/invoice/cash' },
+      { id: 52,  name: 'فواتير المبيعات الاجلة', englishName: 'Credit Sales Invoices', route: '/sales/invoice/credit' },
       { id: 53, name: 'إدارة الأقساط', englishName: 'Installment Management', route: '/installments' },
-      { id: 54, name: 'مرتجعات المبيعات', englishName: 'Sales Returns', route: '/sales/returns' },
-      { id: 55, name: 'اعتماد مرتجعات المبيعات', englishName: 'Approve Sales Returns', route: '/sales/returns-approval' }
+      { id: 54, name: 'مرتجعات المبيعات النقدية', englishName: 'Cash Sales Returns', route: '/sales/return/cash' },
+      { id: 55, name: 'مرتجعات المبيعات الاجلة', englishName: 'Credit Sales Returns', route: '/sales/return/credit' },
+      { id: 56, name: 'اعتماد مرتجعات المبيعات', englishName: 'Approve Sales Returns', route: '/sales/returns-approval' }
     ]
 
   },
@@ -141,89 +158,3 @@ export const menuData = [
     ]
   }
 ];
-// const menus: menuDto[] = [
-//   {
-//   menuId: 1,
-//   menuNameAr: 'تكويدات',
-//   menuNameEn: 'Coding',
-//   menuUrl : ' ',
-//   items: [
-//     {
-//     menuId: 2,
-//     menuNameAr: 'بيانات أساسية',
-//     menuNameEn: 'Basic Data',
-//     menuUrl : ' ',
-//     items :[
-//     {
-//       menuId  : 3,
-//       menuNameAr : "الدول",
-//       menuNameEn : "Countries",
-//       menuUrl : '/country'
-//     },{
-//       menuId  : 4,
-//       menuNameAr : "المناطق الإدارية",
-//       menuNameEn : "States",
-//       menuUrl : '/state'
-//     },{
-//       menuId  : 5,
-//       menuNameAr : "المدن",
-//       menuNameEn : "Cities",
-//       menuUrl : '/city'
-//     },{
-//       menuId  : 6,
-//       menuNameAr : "الأحياء",
-//       menuNameEn : "Districts",
-//       menuUrl : '/district'
-//     }
-//   ]
-//   },
-//   {
-//     menuId: 3,
-//     menuNameAr: 'الأصناف',
-//     menuNameEn: 'Items',
-//     menuUrl : ' '
-//   }],
-// },
-// {
-//   menuId: 2,
-//   menuNameAr: 'المخازن',
-//   menuNameEn: 'Inventory',
-//   menuUrl : ' ',
-// },
-// {
-//   menuId: 2,
-//   menuNameAr: 'الإعدادات',
-//   menuNameEn: 'Settings',
-//   menuUrl : ' ',
-//   items :[
-//   {
-//     menuId  : 3,
-//     menuNameAr : "استيراد البيانات الأساسية",
-//     menuNameEn : "Import Basic Data",
-//     menuUrl : '/task/importfiles'
-//   }
-// ]
-// }
-// ];
-
-@Injectable({
-  providedIn: 'root'
-})
-export class MenuService {
-  getMenus(): Observable<any[]> {
-    return of(menuData);
-  }
-}
-   
-// const menus: menuDto[] = [{
-//   baseId: 1,
-//   menuName: 'تكويدات',
-//   applicationId : 6,
-//   show : true,
-//   isMain : true,
-//   mainMenu : null,
-//   menuUrl : '  ',
-//   items: [{
-//   menuId: 2,
-//   menuName: 'الفروع',
-//   applicationId : 6,

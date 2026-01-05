@@ -28,7 +28,6 @@ import { InvoiceItem } from '@/src/types/invoice-item.model';
 import { SalesInvoice } from '@/src/types/sales-invoice.model';
 import { StoreCarStockDto } from '@/src/types/store-car-stock.model';
 import { ToastService } from '@/src/services/toast.service';
-import { SalesComponent } from "../../sales-list/sales.component";
 import { SalesInvoiceFormComponent } from '../sales-invoice-form.component';
 
 const VAT_RATE_FULL = 0.15; // 15% for new cars on full sale price

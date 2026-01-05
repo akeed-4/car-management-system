@@ -3,11 +3,9 @@ import { Routes } from '@angular/router';
 import { DashboardComponent } from './components/dashboard/dashboard-main/dashboard.component';
 import { InventoryListComponent } from './components/inventory/inventory-list/inventory-list.component';
 import { InventoryFormComponent } from './components/inventory/inventory-form/inventory-form.component';
-import { SalesComponent } from './components/sales/sales-list/sales.component';
 import { PurchasesComponent } from './components/purchases/purchases-list/purchases.component';
 import { UsersComponent } from './components/users/users-list/users.component';
 import { SalesInvoiceFormComponent } from './components/sales/sales-invoice-form/sales-invoice-form.component';
-import { SaleParentComponent } from './components/sales/sale-parent/sale-parent.component';
 import { InvoiceCreditListComponent } from './components/sales/invoice-credit-list/invoice-credit-list.component';
 import { PurchaseInvoiceComponent } from './components/purchases/purchase-invoice/purchase-invoice.component';
 import { CustomersComponent } from './components/entities/customers/customers-list/customers.component';
@@ -20,13 +18,15 @@ import { CarModelsComponent } from './components/setup/car-models/car-models-lis
 import { ManufactureYearComponent } from './components/setup/manufacture-year/manufacture-year-list/manufacture-year.component';
 import { CustomerFormComponent } from './components/entities/customers/customer-form/customer-form.component';
 import { SupplierFormComponent } from './components/entities/suppliers/supplier-form/supplier-form.component';
-import { SalesReturnInvoiceComponent } from './components/sales/sales-return-invoice/sales-return-invoice.component';
+import { SalesReturnInvoiceListComponent } from './components/sales/sales-return-invoice-list/sales-return-invoice-list/sales-return-invoice-list.component';
 import { PurchaseReturnInvoiceComponent } from './components/purchases/purchase-return-invoice/purchase-return-invoice.component';
 import { PrintableSalesInvoiceComponent } from './components/sales/printable-sales-invoice/printable-sales-invoice.component';
 import { PrintablePurchaseInvoiceComponent } from './components/purchases/printable-purchase-invoice/printable-purchase-invoice.component';
 import { StockTakingComponent } from './components/inventory/stock-taking/stock-taking.component';
 import { StockTakingApprovalComponent } from './components/inventory/stock-taking-approval/stock-taking-approval.component';
 import { SalesReturnFormComponent } from './components/sales/sales-return-form/sales-return-form.component';
+import { CashInvoiceFormComponent } from './components/sales/sales-return-form/cash-invoice-form/cash-invoice-form.component';
+import { CreditInvoiceFormComponent } from './components/sales/sales-return-form/credit-invoice-form/credit-invoice-form.component';
 import { PurchaseReturnFormComponent } from './components/purchases/purchase-return-form/purchase-return-form.component';
 import { StockTakingFormComponent } from './components/inventory/stock-taking-form/stock-taking-form.component';
 import { StockTakingApprovalFormComponent } from './components/inventory/stock-taking-approval-form/stock-taking-approval-form.component';
@@ -85,6 +85,10 @@ import { OpeningBalancesFinancialListComponent } from './components/accounting/o
 import { OpeningBalancesFinancialFormComponent } from './components/accounting/opening-balances-financial/opening-balances-financial-form/opening-balances-financial-form.component';
 import { SalesInvoiceCashComponent } from './components/sales/sales-invoice-form/sales-invoice-cash/sales-invoice-cash.component';
 import { SalesInvoiceCreditComponent } from './components/sales/sales-invoice-form/sales-invoice-credit/sales-invoice-credit.component';
+import { CashInvoiceListComponent } from './components/sales/sales-invoice-list/cash-invoice-list/cash-invoice-list.component';
+import { CreditInvoiceListComponent } from './components/sales/sales-invoice-list/credit-invoice-list/credit-invoice-list.component';
+import { CashReturnInvoiceListComponent } from './components/sales/sales-return-invoice-list/cash-return-invoice-list/cash-return-invoice-list.component';
+import { CreditReturnInvoiceListComponent } from './components/sales/sales-return-invoice-list/credit-return-invoice-list/credit-return-invoice-list.component';
 
 export const APP_ROUTES: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -138,15 +142,19 @@ export const APP_ROUTES: Routes = [
   { path: 'daily-entries', component: DailyEntriesListComponent },
   { path: 'daily-entries/new', component: DailyEntryFormComponent },
   { path: 'daily-entries/:id/edit', component: DailyEntryFormComponent },
-  { path: 'sales', component: SalesComponent },
-  { path: 'sales/sale-parent', component: SaleParentComponent },
   { path: 'sales/invoice-credit-list', component: InvoiceCreditListComponent },
   { path: 'sales/invoice/cash/new', component: SalesInvoiceCashComponent },
   { path: 'sales/invoice/credit/new', component: SalesInvoiceCreditComponent },
+  { path: 'sales/invoice/cash', component: CashInvoiceListComponent },
+  { path: 'sales/invoice/credit', component: CreditInvoiceListComponent },
   { path: 'sales/invoice/print/:id', component: PrintableSalesInvoiceComponent },
-  { path: 'sales/return', component: SalesReturnInvoiceComponent },
-  { path: 'sales/returns', component: SalesReturnInvoiceComponent }, // Added plural route
+  { path: 'sales/return', component: SalesReturnInvoiceListComponent },
+  { path: 'sales/returns', component: SalesReturnInvoiceListComponent }, // Added plural route
   { path: 'sales/return/new', component: SalesReturnFormComponent },
+  { path: 'sales/return/cash/new', component: CashInvoiceFormComponent },
+  { path: 'sales/return/credit/new', component: CreditInvoiceFormComponent },
+  { path: 'sales/return/cash', component: CashReturnInvoiceListComponent },
+  { path: 'sales/return/credit', component: CreditReturnInvoiceListComponent },
   { path: 'purchases', component: PurchasesComponent },
   { path: 'purchases/invoice/cash', component: CashPurchaseInvoiceListComponent },
   { path: 'purchases/invoice/credit', component: CreditPurchaseInvoiceListComponent },
@@ -182,7 +190,7 @@ export const APP_ROUTES: Routes = [
   { path: 'accounts/opening-balances', component: OpeningBalancesFinancialListComponent },
   { path: 'accounts/journal-entries/:id', component: JournalEntriesComponent },
   { path: 'accounts/journal-entries-list', component: JournalEntriesListComponent },
-  {path: 'accounts/', component: SalesReturnInvoiceComponent }, // Added route for sales returns approval
+  {path: 'accounts/', component: SalesReturnInvoiceListComponent }, // Added route for sales returns approval
   { path: 'entities/customers', component: CustomersComponent },
   { path: 'entities/customers/new', component: CustomerFormComponent },
   { path: 'entities/customers/edit/:id', component: CustomerFormComponent },

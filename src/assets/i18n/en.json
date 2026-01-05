@@ -12,6 +12,12 @@
     "INVOICE_DATE": "Invoice Date",
     "DUE_DATE": "Due Date",
     "PAYMENT_METHOD": "Payment Method",
+    "PAYMENT_TYPE": "Payment Type",
+    "INVOICE_TYPE": "Invoice Type",
+    "TYPE_TAXABLE": "Taxable",
+    "TYPE_ZERO_RATED": "Zero Rated",
+    "TYPE_EXEMPT": "Exempt",
+    "CLASSIFICATION": "Classification",
     "SALESPERSON": "Salesperson",
     "ITEMS_SECTION": "Invoice Items",
     "SELECT_CAR": "Select Car",
@@ -34,6 +40,7 @@
     "SELECT_CAR_OPTION": "-- Select car from stock --",
     "PAYMENT_CASH": "Cash",
     "PAYMENT_BANK_TRANSFER": "Bank Transfer",
+    "PAYMENT_CHECK": "Check",
     "PAYMENT_FINANCE": "Finance",
     "NOTES_PLACEHOLDER": "Any additional notes on the invoice...",
     "ADD_AT_LEAST_ONE": "Please add at least one item to the invoice",
@@ -556,6 +563,8 @@
     "ARCHIVE": "Archive",
     "UNARCHIVE": "Unarchive",
     "NO_ARCHIVE": "No invoices in archive.",
+    "CASH_LIST_TITLE": "Cash Sales Invoices",
+    "CREDIT_LIST_TITLE": "Credit Sales Invoices",
 
     "RETURN": {
       "LIST_TITLE": "Sales Returns",
@@ -595,7 +604,9 @@
       "VAT_ON_REFUND": "VAT on Refund (15%)",
       "DEPOSIT_REFUND": "Deposit Refund",
       "NET_REFUND": "Net Refund Amount",
-      "SAVE_AND_SEND_APPROVAL": "Save & Send for Approval"
+      "SAVE_AND_SEND_APPROVAL": "Save & Send for Approval",
+      "CASH_LIST_TITLE": "Cash Sales Returns",
+      "CREDIT_LIST_TITLE": "Credit Sales Returns"
     },
 
     "PRINTABLE": {

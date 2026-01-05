@@ -131,7 +131,7 @@ export class LayoutComponent {
       private translateService: TranslateService,
     private currentUserService: CurrentUserService,
     private languageService: LanguageService,
-    private menuService: MenuService,
+    @Inject(MenuService) private menuService: MenuService,
     public oidcSecurityService: OidcSecurityService,
     @Inject(DOCUMENT) private document: Document,
     private titleService: Title,

@@ -13,6 +13,12 @@
     "INVOICE_DATE": "تاريخ الفاتورة",
     "DUE_DATE": "تاريخ الاستحقاق",
     "PAYMENT_METHOD": "طريقة الدفع",
+    "PAYMENT_TYPE": "نوع الدفع",
+    "INVOICE_TYPE": "نوع الفاتورة",
+    "TYPE_TAXABLE": "خاضع للضريبة",
+    "TYPE_ZERO_RATED": "معفى من الضريبة",
+    "TYPE_EXEMPT": "معفى",
+    "CLASSIFICATION": "التصنيف",
     "SALESPERSON": "مندوب المبيعات",
     "ITEMS_SECTION": "عناصر الفاتورة",
     "SELECT_CAR": "اختر السيارة",
@@ -36,6 +42,7 @@
     "PAYMENT_CASH": "نقداً",
     "PAYMENT_CREDIT": "آجل (مؤجل)",
     "PAYMENT_BANK_TRANSFER": "تحويل بنكي",
+    "PAYMENT_CHECK": "شيك",
     "PAYMENT_FINANCE": "تمويل",
     "CASH_INVOICE_TITLE": "فاتورة شراء نقدية",
     "CASH_INVOICE_SUBTITLE": "إنشاء فاتورة شراء بدفع نقدي فوري",
@@ -608,7 +615,9 @@
       "VAT_ON_REFUND": "ضريبة المسترد (15%)",
       "DEPOSIT_REFUND": "استرجاع الدفعة المقدمة",
       "NET_REFUND": "صافي المبلغ المسترد",
-      "SAVE_AND_SEND_APPROVAL": "حفظ وإرسال للموافقة"
+      "SAVE_AND_SEND_APPROVAL": "حفظ وإرسال للموافقة",
+      "CASH_LIST_TITLE": "مرتجعات مبيعات نقدية",
+      "CREDIT_LIST_TITLE": "مرتجعات مبيعات آجلة"
     },
 
     "PRINTABLE": {

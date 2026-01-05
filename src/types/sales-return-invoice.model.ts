@@ -8,6 +8,7 @@ export interface SalesReturnInvoice {
   originalInvoiceNumber: string;
   customerId: number;
   customerName: string;
+  paymentMethod?: string;
   items: ReturnInvoiceItem[];
   totalAmount: number;
 }

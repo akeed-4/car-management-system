@@ -1,7 +1,7 @@
 <div class="container">
   <div class="page-header">
     <div class="flex justify-between items-center">
-      <h2 class="page-title">{{ 'SALES.RETURN.LIST_TITLE' | translate }}</h2>
+      <h2 class="page-title">{{ customTitle || ('SALES.RETURN.LIST_TITLE' | translate) }}</h2>
       <a routerLink="/sales/return/new" class="btn-primary">
         <svg class="w-5 h-5 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
