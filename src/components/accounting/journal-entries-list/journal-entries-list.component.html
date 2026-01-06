@@ -55,8 +55,8 @@
           <dxo-lookup [dataSource]="statusOptions" valueExpr="value" displayExpr="text"></dxo-lookup>
         </dxi-column>
         <dxi-column type="buttons" [width]="120" [caption]="'ACCOUNTING.ACTIONS' | translate">
-          <dxi-button name="edit" [hint]="'ACCOUNTING.EDIT' | translate" [visible]="isEditButtonVisible"></dxi-button>
-          <dxi-button name="delete" [hint]="'ACCOUNTING.DELETE' | translate"></dxi-button>
+          <dxi-button name="edit" [onClick]="onEdit"  [hint]="'ACCOUNTING.EDIT' | translate" [visible]="isEditButtonVisible"></dxi-button>
+          <dxi-button name="delete"  [onClick]="onDelete" [hint]="'ACCOUNTING.DELETE' | translate"></dxi-button>
         </dxi-column>
 
         <dxo-filter-row [visible]="true"></dxo-filter-row>
