@@ -1,14 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, Input, computed } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { ChangeDetectionStrategy, Component, inject, Input, Output, EventEmitter } from '@angular/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DxDataGridModule } from 'devextreme-angular';
-import { SalesReturnService } from '../../../../services/sales-return.service';
 
 @Component({
   selector: 'app-sales-return-invoice-list',
   standalone: true,
-  imports: [RouterLink, TranslateModule, DxDataGridModule],
+  imports: [TranslateModule, DxDataGridModule],
   templateUrl: './sales-return-invoice-list.component.html',
   styleUrl: './sales-return-invoice-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -16,20 +13,20 @@ import { SalesReturnService } from '../../../../services/sales-return.service';
 export class SalesReturnInvoiceListComponent {
   @Input() isCashReturn: boolean = false;
   @Input() customTitle: any;
+  @Input() dataSource: any[] = [];
 
-  private salesReturnService = inject(SalesReturnService);
-  allReturnInvoices = toSignal(this.salesReturnService.getReturnInvoices(), { initialValue: [] });
+  // Output events for child-to-parent communication
+  @Output() onViewDetails = new EventEmitter<any>();
+  @Output() onEdit = new EventEmitter<any>();
+  @Output() onDelete = new EventEmitter<any>();
+  @Output() onAddNew = new EventEmitter<void>();
 
-  returnInvoices = computed(() => {
-    const all = this.allReturnInvoices();
-    if (this.isCashReturn) {
-      // Filter for cash returns - assuming cash returns have paymentMethod === 'Cash'
-      return all.filter(invoice => invoice.paymentMethod === 'Cash');
-    } else {
-      // Filter for credit returns - paymentMethod !== 'Cash'
-      return all.filter(invoice => invoice.paymentMethod !== 'Cash');
-    }
-  });
+  private translate = inject(TranslateService);
+
+  paymentTypeOptions = [
+    { value: 'Cash', text: this.translate.instant('SALES.RETURN.CASH') },
+    { value: 'Credit', text: this.translate.instant('SALES.RETURN.CREDIT') }
+  ];
 
   customizeTotalText = (data: any) => {
     return `الإجمالي الكلي: ${data.value?.toLocaleString('ar-SA', { style: 'currency', currency: 'SAR' }) || '0 ر.س'}`;
@@ -38,4 +35,21 @@ export class SalesReturnInvoiceListComponent {
   customizeCountText = (data: any) => {
     return `عدد المرتجعات: ${data.value || 0}`;
   };
+
+  // Child-to-parent communication methods
+  viewDetails(invoice: any): void {
+    this.onViewDetails.emit(invoice);
+  }
+
+  editInvoice(invoice: any): void {
+    this.onEdit.emit(invoice);
+  }
+
+  deleteInvoice(invoice: any): void {
+    this.onDelete.emit(invoice);
+  }
+
+  addNewInvoice(): void {
+    this.onAddNew.emit();
+  }
 }

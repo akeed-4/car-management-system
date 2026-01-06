@@ -89,6 +89,16 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
   
   totalAmount = computed(() => this.returnItems().reduce((sum, item) => sum + item.lineTotal, 0));
 
+  getTitle(): string {
+    return this.returnType === 'CASH'
+      ? this.translate.instant('PURCHASES.PURCHASE_RETURN.CASH_RETURN_TITLE')
+      : this.translate.instant('PURCHASES.PURCHASE_RETURN.CREDIT_RETURN_TITLE');
+  }
+
+  backRoute(): string {
+    return '/purchases/purchase-returns';
+  }
+
   ngOnInit() {
     this.loadAccounts();
     this.initForm();

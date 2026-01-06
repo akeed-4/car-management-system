@@ -1,4 +1,9 @@
 <app-sales-return-invoice-list
   [isCashReturn]="true"
-  [customTitle]="'SALES.RETURN.CASH_LIST_TITLE' | translate">
+  [customTitle]="'SALES.RETURN.CASH_LIST_TITLE' | translate"
+  [dataSource]="cashReturnInvoices()"
+  (onViewDetails)="onViewDetails($event)"
+  (onEdit)="onEdit($event)"
+  (onDelete)="onDelete($event)"
+  (onAddNew)="onAddNew()">
 </app-sales-return-invoice-list>

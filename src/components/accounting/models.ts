@@ -52,6 +52,7 @@ export interface JournalEntry {
   totalCredit: number;
   difference: number;
   isBalanced: boolean;
+  isGeneratedDynamically?: boolean;
   createdAt: Date;
   updatedAt?: Date;
   // Legacy fields

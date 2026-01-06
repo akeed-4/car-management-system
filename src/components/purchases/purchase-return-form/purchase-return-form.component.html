@@ -1,12 +1,13 @@
 <div class="container">
-  <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
-    <h2 class="text-2xl font-semibold text-gray-800">{{ 'PURCHASE_RETURN.CREATE_TITLE' | translate }}</h2>
-    <a routerLink="/purchases/return" class="text-primary-600 hover:text-primary-800 transition duration-300 flex items-center">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 ml-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+  <div class="page-header">
+    <h2>{{ getTitle() }}</h2>
+    <a [routerLink]="backRoute()" class="back-link">
+      <button mat-icon-button>
+        <mat-icon>arrow_back</mat-icon>
+      </button>
       <span>{{ 'PURCHASE_RETURN.BACK_TO_LIST' | translate }}</span>
     </a>
   </div>
-
   <div class="bg-white p-6 md:p-8 rounded-lg shadow-md">
     <form [formGroup]="returnForm" (ngSubmit)="saveReturn()">
        <!-- Return Header -->

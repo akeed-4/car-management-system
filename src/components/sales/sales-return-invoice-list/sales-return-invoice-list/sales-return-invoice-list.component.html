@@ -2,18 +2,15 @@
   <div class="page-header">
     <div class="flex justify-between items-center">
       <h2 class="page-title">{{ customTitle || ('SALES.RETURN.LIST_TITLE' | translate) }}</h2>
-      <a routerLink="/sales/return/new" class="btn-primary">
-        <svg class="w-5 h-5 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-        </svg>
+      <button (click)="addNewInvoice()" class="btn-primary">
         {{ 'SALES.RETURN.NEW_RETURN' | translate }}
-      </a>
+      </button>
     </div>
   </div>
 
   <div class="datagrid-container">
     <dx-data-grid
-      [dataSource]="returnInvoices()"
+      [dataSource]="dataSource"
       [showBorders]="true"
       [showRowLines]="true"
       [showColumnLines]="true"
@@ -68,6 +65,8 @@
         alignment="right">
       </dxi-column>
 
+    
+
       <dxi-column
         dataField="totalAmount"
         [caption]="'SALES.RETURN.TOTAL_AMOUNT' | translate"
@@ -76,6 +75,12 @@
         [width]="130"
         alignment="right">
         <dxo-format type="currency" currency="SAR"></dxo-format>
+      </dxi-column>
+
+      <dxi-column type="buttons" [width]="150" [caption]="'SALES.RETURN.ACTIONS' | translate">
+        <dxi-button name="view" [hint]="'SALES.RETURN.VIEW_DETAILS' | translate" [onClick]="viewDetails"></dxi-button>
+        <dxi-button name="edit" [hint]="'SALES.RETURN.EDIT' | translate" [onClick]="editInvoice"></dxi-button>
+        <dxi-button name="delete" [hint]="'SALES.RETURN.DELETE' | translate" [onClick]="deleteInvoice"></dxi-button>
       </dxi-column>
 
       <dxo-summary>

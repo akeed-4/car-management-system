@@ -25,80 +25,26 @@ export class JournalEntriesListComponent implements OnInit {
 
   journalEntries = signal<JournalEntry[]>([]);
 
+  statusOptions = [
+    { value: 'draft', text: this.translate.instant('ACCOUNTING.STATUS_DRAFT') },
+    { value: 'posted', text: this.translate.instant('ACCOUNTING.STATUS_POSTED') },
+    { value: 'approved', text: this.translate.instant('ACCOUNTING.STATUS_APPROVED') },
+    { value: 'rejected', text: this.translate.instant('ACCOUNTING.STATUS_REJECTED') }
+  ];
+
   constructor(private accountingService: AccountingService, private router: Router, public translate: TranslateService) {
     this.onAddNew = this.onAddNew.bind(this);
     this.onDelete = this.onDelete.bind(this);
     this.onEdit = this.onEdit.bind(this);
   }
 
-  // DevExtreme DataGrid columns configuration with translation
-  get columns() {
-    return [
-      {
-        dataField: 'id',
-        caption: this.translate.instant('ACCOUNTING.ID'),
-        dataType: 'number',
-        width: 80
-      },
-      {
-        dataField: 'date',
-        caption: this.translate.instant('ACCOUNTING.DATE'),
-        dataType: 'date',
-        format: 'dd/MM/yyyy'
-      },
-      {
-        dataField: 'reference',
-        caption: this.translate.instant('ACCOUNTING.REFERENCE')
-      },
-      {
-        dataField: 'description',
-        caption: this.translate.instant('ACCOUNTING.DESCRIPTION')
-      },
-      {
-        dataField: 'totalDebit',
-        caption: this.translate.instant('ACCOUNTING.TOTAL_DEBIT'),
-        dataType: 'number',
-        format: { type: 'currency', currency: 'SAR', precision: 2 }
-      },
-      {
-        dataField: 'totalCredit',
-        caption: this.translate.instant('ACCOUNTING.TOTAL_CREDIT'),
-        dataType: 'number',
-        format: { type: 'currency', currency: 'SAR', precision: 2 }
-      },
-      {
-        dataField: 'status',
-        caption: this.translate.instant('ACCOUNTING.STATUS')
-      },
-      {
-        dataField: 'createdAt',
-        caption: this.translate.instant('ACCOUNTING.CREATED_AT'),
-        dataType: 'date',
-        format: 'dd/MM/yyyy HH:mm'
-      },
-      {
-        caption: this.translate.instant('ACCOUNTING.ACTIONS'),
-        type: 'buttons',
-        buttons: [
-          {
-            hint: this.translate.instant('ACCOUNTING.VIEW_DETAILS'),
-            icon: 'eye',
-            onClick: (e: any) => this.onViewDetails(e.row.data)
-          },
-          {
-            hint: this.translate.instant('ACCOUNTING.EDIT'),
-            icon: 'edit',
-            onClick: (e: any) => this.onEdit(e.row.data)
-          },
-          {
-            hint: this.translate.instant('ACCOUNTING.DELETE'),
-            icon: 'trash',
-            onClick: (e: any) => this.onDelete(e.row.data)
-          }
-        ]
-      }
-    ];
+  // Check if edit button should be visible for a journal entry
+  isEditButtonVisible(data: any): boolean {
+    return !data.isGeneratedDynamically;
   }
+
+  // DevExtreme DataGrid columns configuration with translation
+ 
 
 
   ngOnInit(): void {
