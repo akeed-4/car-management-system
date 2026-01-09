@@ -52,57 +52,8 @@ export class SalesReturnFormComponent implements OnInit {
   isSubmitting = signal(false);
   refundCalculation = signal<any>(null);
 
-  // Mock data for development - replace with actual API call when backend is ready
-  originalInvoices = signal<SalesInvoice[]>([
-    {
-      id: 1,
-      invoiceNumber: 'SINV-001',
-      invoiceDate: '2025-12-01',
-      customerId: 1,
-      customerName: 'John Doe',
-      status: 'Pending',
-      items: [
-        {
-          carId: 1,
-          carDescription: 'Toyota Corolla 2022',
-          quantity: 1,
-          unitPrice: 50000,
-          lineTotal: 50000
-        },
-      ],
-      subtotal: 50000,
-      vatAmount: 7500,
-      totalAmount: 57500,
-      amountPaid: 0,
-      amountDue: 57500,
-      ownershipTransferStatus: 'Not Started',
-      isArchived: false
-    },
-    {
-      id: 2,
-      invoiceNumber: 'SINV-002',
-      invoiceDate: '2025-12-05',
-      customerId: 2,
-      customerName: 'Jane Smith',
-      status: 'Pending',
-      items: [
-        {
-          carId: 2,
-          carDescription: 'Honda Civic 2021',
-          quantity: 1,
-          unitPrice: 45000,
-          lineTotal: 45000
-        }
-      ],
-      subtotal: 45000,
-      vatAmount: 6750,
-      totalAmount: 51750,
-      amountPaid: 0,
-      amountDue: 51750,
-      ownershipTransferStatus: 'Not Started',
-      isArchived: false
-    }
-  ]);
+  // Load invoices from API
+  originalInvoices = signal<SalesInvoice[]>([]);
   selectedOriginalInvoice = signal<SalesInvoice | null>(null);
   
   returnItems = signal<ReturnInvoiceItem[]>([]);
@@ -133,7 +84,7 @@ export class SalesReturnFormComponent implements OnInit {
 
     // Listen to original invoice changes
     this.returnForm.get('originalInvoice')?.valueChanges.subscribe(value => {
-      this.onInvoiceSelect(+value);
+      this.onInvoiceSelect(value);
     });
 
     // Listen to depositRefundable changes
@@ -152,8 +103,24 @@ export class SalesReturnFormComponent implements OnInit {
   }
 
   private loadInvoices(): void {
-    // Using mock data for now - replace with actual service call
-    // In production: this.salesService.getEligibleInvoices().subscribe(...)
+    // Load all invoices and filter for those eligible for returns
+    this.salesService.getInvoices().subscribe({
+      next: (invoices) => {
+        // Filter invoices that are eligible for returns
+        // For now, include all non-archived invoices with status 'Paid' or 'Pending'
+        // In the future, this could be enhanced to check for existing returns, etc.
+        const paymentMethodFilter = this.isCashReturn ? 'Cash' : 'Credit';
+        const eligibleInvoices = invoices.filter(invoice =>
+          !invoice.isArchived &&
+          (invoice.status === 'Paid' || invoice.status === 'Pending') &&
+          invoice.isCash === this.isCashReturn ? true : false );
+        this.originalInvoices.set(eligibleInvoices);
+      },
+      error: (error) => {
+        console.error('Failed to load invoices for returns:', error);
+        // Could show a toast notification here
+      }
+    });
   }
 
   getQuantityOptions = (rowData: any) => {
@@ -165,26 +132,42 @@ export class SalesReturnFormComponent implements OnInit {
     return `${this.translate.instant('SALES.RETURN.TOTAL')}: ${data.value?.toLocaleString('ar-SA', { style: 'currency', currency: 'SAR' }) || '0 ر.س'}`;
   };
 
-  onInvoiceSelect(invoiceId: number): void {
-    const invoice = this.originalInvoices().find(inv => inv.id === invoiceId);
-    this.selectedOriginalInvoice.set(invoice ?? null);
+  calculateLineTotal = (rowData: any) => {
+    return (rowData.returnQuantity || 0) * (rowData.salePrice || 0);
+  };
 
-    if (!invoice) {
+  onInvoiceSelect(invoiceId: any): void {
+    const id = +invoiceId;
+    if (!id || isNaN(id)) {
       this.returnItems.set([]);
       this.refundCalculation.set(null);
+      this.selectedOriginalInvoice.set(null);
       return;
     }
-    
-    const items: ReturnInvoiceItem[] = invoice.items.map(item => ({
-      carId: item.carId,
-      carDescription: item.carDescription,
-      unitPrice: item.unitPrice,
-      originalQuantity: item.quantity,
-      returnQuantity: 0,
-      lineTotal: 0,
-    }));
-    this.returnItems.set(items);
-    this.updateRefundCalculation();
+
+    this.salesService.getInvoiceById(id).subscribe({
+      next: (invoice) => {
+        this.selectedOriginalInvoice.set(invoice);
+        const items: ReturnInvoiceItem[] = invoice.items.map(item => ({
+          carId: item.carId,
+          carDescription: item.carDescription,
+          unitPrice: item.unitPrice || 0,
+          salePrice: item.salesPrice || 0,
+          originalQuantity: item.quantity,
+          returnQuantity:  item.returnQuantity,
+          lineTotal: item.salesPrice * item.returnQuantity || 0,
+        }));
+      console.log(items)
+        this.returnItems.set(items);
+        this.updateRefundCalculation();
+      },
+      error: (error) => {
+        console.error('Failed to load invoice details:', error);
+        this.returnItems.set([]);
+        this.refundCalculation.set(null);
+        this.selectedOriginalInvoice.set(null);
+      }
+    });
   }
 
   updateReturnQuantity(carId: number, quantity: number): void {
@@ -195,7 +178,7 @@ export class SalesReturnFormComponent implements OnInit {
           return {
             ...item,
             returnQuantity: validQuantity,
-            lineTotal: item.unitPrice * validQuantity,
+            lineTotal: item.salePrice * validQuantity,
           };
         }
         return item;
@@ -254,7 +237,7 @@ export class SalesReturnFormComponent implements OnInit {
     const salesReturn: SalesReturn = {
       returnNo: this.returnNumber(),
       invoiceId: originalInvoice.id,
-      carId: itemsToReturn[0].carId,
+      carId: itemsToReturn.length > 0 ? itemsToReturn[0].carId : undefined,
       vin: '', // Will be fetched from car details
       salePrice: this.totalAmount(),
       vatAmount: this.refundCalculation()?.vatOnRefund || 0,
@@ -267,7 +250,8 @@ export class SalesReturnFormComponent implements OnInit {
       approvedBy: undefined,
       approvedDate: undefined,
       rejectionReason: undefined,
-      createdBy: 1 // Will be set from current user context
+      createdBy: 1, // Will be set from current user context
+      items: itemsToReturn
     };
 
     this.salesReturnService.createSalesReturn(salesReturn).subscribe({
@@ -283,5 +267,20 @@ export class SalesReturnFormComponent implements OnInit {
         this.isSubmitting.set(false);
       }
     });
+  }
+
+  onRowUpdating(e: any): void {
+    if (e.newData.returnQuantity !== undefined) {
+      this.updateReturnQuantity(e.oldData.carId, e.newData.returnQuantity);
+      e.cancel = true; // prevent the grid from updating the data source
+    }
+  }
+
+  onCellValueChanged(e: any): void {
+    if (e.column.dataField === 'returnQuantity') {
+      this.updateReturnQuantity(e.data.carId, e.value);
+      // Force signal update since DevExtreme modifies the array directly
+      this.returnItems.set([...this.returnItems()]);
+    }
   }
 }

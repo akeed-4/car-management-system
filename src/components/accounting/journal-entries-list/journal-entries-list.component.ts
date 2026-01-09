@@ -26,10 +26,10 @@ export class JournalEntriesListComponent implements OnInit {
   journalEntries = signal<JournalEntry[]>([]);
 
   statusOptions = [
-    { value: 'draft', text: this.translate.instant('ACCOUNTING.STATUS_DRAFT') },
-    { value: 'posted', text: this.translate.instant('ACCOUNTING.STATUS_POSTED') },
-    { value: 'approved', text: this.translate.instant('ACCOUNTING.STATUS_APPROVED') },
-    { value: 'rejected', text: this.translate.instant('ACCOUNTING.STATUS_REJECTED') }
+    { value: 'Draft', text: this.translate.instant('ACCOUNTING.STATUS_DRAFT') },
+    { value: 'Posted', text: this.translate.instant('ACCOUNTING.STATUS_POSTED') },
+    { value: 'Approved', text: this.translate.instant('ACCOUNTING.STATUS_APPROVED') },
+    { value: 'Rejected', text: this.translate.instant('ACCOUNTING.STATUS_REJECTED') }
   ];
 
   constructor(private accountingService: AccountingService, private router: Router, public translate: TranslateService) {
@@ -40,7 +40,7 @@ export class JournalEntriesListComponent implements OnInit {
 
   // Check if edit button should be visible for a journal entry
   isEditButtonVisible(data: any): boolean {
-    return !data.isGeneratedDynamically;
+    return data.isGeneratedDynamically;
   }
 
   // DevExtreme DataGrid columns configuration with translation
@@ -54,6 +54,7 @@ export class JournalEntriesListComponent implements OnInit {
   loadJournalEntries(): void {
     this.accountingService.getJournalEntries().subscribe({
       next: (entries) => {
+        console.log('Loaded journal entries:', entries);
         this.journalEntries.set(entries);
       },
       error: (error) => {
@@ -67,12 +68,13 @@ export class JournalEntriesListComponent implements OnInit {
     console.log('View details:', entry);
   }
 
-  onEdit(entry: JournalEntry): void {
+  onEdit(e: any): void {
     // Navigate to edit form with entry ID
-    this.router.navigate(['accounts/journal-entries', entry.id]);
+    this.router.navigate(['accounts/journal-entries', e.row.data.id]);
   }
 
-  onDelete(entry: JournalEntry): void {
+  onDelete(e: any): void {
+    const entry = e.row.data;
     if (confirm('Are you sure you want to delete this journal entry?')) {
       this.accountingService.deleteJournalEntry(entry.id).subscribe({
         next: () => {

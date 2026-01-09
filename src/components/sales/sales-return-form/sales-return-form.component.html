@@ -101,7 +101,12 @@
             [columnAutoWidth]="true"
             [wordWrapEnabled]="true"
             height="400px"
-            class="professional-datagrid">
+            class="professional-datagrid"
+            (onRowUpdating)="onRowUpdating($event)"
+            (onCellValueChanged)="onCellValueChanged($event)"
+            
+            >
+    <dxo-editing mode="cell" [allowUpdating]="true"></dxo-editing>
 
             <dxo-paging [enabled]="false"></dxo-paging>
             <dxo-scrolling mode="virtual"></dxo-scrolling>
@@ -126,8 +131,8 @@
             </dxi-column>
 
             <dxi-column
-              dataField="unitPrice"
-              [caption]="'SALES.RETURN.UNIT_PRICE' | translate"
+              dataField="salePrice"
+              [caption]="'SALES.RETURN.SALE_PRICE' | translate"
               [allowEditing]="false"
               [width]="120"
               dataType="number"
@@ -140,13 +145,10 @@
               dataField="returnQuantity"
               [caption]="'SALES.RETURN.RETURN_QTY' | translate"
               [width]="120"
+              [allowEditing]="true"
               dataType="number"
               alignment="right">
-              <dxo-lookup
-                [dataSource]="getQuantityOptions"
-                valueExpr="value"
-                displayExpr="text">
-              </dxo-lookup>
+            
             </dxi-column>
 
             <dxi-column
@@ -156,7 +158,7 @@
               [width]="120"
               dataType="number"
               format="currency"
-              alignment="right">
+              alignment="right" [calculateCellValue]="calculateLineTotal">
               <dxo-format type="currency" currency="SAR"></dxo-format>
             </dxi-column>
 

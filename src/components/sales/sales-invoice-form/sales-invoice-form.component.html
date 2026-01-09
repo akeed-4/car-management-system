@@ -5,9 +5,7 @@
     </div>
     <div class="header-actions">
       <a routerLink="/sales" class="btn btn-secondary btn-small">
-        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-        </svg>
+        <mat-icon>arrow_back</mat-icon>
         <span>{{ 'INVOICE.BACK_TO_SALES' | translate }}</span>
       </a>
     </div>
@@ -17,7 +15,25 @@
     <form [formGroup]="invoiceForm" >
       <section class="form-section">
         <h3 class="form-section-title">{{ 'INVOICE.MAIN_DATA' | translate }}</h3>
-        <div class="form-grid">
+            <ng-container *ngIf="cardLayout3 | async as layout">
+          <mat-grid-list [cols]="layout.columns" rowHeight="90" >
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'INVOICE.INVOICE_NUMBER' | translate }}</mat-label>
+            <input matInput [value]="invoiceNumber()" disabled readonly>
+          </mat-form-field>
+            </mat-grid-tile>
+             <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'INVOICE.INVOICE_DATE' | translate }}</mat-label>
+            <input matInput [matDatepicker]="invoiceDatePicker" formControlName="invoiceDate" required>
+            <mat-datepicker-toggle matSuffix [for]="invoiceDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #invoiceDatePicker></mat-datepicker>
+          </mat-form-field>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'INVOICE.CUSTOMER' | translate }}</mat-label>
             <mat-select formControlName="customer" required>
@@ -27,35 +43,56 @@
               </mat-option>
             </mat-select>
           </mat-form-field>
+            </mat-grid-tile>
+       
+          </mat-grid-list>
+          </ng-container>
+            <ng-container *ngIf="cardLayout3 | async as layout">
+          <mat-grid-list [cols]="layout.columns" rowHeight="90" >
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
 
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'INVOICE.STORE' | translate }}</mat-label>
-            <mat-select formControlName="store" required>
+            <mat-select formControlName="storeId" required>
               <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_STORE_OPTION' | translate }}</mat-option>
               <mat-option *ngFor="let store of stores()" [value]="store.id">
-                {{ store.name }}
+                {{ store.nameAr }}
               </mat-option>
             </mat-select>
           </mat-form-field>
+              </mat-grid-tile>
+               <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
 
           <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'INVOICE.INVOICE_NUMBER' | translate }}</mat-label>
-            <input matInput [value]="invoiceNumber()" disabled readonly>
+            <mat-label>{{ 'INVOICE.DEBIT_ACCOUNT' | translate }}</mat-label>
+            <mat-select formControlName="debitAccount" required>
+              <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_DEBIT_ACCOUNT' | translate }}</mat-option>
+              <mat-option *ngFor="let account of debitAccounts()" [value]="account.id">
+               {{ account.accountCode }} - {{ account.accountNameAr }}
+              </mat-option>
+            </mat-select>
           </mat-form-field>
+              </mat-grid-tile>
+              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
 
           <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'INVOICE.INVOICE_DATE' | translate }}</mat-label>
-            <input matInput [matDatepicker]="invoiceDatePicker" formControlName="invoiceDate" required>
-            <mat-datepicker-toggle matSuffix [for]="invoiceDatePicker"></mat-datepicker-toggle>
-            <mat-datepicker #invoiceDatePicker></mat-datepicker>
+            <mat-label>{{ 'INVOICE.CREDIT_ACCOUNT' | translate }}</mat-label>
+            <mat-select formControlName="creditAccount" required>
+              <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_CREDIT_ACCOUNT' | translate }}</mat-option>
+              <mat-option *ngFor="let account of creditAccounts()" [value]="account.id">
+               {{ account.accountCode }} - {{ account.accountNameAr }}
+              </mat-option>
+            </mat-select>
           </mat-form-field>
-
-          <mat-form-field *ngIf="selectedCustomer()?.isCreditCustomer" appearance="outline" class="form-field">
-            <mat-label>{{ 'INVOICE.DUE_DATE' | translate }}</mat-label>
-            <input matInput [matDatepicker]="dueDatePicker" formControlName="dueDate">
-            <mat-datepicker-toggle matSuffix [for]="dueDatePicker"></mat-datepicker-toggle>
-            <mat-datepicker #dueDatePicker></mat-datepicker>
-          </mat-form-field>
+              </mat-grid-tile>
+           
+           
+          </mat-grid-list>
+            </ng-container>
+              <ng-container *ngIf="cardLayout3 | async as layout">
+          <mat-grid-list [cols]="layout.columns" rowHeight="90" >
+         
+              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
 
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'INVOICE.PAYMENT_METHOD' | translate }}</mat-label>
@@ -66,7 +103,8 @@
               <mat-option *ngIf="selectedCustomer()?.isCreditCustomer" value="Installments">{{ 'INVOICE.PAYMENT_INSTALLMENTS' | translate }}</mat-option>
             </mat-select>
           </mat-form-field>
-
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'INVOICE.PAYMENT_TYPE' | translate }}</mat-label>
             <mat-select formControlName="paymentType">
@@ -75,6 +113,18 @@
               <mat-option value="Check">{{ 'INVOICE.PAYMENT_CHECK' | translate }}</mat-option>
             </mat-select>
           </mat-form-field>
+            </mat-grid-tile>
+
+               <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+
+          <mat-form-field *ngIf="selectedCustomer()?.isCreditCustomer" appearance="outline" class="form-field">
+            <mat-label>{{ 'INVOICE.DUE_DATE' | translate }}</mat-label>
+            <input matInput [matDatepicker]="dueDatePicker" formControlName="dueDate">
+            <mat-datepicker-toggle matSuffix [for]="dueDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #dueDatePicker></mat-datepicker>
+          </mat-form-field>
+              </mat-grid-tile>
+              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
 
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'INVOICE.INVOICE_TYPE' | translate }}</mat-label>
@@ -84,6 +134,8 @@
               <mat-option [value]="InvoiceType.Exempt">{{ 'INVOICE.TYPE_EXEMPT' | translate }}</mat-option>
             </mat-select>
           </mat-form-field>
+              </mat-grid-tile>
+              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
 
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'INVOICE.CLASSIFICATION' | translate }}</mat-label>
@@ -93,21 +145,29 @@
               </mat-option>
             </mat-select>
           </mat-form-field>
+              </mat-grid-tile>
+          
+              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
 
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'INVOICE.SALESPERSON' | translate }}</mat-label>
             <input matInput formControlName="salesperson">
           </mat-form-field>
-        </div>
+            </mat-grid-tile>
+          </mat-grid-list>
+              </ng-container>
       </section>
 
-  <section class="form-section">
-    <h3 class="form-section-title">{{ 'INVOICE.SELECT_CAR_CARD' | translate }}</h3>
-    
-    <button mat-raised-button color="primary" (click)="openCarSelectionDialog()">
-      {{ 'INVOICE.SELECT_CAR' | translate }}
-    </button>
-  </section>
+
+      <section class="form-section">
+        <div class="section-header">
+          <h3 class="form-section-title">{{ 'PURCHASE_INVOICE.SELECT_CAR_CARD' | translate }}</h3>
+          <button mat-raised-button color="accent" (click)="toggleCarCards()">
+            <mat-icon>search</mat-icon>
+            {{ 'PURCHASE_INVOICE.SELECT_CAR' | translate }}
+          </button>
+        </div>
+      </section>
 
 
       <section class="form-section">
@@ -126,11 +186,10 @@
             [noDataText]="'INVOICE.NO_ITEMS' | translate"
             [height]="400"
           >
-            <dxi-column dataField="carName" caption="{{ 'INVOICE.CAR' | translate }}" [allowEditing]="false"></dxi-column>
-            <dxi-column dataField="quantity" caption="{{ 'INVOICE.QUANTITY' | translate }}" [allowEditing]="false"></dxi-column>
-            <dxi-column dataField="unitPrice" caption="{{ 'INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
-            <dxi-column dataField="lineTotal" caption="{{ 'INVOICE.LINE_TOTAL' | translate }}" dataType="number" [allowEditing]="false" format="currency"></dxi-column>
-            <dxi-column dataField="installmentDetails.downPayment" caption="{{ 'INVOICE.DOWN_PAYMENT' | translate }}" dataType="number" format="currency" [visible]="hasInstallments()"></dxi-column>
+              <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}"></dxi-column>
+            <dxi-column dataField="quantity" caption="{{ 'PURCHASE_INVOICE.QUANTITY' | translate }}" dataType="number"></dxi-column>
+            <dxi-column dataField="salesPrice" caption="{{ 'SALES.COL_SALES_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
+            <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" dataType="number" format="currency"></dxi-column>
             <dxi-column dataField="installmentDetails.numberOfInstallments" caption="{{ 'INVOICE.NUMBER_OF_INSTALLMENTS' | translate }}" [visible]="hasInstallments()"></dxi-column>
             <dxi-column dataField="installmentDetails.installmentAmount" caption="{{ 'INVOICE.INSTALLMENT_AMOUNT' | translate }}" dataType="number" format="currency" [visible]="hasInstallments()"></dxi-column>
             <dxi-column type="buttons">

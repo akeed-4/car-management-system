@@ -20,5 +20,6 @@ import { PurchaseReturnType } from '../../../../types/purchase-return-invoice.mo
   styleUrl: './credit-purchase-return.component.css'
 })
 export class CreditPurchaseReturnComponent {
+  customTitle: string = 'PURCHASE_RETURN.CREDIT_RETURN_TITLE';
   returnType: PurchaseReturnType = 'CREDIT';
 }

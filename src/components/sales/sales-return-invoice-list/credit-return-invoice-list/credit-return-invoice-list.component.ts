@@ -12,7 +12,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
   templateUrl: './credit-return-invoice-list.component.html',
   styleUrl: './credit-return-invoice-list.component.css'
 })
-export class CreditReturnInvoiceListComponent {
+export class SalesCreditReturnInvoiceListComponent {
   private salesReturnService = inject(SalesReturnService);
   private router = inject(Router);
 

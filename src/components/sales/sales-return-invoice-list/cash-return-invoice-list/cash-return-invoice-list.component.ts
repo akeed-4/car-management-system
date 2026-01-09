@@ -12,7 +12,7 @@ import { SalesReturnService } from '@/src/services/sales-return.service';
   templateUrl: './cash-return-invoice-list.component.html',
   styleUrl: './cash-return-invoice-list.component.css'
 })
-export class CashReturnInvoiceListComponent {
+export class SalesCashReturnInvoiceListComponent {
   private salesReturnService = inject(SalesReturnService);
   private router = inject(Router);
 

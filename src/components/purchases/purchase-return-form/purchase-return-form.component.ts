@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, Input, OnChanges, SimpleChanges, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormControl, AbstractControl } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -34,7 +34,7 @@ import { CreateJournalEntryDto } from '../../../components/accounting/models';
 })
 export class PurchaseReturnFormComponent implements OnInit, OnChanges {
   @Input() returnType: PurchaseReturnType = 'CASH';
-
+  @Input() customTitle: string = '';
   private procurementService = inject(PurchasesService);
   private purchaseReturnService = inject(PurchaseReturnService);
   private inventoryService = inject(InventoryService);
@@ -79,8 +79,9 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
   // Mock data for development - replace with actual API call when backend is ready
     invoices = toSignal(this.procurementService.getInvoices(), { initialValue: [] });
   originalInvoices = computed(() =>
-    this.invoices().filter(inv => 
-      inv.items.some(item => item.quantity > 0) // Invoices with items in stock
+    this.invoices().filter(inv =>
+      inv.items.some(item => item.quantity > 0) && // Invoices with items in stock
+      inv.paymentType === (this.returnType === 'CASH' ? 'cash' : 'credit') // Filter by payment type
     )
   );
   selectedOriginalInvoice = signal<PurchaseInvoice | null>(null);
@@ -128,6 +129,7 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
 
     if (this.returnType === 'CASH') {
       this.returnForm = this.fb.group({
+        returnInvoiceNumber: [{ value: this.returnInvoiceNumber(), disabled: true }],
         returnDate: [today, Validators.required],
         originalInvoice: [null, Validators.required],
         debitAccountId: [null, Validators.required] // Cash/Bank account for cash returns
@@ -135,6 +137,7 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
     } else {
       // CREDIT return
       this.returnForm = this.fb.group({
+        returnInvoiceNumber: [{ value: this.returnInvoiceNumber(), disabled: true }],
         returnDate: [today, Validators.required],
         originalInvoice: [null, Validators.required],
         creditAccountId: [null, Validators.required] // Supplier account for credit returns

@@ -18,6 +18,8 @@
     "TYPE_ZERO_RATED": "Zero Rated",
     "TYPE_EXEMPT": "Exempt",
     "CLASSIFICATION": "Classification",
+    "DEBIT_ACCOUNT": "Debit Account",
+    "CREDIT_ACCOUNT": "Credit Account",
     "SALESPERSON": "Salesperson",
     "ITEMS_SECTION": "Invoice Items",
     "SELECT_CAR": "Select Car",
@@ -37,6 +39,8 @@
     "ISSUE": "Issue Invoice",
     "SELECT_CUSTOMER_OPTION": "Please select a customer",
     "SELECT_STORE_OPTION": "-- Select store --",
+    "SELECT_DEBIT_ACCOUNT": "-- Select debit account --",
+    "SELECT_CREDIT_ACCOUNT": "-- Select credit account --",
     "SELECT_CAR_OPTION": "-- Select car from stock --",
     "PAYMENT_CASH": "Cash",
     "PAYMENT_BANK_TRANSFER": "Bank Transfer",
@@ -76,7 +80,8 @@
     "REMOVE_VEHICLE": "Remove Vehicle",
     "VEHICLE_SELECTED_SUCCESS": "Vehicle selected successfully and marked as Reserved",
     "VEHICLE_LOCK_ERROR": "Error locking vehicle status",
-    "VEHICLE_CLEARED": "Vehicle selection cleared and status restored"
+    "VEHICLE_CLEARED": "Vehicle selection cleared and status restored",
+    "TOTAL_AMOUNT": "Total Amount"
   },
   "PURCHASE_INVOICE": {
     "CREATE_TITLE": "Create Purchase Invoice",
@@ -130,6 +135,7 @@
     "SEARCH_CARS": "Search Cars",
     "SEARCH_CARS_PLACEHOLDER": "Search by make, model, or specs...",
     "ADD_TO_INVOICE": "Add to Invoice",
+    "NO_CARS_AVAILABLE": "No cars available for the selected store",
     "ERROR_SELECT_SUPPLIER": "Please select a supplier",
     "ERROR_SAME_ACCOUNT": "Debit and credit accounts cannot be the same",
     "ERROR_NO_ITEMS": "Please add at least one item to the invoice",
@@ -152,6 +158,9 @@
     "RESET": "Reset",
     "CANCEL": "Cancel",
     "REQUIRED": "This field is required",
+    "FIELD_REQUIRED": "This field is required",
+    "MIN_LENGTH_10": "Minimum length is 10 characters",
+    "SAVING": "Saving...",
     "ALERT": {
       "EXPIRE_REGISTRATION": "Expire Registration",
       "PERIODIC_INSPECTION": "Periodic Inspection"
@@ -461,6 +470,7 @@
     "UNARCHIVE": "Unarchive",
     "NO_ARCHIVED_INVOICES": "No invoices in archive.",
     "NO_PURCHASE_INVOICES": "No purchase invoices yet."
+  
   },
 
   "PROCUREMENT.PURCHASE_RETURN": {
@@ -482,7 +492,6 @@
     "TOTAL": "Return Total",
     "CANCEL": "Cancel",
     "SAVE": "Save Return",
-    "ERROR_NO_ITEMS": "Please specify returned quantities.",
     "SAVED_SUCCESS": "Return invoice saved and inventory updated.",
     "LIST_TITLE": "Purchase Returns",
     "NEW_RETURN": "Create New Purchase Return",
@@ -490,7 +499,13 @@
     "COL_DATE": "Date",
     "COL_SUPPLIER": "Supplier",
     "COL_TOTAL": "Return Total",
-    "NO_RETURNS": "No purchase return invoices yet."
+    "NO_RETURNS": "No purchase return invoices yet.",
+     "CASH_RETURN_TITLE": "Cash Purchase Return",
+      "CREDIT_RETURN_TITLE": "Credit Purchase Return",
+      "ERROR_NO_ITEMS": "Please add at least one item to return",
+      "ERROR_INVALID_FORM": "Please fill all required fields",
+      "SUCCESS_RETURN_SAVED": "Purchase return saved successfully",
+      "ERROR_SAVING_RETURN": "Error saving purchase return"
   },
   "PURCHASE_RETURN": {
     "CREATE_TITLE": "Create Purchase Return",
@@ -544,14 +559,18 @@
   },
   "SALES": {
     "LIST_TITLE": "Sales Invoices",
+    "LIST_SUBTITLE": "Manage and track all sales invoices",
     "NEW_INVOICE": "New Sales Invoice",
     "SEARCH_PLACEHOLDER": "Search invoices (number, customer, car...)",
+    "SEARCH_CARS": "Search Cars",
+    "SEARCH_CARS_PLACEHOLDER": "Search by make, model, or specs...",
     "SHOW_ARCHIVED": "Show Archived",
     "COL_INVOICE_NUMBER": "Invoice Number",
     "COL_DATE": "Date",
     "COL_CUSTOMER": "Customer",
     "COL_CONTENTS": "Contents",
     "COL_TOTAL": "Total",
+    "COL_SALES_PRICE": "Sales Price",
     "COL_STATUS": "Payment Status",
     "ACTIONS": "Actions",
     "TRANSFER_OWNERSHIP": "Ownership Transfer",
@@ -576,6 +595,7 @@
     "ARCHIVE": "Archive",
     "UNARCHIVE": "Unarchive",
     "NO_ARCHIVE": "No invoices in archive.",
+    "ADD_TO_SALES_INVOICE": "Add to Sales Invoice",
     "CASH_LIST_TITLE": "Cash Sales Invoices",
     "CREDIT_LIST_TITLE": "Credit Sales Invoices",
 
@@ -619,7 +639,18 @@
       "NET_REFUND": "Net Refund Amount",
       "SAVE_AND_SEND_APPROVAL": "Save & Send for Approval",
       "CASH_LIST_TITLE": "Cash Sales Returns",
-      "CREDIT_LIST_TITLE": "Credit Sales Returns"
+      "CREDIT_LIST_TITLE": "Credit Sales Returns",
+      "CUSTOMER": "Customer",
+      "TOTAL_AMOUNT": "Total Amount",
+      "ACTIONS": "Actions",
+      "VIEW_DETAILS": "View Details",
+      "EDIT": "Edit",
+      "DELETE": "Delete",
+      "SEARCH_PLACEHOLDER": "Search returns...",
+      "CASH": "Cash",
+      "CREDIT": "Credit",
+      "TOTAL_SUMMARY": "Total: {0}",
+      "COUNT_SUMMARY": "Total Returns: {0}"
     },
 
     "PRINTABLE": {
@@ -1746,6 +1777,17 @@
     "JOURNAL_ENTRIES_LIST": "Journal Entries List",
     "JOURNAL_ENTRIES_LIST_SUBTITLE": "View and manage all journal entries",
     "ADD_NEW_ENTRY": "Add New Entry",
+    "ENTRY_NUMBER": "Entry Number",
+    "DESCRIPTION": "Description",
+    "DEBIT_ACCOUNT": "Debit Account",
+    "CREDIT_ACCOUNT": "Credit Account",
+    "AMOUNT": "Amount",
+    "STATUS_DRAFT": "Draft",
+    "STATUS_POSTED": "Posted",
+    "STATUS_APPROVED": "Approved",
+    "STATUS_REJECTED": "Rejected",
+    "EDIT": "Edit",
+    "DELETE": "Delete",
     "ADD_ACCOUNT": "Add Account",
     "EDIT_ACCOUNT": "Edit Account",
     "DELETE_ACCOUNT": "Delete Account",
@@ -1988,6 +2030,7 @@
     "FILTER_MODEL": "Filter by Model",
     "FILTER_YEAR": "Filter by Year",
     "MIN_PRICE": "Min Price",
+    "ADD_TO_INVOICE": "Add to Invoice",
     "MAX_PRICE": "Max Price",
     "VIN": "VIN",
     "MANUFACTURER": "Manufacturer",

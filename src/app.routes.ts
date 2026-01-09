@@ -39,6 +39,8 @@ import { CashPurchaseReturnComponent } from './components/purchases/purchase-ret
 import { CreditPurchaseReturnComponent } from './components/purchases/purchase-returns/credit-purchase-return/credit-purchase-return.component';
 import { CashReturnInvoiceListComponent } from './components/purchases/purchase-invoice-return-list/cash-return-invoice-list/cash-return-invoice-list.component';
 import { CreditReturnInvoiceListComponent } from './components/purchases/purchase-invoice-return-list/credit-return-invoice-list/credit-return-invoice-list.component';
+import { SalesCashReturnInvoiceListComponent } from './components/sales/sales-return-invoice-list/cash-return-invoice-list/cash-return-invoice-list.component';
+import { SalesCreditReturnInvoiceListComponent } from './components/sales/sales-return-invoice-list/credit-return-invoice-list/credit-return-invoice-list.component';
 import { RolesComponent } from './components/users/roles/roles.component';
 import { RequestedCarsComponent } from './components/requested-cars/requested-cars-list/requested-cars.component';
 import { RequestedCarFormComponent } from './components/requested-cars/requested-car-form/requested-car-form.component';
@@ -144,7 +146,9 @@ export const APP_ROUTES: Routes = [
   { path: 'daily-entries/:id/edit', component: DailyEntryFormComponent },
   { path: 'sales/invoice-credit-list', component: InvoiceCreditListComponent },
   { path: 'sales/invoice/cash/new', component: SalesInvoiceCashComponent },
+  { path: 'sales/invoice/cash/edit/:id', component: SalesInvoiceCashComponent },
   { path: 'sales/invoice/credit/new', component: SalesInvoiceCreditComponent },
+  { path: 'sales/invoice/credit/edit/:id', component: SalesInvoiceCreditComponent },
   { path: 'sales/invoice/cash', component: CashInvoiceListComponent },
   { path: 'sales/invoice/credit', component: CreditInvoiceListComponent },
   { path: 'sales/invoice/print/:id', component: PrintableSalesInvoiceComponent },
@@ -153,8 +157,8 @@ export const APP_ROUTES: Routes = [
   { path: 'sales/return/new', component: SalesReturnFormComponent },
   { path: 'sales/return/cash/new', component: CashInvoiceFormComponent },
   { path: 'sales/return/credit/new', component: CreditInvoiceFormComponent },
-  { path: 'sales/return/cash', component: CashReturnInvoiceListComponent },
-  { path: 'sales/return/credit', component: CreditReturnInvoiceListComponent },
+  { path: 'sales/return/cash', component: SalesCashReturnInvoiceListComponent },
+  { path: 'sales/return/credit', component: SalesCreditReturnInvoiceListComponent },
   { path: 'purchases', component: PurchasesComponent },
   { path: 'purchases/invoice/cash', component: CashPurchaseInvoiceListComponent },
   { path: 'purchases/invoice/credit', component: CreditPurchaseInvoiceListComponent },

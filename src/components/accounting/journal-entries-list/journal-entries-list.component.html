@@ -18,6 +18,7 @@
         [dataSource]="journalEntries()"
         [showBorders]="true"
         [showRowLines]="true"
+        keyexpr="id"
         [showColumnLines]="true"
         [allowColumnReordering]="true"
         [allowColumnResizing]="true"
@@ -43,20 +44,18 @@
         [export]="{ enabled: true, fileName: 'journal-entries' }"
       >
 
-        <dxi-column dataField="entryNumber" [caption]="'ACCOUNTING.ENTRY_NUMBER' | translate" [width]="120" alignment="right"></dxi-column>
+        <dxi-column dataField="id" [caption]="'ACCOUNTING.ENTRY_NUMBER' | translate" [width]="120" alignment="right"></dxi-column>
         <dxi-column dataField="entryDate" [caption]="'ACCOUNTING.ENTRY_DATE' | translate" dataType="date" format="yyyy-MM-dd" [width]="120" alignment="right"></dxi-column>
         <dxi-column dataField="description" [caption]="'ACCOUNTING.DESCRIPTION' | translate" [minWidth]="200" alignment="right"></dxi-column>
-        <dxi-column dataField="debitAccountName" [caption]="'ACCOUNTING.DEBIT_ACCOUNT' | translate" [minWidth]="150" alignment="right"></dxi-column>
-        <dxi-column dataField="creditAccountName" [caption]="'ACCOUNTING.CREDIT_ACCOUNT' | translate" [minWidth]="150" alignment="right"></dxi-column>
-        <dxi-column dataField="amount" [caption]="'ACCOUNTING.AMOUNT' | translate" dataType="number" format="currency" [width]="130" alignment="right">
+        <dxi-column dataField="totalCredit" [caption]="'ACCOUNTING.AMOUNT' | translate" dataType="number" format="currency" [width]="130" alignment="right">
           <dxo-format type="currency" currency="SAR"></dxo-format>
         </dxi-column>
         <dxi-column dataField="status" [caption]="'ACCOUNTING.STATUS' | translate" [width]="100" alignment="center">
           <dxo-lookup [dataSource]="statusOptions" valueExpr="value" displayExpr="text"></dxo-lookup>
         </dxi-column>
         <dxi-column type="buttons" [width]="120" [caption]="'ACCOUNTING.ACTIONS' | translate">
-          <dxi-button name="edit" [onClick]="onEdit"  [hint]="'ACCOUNTING.EDIT' | translate" [visible]="isEditButtonVisible"></dxi-button>
-          <dxi-button name="delete"  [onClick]="onDelete" [hint]="'ACCOUNTING.DELETE' | translate"></dxi-button>
+          <dxi-button icon="edit" [onClick]="onEdit"  [hint]="'ACCOUNTING.EDIT' | translate" [visible]="isEditButtonVisible"></dxi-button>
+          <dxi-button icon="trash"  [onClick]="onDelete" [hint]="'ACCOUNTING.DELETE' | translate"></dxi-button>
         </dxi-column>
 
         <dxo-filter-row [visible]="true"></dxo-filter-row>

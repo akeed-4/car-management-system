@@ -3,13 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { SalesReturnInvoice } from '../types/sales-return-invoice.model';
 import { SalesReturn, JournalEntry } from '../types/sales-return.model';
 import { Observable } from 'rxjs';
+import { environment } from '../environments/environment.development';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SalesReturnService {
   private http = inject(HttpClient);
-  private apiUrl = '/api/sales-returns';
+  private apiUrl = environment.origin + 'api/SalesReturns';
   private legacyApiUrl = 'https://api.example.com/sales-return-invoices';
 
   constructor() {}
@@ -40,7 +41,8 @@ export class SalesReturnService {
    * Create a new sales return (draft status)
    */
   createSalesReturn(salesReturn: SalesReturn): Observable<SalesReturn> {
-    return this.http.post<SalesReturn>(this.apiUrl, salesReturn);
+    console.log('Creating sales return', salesReturn);
+    return this.http.post<SalesReturn>(this.apiUrl + '/Create', salesReturn);
   }
 
   /**

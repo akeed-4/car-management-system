@@ -34,15 +34,19 @@ mat-card {
 
 .form-section {
   margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #1976d2;
 }
 
 .form-section-title {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  border-bottom: 2px solid #1976d2;
-  padding-bottom: 0.5rem;
   color: #1976d2;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .form-grid {
@@ -340,7 +344,19 @@ mat-card {
   margin-top: 1rem;
 }
 
-.car-card {
+/* Angular Material Grid List Styles */
+mat-grid-list {
+  margin-top: 1rem;
+}
+
+mat-grid-tile {
+  background: transparent;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+mat-grid-tile .car-card {
+  height: 100%;
   border: 1px solid #e0e0e0;
   border-radius: 12px;
   padding: 1rem;
@@ -353,7 +369,7 @@ mat-card {
   text-align: center;
 }
 
-.car-card:hover {
+mat-grid-tile .car-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }

@@ -1,9 +1,11 @@
 // Sales Return Model
+import { ReturnInvoiceItem } from './return-invoice-item.model';
+
 export interface SalesReturn {
   id?: number;
   returnNo: string;
   invoiceId: number;
-  carId: number;
+  carId?: number; // Optional, since items have carId
   vin: string;
   salePrice: number;
   vatAmount: number;
@@ -19,6 +21,7 @@ export interface SalesReturn {
   createdBy: number;
   createdDate?: Date;
   updatedDate?: Date;
+  items: ReturnInvoiceItem[]; // Added items array
 }
 
 // Purchase Return Model

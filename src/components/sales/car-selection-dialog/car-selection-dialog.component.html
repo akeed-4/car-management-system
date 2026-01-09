@@ -1,19 +1,28 @@
 <h2 mat-dialog-title>{{ 'INVOICE.SELECT_CAR' | translate }}</h2>
 <mat-dialog-content>
   <mat-form-field appearance="outline" class="search-field">
-    <mat-label>{{ 'COMMON.SEARCH' | translate }}</mat-label>
-    <input matInput [(ngModel)]="searchTerm" placeholder="{{ 'INVOICE.SEARCH_CARS' | translate }}">
+    <mat-label>{{ 'SALES.SEARCH_CARS' | translate }}</mat-label>
+    <input matInput [(ngModel)]="searchTerm" placeholder="{{ 'SALES.SEARCH_CARS_PLACEHOLDER' | translate }}">
   </mat-form-field>
-  <div class="car-cards-container">
-    <div *ngFor="let car of filteredCars() | slice:0:3" class="car-card">
+
+  <div *ngIf="isLoading()" class="loading-container">
+    <p>{{ 'COMMON.LOADING' | translate }}</p>
+  </div>
+
+  <div *ngIf="!isLoading()" class="car-cards-container">
+    <div *ngFor="let car of filteredCars()" class="car-card">
       <img [src]="car.imageUrl" alt="{{car.carName}}" class="car-image">
       <h4>{{ car.carName }}</h4>
       <p>{{ car.specs }}</p>
       <p>{{ 'INVOICE.QUANTITY_LABEL' | translate }}: {{ car.availableQuantity }}</p>
       <button mat-raised-button color="primary" (click)="selectCar(car)">
-        {{ 'INVOICE.ADD_TO_INVOICE' | translate }}
+        {{ 'SALES.ADD_TO_SALES_INVOICE' | translate }}
       </button>
     </div>
+  </div>
+
+  <div *ngIf="!isLoading() && filteredCars().length === 0" class="no-cars">
+    <p>{{ 'INVOICE.NO_CARS_AVAILABLE' | translate }}</p>
   </div>
 </mat-dialog-content>
 <mat-dialog-actions>

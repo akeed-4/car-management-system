@@ -12,6 +12,12 @@ export interface SalesInvoice {
   storeId?: number;
   salesperson?: string;
   paymentMethod?: 'Cash' | 'Bank Transfer' | 'Finance';
+  paymentType?: 'Bank Transfer' | 'Cash' | 'Check';
+  invoiceType?: 'Taxable' | 'Zero Rated' | 'Exempt';
+  ClassificationId?: number;
+  debitAccountId?: number;
+  creditAccountId?: number;
+  isCash?: boolean;
   items: InvoiceItem[];
   subtotal: number;
   vatAmount: number;

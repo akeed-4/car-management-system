@@ -22,19 +22,19 @@ export class CreditReturnInvoiceListComponent {
 
   filteredReturnInvoices = computed(() => this.returnInvoices().filter(invoice => invoice.returnType === 'CREDIT'));
 
-  customizeTotalText = (data: any) => {
+  customizeTotalText = (data: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
     return `${this.translate.instant('PURCHASE_RETURN.TOTAL')}: ${data.value?.toLocaleString('ar-SA', { style: 'currency', currency: 'SAR' }) || '0 ر.س'}`;
   };
 
-  onPrintClick = (e: any) => {
+  onPrintClick = (e: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
     this.router.navigate(['/purchases/return/print', e.row.data.id]);
   };
 
-  onEditClick = (e: any) => {
+  onEditClick = (e: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
     this.router.navigate(['/purchases/return/edit', e.row.data.id]);
   };
 
-  onDeleteClick = (e: any) => {
+  onDeleteClick = (e: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
     if (confirm(this.translate.instant('PURCHASE_RETURN.DELETE_CONFIRM'))) {
       // Call delete service
       alert('Delete functionality not implemented yet');

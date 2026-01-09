@@ -1,28 +1,23 @@
 <div class="container">
-  <div class="page-header">
-    <div class="flex justify-between items-center">
-      <h2 class="page-title">{{ customTitle || ('SALES.LIST_TITLE' | translate) }}</h2>
-      <a routerLink="/sales/invoice/new" class="btn-primary">
-        <svg class="w-5 h-5 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-        </svg>
-        {{ 'SALES.NEW_INVOICE' | translate }}
-      </a>
+  <div class="page-header strong-header">
+    <div class="header-info">
+      <h2 class="strong-title">{{ customTitle ? (customTitle | translate) : ('SALES.LIST_TITLE' | translate) }}</h2>
     </div>
+    <a [routerLink]="isCashInvoice ? '/sales/invoice/cash/new' : '/sales/invoice/credit/new'" class="btn btn-primary btn-small no-print">
+      <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+      </svg>
+      <span>{{ 'SALES.NEW_INVOICE' | translate }}</span>
+    </a>
   </div>
 
   <div class="datagrid-container">
     <dx-data-grid
-      [dataSource]="invoices()"
+      [dataSource]="dataSource"
       [showBorders]="true"
       [showRowLines]="true"
       [showColumnLines]="true"
-      [allowColumnReordering]="true"
-      [allowColumnResizing]="true"
-      [columnAutoWidth]="true"
-      [wordWrapEnabled]="true"
-      height="600px"
-      class="professional-datagrid">
+      height="600px">
 
       <dxo-paging [pageSize]="10" [enabled]="true"></dxo-paging>
       <dxo-pager [visible]="true" [allowedPageSizes]="[5, 10, 20]" [displayMode]="'full'"
@@ -53,7 +48,18 @@
 
       <dxi-column dataField="paymentStatus" [caption]="'SALES.COL_STATUS' | translate" [width]="120" alignment="right">
       </dxi-column>
-
+   <dxi-column type="buttons" caption="{{ 'PURCHASES.ACTIONS' | translate }}" [width]="200" cssClass="no-print">
+          <dxi-button
+            icon="print"
+            hint="{{ 'PURCHASES.PRINT_INVOICE' | translate }}"
+            [onClick]="onPrintClick">
+          </dxi-button>
+          <dxi-button
+            icon="edit"
+            hint="{{ 'PURCHASES.EDIT_INVOICE' | translate }}"
+            [onClick]="onEditClick">
+          </dxi-button>
+   </dxi-column>
       <dxo-summary>
         <dxi-total-item column="totalAmount" summaryType="sum" [customizeText]="customizeTotalText">
         </dxi-total-item>

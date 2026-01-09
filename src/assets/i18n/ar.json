@@ -19,6 +19,8 @@
     "TYPE_ZERO_RATED": "معفى من الضريبة",
     "TYPE_EXEMPT": "معفى",
     "CLASSIFICATION": "التصنيف",
+    "DEBIT_ACCOUNT": "الحساب المدين",
+    "CREDIT_ACCOUNT": "الحساب الدائن",
     "SALESPERSON": "مندوب المبيعات",
     "ITEMS_SECTION": "عناصر الفاتورة",
     "SELECT_CAR": "اختر السيارة",
@@ -38,6 +40,8 @@
     "ISSUE": "إصدار الفاتورة",
     "SELECT_CUSTOMER_OPTION": "يرجى اختيار العميل",
     "SELECT_STORE_OPTION": "-- اختر متجر --",
+    "SELECT_DEBIT_ACCOUNT": "-- اختر الحساب المدين --",
+    "SELECT_CREDIT_ACCOUNT": "-- اختر الحساب الدائن --",
     "SELECT_CAR_OPTION": "-- اختر سيارة من المخزون --",
     "PAYMENT_CASH": "نقداً",
     "PAYMENT_CREDIT": "آجل (مؤجل)",
@@ -86,7 +90,8 @@
     "REMOVE_VEHICLE": "إزالة المركبة",
     "VEHICLE_SELECTED_SUCCESS": "تم اختيار المركبة بنجاح وتم تعليمها كمحجوزة",
     "VEHICLE_LOCK_ERROR": "خطأ في تعليم المركبة",
-    "VEHICLE_CLEARED": "تم مسح اختيار المركبة واستعادة الحالة"
+    "VEHICLE_CLEARED": "تم مسح اختيار المركبة واستعادة الحالة",
+    "TOTAL_AMOUNT": "إجمالي المبلغ"
   },
   "PURCHASE_INVOICE": {
     "CREATE_TITLE": "إنشاء فاتورة شراء",
@@ -131,6 +136,7 @@
     "SEARCH_CARS": "البحث في السيارات",
     "SEARCH_CARS_PLACEHOLDER": "البحث بالماركة أو الموديل أو المواصفات...",
     "ADD_TO_INVOICE": "إضافة إلى الفاتورة",
+    "NO_CARS_AVAILABLE": "لا توجد سيارات متاحة للمخزن المحدد",
     "ERROR_SELECT_SUPPLIER": "الرجاء اختيار المورد",
     "ERROR_SAME_ACCOUNT": "لا يمكن أن يكون الحساب المدين والدائن نفس الحساب",
     "ERROR_NO_ITEMS": "الرجاء إضافة عنصر واحد على الأقل للفاتورة",
@@ -153,6 +159,9 @@
     "RESET": "إعادة تعيين",
     "CANCEL": "إلغاء",
     "REQUIRED": "هذا الحقل مطلوب",
+    "FIELD_REQUIRED": "هذا الحقل مطلوب",
+    "MIN_LENGTH_10": "الحد الأدنى للطول هو 10 أحرف",
+    "SAVING": "جاري الحفظ...",
     "ALERT": {
       "EXPIRE_REGISTRATION": "انتهاء الاستمارة",
       "PERIODIC_INSPECTION": "فحص دوري"
@@ -504,8 +513,9 @@
     "UNARCHIVE": "إلغاء الأرشفة",
     "NO_ARCHIVED_INVOICES": "لا توجد فواتير في الأرشيف.",
     "NO_PURCHASE_INVOICES": "لا توجد فواتير شراء حتى الآن."
-  }
-  ,
+
+  },
+  
 
   "PURCHASE_RETURN": {
     "CREATE_TITLE": "إنشاء مرتجع مشتريات",
@@ -545,7 +555,12 @@
     "PRINT": "طباعة",
     "EDIT": "تعديل",
     "DELETE": "حذف",
-    "DELETE_CONFIRM": "هل أنت متأكد من حذف فاتورة المرتجع هذه؟"
+    "DELETE_CONFIRM": "هل أنت متأكد من حذف فاتورة المرتجع هذه؟",
+     "CASH_RETURN_TITLE": "مرتجع شراء نقدي",
+      "CREDIT_RETURN_TITLE": "مرتجع شراء آجل",
+      "ERROR_INVALID_FORM": "يرجى ملء جميع الحقول المطلوبة",
+      "SUCCESS_RETURN_SAVED": "تم حفظ مرتجع الشراء بنجاح",
+      "ERROR_SAVING_RETURN": "خطأ في حفظ مرتجع الشراء"
   },
   "CASH_PURCHASE_RETURN": {
     "LIST_TITLE": "مرتجعات المشتريات النقدية",
@@ -557,14 +572,18 @@
   },
   "SALES": {
     "LIST_TITLE": "قائمة فواتير المبيعات",
+    "LIST_SUBTITLE": "إدارة وتتبع جميع فواتير المبيعات",
     "NEW_INVOICE": "فاتورة بيع جديدة",
     "SEARCH_PLACEHOLDER": "ابحث عن فاتورة (الرقم، العميل، السيارة...)",
+    "SEARCH_CARS": "البحث في السيارات",
+    "SEARCH_CARS_PLACEHOLDER": "البحث بالماركة أو الموديل أو المواصفات...",
     "SHOW_ARCHIVED": "عرض الأرشيف",
     "COL_INVOICE_NUMBER": "رقم الفاتورة",
     "COL_DATE": "التاريخ",
     "COL_CUSTOMER": "العميل",
     "COL_CONTENTS": "المحتويات",
     "COL_TOTAL": "الإجمالي",
+    "COL_SALES_PRICE": "سعر البيع",
     "COL_STATUS": "حالة السداد",
     "ACTIONS": "إجراءات",
     "TRANSFER_OWNERSHIP": "نقل الملكية",
@@ -589,6 +608,9 @@
     "ARCHIVE": "أرشفة",
     "UNARCHIVE": "إلغاء الأرشفة",
     "NO_ARCHIVE": "لا توجد فواتير في الأرشيف.",
+    "ADD_TO_SALES_INVOICE": "إضافة إلى فاتورة المبيعات",
+    "CASH_LIST_TITLE": "فواتير مبيعات نقدية",
+    "CREDIT_LIST_TITLE": "فواتير مبيعات آجلة",
 
     "RETURN": {
       "LIST_TITLE": "قائمة مرتجعات المبيعات",
@@ -629,8 +651,19 @@
       "DEPOSIT_REFUND": "استرجاع الدفعة المقدمة",
       "NET_REFUND": "صافي المبلغ المسترد",
       "SAVE_AND_SEND_APPROVAL": "حفظ وإرسال للموافقة",
-      "CASH_LIST_TITLE": "مرتجعات مبيعات نقدية",
-      "CREDIT_LIST_TITLE": "مرتجعات مبيعات آجلة"
+      "CASH_LIST_TITLE": "مرتجعات المبيعات النقدية",
+      "CREDIT_LIST_TITLE": "مرتجعات المبيعات الآجلة",
+      "CUSTOMER": "العميل",
+      "TOTAL_AMOUNT": "إجمالي المبلغ",
+      "ACTIONS": "الإجراءات",
+      "VIEW_DETAILS": "عرض التفاصيل",
+      "EDIT": "تعديل",
+      "DELETE": "حذف",
+      "SEARCH_PLACEHOLDER": "البحث في المرتجعات...",
+      "CASH": "نقدي",
+      "CREDIT": "آجل",
+      "TOTAL_SUMMARY": "الإجمالي: {0}",
+      "COUNT_SUMMARY": "إجمالي المرتجعات: {0}"
     },
 
     "PRINTABLE": {
@@ -1679,6 +1712,17 @@
     "JOURNAL_ENTRIES_LIST": "قائمة قيود اليومية",
     "JOURNAL_ENTRIES_LIST_SUBTITLE": "عرض وإدارة جميع قيود اليومية",
     "ADD_NEW_ENTRY": "إضافة قيد جديد",
+    "ENTRY_NUMBER": "رقم القيد",
+    "DESCRIPTION": "الوصف",
+    "DEBIT_ACCOUNT": "الحساب المدين",
+    "CREDIT_ACCOUNT": "الحساب الدائن",
+    "AMOUNT": "المبلغ",
+    "STATUS_DRAFT": "مسودة",
+    "STATUS_POSTED": "مُرحل",
+    "STATUS_APPROVED": "مُعتمد",
+    "STATUS_REJECTED": "مرفوض",
+    "EDIT": "تعديل",
+    "DELETE": "حذف",
     "ADD_ACCOUNT": "إضافة حساب",
     "EDIT_ACCOUNT": "تعديل حساب",
     "DELETE_ACCOUNT": "حذف حساب",
@@ -1926,6 +1970,7 @@
     "MODEL": "الموديل",
     "YEAR": "السنة",
     "COLOR": "اللون",
+    "ADD_TO_INVOICE": "إضافة إلى الفاتورة",
     "SUGGESTED_PRICE": "السعر المقترح",
     "NO_AVAILABLE_VEHICLES": "لا توجد مركبات متاحة",
     "SELECTED_VEHICLE": "المركبة المختارة",

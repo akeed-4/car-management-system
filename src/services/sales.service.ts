@@ -39,7 +39,7 @@ export class SalesService {
     return this.http.get<SalesInvoice[]>(`${this.apiUrl}?customerId=${customerId}`);
   }
   getInvoiceById(id: number): Observable<SalesInvoice> {
-    return this.http.get<SalesInvoice>(`${this.apiUrl}/${id}`);
+    return this.http.get<SalesInvoice>(`${this.apiUrl}/GetInvoice/${id}`);
   }
 
   // إضافة فاتورة جديدة
@@ -93,6 +93,6 @@ export class SalesService {
 
   // جلب السيارات المتاحة حسب المتجر
   getAvailableCarsByStore(storeId: number): Observable<StoreCarStockDto[]> {
-    return this.http.get<StoreCarStockDto[]>(`${environment.origin}api/Stocks/store/${storeId}`);
+    return this.http.get<StoreCarStockDto[]>(`${this.apiUrl}/availableCars/${storeId}`);
   }
 }

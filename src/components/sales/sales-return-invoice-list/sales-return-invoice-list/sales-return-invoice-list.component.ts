@@ -29,11 +29,11 @@ export class SalesReturnInvoiceListComponent {
   ];
 
   customizeTotalText = (data: any) => {
-    return `الإجمالي الكلي: ${data.value?.toLocaleString('ar-SA', { style: 'currency', currency: 'SAR' }) || '0 ر.س'}`;
+    return this.translate.instant('SALES.RETURN.TOTAL_SUMMARY', { 0: data.value?.toLocaleString('ar-SA', { style: 'currency', currency: 'SAR' }) || '0 ر.س' });
   };
 
   customizeCountText = (data: any) => {
-    return `عدد المرتجعات: ${data.value || 0}`;
+    return this.translate.instant('SALES.RETURN.COUNT_SUMMARY', { 0: data.value || 0 });
   };
 
   // Child-to-parent communication methods

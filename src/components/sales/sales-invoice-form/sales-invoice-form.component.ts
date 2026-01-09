@@ -9,6 +9,7 @@ import { CustomerService } from '../../../services/customer.service';
 import { SalesService } from '../../../services/sales.service';
 import { CurrentSettingService } from '../../../services/current-setting.service';
 import { StoreService } from '../../../services/store.service';
+import { AccountingService } from '../../accounting/accounting.service';
 import { SalesInvoice } from '../../../types/sales-invoice.model';
 import { InvoiceItem } from '../../../types/invoice-item.model';
 import { Car } from '../../../types/car.model';
@@ -82,9 +83,11 @@ export class SalesInvoiceFormComponent implements OnInit {
     }
   displayedColumns: string[] = ['carDescription', 'quantity', 'unitPrice', 'lineTotal', 'actions'];
 
-  // Layout configuration for responsive grid
-  layout$ = this.currentSettingService.getCardLayout(4);
-
+ cardLayout2 = this.currentSettingService.getCardLayout(2);
+  cardLayout3 = this.currentSettingService.getCardLayout(3);
+  cardLayout4 = this.currentSettingService.getCardLayout(4);
+  cardLayout5 = this.currentSettingService.getCardLayout(5);
+  cardLayout6 = this.currentSettingService.getCardLayout(6);
   // Form controls
   invoiceForm!: FormGroup;
   // Services state
@@ -111,12 +114,17 @@ export class SalesInvoiceFormComponent implements OnInit {
   invoiceClassifications = signal<any[]>([]);
   selectedInvoiceClassification = signal<any | null>(null);
 
+  // Account signals
+  debitAccounts = signal<any[]>([]);
+  creditAccounts = signal<any[]>([]);
+
   constructor(
     private inventoryService: InventoryService,
     private customerService: CustomerService,
     private salesService: SalesService,
     private currentSettingService: CurrentSettingService,
     private storeService: StoreService,
+    private accountingService: AccountingService,
     private router: Router,
     private translate: TranslateService,
     private dialog: MatDialog,
@@ -134,8 +142,10 @@ export class SalesInvoiceFormComponent implements OnInit {
     } else {
       // Initialize form group for new invoice
       this.invoiceForm = new FormGroup({
-        store: new FormControl(null, Validators.required),
+        storeId: new FormControl(null, Validators.required),
         customer: new FormControl(null, Validators.required),
+        debitAccount: new FormControl(null, Validators.required),
+        creditAccount: new FormControl(null, Validators.required),
         invoiceDate: new FormControl(new Date(), Validators.required),
         dueDate: new FormControl(''),
         paymentMethod: new FormControl('Cash'),
@@ -163,38 +173,43 @@ export class SalesInvoiceFormComponent implements OnInit {
       }
     });
 
-    // Watch for store changes to load car stocks
-    this.invoiceForm.get('store')?.valueChanges.subscribe(storeId => {
-      if (storeId) {
-        this.loadCarStocks(storeId);
-      } else {
-        this.carStocks.set([]);
-      }
-    });
+    // Load accounts
+    this.loadAccounts();
+
+ 
 
     // Watch for customer changes to set payment method
     this.invoiceForm.get('customer')?.valueChanges.subscribe(customerId => {
       const customer = this.customers().find(c => c.id === customerId);
       this.selectedCustomer.set(customer || null);
-      if (customer?.isCreditCustomer) {
-        this.invoiceForm.get('paymentMethod')?.setValue('Finance');
-      } else {
-        this.invoiceForm.get('paymentMethod')?.setValue('Cash');
-      }
+      // Set payment method based on isCash input
+      this.invoiceForm.get('paymentMethod')?.setValue(this.isCash ? 'Cash' : 'Credit');
     });
   }
 
   loadInvoiceForEdit(invoiceId: number) {
     this.salesService.getInvoiceById(invoiceId).subscribe({
       next: (invoice) => {
+        // Set isCash based on invoice data (for backward compatibility, derive from paymentMethod if isCash not set)
+        if (invoice.isCash !== undefined) {
+          (this as any).isCash = invoice.isCash;
+        } else {
+          // Derive from payment method for existing invoices
+          (this as any).isCash = invoice.paymentMethod === 'Cash';
+        }
+
         // Initialize form group with existing invoice data
         this.invoiceForm = new FormGroup({
-          store: new FormControl(invoice.storeId, Validators.required),
+          storeId: new FormControl(invoice.storeId, Validators.required),
           customer: new FormControl(invoice.customerId, Validators.required),
           invoiceDate: new FormControl(new Date(invoice.invoiceDate), Validators.required),
           dueDate: new FormControl(invoice.dueDate ? new Date(invoice.dueDate) : ''),
           paymentMethod: new FormControl(invoice.paymentMethod || 'Cash'),
           salesperson: new FormControl(invoice.salesperson || ''),
+          ClassificationId: new FormControl(0, Validators.required),
+          debitAccount: new FormControl(null, Validators.required),
+          creditAccount: new FormControl(null, Validators.required),
+          invoiceType: new FormControl(InvoiceType.Taxable, Validators.required),
           selectedCarId: new FormControl(null),
           selectedQuantity: new FormControl(1, [Validators.required, Validators.min(1)]),
           notes: new FormControl(invoice.notes || ''),
@@ -239,6 +254,58 @@ export class SalesInvoiceFormComponent implements OnInit {
     });
   }
 
+  private loadAccounts(): void {
+    // Load debit accounts (sales revenue/income)
+    this.accountingService.getAccountsByCategory('debit').subscribe(accounts => {
+      this.debitAccounts.set(accounts);
+      console.log('Debit accounts loaded', accounts);
+    });
+
+    // Load credit accounts (customer/cash/bank)
+    this.accountingService.getAccountsByCategory('credit').subscribe(accounts => {
+      this.creditAccounts.set(accounts);
+      console.log('Credit accounts loaded', accounts);
+    });
+  }
+
+  toggleCarCards(): void {
+    const storeId = this.invoiceForm.get('storeId')?.value;
+    const dialogRef = this.dialog.open(CarSelectionDialogComponent, {
+      width: '90vw',
+      maxWidth: '1200px',
+      height: '80vh',
+      data: {
+        storeId: storeId
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.addCarToSales(result);
+      }
+    });
+  }
+    addCarToSales(car: any): void {
+    // Check if already exists
+    const alreadyExists = this.invoiceItems().some(item => item.carId === car.id);
+    if (alreadyExists) {
+      this.toastService.showError('PURCHASE_INVOICE.ERROR_ALREADY_ADDED');
+      return;
+    }
+
+    // Create invoice item with default quantity of 1
+    const newItem: InvoiceItem = {
+      carId: car.id,
+      carDescription: `${car.make} ${car.model} (${car.year})`,
+      quantity: 1,
+      salesPrice: car.salesPrice || 0,
+      lineTotal: (car.salesPrice || 0) * 1,
+    };
+
+    // Add to invoice items
+    this.invoiceItems.update(items => [...items, newItem]);
+  }
+
   // Computed properties for calculations
   subtotal = computed(() => this.invoiceItems().reduce((sum, item) => sum + item.lineTotal, 0));
   
@@ -268,7 +335,7 @@ export class SalesInvoiceFormComponent implements OnInit {
     const dialogRef = this.dialog.open(InvoiceItemDialogComponent, {
       width: '400px',
       data: {
-        carName: car.carName,
+        carName: `${car.make} ${car.model} (${car.year})`,
         quantity: 1,
         unitPrice: car.salePrice || 0,
         maxQuantity: car.availableQuantity
@@ -296,7 +363,7 @@ export class SalesInvoiceFormComponent implements OnInit {
         const newItem: InvoiceItem = {
           carId: car.carId,
           carName: car.carName,
-          carDescription: car.carName,
+          carDescription: `${car.make} ${car.model} (${car.year})`,
           quantity,
           unitPrice,
           lineTotal: unitPrice * quantity,
@@ -310,9 +377,16 @@ export class SalesInvoiceFormComponent implements OnInit {
   }
 
   openCarSelectionDialog(): void {
+    const storeId = this.invoiceForm.get('store')?.value;
+
     const dialogRef = this.dialog.open(CarSelectionDialogComponent, {
-      width: '800px',
-      data: { cars: this.carCards() }
+      width: '90vw',
+      maxWidth: '1200px',
+      height: '80vh',
+      data: {
+        storeId: storeId,
+        fromSales: true // Flag to indicate opened from sales
+      }
     });
 
     dialogRef.afterClosed().subscribe(selectedCar => {
@@ -412,7 +486,7 @@ export class SalesInvoiceFormComponent implements OnInit {
 
 
   saveInvoice(): void {
-    const storeId = this.invoiceForm.get('store')?.value;
+    const storeId = this.invoiceForm.get('storeId')?.value;
     const customerId = this.invoiceForm.get('customer')?.value;
     const customer = this.customers().find(c => c.id === customerId);
     const items = this.invoiceItems();
@@ -439,6 +513,15 @@ export class SalesInvoiceFormComponent implements OnInit {
       customerId,
       customerName: customer.name,
       storeId,
+      ClassificationId: this.invoiceForm.get('ClassificationId')?.value,
+      debitAccountId: this.invoiceForm.get('debitAccount')?.value,
+      creditAccountId: this.invoiceForm.get('creditAccount')?.value,
+      paymentMethod: this.invoiceForm.get('paymentMethod')?.value,
+      paymentType: this.invoiceForm.get('paymentType')?.value,
+      invoiceType: this.invoiceForm.get('invoiceType')?.value,
+      salesperson: this.invoiceForm.get('salesperson')?.value,
+      isCash: this.isCash,
+      items:
       items,
       subtotal: this.subtotal(),
       totalAmount: this.totalAmount(),
