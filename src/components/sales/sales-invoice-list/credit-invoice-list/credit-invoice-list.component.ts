@@ -12,6 +12,7 @@ import { SalesService } from '../../../../services/sales.service';
   styleUrl: './credit-invoice-list.component.css'
 })
 export class CreditInvoiceListComponent {
+   customTitle: string = 'SALES.CREDIT_TITLE';
    private salesService = inject(SalesService);
    allInvoices = toSignal(this.salesService.getInvoices(), { initialValue: [] });
    

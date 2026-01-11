@@ -13,6 +13,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
   styleUrl: './credit-return-invoice-list.component.css'
 })
 export class SalesCreditReturnInvoiceListComponent {
+    customTitle: string = 'SALES.RETURN.CREDIT_LIST_TITLE';
   private salesReturnService = inject(SalesReturnService);
   private router = inject(Router);
 
