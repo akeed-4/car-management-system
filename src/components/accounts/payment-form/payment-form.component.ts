@@ -18,6 +18,7 @@ import { PurchasesService } from '../../../services/purchases.service';
 import { PaymentService } from '../../../services/payment.service';
 import { TreasuryService } from '../../../services/treasury.service';
 import { PurchaseInvoice } from '../../../types/purchase-invoice.model';
+import { PaymentVoucher } from '@/src/types/payment-voucher.model';
 
 @Component({
   selector: 'app-payment-form',
@@ -70,12 +71,18 @@ export class PaymentFormComponent implements OnInit {
   private initForm() {
     this.paymentForm = new FormGroup({
       voucherNumber: new FormControl(`PV-${Date.now()}`),
+      voucherType: new FormControl('PAYMENT'),
       date: new FormControl(new Date().toISOString().split('T')[0], Validators.required),
       supplier: new FormControl(null, Validators.required),
       invoice: new FormControl(null),
       amount: new FormControl(0, [Validators.required, Validators.min(0.01)]),
-      paymentMethod: new FormControl('Bank Transfer', Validators.required),
-      accountId: new FormControl(null, Validators.required)
+      paymentMethod: new FormControl('BANK_TRANSFER', Validators.required),
+      accountId: new FormControl(null, Validators.required),
+      referenceType: new FormControl('INVOICE'),
+      referenceId: new FormControl(null),
+      notes: new FormControl(''),
+      status: new FormControl('DRAFT'),
+      createdBy: new FormControl(1)
     });
   }
 
@@ -118,19 +125,23 @@ export class PaymentFormComponent implements OnInit {
       this.purchasesService.applyPayment(invoice.id, formValue.amount);
     }
 
-    // Create and save the payment voucher (invoice fields are optional)
-    this.paymentService.addPayment({
+    // Create and save the payment voucher using unified Voucher model
+    const voucher: Partial<PaymentVoucher> = {
       voucherNumber: formValue.voucherNumber,
-      date: formValue.date,
-      supplierId: supplier.id,
-      supplierName: supplier.name,
-      purchaseInvoiceId: invoice?.id ?? null,
-      purchaseInvoiceNumber: invoice?.invoiceNumber ?? null,
+      voucherType: 'PAYMENT',
+      date: new Date(formValue.date),
       amount: formValue.amount,
       paymentMethod: formValue.paymentMethod,
       accountId: account.id,
-      accountName: account.name,
-    });
+      referenceType: invoice ? 'INVOICE' : 'OTHER',
+      referenceId: invoice?.id ?? undefined,
+      notes: formValue.notes || `Payment to ${supplier.name}${invoice ? ` for invoice ${invoice.invoiceNumber}` : ''}`,
+      status: formValue.status || 'DRAFT',
+      createdBy: formValue.createdBy || 1,
+      createdAt: new Date()
+    };
+    
+    this.paymentService.addPayment(voucher);
 
     alert(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.SAVED'));
     this.router.navigate(['/accounts/payments']);

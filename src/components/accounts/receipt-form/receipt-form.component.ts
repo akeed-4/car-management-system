@@ -17,6 +17,7 @@ import { SalesService } from '../../../services/sales.service';
 import { ReceiptService } from '../../../services/receipt.service';
 import { TreasuryService } from '../../../services/treasury.service';
 import { SalesInvoice } from '@/src/types/sales-invoice.model';
+import { ReceiptVoucher } from '@/src/types/receipt-voucher.model';
 
 @Component({
   selector: 'app-receipt-form',
@@ -69,12 +70,18 @@ export class ReceiptFormComponent implements OnInit {
   private initForm() {
     this.receiptForm = new FormGroup({
       voucherNumber: new FormControl(`RV-${Date.now()}`),
+      voucherType: new FormControl('RECEIPT'),
       date: new FormControl(new Date().toISOString().split('T')[0], Validators.required),
       customer: new FormControl(null, Validators.required),
       invoice: new FormControl(null),
       amount: new FormControl(0, [Validators.required, Validators.min(0.01)]),
-      paymentMethod: new FormControl('Cash', Validators.required),
-      accountId: new FormControl(null, Validators.required)
+      paymentMethod: new FormControl('CASH', Validators.required),
+      accountId: new FormControl(null, Validators.required),
+      referenceType: new FormControl('INVOICE'),
+      referenceId: new FormControl(null),
+      notes: new FormControl(''),
+      status: new FormControl('DRAFT'),
+      createdBy: new FormControl(1)
     });
   }
 
@@ -116,19 +123,23 @@ export class ReceiptFormComponent implements OnInit {
     // 1. Apply payment to the sales invoice
     this.salesService.applyPayment(invoice.id, formValue.amount);
 
-    // 2. Create and save the receipt voucher
-    this.receiptService.addReceipt({
+    // 2. Create and save the receipt voucher using unified Voucher model
+    const voucher: Partial<ReceiptVoucher> = {
       voucherNumber: formValue.voucherNumber,
-      date: formValue.date,
-      customerId: customer.id,
-      customerName: customer.name,
-      salesInvoiceId: invoice.id,
-      salesInvoiceNumber: invoice.invoiceNumber,
+      voucherType: 'RECEIPT',
+      date: new Date(formValue.date),
       amount: formValue.amount,
       paymentMethod: formValue.paymentMethod,
       accountId: account.id,
-      accountName: account.name,
-    });
+      referenceType: invoice ? 'INVOICE' : 'OTHER',
+      referenceId: invoice?.id ?? undefined,
+      notes: formValue.notes || `Receipt from ${customer.name}${invoice ? ` for invoice ${invoice.invoiceNumber}` : ''}`,
+      status: formValue.status || 'DRAFT',
+      createdBy: formValue.createdBy || 1,
+      createdAt: new Date()
+    };
+    
+    this.receiptService.addReceipt(voucher);
 
     alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.SAVED'));
     this.router.navigate(['/accounts/receipts']);

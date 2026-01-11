@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { PaymentVoucher } from '../types/payment-voucher.model';
+import { Voucher } from '../types/voucher.model';
 import { Observable, tap } from 'rxjs';
 
 @Injectable({
@@ -16,9 +17,9 @@ export class PaymentService {
 
   constructor() {}
 
-  // إضافة دفع عبر API
-  addPayment(payment: Omit<PaymentVoucher, 'id'>): Observable<PaymentVoucher> {
-    return this.http.post<PaymentVoucher>(this.apiUrl, payment);
+  // إضافة دفع عبر API باستخدام نموذج Voucher الموحد
+  addPayment(payment: Partial<Voucher>): Observable<Voucher> {
+    return this.http.post<Voucher>(this.apiUrl, payment);
   }
 
   // استدعاء كل المدفوعات
