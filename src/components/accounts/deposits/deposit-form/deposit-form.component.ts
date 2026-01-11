@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, OnInit } from '@angular/core';
 import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe, CommonModule } from '@angular/common';
 import { CustomerService } from '../../../../services/customer.service';
 import { InventoryService } from '../../../../services/inventory.service';
 import { DepositService } from '../../../../services/deposit.service';
-import { DepositVoucher } from '../../../../types/deposit-voucher.model';
+import { TreasuryService } from '../../../../services/treasury.service';
 import { Car } from '../../../../types/car.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,6 +18,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatChipsModule } from '@angular/material/chips';
+import { AdvancePaymentVoucher } from '@/src/types/advancePaymentVoucher.model';
 
 @Component({
   selector: 'app-deposit-form',
@@ -25,6 +28,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   imports: [
     ReactiveFormsModule,
     RouterLink,
+    CommonModule,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
@@ -35,7 +39,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatSlideToggleModule,
+    MatChipsModule
   ],
   templateUrl: './deposit-form.component.html',
   styleUrl: './deposit-form.component.css',
@@ -50,6 +56,7 @@ export class DepositFormComponent implements OnInit {
   private inventoryService: InventoryService = inject(InventoryService);
   // Fix: Explicitly typed depositService to resolve 'unknown' type inference.
   private depositService: DepositService = inject(DepositService);
+  private treasuryService: TreasuryService = inject(TreasuryService);
 
   depositForm!: FormGroup;
 
@@ -65,7 +72,19 @@ export class DepositFormComponent implements OnInit {
     return reservedCars.filter(car => !deposits.some(d => d.carId === car.id));
   });
 
-  selectedCarDetails = signal<Car | undefined>(undefined);
+  accounts = this.treasuryService.accounts$;
+  
+  selectedCustomer = computed(() => {
+    const customerId = this.depositForm.get('customerId')?.value;
+    if (!customerId) return null;
+    return this.customers().find(c => c.id === customerId);
+  });
+
+  selectedVehicle = computed(() => {
+    const vehicleId = this.depositForm.get('vehicleId')?.value;
+    if (!vehicleId) return null;
+    return this.availableReservedCars().find(v => v.id === vehicleId);
+  });
 
   ngOnInit() {
     this.initForm();
@@ -83,19 +102,18 @@ export class DepositFormComponent implements OnInit {
     this.depositForm = new FormGroup({
       voucherNumber: new FormControl(`DP-${Date.now()}`),
       date: new FormControl(new Date().toISOString().split('T')[0], Validators.required),
-      customer: new FormControl(null, Validators.required),
-      car: new FormControl(null, Validators.required),
+      customerId: new FormControl(null, Validators.required),
+      vehicleId: new FormControl(null, Validators.required),
       amount: new FormControl(0, [Validators.required, Validators.min(0.01)]),
+      paymentMethod: new FormControl('CASH', Validators.required),
+      accountId: new FormControl(null, Validators.required),
+      isRefundable: new FormControl(true),
       notes: new FormControl('')
     });
   }
 
   onCarChange(carId: number | null) {
-    if (carId) {
-      this.inventoryService.getCarById(carId).subscribe(car => this.selectedCarDetails.set(car));
-    } else {
-      this.selectedCarDetails.set(undefined);
-    }
+    // This method is now handled by the computed signal selectedVehicle
   }
 
   saveDeposit() {
@@ -104,24 +122,35 @@ export class DepositFormComponent implements OnInit {
     }
 
     const formValue = this.depositForm.value;
-    const customer = this.customers().find(c => c.id === formValue.customer);
-    const car = this.selectedCarDetails();
+    const customer = this.selectedCustomer();
+    const vehicle = this.selectedVehicle();
+    const account = this.accounts().find(a => a.id === formValue.accountId);
 
-    if (!customer || !car) {
+    if (!customer || !vehicle || !account || formValue.amount <= 0) {
       const translate = inject(TranslateService);
       alert(translate.instant('ACCOUNTS.DEPOSITS.FORM.FILL_REQUIRED'));
       return;
     }
 
-    const newDeposit: Omit<DepositVoucher, 'id'> = {
+    const newDeposit: Omit<AdvancePaymentVoucher, 'id'> = {
       voucherNumber: formValue.voucherNumber,
-      date: formValue.date,
+      voucherType: 'DEPOSIT',
+      date: new Date(formValue.date),
+      amount: formValue.amount,
+      paymentMethod: formValue.paymentMethod,
+      accountId: account.id,
+      accountName: account.name,
       customerId: customer.id,
       customerName: customer.name,
-      carId: car.id,
-      carDescription: `${car.make} ${car.model} (${car.year})`,
-      amount: formValue.amount,
+      carId: vehicle.id,
+      carDescription: `${vehicle.make} ${vehicle.model} (${vehicle.year})`,
+      isRefundable: formValue.isRefundable,
+      referenceType: 'SALE_CONTRACT',
+      referenceId: vehicle.id,
       notes: formValue.notes,
+      status: 'DRAFT',
+      createdBy: 1, // TODO: Get from current user service
+      createdAt: new Date()
     };
 
     // Fix: depositService is now correctly typed, allowing addDeposit access.
@@ -135,7 +164,11 @@ export class DepositFormComponent implements OnInit {
     return customer.id;
   }
 
-  trackByCar(index: number, car: any): any {
-    return car.id;
+  trackByVehicle(index: number, vehicle: any): any {
+    return vehicle.id;
+  }
+
+  trackByAccount(index: number, account: any): any {
+    return account.id;
   }
 }

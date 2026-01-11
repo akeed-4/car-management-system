@@ -136,7 +136,12 @@ export class ReceiptFormComponent implements OnInit {
       notes: formValue.notes || `Receipt from ${customer.name}${invoice ? ` for invoice ${invoice.invoiceNumber}` : ''}`,
       status: formValue.status || 'DRAFT',
       createdBy: formValue.createdBy || 1,
-      createdAt: new Date()
+      createdAt: new Date(),
+      accountName: account.name,
+      customerId: customer.id,
+      customerName: customer.name,
+      salesInvoiceId: invoice.id,
+      salesInvoiceNumber: invoice.invoiceNumber,
     };
     
     this.receiptService.addReceipt(voucher);

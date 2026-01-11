@@ -10,7 +10,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
-import { error } from 'console';
 
 @Component({
   selector: 'app-stock-taking',

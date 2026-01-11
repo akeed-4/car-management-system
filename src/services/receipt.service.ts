@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ReceiptVoucher } from '../types/receipt-voucher.model';
-import { Voucher } from '../types/voucher.model';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -25,9 +24,9 @@ export class ReceiptService {
     return this.http.get<ReceiptVoucher>(`${this.apiUrl}/${id}`);
   }
 
-  // إضافة إيصال جديد باستخدام نموذج Voucher الموحد
-  addReceipt(receipt: Partial<Voucher>): Observable<Voucher> {
-    return this.http.post<Voucher>(this.apiUrl, receipt);
+  // إضافة إيصال جديد
+  addReceipt(receipt: Partial<ReceiptVoucher>): Observable<ReceiptVoucher> {
+    return this.http.post<ReceiptVoucher>(this.apiUrl, receipt);
   }
 
   // أرشفة إيصال

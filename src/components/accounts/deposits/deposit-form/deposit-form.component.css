@@ -13,8 +13,59 @@
   flex: 1 1 auto;
 }
 
+.mb-4 {
+  margin-bottom: 16px;
+}
+
 .form-card {
   margin-bottom: 16px;
+}
+
+.section-card {
+  margin-bottom: 16px;
+  padding: 16px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.accounting-preview {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+}
+
+.accounting-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+
+.accounting-table th,
+.accounting-table td {
+  padding: 12px;
+  text-align: center;
+  border: 1px solid #dee2e6;
+}
+
+.accounting-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.accounting-table td:first-child {
+  text-align: right;
+}
+
+[dir="rtl"] .accounting-table td:first-child {
+  text-align: left;
+}
+
+.full-width {
+  width: 100%;
 }
 
 .form-section {
@@ -40,10 +91,6 @@
   grid-template-columns: repeat(3, 1fr);
 }
 
-.full-width {
-  width: 100%;
-}
-
 .form-actions {
   margin-top: 24px;
   padding-top: 16px;
@@ -60,6 +107,10 @@
 
 /* Responsive Design */
 @media (max-width: 1024px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
   .cols-3 {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -68,6 +119,10 @@
 @media (max-width: 768px) {
   .container {
     padding: 8px;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr;
   }
 
   .cols-3 {

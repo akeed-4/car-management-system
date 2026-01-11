@@ -4,7 +4,6 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CurrencyPipe, DatePipe, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DepositService } from '../../../../services/deposit.service';
-import { DepositVoucher } from '../../../../types/deposit-voucher.model';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -12,8 +11,9 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { DxDataGridModule, DxButtonModule, DxTemplateModule, DxTemplateHost } from 'devextreme-angular';
+import { AdvancePaymentVoucher } from '@/src/types/advancePaymentVoucher.model';
 
-type SortColumn = keyof DepositVoucher | '';
+type SortColumn = keyof AdvancePaymentVoucher | '';
 type SortDirection = 'asc' | 'desc' | '';
 
 @Component({
@@ -69,7 +69,9 @@ export class DepositListComponent {
             const bVal = b[column];
             let comp = 0;
             if (column === 'date') {
-              comp = new Date(aVal).getTime() - new Date(bVal).getTime();
+              const aDate = (typeof aVal === 'string' || typeof aVal === 'number' || aVal instanceof Date) ? new Date(aVal).getTime() : 0;
+              const bDate = (typeof bVal === 'string' || typeof bVal === 'number' || bVal instanceof Date) ? new Date(bVal).getTime() : 0;
+              comp = aDate - bDate;
             } else if (typeof aVal === 'string' && typeof bVal === 'string') {
                 comp = aVal.localeCompare(bVal);
             } else if (typeof aVal === 'number' && typeof bVal === 'number') {

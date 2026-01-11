@@ -21,7 +21,7 @@
             "polyfills": [
               "zone.js"
             ],
-            "tsConfig": "tsconfig.json",
+            "tsConfig": "tsconfig.app.json",
             "styles": [
               "node_modules/devextreme/dist/css/dx.light.css",
               "src/styles.css"

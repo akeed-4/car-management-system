@@ -2,9 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Car, CarStatus, CarLocation } from '../types/car.model';
 import { Observable, tap, switchMap, firstValueFrom } from 'rxjs';
-import { env } from 'process';
 import { environment } from '../environments/environment';
-import { promises } from 'dns';
 
 @Injectable({
   providedIn: 'root',

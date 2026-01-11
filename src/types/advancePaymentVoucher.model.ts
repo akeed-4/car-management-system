@@ -1,5 +1,5 @@
 
-export interface DepositVoucher {
+export interface AdvancePaymentVoucher {
   id: number;
   voucherNumber: string;
   voucherType: 'DEPOSIT';

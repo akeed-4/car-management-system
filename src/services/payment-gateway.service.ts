@@ -42,13 +42,18 @@ export class PaymentGatewayService {
       const defaultAccount = accounts[0]; // أو أي ح // Assume bank account
         this.receiptService.addReceipt({
           voucherNumber: `RV-POS-${invoice.id}`,
-          date: new Date().toISOString().split('T')[0],
+          date: new Date(),
           customerId: invoice.customerId,
           customerName: invoice.customerName,
+          referenceType: 'INVOICE',
+          referenceId: invoice.id,
+          notes: `Receipt for invoice ${invoice.invoiceNumber} paid via POS`,
+          createdBy: 1,
+          createdAt: new Date(),
           salesInvoiceId: invoice.id,
           salesInvoiceNumber: invoice.invoiceNumber,
           amount: invoice.amountDue,
-          paymentMethod: 'Card',
+          paymentMethod: 'BANK_TRANSFER',
           accountId: defaultAccount.id,
           accountName: defaultAccount.name,
         });

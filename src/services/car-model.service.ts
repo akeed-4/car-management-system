@@ -3,7 +3,6 @@ import { CarModel } from '../types/car-model.model';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../environments/environment';
-import { promises } from 'dns';
 
 @Injectable({
   providedIn: 'root',
