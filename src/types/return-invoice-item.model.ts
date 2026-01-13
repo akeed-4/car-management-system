@@ -1,4 +1,6 @@
 export interface ReturnInvoiceItem {
+  quantity: any;
+  salesPrice: number;
   carId: number;
   carDescription: string;
   unitPrice: number;

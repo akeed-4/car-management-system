@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, Input } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CurrencyPipe, DatePipe, CommonModule } from '@angular/common';
 import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -21,6 +21,7 @@ import { SalesReturn } from '../../../types/sales-return.model';
 import { SalesInvoice } from '../../../types/sales-invoice.model';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import { SalesReturnInvoice } from '@/src/types/sales-return-invoice.model';
 
 @Component({
   selector: 'app-sales-return-form',
@@ -42,28 +43,122 @@ export class SalesReturnFormComponent implements OnInit {
   private accountingService = inject(AccountingService);
   private invoiceIntegrationService = inject(InvoiceIntegrationService);
   private router = inject(Router);
+  private activatedRoute = inject(ActivatedRoute);
   private translate = inject(TranslateService);
   private fb = inject(FormBuilder);
 
-  returnForm!: FormGroup;
+  returnForm: FormGroup;
 
   // Form State
   returnNumber = signal<string>('');
   isSubmitting = signal(false);
   refundCalculation = signal<any>(null);
 
+  constructor() {
+    // Initialize form with default empty form to prevent NG01052 error
+    this.returnForm = this.fb.group({
+      returnDate: [new Date(), Validators.required],
+      originalInvoice: [null, Validators.required],
+      reason: ['', [Validators.required, Validators.minLength(10)]],
+      depositRefundable: [false],
+      depositAmount: [0, [Validators.min(0)]],
+      notes: ['']
+    });
+  }
+
   // Load invoices from API
   originalInvoices = signal<SalesInvoice[]>([]);
   selectedOriginalInvoice = signal<SalesInvoice | null>(null);
-  
+  selectedOriginalInvoicereturn = signal<SalesReturnInvoice | null>(null);
   returnItems = signal<ReturnInvoiceItem[]>([]);
   
   totalAmount = computed(() => this.returnItems().reduce((sum, item) => sum + item.lineTotal, 0));
 
   ngOnInit() {
-    this.generateReturnNumber();
-    this.initializeForm();
-    this.loadInvoices();
+    // Read type query parameter (cash or credit)
+    this.activatedRoute.queryParams.subscribe(params => {
+      if (params['type'] === 'cash') {
+        this.isCashReturn = true;
+      } else if (params['type'] === 'credit') {
+        this.isCashReturn = false;
+      }
+    });
+
+    // Read id parameter for edit mode
+    this.activatedRoute.params.subscribe(params => {
+      const invoiceId = params['id'];
+      if (invoiceId) {
+        // Edit mode - load existing invoice data
+        this.loadInvoiceForEdit(+invoiceId);
+      } else {
+        // Create mode
+        this.generateReturnNumber();
+        this.initializeForm();
+        this.loadInvoices();
+      }
+    });
+  }
+
+  private loadInvoiceForEdit(invoiceId: number): void {
+    this.salesReturnService.getReturnInvoiceById(invoiceId).subscribe({
+      next: (invoice) => {
+        this.selectedOriginalInvoicereturn.set(invoice);
+        this.isCashReturn = invoice.isCash || false;
+        console.log('Loaded invoice for edit:', invoice);
+        // Set form data with actual return invoice values
+        this.returnForm = this.fb.group({
+          returnDate: [new Date(invoice.returnDate) || new Date(), Validators.required],
+          originalInvoice: [invoice.invoiceNo, Validators.required],
+          reason: [invoice.reason || '', [Validators.required, Validators.minLength(10)]],
+          depositRefundable: [false],
+          depositAmount: [0, [Validators.min(0)]],
+          notes: ['']
+        });
+
+        // Load invoice items
+        const items: ReturnInvoiceItem[] = invoice.items.map(item => ({
+          carId: item.carId,
+          carDescription: item.carDescription || 'Car',
+          unitPrice: item.unitPrice || 0,
+          salePrice: item.salesPrice || 0,
+          salesPrice: item.salesPrice || 0,
+          quantity: item.quantity,
+          originalQuantity: item.quantity,
+          returnQuantity: item.returnQuantity || 0,
+          lineTotal: (item.salesPrice || 0) * (item.returnQuantity || 0),
+        }));
+        
+        this.returnItems.set(items);
+        this.generateReturnNumber();
+        this.setupFormListeners();
+        this.updateRefundCalculation();
+        this.loadInvoices();
+      },
+      error: (error) => {
+        console.error('Failed to load invoice for edit:', error);
+        this.generateReturnNumber();
+        this.initializeForm();
+        this.loadInvoices();
+      }
+    });
+  }
+
+  private setupFormListeners(): void {
+    // Listen to original invoice changes
+    this.returnForm.get('originalInvoice')?.valueChanges.subscribe(value => {
+      this.onInvoiceSelect(value);
+    });
+
+    // Listen to depositRefundable changes
+    this.returnForm.get('depositRefundable')?.valueChanges.subscribe(value => {
+      const depositField = this.returnForm.get('depositAmount');
+      if (value) {
+        depositField?.enable();
+      } else {
+        depositField?.disable();
+        depositField?.setValue(0);
+      }
+    });
   }
 
   private generateReturnNumber(): void {
@@ -82,22 +177,7 @@ export class SalesReturnFormComponent implements OnInit {
       notes: ['']
     });
 
-    // Listen to original invoice changes
-    this.returnForm.get('originalInvoice')?.valueChanges.subscribe(value => {
-      this.onInvoiceSelect(value);
-    });
-
-    // Listen to depositRefundable changes
-    this.returnForm.get('depositRefundable')?.valueChanges.subscribe(value => {
-      const depositField = this.returnForm.get('depositAmount');
-      if (value) {
-        depositField?.enable();
-      } else {
-        depositField?.disable();
-        depositField?.setValue(0);
-      }
-    });
-
+    this.setupFormListeners();
     // Listen to return items changes for refund calculation
     this.updateRefundCalculation();
   }
@@ -150,12 +230,14 @@ export class SalesReturnFormComponent implements OnInit {
         this.selectedOriginalInvoice.set(invoice);
         const items: ReturnInvoiceItem[] = invoice.items.map(item => ({
           carId: item.carId,
-          carDescription: item.carDescription,
+          carDescription: item.carDescription || 'Car',
           unitPrice: item.unitPrice || 0,
           salePrice: item.salesPrice || 0,
+          salesPrice: item.salesPrice || 0,
+          quantity: item.quantity,
           originalQuantity: item.quantity,
-          returnQuantity:  item.returnQuantity,
-          lineTotal: item.salesPrice * item.returnQuantity || 0,
+          returnQuantity: item.returnQuantity || 0,
+          lineTotal: (item.salesPrice || 0) * (item.returnQuantity || 0),
         }));
       console.log(items)
         this.returnItems.set(items);

@@ -155,6 +155,7 @@ export const APP_ROUTES: Routes = [
   { path: 'sales/return', component: SalesReturnInvoiceListComponent },
   { path: 'sales/returns', component: SalesReturnInvoiceListComponent }, // Added plural route
   { path: 'sales/return/new', component: SalesReturnFormComponent },
+  { path: 'sales/return/:id/edit', component: SalesReturnFormComponent },
   { path: 'sales/return/cash/new', component: CashInvoiceFormComponent },
   { path: 'sales/return/credit/new', component: CreditInvoiceFormComponent },
   { path: 'sales/return/cash', component: SalesCashReturnInvoiceListComponent },

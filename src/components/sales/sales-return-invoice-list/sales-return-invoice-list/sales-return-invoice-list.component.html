@@ -1,26 +1,25 @@
 <div class="container">
-  <div class="page-header">
+  <div class="page-header strong-header">
     <div class="flex justify-between items-center">
-      <h2 class="page-title">{{ customTitle || ('SALES.RETURN.LIST_TITLE' | translate) }}</h2>
+        <h2 class="strong-title">{{ customTitle ? (customTitle | translate) : ('SALES.LIST_TITLE' | translate) }}</h2>
       <button (click)="addNewInvoice()" class="btn-primary">
         {{ 'SALES.RETURN.NEW_RETURN' | translate }}
       </button>
     </div>
   </div>
 
-  <div class="datagrid-container">
+  <div >
+
+  </div>
+</div>
     <dx-data-grid
       [dataSource]="dataSource"
       [showBorders]="true"
       [showRowLines]="true"
       [showColumnLines]="true"
-      [allowColumnReordering]="true"
-      [allowColumnResizing]="true"
-      [columnAutoWidth]="true"
-      [wordWrapEnabled]="true"
-      height="600px"
-      class="professional-datagrid">
-
+      [width]="'100%'"
+    >
+      <dxo-scrolling mode="virtual"></dxo-scrolling>
       <dxo-paging [pageSize]="10" [enabled]="true"></dxo-paging>
       <dxo-pager
         [visible]="true"
@@ -30,20 +29,19 @@
         [showInfo]="true"
         [showNavigationButtons]="true">
       </dxo-pager>
-      <dxo-scrolling mode="virtual"></dxo-scrolling>
       <dxo-filter-row [visible]="true"></dxo-filter-row>
       <dxo-header-filter [visible]="true"></dxo-header-filter>
-      <dxo-search-panel [visible]="true" [placeholder]="'SALES.RETURN.SEARCH_PLACEHOLDER' | translate"></dxo-search-panel>
+      <dxo-search-panel [visible]="true" [placeholder]="'SALES.RETURN.SEARCH_PLACEHOLDER'"></dxo-search-panel>
 
       <dxi-column
-        dataField="returnInvoiceNumber"
+        dataField="returnNo"
         [caption]="'SALES.RETURN.RETURN_NUMBER' | translate"
         [width]="150"
         alignment="right">
       </dxi-column>
 
       <dxi-column
-        dataField="returnInvoiceDate"
+        dataField="createdDate"
         [caption]="'SALES.RETURN.RETURN_DATE' | translate"
         dataType="date"
         format="yyyy-MM-dd"
@@ -52,23 +50,18 @@
       </dxi-column>
 
       <dxi-column
-        dataField="originalInvoiceNumber"
+        dataField="invoiceNo"
         [caption]="'SALES.RETURN.ORIGINAL_INVOICE' | translate"
         [width]="150"
         alignment="right">
       </dxi-column>
 
-      <dxi-column
-        dataField="customerName"
-        [caption]="'SALES.RETURN.CUSTOMER' | translate"
-        [minWidth]="200"
-        alignment="right">
-      </dxi-column>
+  
 
     
 
       <dxi-column
-        dataField="totalAmount"
+        dataField="refundableAmount"
         [caption]="'SALES.RETURN.TOTAL_AMOUNT' | translate"
         dataType="number"
         format="currency"
@@ -77,12 +70,18 @@
         <dxo-format type="currency" currency="SAR"></dxo-format>
       </dxi-column>
 
-      <dxi-column type="buttons" [width]="150" [caption]="'SALES.RETURN.ACTIONS' | translate">
-        <dxi-button name="view" [hint]="'SALES.RETURN.VIEW_DETAILS' | translate" [onClick]="viewDetails"></dxi-button>
-        <dxi-button name="edit" [hint]="'SALES.RETURN.EDIT' | translate" [onClick]="editInvoice"></dxi-button>
-        <dxi-button name="delete" [hint]="'SALES.RETURN.DELETE' | translate" [onClick]="deleteInvoice"></dxi-button>
-      </dxi-column>
-
+      <dxi-column type="buttons" caption="{{ 'PURCHASES.ACTIONS' | translate }}" [width]="200" cssClass="no-print">
+          <dxi-button
+            icon="print"
+            hint="{{ 'PURCHASES.PRINT_INVOICE' | translate }}"
+            [onClick]="onPrintClick">
+          </dxi-button>
+          <dxi-button
+            icon="edit"
+            hint="{{ 'PURCHASES.EDIT_INVOICE' | translate }}"
+            [onClick]="onEditClick">
+          </dxi-button>
+   </dxi-column>
       <dxo-summary>
         <dxi-total-item
           column="totalAmount"
@@ -97,5 +96,3 @@
       </dxo-summary>
 
     </dx-data-grid>
-  </div>
-</div>

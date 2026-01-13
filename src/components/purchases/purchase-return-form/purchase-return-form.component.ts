@@ -198,6 +198,8 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
       originalQuantity: item.quantity,
       returnQuantity: 0,
       lineTotal: 0,
+      salesPrice: item.salesPrice,
+      quantity: item.quantity,
     }));
     this.returnItems.set(items);
   }
