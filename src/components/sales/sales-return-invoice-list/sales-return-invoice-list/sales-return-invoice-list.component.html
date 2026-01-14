@@ -1,14 +1,13 @@
 <div class="container">
-  <div class="page-header">
-    <div class="flex justify-between items-center">
-      <button (click)="addNewInvoice()" class="btn-primary">
-        <mat-icon>add</mat-icon>
-        {{ 'SALES.RETURN.NEW_RETURN' | translate }}
-      </button>
+  <div class="page-header strong-header">
+    <div class="header-info">
       <h2 class="page-title">{{ getTitle()}}</h2>
     </div>
+  <button (click)="addNewInvoice()" class="btn-primary">
+    <mat-icon>add</mat-icon>
+    {{ 'SALES.RETURN.NEW_RETURN' | translate }}
+  </button>
   </div>
-
   <div class="datagrid-container">
     <dx-data-grid
       [dataSource]="dataSource"
