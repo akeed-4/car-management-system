@@ -21,7 +21,7 @@ export class SalesCreditReturnInvoiceListComponent {
   allReturnInvoices = toSignal(this.salesReturnService.getReturnInvoices(), { initialValue: [] });
   creditReturnInvoices = computed(() => {
     const all = this.allReturnInvoices();
-    return all.filter(invoice => invoice.paymentMethod !== 'Cash');
+    return all.filter(invoice => invoice.isCash !== true);
   });
 
   // Property to store received data from child component
