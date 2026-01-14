@@ -1,8 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject, Input, Output, EventEmitter } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DxDataGridModule } from 'devextreme-angular';
 import { Router } from '@angular/router';
+import { DxDataGridModule } from 'devextreme-angular';
 import { MatIconModule } from '@angular/material/icon';
+import { SalesService } from '../../../../services/sales.service';
+import { ToastService } from '../../../../services/toast.service';
 
 @Component({
   selector: 'app-sales-return-invoice-list',
@@ -25,6 +28,8 @@ export class SalesReturnInvoiceListComponent {
 
   private translate = inject(TranslateService);
   private router = inject(Router);
+  private salesService = inject(SalesService);
+  private toastService = inject(ToastService);
 
   paymentTypeOptions = [
     { value: 'Cash', text: this.translate.instant('SALES.RETURN.CASH') },
@@ -43,13 +48,37 @@ export class SalesReturnInvoiceListComponent {
   viewDetails(invoice: any): void {
     this.onViewDetails.emit(invoice);
   }
+  onEditClick = (e: any) => {
+    const invoiceId = e.row.data.id;
+    const editRoute = this.isCashReturn ? `/sales/return/${invoiceId}/edit` : `/sales/return/${invoiceId}/edit`;
+    this.router.navigate([editRoute]);
+  }
+
+  onPrintClick = (e: any) => {
+    const invoice = e.row.data;
+    console.log('Print invoice:', invoice);
+    // Implement print functionality
+    window.print();
+  }
 
   editInvoice(invoice: any): void {
     this.onEdit.emit(invoice);
   }
 
   deleteInvoice(invoice: any): void {
-    this.onDelete.emit(invoice);
+    if (confirm('Are you sure you want to delete this invoice?')) {
+      this.salesService.deleteInvoice(invoice.id).subscribe({
+        next: () => {
+          this.toastService.showSuccess('INVOICE.DELETED_SUCCESS');
+          // Emit event to parent to handle refresh
+          this.onDelete.emit(invoice);
+        },
+        error: (error) => {
+          console.error('Failed to delete invoice', error);
+          this.toastService.showError('INVOICE.DELETED_ERROR');
+        }
+      });
+    }
   }
 
   addNewInvoice(): void {
@@ -62,4 +91,5 @@ export class SalesReturnInvoiceListComponent {
   getTitle(): string {
     return this.isCashReturn ? this.translate.instant('SALES.RETURN.CASH_LIST_TITLE') : this.translate.instant('SALES.RETURN.CREDIT_LIST_TITLE');
   }
+  
 }

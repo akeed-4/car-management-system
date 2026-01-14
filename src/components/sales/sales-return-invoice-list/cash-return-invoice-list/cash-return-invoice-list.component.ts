@@ -13,7 +13,7 @@ import { SalesReturnService } from '@/src/services/sales-return.service';
   styleUrl: './cash-return-invoice-list.component.css'
 })
 export class SalesCashReturnInvoiceListComponent {
-   customTitle: string = 'SALES.RETURN.CASH_LIST_TITLE';
+   customTitle: string = 'RETURN.CASH_LIST_TITLE';
   private salesReturnService = inject(SalesReturnService);
   private router = inject(Router);
 

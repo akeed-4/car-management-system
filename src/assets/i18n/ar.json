@@ -611,6 +611,8 @@
     "ADD_TO_SALES_INVOICE": "إضافة إلى فاتورة المبيعات",
     "CASH_LIST_TITLE": "فواتير مبيعات نقدية",
     "CREDIT_LIST_TITLE": "فواتير مبيعات آجلة",
+    "CASH_TITLE": "فواتير مبيعات نقدية",
+    "CREDIT_TITLE": "فواتير مبيعات آجلة",
 
     "RETURN": {
       "LIST_TITLE": "قائمة مرتجعات المبيعات",

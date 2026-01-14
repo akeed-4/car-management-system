@@ -1,6 +1,10 @@
 import { ReturnInvoiceItem } from './return-invoice-item.model';
 
 export interface SalesReturnInvoice {
+  invoiceNo: any;
+  reason: string;
+  returnDate: string | number | Date;
+  isCash: boolean;
   id: number;
   returnInvoiceNumber: string;
   returnInvoiceDate: string;
@@ -11,4 +15,5 @@ export interface SalesReturnInvoice {
   paymentMethod?: string;
   items: ReturnInvoiceItem[];
   totalAmount: number;
+  
 }

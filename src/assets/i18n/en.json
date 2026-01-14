@@ -598,6 +598,8 @@
     "ADD_TO_SALES_INVOICE": "Add to Sales Invoice",
     "CASH_LIST_TITLE": "Cash Sales Invoices",
     "CREDIT_LIST_TITLE": "Credit Sales Invoices",
+    "CASH_TITLE": "Cash Sales Invoices",
+    "CREDIT_TITLE": "Credit Sales Invoices",
 
     "RETURN": {
       "LIST_TITLE": "Sales Returns",

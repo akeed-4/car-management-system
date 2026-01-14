@@ -17,11 +17,11 @@ export class SalesReturnService {
 
   // Legacy methods for SalesReturnInvoice
   getReturnInvoices(): Observable<SalesReturnInvoice[]> {
-    return this.http.get<SalesReturnInvoice[]>(this.legacyApiUrl);
+    return this.http.get<SalesReturnInvoice[]>(this.apiUrl+'/GetAll');
   }
 
   getReturnInvoiceById(id: number): Observable<SalesReturnInvoice> {
-    return this.http.get<SalesReturnInvoice>(`${this.legacyApiUrl}/${id}`);
+    return this.http.get<SalesReturnInvoice>(`${this.apiUrl+'/GetById'}/${id}`);
   }
 
   addReturnInvoice(invoice: Omit<SalesReturnInvoice, 'id'>): Observable<SalesReturnInvoice> {
