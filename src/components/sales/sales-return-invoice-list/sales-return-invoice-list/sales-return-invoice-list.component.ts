@@ -1,18 +1,20 @@
 import { ChangeDetectionStrategy, Component, inject, Input, Output, EventEmitter } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DxDataGridModule } from 'devextreme-angular';
+import { Router } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-sales-return-invoice-list',
   standalone: true,
-  imports: [TranslateModule, DxDataGridModule],
+  imports: [TranslateModule, DxDataGridModule, MatIconModule],
   templateUrl: './sales-return-invoice-list.component.html',
   styleUrl: './sales-return-invoice-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SalesReturnInvoiceListComponent {
   @Input() isCashReturn: boolean = false;
-  @Input() customTitle: any;
+  @Input() customTitle: string = 'SALES.RETURN.LIST_TITLE';
   @Input() dataSource: any[] = [];
 
   // Output events for child-to-parent communication
@@ -22,6 +24,7 @@ export class SalesReturnInvoiceListComponent {
   @Output() onAddNew = new EventEmitter<void>();
 
   private translate = inject(TranslateService);
+  private router = inject(Router);
 
   paymentTypeOptions = [
     { value: 'Cash', text: this.translate.instant('SALES.RETURN.CASH') },
@@ -50,6 +53,13 @@ export class SalesReturnInvoiceListComponent {
   }
 
   addNewInvoice(): void {
-    this.onAddNew.emit();
+    if (this.isCashReturn) {
+      this.router.navigate(['/sales/return/cash/new']);
+    } else {
+      this.router.navigate(['/sales/return/credit/new']);
+    }
+  }
+  getTitle(): string {
+    return this.isCashReturn ? this.translate.instant('SALES.RETURN.CASH_LIST_TITLE') : this.translate.instant('SALES.RETURN.CREDIT_LIST_TITLE');
   }
 }

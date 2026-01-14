@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router, RouterLink } from '@angular/router';
@@ -32,10 +32,9 @@ import { provideNativeDateAdapter } from '@angular/material/core';
   providers: [provideNativeDateAdapter()]
 })
 export class SalesReturnFormComponent implements OnInit {
- @Input() lockPaymentMethod: boolean = false;
- @Input() fixedPaymentMethod: any;
- @Input() customTitle:any;
+
  @Input() isCashReturn: boolean = false;
+  customTitle: string;
   private salesService = inject(SalesService);
   private salesReturnService = inject(SalesReturnService);
   private inventoryService = inject(InventoryService);
@@ -66,12 +65,15 @@ export class SalesReturnFormComponent implements OnInit {
     this.loadInvoices();
   }
 
+
   private generateReturnNumber(): void {
     const timestamp = Date.now();
     const random = Math.floor(Math.random() * 10000);
     this.returnNumber.set(`RT-S-${timestamp}-${random}`);
   }
-
+getTitle(): string {
+    return this.isCashReturn ? this.translate.instant('SALES.RETURN.CASH_RETURN_TITLE') : this.translate.instant('SALES.RETURN.CREDIT_RETURN_TITLE');
+  }
   private initializeForm(): void {
     this.returnForm = this.fb.group({
       returnDate: [new Date(), Validators.required],
