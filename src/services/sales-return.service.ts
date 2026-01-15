@@ -97,7 +97,7 @@ export class SalesReturnService {
    * Update sales return
    */
   updateSalesReturn(id: number, salesReturn: Partial<SalesReturn>): Observable<SalesReturn> {
-    return this.http.put<SalesReturn>(`${this.apiUrl}/${id}`, salesReturn);
+    return this.http.put<SalesReturn>(`${this.apiUrl+'/update'}/${id}`, salesReturn);
   }
 
   /**

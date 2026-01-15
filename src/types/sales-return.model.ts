@@ -21,6 +21,7 @@ export interface SalesReturn {
   createdBy: number;
   createdDate?: Date;
   updatedDate?: Date;
+  isCash: boolean;
   items: ReturnInvoiceItem[]; // Added items array
 }
 

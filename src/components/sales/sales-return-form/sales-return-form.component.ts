@@ -52,6 +52,8 @@ export class SalesReturnFormComponent implements OnInit {
   returnNumber = signal<string>('');
   isSubmitting = signal(false);
   refundCalculation = signal<any>(null);
+  Eitemode: boolean;
+  invoiceId: any;
 
   constructor() {
     // Initialize form with default empty form to prevent NG01052 error
@@ -77,6 +79,7 @@ export class SalesReturnFormComponent implements OnInit {
     // Read type query parameter (cash or credit)
     this.activatedRoute.queryParams.subscribe(params => {
       if (params['type'] === 'cash') {
+        this.Eitemode=true;
         this.isCashReturn = true;
       } else if (params['type'] === 'credit') {
         this.isCashReturn = false;
@@ -85,10 +88,10 @@ export class SalesReturnFormComponent implements OnInit {
 
     // Read id parameter for edit mode
     this.activatedRoute.params.subscribe(params => {
-      const invoiceId = params['id'];
-      if (invoiceId) {
+      this. invoiceId = params['id'];
+      if (this.invoiceId) {
         // Edit mode - load existing invoice data
-        this.loadInvoiceForEdit(+invoiceId);
+        this.loadInvoiceForEdit(+this.invoiceId);
       } else {
         // Create mode
         this.generateReturnNumber();
@@ -113,16 +116,15 @@ export class SalesReturnFormComponent implements OnInit {
           depositAmount: [0, [Validators.min(0)]],
           notes: ['']
         });
-
+console.log('Return Form initialized for edit:', invoice.items);
         // Load invoice items
         const items: ReturnInvoiceItem[] = invoice.items.map(item => ({
           carId: item.carId,
           carDescription: item.carDescription || 'Car',
           unitPrice: item.unitPrice || 0,
-          salePrice: item.salesPrice || 0,
-          salesPrice: item.salesPrice || 0,
+          salesPrice: item.salesPrice ,
           quantity: item.quantity,
-          originalQuantity: item.quantity,
+          originalQuantity: item.originalQuantity,
           returnQuantity: item.returnQuantity || 0,
           lineTotal: (item.salesPrice || 0) * (item.returnQuantity || 0),
         }));
@@ -234,7 +236,6 @@ getTitle(): string {
           carId: item.carId,
           carDescription: item.carDescription || 'Car',
           unitPrice: item.unitPrice || 0,
-          salePrice: item.salesPrice || 0,
           salesPrice: item.salesPrice || 0,
           quantity: item.quantity,
           originalQuantity: item.quantity,
@@ -262,7 +263,7 @@ getTitle(): string {
           return {
             ...item,
             returnQuantity: validQuantity,
-            lineTotal: item.salePrice * validQuantity,
+            lineTotal: item.salesPrice * validQuantity,
           };
         }
         return item;
@@ -334,23 +335,46 @@ getTitle(): string {
       approvedBy: undefined,
       approvedDate: undefined,
       rejectionReason: undefined,
+      isCash: this.isCashReturn,
       createdBy: 1, // Will be set from current user context
       items: itemsToReturn
     };
 
-    this.salesReturnService.createSalesReturn(salesReturn).subscribe({
-      next: (response) => {
-        this.translate.get('SALES.RETURN.SAVED_SUCCESS').subscribe(message => {
-          console.log(message);
-        });
-        this.isSubmitting.set(false);
-        this.router.navigate(['/sales/return']);
-      },
-      error: (error) => {
-        console.error('Error saving return:', error);
-        this.isSubmitting.set(false);
-      }
-    });
+    // Check if we're in edit mode
+    const existingReturn = this.selectedOriginalInvoicereturn();
+    if (this.Eitemode) {
+      // Edit mode - update existing return
+      this.salesReturnService.updateSalesReturn(this.invoiceId, salesReturn).subscribe({
+        next: (response) => {
+          this.translate.get('SALES.RETURN.UPDATED_SUCCESS').subscribe(message => {
+            console.log(message);
+          });
+          this.isSubmitting.set(false);
+          // Navigate back to list or show success message
+          this.router.navigate(['/sales/return']);
+        },
+        error: (error) => {
+          console.error('Error updating return:', error);
+          this.isSubmitting.set(false);
+        }
+      });
+    } else {
+      // Create mode - create new return
+      this.salesReturnService.createSalesReturn(salesReturn).subscribe({
+        next: (response) => {
+          this.translate.get('SALES.RETURN.SAVED_SUCCESS').subscribe(message => {
+            console.log(message);
+          });
+          this.isSubmitting.set(false);
+          // Navigate back to list or show success message
+          this.router.navigate(['/sales/return']);
+        },
+        error: (error) => {
+          console.error('Error saving return:', error);
+          this.isSubmitting.set(false);
+        }
+      });
+    }
   }
 
   onRowUpdating(e: any): void {

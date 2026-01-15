@@ -6,6 +6,7 @@ import { DxDataGridModule } from 'devextreme-angular';
 import { MatIconModule } from '@angular/material/icon';
 import { SalesService } from '../../../../services/sales.service';
 import { ToastService } from '../../../../services/toast.service';
+import { identity } from 'rxjs';
 
 @Component({
   selector: 'app-sales-return-invoice-list',
@@ -43,14 +44,18 @@ export class SalesReturnInvoiceListComponent {
   customizeCountText = (data: any) => {
     return this.translate.instant('SALES.RETURN.COUNT_SUMMARY', { 0: data.value || 0 });
   };
-
+constructor() {
+  this.onEditClick = this.onEditClick.bind(this);
+  this.onPrintClick = this.onPrintClick.bind(this);
+  this.deleteInvoice = this.deleteInvoice.bind(this);
+}
   // Child-to-parent communication methods
   viewDetails(invoice: any): void {
     this.onViewDetails.emit(invoice);
   }
   onEditClick = (e: any) => {
     const invoiceId = e.row.data.id;
-    const editRoute = this.isCashReturn ? `/sales/return/${invoiceId}/edit` : `/sales/return/${invoiceId}/edit`;
+    const editRoute = `/sales/return/${invoiceId}/edit`;
     this.router.navigate([editRoute]);
   }
 
