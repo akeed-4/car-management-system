@@ -340,6 +340,28 @@
   "ROLE": {
     "DASHBOARD": "لوحة التحكم"
   },
+  "DASHBOARD": {
+    "TITLE": "لوحة التحكم",
+    "AVAILABLE_CARS": "سيارات متاحة",
+    "REQUESTED_CARS": "السيارات المطلوبة",
+    "SOLD_CARS": "سيارات مباعة",
+    "TOTAL_EXPENSES": "إجمالي المصروفات",
+    "UPCOMING_ALERTS": "تنبيهات الخدمات والتجديدات القادمة",
+    "NO_UPCOMING_ALERTS": "لا توجد تنبيهات قادمة خلال الـ 30 يومًا القادمة.",
+    "SALES_BY_MANUFACTURER": "إجمالي المبيعات حسب الشركة المصنعة",
+    "NO_SALES_DATA": "لا توجد بيانات مبيعات لعرضها.",
+    "INVENTORY_STATUS_DISTRIBUTION": "توزيع حالات المخزون",
+    "NO_INVENTORY_DATA": "لا توجد بيانات مخزون لعرضها.",
+    "LATEST_CARS_ADDED": "أحدث السيارات المضافة",
+    "CAR": "السيارة",
+    "SALE_PRICE": "سعر البيع",
+    "STATUS": "الحالة",
+    "MILEAGE": "الممشى",
+    "CUSTOMER": "العميل",
+    "EXPIRES_IN": "ينتهي بعد",
+    "DAYS": "أيام",
+    "PLATE_NUMBER": "رقم اللوحة"
+  },
   "INVOICE_ADDITIONAL": {
     "ALREADY_ADDED": "هذه السيارة مضافة بالفعل إلى الفاتورة"
   },
@@ -1639,6 +1661,7 @@
       "CUSTOMER_DETAILS": "بيانات العميل",
       "CUSTOMER_NAME": "اسم العميل",
       "CUSTOMER_PHONE": "رقم الجوال",
+      "SELECT_CUSTOMER": "اختر العميل",
       "CAR_SPECIFICATIONS": "مواصفات السيارة المطلوبة",
       "MANUFACTURER": "الشركة المصنعة",
       "MODEL": "الموديل",

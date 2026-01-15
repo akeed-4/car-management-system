@@ -7,6 +7,7 @@ import { RequestedCarService } from '../../../services/requested-car.service';
 import { ManufacturerService } from '../../../services/manufacturer.service';
 import { CarModelService } from '../../../services/car-model.service';
 import { ManufactureYearService } from '../../../services/manufacture-year.service';
+import { CustomerService } from '../../../services/customer.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -48,6 +49,7 @@ export class RequestedCarFormComponent implements OnInit {
   private manufacturerService = inject(ManufacturerService);
   private carModelService = inject(CarModelService);
   private yearService = inject(ManufactureYearService);
+  private customerService = inject(CustomerService);
 
   requestForm!: FormGroup;
   editMode = signal(false);
@@ -57,6 +59,7 @@ export class RequestedCarFormComponent implements OnInit {
   manufacturers = this.manufacturerService.manufacturers$;
   allModels = toSignal(this.carModelService.getCarModels(), { initialValue: [] });
   years = this.yearService.years$;
+  customers = this.customerService.customers$;
 
   // Computed signal for filtered models
   filteredModels = computed(() => {
@@ -79,7 +82,12 @@ export class RequestedCarFormComponent implements OnInit {
       this.pageTitle.set('تعديل طلب سيارة');
       this.requestedCarService.getRequestById(id).subscribe({
         next: (existingRequest) => {
-          this.requestForm.patchValue(existingRequest);
+          // Find customer by name to set customerId
+          const customer = this.customers().find(c => c.name === existingRequest.customerName);
+          this.requestForm.patchValue({
+            ...existingRequest,
+            customerId: customer?.id || null
+          });
         },
         error: () => {
           this.router.navigate(['/requested-cars']);
@@ -90,6 +98,7 @@ export class RequestedCarFormComponent implements OnInit {
 
   private initForm() {
     this.requestForm = new FormGroup({
+      customerId: new FormControl(null, Validators.required),
       customerName: new FormControl('', Validators.required),
       customerPhone: new FormControl('', Validators.required),
       make: new FormControl('', Validators.required),
@@ -125,6 +134,16 @@ export class RequestedCarFormComponent implements OnInit {
     this.router.navigate(['/requested-cars']);
   }
 
+  onCustomerChange(customerId: number) {
+    const selectedCustomer = this.customers().find(c => c.id === customerId);
+    if (selectedCustomer) {
+      this.requestForm.patchValue({
+        customerName: selectedCustomer.name,
+        customerPhone: selectedCustomer.phone || ''
+      });
+    }
+  }
+
   trackByManufacturer(index: number, manufacturer: any): any {
     return manufacturer.id;
   }
@@ -135,5 +154,9 @@ export class RequestedCarFormComponent implements OnInit {
 
   trackByYear(index: number, year: number): number {
     return year;
+  }
+
+  trackByCustomer(index: number, customer: any): any {
+    return customer.id;
   }
 }

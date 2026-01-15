@@ -18,10 +18,14 @@
           <div class="form-grid cols-2">
             <mat-form-field appearance="outline">
               <mat-label>{{ 'REQUESTED_CARS.FORM.CUSTOMER_NAME' | translate }}</mat-label>
-              <input
-                matInput
-                type="text"
-                formControlName="customerName">
+              <mat-select
+                formControlName="customerId"
+                (selectionChange)="onCustomerChange($event.value)">
+                <mat-option [value]="null" disabled>{{ 'REQUESTED_CARS.FORM.SELECT_CUSTOMER' | translate }}</mat-option>
+                <mat-option *ngFor="let customer of customers(); trackBy: trackByCustomer" [value]="customer.id">
+                  {{ customer.name }}
+                </mat-option>
+              </mat-select>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
@@ -29,7 +33,8 @@
               <input
                 matInput
                 type="tel"
-                formControlName="customerPhone">
+                formControlName="customerPhone"
+                readonly>
             </mat-form-field>
           </div>
         </div>

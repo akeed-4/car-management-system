@@ -10,11 +10,15 @@ import { RouterLink } from '@angular/router';
 import { ExpenseService } from '../../../services/expense.service';
 import { Car, CarStatus } from '../../../types/car.model';
 import { AlertsService } from '../../../services/alerts.service';
+import { TranslateModule } from '@ngx-translate/core';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CurrencyPipe, SlicePipe, BarChartComponent, PieChartComponent, RouterLink],
+  imports: [CurrencyPipe, SlicePipe, BarChartComponent, PieChartComponent, RouterLink, TranslateModule, MatCardModule, MatIconModule, MatButtonModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

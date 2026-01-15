@@ -334,6 +334,28 @@
   "ROLE": {
     "DASHBOARD": "Dashboard"
   },
+  "DASHBOARD": {
+    "TITLE": "Dashboard",
+    "AVAILABLE_CARS": "Available Cars",
+    "REQUESTED_CARS": "Requested Cars",
+    "SOLD_CARS": "Sold Cars",
+    "TOTAL_EXPENSES": "Total Expenses",
+    "UPCOMING_ALERTS": "Upcoming Service & Renewal Alerts",
+    "NO_UPCOMING_ALERTS": "No upcoming alerts within the next 30 days.",
+    "SALES_BY_MANUFACTURER": "Total Sales by Manufacturer",
+    "NO_SALES_DATA": "No sales data to display.",
+    "INVENTORY_STATUS_DISTRIBUTION": "Inventory Status Distribution",
+    "NO_INVENTORY_DATA": "No inventory data to display.",
+    "LATEST_CARS_ADDED": "Latest Cars Added",
+    "CAR": "Car",
+    "SALE_PRICE": "Sale Price",
+    "STATUS": "Status",
+    "MILEAGE": "Mileage",
+    "CUSTOMER": "Customer",
+    "EXPIRES_IN": "Expires in",
+    "DAYS": "days",
+    "PLATE_NUMBER": "Plate Number"
+  },
   "INVOICE_ADDITIONAL": {
     "ALREADY_ADDED": "This car is already added to the invoice"
   },
@@ -1627,6 +1649,7 @@
       "CUSTOMER_DETAILS": "Customer Details",
       "CUSTOMER_NAME": "Customer Name",
       "CUSTOMER_PHONE": "Phone Number",
+      "SELECT_CUSTOMER": "Select Customer",
       "CAR_SPECIFICATIONS": "Requested Car Specifications",
       "MANUFACTURER": "Manufacturer",
       "MODEL": "Model",
