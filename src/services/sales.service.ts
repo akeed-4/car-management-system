@@ -51,7 +51,7 @@ export class SalesService {
       ownershipTransferStatus: 'Not Started',
       isArchived: false,
     };
-    return this.http.post<SalesInvoice>(this.apiUrl+'/AddInvoice', newInvoice);
+    return this.http.post<SalesInvoice>(this.apiUrl+'/Create', newInvoice);
   }
 
   // تحديث فاتورة موجودة

@@ -54,7 +54,7 @@ export class ReceiptsComponent {
       receipts = receipts.filter(r => 
         r.voucherNumber.toLowerCase().includes(searchTerm) ||
         r.customerName.toLowerCase().includes(searchTerm) ||
-        r.salesInvoiceNumber.toLowerCase().includes(searchTerm)
+        r.referenceId?.toString().toLowerCase().includes(searchTerm)
       );
     }
 

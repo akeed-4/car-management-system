@@ -62,7 +62,7 @@
       </dxi-column>
 
       <dxi-column
-        dataField="date"
+        dataField="voucherDate"
         [caption]="'ACCOUNTS.PAYMENTS.COL_DATE' | translate"
         dataType="date"
         format="yyyy-MM-dd"
@@ -96,6 +96,20 @@
           [precision]="2"
           currency="SAR">
         </dxo-format>
+      </dxi-column>
+
+      <dxi-column
+        type="buttons"
+        [width]="120"
+        [caption]="'ACCOUNTS.PAYMENTS.COL_ACTIONS' | translate">
+        <dxi-button
+          text="Edit"
+          [onClick]="editPayment">
+        </dxi-button>
+        <dxi-button
+          text="Delete"
+          [onClick]="deletePayment">
+        </dxi-button>
       </dxi-column>
 
       <dxo-summary>

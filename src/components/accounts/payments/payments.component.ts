@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -40,10 +40,12 @@ type SortDirection = 'asc' | 'desc' | '';
 })
 export class PaymentsComponent {
   private paymentService = inject(PaymentService);
+  private router = inject(Router);
+  private translate = inject(TranslateService);
 
   payments = toSignal(this.paymentService.payments$, {initialValue: []});
   filter = signal('');
-  sortColumn = signal<SortColumn>('date');
+  sortColumn = signal<SortColumn>('voucherDate');
   sortDirection = signal<SortDirection>('desc');
 
   filteredAndSortedPayments = computed(() => {
@@ -54,7 +56,7 @@ export class PaymentsComponent {
       payments = payments.filter(p =>
         p.voucherNumber.toLowerCase().includes(searchTerm) ||
         p.supplierName.toLowerCase().includes(searchTerm) ||
-        (p.purchaseInvoiceNumber?.toLowerCase() || '').includes(searchTerm)
+        (p.description?.toLowerCase() || '').includes(searchTerm)
       );
     }
     
@@ -66,7 +68,7 @@ export class PaymentsComponent {
             const aVal = a[column];
             const bVal = b[column];
             let comp = 0;
-            if (column === 'date') {
+            if (column === 'voucherDate') {
               comp = new Date(aVal).getTime() - new Date(bVal).getTime();
             } else if (typeof aVal === 'string' && typeof bVal === 'string') {
                 comp = aVal.localeCompare(bVal);
@@ -96,6 +98,25 @@ export class PaymentsComponent {
   getSortIcon(column: SortColumn) {
     if (this.sortColumn() !== column) return '';
     return this.sortDirection() === 'asc' ? '▲' : '▼';
+  }
+
+  editPayment(payment: PaymentVoucher) {
+    this.router.navigate(['/accounts/payments', payment.id]);
+  }
+
+  deletePayment(payment: PaymentVoucher) {
+    if (confirm(this.translate.instant('ACCOUNTS.PAYMENTS.CONFIRM_DELETE') || 'Are you sure you want to delete this payment?')) {
+      this.paymentService.deletePayment(payment.id).subscribe({
+        next: () => {
+          // Refresh the list
+          this.paymentService.payments$ = this.paymentService.getPayments();
+        },
+        error: (error) => {
+          console.error('Error deleting payment:', error);
+          alert(this.translate.instant('ACCOUNTS.PAYMENTS.ERROR_DELETING') || 'Error deleting payment');
+        }
+      });
+    }
   }
 
   trackByPaymentId(index: number, payment: PaymentVoucher): number {

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CurrencyPipe, CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,7 +18,7 @@ import { PurchasesService } from '../../../services/purchases.service';
 import { PaymentService } from '../../../services/payment.service';
 import { TreasuryService } from '../../../services/treasury.service';
 import { PurchaseInvoice } from '../../../types/purchase-invoice.model';
-import { PaymentVoucher } from '@/src/types/payment-voucher.model';
+import { PaymentVoucher, PaymentMethod, VoucherStatus, BeneficiaryType } from '@/src/types/payment-voucher.model';
 
 @Component({
   selector: 'app-payment-form',
@@ -45,6 +45,7 @@ import { PaymentVoucher } from '@/src/types/payment-voucher.model';
 })
 export class PaymentFormComponent implements OnInit {
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private translate = inject(TranslateService);
   private supplierService = inject(SupplierService);
   private purchasesService = inject(PurchasesService);
@@ -58,6 +59,9 @@ export class PaymentFormComponent implements OnInit {
   
   outstandingInvoices = signal<PurchaseInvoice[]>([]);
   
+  isEditMode = signal(false);
+  editingPayment = signal<PaymentVoucher | null>(null);
+  
   selectedInvoiceDetails = computed(() => {
     const invId = this.paymentForm?.get('invoice')?.value;
     if (!invId) return null;
@@ -66,19 +70,62 @@ export class PaymentFormComponent implements OnInit {
 
   ngOnInit() {
     this.initForm();
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      if (id) {
+        this.isEditMode.set(true);
+        this.loadPayment(+id);
+      } else {
+        this.isEditMode.set(false);
+      }
+    });
+  }
+
+  private loadPayment(id: number) {
+    this.paymentService.getPaymentById(id).subscribe({
+      next: (payment) => {
+        this.editingPayment.set(payment);
+        this.populateForm(payment);
+      },
+      error: (error) => {
+        console.error('Error loading payment:', error);
+        alert(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.ERROR_LOADING') || 'Error loading payment');
+        this.router.navigate(['/accounts/payments']);
+      }
+    });
+  }
+
+  private populateForm(payment: PaymentVoucher) {
+    const paymentMethodStr = payment.paymentMethod === PaymentMethod.Bank ? 'BANK_TRANSFER' : 'CASH';
+    const statusStr = payment.status === VoucherStatus.Draft ? 'DRAFT' : payment.status === VoucherStatus.Approved ? 'APPROVED' : 'CANCELLED';
+    
+    this.paymentForm.patchValue({
+      voucherNumber: payment.voucherNumber,
+      voucherDate: payment.voucherDate.toISOString().split('T')[0],
+      supplier: payment.beneficiaryId, // assuming beneficiaryType is Supplier
+      invoice: payment.referenceId,
+      amount: payment.amount,
+      paymentMethod: paymentMethodStr,
+      accountId: payment.accountId,
+      referenceId: payment.referenceId,
+      notes: payment.notes,
+      status: statusStr,
+      createdBy: payment.createdBy
+    });
+    if (payment.beneficiaryId) {
+      this.onSupplierChange(payment.beneficiaryId);
+    }
   }
 
   private initForm() {
     this.paymentForm = new FormGroup({
       voucherNumber: new FormControl(`PV-${Date.now()}`),
-      voucherType: new FormControl('PAYMENT'),
-      date: new FormControl(new Date().toISOString().split('T')[0], Validators.required),
+      voucherDate: new FormControl(new Date().toISOString().split('T')[0], Validators.required),
       supplier: new FormControl(null, Validators.required),
       invoice: new FormControl(null),
       amount: new FormControl(0, [Validators.required, Validators.min(0.01)]),
       paymentMethod: new FormControl('BANK_TRANSFER', Validators.required),
       accountId: new FormControl(null, Validators.required),
-      referenceType: new FormControl('INVOICE'),
       referenceId: new FormControl(null),
       notes: new FormControl(''),
       status: new FormControl('DRAFT'),
@@ -126,25 +173,52 @@ export class PaymentFormComponent implements OnInit {
     }
 
     // Create and save the payment voucher using unified Voucher model
+    const paymentMethodEnum = formValue.paymentMethod === 'BANK_TRANSFER' ? PaymentMethod.Bank : PaymentMethod.Cash;
+    const statusEnum = formValue.status === 'DRAFT' ? VoucherStatus.Draft : formValue.status === 'APPROVED' ? VoucherStatus.Approved : VoucherStatus.Cancelled;
+    
     const voucher: Partial<PaymentVoucher> = {
       voucherNumber: formValue.voucherNumber,
-      voucherType: 'PAYMENT',
-      date: new Date(formValue.date),
+      voucherDate: new Date(formValue.voucherDate),
       amount: formValue.amount,
-      paymentMethod: formValue.paymentMethod,
+      paymentMethod: paymentMethodEnum,
       accountId: account.id,
-      referenceType: invoice ? 'INVOICE' : 'OTHER',
-      referenceId: invoice?.id ?? undefined,
+      status: statusEnum,
       notes: formValue.notes || `Payment to ${supplier.name}${invoice ? ` for invoice ${invoice.invoiceNumber}` : ''}`,
-      status: formValue.status || 'DRAFT',
       createdBy: formValue.createdBy || 1,
-      createdAt: new Date()
+      createdAt: new Date(),
+      beneficiaryType: BeneficiaryType.Supplier,
+      beneficiaryId: supplier.id,
+      referenceId: invoice?.id ?? undefined,
+      date: new Date(formValue.voucherDate), // legacy
+      paymentNumber: formValue.voucherNumber, // legacy
+      purchaseInvoiceId: invoice?.id,
+      supplierName: supplier.name,
+      description: formValue.notes || `Payment to ${supplier.name}${invoice ? ` for invoice ${invoice.invoiceNumber}` : ''}`
     };
     
-    this.paymentService.addPayment(voucher);
-
-    alert(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.SAVED'));
-    this.router.navigate(['/accounts/payments']);
+    if (this.isEditMode()) {
+      this.paymentService.updatePayment(voucher, this.editingPayment()!.id).subscribe({
+        next: (updatedPayment) => {
+          alert(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.UPDATED'));
+          this.router.navigate(['/accounts/payments']);
+        },
+        error: (error) => {
+          console.error('Error updating payment:', error);
+          alert(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.ERROR_UPDATING') || 'Error updating payment');
+        }
+      });
+    } else {
+      this.paymentService.addPayment(voucher).subscribe({
+        next: (savedPayment) => {
+          alert(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.SAVED'));
+          this.router.navigate(['/accounts/payments']);
+        },
+        error: (error) => {
+          console.error('Error saving payment:', error);
+          alert(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.ERROR_SAVING') || 'Error saving payment');
+        }
+      });
+    }
   }
 
   trackBySupplierId(index: number, supplier: any): number {

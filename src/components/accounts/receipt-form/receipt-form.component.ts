@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
 import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CurrencyPipe, CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,6 +18,7 @@ import { ReceiptService } from '../../../services/receipt.service';
 import { TreasuryService } from '../../../services/treasury.service';
 import { SalesInvoice } from '@/src/types/sales-invoice.model';
 import { ReceiptVoucher } from '@/src/types/receipt-voucher.model';
+import { PaymentMethod, VoucherStatus, BeneficiaryType } from '@/src/types/payment-voucher.model';
 
 @Component({
   selector: 'app-receipt-form',
@@ -44,6 +45,7 @@ import { ReceiptVoucher } from '@/src/types/receipt-voucher.model';
 })
 export class ReceiptFormComponent implements OnInit {
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private customerService = inject(CustomerService);
   private salesService = inject(SalesService);
   private receiptService = inject(ReceiptService);
@@ -57,6 +59,9 @@ export class ReceiptFormComponent implements OnInit {
   
   outstandingInvoices = signal<SalesInvoice[]>([]);
 
+  isEditMode = signal(false);
+  editingReceipt = signal<ReceiptVoucher | null>(null);
+  
   selectedInvoiceDetails = computed(() => {
     const invId = this.receiptForm?.get('invoice')?.value;
     if (!invId) return null;
@@ -65,19 +70,62 @@ export class ReceiptFormComponent implements OnInit {
 
   ngOnInit() {
     this.initForm();
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      if (id) {
+        this.isEditMode.set(true);
+        this.loadReceipt(+id);
+      } else {
+        this.isEditMode.set(false);
+      }
+    });
+  }
+
+  private loadReceipt(id: number) {
+    this.receiptService.getReceiptById(id).subscribe({
+      next: (receipt) => {
+        this.editingReceipt.set(receipt);
+        this.populateForm(receipt);
+      },
+      error: (error) => {
+        console.error('Error loading receipt:', error);
+        alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.ERROR_LOADING') || 'Error loading receipt');
+        this.router.navigate(['/accounts/receipts']);
+      }
+    });
+  }
+
+  private populateForm(receipt: ReceiptVoucher) {
+    const paymentMethodStr = receipt.paymentMethod === PaymentMethod.Bank ? 'BANK_TRANSFER' : 'CASH';
+    const statusStr = receipt.status === VoucherStatus.Draft ? 'DRAFT' : receipt.status === VoucherStatus.Approved ? 'APPROVED' : 'CANCELLED';
+    
+    this.receiptForm.patchValue({
+      voucherNumber: receipt.voucherNumber,
+      voucherDate: receipt.voucherDate.toISOString().split('T')[0],
+      customer: receipt.beneficiaryId,
+      invoice: receipt.referenceId,
+      amount: receipt.amount,
+      paymentMethod: paymentMethodStr,
+      accountId: receipt.accountId,
+      referenceId: receipt.referenceId,
+      notes: receipt.notes,
+      status: statusStr,
+      createdBy: receipt.createdBy
+    });
+    if (receipt.beneficiaryId) {
+      this.onCustomerChange(receipt.beneficiaryId);
+    }
   }
 
   private initForm() {
     this.receiptForm = new FormGroup({
       voucherNumber: new FormControl(`RV-${Date.now()}`),
-      voucherType: new FormControl('RECEIPT'),
-      date: new FormControl(new Date().toISOString().split('T')[0], Validators.required),
+      voucherDate: new FormControl(new Date().toISOString().split('T')[0], Validators.required),
       customer: new FormControl(null, Validators.required),
       invoice: new FormControl(null),
       amount: new FormControl(0, [Validators.required, Validators.min(0.01)]),
       paymentMethod: new FormControl('CASH', Validators.required),
       accountId: new FormControl(null, Validators.required),
-      referenceType: new FormControl('INVOICE'),
       referenceId: new FormControl(null),
       notes: new FormControl(''),
       status: new FormControl('DRAFT'),
@@ -124,30 +172,52 @@ export class ReceiptFormComponent implements OnInit {
     this.salesService.applyPayment(invoice.id, formValue.amount);
 
     // 2. Create and save the receipt voucher using unified Voucher model
+    const paymentMethodEnum = formValue.paymentMethod === 'BANK_TRANSFER' ? PaymentMethod.Bank : PaymentMethod.Cash;
+    const statusEnum = formValue.status === 'DRAFT' ? VoucherStatus.Draft : formValue.status === 'APPROVED' ? VoucherStatus.Approved : VoucherStatus.Cancelled;
+    
     const voucher: Partial<ReceiptVoucher> = {
       voucherNumber: formValue.voucherNumber,
-      voucherType: 'RECEIPT',
-      date: new Date(formValue.date),
+      voucherDate: new Date(formValue.voucherDate),
       amount: formValue.amount,
-      paymentMethod: formValue.paymentMethod,
+      paymentMethod: paymentMethodEnum,
       accountId: account.id,
-      referenceType: invoice ? 'INVOICE' : 'OTHER',
-      referenceId: invoice?.id ?? undefined,
+      status: statusEnum,
       notes: formValue.notes || `Receipt from ${customer.name}${invoice ? ` for invoice ${invoice.invoiceNumber}` : ''}`,
-      status: formValue.status || 'DRAFT',
       createdBy: formValue.createdBy || 1,
       createdAt: new Date(),
-      accountName: account.name,
-      customerId: customer.id,
+      beneficiaryType: BeneficiaryType.Customer,
+      beneficiaryId: customer.id,
+      referenceId: invoice?.id ?? undefined,
+      date: new Date(formValue.voucherDate), // legacy
+      paymentNumber: formValue.voucherNumber, // legacy
+      salesInvoiceId: invoice?.id,
       customerName: customer.name,
-      salesInvoiceId: invoice.id,
-      salesInvoiceNumber: invoice.invoiceNumber,
+      description: formValue.notes || `Receipt from ${customer.name}${invoice ? ` for invoice ${invoice.invoiceNumber}` : ''}`
     };
     
-    this.receiptService.addReceipt(voucher);
-
-    alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.SAVED'));
-    this.router.navigate(['/accounts/receipts']);
+    if (this.isEditMode()) {
+      this.receiptService.updateReceipt(voucher, this.editingReceipt()!.id).subscribe({
+        next: (updatedReceipt) => {
+          alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.UPDATED'));
+          this.router.navigate(['/accounts/receipts']);
+        },
+        error: (error) => {
+          console.error('Error updating receipt:', error);
+          alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.ERROR_UPDATING') || 'Error updating receipt');
+        }
+      });
+    } else {
+      this.receiptService.addReceipt(voucher).subscribe({
+        next: (savedReceipt) => {
+          alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.SAVED'));
+          this.router.navigate(['/accounts/receipts']);
+        },
+        error: (error) => {
+          console.error('Error saving receipt:', error);
+          alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.ERROR_SAVING') || 'Error saving receipt');
+        }
+      });
+    }
   }
 
   trackByCustomerId(index: number, customer: any): number {
