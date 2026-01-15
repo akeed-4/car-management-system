@@ -2,7 +2,6 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { PaymentVoucher } from '../types/payment-voucher.model';
 import { Observable, tap } from 'rxjs';
-import { env } from 'process';
 import { environment } from '../environments/environment';
 
 @Injectable({

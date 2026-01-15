@@ -391,4 +391,16 @@ getTitle(): string {
       this.returnItems.set([...this.returnItems()]);
     }
   }
+
+  validateReturnQuantity = (options: any) => {
+    const value = options.value;
+    const data = options.data;
+    if (value < 0) {
+      return { isValid: false, message: this.translate.instant('SALES.RETURN.QUANTITY_CANNOT_BE_NEGATIVE') };
+    }
+    if (value > data.originalQuantity) {
+      return { isValid: false, message: this.translate.instant('SALES.RETURN.QUANTITY_CANNOT_EXCEED_ORIGINAL', { original: data.originalQuantity }) };
+    }
+    return { isValid: true };
+  };
 }

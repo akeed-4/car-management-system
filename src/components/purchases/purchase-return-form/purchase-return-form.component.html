@@ -152,7 +152,7 @@
               [allowEditing]="true"
               dataType="number"
               alignment="right">
-             
+              <dxi-validation-rule type="custom" [validationCallback]="validateReturnQuantity"></dxi-validation-rule>
             </dxi-column>
 
             <dxi-column

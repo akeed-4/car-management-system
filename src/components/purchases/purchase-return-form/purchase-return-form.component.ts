@@ -282,4 +282,17 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
         console.error('Error saving return invoice:', error);
         alert(this.translate.instant('PURCHASES.PURCHASE_RETURN.ERROR_SAVING_RETURN'));
       }
-});}}
+    });
+  }
+ validateReturnQuantity = (options: any) => {
+    const value = options.value;
+    const data = options.data;
+    if (value < 0) {
+      return { isValid: false, message: this.translate.instant('SALES.RETURN.QUANTITY_CANNOT_BE_NEGATIVE') };
+    }
+    if (value > data.originalQuantity) {
+      return { isValid: false, message: this.translate.instant('SALES.RETURN.QUANTITY_CANNOT_EXCEED_ORIGINAL', { original: data.originalQuantity }) };
+    }
+    return { isValid: true };
+  };
+}
