@@ -16,6 +16,8 @@ export class ToastService {
     const translatedMessage = this.translate.instant(message);
     this.snackBar.open(translatedMessage, this.translate.instant('TOAST.SUCCESS'), {
       duration,
+       horizontalPosition: 'end',
+      verticalPosition: 'bottom',
       panelClass: ['toast-success']
     });
   }
@@ -24,6 +26,8 @@ export class ToastService {
     const translatedMessage = this.translate.instant(message);
     this.snackBar.open(translatedMessage, this.translate.instant('TOAST.WARNING'), {
       duration,
+       horizontalPosition: 'end',
+      verticalPosition: 'bottom',
       panelClass: ['toast-warning']
     });
   }
@@ -32,7 +36,9 @@ export class ToastService {
     const translatedMessage = this.translate.instant(message);
     this.snackBar.open(translatedMessage, this.translate.instant('TOAST.ERROR'), {
       duration,
-      panelClass: ['toast-error']
+      panelClass: ['toast-error'],
+       horizontalPosition: 'end',
+      verticalPosition: 'bottom'
     });
   }
 
@@ -40,7 +46,9 @@ export class ToastService {
     const translatedMessage = this.translate.instant(message);
     this.snackBar.open(translatedMessage, 'Close', {
       duration,
-      panelClass: ['toast-info']
+      panelClass: ['toast-info'],
+       horizontalPosition: 'end',
+      verticalPosition: 'bottom'
     });
   }
 }

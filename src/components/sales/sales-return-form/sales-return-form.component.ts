@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, Input, OnChanges, SimpleChanges, Inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
@@ -21,6 +21,7 @@ import { SalesReturn } from '../../../types/sales-return.model';
 import { SalesInvoice } from '../../../types/sales-invoice.model';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import { ToastService } from '../../../services/toast.service';
 import { SalesReturnInvoice } from '@/src/types/sales-return-invoice.model';
 
 @Component({
@@ -37,6 +38,7 @@ export class SalesReturnFormComponent implements OnInit {
  @Input() isCashReturn: boolean = false;
   customTitle: string;
   private salesService = inject(SalesService);
+  private fb = inject(FormBuilder);
   private salesReturnService = inject(SalesReturnService);
   private inventoryService = inject(InventoryService);
   private accountingService = inject(AccountingService);
@@ -44,7 +46,7 @@ export class SalesReturnFormComponent implements OnInit {
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
   private translate = inject(TranslateService);
-  private fb = inject(FormBuilder);
+  private toastService = inject(ToastService);
 
   returnForm: FormGroup;
 
@@ -52,7 +54,7 @@ export class SalesReturnFormComponent implements OnInit {
   returnNumber = signal<string>('');
   isSubmitting = signal(false);
   refundCalculation = signal<any>(null);
-  Eitemode: boolean;
+  editMode: boolean;
   invoiceId: any;
 
   constructor() {
@@ -79,7 +81,7 @@ export class SalesReturnFormComponent implements OnInit {
     // Read type query parameter (cash or credit)
     this.activatedRoute.queryParams.subscribe(params => {
       if (params['type'] === 'cash') {
-        this.Eitemode=true;
+        this.editMode=true;
         this.isCashReturn = true;
       } else if (params['type'] === 'credit') {
         this.isCashReturn = false;
@@ -197,7 +199,8 @@ getTitle(): string {
         const eligibleInvoices = invoices.filter(invoice =>
           !invoice.isArchived &&
           (invoice.status === 'Paid' || invoice.status === 'Pending') &&
-          invoice.isCash === this.isCashReturn ? true : false );
+          invoice.isCash === this.isCashReturn
+        );
         this.originalInvoices.set(eligibleInvoices);
       },
       error: (error) => {
@@ -342,16 +345,13 @@ getTitle(): string {
 
     // Check if we're in edit mode
     const existingReturn = this.selectedOriginalInvoicereturn();
-    if (this.Eitemode) {
+    if (this.editMode) {
       // Edit mode - update existing return
       this.salesReturnService.updateSalesReturn(this.invoiceId, salesReturn).subscribe({
         next: (response) => {
-          this.translate.get('SALES.RETURN.UPDATED_SUCCESS').subscribe(message => {
-            console.log(message);
-          });
           this.isSubmitting.set(false);
+          this.toastService.showSuccess('Sales return updated successfully');
           // Navigate back to list or show success message
-          this.router.navigate(['/sales/return']);
         },
         error: (error) => {
           console.error('Error updating return:', error);
@@ -362,12 +362,10 @@ getTitle(): string {
       // Create mode - create new return
       this.salesReturnService.createSalesReturn(salesReturn).subscribe({
         next: (response) => {
-          this.translate.get('SALES.RETURN.SAVED_SUCCESS').subscribe(message => {
-            console.log(message);
-          });
+         
           this.isSubmitting.set(false);
           // Navigate back to list or show success message
-          this.router.navigate(['/sales/return']);
+          this.toastService.showSuccess('Sales return updated successfully');
         },
         error: (error) => {
           console.error('Error saving return:', error);
