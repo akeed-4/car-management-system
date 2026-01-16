@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, Inject, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -13,9 +13,8 @@ import { MatInputModule } from '@angular/material/input';
 import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
 import { ReceiptService } from '../../../services/receipt.service';
 import { ReceiptVoucher } from '../../../types/receipt-voucher.model';
-
-type SortColumn = keyof ReceiptVoucher | '';
-type SortDirection = 'asc' | 'desc' | '';
+import CustomStore from 'devextreme/data/custom_store';
+import { ToastService } from '@/src/services/toast.service';
 
 @Component({
   selector: 'app-receipts',
@@ -40,63 +39,47 @@ type SortDirection = 'asc' | 'desc' | '';
 })
 export class ReceiptsComponent {
   private receiptService = inject(ReceiptService);
+  private router = inject(Router);
+  private translate = inject(TranslateService);
   
-  receipts = toSignal(this.receiptService.receipts$, {initialValue: []});
-  filter = signal('');
-  sortColumn = signal<SortColumn>('date');
-  sortDirection = signal<SortDirection>('desc');
-
-  filteredAndSortedReceipts = computed(() => {
-    let receipts = this.receipts();
-    const searchTerm = this.filter().toLowerCase();
-    
-    if (searchTerm) {
-      receipts = receipts.filter(r => 
-        r.voucherNumber.toLowerCase().includes(searchTerm) ||
-        r.customerName.toLowerCase().includes(searchTerm) ||
-        r.referenceId?.toString().toLowerCase().includes(searchTerm)
-      );
+  dataSource = new CustomStore({
+    key: 'id',
+    load: (loadOptions) => {
+      return this.receiptService.getReceipts().toPromise();
     }
-
-    const column = this.sortColumn();
-    const direction = this.sortDirection();
-
-    if (column && direction) {
-        receipts = [...receipts].sort((a,b) => {
-            const aVal = a[column];
-            const bVal = b[column];
-            let comp = 0;
-            if (column === 'date') {
-              comp = new Date(aVal).getTime() - new Date(bVal).getTime();
-            } else if (typeof aVal === 'string' && typeof bVal === 'string') {
-                comp = aVal.localeCompare(bVal);
-            } else if (typeof aVal === 'number' && typeof bVal === 'number') {
-                comp = aVal - bVal;
-            }
-            return direction === 'asc' ? comp : -comp;
-        });
-    }
-
-    return receipts;
   });
+  toastService = inject(ToastService);
 
-  onFilter(event: Event) {
-    this.filter.set((event.target as HTMLInputElement).value);
+  constructor() {
+    console.log('ReceiptsComponent initialized');
   }
 
-  onSort(column: SortColumn) {
-    if (this.sortColumn() === column) {
-      this.sortDirection.update(d => d === 'asc' ? 'desc' : 'asc');
+  editReceipt = (e: any) => {
+    const receiptId = e.row.data.id;
+    if (receiptId) {
+      this.router.navigate(['/accounts/receipts/edit', receiptId]);
     } else {
-      this.sortColumn.set(column);
-      this.sortDirection.set('asc');
+      console.error('Receipt ID not found:', e.row.data);
     }
   }
 
-  getSortIcon(column: SortColumn) {
-    if (this.sortColumn() !== column) return '';
-    return this.sortDirection() === 'asc' ? '▲' : '▼';
+  deleteReceipt = (e: any) => {
+    const receipt = e.row.data;
+    if (confirm(this.translate.instant('ACCOUNTS.RECEIPTS.CONFIRM_DELETE') || 'Are you sure you want to delete this receipt?')) {
+      this.receiptService.deleteReceipt(receipt.id).subscribe({
+        next: () => {
+          // Refresh the grid
+          this.dataSource;
+          this.toastService.showSuccess(this.translate.instant('ACCOUNTS.RECEIPTS.DELETED') || 'Receipt deleted successfully');
+        },
+        error: (error) => {
+          console.error('Error deleting receipt:', error);
+          alert(this.translate.instant('ACCOUNTS.RECEIPTS.ERROR_DELETING') || 'Error deleting receipt');
+        }
+      });
+    }
   }
+  
 
   trackByReceiptId(index: number, receipt: ReceiptVoucher): number {
     return receipt.id;

@@ -30,10 +30,11 @@ export class SalesService {
   }
 
   // جلب فواتير غير مدفوعة لعميل
-  getOutstandingInvoicesByCustomerId(customerId: number): Observable<SalesInvoice[]> {
-    return this.http.get<SalesInvoice[]>(`${this.apiUrl}/outstanding?customerId=${customerId}`);
-  }
-
+getOutstandingInvoicesByCustomerId(customerId: number): Observable<SalesInvoice[]> {
+  return this.http.get<SalesInvoice[]>(
+    `${this.apiUrl}/GetOutstandingByCustomerId/${customerId}`
+  );
+}
   // جلب جميع فواتير العميل
   getInvoicesByCustomerId(customerId: number): Observable<SalesInvoice[]> {
     return this.http.get<SalesInvoice[]>(`${this.apiUrl}?customerId=${customerId}`);
@@ -56,7 +57,7 @@ export class SalesService {
 
   // تحديث فاتورة موجودة
   updateInvoice(invoice: SalesInvoice): Observable<SalesInvoice> {
-    return this.http.put<SalesInvoice>(`${this.apiUrl}/${invoice.id}`, invoice);
+    return this.http.put<SalesInvoice>(`${this.apiUrl}/update/${invoice.id}`, invoice);
   }
 
   // حذف فاتورة

@@ -9,18 +9,20 @@
   </mat-toolbar-row>
 </mat-toolbar>
 
+<!-- Toast Container for this component only -->
+<div #toastContainer id="toast-payments-container" class="toast-container-local"></div>
+
 <mat-card class="payments-card">
   <mat-card-content>
     <div class="search-section">
-      <mat-form-field appearance="outline" class="search-field">
-        <mat-label>{{ 'ACCOUNTS.PAYMENTS.SEARCH_PLACEHOLDER' | translate }}</mat-label>
-        <input matInput type="text" (input)="onFilter($event)">
-        <mat-icon matSuffix>search</mat-icon>
-      </mat-form-field>
+      <!-- Search is now handled by the grid -->
     </div>
 
     <dx-data-grid
-      [dataSource]="filteredAndSortedPayments()"
+     #dataGrid
+     id="dataGrid"
+      [dataSource]="dataSource"
+      [remoteOperations]="true"
       [showBorders]="true"
       [showRowLines]="true"
       [showColumnLines]="true"
@@ -33,7 +35,7 @@
       class="payments-grid">
 
       <dxo-search-panel
-        [visible]="false">
+        [visible]="true">
       </dxo-search-panel>
 
       <dxo-grouping [autoExpandAll]="false"></dxo-grouping>
@@ -103,10 +105,12 @@
         [width]="120"
         [caption]="'ACCOUNTS.PAYMENTS.COL_ACTIONS' | translate">
         <dxi-button
+        icon="edit"
           text="Edit"
           [onClick]="editPayment">
         </dxi-button>
         <dxi-button
+        icon="trash"
           text="Delete"
           [onClick]="deletePayment">
         </dxi-button>
@@ -117,7 +121,7 @@
           column="amount"
           summaryType="sum"
           [alignment]="'right'"
-          [displayFormat]="'ACCOUNTS.PAYMENTS.TOTAL_AMOUNT' | translate">
+        >
         </dxi-total-item>
       </dxo-summary>
 

@@ -3,13 +3,15 @@ import { HttpClient } from '@angular/common/http';
 import { ReceiptVoucher } from '../types/receipt-voucher.model';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
+import 'devextreme/data/odata/store';
+import { LoadOptions } from 'devextreme/data';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ReceiptService {
   private http = inject(HttpClient);
-  private apiUrl = environment.origin + '/ Receipts'; // ضع رابط API الحقيقي هنا
+  private apiUrl = environment.origin + 'api/receipts'; // ضع رابط API الحقيقي هنا
 
   receipts$ = this.getReceipts();
 
@@ -18,6 +20,11 @@ export class ReceiptService {
   // جلب كل الإيصالات
   getReceipts(): Observable<ReceiptVoucher[]> {
     return this.http.get<ReceiptVoucher[]>(this.apiUrl+'/GetAll');
+  }
+
+  // جلب كل الإيصالات مع خيارات التحميل
+  getReceiptsWithLoadOptions(loadOptions: any): Observable<any> {
+    return this.http.post<any>(this.apiUrl+`/GetAll`, loadOptions);
   }
 
   // جلب إيصال محدد حسب ID
@@ -43,5 +50,10 @@ export class ReceiptService {
   // إلغاء أرشفة إيصال
   unarchiveReceipt(id: number): Observable<ReceiptVoucher> {
     return this.http.patch<ReceiptVoucher>(`${this.apiUrl}/${id}`, { isArchived: false });
+  }
+
+  // حذف إيصال
+  deleteReceipt(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/Delete/${id}`);
   }
 }

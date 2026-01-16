@@ -10,7 +10,7 @@
   </div>
 
   <div class="form-container">
-    <form [formGroup]="returnForm" (ngSubmit)="saveReturn()">
+    <form [formGroup]="returnForm" >
 
       <!-- Return Header -->
       <section class="form-section">
@@ -19,7 +19,7 @@
           <div class="form-field">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>{{ 'SALES.RETURN.RETURN_NUMBER' | translate }}</mat-label>
-              <input matInput type="text" [value]="returnNumber()" disabled>
+              <input matInput type="text" [value]="returnNumber()" >
             </mat-form-field>
           </div>
           <div class="form-field">
@@ -247,8 +247,7 @@
         <a routerLink="/sales/return" class="btn-cancel">
           {{ 'COMMON.CANCEL' | translate }}
         </a>
-        <button
-          type="submit"
+        <button (click)="saveReturn()"
           [disabled]="returnForm.invalid || totalAmount() === 0 || isSubmitting()"
           class="btn-save">
           @if (isSubmitting()) {

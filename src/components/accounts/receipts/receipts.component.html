@@ -12,15 +12,12 @@
 <mat-card class="receipts-card">
   <mat-card-content>
     <div class="search-section">
-      <mat-form-field appearance="outline" class="search-field">
-        <mat-label>{{ 'ACCOUNTS.RECEIPTS.SEARCH_PLACEHOLDER' | translate }}</mat-label>
-        <input matInput type="text" (input)="onFilter($event)">
-        <mat-icon matSuffix>search</mat-icon>
-      </mat-form-field>
+      <!-- Search is now handled by the grid -->
     </div>
 
     <dx-data-grid
-      [dataSource]="filteredAndSortedReceipts()"
+      [dataSource]="dataSource"
+      [remoteOperations]="true"
       [showBorders]="true"
       [showRowLines]="true"
       [showColumnLines]="true"
@@ -33,7 +30,7 @@
       class="receipts-grid">
 
       <dxo-search-panel
-        [visible]="false">
+        [visible]="true">
       </dxo-search-panel>
 
       <dxo-grouping [autoExpandAll]="false"></dxo-grouping>
@@ -97,7 +94,21 @@
           currency="SAR">
         </dxo-format>
       </dxi-column>
-
+   <dxi-column
+        type="buttons"
+        [width]="120"
+        [caption]="'ACCOUNTS.RECEIPTS.COL_ACTIONS' | translate">
+        <dxi-button
+        icon="edit"
+          text="Edit"
+          [onClick]="editReceipt">
+        </dxi-button>
+        <dxi-button
+          icon="trash"
+          text="Delete"
+          [onClick]="deleteReceipt">
+        </dxi-button>
+      </dxi-column>
       <dxo-summary>
         <dxi-total-item
           column="amount"

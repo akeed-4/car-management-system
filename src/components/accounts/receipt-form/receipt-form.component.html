@@ -17,12 +17,12 @@
         <div class="header-section">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.VOUCHER_NUMBER' | translate }}</mat-label>
-            <input matInput type="text" [value]="receiptForm.get('voucherNumber')?.value" disabled>
+            <input matInput type="text" [value]="receiptForm.get('voucherNumber')?.value" >
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.DATE' | translate }}</mat-label>
-            <input matInput type="date" id="date" formControlName="date" required>
+            <input matInput type="date" id="date" formControlName="voucherDate" required>
           </mat-form-field>
         </div>
 
@@ -30,7 +30,7 @@
         <div class="customer-invoice-section">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.CUSTOMER' | translate }}</mat-label>
-            <mat-select id="customer" formControlName="customer" (selectionChange)="onCustomerChange($event.value)" required>
+            <mat-select id="customer" formControlName="customerId" (selectionChange)="onCustomerChange($event.value)" required>
               <mat-option [value]="null" disabled>{{ 'ACCOUNTS.RECEIPT_FORM.SELECT_CUSTOMER' | translate }}</mat-option>
               <mat-option *ngFor="let c of customers(); trackBy: trackByCustomerId" [value]="c.id">{{ c.name }}</mat-option>
             </mat-select>
@@ -38,9 +38,10 @@
 
           <mat-form-field appearance="outline">
             <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.INVOICE' | translate }}</mat-label>
-            <mat-select id="invoice" formControlName="invoice" (selectionChange)="onInvoiceChange($event.value)"  [disabled]="!receiptForm.get('customer')?.value">
+            <mat-select id="invoice" formControlName="invoice" (selectionChange)="onInvoiceChange($event.value)"  [disabled]="!receiptForm.get('customerId')?.value">
               <mat-option [value]="null" disabled>{{ 'ACCOUNTS.RECEIPT_FORM.SELECT_INVOICE' | translate }}</mat-option>
-              <mat-option *ngFor="let inv of outstandingInvoices(); trackBy: trackByInvoiceId" [value]="inv.id">{{ inv.invoiceNumber }} ({{ 'INVOICE.AMOUNT_DUE' | translate }}: {{inv.amountDue | currency:'SAR'}})</mat-option>
+              <mat-option *ngFor="let inv of outstandingInvoices(); trackBy: trackByInvoiceId" [value]="inv.id">
+                {{ inv.invoiceNumber }} ({{ 'INVOICE.AMOUNT_DUE' | translate }}: {{ inv.amountDue | currency:'SAR' }})</mat-option>
             </mat-select>
           </mat-form-field>
         </div>
@@ -80,9 +81,9 @@
           <mat-form-field appearance="outline">
             <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.PAYMENT_METHOD' | translate }}</mat-label>
             <mat-select id="paymentMethod" formControlName="paymentMethod" required>
-              <mat-option value="Cash">{{ 'INVOICE.PAYMENT_CASH' | translate }}</mat-option>
-              <mat-option value="Bank Transfer">{{ 'INVOICE.PAYMENT_BANK_TRANSFER' | translate }}</mat-option>
-              <mat-option value="Card">{{ 'INVOICE.PAYMENT_CARD' | translate }}</mat-option>
+              <mat-option value="CASH">{{ 'INVOICE.PAYMENT_CASH' | translate }}</mat-option>
+              <mat-option value="BANK_TRANSFER">{{ 'INVOICE.PAYMENT_BANK_TRANSFER' | translate }}</mat-option>
+              <mat-option value="CARD">{{ 'INVOICE.PAYMENT_CARD' | translate }}</mat-option>
             </mat-select>
           </mat-form-field>
 
@@ -90,7 +91,7 @@
             <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.ACCOUNT' | translate }}</mat-label>
             <mat-select id="accountId" formControlName="accountId" required>
               <mat-option [value]="null" disabled>{{ 'ACCOUNTS.RECEIPT_FORM.SELECT_ACCOUNT' | translate }}</mat-option>
-              <mat-option *ngFor="let acc of accounts(); trackBy: trackByAccountId" [value]="acc.id">{{ acc.name }}</mat-option>
+              <mat-option *ngFor="let acc of accounts(); trackBy: trackByAccountId" [value]="acc.id">{{ acc.accountCode }} - {{ acc.accountNameAr }}</mat-option>
             </mat-select>
           </mat-form-field>
         </div>

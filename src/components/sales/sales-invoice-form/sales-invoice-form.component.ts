@@ -104,7 +104,8 @@ export class SalesInvoiceFormComponent implements OnInit {
   invoiceItems = signal<InvoiceItem[]>([]);
 
   invoiceNumber = signal('');
-
+  isEditMode = signal(false);
+  currentInvoiceId = signal<number | null>(null);
   selectedCustomer = signal<Customer | null>(null);
 
   // Invoice type signal
@@ -138,6 +139,8 @@ export class SalesInvoiceFormComponent implements OnInit {
     // Check if we're editing an existing invoice
     const invoiceId = this.route.snapshot.params['id'];
     if (invoiceId) {
+      this.isEditMode.set(true);
+      this.currentInvoiceId.set(+invoiceId);
       this.loadInvoiceForEdit(+invoiceId);
     } else {
       // Initialize form group for new invoice
@@ -205,11 +208,12 @@ export class SalesInvoiceFormComponent implements OnInit {
           invoiceDate: new FormControl(new Date(invoice.invoiceDate), Validators.required),
           dueDate: new FormControl(invoice.dueDate ? new Date(invoice.dueDate) : ''),
           paymentMethod: new FormControl(invoice.paymentMethod || 'Cash'),
+          paymentType: new FormControl(invoice.paymentType || 'Bank Transfer'),
           salesperson: new FormControl(invoice.salesperson || ''),
-          ClassificationId: new FormControl(0, Validators.required),
-          debitAccount: new FormControl(null, Validators.required),
-          creditAccount: new FormControl(null, Validators.required),
-          invoiceType: new FormControl(InvoiceType.Taxable, Validators.required),
+          ClassificationId: new FormControl(invoice.ClassificationId || 0, Validators.required),
+          debitAccount: new FormControl(invoice.debitAccountId, Validators.required),
+          creditAccount: new FormControl(invoice.creditAccountId, Validators.required),
+          invoiceType: new FormControl(invoice.invoiceType || InvoiceType.Taxable, Validators.required),
           selectedCarId: new FormControl(null),
           selectedQuantity: new FormControl(1, [Validators.required, Validators.min(1)]),
           notes: new FormControl(invoice.notes || ''),
@@ -505,11 +509,10 @@ export class SalesInvoiceFormComponent implements OnInit {
     }
 
     // Prepare invoice data (adjust fields as needed)
-    const now = new Date();
     const invoiceData: SalesInvoice = {
-      id: 0, // Placeholder, backend should assign
-      invoiceNumber: 'INV-' + now.getTime(),
-      invoiceDate: now.toISOString(),
+      id: this.isEditMode() ? this.currentInvoiceId()! : 0,
+      invoiceNumber: this.invoiceNumber(),
+      invoiceDate: this.invoiceForm.get('invoiceDate')?.value.toISOString(),
       customerId,
       customerName: customer.name,
       storeId,
@@ -521,8 +524,7 @@ export class SalesInvoiceFormComponent implements OnInit {
       invoiceType: this.invoiceForm.get('invoiceType')?.value,
       salesperson: this.invoiceForm.get('salesperson')?.value,
       isCash: this.isCash,
-      items:
-      items,
+      items: items,
       subtotal: this.subtotal(),
       totalAmount: this.totalAmount(),
       vatAmount: this.vatAmount(),
@@ -534,14 +536,25 @@ export class SalesInvoiceFormComponent implements OnInit {
       ownershipTransferStatus: 'Not Started',
     };
 
-    this.salesService.addInvoice(invoiceData).subscribe({
-      next: () => {
-        this.toastService.showSuccess('TOAST.ADD_SUCCESS');
-        this.router.navigate(['/sales']);
-      },
-      error: () => {
-        this.toastService.showError('TOAST.SAVE_ERROR');
-      }
-    });
+    if (this.isEditMode()) {
+      this.salesService.updateInvoice(invoiceData).subscribe({
+        next: () => {
+          this.toastService.showSuccess('TOAST.UPDATE_SUCCESS');
+        },
+        error: () => {
+          this.toastService.showError('TOAST.SAVE_ERROR');
+        }
+      });
+    } else {
+      this.salesService.addInvoice(invoiceData).subscribe({
+        next: () => {
+          this.toastService.showSuccess('TOAST.ADD_SUCCESS');
+          this.router.navigate(['/sales']);
+        },
+        error: () => {
+          this.toastService.showError('TOAST.SAVE_ERROR');
+        }
+      });
+    }
   }
 }

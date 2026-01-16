@@ -180,8 +180,11 @@ export const APP_ROUTES: Routes = [
   { path: 'expenses/edit/:id', component: ExpenseFormComponent },
   { path: 'accounts/receipts', component: ReceiptsComponent },
   { path: 'accounts/receipts/new', component: ReceiptFormComponent },
+   { path: 'accounts/receipts/edit/:id', component: ReceiptFormComponent },
   { path: 'accounts/payments', component: PaymentsComponent },
   { path: 'accounts/payments/new', component: PaymentFormComponent },
+  { path: 'accounts/payments/edit/:id', component: PaymentFormComponent },
+
   { path: 'accounts/deposits', component: DepositListComponent }, // New Deposit List
   { path: 'accounts/deposits/new', component: DepositFormComponent }, // New Deposit Form
   { path: 'accounts/deposits/new/:carId', component: DepositFormComponent }, // New Deposit Form with pre-selected car

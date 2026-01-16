@@ -13,7 +13,7 @@ export class ReceiptVoucher {
   notes?: string;
   createdAt: Date = new Date();
   createdBy!: number;
-
+customerId?: number;
   // Beneficiary fields
   beneficiaryType!: BeneficiaryType;
   beneficiaryId!: number; // Supplier / Employee / Customer

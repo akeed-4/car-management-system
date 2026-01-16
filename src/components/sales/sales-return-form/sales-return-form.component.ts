@@ -54,7 +54,7 @@ export class SalesReturnFormComponent implements OnInit {
   returnNumber = signal<string>('');
   isSubmitting = signal(false);
   refundCalculation = signal<any>(null);
-  editMode: boolean;
+  editMode: boolean=false;
   invoiceId: any;
 
   constructor() {
@@ -91,6 +91,8 @@ export class SalesReturnFormComponent implements OnInit {
     // Read id parameter for edit mode
     this.activatedRoute.params.subscribe(params => {
       this. invoiceId = params['id'];
+          this.editMode=true;
+        this.isCashReturn = true;
       if (this.invoiceId) {
         // Edit mode - load existing invoice data
         this.loadInvoiceForEdit(+this.invoiceId);
@@ -220,7 +222,7 @@ getTitle(): string {
   };
 
   calculateLineTotal = (rowData: any) => {
-    return (rowData.returnQuantity || 0) * (rowData.salePrice || 0);
+    return (rowData.returnQuantity || 0) * (rowData.salesPrice || 0);
   };
 
   onInvoiceSelect(invoiceId: any): void {
@@ -307,6 +309,7 @@ getTitle(): string {
   }
 
   saveReturn(): void {
+    debugger
     if (!this.returnForm.valid) {
       console.warn('Form is invalid');
       return;
@@ -342,9 +345,7 @@ getTitle(): string {
       createdBy: 1, // Will be set from current user context
       items: itemsToReturn
     };
-
     // Check if we're in edit mode
-    const existingReturn = this.selectedOriginalInvoicereturn();
     if (this.editMode) {
       // Edit mode - update existing return
       this.salesReturnService.updateSalesReturn(this.invoiceId, salesReturn).subscribe({

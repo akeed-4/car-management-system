@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
@@ -13,9 +13,11 @@ import { MatInputModule } from '@angular/material/input';
 import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
 import { PaymentService } from '../../../services/payment.service';
 import { PaymentVoucher } from '../../../types/payment-voucher.model';
-
-type SortColumn = keyof PaymentVoucher | '';
-type SortDirection = 'asc' | 'desc' | '';
+import { AccountingService } from '../../accounting/accounting.service';
+import { Account } from '../../accounting/models';
+import CustomStore from 'devextreme/data/custom_store';
+import { map } from 'rxjs';
+import { ToastService } from '@/src/services/toast.service';
 
 @Component({
   selector: 'app-payments',
@@ -38,78 +40,33 @@ type SortDirection = 'asc' | 'desc' | '';
   styleUrl: './payments.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PaymentsComponent {
+export class PaymentsComponent implements OnDestroy, AfterViewInit {
   private paymentService = inject(PaymentService);
   private router = inject(Router);
   private translate = inject(TranslateService);
+  private accountingService = inject(AccountingService);
+  private toastService = inject(ToastService);
 
-  payments = toSignal(this.paymentService.payments$, {initialValue: []});
-  filter = signal('');
-  sortColumn = signal<SortColumn>('voucherDate');
-  sortDirection = signal<SortDirection>('desc');
-
-  filteredAndSortedPayments = computed(() => {
-    let payments = this.payments();
-    const searchTerm = this.filter().toLowerCase();
-
-    if (searchTerm) {
-      payments = payments.filter(p =>
-        p.voucherNumber.toLowerCase().includes(searchTerm) ||
-        p.supplierName.toLowerCase().includes(searchTerm) ||
-        (p.description?.toLowerCase() || '').includes(searchTerm)
-      );
-    }
-    
-    const column = this.sortColumn();
-    const direction = this.sortDirection();
-
-    if (column && direction) {
-        payments = [...payments].sort((a,b) => {
-            const aVal = a[column];
-            const bVal = b[column];
-            let comp = 0;
-            if (column === 'voucherDate') {
-              comp = new Date(aVal).getTime() - new Date(bVal).getTime();
-            } else if (typeof aVal === 'string' && typeof bVal === 'string') {
-                comp = aVal.localeCompare(bVal);
-            } else if (typeof aVal === 'number' && typeof bVal === 'number') {
-                comp = aVal - bVal;
-            }
-            return direction === 'asc' ? comp : -comp;
-        });
-    }
-
-    return payments;
-  });
-
-  onFilter(event: Event) {
-    this.filter.set((event.target as HTMLInputElement).value);
-  }
-
-  onSort(column: SortColumn) {
-    if (this.sortColumn() === column) {
-      this.sortDirection.update(d => d === 'asc' ? 'desc' : 'asc');
+  @ViewChild('toastContainer') toastContainer!: ElementRef;
+  
+  editPayment = (e: any) => {
+    const paymentId = e.row.data.id;
+    if (paymentId) {
+      this.router.navigate(['/accounts/payments/edit', paymentId]);
     } else {
-      this.sortColumn.set(column);
-      this.sortDirection.set('asc');
+      console.error('Payment ID not found:', e.row.data);
     }
   }
 
-  getSortIcon(column: SortColumn) {
-    if (this.sortColumn() !== column) return '';
-    return this.sortDirection() === 'asc' ? '▲' : '▼';
-  }
 
-  editPayment(payment: PaymentVoucher) {
-    this.router.navigate(['/accounts/payments', payment.id]);
-  }
-
-  deletePayment(payment: PaymentVoucher) {
+  deletePayment = (e: any) => {
+        const paymentId = e.row.data.id;
     if (confirm(this.translate.instant('ACCOUNTS.PAYMENTS.CONFIRM_DELETE') || 'Are you sure you want to delete this payment?')) {
-      this.paymentService.deletePayment(payment.id).subscribe({
+      this.paymentService.deletePayment(paymentId).subscribe({
         next: () => {
-          // Refresh the list
-          this.paymentService.payments$ = this.paymentService.getPayments();
+          // Refresh the grid data
+          this.dataSource.load();
+          this.toastService.showSuccess(this.translate.instant('ACCOUNTS.PAYMENTS.DELETED') || 'Payment deleted successfully');
         },
         error: (error) => {
           console.error('Error deleting payment:', error);
@@ -121,5 +78,27 @@ export class PaymentsComponent {
 
   trackByPaymentId(index: number, payment: PaymentVoucher): number {
     return payment.id;
+  }
+
+  payments = toSignal(this.paymentService.payments$, {initialValue: []});
+  accounts = signal<Account[]>([]);
+
+  dataSource = new CustomStore({
+    key: 'id',
+    load: (loadOptions) => {
+      return this.paymentService.getPayments().toPromise();
+    }
+  });
+
+  ngAfterViewInit(): void {
+    // Set the toast container for this component
+    if (this.toastContainer) {
+      this.toastService.setContainer('toast-payments-container');
+    }
+  }
+
+  ngOnDestroy(): void {
+    // Clear the container when component is destroyed
+    this.toastService.clearContainer();
   }
 }

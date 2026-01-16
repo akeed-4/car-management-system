@@ -1,8 +1,12 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { PaymentVoucher } from '../types/payment-voucher.model';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, forkJoin, of } from 'rxjs';
 import { environment } from '../environments/environment';
+import { map, switchMap } from 'rxjs/operators';
+import 'devextreme/data/odata/store';
+import DataSource from 'devextreme/data/data_source';
+import { LoadOptions } from 'devextreme/data';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +16,8 @@ export class PaymentService {
 
   // رابط API الخاص بالدفع
   private apiUrl = environment.origin + 'api/Payments';
+  private suppliersApiUrl = environment.origin + 'api/Suppliers';
+  private accountsApiUrl = environment.origin + 'api/Accounts';
 
   payments$ = this.getPayments();
 
@@ -28,6 +34,11 @@ export class PaymentService {
   // استدعاء كل المدفوعات
   getPayments(): Observable<PaymentVoucher[]> {
     return this.http.get<PaymentVoucher[]>(this.apiUrl+`/GetAll`);
+  }
+
+  // استدعاء كل المدفوعات مع خيارات التحميل
+  getPaymentsWithLoadOptions(loadOptions: any): Observable<any> {
+    return this.http.get(this.apiUrl+`/GetAll`, loadOptions);
   }
 
   // استدعاء دفعة واحدة بالمعرف

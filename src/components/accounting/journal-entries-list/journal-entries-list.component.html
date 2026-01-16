@@ -55,7 +55,7 @@
         </dxi-column>
         <dxi-column type="buttons" [width]="120" [caption]="'ACCOUNTING.ACTIONS' | translate">
           <dxi-button icon="edit" [onClick]="onEdit"  [hint]="'ACCOUNTING.EDIT' | translate" [visible]="isEditButtonVisible"></dxi-button>
-          <dxi-button icon="trash"  [onClick]="onDelete" [hint]="'ACCOUNTING.DELETE' | translate"></dxi-button>
+          <dxi-button icon="trash"  [onClick]="onDelete" [hint]="'ACCOUNTING.DELETE' | translate" [visible]="isEditButtonVisible"></dxi-button>
         </dxi-column>
 
         <dxo-filter-row [visible]="true"></dxo-filter-row>

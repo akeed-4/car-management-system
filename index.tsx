@@ -14,6 +14,8 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { HttpClient } from '@angular/common/http';
 import { provideAuth } from 'angular-auth-oidc-client';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import { ToastrModule } from 'ngx-toastr';
+import { provideToastr } from 'ngx-toastr';
 
 
 
@@ -44,6 +46,13 @@ bootstrapApplication(AppComponent, {
         }
       })
     ),
+    provideToastr({
+      timeOut: 3000,
+      positionClass: 'toast-bottom-right',
+      preventDuplicates: true,
+      progressBar: true,
+      closeButton: true
+    }),
   ],
 }).catch((err) => console.error(err));
 export function HttpLoaderFactory(http: HttpClient) {
