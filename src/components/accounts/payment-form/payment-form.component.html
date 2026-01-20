@@ -26,8 +26,8 @@
           </mat-form-field>
         </div>
 
-        <!-- Supplier and Invoice Selection -->
-        <div class="supplier-invoice-section">
+        <!-- Supplier Selection -->
+        <div class="supplier-section">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'ACCOUNTS.FORM.SUPPLIER' | translate }}</mat-label>
             <mat-select id="supplier" formControlName="supplier" (selectionChange)="onSupplierChange($event.value)" required>
@@ -35,15 +35,18 @@
               <mat-option *ngFor="let s of suppliers(); trackBy: trackBySupplierId" [value]="s.id">{{ s.name }}</mat-option>
             </mat-select>
           </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'ACCOUNTS.FORM.INVOICE' | translate }}</mat-label>
-            <mat-select id="invoice" formControlName="invoice" (selectionChange)="onInvoiceChange($event.value)"  [disabled]="!paymentForm.get('supplier')?.value">
-              <mat-option [value]="null" disabled>{{ 'ACCOUNTS.FORM.SELECT_INVOICE' | translate }}</mat-option>
-              <mat-option *ngFor="let inv of outstandingInvoices(); trackBy: trackByInvoiceId" [value]="inv.id">{{ inv.invoiceNumber }} ({{ 'INVOICE.AMOUNT_DUE' | translate }}: {{inv.amountDue | currency:'SAR'}})</mat-option>
-            </mat-select>
-          </mat-form-field>
         </div>
+
+        <!-- Invoice Selection with Shared Component -->
+        @if(paymentForm.get('supplier')?.value && outstandingInvoices().length > 0) {
+          <app-invoice-dropdown-grid
+            [dataSource]="outstandingInvoices()"
+            [label]="'ACCOUNTS.FORM.INVOICE'"
+            [placeholder]="'ACCOUNTS.FORM.SELECT_INVOICE'"
+            [disabled]="!paymentForm.get('supplier')?.value"
+            (selectionChanged)="onInvoiceSelected($event)">
+          </app-invoice-dropdown-grid>
+        }
 
         <!-- Invoice Details -->
         @if(selectedInvoiceDetails(); as inv) {

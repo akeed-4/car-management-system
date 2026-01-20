@@ -911,7 +911,9 @@
         "SAVE": "Save Payment Voucher",
         "FILL_REQUIRED": "Please fill all required fields correctly.",
         "AMOUNT_EXCEEDS": "Paid amount is greater than the outstanding amount.",
-        "SAVED": "Payment voucher saved and invoice updated."
+        "SAVED": "Payment voucher saved and invoice updated.",
+        "INVOICE_NUMBER": "Invoice Number",
+       "INVOICE_DATE": "Invoice Date"
       }
     },
     "DEPOSITS": {

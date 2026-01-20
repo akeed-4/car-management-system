@@ -1,0 +1,73 @@
+<div class="invoice-dropdown-section">
+  <label class="dropdown-label">{{ label | translate }}</label>
+  <dx-drop-down-box
+    [(value)]="gridBoxValue"
+    [(opened)]="isDropDownOpened"
+    [dataSource]="dataSource"
+    [displayExpr]="getDisplayExpr"
+    valueExpr="id"
+    [placeholder]="placeholder | translate"
+    [showClearButton]="true"
+    [disabled]="disabled"
+    (onValueChanged)="onDropDownBoxValueChanged($event)">
+    
+    <div *dxTemplate="let data of 'content'">
+      <dx-data-grid
+        [dataSource]="dataSource"
+        [selectedRowKeys]="gridBoxValue()"
+        [showBorders]="true"
+        [showRowLines]="true"
+        [showColumnLines]="true"
+        [hoverStateEnabled]="true"
+        [columnAutoWidth]="true"
+        [height]="400"
+        keyExpr="id"
+        (onSelectionChanged)="onInvoiceSelectionChanged($event)">
+        
+        <dxo-selection mode="single"></dxo-selection>
+        <dxo-paging [pageSize]="10"></dxo-paging>
+        <dxo-pager 
+          [showPageSizeSelector]="true" 
+          [allowedPageSizes]="[5, 10, 20]"
+          [showInfo]="true">
+        </dxo-pager>
+        <dxo-filter-row [visible]="true"></dxo-filter-row>
+        <dxo-scrolling mode="virtual"></dxo-scrolling>
+
+        <dxi-column 
+          dataField="invoiceNumber" 
+          [caption]="'ACCOUNTS.FORM.INVOICE_NUMBER' | translate">
+        </dxi-column>
+        
+        <dxi-column 
+          dataField="invoiceDate" 
+          [caption]="'ACCOUNTS.FORM.INVOICE_DATE' | translate"
+          dataType="date"
+          format="dd/MM/yyyy">
+        </dxi-column>
+        
+        <dxi-column 
+          dataField="totalAmount" 
+          [caption]="'ACCOUNTS.FORM.TOTAL' | translate"
+          dataType="number"
+          format="currency">
+        </dxi-column>
+        
+        <dxi-column 
+          dataField="amountPaid" 
+          [caption]="'ACCOUNTS.FORM.PAID' | translate"
+          dataType="number"
+          format="currency">
+        </dxi-column>
+        
+        <dxi-column 
+          dataField="amountDue" 
+          [caption]="'ACCOUNTS.FORM.DUE' | translate"
+          dataType="number"
+          format="currency"
+          [cssClass]="'due-amount'">
+        </dxi-column>
+      </dx-data-grid>
+    </div>
+  </dx-drop-down-box>
+</div>

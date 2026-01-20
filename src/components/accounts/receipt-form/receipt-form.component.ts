@@ -12,6 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { InvoiceDropdownGridComponent } from '../../shared/invoice-dropdown-grid/invoice-dropdown-grid.component';
 import { CustomerService } from '../../../services/customer.service';
 import { SalesService } from '../../../services/sales.service';
 import { ReceiptService } from '../../../services/receipt.service';
@@ -67,6 +68,13 @@ export class ReceiptFormComponent implements OnInit {
     if (!invId) return null;
     return this.outstandingInvoices().find(inv => inv.id === invId);
   });
+
+  onInvoiceSelected(invoice: any) {
+    this.receiptForm.patchValue({ 
+      invoice: invoice.id,
+      amount: invoice.amountDue 
+    });
+  }
 
   ngOnInit() {
     this.initForm();

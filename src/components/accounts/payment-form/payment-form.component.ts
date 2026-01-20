@@ -13,6 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { InvoiceDropdownGridComponent } from '../../shared/invoice-dropdown-grid/invoice-dropdown-grid.component';
 import { SupplierService } from '../../../services/supplier.service';
 import { PurchasesService } from '../../../services/purchases.service';
 import { PaymentService } from '../../../services/payment.service';
@@ -38,6 +39,7 @@ import { PaymentVoucher, PaymentMethod, VoucherStatus, BeneficiaryType } from '@
     MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    InvoiceDropdownGridComponent,
   ],
   templateUrl: './payment-form.component.html',
   styleUrl: './payment-form.component.css',
@@ -67,6 +69,13 @@ export class PaymentFormComponent implements OnInit {
     if (!invId) return null;
     return this.outstandingInvoices().find(inv => inv.id === invId);
   });
+
+  onInvoiceSelected(invoice: any) {
+    this.paymentForm.patchValue({ 
+      invoice: invoice.id,
+      amount: invoice.amountDue 
+    });
+  }
 
   ngOnInit() {
     this.initForm();

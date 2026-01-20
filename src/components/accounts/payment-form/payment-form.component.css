@@ -20,6 +20,38 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.12);
 }
 
+.supplier-section {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.invoice-dropdown-section {
+  margin-bottom: 1.5rem;
+}
+
+.invoice-dropdown-section .dropdown-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+  margin-bottom: 8px;
+}
+
+.invoice-dropdown-section dx-drop-down-box {
+  width: 100%;
+}
+
+.invoices-grid-section {
+  margin: 1.5rem 0;
+}
+
+.invoices-grid-section h3 {
+  font-size: 1.1rem;
+  color: rgba(0, 0, 0, 0.87);
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
 .supplier-invoice-section {
   display: grid;
   grid-template-columns: 1fr 1fr;

@@ -19,6 +19,27 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.12);
 }
 
+.customer-section {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.invoice-dropdown-section {
+  margin-bottom: 1.5rem;
+}
+
+.invoice-dropdown-section .dropdown-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+  margin-bottom: 8px;
+}
+
+.invoice-dropdown-section dx-drop-down-box {
+  width: 100%;
+}
+
 .customer-invoice-section {
   display: grid;
   grid-template-columns: 1fr 1fr;

@@ -26,8 +26,8 @@
           </mat-form-field>
         </div>
 
-        <!-- Customer and Invoice Selection -->
-        <div class="customer-invoice-section">
+        <!-- Customer Selection -->
+        <div class="customer-section">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.CUSTOMER' | translate }}</mat-label>
             <mat-select id="customer" formControlName="customer" (selectionChange)="onCustomerChange($event.value)" required>
@@ -35,15 +35,18 @@
               <mat-option *ngFor="let c of customers(); trackBy: trackByCustomerId" [value]="c.id">{{ c.name }}</mat-option>
             </mat-select>
           </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.INVOICE' | translate }}</mat-label>
-            <mat-select id="invoice" formControlName="invoice" (selectionChange)="onInvoiceChange($event.value)"  [disabled]="!receiptForm.get('customer')?.value">
-              <mat-option [value]="null" disabled>{{ 'ACCOUNTS.RECEIPT_FORM.SELECT_INVOICE' | translate }}</mat-option>
-              <mat-option *ngFor="let inv of outstandingInvoices(); trackBy: trackByInvoiceId" [value]="inv.id">{{ inv.invoiceNumber }} ({{ 'INVOICE.AMOUNT_DUE' | translate }}: {{inv.amountDue | currency:'SAR'}})</mat-option>
-            </mat-select>
-          </mat-form-field>
         </div>
+
+        <!-- Invoice Selection with Shared Component -->
+        @if(receiptForm.get('customer')?.value && outstandingInvoices().length > 0) {
+          <app-invoice-dropdown-grid
+            [dataSource]="outstandingInvoices()"
+            [label]="'ACCOUNTS.RECEIPT_FORM.INVOICE'"
+            [placeholder]="'ACCOUNTS.RECEIPT_FORM.SELECT_INVOICE'"
+            [disabled]="!receiptForm.get('customer')?.value"
+            (selectionChanged)="onInvoiceSelected($event)">
+          </app-invoice-dropdown-grid>
+        }
 
         <!-- Invoice Details -->
         @if(selectedInvoiceDetails(); as inv) {
