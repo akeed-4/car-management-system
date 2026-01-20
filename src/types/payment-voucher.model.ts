@@ -3,7 +3,8 @@ import { PurchaseInvoice } from "./purchase-invoice.model";
 
 export enum PaymentMethod {
   Cash = 1,
-  Bank = 2
+  Bank = 2,
+  Card=3
 }
 
 export enum VoucherStatus {
@@ -41,7 +42,7 @@ export class PaymentVoucher {
   date!: Date;
   paymentNumber: string = '';
   purchaseInvoiceId?: number;
-  supplierName: string = '';
+  supplierId: number = 0;
   description: string = '';
 }
 

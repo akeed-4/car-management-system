@@ -481,6 +481,7 @@
     "TOTAL_COST": "Total Cost",
     "AMOUNT_PAID": "Amount Paid",
     "AMOUNT_DUE": "Amount Due",
+    "INVOICE_OPTION": "{{ number }} ({{ label }}: {{ amount }}",
     "STATUS": "Status",
     "ACTIONS": "Actions",
     "PRINT_INVOICE": "Print Invoice",
@@ -890,6 +891,9 @@
       "COL_INVOICE": "Invoice Number",
       "COL_AMOUNT": "Amount",
       "NO_PAYMENTS": "No payment vouchers registered.",
+      "CONFIRM_DELETE": "Are you sure you want to delete this payment?",
+      "DELETED": "Payment deleted successfully",
+      "ERROR_DELETING": "Error deleting payment",
       "FORM": {
         "TITLE": "Create Payment Voucher",
         "BACK": "Back to Payments",
@@ -913,9 +917,12 @@
         "AMOUNT_EXCEEDS": "Paid amount is greater than the outstanding amount.",
         "SAVED": "Payment voucher saved and invoice updated.",
         "INVOICE_NUMBER": "Invoice Number",
-       "INVOICE_DATE": "Invoice Date"
+       "INVOICE_DATE": "Invoice Date",
+      "UPDATE": "Update"
+
       }
     },
+   
     "DEPOSITS": {
       "LIST_TITLE": "Deposit Vouchers",
       "NEW": "Create Deposit Voucher",
@@ -963,9 +970,15 @@
       "SELECT_CUSTOMER": "-- Select customer --",
       "INVOICE": "Outstanding Invoice",
       "SELECT_INVOICE": "-- Select invoice --",
+      "INVOICE_OPTION_TEXT": "{invoiceNumber} (Amount Due: {amount})",
+      "SELECTED_INVOICE_DETAILS": "Selected Invoice Details",
+      "TOTAL": "Total",
+      "PAID": "Paid",
+      "DUE": "Due",
       "AMOUNT": "Amount Paid",
       "PAYMENT_METHOD": "Payment Method",
       "ACCOUNT": "Deposit Account",
+      "SELECT_ACCOUNT": "-- Select account --",
       "CANCEL": "Cancel",
       "SAVE": "Save Receipt",
       "FILL_REQUIRED": "Please fill all required fields correctly.",

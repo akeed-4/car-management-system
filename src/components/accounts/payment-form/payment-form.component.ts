@@ -20,6 +20,7 @@ import { PaymentService } from '../../../services/payment.service';
 import { TreasuryService } from '../../../services/treasury.service';
 import { PurchaseInvoice } from '../../../types/purchase-invoice.model';
 import { PaymentVoucher, PaymentMethod, VoucherStatus, BeneficiaryType } from '@/src/types/payment-voucher.model';
+import { AccountingService } from '../../accounting/accounting.service';
 
 @Component({
   selector: 'app-payment-form',
@@ -52,20 +53,22 @@ export class PaymentFormComponent implements OnInit {
   private supplierService = inject(SupplierService);
   private purchasesService = inject(PurchasesService);
   private paymentService = inject(PaymentService);
-  private treasuryService = inject(TreasuryService);
+  private accountingService = inject(AccountingService);
+  
 
   paymentForm!: FormGroup;
 
   suppliers = toSignal(this.supplierService.getSuppliers(), { initialValue: [] });
-  accounts = this.treasuryService.accounts$;
+  accounts = toSignal(this.accountingService.accounts$, { initialValue: [] });
   
   outstandingInvoices = signal<PurchaseInvoice[]>([]);
+  selectedInvoiceId = signal<number | null>(null);
   
   isEditMode = signal(false);
   editingPayment = signal<PaymentVoucher | null>(null);
   
   selectedInvoiceDetails = computed(() => {
-    const invId = this.paymentForm?.get('invoice')?.value;
+    const invId = this.selectedInvoiceId();
     if (!invId) return null;
     return this.outstandingInvoices().find(inv => inv.id === invId);
   });
@@ -107,11 +110,10 @@ export class PaymentFormComponent implements OnInit {
   private populateForm(payment: PaymentVoucher) {
     const paymentMethodStr = payment.paymentMethod === PaymentMethod.Bank ? 'BANK_TRANSFER' : 'CASH';
     const statusStr = payment.status === VoucherStatus.Draft ? 'DRAFT' : payment.status === VoucherStatus.Approved ? 'APPROVED' : 'CANCELLED';
-    
+    console.log('Populating form with payment:', payment);
     this.paymentForm.patchValue({
       voucherNumber: payment.voucherNumber,
-      voucherDate: payment.voucherDate.toISOString().split('T')[0],
-      supplier: payment.beneficiaryId, // assuming beneficiaryType is Supplier
+      voucherDate: payment.voucherDate,
       invoice: payment.referenceId,
       amount: payment.amount,
       paymentMethod: paymentMethodStr,
@@ -119,10 +121,15 @@ export class PaymentFormComponent implements OnInit {
       referenceId: payment.referenceId,
       notes: payment.notes,
       status: statusStr,
-      createdBy: payment.createdBy
+      createdBy: payment.createdBy,
+      supplierId: payment.supplierId,
+
     });
-    if (payment.beneficiaryId) {
-      this.onSupplierChange(payment.beneficiaryId);
+    if (payment.referenceId) {
+      this.selectedInvoiceId.set(payment.referenceId);
+    }
+    if (payment.supplierId) {
+      this.onSupplierChange(payment.supplierId, true);
     }
   }
 
@@ -130,7 +137,7 @@ export class PaymentFormComponent implements OnInit {
     this.paymentForm = new FormGroup({
       voucherNumber: new FormControl(`PV-${Date.now()}`),
       voucherDate: new FormControl(new Date().toISOString().split('T')[0], Validators.required),
-      supplier: new FormControl(null, Validators.required),
+      supplierId: new FormControl(null, Validators.required),
       invoice: new FormControl(null),
       amount: new FormControl(0, [Validators.required, Validators.min(0.01)]),
       paymentMethod: new FormControl('BANK_TRANSFER', Validators.required),
@@ -142,8 +149,9 @@ export class PaymentFormComponent implements OnInit {
     });
   }
 
-  onSupplierChange(supplierId: number | null) {
-    this.paymentForm.patchValue({ invoice: null, amount: 0 });
+  onSupplierChange(supplierId: number | null, preserveAmount: boolean = false) {
+    const currentAmount = preserveAmount ? this.paymentForm.get('amount')?.value : 0;
+    this.paymentForm.patchValue({ invoice: null, amount: currentAmount });
     if (supplierId) {
       this.purchasesService.getOutstandingInvoicesBySupplierId(supplierId).subscribe(invoices => this.outstandingInvoices.set(invoices));
     } else {
@@ -152,6 +160,7 @@ export class PaymentFormComponent implements OnInit {
   }
 
   onInvoiceChange(invoiceId: number | null) {
+    this.selectedInvoiceId.set(invoiceId);
     const invoice = this.outstandingInvoices().find(inv => inv.id === invoiceId);
     this.paymentForm.patchValue({ amount: invoice ? invoice.amountDue : 0 });
   }
@@ -162,7 +171,7 @@ export class PaymentFormComponent implements OnInit {
     }
 
     const formValue = this.paymentForm.value;
-    const supplier = this.suppliers().find(s => s.id === formValue.supplier);
+    const supplier = this.suppliers().find(s => s.id === formValue.supplierId);
     const invoice = this.selectedInvoiceDetails();
     const account = this.accounts().find(a => a.id === formValue.accountId);
 
@@ -173,13 +182,12 @@ export class PaymentFormComponent implements OnInit {
     }
 
     // If invoice is selected, enforce amount bounds and apply payment
-    if (invoice) {
-      if (formValue.amount > invoice.amountDue) {
-        alert(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.AMOUNT_EXCEEDS'));
-        return;
-      }
-      this.purchasesService.applyPayment(invoice.id, formValue.amount);
-    }
+    // if (invoice) {
+    //   if (formValue.amount > invoice.amountDue) {
+    //     alert(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.AMOUNT_EXCEEDS'));
+    //     return;
+    //   }
+    // }
 
     // Create and save the payment voucher using unified Voucher model
     const paymentMethodEnum = formValue.paymentMethod === 'BANK_TRANSFER' ? PaymentMethod.Bank : PaymentMethod.Cash;
@@ -201,7 +209,7 @@ export class PaymentFormComponent implements OnInit {
       date: new Date(formValue.voucherDate), // legacy
       paymentNumber: formValue.voucherNumber, // legacy
       purchaseInvoiceId: invoice?.id,
-      supplierName: supplier.name,
+      supplierId: supplier.id,
       description: formValue.notes || `Payment to ${supplier.name}${invoice ? ` for invoice ${invoice.invoiceNumber}` : ''}`
     };
     
@@ -217,6 +225,7 @@ export class PaymentFormComponent implements OnInit {
         }
       });
     } else {
+      debugger
       this.paymentService.addPayment(voucher).subscribe({
         next: (savedPayment) => {
           alert(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.SAVED'));

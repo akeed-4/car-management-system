@@ -524,6 +524,7 @@
     "TOTAL_COST": "التكلفة",
     "AMOUNT_PAID": "المدفوع",
     "AMOUNT_DUE": "المستحق",
+    "INVOICE_OPTION": "{{ number }} ({{ label }}: {{ amount }}",
     "STATUS": "الحالة",
     "ACTIONS": "إجراءات",
     "PRINT_INVOICE": "طباعة الفاتورة",
@@ -901,7 +902,10 @@
       "COL_SUPPLIER": "المورد",
       "COL_INVOICE": "رقم الفاتورة",
       "COL_AMOUNT": "المبلغ",
-      "NO_PAYMENTS": "لا توجد سندات صرف مسجلة."
+      "NO_PAYMENTS": "لا توجد سندات صرف مسجلة.",
+      "CONFIRM_DELETE": "هل أنت متأكد من حذف هذا السند؟",
+      "DELETED": "تم حذف السند بنجاح",
+      "ERROR_DELETING": "خطأ في حذف السند"
     },
     "FORM": {
       "TITLE": "إنشاء سند صرف",
@@ -926,7 +930,8 @@
       "AMOUNT_EXCEEDS": "المبلغ المدفوع أكبر من المبلغ المستحق.",
       "SAVED": "تم حفظ سند الصرف وتحديث الفاتورة بنجاح.",
          "INVOICE_NUMBER": "رقم الفاتورة",
-      "INVOICE_DATE": "تاريخ الفاتورة"
+      "INVOICE_DATE": "تاريخ الفاتورة",
+      "UPDATE": "تحديث"
     },
   
     "DEPOSITS": {
@@ -976,9 +981,15 @@
       "SELECT_CUSTOMER": "-- اختر العميل --",
       "INVOICE": "الفاتورة المستحقة",
       "SELECT_INVOICE": "-- اختر الفاتورة --",
+      "INVOICE_OPTION_TEXT": "{invoiceNumber} (المستحق: {amount})",
+      "SELECTED_INVOICE_DETAILS": "تفاصيل الفاتورة المحددة",
+      "TOTAL": "الإجمالي",
+      "PAID": "المدفوع",
+      "DUE": "المستحق",
       "AMOUNT": "المبلغ المدفوع",
       "PAYMENT_METHOD": "طريقة الدفع",
       "ACCOUNT": "حساب الإيداع",
+      "SELECT_ACCOUNT": "-- اختر الحساب --",
       "CANCEL": "إلغاء",
       "SAVE": "حفظ السند",
       "FILL_REQUIRED": "الرجاء تعبئة جميع الحقول بشكل صحيح.",

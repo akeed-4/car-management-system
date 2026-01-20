@@ -27,6 +27,9 @@ export class CashPurchaseInvoiceListComponent {
 constructor() {
   this.onFilter = this.onFilter.bind(this);
   this.onSort = this.onSort.bind(this); 
+  this.deleteInvoice = this.deleteInvoice.bind(this);
+  this.editInvoice = this.editInvoice.bind(this);
+  this.printInvoice = this.printInvoice.bind(this);
 }
     filter = signal('');
     sortColumn = signal<SortColumn>('');
@@ -134,12 +137,13 @@ constructor() {
     }
 
     deleteInvoice(data: any) {
-      const id = data.row.data.id;
+      const id = data;
       if (confirm(this.translate.instant('PURCHASES.DELETE_INVOICE_CONFIRM'))) {
         this.procurementService.deleteInvoice(id).subscribe({
           next: () => {
             // Refresh the invoices list
             this.invoices = toSignal(this.procurementService.getInvoices(), { initialValue: [] });
+        alert(this.translate.instant('PURCHASES.DELETE_INVOICE_SUCCESS'));
           },
           error: (error) => {
             console.error('Error deleting invoice:', error);

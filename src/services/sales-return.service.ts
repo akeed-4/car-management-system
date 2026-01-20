@@ -25,15 +25,15 @@ export class SalesReturnService {
   }
 
   addReturnInvoice(invoice: Omit<SalesReturnInvoice, 'id'>): Observable<SalesReturnInvoice> {
-    return this.http.post<SalesReturnInvoice>(this.legacyApiUrl, invoice);
+    return this.http.post<SalesReturnInvoice>(this.apiUrl, invoice);
   }
 
   updateReturnInvoice(invoice: SalesReturnInvoice): Observable<SalesReturnInvoice> {
-    return this.http.put<SalesReturnInvoice>(`${this.legacyApiUrl}/${invoice.id}`, invoice);
+    return this.http.put<SalesReturnInvoice>(`${this.apiUrl+'/Update'}/${invoice.id}`, invoice);
   }
 
   deleteReturnInvoice(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.legacyApiUrl}/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
   // New methods for SalesReturn with accounting
@@ -97,6 +97,7 @@ export class SalesReturnService {
    * Update sales return
    */
   updateSalesReturn(id: number, salesReturn: Partial<SalesReturn>): Observable<SalesReturn> {
+    alert('Updating sales return'+id);
     return this.http.put<SalesReturn>(`${this.apiUrl+'/update'}/${id}`, salesReturn);
   }
 

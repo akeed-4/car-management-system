@@ -31,6 +31,16 @@ export class PurchasesService {
     return this.http.post<PurchaseInvoice>(this.apiUrl+'/Create', payload);
   }
 
+  updateInvoice(id: number, invoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue' | 'createdAt' | 'updatedAt' | 'supplier' | 'debitAccount' | 'creditAccount'>): Observable<PurchaseInvoice> {
+    const payload = {
+      ...invoice,
+      amountPaid: 0,
+      amountDue: invoice.totalAmount,
+      isArchived: false,
+    };
+    return this.http.put<PurchaseInvoice>(`${this.apiUrl}/Update/${id}`, payload);
+  }
+
   // تطبيق الدفع على فاتورة
   applyPayment(invoiceId: number, paymentAmount: number): Observable<PurchaseInvoice> {
     return this.http.patch<PurchaseInvoice>(`${this.apiUrl}/${invoiceId}/payment`, { paymentAmount });
@@ -53,6 +63,6 @@ export class PurchasesService {
 
   // استدعاء الفواتير الغير مدفوعة لمورد معين
   getOutstandingInvoicesBySupplierId(supplierId: number): Observable<PurchaseInvoice[]> {
-    return this.http.get<PurchaseInvoice[]>(`${this.apiUrl}?supplierId=${supplierId}&status=Unpaid`);
+    return this.http.get<PurchaseInvoice[]>(`${this.apiUrl}/GetOutstandingBySupplierId/${supplierId}`);
   }
 }

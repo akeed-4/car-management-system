@@ -30,8 +30,8 @@ export class AccountingService {
   public refresh$ = this.refreshSubject.asObservable();
 
   constructor(private http: HttpClient, private translate: TranslateService) {
-    this.getAccounts()
-    this.getJournalEntries()
+    this.getAccounts().subscribe();
+    this.getJournalEntries().subscribe();
     // Remove loadSampleData() call to use real API
   }
 

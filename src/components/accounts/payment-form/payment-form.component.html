@@ -17,12 +17,12 @@
         <div class="header-section">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'ACCOUNTS.FORM.VOUCHER_NUMBER' | translate }}</mat-label>
-            <input matInput type="text" [value]="paymentForm.get('voucherNumber')?.value" disabled>
+            <input matInput type="text" [value]="paymentForm.get('voucherNumber')?.value" >
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>{{ 'ACCOUNTS.FORM.DATE' | translate }}</mat-label>
-            <input matInput type="date" id="date" formControlName="date" required>
+            <input matInput type="date" id="voucherDate" formControlName="voucherDate" required>
           </mat-form-field>
         </div>
 
@@ -30,9 +30,18 @@
         <div class="supplier-section">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'ACCOUNTS.FORM.SUPPLIER' | translate }}</mat-label>
-            <mat-select id="supplier" formControlName="supplier" (selectionChange)="onSupplierChange($event.value)" required>
+            <mat-select id="supplier" formControlName="supplierId" (selectionChange)="onSupplierChange($event.value)" required>
               <mat-option [value]="null" disabled>{{ 'ACCOUNTS.FORM.SELECT_SUPPLIER' | translate }}</mat-option>
               <mat-option *ngFor="let s of suppliers(); trackBy: trackBySupplierId" [value]="s.id">{{ s.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'ACCOUNTS.FORM.INVOICE' | translate }}</mat-label>
+            <mat-select id="invoice" formControlName="invoice" (selectionChange)="onInvoiceChange($event.value)"  [disabled]="!paymentForm.get('supplierId')?.value">
+              <mat-option [value]="null" disabled>{{ 'ACCOUNTS.FORM.SELECT_INVOICE' | translate }}</mat-option>
+              <mat-option *ngFor="let inv of outstandingInvoices(); trackBy: trackByInvoiceId" [value]="inv.id">
+                {{ inv.invoiceNumber }} ({{ 'INVOICE.AMOUNT_DUE' | translate }}: {{ inv.amountDue | currency:'SAR' }})</mat-option>
             </mat-select>
           </mat-form-field>
         </div>
@@ -83,8 +92,8 @@
           <mat-form-field appearance="outline">
             <mat-label>{{ 'ACCOUNTS.FORM.PAYMENT_METHOD' | translate }}</mat-label>
             <mat-select id="paymentMethod" formControlName="paymentMethod" required>
-              <mat-option value="Bank Transfer">{{ 'INVOICE.PAYMENT_BANK_TRANSFER' | translate }}</mat-option>
-              <mat-option value="Cash">{{ 'INVOICE.PAYMENT_CASH' | translate }}</mat-option>
+              <mat-option value="BANK_TRANSFER">{{ 'INVOICE.PAYMENT_BANK_TRANSFER' | translate }}</mat-option>
+              <mat-option value="CASH">{{ 'INVOICE.PAYMENT_CASH' | translate }}</mat-option>
             </mat-select>
           </mat-form-field>
 
@@ -92,7 +101,7 @@
             <mat-label>{{ 'ACCOUNTS.FORM.ACCOUNT' | translate }}</mat-label>
             <mat-select id="accountId" formControlName="accountId" required>
               <mat-option [value]="null" disabled>{{ 'ACCOUNTS.FORM.SELECT_ACCOUNT' | translate }}</mat-option>
-              <mat-option *ngFor="let acc of accounts(); trackBy: trackByAccountId" [value]="acc.id">{{ acc.name }}</mat-option>
+              <mat-option *ngFor="let acc of accounts(); trackBy: trackByAccountId" [value]="acc.id">{{ acc.accountCode }} - {{ acc.accountNameAr }}<</mat-option>
             </mat-select>
           </mat-form-field>
         </div>
@@ -103,7 +112,7 @@
           {{ 'ACCOUNTS.FORM.CANCEL' | translate }}
         </a>
         <button mat-raised-button color="primary" type="submit" [disabled]="paymentForm.invalid || paymentForm.get('amount')?.value <= 0">
-          {{ 'ACCOUNTS.FORM.SAVE' | translate }}
+          {{ (isEditMode() ? 'ACCOUNTS.FORM.UPDATE' : 'ACCOUNTS.FORM.SAVE') | translate }}
         </button>
       </mat-card-actions>
     </form>

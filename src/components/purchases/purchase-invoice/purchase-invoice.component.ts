@@ -181,6 +181,11 @@ export class PurchaseInvoiceComponent implements OnInit {
   // Invoice number computed signal
   invoiceNumber = computed(() => `PO-${Date.now()}`);
 
+  // Edit mode signals
+  isEditMode = signal(false);
+  currentInvoiceId = signal<number | null>(null);
+  invoiceNumberSignal = signal<string>('');
+
   // Reactive Form
   purchaseInvoiceForm!: FormGroup;
 
@@ -239,6 +244,8 @@ export class PurchaseInvoiceComponent implements OnInit {
     // Check if we're editing an existing invoice
     const invoiceId = this.route.snapshot.params['id'];
     if (invoiceId) {
+      this.isEditMode.set(true);
+      this.currentInvoiceId.set(+invoiceId);
       this.loadInvoiceForEdit(+invoiceId);
     }
   }
@@ -354,8 +361,10 @@ export class PurchaseInvoiceComponent implements OnInit {
     this.invoiceType.set(InvoiceType.Taxable);
 
     // Generate invoice number
+    const newInvoiceNumber = `PO-${Date.now()}`;
+    this.invoiceNumberSignal.set(newInvoiceNumber);
     this.purchaseInvoiceForm.patchValue({
-      invoiceNumber: `PO-${Date.now()}`
+      invoiceNumber: newInvoiceNumber
     });
   }
 
@@ -391,8 +400,12 @@ export class PurchaseInvoiceComponent implements OnInit {
           paymentMethod: [invoice.paymentMethod || 'Bank Transfer'],
           dueDate: [invoice.dueDate ? new Date(invoice.dueDate) : null],
           invoiceType: [invoice.invoiceType || InvoiceType.Taxable, Validators.required],
+          ClassificationId: [invoice.ClassificationId || 0, Validators.required],
           notes: [invoice.notes || ''],
         }, { validators: [this.accountValidator, this.dueDateValidator] });
+
+        // Set invoice number
+        this.invoiceNumberSignal.set(invoice.invoiceNumber);
 
         // Set invoice type signal
         this.invoiceType.set((invoice.invoiceType as InvoiceType) || InvoiceType.Taxable);
@@ -550,7 +563,7 @@ export class PurchaseInvoiceComponent implements OnInit {
     }
 
     const newInvoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue' | 'createdAt' | 'updatedAt' | 'supplier' | 'debitAccount' | 'creditAccount'> = {
-      invoiceNumber: `PO-${Date.now()}`, // Generate new invoice number
+      invoiceNumber: this.invoiceNumberSignal(), // Use the signal value
       invoiceDate: formValue.invoiceDate.toISOString(),
       supplierId: supplierId,
       debitAccountId: formValue.debitAccountId,
@@ -567,19 +580,37 @@ export class PurchaseInvoiceComponent implements OnInit {
       isArchived: false
     };
 
-    this.procurementService.addInvoice(newInvoice).subscribe({
-      next: (savedInvoice) => {
-        // Update inventory for each purchased item
-        items.forEach(item => {
-          this.inventoryService.incrementCarQuantity(item.carId, item.quantity);
-        });
-
-        this.toastService.showSuccess('TOAST.ADD_SUCCESS');
-      },
-      error: (error) => {
-        console.error('Error saving purchase invoice:', error);
-        this.toastService.showError('TOAST.SAVE_ERROR');
+    if (this.isEditMode()) {
+      const invoiceId = this.currentInvoiceId();
+      if (!invoiceId) {
+        this.toastService.showError('Invalid invoice ID for update');
+        return;
       }
-    });
+      this.procurementService.updateInvoice(invoiceId, newInvoice).subscribe({
+        next: (savedInvoice) => {
+          this.toastService.showSuccess('TOAST.UPDATE_SUCCESS');
+          // Optionally navigate or reset
+        },
+        error: (error) => {
+          console.error('Error updating purchase invoice:', error);
+          this.toastService.showError('TOAST.SAVE_ERROR');
+        }
+      });
+    } else {
+      this.procurementService.addInvoice(newInvoice).subscribe({
+        next: (savedInvoice) => {
+          // Update inventory for each purchased item
+          items.forEach(item => {
+            this.inventoryService.incrementCarQuantity(item.carId, item.quantity);
+          });
+
+          this.toastService.showSuccess('TOAST.ADD_SUCCESS');
+        },
+        error: (error) => {
+          console.error('Error saving purchase invoice:', error);
+          this.toastService.showError('TOAST.SAVE_ERROR');
+        }
+      });
+    }
   }
 }

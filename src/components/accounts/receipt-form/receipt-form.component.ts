@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, Inject } from '@angular/core';
 import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CurrencyPipe, CommonModule } from '@angular/common';
@@ -20,6 +20,9 @@ import { TreasuryService } from '../../../services/treasury.service';
 import { SalesInvoice } from '@/src/types/sales-invoice.model';
 import { ReceiptVoucher } from '@/src/types/receipt-voucher.model';
 import { PaymentMethod, VoucherStatus, BeneficiaryType } from '@/src/types/payment-voucher.model';
+import { AccountingService } from '../../accounting/accounting.service';
+import { Account } from '../../accounting/models';
+import { ToastService } from '@/src/services/toast.service';
 
 @Component({
   selector: 'app-receipt-form',
@@ -50,24 +53,27 @@ export class ReceiptFormComponent implements OnInit {
   private customerService = inject(CustomerService);
   private salesService = inject(SalesService);
   private receiptService = inject(ReceiptService);
-  private treasuryService = inject(TreasuryService);
+  private accountingService = inject(AccountingService);
   private translate = inject(TranslateService);
 
   receiptForm!: FormGroup;
 
   customers = this.customerService.customers$;
-  accounts = this.treasuryService.accounts$;
+  accounts = signal<Account[]>([]);
   
   outstandingInvoices = signal<SalesInvoice[]>([]);
 
   isEditMode = signal(false);
   editingReceipt = signal<ReceiptVoucher | null>(null);
   
+  selectedInvoiceId = signal<number | null>(null);
+  
   selectedInvoiceDetails = computed(() => {
-    const invId = this.receiptForm?.get('invoice')?.value;
+    const invId = this.selectedInvoiceId();
     if (!invId) return null;
     return this.outstandingInvoices().find(inv => inv.id === invId);
   });
+  toastService = inject(ToastService);
 
   onInvoiceSelected(invoice: any) {
     this.receiptForm.patchValue({ 
@@ -78,6 +84,8 @@ export class ReceiptFormComponent implements OnInit {
 
   ngOnInit() {
     this.initForm();
+    this.accountingService.accounts$.subscribe(accounts => this.accounts.set(accounts));
+    console.log('Receipt Form Init - checking for edit mode'+this.accounts());
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
@@ -104,12 +112,22 @@ export class ReceiptFormComponent implements OnInit {
   }
 
   private populateForm(receipt: ReceiptVoucher) {
-    const paymentMethodStr = receipt.paymentMethod === PaymentMethod.Bank ? 'BANK_TRANSFER' : 'CASH';
-    const statusStr = receipt.status === VoucherStatus.Draft ? 'DRAFT' : receipt.status === VoucherStatus.Approved ? 'APPROVED' : 'CANCELLED';
-    
+   const paymentMethodStr =
+    receipt.paymentMethod === PaymentMethod.Bank
+      ? 'BANK_TRANSFER'
+      : receipt.paymentMethod === PaymentMethod.Card
+      ? 'CARD'
+      : 'CASH';
+
+  const statusStr =
+    receipt.status === VoucherStatus.Draft
+      ? 'DRAFT'
+      : receipt.status === VoucherStatus.Approved
+      ? 'APPROVED'
+      : 'CANCELLED';
     this.receiptForm.patchValue({
       voucherNumber: receipt.voucherNumber,
-      voucherDate: receipt.voucherDate.toISOString().split('T')[0],
+      voucherDate: receipt.voucherDate,
       customer: receipt.beneficiaryId,
       invoice: receipt.referenceId,
       amount: receipt.amount,
@@ -118,8 +136,12 @@ export class ReceiptFormComponent implements OnInit {
       referenceId: receipt.referenceId,
       notes: receipt.notes,
       status: statusStr,
-      createdBy: receipt.createdBy
+      createdBy: receipt.createdBy,
+      customerId: receipt.customerId,
     });
+    if (receipt.referenceId) {
+      this.selectedInvoiceId.set(receipt.referenceId);
+    }
     if (receipt.beneficiaryId) {
       this.onCustomerChange(receipt.beneficiaryId);
     }
@@ -129,7 +151,7 @@ export class ReceiptFormComponent implements OnInit {
     this.receiptForm = new FormGroup({
       voucherNumber: new FormControl(`RV-${Date.now()}`),
       voucherDate: new FormControl(new Date().toISOString().split('T')[0], Validators.required),
-      customer: new FormControl(null, Validators.required),
+      customerId: new FormControl(null, Validators.required),
       invoice: new FormControl(null),
       amount: new FormControl(0, [Validators.required, Validators.min(0.01)]),
       paymentMethod: new FormControl('CASH', Validators.required),
@@ -153,6 +175,7 @@ export class ReceiptFormComponent implements OnInit {
 
 
   onInvoiceChange(invoiceId: number | null) {
+    this.selectedInvoiceId.set(invoiceId);
     const invoice = this.outstandingInvoices().find(inv => inv.id === invoiceId);
     this.receiptForm.patchValue({ amount: invoice ? invoice.amountDue : 0 });
   }
@@ -163,24 +186,23 @@ export class ReceiptFormComponent implements OnInit {
     }
 
     const formValue = this.receiptForm.value;
-    const customer = this.customers().find(c => c.id === formValue.customer);
+    const customer = this.customers().find(c => c.id === formValue.customerId);
     const invoice = this.selectedInvoiceDetails();
     const account = this.accounts().find(a => a.id === formValue.accountId);
-
-    if (!customer || !invoice || !account || formValue.amount <= 0) {
+    if (!customer || !account || formValue.amount <= 0) {
       alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.FILL_REQUIRED'));
       return;
     }
-    if (formValue.amount > invoice.amountDue) {
-      alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.AMOUNT_EXCEEDS'));
-      return;
-    }
+    // if (formValue.amount > invoice.amountDue) {
+    //   alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.AMOUNT_EXCEEDS'));
+    //   return;
+    // }
 
     // 1. Apply payment to the sales invoice
-    this.salesService.applyPayment(invoice.id, formValue.amount);
+    // this.salesService.applyPayment(invoice.id, formValue.amount);
 
     // 2. Create and save the receipt voucher using unified Voucher model
-    const paymentMethodEnum = formValue.paymentMethod === 'BANK_TRANSFER' ? PaymentMethod.Bank : PaymentMethod.Cash;
+    const paymentMethodEnum = formValue.paymentMethod === 'Bank Transfer' ? PaymentMethod.Bank : PaymentMethod.Cash;
     const statusEnum = formValue.status === 'DRAFT' ? VoucherStatus.Draft : formValue.status === 'APPROVED' ? VoucherStatus.Approved : VoucherStatus.Cancelled;
     
     const voucher: Partial<ReceiptVoucher> = {
@@ -200,6 +222,7 @@ export class ReceiptFormComponent implements OnInit {
       paymentNumber: formValue.voucherNumber, // legacy
       salesInvoiceId: invoice?.id,
       customerName: customer.name,
+      customerId: formValue.customerId,
       description: formValue.notes || `Receipt from ${customer.name}${invoice ? ` for invoice ${invoice.invoiceNumber}` : ''}`
     };
     
@@ -207,7 +230,7 @@ export class ReceiptFormComponent implements OnInit {
       this.receiptService.updateReceipt(voucher, this.editingReceipt()!.id).subscribe({
         next: (updatedReceipt) => {
           alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.UPDATED'));
-          this.router.navigate(['/accounts/receipts']);
+          this.toastService.showSuccess(this.translate.instant('ACCOUNTS.RECEIPT_FORM.UPDATED') || 'Receipt updated successfully');
         },
         error: (error) => {
           console.error('Error updating receipt:', error);
@@ -215,10 +238,11 @@ export class ReceiptFormComponent implements OnInit {
         }
       });
     } else {
+      console.log(voucher)
       this.receiptService.addReceipt(voucher).subscribe({
         next: (savedReceipt) => {
           alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.SAVED'));
-          this.router.navigate(['/accounts/receipts']);
+          this.toastService.showSuccess(this.translate.instant('ACCOUNTS.RECEIPT_FORM.SAVED') || 'Receipt saved successfully');
         },
         error: (error) => {
           console.error('Error saving receipt:', error);

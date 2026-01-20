@@ -1,54 +1,69 @@
 import { Injectable } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ToastService {
+  private containerId: string | null = null;
 
   constructor(
-    private snackBar: MatSnackBar,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private toastr: ToastrService
   ) {}
+
+  // Set a specific container for toast notifications
+  setContainer(containerId: string): void {
+    this.containerId = containerId;
+  }
+
+  // Clear the container setting (use global)
+  clearContainer(): void {
+    this.containerId = null;
+  }
+
+  private getOptions(timeOut: number, extraClass: string = '') {
+    const options: any = {
+      timeOut,
+      positionClass: 'toast-top-right',
+      progressBar: true,
+      closeButton: true
+    };
+
+    if (this.containerId) {
+      options.containerId = this.containerId;
+      options.positionClass = 'toast-bottom-right';
+    }
+
+    if (extraClass) {
+      options.toastClass = extraClass;
+    }
+
+    return options;
+  }
 
   showSuccess(message: string, duration: number = 3000): void {
     const translatedMessage = this.translate.instant(message);
-    this.snackBar.open(translatedMessage, this.translate.instant('TOAST.SUCCESS'), {
-      duration,
-       horizontalPosition: 'end',
-      verticalPosition: 'bottom',
-      panelClass: ['toast-success']
-    });
+    const translatedTitle = this.translate.instant('TOAST.SUCCESS');
+    this.toastr.success(translatedMessage, translatedTitle, this.getOptions(duration, 'toast-success'));
   }
 
   showWarning(message: string, duration: number = 3000): void {
     const translatedMessage = this.translate.instant(message);
-    this.snackBar.open(translatedMessage, this.translate.instant('TOAST.WARNING'), {
-      duration,
-       horizontalPosition: 'end',
-      verticalPosition: 'bottom',
-      panelClass: ['toast-warning']
-    });
+    const translatedTitle = this.translate.instant('TOAST.WARNING');
+    this.toastr.warning(translatedMessage, translatedTitle, this.getOptions(duration, 'toast-warning'));
   }
 
   showError(message: string, duration: number = 5000): void {
     const translatedMessage = this.translate.instant(message);
-    this.snackBar.open(translatedMessage, this.translate.instant('TOAST.ERROR'), {
-      duration,
-      panelClass: ['toast-error'],
-       horizontalPosition: 'end',
-      verticalPosition: 'bottom'
-    });
+    const translatedTitle = this.translate.instant('TOAST.ERROR');
+    this.toastr.error(translatedMessage, translatedTitle, this.getOptions(duration, 'toast-error'));
   }
 
   showInfo(message: string, duration: number = 3000): void {
     const translatedMessage = this.translate.instant(message);
-    this.snackBar.open(translatedMessage, 'Close', {
-      duration,
-      panelClass: ['toast-info'],
-       horizontalPosition: 'end',
-      verticalPosition: 'bottom'
-    });
+    const translatedTitle = this.translate.instant('TOAST.INFO') || 'Info';
+    this.toastr.info(translatedMessage, translatedTitle, this.getOptions(duration, 'toast-info'));
   }
 }
