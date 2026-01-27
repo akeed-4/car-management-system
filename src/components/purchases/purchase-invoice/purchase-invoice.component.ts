@@ -603,8 +603,7 @@ export class PurchaseInvoiceComponent implements OnInit {
           items.forEach(item => {
             this.inventoryService.incrementCarQuantity(item.carId, item.quantity);
           });
-
-          this.toastService.showSuccess('TOAST.ADD_SUCCESS');
+     alert(this.translate.instant('PURCHASE_INVOICE.SUCCESS_MESSAGE'));
         },
         error: (error) => {
           console.error('Error saving purchase invoice:', error);

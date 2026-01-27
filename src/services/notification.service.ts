@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import Swal from 'sweetalert2';
 
 @Injectable({
   providedIn: 'root',
@@ -54,8 +55,7 @@ export class NotificationService {
   }
 
   public async confirmAlert(title: string, text?: string, confirmButtonText?: string) {
-    const swal = await import('sweetalert2');
-    return swal.default.fire({
+    return Swal.fire({
       title: title || this.translateService.instant('notification.confirmTitle'),
       text: text,
       icon: 'question',
@@ -80,8 +80,7 @@ export class NotificationService {
   }
 
   public async confirmWith2Options(title: string, text?: string, option1?: string, option2?: string,cancelOption?:string) {
-    const swal = await import('sweetalert2');
-      return swal.default.fire({
+      return Swal.fire({
       title: title || this.translateService.instant('notification.warningTitle'),
       text: text,
       icon: 'question',
@@ -106,8 +105,7 @@ export class NotificationService {
   }
 
   public async confirmAlertWithInput(title: string, text?: string) {
-    const swal = await import('sweetalert2');
-    return swal.default.fire({
+    return Swal.fire({
       title: title ||this.translateService.instant('notification.confirmTitle'),
       text: text,
       input: 'text',
@@ -122,8 +120,7 @@ export class NotificationService {
   }
 
   public async warningAlert(title: string, text?: string) {
-    const swal = await import('sweetalert2');
-    return swal.default.fire({
+    return Swal.fire({
       title: title || this.translateService.instant('notification.warningTitle'),
       text: text,
       icon: 'warning',
@@ -135,8 +132,7 @@ export class NotificationService {
   }
 
   public async successAlert(title: string, text?: string) {
-    const swal = await import('sweetalert2');
-    return swal.default.fire({
+    return Swal.fire({
       position: 'center',
       icon: 'success',
       title: title || this.translateService.instant('notification.successTitle'),
@@ -147,8 +143,7 @@ export class NotificationService {
   }
 
   public async errorAlert(title: string, text?: string) {
-    const swal = await import('sweetalert2');
-    return swal.default.fire({
+    return Swal.fire({
       position: 'center',
       icon: 'error',
       title: title || this.translateService.instant('notification.errorTitle'),
