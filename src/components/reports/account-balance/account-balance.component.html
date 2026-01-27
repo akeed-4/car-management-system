@@ -1,0 +1,26 @@
+<app-report-container
+  [title]="'REPORTS.ACCOUNT_BALANCE.TITLE'"
+  [subtitle]="'REPORTS.ACCOUNT_BALANCE.SUBTITLE'"
+  [icon]="'account_balance'"
+  [showDateRange]="true"
+  [showBranchFilter]="true"
+  [showAccountFilter]="false"
+  [loading]="loading"
+  (filterChange)="onFilterChange($event)"
+  (exportPdf)="onExportPdf()"
+  (exportExcel)="onExportExcel()"
+  (print)="onPrint()"
+  (refresh)="onRefresh()">
+
+  <app-report-grid
+    [dataSource]="reportData"
+    [columns]="columns"
+    [keyExpr]="'accountId'"
+    [allowSorting]="true"
+    [allowFiltering]="true"
+    [allowGrouping]="false"
+    [showSummary]="true"
+    [height]="'600px'">
+  </app-report-grid>
+
+</app-report-container>

@@ -18,8 +18,8 @@ import { SupplierService } from '../../../services/supplier.service';
 import { PurchasesService } from '../../../services/purchases.service';
 import { PaymentService } from '../../../services/payment.service';
 import { TreasuryService } from '../../../services/treasury.service';
-import { PurchaseInvoice } from '../../../types/purchase-invoice.model';
-import { PaymentVoucher, PaymentMethod, VoucherStatus, BeneficiaryType } from '@/src/types/payment-voucher.model';
+import { PurchaseInvoice } from '../../../models/purchase-invoice.model';
+import { PaymentVoucher, PaymentMethod, VoucherStatus, BeneficiaryType } from '@/src/models/payment-voucher.model';
 import { AccountingService } from '../../accounting/accounting.service';
 
 @Component({

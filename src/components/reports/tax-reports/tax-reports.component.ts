@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { SalesService } from '../../../services/sales.service';
-import { SalesInvoice } from '../../../types/sales-invoice.model';
+import { SalesInvoice } from '../../../models/sales-invoice.model';
 import { FormsModule } from '@angular/forms';
 
 type SortColumn = keyof SalesInvoice | '';

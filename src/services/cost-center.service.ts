@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
-import { CostCenter, CostCenterEntry, CreateCostCenterDto, UpdateCostCenterDto, CreateCostCenterEntryDto } from '../types/cost-center.model';
+import { CostCenter, CostCenterEntry, CreateCostCenterDto, UpdateCostCenterDto, CreateCostCenterEntryDto } from '../models/cost-center.model';
 import { environment } from '../environments/environment.development';
 
 @Injectable({

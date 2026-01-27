@@ -10,7 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { InventoryService } from '../../../services/inventory.service';
-import { Car } from '../../../types/car.model';
+import { Car } from '../../../models/car.model';
 
 @Component({
   selector: 'app-vehicle-lookup-modal',

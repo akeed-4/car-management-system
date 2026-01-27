@@ -10,7 +10,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InfoBankService } from '../../../services/info-bank.service';
-import { InfoBank } from '../../../types/info-bank.model';
+import { InfoBank } from '../../../models/info-bank.model';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({

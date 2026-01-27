@@ -24,9 +24,9 @@ import { CustomerService } from '@/src/services/customer.service';
 import { InventoryService } from '@/src/services/inventory.service';
 import { SalesService } from '@/src/services/sales.service';
 import { StoreService } from '@/src/services/store.service';
-import { InvoiceItem } from '@/src/types/invoice-item.model';
-import { SalesInvoice } from '@/src/types/sales-invoice.model';
-import { StoreCarStockDto } from '@/src/types/store-car-stock.model';
+import { InvoiceItem } from '@/src/models/invoice-item.model';
+import { SalesInvoice } from '@/src/models/sales-invoice.model';
+import { StoreCarStockDto } from '@/src/models/store-car-stock.model';
 import { ToastService } from '@/src/services/toast.service';
 import { SalesInvoiceFormComponent } from '../sales-invoice-form.component';
 

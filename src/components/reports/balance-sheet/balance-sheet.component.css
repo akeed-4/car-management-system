@@ -1,0 +1,22 @@
+/* Balance Sheet Report Specific Styles */
+
+/* Print Styles */
+@media print {
+  ::ng-deep .filter-section,
+  ::ng-deep .report-actions {
+    display: none !important;
+  }
+
+  ::ng-deep .report-container {
+    padding: 0;
+  }
+
+  ::ng-deep .report-card {
+    box-shadow: none;
+    border: none;
+  }
+  
+  ::ng-deep .dx-treelist {
+    font-size: 11px;
+  }
+}

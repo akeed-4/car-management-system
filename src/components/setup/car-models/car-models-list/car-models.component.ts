@@ -14,7 +14,7 @@ import { ManufacturerService } from '../../../../services/manufacturer.service';
 import { CurrentSettingService } from '../../../../services/current-setting.service';
 import { ModalComponent } from '../../../shared/modal/modal.component';
 import { ToastService } from '../../../../services/toast.service';
-import { CarModel } from '../../../../types/car-model.model';
+import { CarModel } from '../../../../models/car-model.model';
 
 type SortColumn = keyof CarModel | '';
 type SortDirection = 'asc' | 'desc' | '';

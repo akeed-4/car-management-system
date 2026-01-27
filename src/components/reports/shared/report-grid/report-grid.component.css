@@ -1,0 +1,93 @@
+.report-grid-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* Grid Customization */
+::ng-deep .dx-datagrid {
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+}
+
+::ng-deep .dx-datagrid-headers {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+}
+
+::ng-deep .dx-datagrid-header-panel {
+  background: #fff;
+  border-bottom: 2px solid #e9ecef;
+}
+
+::ng-deep .dx-datagrid .dx-row-alt {
+  background-color: #f8f9fa;
+}
+
+::ng-deep .dx-datagrid .dx-row:hover {
+  background-color: #e9ecef;
+  cursor: pointer;
+}
+
+::ng-deep .dx-datagrid-rowsview .dx-row {
+  border-bottom: 1px solid #dee2e6;
+}
+
+/* Summary Row Styling */
+::ng-deep .dx-datagrid-total-footer {
+  background: #e9ecef;
+  font-weight: 600;
+  color: #333;
+  border-top: 2px solid #333;
+}
+
+/* Number Alignment */
+::ng-deep .dx-datagrid .dx-row .dx-cell[data-type="number"] {
+  text-align: right;
+}
+
+/* Group Row Styling */
+::ng-deep .dx-datagrid-group-row {
+  background: #f1f3f5;
+  font-weight: 600;
+}
+
+/* Toolbar Styling */
+::ng-deep .dx-toolbar {
+  background: transparent;
+  padding: 10px 0;
+}
+
+/* Pager Styling */
+::ng-deep .dx-datagrid-pager {
+  padding: 10px;
+  background: #fff;
+  border-top: 1px solid #dee2e6;
+}
+
+/* Search Panel */
+::ng-deep .dx-datagrid-search-panel {
+  margin: 0 10px;
+}
+
+/* Filter Row */
+::ng-deep .dx-datagrid-filter-row {
+  background: #fff;
+}
+
+/* Column Chooser Button */
+::ng-deep .dx-datagrid-column-chooser-button {
+  color: #667eea;
+}
+
+/* Export Button */
+::ng-deep .dx-datagrid-export-button {
+  color: #667eea;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  ::ng-deep .dx-datagrid {
+    font-size: 12px;
+  }
+}

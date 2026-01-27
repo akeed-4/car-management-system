@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
-import { Store } from '../../../types/branch.model';
+import { Store } from '../../../models/branch.model';
 import { StoreService } from '../../../services/store.service';
 import { HasPermissionDirective } from '../../shared/permission.directive';
 import { StoreFormComponent } from '../store-form/store-form.component';

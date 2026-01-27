@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
-import { Car } from '../../../types/car.model';
+import { Car } from '../../../models/car.model';
 
 type PublishStatus = 'idle' | 'publishing' | 'success' | 'error';
 

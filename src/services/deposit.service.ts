@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs';
-import { DepositVoucher } from '../types/deposit-voucher.model';
+import { DepositVoucher } from '../models/deposit-voucher.model';
 
 @Injectable({
   providedIn: 'root',

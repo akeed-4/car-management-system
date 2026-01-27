@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
 import { SalesService } from '../../../services/sales.service';
-import { SalesInvoice } from '../../../types/sales-invoice.model';
+import { SalesInvoice } from '../../../models/sales-invoice.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { CreditInvoiceListItem, creditInvoiceLanguageData } from './invoice-credit-list.model';

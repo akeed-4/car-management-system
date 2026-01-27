@@ -12,7 +12,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Car } from '../../../../types/car.model';
+import { Car } from '../../../../models/car.model';
 import { InventoryService } from '../../../../services/inventory.service';
 import { HasPermissionDirective } from '../../../shared/permission.directive';
 import { CarDetailsDialogComponent } from '../car-details-dialog/car-details-dialog.component';

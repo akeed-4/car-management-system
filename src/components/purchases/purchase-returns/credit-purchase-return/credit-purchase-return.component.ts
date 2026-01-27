@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatIconModule } from '@angular/material/icon';
 import { PurchaseReturnFormComponent } from '../../purchase-return-form/purchase-return-form.component';
-import { PurchaseReturnType } from '../../../../types/purchase-return-invoice.model';
+import { PurchaseReturnType } from '../../../../models/purchase-return-invoice.model';
 
 @Component({
   selector: 'app-credit-purchase-return',

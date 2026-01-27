@@ -16,8 +16,8 @@ import { MatRadioModule } from '@angular/material/radio';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CostCenterService } from '../../../../services/cost-center.service';
 import { InventoryService } from '../../../../services/inventory.service';
-import { CreateCostCenterDto, UpdateCostCenterDto, CostCenter } from '../../../../types/cost-center.model';
-import { Car } from '../../../../types/car.model';
+import { CreateCostCenterDto, UpdateCostCenterDto, CostCenter } from '../../../../models/cost-center.model';
+import { Car } from '../../../../models/car.model';
 
 @Component({
   selector: 'app-cost-center-form',

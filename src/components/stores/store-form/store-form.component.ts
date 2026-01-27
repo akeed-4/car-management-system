@@ -7,7 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
-import { Store, Company, Branch } from '../../../types/branch.model';
+import { Store, Company, Branch } from '../../../models/branch.model';
 import { StoreService } from '../../../services/store.service';
 import { CompanyService } from '../../../services/company.service';
 import { BranchService } from '../../../services/branch.service';

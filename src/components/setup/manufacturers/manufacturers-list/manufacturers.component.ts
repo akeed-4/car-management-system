@@ -5,7 +5,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ManufacturerService } from '../../../../services/manufacturer.service';
-import { Manufacturer } from '../../../../types/manufacturer.model';
+import { Manufacturer } from '../../../../models/manufacturer.model';
 import { ModalComponent } from '../../../shared/modal/modal.component'; // Corrected import path
 import { TranslateModule } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';

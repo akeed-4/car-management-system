@@ -1,0 +1,277 @@
+.cost-price-settings-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.settings-card {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+mat-card-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  margin: -16px -16px 16px -16px;
+  border-radius: 4px 4px 0 0;
+}
+
+mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 24px;
+  margin: 0;
+  flex-wrap: wrap;
+}
+
+mat-card-title mat-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+}
+
+.subtitle {
+  font-size: 14px;
+  opacity: 0.9;
+  margin-left: auto;
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-section {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+}
+
+.form-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px 0;
+  color: #333;
+  font-size: 18px;
+}
+
+.form-section h3 mat-icon {
+  color: #667eea;
+}
+
+mat-divider {
+  margin-bottom: 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.half-width {
+  width: 48%;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+mat-checkbox {
+  font-size: 14px;
+}
+
+mat-checkbox span {
+  line-height: 1.5;
+}
+
+.method-option {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 0;
+}
+
+.method-label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.method-desc {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.vat-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.vat-input {
+  max-width: 300px;
+}
+
+.info-panel {
+  display: flex;
+  gap: 16px;
+  background: #e3f2fd;
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 4px solid #2196f3;
+}
+
+.info-panel mat-icon {
+  color: #2196f3;
+  flex-shrink: 0;
+}
+
+.info-content {
+  flex: 1;
+  font-size: 13px;
+  color: #333;
+}
+
+.info-content strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #1976d2;
+}
+
+.info-content ul {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.info-content li {
+  margin: 4px 0;
+  line-height: 1.6;
+}
+
+mat-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-top: 1px solid #e0e0e0;
+}
+
+mat-card-actions button {
+  padding: 8px 24px;
+  font-weight: 500;
+}
+
+mat-card-actions button mat-icon {
+  margin-right: 8px;
+}
+
+mat-card-actions mat-spinner {
+  margin-left: auto;
+}
+
+/* RTL Support */
+[dir="rtl"] mat-card-title mat-icon {
+  margin-left: 0;
+  margin-right: 12px;
+}
+
+[dir="rtl"] .subtitle {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+[dir="rtl"] .form-section {
+  border-left: none;
+  border-right: 4px solid #667eea;
+}
+
+[dir="rtl"] .info-panel {
+  border-left: none;
+  border-right: 4px solid #2196f3;
+}
+
+[dir="rtl"] mat-card-actions button mat-icon {
+  margin-right: 0;
+  margin-left: 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .cost-price-settings-container {
+    padding: 12px;
+  }
+
+  mat-card-title {
+    font-size: 18px;
+  }
+
+  .subtitle {
+    flex-basis: 100%;
+    margin-left: 0;
+    margin-top: 8px;
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+
+  .half-width {
+    width: 100%;
+  }
+
+  .checkbox-grid {
+    grid-template-columns: 1fr;
+  }
+
+  mat-card-actions {
+    flex-direction: column;
+  }
+
+  mat-card-actions button {
+    width: 100%;
+  }
+
+  mat-card-actions mat-spinner {
+    margin-left: 0;
+    margin-top: 8px;
+  }
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-section {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Material Override */
+::ng-deep .mat-mdc-form-field-hint {
+  font-size: 12px;
+  color: #666;
+}
+
+::ng-deep .mat-mdc-checkbox-label {
+  white-space: normal;
+  line-height: 1.5;
+}

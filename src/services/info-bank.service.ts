@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../environments/environment';
-import { InfoBank } from '../types/info-bank.model';
+import { InfoBank } from '../models/info-bank.model';
 
 @Injectable({
   providedIn: 'root'

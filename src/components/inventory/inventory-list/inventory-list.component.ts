@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { ModalComponent } from '../../shared/modal/modal.component';
-import { Car, CarCondition, CarLocation } from '../../../types/car.model';
+import { Car, CarCondition, CarLocation } from '../../../models/car.model';
 import { FormsModule } from '@angular/forms'; // Import FormsModule for filter input
 import { VinScannerComponent } from '../../shared/vin-scanner/vin-scanner.component';
 import { InventoryService } from '../../../services/inventory.service';

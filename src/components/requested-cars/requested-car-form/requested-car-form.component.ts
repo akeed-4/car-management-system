@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } 
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { RequestedCar } from '../../../types/requested-car.model';
+import { RequestedCar } from '../../../models/requested-car.model';
 import { RequestedCarService } from '../../../services/requested-car.service';
 import { ManufacturerService } from '../../../services/manufacturer.service';
 import { CarModelService } from '../../../services/car-model.service';

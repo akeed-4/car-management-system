@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { CurrencyPipe } from '@angular/common';
 import { SalesService } from '../../../services/sales.service';
 import { FormsModule } from '@angular/forms';
-import { SalesInvoice } from '../../../types/sales-invoice.model';
+import { SalesInvoice } from '../../../models/sales-invoice.model';
 
 interface BestSeller {
   description: string;

@@ -1,0 +1,138 @@
+.report-tree-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* Tree List Customization */
+::ng-deep .dx-treelist {
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+}
+
+::ng-deep .dx-treelist-headers {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+}
+
+::ng-deep .dx-treelist-header-panel {
+  background: #fff;
+  border-bottom: 2px solid #e9ecef;
+}
+
+::ng-deep .dx-treelist .dx-row-alt {
+  background-color: #f8f9fa;
+}
+
+::ng-deep .dx-treelist .dx-row:hover {
+  background-color: #e9ecef;
+  cursor: pointer;
+}
+
+::ng-deep .dx-treelist-rowsview .dx-row {
+  border-bottom: 1px solid #dee2e6;
+}
+
+/* Parent Row Styling */
+::ng-deep .dx-treelist .dx-treelist-collapsed,
+::ng-deep .dx-treelist .dx-treelist-expanded {
+  font-weight: 600;
+  background-color: #f1f3f5;
+}
+
+/* Expand/Collapse Icon */
+::ng-deep .dx-treelist-icon-container {
+  color: #667eea;
+}
+
+::ng-deep .dx-treelist-icon-container:hover {
+  color: #764ba2;
+}
+
+/* Indentation for Child Rows */
+::ng-deep .dx-treelist-cell-expandable {
+  padding-left: 20px;
+}
+
+/* Summary Row Styling */
+::ng-deep .dx-treelist-total-footer {
+  background: #e9ecef;
+  font-weight: 600;
+  color: #333;
+  border-top: 2px solid #333;
+}
+
+/* Number Alignment */
+::ng-deep .dx-treelist .dx-row .dx-cell[data-type="number"] {
+  text-align: right;
+  font-family: 'Courier New', monospace;
+}
+
+/* Toolbar Styling */
+::ng-deep .dx-toolbar {
+  background: transparent;
+  padding: 10px 0;
+}
+
+/* Search Panel */
+::ng-deep .dx-treelist-search-panel {
+  margin: 0 10px;
+}
+
+/* Filter Row */
+::ng-deep .dx-treelist-filter-row {
+  background: #fff;
+}
+
+/* Column Chooser Button */
+::ng-deep .dx-treelist-column-chooser-button {
+  color: #667eea;
+}
+
+/* Level Indicators - Visual Hierarchy */
+::ng-deep .dx-treelist-text-content {
+  display: flex;
+  align-items: center;
+}
+
+/* Root Level (Level 0) */
+::ng-deep .dx-treelist-cell-expandable[aria-level="0"] {
+  font-weight: 700;
+  font-size: 15px;
+  background-color: #e9ecef;
+}
+
+/* First Child Level (Level 1) */
+::ng-deep .dx-treelist-cell-expandable[aria-level="1"] {
+  font-weight: 600;
+  padding-left: 40px;
+}
+
+/* Second Child Level (Level 2) */
+::ng-deep .dx-treelist-cell-expandable[aria-level="2"] {
+  padding-left: 60px;
+}
+
+/* Third Child Level (Level 3) */
+::ng-deep .dx-treelist-cell-expandable[aria-level="3"] {
+  padding-left: 80px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  ::ng-deep .dx-treelist {
+    font-size: 12px;
+  }
+  
+  ::ng-deep .dx-treelist-cell-expandable[aria-level="1"] {
+    padding-left: 30px;
+  }
+  
+  ::ng-deep .dx-treelist-cell-expandable[aria-level="2"] {
+    padding-left: 50px;
+  }
+  
+  ::ng-deep .dx-treelist-cell-expandable[aria-level="3"] {
+    padding-left: 70px;
+  }
+}

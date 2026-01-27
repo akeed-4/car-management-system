@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ReceiptVoucher } from '../types/receipt-voucher.model';
+import { ReceiptVoucher } from '../models/receipt-voucher.model';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
 import 'devextreme/data/odata/store';

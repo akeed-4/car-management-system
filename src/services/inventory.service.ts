@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Car, CarStatus, CarLocation } from '../types/car.model';
+import { Car, CarStatus, CarLocation } from '../models/car.model';
 import { Observable, tap, switchMap, firstValueFrom } from 'rxjs';
 import { environment } from '../environments/environment';
 

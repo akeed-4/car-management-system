@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { PaymentVoucher } from '../types/payment-voucher.model';
+import { PaymentVoucher } from '../models/payment-voucher.model';
 import { Observable, tap, forkJoin, of } from 'rxjs';
 import { environment } from '../environments/environment';
 import { map, switchMap } from 'rxjs/operators';

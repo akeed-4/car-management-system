@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
-import { DailyEntry, DailyEntryType } from '../types/daily-entry.model';
+import { DailyEntry, DailyEntryType } from '../models/daily-entry.model';
 import { environment } from '../environments/environment';
 
 @Injectable({

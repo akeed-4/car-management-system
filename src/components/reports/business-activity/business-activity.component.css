@@ -1,0 +1,48 @@
+/* Business Activity Report Specific Styles */
+
+/* Category-based color coding */
+::ng-deep .dx-datagrid .dx-data-row:has(td[aria-colindex="1"]:contains("Operating")) {
+  border-left: 4px solid #4caf50;
+}
+
+::ng-deep .dx-datagrid .dx-data-row:has(td[aria-colindex="1"]:contains("Investing")) {
+  border-left: 4px solid #2196f3;
+}
+
+::ng-deep .dx-datagrid .dx-data-row:has(td[aria-colindex="1"]:contains("Financing")) {
+  border-left: 4px solid #ff9800;
+}
+
+/* Highlight negative amounts */
+::ng-deep .dx-datagrid .dx-data-row td[aria-colindex="4"]:contains("(") {
+  color: #d32f2f;
+  font-weight: 600;
+}
+
+/* Print Styles */
+@media print {
+  ::ng-deep .filter-section,
+  ::ng-deep .report-actions,
+  ::ng-deep .dx-datagrid-pager {
+    display: none !important;
+  }
+
+  ::ng-deep .report-container {
+    padding: 0;
+  }
+
+  ::ng-deep .report-card {
+    box-shadow: none;
+    border: none;
+  }
+  
+  ::ng-deep .dx-datagrid {
+    font-size: 10px;
+  }
+}
+
+/* Group Row Styling */
+::ng-deep .dx-datagrid-group-row {
+  font-weight: 700;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}

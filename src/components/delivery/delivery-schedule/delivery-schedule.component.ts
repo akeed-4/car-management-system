@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { DeliveryService } from '../../../services/delivery.service';
-import { Delivery, ChecklistItem, DeliveryStatus } from '../../../types/delivery.model';
+import { Delivery, ChecklistItem, DeliveryStatus } from '../../../models/delivery.model';
 import { DeliveryChecklistModalComponent } from '../delivery-checklist-modal/delivery-checklist-modal.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';

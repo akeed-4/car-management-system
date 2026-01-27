@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@ang
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ExpenseService } from '../../../services/expense.service';
-import { Expense } from '../../../types/expense.model';
+import { Expense } from '../../../models/expense.model';
 import { TreasuryService } from '../../../services/treasury.service';
 import { InventoryService } from '../../../services/inventory.service';
 

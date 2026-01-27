@@ -7,7 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { TranslateModule } from '@ngx-translate/core';
 import { InstallmentService } from '../../../services/installment.service';
-import { InstallmentSchedule, InstallmentReschedule } from '../../../types/sales-enhancements.model';
+import { InstallmentSchedule, InstallmentReschedule } from '../../../models/sales-enhancements.model';
 
 @Component({
   selector: 'app-installment-reschedule-dialog',

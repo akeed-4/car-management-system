@@ -6,8 +6,8 @@ import { throwError } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { Account, JournalEntry, CreateAccountDto, UpdateAccountDto, CreateJournalEntryDto, UpdateJournalEntryDto, OpeningBalanceFinancial, OpeningBalanceInventory } from './models';
 import { environment } from '@/src/environments/environment.development';
-import { AccountNode } from '@/src/types/account-node.model';
-import { PurchaseReturnJournalEntry } from '@/src/types/sales-return.model';
+import { AccountNode } from '@/src/models/account-node.model';
+import { PurchaseReturnJournalEntry } from '@/src/models/sales-return.model';
 
 @Injectable({
   providedIn: 'root'
@@ -343,10 +343,10 @@ export class AccountingService {
   /**
    * Create journal entries for sales return
    */
-  createSalesReturnEntry(salesReturn: any): import('@/src/types/sales-return.model').JournalEntry[] {
+  createSalesReturnEntry(salesReturn: any): import('@/src/models/sales-return.model').JournalEntry[] {
     // This is a placeholder implementation
     // In a real application, you'd determine the appropriate accounts based on business logic
-    const entry1: import('@/src/types/sales-return.model').JournalEntry = {
+    const entry1: import('@/src/models/sales-return.model').JournalEntry = {
       id: 0,
       salesReturnId: salesReturn.id,
       accountCode: '', // Sales Returns account
@@ -358,7 +358,7 @@ export class AccountingService {
       description: 'Sales Return'
     };
 
-    const entry2: import('@/src/types/sales-return.model').JournalEntry = {
+    const entry2: import('@/src/models/sales-return.model').JournalEntry = {
       id: 0,
       salesReturnId: salesReturn.id,
       accountCode: '', // Accounts Receivable or Cash

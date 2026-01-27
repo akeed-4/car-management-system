@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { SalesInvoice } from '../types/sales-invoice.model';
-import { PosPaymentStatus } from '../types/pos-payment-status.model';
+import { SalesInvoice } from '../models/sales-invoice.model';
+import { PosPaymentStatus } from '../models/pos-payment-status.model';
 import { SalesService } from './sales.service';
 import { ReceiptService } from './receipt.service';
 import { TreasuryService } from './treasury.service';

@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { AccountNode, CreateAccountDto, UpdateAccountDto, DeleteAccountDto } from '../types/account-node.model';
+import { AccountNode, CreateAccountDto, UpdateAccountDto, DeleteAccountDto } from '../models/account-node.model';
 
 @Injectable({
   providedIn: 'root'

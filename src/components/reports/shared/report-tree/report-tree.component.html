@@ -1,0 +1,73 @@
+<div class="report-tree-container">
+  <dx-tree-list
+    [dataSource]="dataSource"
+    [keyExpr]="keyExpr"
+    [parentIdExpr]="parentIdExpr"
+    [hasItemsExpr]="hasItemsExpr"
+    [showBorders]="showBorders"
+    [showRowLines]="showRowLines"
+    [showColumnLines]="showColumnLines"
+    [rowAlternationEnabled]="rowAlternationEnabled"
+    [allowColumnResizing]="allowColumnResizing"
+    [allowColumnReordering]="allowColumnReordering"
+    [columnAutoWidth]="true"
+    [autoExpandAll]="autoExpandAll"
+    [expandNodesOnFiltering]="expandNodesOnFiltering"
+    [height]="height"
+    (onRowClick)="onRowClick($event)"
+    (onCellClick)="onCellClick($event)"
+    (onRowExpanding)="onRowExpanding($event)"
+    (onRowCollapsing)="onRowCollapsing($event)">
+
+    <!-- Paging -->
+    <dxo-paging [enabled]="false"></dxo-paging>
+
+    <!-- Search Panel -->
+    <dxo-search-panel
+      [visible]="allowFiltering"
+      [width]="240"
+      placeholder="Search...">
+    </dxo-search-panel>
+
+    <!-- Filter Row -->
+    <dxo-filter-row [visible]="allowFiltering"></dxo-filter-row>
+
+    <!-- Header Filter -->
+    <dxo-header-filter [visible]="allowFiltering"></dxo-header-filter>
+
+    <!-- Sorting -->
+    <dxo-sorting [mode]="allowSorting ? 'multiple' : 'none'"></dxo-sorting>
+
+    <!-- Column Chooser -->
+    <dxo-column-chooser [enabled]="true" mode="select"></dxo-column-chooser>
+
+    <!-- Columns -->
+    <dxi-column
+      *ngFor="let column of columns; let i = index"
+      [dataField]="column.dataField"
+      [caption]="getCaption(column.caption)"
+      [dataType]="column.dataType || 'string'"
+      [format]="column.format"
+      [alignment]="column.alignment || 'left'"
+      [width]="column.width"
+      [visible]="column.visible !== false"
+      [calculateCellValue]="column.calculateCellValue"
+      [customizeText]="column.customizeText"
+      [allowSorting]="allowSorting"
+      [allowFiltering]="allowFiltering">
+    </dxi-column>
+
+    <!-- Summary -->
+    <dxo-summary *ngIf="showSummary">
+      <dxi-total-item
+        *ngFor="let item of summaryItems"
+        [column]="item.column"
+        [summaryType]="item.summaryType"
+        [valueFormat]="item.valueFormat"
+        [displayFormat]="item.displayFormat"
+        [showInColumn]="item.showInColumn">
+      </dxi-total-item>
+    </dxo-summary>
+
+  </dx-tree-list>
+</div>

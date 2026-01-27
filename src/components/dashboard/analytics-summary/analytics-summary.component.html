@@ -1,0 +1,31 @@
+<div class="analytics-summary">
+  <div class="summary-grid" *ngIf="!loading">
+    <mat-card class="summary-card" *ngFor="let card of getSummaryCards()" 
+              [style.border-left]="'4px solid ' + card.color">
+      <div class="card-content">
+        <div class="card-icon" [style.background-color]="card.bgColor">
+          <mat-icon [style.color]="card.color">{{ card.icon }}</mat-icon>
+        </div>
+        <div class="card-info">
+          <h3 class="card-title">{{ card.title | translate }}</h3>
+          <p class="card-value" *ngIf="!card.isCurrency">
+            {{ formatNumber(card.value) }}
+          </p>
+          <p class="card-value" *ngIf="card.isCurrency">
+            {{ formatCurrency(card.value) }}
+          </p>
+          <span class="card-trend" [class.positive]="card.trend.includes('+')">
+            {{ card.trend }}
+          </span>
+        </div>
+      </div>
+    </mat-card>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="loading">
+    <mat-card class="summary-card skeleton" *ngFor="let i of [1,2,3,4,5,6,7,8]">
+      <div class="skeleton-content"></div>
+    </mat-card>
+  </div>
+</div>

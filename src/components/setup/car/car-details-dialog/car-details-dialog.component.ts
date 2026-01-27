@@ -7,7 +7,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { Car } from '../../../../types/car.model';
+import { Car } from '../../../../models/car.model';
 
 @Component({
   selector: 'app-car-details-dialog',

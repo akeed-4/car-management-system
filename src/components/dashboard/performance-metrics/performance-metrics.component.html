@@ -1,0 +1,66 @@
+<mat-card class="performance-metrics-card">
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>speed</mat-icon>
+      <span>{{ 'DASHBOARD.PERFORMANCE_METRICS' | translate }}</span>
+    </mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <!-- Metrics Grid -->
+    <div class="metrics-grid" *ngIf="!loading && data && data.length > 0">
+      <div class="metric-card" *ngFor="let metric of data">
+        <div class="metric-header">
+          <div class="metric-icon" [style.background-color]="getStatusColor(metric)">
+            <mat-icon>{{ getMetricIcon(metric.metric) }}</mat-icon>
+          </div>
+          <div class="metric-info">
+            <h3>{{ metric.metric }}</h3>
+            <div class="metric-values">
+              <span class="current">{{ formatNumber(metric.current) }}</span>
+              <span class="separator">/</span>
+              <span class="target">{{ formatNumber(metric.target) }}</span>
+            </div>
+          </div>
+          <div class="status-icon" [style.color]="getStatusColor(metric)">
+            <mat-icon>{{ getStatusIcon(metric) }}</mat-icon>
+          </div>
+        </div>
+
+        <div class="metric-progress">
+          <mat-progress-bar
+            [mode]="'determinate'"
+            [value]="getProgressPercentage(metric)"
+            [color]="getProgressColor(getProgressPercentage(metric))">
+          </mat-progress-bar>
+          <span class="progress-label">{{ getProgressPercentage(metric).toFixed(0) }}%</span>
+        </div>
+
+        <div class="metric-footer">
+          <span class="period">{{ metric.period }}</span>
+          <span class="variance" [class.positive]="metric.variance >= 0" [class.negative]="metric.variance < 0">
+            <mat-icon>{{ metric.variance >= 0 ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+            {{ Math.abs(metric.variance) }}%
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-container" *ngIf="loading">
+      <div class="skeleton-card" *ngFor="let i of [1,2,3,4,5,6]">
+        <div class="skeleton-header">
+          <div class="skeleton-icon"></div>
+          <div class="skeleton-text"></div>
+        </div>
+        <div class="skeleton-progress"></div>
+      </div>
+    </div>
+
+    <!-- No Data State -->
+    <div class="no-data" *ngIf="!loading && (!data || data.length === 0)">
+      <mat-icon>speed</mat-icon>
+      <p>{{ 'DASHBOARD.NO_METRICS_DATA' | translate }}</p>
+    </div>
+  </mat-card-content>
+</mat-card>

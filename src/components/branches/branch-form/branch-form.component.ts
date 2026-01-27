@@ -9,7 +9,7 @@ import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/materia
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { Branch, Company } from '../../../types/branch.model';
+import { Branch, Company } from '../../../models/branch.model';
 import { BranchService } from '../../../services/branch.service';
 import { CompanyService } from '../../../services/company.service';
 import { ToastService } from '../../../services/toast.service';

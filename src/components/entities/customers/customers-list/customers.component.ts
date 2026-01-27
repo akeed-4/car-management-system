@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { CustomerService } from '../../../../services/customer.service';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { ModalComponent } from '../../../shared/modal/modal.component';
-import { Customer } from '../../../../types/customer.model';
+import { Customer } from '../../../../models/customer.model';
 import { FormsModule } from '@angular/forms';
 import {
   DxDataGridModule,

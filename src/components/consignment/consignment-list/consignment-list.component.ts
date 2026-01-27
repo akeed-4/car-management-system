@@ -11,7 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
 import { ConsignmentService } from '../../../services/consignment.service';
-import { ConsignmentCar, ConsignmentCarStatus } from '../../../types/consignment-car.model';
+import { ConsignmentCar, ConsignmentCarStatus } from '../../../models/consignment-car.model';
 import { ModalComponent } from '../../shared/modal/modal.component';
 import { TranslateModule } from '@ngx-translate/core';
 

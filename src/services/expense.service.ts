@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs';
-import { Expense } from '../types/expense.model';
+import { Expense } from '../models/expense.model';
 
 @Injectable({
   providedIn: 'root',

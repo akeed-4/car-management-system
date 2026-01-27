@@ -22,7 +22,7 @@ import { environment } from '../../../environments/environment.development';
 import { CurrentSettingService } from '../../../services/current-setting.service';
 import { CurrentUserService } from '../../../services/current-user.service';
 import { LanguageService } from '../../../services/language.service';
-import { welcomeData } from '../../../types/welcomeData';
+import { welcomeData } from '../../../models/welcomeData';
 import { MenuService } from '../../../services/menu.service';
 import { DxMenuModule, DxTreeListModule } from 'devextreme-angular';
 

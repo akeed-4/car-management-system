@@ -16,7 +16,7 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
-import { Car } from '../../../../types/car.model';
+import { Car } from '../../../../models/car.model';
 import { InventoryService } from '../../../../services/inventory.service';
 import { HasPermissionDirective } from '../../../shared/permission.directive';
 import { CarDeclarationDialogComponent } from '../car-declaration-dialog/car-declaration-dialog.component';

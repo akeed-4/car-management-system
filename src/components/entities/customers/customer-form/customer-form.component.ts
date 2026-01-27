@@ -4,10 +4,10 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, O
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CustomerService } from '../../../../services/customer.service';
-import { Customer } from '../../../../types/customer.model';
+import { Customer } from '../../../../models/customer.model';
 import { SalesService } from '../../../../services/sales.service';
 import { InventoryService } from '../../../../services/inventory.service';
-import { Car } from '../../../../types/car.model';
+import { Car } from '../../../../models/car.model';
 import { DatePipe, CurrencyPipe } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';

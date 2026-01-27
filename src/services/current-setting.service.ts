@@ -7,7 +7,7 @@ import { Title } from '@angular/platform-browser';
 import { environment } from '../environments/environment';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { InvoiceClassification } from '../types/invoice-classification.model';
+import { InvoiceClassification } from '../models/invoice-classification.model';
 import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({

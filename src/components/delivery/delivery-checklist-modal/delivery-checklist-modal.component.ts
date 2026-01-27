@@ -1,7 +1,7 @@
 
 
 import { ChangeDetectionStrategy, Component, input, output, signal, computed, effect } from '@angular/core';
-import { Delivery, ChecklistItem } from '../../../types/delivery.model';
+import { Delivery, ChecklistItem } from '../../../models/delivery.model';
 import { DeliveryService } from '../../../services/delivery.service';
 import { inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';

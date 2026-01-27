@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, effect, inject, signal, OnInit } fr
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SupplierService } from '../../../../services/supplier.service';
-import { Supplier } from '../../../../types/supplier.model';
+import { Supplier } from '../../../../models/supplier.model';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';

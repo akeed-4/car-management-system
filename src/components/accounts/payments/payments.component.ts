@@ -12,7 +12,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
 import { PaymentService } from '../../../services/payment.service';
-import { PaymentVoucher } from '../../../types/payment-voucher.model';
+import { PaymentVoucher } from '../../../models/payment-voucher.model';
 import { AccountingService } from '../../accounting/accounting.service';
 import { Account } from '../../accounting/models';
 import CustomStore from 'devextreme/data/custom_store';

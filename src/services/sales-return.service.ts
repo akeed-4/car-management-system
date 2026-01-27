@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { SalesReturnInvoice } from '../types/sales-return-invoice.model';
-import { SalesReturn, JournalEntry } from '../types/sales-return.model';
+import { SalesReturnInvoice } from '../models/sales-return-invoice.model';
+import { SalesReturn, JournalEntry } from '../models/sales-return.model';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environment.development';
 

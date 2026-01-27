@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs';
-import { TreasuryAccount } from '../types/treasury-account.model';
+import { TreasuryAccount } from '../models/treasury-account.model';
 
 @Injectable({
   providedIn: 'root',

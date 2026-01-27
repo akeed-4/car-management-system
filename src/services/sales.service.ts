@@ -1,10 +1,10 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { SalesInvoice } from '../types/sales-invoice.model';
+import { SalesInvoice } from '../models/sales-invoice.model';
 import { Observable, tap } from 'rxjs';
 import { InventoryService } from './inventory.service';
 import { environment } from '../environments/environment';
-import { StoreCarStockDto } from '../types/store-car-stock.model';
+import { StoreCarStockDto } from '../models/store-car-stock.model';
 
 @Injectable({
   providedIn: 'root',

@@ -21,8 +21,8 @@ import { CurrentSettingService } from '../../../../services/current-setting.serv
 import { ExpenseService } from '../../../../services/expense.service';
 import { ToastService } from '../../../../services/toast.service';
 
-import { Car, CarCondition } from '../../../../types/car.model';
-import { PriceSuggestion } from '../../../../types/price-suggestion.model';
+import { Car, CarCondition } from '../../../../models/car.model';
+import { PriceSuggestion } from '../../../../models/price-suggestion.model';
 
 import { ModalComponent } from '../../../shared/modal/modal.component';
 import { VinScannerComponent } from '../../../shared/vin-scanner/vin-scanner.component';

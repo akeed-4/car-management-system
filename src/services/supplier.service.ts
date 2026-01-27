@@ -1,7 +1,7 @@
 import { Injectable, inject,signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Supplier } from '../types/supplier.model';
+import { Supplier } from '../models/supplier.model';
 import { environment } from '../environments/environment';
 import { tap } from 'rxjs';
 

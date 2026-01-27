@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { SalesInvoice } from '../../../types/sales-invoice.model';
+import { SalesInvoice } from '../../../models/sales-invoice.model';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 
 @Component({

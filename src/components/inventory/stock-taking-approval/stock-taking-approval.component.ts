@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { StockTakeService } from '../../../services/stock-take.service';
-import { StockTake } from '../../../types/stock-take.model';
+import { StockTake } from '../../../models/stock-take.model';
 import { DatePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,7 +10,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
 import { StockTakeApprovalService } from '@/src/services/stock-take-approval.service';
-import { StockTakeApproval } from '@/src/types/stock-take-approval.model';
+import { StockTakeApproval } from '@/src/models/stock-take-approval.model';
 
 @Component({
   selector: 'app-stock-taking-approval',

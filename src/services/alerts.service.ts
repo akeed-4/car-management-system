@@ -1,8 +1,8 @@
 import { Injectable, inject, computed } from '@angular/core';
 import { SalesService } from './sales.service';
 import { InventoryService } from './inventory.service';
-import { UpcomingAlert } from '../types/upcoming-alert.model';
-import { Car } from '../types/car.model';
+import { UpcomingAlert } from '../models/upcoming-alert.model';
+import { Car } from '../models/car.model';
 import { combineLatest, map, Observable } from 'rxjs';
 
 const ALERT_THRESHOLD_DAYS = 30;

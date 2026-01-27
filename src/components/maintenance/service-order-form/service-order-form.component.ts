@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, O
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DatePipe, CurrencyPipe } from '@angular/common';
-import { ServiceOrder, ServiceItem, ServiceOrderStatus } from '../../../types/service-order.model';
+import { ServiceOrder, ServiceItem, ServiceOrderStatus } from '../../../models/service-order.model';
 import { ServiceOrderService } from '../../../services/service-order.service';
 import { InventoryService } from '../../../services/inventory.service';
 import { CustomerService } from '../../../services/customer.service';

@@ -3,10 +3,10 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { CurrencyPipe } from '@angular/common';
 import { SalesService } from '../../../services/sales.service';
 import { InventoryService } from '../../../services/inventory.service';
-import { Car } from '../../../types/car.model';
+import { Car } from '../../../models/car.model';
 import { ExpenseService } from '../../../services/expense.service';
 import { FormsModule } from '@angular/forms';
-import { Expense } from '../../../types/expense.model';
+import { Expense } from '../../../models/expense.model';
 import { ConsignmentService } from '../../../services/consignment.service'; // Import ConsignmentService
 
 interface ProfitDetail {

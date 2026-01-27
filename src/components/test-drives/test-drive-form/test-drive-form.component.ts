@@ -6,7 +6,7 @@ import { TestDriveService } from '../../../services/test-drive.service';
 import { CustomerService } from '../../../services/customer.service';
 import { InventoryService } from '../../../services/inventory.service';
 import { UserService } from '../../../services/user.service';
-import { TestDrive } from '../../../types/test-drive.model';
+import { TestDrive } from '../../../models/test-drive.model';
 
 @Component({
   selector: 'app-test-drive-form',

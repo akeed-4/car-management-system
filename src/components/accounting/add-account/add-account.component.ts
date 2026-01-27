@@ -16,7 +16,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { CostCenterService } from '../../../services/cost-center.service';
-import { CostCenter } from '../../../types/cost-center.model';
+import { CostCenter } from '../../../models/cost-center.model';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({

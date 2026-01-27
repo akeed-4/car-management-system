@@ -14,7 +14,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { DailyEntry, DailyEntryType } from '../../../types/daily-entry.model';
+import { DailyEntry, DailyEntryType } from '../../../models/daily-entry.model';
 import { DailyEntryService } from '../../../services/daily-entry.service';
 import { InventoryService } from '../../../services/inventory.service';
 

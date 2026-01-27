@@ -16,13 +16,13 @@ import { SalesReturnService } from '../../../services/sales-return.service';
 import { InventoryService } from '../../../services/inventory.service';
 import { AccountingService } from '../../../components/accounting/accounting.service';
 import { InvoiceIntegrationService } from '../../../services/invoice-integration.service';
-import { ReturnInvoiceItem } from '../../../types/return-invoice-item.model';
-import { SalesReturn } from '../../../types/sales-return.model';
-import { SalesInvoice } from '../../../types/sales-invoice.model';
+import { ReturnInvoiceItem } from '../../../models/return-invoice-item.model';
+import { SalesReturn } from '../../../models/sales-return.model';
+import { SalesInvoice } from '../../../models/sales-invoice.model';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { ToastService } from '../../../services/toast.service';
-import { SalesReturnInvoice } from '@/src/types/sales-return-invoice.model';
+import { SalesReturnInvoice } from '@/src/models/sales-return-invoice.model';
 
 @Component({
   selector: 'app-sales-return-form',

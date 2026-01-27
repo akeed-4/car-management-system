@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { environment } from '../environments/environment';
-import { ConsignmentCar } from '../types/consignment-car.model';
+import { ConsignmentCar } from '../models/consignment-car.model';
 import { HttpClient } from '@angular/common/http';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';

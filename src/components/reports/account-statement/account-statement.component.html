@@ -1,0 +1,26 @@
+<app-report-container
+  [title]="'REPORTS.ACCOUNT_STATEMENT.TITLE'"
+  [subtitle]="'REPORTS.ACCOUNT_STATEMENT.SUBTITLE'"
+  [icon]="'receipt_long'"
+  [showDateRange]="true"
+  [showBranchFilter]="true"
+  [showAccountFilter]="true"
+  [loading]="loading"
+  (filterChange)="onFilterChange($event)"
+  (exportPdf)="onExportPdf()"
+  (exportExcel)="onExportExcel()"
+  (print)="onPrint()"
+  (refresh)="onRefresh()">
+
+  <app-report-grid
+    [dataSource]="reportData"
+    [columns]="columns"
+    [keyExpr]="'transactionDate'"
+    [allowSorting]="true"
+    [allowFiltering]="true"
+    [allowGrouping]="false"
+    [showSummary]="false"
+    [height]="'600px'">
+  </app-report-grid>
+
+</app-report-container>

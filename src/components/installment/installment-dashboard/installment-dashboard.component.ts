@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 import { InstallmentService } from '../../../services/installment.service';
-import { InstallmentSchedule } from '../../../types/sales-enhancements.model';
+import { InstallmentSchedule } from '../../../models/sales-enhancements.model';
 import { InstallmentRescheduleDialogComponent } from '../installment-reschedule-dialog/installment-reschedule-dialog.component';
 
 @Component({

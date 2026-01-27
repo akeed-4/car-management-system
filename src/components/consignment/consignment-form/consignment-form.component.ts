@@ -4,7 +4,7 @@ import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { ConsignmentService } from '../../../services/consignment.service';
-import { ConsignmentCar } from '../../../types/consignment-car.model';
+import { ConsignmentCar } from '../../../models/consignment-car.model';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';

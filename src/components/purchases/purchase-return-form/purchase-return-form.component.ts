@@ -17,9 +17,9 @@ import { PurchasesService } from '../../../services/purchases.service';
 import { PurchaseReturnService } from '../../../services/purchase-return.service';
 import { InventoryService } from '../../../services/inventory.service';
 import { AccountingService } from '../../accounting/accounting.service';
-import { ReturnInvoiceItem } from '../../../types/return-invoice-item.model';
-import { PurchaseReturnInvoice, PurchaseReturnType } from '../../../types/purchase-return-invoice.model';
-import { PurchaseInvoice } from '../../../types/purchase-invoice.model';
+import { ReturnInvoiceItem } from '../../../models/return-invoice-item.model';
+import { PurchaseReturnInvoice, PurchaseReturnType } from '../../../models/purchase-return-invoice.model';
+import { PurchaseInvoice } from '../../../models/purchase-invoice.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CreateJournalEntryDto } from '../../../components/accounting/models';
 

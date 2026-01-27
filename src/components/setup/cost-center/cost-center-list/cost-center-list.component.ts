@@ -12,7 +12,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { DxTreeListModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
-import { CostCenter } from '../../../../types/cost-center.model';
+import { CostCenter } from '../../../../models/cost-center.model';
 import { CostCenterService } from '../../../../services/cost-center.service';
 import { HasPermissionDirective } from '../../../shared/permission.directive';
 

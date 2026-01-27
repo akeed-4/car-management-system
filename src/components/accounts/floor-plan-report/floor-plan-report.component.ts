@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { InventoryService } from '../../../services/inventory.service';
 import { FloorPlanService } from '../../../services/floor-plan.service';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
-import { FloorPlan } from '../../../types/floor-plan.model';
+import { FloorPlan } from '../../../models/floor-plan.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';

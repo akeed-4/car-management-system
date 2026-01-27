@@ -6,7 +6,7 @@ import { CustomerService } from '../../../../services/customer.service';
 import { InventoryService } from '../../../../services/inventory.service';
 import { DepositService } from '../../../../services/deposit.service';
 import { TreasuryService } from '../../../../services/treasury.service';
-import { Car } from '../../../../types/car.model';
+import { Car } from '../../../../models/car.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,7 +20,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatChipsModule } from '@angular/material/chips';
-import { AdvancePaymentVoucher } from '@/src/types/advancePaymentVoucher.model';
+import { AdvancePaymentVoucher } from '@/src/models/advancePaymentVoucher.model';
 
 @Component({
   selector: 'app-deposit-form',

@@ -1,0 +1,87 @@
+<mat-card class="sales-chart-card">
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>trending_up</mat-icon>
+      <span>{{ 'DASHBOARD.SALES_CHART' | translate }}</span>
+    </mat-card-title>
+    <div class="chart-actions">
+      <button mat-icon-button [class.active]="chartType === 'line'" (click)="changeChartType('line')" 
+              matTooltip="{{ 'DASHBOARD.LINE_CHART' | translate }}">
+        <mat-icon>show_chart</mat-icon>
+      </button>
+      <button mat-icon-button [class.active]="chartType === 'bar'" (click)="changeChartType('bar')"
+              matTooltip="{{ 'DASHBOARD.BAR_CHART' | translate }}">
+        <mat-icon>bar_chart</mat-icon>
+      </button>
+      <button mat-icon-button [class.active]="chartType === 'area'" (click)="changeChartType('area')"
+              matTooltip="{{ 'DASHBOARD.AREA_CHART' | translate }}">
+        <mat-icon>area_chart</mat-icon>
+      </button>
+    </div>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="chart-container" *ngIf="!loading && data && data.length > 0">
+      <dx-chart
+        [dataSource]="data"
+        [type]="chartType"
+        [customizePoint]="customizePoint">
+        
+        <dxo-common-series-settings
+          [argumentField]="'period'"
+          [type]="chartType">
+        </dxo-common-series-settings>
+
+        <dxi-series
+          [valueField]="'sales'"
+          [name]="'Sales'"
+          color="#2196f3">
+        </dxi-series>
+
+        <dxi-series
+          [valueField]="'revenue'"
+          [name]="'Revenue'"
+          color="#4caf50">
+        </dxi-series>
+
+        <dxi-series
+          [valueField]="'profit'"
+          [name]="'Profit'"
+          color="#ff9800">
+        </dxi-series>
+
+        <dxo-legend
+          [verticalAlignment]="'bottom'"
+          [horizontalAlignment]="'center'">
+        </dxo-legend>
+
+        <dxo-tooltip
+          [enabled]="true"
+          [customizeTooltip]="customizeTooltip">
+        </dxo-tooltip>
+
+        <dxo-argument-axis>
+          <dxo-grid [visible]="true"></dxo-grid>
+        </dxo-argument-axis>
+
+        <dxo-value-axis>
+          <dxo-grid [visible]="true"></dxo-grid>
+          <dxo-label [customizeText]="customizeValueLabel"></dxo-label>
+        </dxo-value-axis>
+
+        <dxo-export [enabled]="true"></dxo-export>
+      </dx-chart>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-container" *ngIf="loading">
+      <div class="skeleton-chart"></div>
+    </div>
+
+    <!-- No Data State -->
+    <div class="no-data" *ngIf="!loading && (!data || data.length === 0)">
+      <mat-icon>show_chart</mat-icon>
+      <p>{{ 'DASHBOARD.NO_SALES_DATA' | translate }}</p>
+    </div>
+  </mat-card-content>
+</mat-card>

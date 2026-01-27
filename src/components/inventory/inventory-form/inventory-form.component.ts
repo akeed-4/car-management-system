@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, O
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { InventoryService } from '../../../services/inventory.service';
-import { Car, CarCondition, CarStatus, CarLocation } from '../../../types/car.model';
+import { Car, CarCondition, CarStatus, CarLocation } from '../../../models/car.model';
 import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CurrencyPipe, JsonPipe, CommonModule } from '@angular/common';
 import { GeminiService } from '../../../services/gemini.service';
@@ -15,8 +15,8 @@ import { PublishModalComponent } from '../../shared/publish-modal/publish-modal.
 import { TranslateModule } from '@ngx-translate/core';
 import { FloorPlanService } from '../../../services/floor-plan.service';
 import { ExpenseService } from '../../../services/expense.service';
-import { PriceSuggestion } from '../../../types/price-suggestion.model';
-import { Expense } from '../../../types/expense.model';
+import { PriceSuggestion } from '../../../models/price-suggestion.model';
+import { Expense } from '../../../models/expense.model';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';

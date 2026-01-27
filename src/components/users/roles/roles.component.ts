@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RoleService, PERMISSIONS_LIST } from '../../../services/role.service';
-import { Role } from '../../../types/role.model';
+import { Role } from '../../../models/role.model';
 import { KeyValuePipe } from '@angular/common';
 
 @Component({

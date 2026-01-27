@@ -1,0 +1,146 @@
+<div class="cost-price-settings-container">
+  <mat-card class="settings-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>calculate</mat-icon>
+        <span>{{ 'COST_PRICE_SETTINGS.TITLE' | translate }}</span>
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="settingsForm" class="settings-form">
+        
+        <!-- Calculation Method Selection -->
+        <div class="form-section">
+          <h3>
+            <mat-icon>functions</mat-icon>
+            {{ 'COST_PRICE_SETTINGS.CALCULATION_METHOD' | translate }}
+          </h3>
+          <mat-divider></mat-divider>
+          
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'COST_PRICE_SETTINGS.CALCULATION_METHOD_LABEL' | translate }}</mat-label>
+            <mat-select formControlName="calculationMethod">
+              <mat-option *ngFor="let method of calculationMethods" [value]="method.value">
+                <div class="method-option">
+                  <span class="method-label">{{ method.labelAr }} / {{ method.labelEn }}</span>
+                </div>
+              </mat-option>
+            </mat-select>
+            <mat-hint>{{ getMethodDescription(settingsForm.get('calculationMethod')?.value) }}</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <!-- Cost Components -->
+        <div class="form-section">
+          <h3>
+            <mat-icon>account_balance_wallet</mat-icon>
+            {{ 'COST_PRICE_SETTINGS.COST_COMPONENTS' | translate }}
+          </h3>
+          <mat-divider></mat-divider>
+          
+          <div class="checkbox-grid">
+            <mat-checkbox formControlName="includeShippingCost">
+              <span>{{ 'COST_PRICE_SETTINGS.INCLUDE_SHIPPING_COST' | translate }}</span>
+            </mat-checkbox>
+
+            <mat-checkbox formControlName="includeCustomsDuties">
+              <span>{{ 'COST_PRICE_SETTINGS.INCLUDE_CUSTOMS_DUTIES' | translate }}</span>
+            </mat-checkbox>
+
+            <mat-checkbox formControlName="includeInsurance">
+              <span>{{ 'COST_PRICE_SETTINGS.INCLUDE_INSURANCE' | translate }}</span>
+            </mat-checkbox>
+
+            <mat-checkbox formControlName="includeHandlingFees">
+              <span>{{ 'COST_PRICE_SETTINGS.INCLUDE_HANDLING_FEES' | translate }}</span>
+            </mat-checkbox>
+
+            <mat-checkbox formControlName="includeOtherExpenses">
+              <span>{{ 'COST_PRICE_SETTINGS.INCLUDE_OTHER_EXPENSES' | translate }}</span>
+            </mat-checkbox>
+          </div>
+        </div>
+
+        <!-- Pricing Configuration -->
+        <div class="form-section">
+          <h3>
+            <mat-icon>local_offer</mat-icon>
+            {{ 'COST_PRICE_SETTINGS.PRICING_CONFIG' | translate }}
+          </h3>
+          <mat-divider></mat-divider>
+          
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>{{ 'COST_PRICE_SETTINGS.DEFAULT_MARKUP_PERCENTAGE' | translate }}</mat-label>
+              <input matInput type="number" formControlName="defaultMarkupPercentage" min="0" max="100">
+              <mat-icon matSuffix [matTooltip]="'COST_PRICE_SETTINGS.MARKUP_TOOLTIP' | translate">info</mat-icon>
+              <mat-hint>{{ 'COST_PRICE_SETTINGS.MARKUP_HINT' | translate }}</mat-hint>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- VAT Configuration -->
+        <div class="form-section">
+          <h3>
+            <mat-icon>receipt</mat-icon>
+            {{ 'COST_PRICE_SETTINGS.VAT_CONFIG' | translate }}
+          </h3>
+          <mat-divider></mat-divider>
+          
+          <div class="vat-section">
+            <mat-slide-toggle formControlName="applyVAT" color="primary">
+              <span>{{ 'COST_PRICE_SETTINGS.APPLY_VAT' | translate }}</span>
+            </mat-slide-toggle>
+
+            <mat-form-field appearance="outline" class="vat-input" *ngIf="settingsForm.get('applyVAT')?.value">
+              <mat-label>{{ 'COST_PRICE_SETTINGS.VAT_PERCENTAGE' | translate }}</mat-label>
+              <input matInput type="number" formControlName="vatPercentage" min="0" max="100">
+              <mat-icon matSuffix>percent</mat-icon>
+              <mat-hint>{{ 'COST_PRICE_SETTINGS.VAT_HINT' | translate }}</mat-hint>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Activation Status -->
+        <div class="form-section">
+          <h3>
+            <mat-icon>toggle_on</mat-icon>
+            {{ 'COST_PRICE_SETTINGS.ACTIVATION_STATUS' | translate }}
+          </h3>
+          <mat-divider></mat-divider>
+          
+          <mat-slide-toggle formControlName="isActive" color="primary">
+            <span>{{ 'COST_PRICE_SETTINGS.ACTIVATE_SETTINGS' | translate }}</span>
+          </mat-slide-toggle>
+        </div>
+
+        <!-- Info Panel -->
+        <div class="info-panel">
+          <mat-icon>info</mat-icon>
+          <div class="info-content">
+            <strong>{{ 'COST_PRICE_SETTINGS.NOTE' | translate }}:</strong>
+            <ul>
+              <li>{{ 'COST_PRICE_SETTINGS.NOTE_1' | translate }}</li>
+              <li>{{ 'COST_PRICE_SETTINGS.NOTE_2' | translate }}</li>
+              <li>{{ 'COST_PRICE_SETTINGS.NOTE_3' | translate }}</li>
+            </ul>
+          </div>
+        </div>
+
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions>
+      <button mat-raised-button color="primary" (click)="onSave()" [disabled]="settingsForm.invalid || isLoading">
+        <mat-icon>save</mat-icon>
+        {{ 'COST_PRICE_SETTINGS.SAVE_SETTINGS' | translate }}
+      </button>
+      <button mat-raised-button (click)="onReset()" [disabled]="isLoading">
+        <mat-icon>refresh</mat-icon>
+        {{ 'COST_PRICE_SETTINGS.RESET' | translate }}
+      </button>
+      <mat-spinner *ngIf="isLoading" diameter="24"></mat-spinner>
+    </mat-card-actions>
+  </mat-card>
+</div>

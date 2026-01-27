@@ -4,8 +4,8 @@ import { FormGroup, FormControl, FormArray, ReactiveFormsModule, Validators } fr
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { InventoryService } from '../../../services/inventory.service';
 import { StockTakeService } from '../../../services/stock-take.service';
-import { StockTake } from '../../../types/stock-take.model';
-import { StockTakeItem } from '../../../types/stock-take-item.model';
+import { StockTake } from '../../../models/stock-take.model';
+import { StockTakeItem } from '../../../models/stock-take-item.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';

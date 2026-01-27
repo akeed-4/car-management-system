@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Branch } from '../../../types/branch.model';
+import { Branch } from '../../../models/branch.model';
 import { BranchService } from '../../../services/branch.service';
 import { HasPermissionDirective } from '../../shared/permission.directive';
 import { BranchFormComponent } from '../branch-form/branch-form.component';

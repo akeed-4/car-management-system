@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { TranslateModule } from '@ngx-translate/core';
-import { InstallmentSchedule } from '../../../types/sales-enhancements.model';
+import { InstallmentSchedule } from '../../../models/sales-enhancements.model';
 
 @Component({
   selector: 'app-installment-schedule-preview',

@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import { DxDataGridModule, DxDataGridComponent } from 'devextreme-angular';
 import { InstallmentService } from '../../../services/installment.service';
-import { InstallmentSchedule, Installment } from '../../../types/sales-enhancements.model';
+import { InstallmentSchedule, Installment } from '../../../models/sales-enhancements.model';
 
 @Component({
   selector: 'app-installment-grid',

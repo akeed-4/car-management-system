@@ -11,7 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { CurrencyPipe } from '@angular/common';
 import { ChartOfAccountsService } from '../../../services/chart-of-accounts.service';
-import { AccountNode, CreateAccountDto, UpdateAccountDto } from '../../../types/account-node.model';
+import { AccountNode, CreateAccountDto, UpdateAccountDto } from '../../../models/account-node.model';
 
 @Component({
   selector: 'app-account-tree',

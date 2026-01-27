@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs';
-import { FloorPlan } from '../types/floor-plan.model';
+import { FloorPlan } from '../models/floor-plan.model';
 
 @Injectable({
   providedIn: 'root',

@@ -1,6 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Delivery, ChecklistItem } from '../types/delivery.model';
+import { Delivery, ChecklistItem } from '../models/delivery.model';
 import { tap } from 'rxjs';
 import { InventoryService } from './inventory.service';
 

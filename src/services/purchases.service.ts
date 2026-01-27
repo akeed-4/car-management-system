@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { PurchaseInvoice } from '../types/purchase-invoice.model';
+import { PurchaseInvoice } from '../models/purchase-invoice.model';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
 

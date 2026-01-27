@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
-import { SalesInvoice } from '../../../types/sales-invoice.model';
-import { PosPaymentStatus } from '../../../types/pos-payment-status.model';
+import { SalesInvoice } from '../../../models/sales-invoice.model';
+import { PosPaymentStatus } from '../../../models/pos-payment-status.model';
 import { CurrencyPipe } from '@angular/common';
 
 @Component({

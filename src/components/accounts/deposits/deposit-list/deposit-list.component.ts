@@ -11,7 +11,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { DxDataGridModule, DxButtonModule, DxTemplateModule, DxTemplateHost } from 'devextreme-angular';
-import { AdvancePaymentVoucher } from '@/src/types/advancePaymentVoucher.model';
+import { AdvancePaymentVoucher } from '@/src/models/advancePaymentVoucher.model';
 
 type SortColumn = keyof AdvancePaymentVoucher | '';
 type SortDirection = 'asc' | 'desc' | '';

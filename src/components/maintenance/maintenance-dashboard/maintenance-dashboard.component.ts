@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { DatePipe, CurrencyPipe } from '@angular/common';
-import { ServiceOrder, ServiceOrderStatus } from '../../../types/service-order.model';
+import { ServiceOrder, ServiceOrderStatus } from '../../../models/service-order.model';
 import { ServiceOrderService } from '../../../services/service-order.service';
 
 type SortColumn = keyof ServiceOrder | '';

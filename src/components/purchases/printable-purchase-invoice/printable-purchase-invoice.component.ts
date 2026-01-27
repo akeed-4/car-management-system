@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { PurchasesService } from '../../../services/purchases.service';
-import { PurchaseInvoice } from '../../../types/purchase-invoice.model';
+import { PurchaseInvoice } from '../../../models/purchase-invoice.model';
 import { SupplierService } from '../../../services/supplier.service';
-import { Supplier } from '../../../types/supplier.model';
+import { Supplier } from '../../../models/supplier.model';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Location } from '@angular/common';
 

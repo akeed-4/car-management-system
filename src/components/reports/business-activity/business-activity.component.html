@@ -1,0 +1,28 @@
+<app-report-container
+  [title]="'REPORTS.BUSINESS_ACTIVITY.TITLE'"
+  [subtitle]="'REPORTS.BUSINESS_ACTIVITY.SUBTITLE'"
+  [icon]="'trending_up'"
+  [showDateRange]="true"
+  [showBranchFilter]="true"
+  [showAccountFilter]="false"
+  [loading]="loading"
+  (filterChange)="onFilterChange($event)"
+  (exportPdf)="onExportPdf()"
+  (exportExcel)="onExportExcel()"
+  (print)="onPrint()"
+  (refresh)="onRefresh()">
+
+  <app-report-grid
+    [dataSource]="reportData"
+    [columns]="columns"
+    [keyExpr]="'activityType'"
+    [allowSorting]="true"
+    [allowFiltering]="true"
+    [allowGrouping]="true"
+    [showGroupPanel]="true"
+    [showSummary]="true"
+    [summaryItems]="summaryItems"
+    [height]="'600px'">
+  </app-report-grid>
+
+</app-report-container>

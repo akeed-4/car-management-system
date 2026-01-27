@@ -2,6 +2,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { Observable } from 'rxjs';
+import { CostPriceCalculationSetting } from '../models/cost-price-calculation-setting.model';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +13,7 @@ export class SettingService {
 
   private apiURL = environment.origin + '/ApplicationSettings';
   private printSetting = environment.origin + '/ReportPrintSettings';
+  private costPriceApiURL = environment.origin + '/CostPriceCalculationSettings';
 
   getSettingTabs() {
     return this.http.get<any[]>(`${this.apiURL}/GetSettingTabs`);
@@ -62,6 +64,23 @@ export class SettingService {
   // Construct the full URL for viewing the image
   getImage(companyId:number,applicationFlagDetailId:number): Observable<any> {
     return this.http.get<any>(`${this.apiURL}/ViewImage?companyId=${companyId}&applicationFlagDetailId=${applicationFlagDetailId}`);
+  }
+
+  // Cost Price Calculation Settings Methods
+  getCostPriceCalculationSettings(companyId: number): Observable<CostPriceCalculationSetting> {
+    return this.http.get<CostPriceCalculationSetting>(`${this.costPriceApiURL}/GetByCompanyId/${companyId}`);
+  }
+
+  saveCostPriceCalculationSettings(settings: CostPriceCalculationSetting): Observable<CostPriceCalculationSetting> {
+    if (settings.id) {
+      return this.http.put<CostPriceCalculationSetting>(`${this.costPriceApiURL}/Create/${settings.id}`, settings);
+    } else {
+      return this.http.post<CostPriceCalculationSetting>(`${this.costPriceApiURL}/Update`, settings);
+    }
+  }
+
+  deleteCostPriceCalculationSettings(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.costPriceApiURL}/Delete/${id}`);
   }
 
 }

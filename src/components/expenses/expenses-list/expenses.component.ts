@@ -3,7 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ExpenseService } from '../../../services/expense.service';
-import { Expense } from '../../../types/expense.model';
+import { Expense } from '../../../models/expense.model';
 import { ModalComponent } from '../../shared/modal/modal.component';
 
 type SortColumn = keyof Expense | '';

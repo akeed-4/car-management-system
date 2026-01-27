@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Company } from '../../../types/branch.model';
+import { Company } from '../../../models/branch.model';
 import { CompanyService } from '../../../services/company.service';
 import { HasPermissionDirective } from '../../shared/permission.directive';
 import { CompanyFormComponent } from '../company-form/company-form.component';

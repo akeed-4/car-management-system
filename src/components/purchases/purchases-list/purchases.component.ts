@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { PurchaseInvoice } from '../../../types/purchase-invoice.model';
+import { PurchaseInvoice } from '../../../models/purchase-invoice.model';
 import { FormsModule } from '@angular/forms';
 import { PurchasesService } from '../../../services/purchases.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';

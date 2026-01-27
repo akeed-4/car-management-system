@@ -1,0 +1,23 @@
+/* General Journal Report Specific Styles */
+
+/* Print Styles */
+@media print {
+  ::ng-deep .filter-section,
+  ::ng-deep .report-actions,
+  ::ng-deep .dx-datagrid-pager {
+    display: none !important;
+  }
+
+  ::ng-deep .report-container {
+    padding: 0;
+  }
+
+  ::ng-deep .report-card {
+    box-shadow: none;
+    border: none;
+  }
+  
+  ::ng-deep .dx-datagrid {
+    font-size: 10px;
+  }
+}

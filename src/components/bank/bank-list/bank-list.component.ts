@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { Router } from '@angular/router';
 import { InfoBankService } from '../../../services/info-bank.service';
-import { InfoBank } from '../../../types/info-bank.model';
+import { InfoBank } from '../../../models/info-bank.model';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({

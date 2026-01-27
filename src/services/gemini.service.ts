@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { PriceSuggestion } from '../types/price-suggestion.model';
-import { Car } from '../types/car.model';
+import { PriceSuggestion } from '../models/price-suggestion.model';
+import { Car } from '../models/car.model';
 import { lastValueFrom } from 'rxjs';
 
 @Injectable({

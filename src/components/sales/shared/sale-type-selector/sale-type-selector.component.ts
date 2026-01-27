@@ -5,7 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { TranslateModule } from '@ngx-translate/core';
-import { SaleType } from '../../../../types/sales-enhancements.model';
+import { SaleType } from '../../../../models/sales-enhancements.model';
 
 @Component({
   selector: 'app-sale-type-selector',

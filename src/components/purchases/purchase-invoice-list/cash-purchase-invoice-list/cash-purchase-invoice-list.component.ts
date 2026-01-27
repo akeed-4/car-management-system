@@ -5,7 +5,7 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DxDataGridModule } from 'devextreme-angular';
-import { PurchaseInvoice } from '../../../../types/purchase-invoice.model';
+import { PurchaseInvoice } from '../../../../models/purchase-invoice.model';
 import { PurchasesService } from '../../../../services/purchases.service';
 
 type SortColumn = keyof PurchaseInvoice | '';

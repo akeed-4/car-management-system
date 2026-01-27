@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { TestDriveService } from '../../../services/test-drive.service';
 import { InventoryService } from '../../../services/inventory.service';
-import { TestDrive, TestDriveStatus } from '../../../types/test-drive.model';
+import { TestDrive, TestDriveStatus } from '../../../models/test-drive.model';
 import { TranslateModule } from '@ngx-translate/core';
 
 interface DaySchedule {

@@ -1,0 +1,34 @@
+/* Trial Balance Report Specific Styles */
+
+/* Print Styles */
+@media print {
+  ::ng-deep .filter-section,
+  ::ng-deep .report-actions,
+  ::ng-deep .dx-datagrid-pager {
+    display: none !important;
+  }
+
+  ::ng-deep .report-container {
+    padding: 0;
+  }
+
+  ::ng-deep .report-card {
+    box-shadow: none;
+    border: none;
+  }
+  
+  ::ng-deep .dx-datagrid {
+    font-size: 10px;
+  }
+}
+
+/* Custom styling for numeric columns */
+::ng-deep .dx-datagrid .dx-row td[aria-colindex="3"],
+::ng-deep .dx-datagrid .dx-row td[aria-colindex="4"],
+::ng-deep .dx-datagrid .dx-row td[aria-colindex="5"],
+::ng-deep .dx-datagrid .dx-row td[aria-colindex="6"],
+::ng-deep .dx-datagrid .dx-row td[aria-colindex="7"],
+::ng-deep .dx-datagrid .dx-row td[aria-colindex="8"] {
+  font-family: 'Courier New', monospace;
+  font-weight: 500;
+}

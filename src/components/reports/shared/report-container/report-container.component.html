@@ -1,0 +1,131 @@
+<div class="report-container">
+  <mat-card class="report-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>{{ icon }}</mat-icon>
+        <span>{{ title | translate }}</span>
+      </mat-card-title>
+      <mat-card-subtitle *ngIf="subtitle">{{ subtitle | translate }}</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Filter Section -->
+      <div class="filter-section">
+        <form [formGroup]="filterForm" class="filter-form">
+          <div class="filter-row">
+            <!-- Date Range -->
+            <div class="filter-group" *ngIf="showDateRange">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'REPORTS.START_DATE' | translate }}</mat-label>
+                <input matInput [matDatepicker]="startPicker" formControlName="startDate">
+                <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+                <mat-datepicker #startPicker></mat-datepicker>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'REPORTS.END_DATE' | translate }}</mat-label>
+                <input matInput [matDatepicker]="endPicker" formControlName="endDate">
+                <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+                <mat-datepicker #endPicker></mat-datepicker>
+              </mat-form-field>
+            </div>
+
+            <!-- Branch Filter -->
+            <mat-form-field appearance="outline" *ngIf="showBranchFilter">
+              <mat-label>{{ 'REPORTS.BRANCH' | translate }}</mat-label>
+              <mat-select formControlName="branchId">
+                <mat-option [value]="null">{{ 'REPORTS.ALL_BRANCHES' | translate }}</mat-option>
+                <mat-option *ngFor="let branch of branches" [value]="branch.id">
+                  {{ branch.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <!-- Account Filter -->
+            <mat-form-field appearance="outline" *ngIf="showAccountFilter">
+              <mat-label>{{ 'REPORTS.ACCOUNT' | translate }}</mat-label>
+              <mat-select formControlName="accountId">
+                <mat-option [value]="null">{{ 'REPORTS.ALL_ACCOUNTS' | translate }}</mat-option>
+                <mat-option *ngFor="let account of accounts" [value]="account.id">
+                  {{ account.code }} - {{ account.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <!-- Cost Center Filter -->
+            <mat-form-field appearance="outline" *ngIf="showCostCenterFilter">
+              <mat-label>{{ 'REPORTS.COST_CENTER' | translate }}</mat-label>
+              <mat-select formControlName="costCenterId">
+                <mat-option [value]="null">{{ 'REPORTS.ALL_COST_CENTERS' | translate }}</mat-option>
+                <mat-option *ngFor="let center of costCenters" [value]="center.id">
+                  {{ center.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <!-- Custom Filters -->
+            <ng-container *ngFor="let filter of customFilters">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ filter.label | translate }}</mat-label>
+                <mat-select *ngIf="filter.type === 'select'" [formControlName]="filter.name">
+                  <mat-option [value]="null">{{ 'REPORTS.ALL' | translate }}</mat-option>
+                  <mat-option *ngFor="let option of filter.options" [value]="option.value">
+                    {{ option.label }}
+                  </mat-option>
+                </mat-select>
+                <input *ngIf="filter.type === 'text'" matInput [formControlName]="filter.name">
+              </mat-form-field>
+            </ng-container>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="filter-actions">
+            <button mat-raised-button color="primary" (click)="onApplyFilter()" [disabled]="loading">
+              <mat-icon>search</mat-icon>
+              {{ 'REPORTS.APPLY_FILTER' | translate }}
+            </button>
+            <button mat-button (click)="onResetFilter()" [disabled]="loading">
+              <mat-icon>clear</mat-icon>
+              {{ 'REPORTS.RESET' | translate }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Report Actions -->
+      <div class="report-actions">
+        <button mat-button (click)="onRefresh()" [disabled]="loading">
+          <mat-icon>refresh</mat-icon>
+          {{ 'REPORTS.REFRESH' | translate }}
+        </button>
+        <button mat-button (click)="onExportPdf()" [disabled]="loading">
+          <mat-icon>picture_as_pdf</mat-icon>
+          {{ 'REPORTS.EXPORT_PDF' | translate }}
+        </button>
+        <button mat-button (click)="onExportExcel()" [disabled]="loading">
+          <mat-icon>table_chart</mat-icon>
+          {{ 'REPORTS.EXPORT_EXCEL' | translate }}
+        </button>
+        <button mat-button (click)="onPrint()" [disabled]="loading">
+          <mat-icon>print</mat-icon>
+          {{ 'REPORTS.PRINT' | translate }}
+        </button>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Loading Indicator -->
+      <div class="loading-container" *ngIf="loading">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p>{{ 'REPORTS.LOADING' | translate }}</p>
+      </div>
+
+      <!-- Report Content (ng-content for child components) -->
+      <div class="report-content" [class.hidden]="loading">
+        <ng-content></ng-content>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

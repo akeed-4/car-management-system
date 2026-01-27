@@ -1,0 +1,89 @@
+<div class="report-grid-container">
+  <dx-data-grid
+    [dataSource]="dataSource"
+    [keyExpr]="keyExpr"
+    [showBorders]="showBorders"
+    [showRowLines]="showRowLines"
+    [showColumnLines]="showColumnLines"
+    [rowAlternationEnabled]="rowAlternationEnabled"
+    [allowColumnResizing]="allowColumnResizing"
+    [allowColumnReordering]="allowColumnReordering"
+    [columnAutoWidth]="true"
+    [height]="height"
+    (onRowClick)="onRowClick($event)"
+    (onCellClick)="onCellClick($event)"
+    (onSelectionChanged)="onSelectionChanged($event)">
+
+    <!-- Paging -->
+    <dxo-paging [pageSize]="20"></dxo-paging>
+    <dxo-pager
+      [showPageSizeSelector]="true"
+      [allowedPageSizes]="[10, 20, 50, 100]"
+      [showInfo]="true"
+      [showNavigationButtons]="true">
+    </dxo-pager>
+
+    <!-- Search Panel -->
+    <dxo-search-panel
+      [visible]="allowFiltering"
+      [width]="240"
+      placeholder="Search...">
+    </dxo-search-panel>
+
+    <!-- Filter Row -->
+    <dxo-filter-row [visible]="allowFiltering"></dxo-filter-row>
+
+    <!-- Header Filter -->
+    <dxo-header-filter [visible]="allowFiltering"></dxo-header-filter>
+
+    <!-- Sorting -->
+    <dxo-sorting [mode]="allowSorting ? 'multiple' : 'none'"></dxo-sorting>
+
+    <!-- Grouping -->
+    <dxo-grouping [autoExpandAll]="false" *ngIf="allowGrouping"></dxo-grouping>
+    <dxo-group-panel [visible]="showGroupPanel" *ngIf="allowGrouping"></dxo-group-panel>
+
+    <!-- Column Chooser -->
+    <dxo-column-chooser [enabled]="true" mode="select"></dxo-column-chooser>
+
+    <!-- Export -->
+    <dxo-export [enabled]="true" [allowExportSelectedData]="false"></dxo-export>
+
+    <!-- Columns -->
+    <dxi-column
+      *ngFor="let column of columns"
+      [dataField]="column.dataField"
+      [caption]="getCaption(column.caption)"
+      [dataType]="column.dataType || 'string'"
+      [format]="column.format"
+      [alignment]="column.alignment || 'left'"
+      [width]="column.width"
+      [visible]="column.visible !== false"
+      [calculateCellValue]="column.calculateCellValue"
+      [customizeText]="column.customizeText"
+      [allowSorting]="allowSorting"
+      [allowFiltering]="allowFiltering"
+      [allowGrouping]="allowGrouping">
+    </dxi-column>
+
+    <!-- Summary -->
+    <dxo-summary *ngIf="showSummary">
+      <dxi-total-item
+        *ngFor="let item of summaryItems"
+        [column]="item.column"
+        [summaryType]="item.summaryType"
+        [valueFormat]="item.valueFormat"
+        [displayFormat]="item.displayFormat"
+        [alignByColumn]="item.alignByColumn">
+      </dxi-total-item>
+    </dxo-summary>
+
+    <!-- State Storing -->
+    <dxo-state-storing
+      [enabled]="true"
+      type="localStorage"
+      storageKey="reportGridState">
+    </dxo-state-storing>
+
+  </dx-data-grid>
+</div>

@@ -1,0 +1,54 @@
+<mat-card class="recent-activities-card">
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>history</mat-icon>
+      <span>{{ 'DASHBOARD.RECENT_ACTIVITIES' | translate }}</span>
+    </mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <!-- Activities Timeline -->
+    <div class="activities-timeline" *ngIf="!loading && data && data.length > 0">
+      <div class="activity-item" *ngFor="let activity of data">
+        <div class="timeline-line"></div>
+        <div class="activity-icon" [style.background-color]="getActivityColor(activity.type)">
+          <mat-icon>{{ getActivityIcon(activity.type) }}</mat-icon>
+        </div>
+        <div class="activity-content">
+          <div class="activity-header">
+            <h4>{{ activity.type }}</h4>
+            <span class="time-ago">{{ getTimeAgo(activity.timestamp) }}</span>
+          </div>
+          <p class="description">{{ activity.description }}</p>
+          <div class="activity-details">
+            <div class="detail-item" *ngIf="activity.amount">
+              <mat-icon>attach_money</mat-icon>
+              <span>{{ formatAmount(activity.amount) }}</span>
+            </div>
+            <div class="detail-item user">
+              <div class="user-avatar">{{ getUserInitials(activity.user) }}</div>
+              <span>{{ activity.user }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-container" *ngIf="loading">
+      <div class="skeleton-activity" *ngFor="let i of [1,2,3,4,5]">
+        <div class="skeleton-icon"></div>
+        <div class="skeleton-content">
+          <div class="skeleton-text"></div>
+          <div class="skeleton-text short"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Data State -->
+    <div class="no-data" *ngIf="!loading && (!data || data.length === 0)">
+      <mat-icon>history</mat-icon>
+      <p>{{ 'DASHBOARD.NO_ACTIVITIES' | translate }}</p>
+    </div>
+  </mat-card-content>
+</mat-card>

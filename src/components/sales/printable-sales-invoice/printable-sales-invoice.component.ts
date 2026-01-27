@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { SalesService } from '../../../services/sales.service';
-import { SalesInvoice } from '../../../types/sales-invoice.model';
+import { SalesInvoice } from '../../../models/sales-invoice.model';
 import { CustomerService } from '../../../services/customer.service';
-import { Customer } from '../../../types/customer.model';
+import { Customer } from '../../../models/customer.model';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { Location } from '@angular/common';

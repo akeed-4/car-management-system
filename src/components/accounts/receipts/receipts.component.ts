@@ -12,7 +12,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
 import { ReceiptService } from '../../../services/receipt.service';
-import { ReceiptVoucher } from '../../../types/receipt-voucher.model';
+import { ReceiptVoucher } from '../../../models/receipt-voucher.model';
 import CustomStore from 'devextreme/data/custom_store';
 import { ToastService } from '@/src/services/toast.service';
 

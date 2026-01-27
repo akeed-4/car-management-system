@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { SalesReturn, PurchaseReturn, ReturnRequest } from '../types/sales-return.model';
-import { SalesInvoice } from '../types/sales-invoice.model';
-import { PurchaseInvoice } from '../types/purchase-invoice.model';
+import { SalesReturn, PurchaseReturn, ReturnRequest } from '../models/sales-return.model';
+import { SalesInvoice } from '../models/sales-invoice.model';
+import { PurchaseInvoice } from '../models/purchase-invoice.model';
 
 @Injectable({
   providedIn: 'root'

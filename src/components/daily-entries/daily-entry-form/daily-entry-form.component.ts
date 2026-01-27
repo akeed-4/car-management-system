@@ -12,10 +12,10 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { DailyEntry, DailyEntryType } from '../../../types/daily-entry.model';
+import { DailyEntry, DailyEntryType } from '../../../models/daily-entry.model';
 import { DailyEntryService } from '../../../services/daily-entry.service';
 import { InventoryService } from '../../../services/inventory.service';
-import { Car } from '../../../types/car.model';
+import { Car } from '../../../models/car.model';
 
 @Component({
   selector: 'app-daily-entry-form',

@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { RequestedCar } from '../types/requested-car.model';
+import { RequestedCar } from '../models/requested-car.model';
 import { Observable, tap } from 'rxjs';
 
 @Injectable({

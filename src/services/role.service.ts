@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { Role } from '../types/role.model';
+import { Role } from '../models/role.model';
 
 export const PERMISSIONS_LIST = {
   dashboard: {

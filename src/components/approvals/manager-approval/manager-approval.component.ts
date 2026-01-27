@@ -12,7 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { DxDataGridModule, DxButtonModule, DxPopupModule, DxTextAreaModule } from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
-import { SalesReturn, PurchaseReturn } from '../../../types/sales-return.model';
+import { SalesReturn, PurchaseReturn } from '../../../models/sales-return.model';
 import { SalesReturnService } from '../../../services/sales-return.service';
 import { PurchaseReturnService } from '../../../services/purchase-return.service';
 import { AccountingService } from '../../../components/accounting/accounting.service';

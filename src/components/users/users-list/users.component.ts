@@ -6,7 +6,7 @@ import { Router, RouterLink } from '@angular/router';
 import { UserService } from '../../../services/user.service';
 import { RoleService } from '../../../services/role.service';
 import { ModalComponent } from '../../shared/modal/modal.component';
-import { User } from '../../../types/user.model';
+import { User } from '../../../models/user.model';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 
