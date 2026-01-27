@@ -11,7 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { TranslateModule } from '@ngx-translate/core';
-import { ReportFilter } from '@/src/services/account-report.service';
+import { ReportFilter } from '@/src/models/reportmodel';
 
 @Component({
   selector: 'app-report-container',

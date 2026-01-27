@@ -2,8 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReportContainerComponent } from '../shared/report-container/report-container.component';
 import { ReportTreeComponent, TreeColumn } from '../shared/report-tree/report-tree.component';
-import { AccountReportService, BalanceSheetReport, ReportFilter } from '../../../services/account-report.service';
+import { AccountReportService } from '../../../services/account-report.service';
 import { NotificationService } from '../../../services/notification.service';
+import { BalanceSheetReport } from '@/src/models/reportmodel/balance-sheet-report.model';
+import { ReportFilter } from '@/src/models/reportmodel/report-filter.model';
 
 @Component({
   selector: 'app-balance-sheet',

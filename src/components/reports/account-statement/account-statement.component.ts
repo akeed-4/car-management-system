@@ -2,8 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReportContainerComponent } from '../shared/report-container/report-container.component';
 import { ReportGridComponent, GridColumn } from '../shared/report-grid/report-grid.component';
-import { AccountReportService, AccountStatementReport, ReportFilter } from '../../../services/account-report.service';
+import { AccountReportService } from '../../../services/account-report.service';
 import { NotificationService } from '../../../services/notification.service';
+import { AccountStatementReport } from '@/src/models/reportmodel/account-statement-report.model';
+import { ReportFilter } from '@/src/models/reportmodel/report-filter.model';
 
 @Component({
   selector: 'app-account-statement',

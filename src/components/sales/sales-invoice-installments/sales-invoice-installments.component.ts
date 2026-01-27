@@ -42,7 +42,6 @@ const VAT_RATE_MARGIN = 0.15; // 15% applied to profit margin for used cars
     RouterLink,
     ReactiveFormsModule,
     FormsModule,
-    CurrencyPipe,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,

@@ -3,8 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ReportContainerComponent } from '../shared/report-container/report-container.component';
 import { ReportGridComponent, GridColumn } from '../shared/report-grid/report-grid.component';
-import { AccountReportService, AccountBalanceReport, ReportFilter } from '../../../services/account-report.service';
+import { AccountReportService } from '../../../services/account-report.service';
 import { NotificationService } from '../../../services/notification.service';
+import { AccountBalanceReport } from '@/src/models/reportmodel/account-balance-report.model';
+import { ReportFilter } from '@/src/models/reportmodel/report-filter.model';
 
 @Component({
   selector: 'app-account-balance',
