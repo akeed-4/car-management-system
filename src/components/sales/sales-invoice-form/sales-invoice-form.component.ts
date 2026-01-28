@@ -32,7 +32,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { InvoiceItemDialogComponent } from '../invoice-item-dialog/invoice-item-dialog.component';
 import { CarSelectionDialogComponent } from '../car-selection-dialog/car-selection-dialog.component';
 import { DxoValueErrorBarComponent } from 'devextreme-angular/ui/nested';
-import { ToastService } from '../../../services/toast.service';
+import { NotificationService } from '@/src/services/notification.service';
 
 const VAT_RATE_FULL = 0.15; // 15% for new cars on full sale price
 const VAT_RATE_MARGIN = 0.15; // 15% applied to profit margin for used cars
@@ -130,7 +130,7 @@ export class SalesInvoiceFormComponent implements OnInit {
     private translate: TranslateService,
     private dialog: MatDialog,
     private route: ActivatedRoute,
-    private toastService: ToastService
+    private notificationService: NotificationService
   ) {
     this.invoiceNumber.set(`INV-${Date.now()}`);
   }
@@ -293,7 +293,7 @@ export class SalesInvoiceFormComponent implements OnInit {
     // Check if already exists
     const alreadyExists = this.invoiceItems().some(item => item.carId === car.id);
     if (alreadyExists) {
-      this.toastService.showError('PURCHASE_INVOICE.ERROR_ALREADY_ADDED');
+      this.notificationService.showError('PURCHASE_INVOICE.ERROR_ALREADY_ADDED');
       return;
     }
 
@@ -353,13 +353,13 @@ export class SalesInvoiceFormComponent implements OnInit {
         // Check if already exists
         const alreadyExists = this.invoiceItems().some(item => item.carId === car.carId);
         if (alreadyExists) {
-          this.toastService.showError('INVOICE.ALREADY_ADDED');
+          this.notificationService.showError('INVOICE.ALREADY_ADDED');
           return;
         }
 
         // Check quantity
         if (quantity > car.availableQuantity) {
-          this.toastService.showError('INVOICE.INSUFFICIENT_STOCK');
+          this.notificationService.showError('INVOICE.INSUFFICIENT_STOCK');
           return;
         }
 
@@ -539,20 +539,20 @@ export class SalesInvoiceFormComponent implements OnInit {
     if (this.isEditMode()) {
       this.salesService.updateInvoice(invoiceData).subscribe({
         next: () => {
-          this.toastService.showSuccess('TOAST.UPDATE_SUCCESS');
+          this.notificationService.showSuccess('TOAST.UPDATE_SUCCESS');
         },
         error: () => {
-          this.toastService.showError('TOAST.SAVE_ERROR');
+          this.notificationService.showError('TOAST.SAVE_ERROR');
         }
       });
     } else {
       this.salesService.addInvoice(invoiceData).subscribe({
         next: () => {
-          this.toastService.showSuccess('TOAST.ADD_SUCCESS');
+          this.notificationService.showSuccess('TOAST.ADD_SUCCESS');
           this.router.navigate(['/sales']);
         },
         error: () => {
-          this.toastService.showError('TOAST.SAVE_ERROR');
+          this.notificationService.showError('TOAST.SAVE_ERROR');
         }
       });
     }

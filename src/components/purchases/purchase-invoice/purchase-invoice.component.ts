@@ -48,6 +48,7 @@ export enum InvoiceType {
 
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { AccountingService } from '../../accounting/accounting.service';
+import { NotificationService } from '../../../services/notification.service';
 
 @Component({
   selector: 'app-purchase-invoice',
@@ -112,6 +113,7 @@ export class PurchaseInvoiceComponent implements OnInit {
   private toastService = inject(ToastService);
   private route = inject(ActivatedRoute);
   private dialog = inject(MatDialog);
+  private notificationService = inject(NotificationService);
   cardLayout2 = this.currentSettingService.getCardLayout(2);
   cardLayout3 = this.currentSettingService.getCardLayout(3);
   cardLayout4 = this.currentSettingService.getCardLayout(4);
@@ -506,7 +508,7 @@ export class PurchaseInvoiceComponent implements OnInit {
     // Check if already exists
     const alreadyExists = this.invoiceItems().some(item => item.carId === car.id);
     if (alreadyExists) {
-      this.toastService.showError('PURCHASE_INVOICE.ERROR_ALREADY_ADDED');
+      this.notificationService.showError('PURCHASE_INVOICE.ERROR_ALREADY_ADDED');
       return;
     }
 
@@ -540,7 +542,7 @@ export class PurchaseInvoiceComponent implements OnInit {
 
   saveInvoice(): void {
     if (this.purchaseInvoiceForm.invalid) {
-      this.toastService.showError('Please fill all required fields correctly');
+      this.notificationService.showError('Please fill all required fields correctly');
       return;
     }
 
@@ -550,15 +552,15 @@ export class PurchaseInvoiceComponent implements OnInit {
     const items = this.invoiceItems();
 
     if (!supplierId || !supplier) {
-      this.toastService.showError('PURCHASE_INVOICE.ERROR_SELECT_SUPPLIER');
+      this.notificationService.showError('PURCHASE_INVOICE.ERROR_SELECT_SUPPLIER');
       return;
     }
     if (items.length === 0) {
-      this.toastService.showError('PURCHASE_INVOICE.ERROR_NO_ITEMS');
+      this.notificationService.showError('PURCHASE_INVOICE.ERROR_NO_ITEMS');
       return;
     }
     if (this.totalAmount() <= 0) {
-      this.toastService.showError('Total amount must be greater than 0');
+      this.notificationService.showError('Total amount must be greater than 0');
       return;
     }
 
@@ -583,17 +585,17 @@ export class PurchaseInvoiceComponent implements OnInit {
     if (this.isEditMode()) {
       const invoiceId = this.currentInvoiceId();
       if (!invoiceId) {
-        this.toastService.showError('Invalid invoice ID for update');
+        this.notificationService.showError('Invalid invoice ID for update');
         return;
       }
       this.procurementService.updateInvoice(invoiceId, newInvoice).subscribe({
         next: (savedInvoice) => {
-          this.toastService.showSuccess('TOAST.UPDATE_SUCCESS');
+          this.notificationService.showSuccess('TOAST.UPDATE_SUCCESS');
           // Optionally navigate or reset
         },
         error: (error) => {
           console.error('Error updating purchase invoice:', error);
-          this.toastService.showError('TOAST.SAVE_ERROR');
+          this.notificationService.showError('TOAST.SAVE_ERROR');
         }
       });
     } else {
@@ -604,11 +606,11 @@ export class PurchaseInvoiceComponent implements OnInit {
             this.inventoryService.incrementCarQuantity(item.carId, item.quantity);
           });
 
-          this.toastService.showSuccess('TOAST.ADD_SUCCESS');
+          this.notificationService.showSuccess('TOAST.ADD_SUCCESS');
         },
         error: (error) => {
           console.error('Error saving purchase invoice:', error);
-          this.toastService.showError('TOAST.SAVE_ERROR');
+          this.notificationService.showError('TOAST.SAVE_ERROR');
         }
       });
     }

@@ -26,14 +26,14 @@ export class ToastService {
   private getOptions(timeOut: number, extraClass: string = '') {
     const options: any = {
       timeOut,
-      positionClass: 'toast-top-right',
+      positionClass: 'ngx-toastr',
       progressBar: true,
       closeButton: true
     };
 
     if (this.containerId) {
       options.containerId = this.containerId;
-      options.positionClass = 'toast-bottom-right';
+      options.positionClass = 'ngx-toastr';
     }
 
     if (extraClass) {

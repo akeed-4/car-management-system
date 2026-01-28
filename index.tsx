@@ -48,7 +48,7 @@ bootstrapApplication(AppComponent, {
     ),
     provideToastr({
       timeOut: 3000,
-      positionClass: 'toast-bottom-right',
+      positionClass: 'ngx-toastr',
       preventDuplicates: true,
       progressBar: true,
       closeButton: true
