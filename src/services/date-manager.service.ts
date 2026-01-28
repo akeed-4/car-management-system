@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { LanguageService } from '../services/language.service';
+import moment from 'moment';
 
 @Injectable({
   providedIn: 'root',
@@ -7,13 +8,7 @@ import { LanguageService } from '../services/language.service';
 export class DateManagerService {
   constructor() {}
 
-  private loadMoment() {
-    var moment = require('moment');
-    return moment;
-  }
-
   formatToYearFirst(date: Date | string,isDateTime: boolean = false) {
-    const moment = this.loadMoment();
     if (isDateTime) {
       return moment(date).format('YYYY-MM-DD hh:mm:ss a');
     }
@@ -21,7 +16,6 @@ export class DateManagerService {
   }
 
   formatToDayFirst(date: Date | string,isDateTime: boolean = false) {
-    const moment = this.loadMoment();
     if (isDateTime) {
       return moment(date).format('DD/MM/YYYY hh:mm:ss A');
     }
@@ -29,33 +23,27 @@ export class DateManagerService {
   }
 
 
-  async addDays(date: Date | string, days: number): Promise<string> {
-    const moment = await this.loadMoment();
+  async addDays(date: Date | string, days: number): Promise<any> {
     return moment(date).add(days, 'd');
   }
 
-  async addMonths(date: Date | string, months: number): Promise<string> {
-    const moment = await this.loadMoment();
+  async addMonths(date: Date | string, months: number): Promise<any> {
     return moment(date).add(months, 'M');
   }
 
   async isValidDate(date: any): Promise<boolean> {
-    const moment = await this.loadMoment();
     return moment(date).isValid();
   }
 
   getToday() {
-    var moment = require('moment');
     return moment(new Date()).format('YYYY-MM-DD');
   }
 
   getTodayDayFirst() {
-    var moment = require('moment');
     return moment(new Date()).format('DD/MM/YYYY');
   }
 
   getCurrentDateTimeDayFirst() {
-    var moment = require('moment');
     return moment(new Date()).format('DD/MM/YYYY HH:mm:ss A');
   }
 
@@ -68,7 +56,6 @@ export class DateManagerService {
   }
 
   goBackSpecificYears(date: Date, years: number) {
-    var moment = require('moment');
     return moment(date).subtract(years, 'years').format('YYYY-MM-DD');
   }
 
@@ -126,7 +113,6 @@ export class DateManagerService {
   }
 
   diffInDays(date1: Date, date2: Date) {
-    const moment = this.loadMoment();
     return moment(date1).diff(moment(date2), 'days');
   }
 }

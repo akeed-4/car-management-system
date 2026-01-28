@@ -535,7 +535,7 @@ export class CurrentSettingService {
    * Returns observable of invoice classification options for dropdown
    */
   getInvoiceClassifications(): Observable<{value: number, label: string, vatRate: number}[]> {
-    return this.http.get<InvoiceClassification[]>(`${environment.origin}api/PurchaseInvoices/classifications`)
+    return this.http.get<InvoiceClassification[]>(`${environment.origin}api/InvoiceClassifications/GetAll`)
       .pipe(
         map(classifications => 
           classifications

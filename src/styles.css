@@ -1009,32 +1009,23 @@ mat-form-field {
   color: white !important;
 }
 
-/* Custom Toast Container - Small and Local to Component */
-.toast-container-local {
-  position: relative !important;
-  width: 100% !important;
-  max-width: none !important;
-  height: auto !important;
-  bottom: 0 !important;
-  right: 0 !important;
-  z-index: 1000 !important;
+/* Make toastr small floating cards */
+.toast-container .ngx-toastr {
+  width: 280px !important;
+  padding: 12px 14px !important;
+  border-radius: 10px !important;
+  font-size: 13px !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15) !important;
 }
 
-.toast-container-local .ngx-toastr {
-  width: 100% !important;
-  max-width: 500px !important;
-  margin: 0 auto !important;
-  border-radius: 8px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-  margin-top: 10px !important;
-}
-
-.toast-container-local .toast-title {
+/* Title */
+.toast-title {
+  font-size: 14px !important;
   font-weight: 600 !important;
-  font-size: 14px !important;
 }
 
-.toast-container-local .toast-message {
-  font-size: 14px !important;
+/* Message */
+.toast-message {
+  font-size: 13px !important;
   line-height: 1.4 !important;
 }

@@ -1,6 +1,8 @@
 import { Observable } from "rxjs";
 import { SimpleChanges } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
+import * as _ from 'lodash';
+import numeral from 'numeral';
 
 export function toBase64(file: File) {
   return new Promise((resolve, reject) => {
@@ -271,7 +273,6 @@ export function roundNumber(num: number, dec: number): number {
  * @returns the formatted number
  */
 export function formatNumber(number: number, decimalCount: number = 2) {
-  var numeral = require('numeral');
   var format = decimalCount == 3 ? '0,0.000' : decimalCount == 4 ? '0,0.0000' : '0,0.00';
   return numeral(number).format(format);
 }
@@ -283,8 +284,7 @@ export function formatNumber(number: number, decimalCount: number = 2) {
  * @returns the grouped array
  */
 export function groupBy(items: any, groupBy: any) {
-  const lodash = require('lodash');
-  return lodash.groupBy(items, groupBy);
+  return _.groupBy(items, groupBy);
 }
 
 /**
@@ -294,8 +294,7 @@ export function groupBy(items: any, groupBy: any) {
  * @returns the result of the sum
  */
 export function sumBy(items: any, sumBy: any) {
-  const lodash = require('lodash');
-  return lodash.sumBy(items, sumBy);
+  return _.sumBy(items, sumBy);
 }
 
 /**
@@ -316,8 +315,7 @@ export function sumBy(items: any, sumBy: any) {
  * @returns The sorted array.
  */
 export function orderBy<T>(array: T[], properties: Array<keyof T>, orders?: Array<'asc' | 'desc'>): T[] {
-  const lodash = require('lodash');
-  return lodash.orderBy(array, properties, orders);
+  return _.orderBy(array, properties, orders);
 }
 
 export function hasDecimal(num: number): boolean {
@@ -334,11 +332,10 @@ export function normalizeArabic(text?: string): string {
 }
 
 export function isActualChange(changes: SimpleChanges, key: string): boolean {
-  const lodash = require('lodash');
   const change = changes[key];
   if (!change) return false;
   return (
-    !lodash.isEqual(change.previousValue, change.currentValue) &&
+    !_.isEqual(change.previousValue, change.currentValue) &&
     change.currentValue !== undefined
   );
 }
