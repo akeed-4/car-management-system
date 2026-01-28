@@ -14,10 +14,15 @@ export class NotificationService {
       title = this.translateService.instant('notification.successTitle')
     }
     this.toastr.success(message, title, {
-      positionClass: this.translateService.currentLang == 'ar' ? this.translateService.currentLang == 'ar' ? 'toast-bottom-right' : 'toast-bottom-left' : 'toast-bottom-left',
+      positionClass: this.translateService.currentLang == 'ar' ? 'toast-bottom-right' : 'toast-bottom-left',
       closeButton: true,
       timeOut: 8000,
-      toastClass: 'ngx-toastr custom-success-toast'
+      toastClass: 'ngx-toastr custom-success-toast',
+      disableTimeOut: false,
+      tapToDismiss: true,
+      progressBar: true,
+      progressAnimation: 'decreasing',
+      enableHtml: true
     });
   }
 
@@ -29,7 +34,12 @@ export class NotificationService {
       positionClass: this.translateService.currentLang == 'ar' ? 'toast-bottom-right' : 'toast-bottom-left',
       closeButton: true,
       timeOut: 15000,
-      toastClass: 'ngx-toastr custom-error-toast'
+      toastClass: 'ngx-toastr custom-error-toast',
+      disableTimeOut: false,
+      tapToDismiss: true,
+      progressBar: true,
+      progressAnimation: 'decreasing',
+      enableHtml: true
     });
   }
 

@@ -47,11 +47,18 @@ bootstrapApplication(AppComponent, {
       })
     ),
     provideToastr({
-      timeOut: 3000,
-      positionClass: 'ngx-toastr',
+      timeOut: 5000,
+      positionClass: 'toast-bottom-right',
       preventDuplicates: true,
       progressBar: true,
-      closeButton: true
+      closeButton: true,
+      maxOpened: 5,
+      autoDismiss: false,
+      newestOnTop: true,
+      enableHtml: true,
+      tapToDismiss: true,
+      extendedTimeOut: 1000,
+      progressAnimation: 'decreasing'
     }),
   ],
 }).catch((err) => console.error(err));

@@ -5,6 +5,7 @@ import { PosPaymentStatus } from '../models/pos-payment-status.model';
 import { SalesService } from './sales.service';
 import { ReceiptService } from './receipt.service';
 import { TreasuryService } from './treasury.service';
+import { environment } from '../environments/environment.development';
 
 @Injectable({
   providedIn: 'root',
@@ -16,7 +17,7 @@ export class PaymentGatewayService {
   private http = inject(HttpClient);
 
   // رابط API الخاص ببوابة الدفع
-  private paymentApiUrl = 'https://api.example.com/payments';
+  private paymentApiUrl = environment.origin+'/api/payment-gateway/process-payment';
 
   async initiatePosPayment(invoice: SalesInvoice): Promise<PosPaymentStatus> {
     try {
@@ -27,7 +28,7 @@ export class PaymentGatewayService {
           invoiceId: invoice.id,
           amount: invoice.amountDue,
           customerId: invoice.customerId,
-          paymentMethod: 'Card',
+          paymentMethod: 2,
         }
       ).toPromise();
 
@@ -45,17 +46,14 @@ export class PaymentGatewayService {
           date: new Date(),
           customerId: invoice.customerId,
           customerName: invoice.customerName,
-          referenceType: 'INVOICE',
           referenceId: invoice.id,
           notes: `Receipt for invoice ${invoice.invoiceNumber} paid via POS`,
           createdBy: 1,
           createdAt: new Date(),
           salesInvoiceId: invoice.id,
-          salesInvoiceNumber: invoice.invoiceNumber,
           amount: invoice.amountDue,
-          paymentMethod: 'BANK_TRANSFER',
+          paymentMethod: 2,
           accountId: defaultAccount.id,
-          accountName: defaultAccount.name,
         });
       }
 

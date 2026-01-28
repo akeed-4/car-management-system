@@ -92,6 +92,12 @@ import { SalesInvoiceCashComponent } from './components/sales/sales-invoice-form
 import { SalesInvoiceCreditComponent } from './components/sales/sales-invoice-form/sales-invoice-credit/sales-invoice-credit.component';
 import { CashInvoiceListComponent } from './components/sales/sales-invoice-list/cash-invoice-list/cash-invoice-list.component';
 import { CreditInvoiceListComponent } from './components/sales/sales-invoice-list/credit-invoice-list/credit-invoice-list.component';
+import { AccountBalanceComponent } from './components/reports/account-balance/account-balance.component';
+import { AccountStatementComponent } from './components/reports/account-statement/account-statement.component';
+import { BalanceSheetComponent } from './components/reports/balance-sheet/balance-sheet.component';
+import { BusinessActivityComponent } from './components/reports/business-activity/business-activity.component';
+import { GeneralJournalComponent } from './components/reports/general-journal/general-journal.component';
+import { TrialBalanceComponent } from './components/reports/trial-balance/trial-balance.component';
 
 export const APP_ROUTES: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -212,6 +218,12 @@ export const APP_ROUTES: Routes = [
   { path: 'reports/financial', component: FinancialReportsComponent },
   { path: 'reports/tax', component: TaxReportsComponent },
   { path: 'reports/administrative', component: AdministrativeReportsComponent },
+  { path: 'reports/account-balance', component: AccountBalanceComponent },
+  { path: 'reports/account-statement', component: AccountStatementComponent },
+  { path: 'reports/balance-sheet', component: BalanceSheetComponent },
+  { path: 'reports/business-activity', component: BusinessActivityComponent },
+  { path: 'reports/general-journal', component: GeneralJournalComponent },
+  { path: 'reports/trial-balance', component: TrialBalanceComponent },
   { path: 'users', component: UsersComponent },
   { path: 'users/new', component: UserFormComponent },
   { path: 'users/edit/:id', component: UserFormComponent },

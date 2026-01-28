@@ -157,5 +157,13 @@ export const menuData = [
       { id: 111, name: 'قائمة المستخدمين', englishName: 'User List', route: '/users' },
       { id: 112, name: 'الأدوار والصلاحيات', englishName: 'Roles & Permissions', route: '/users/roles' }
     ]
+  },
+  {
+    id: 12,
+    name: 'الاعدادات النظام',
+    englishName: 'System Settings',
+    submenu: [
+      { id: 121, name: 'اعدادات حساب التكلفة', englishName: 'Cost Price Settings', route: '/setup/cost-price-settings' }
+    ]
   }
 ];

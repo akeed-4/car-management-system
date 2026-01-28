@@ -13,6 +13,7 @@ import { MatInputModule } from "@angular/material/input";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { LayoutComponent } from './layout.component';
+import { ToastrComponentlessModule, ToastrModule } from "ngx-toastr";
 
 @NgModule({
   declarations: [
@@ -31,7 +32,8 @@ import { LayoutComponent } from './layout.component';
     DxMenuModule,
     DxTreeListModule,
     MatSidenavModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    ToastrModule.forRoot(),
   ],
 })
 export class ApplicationLayoutModule { }

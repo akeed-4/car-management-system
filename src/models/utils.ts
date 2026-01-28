@@ -2,7 +2,9 @@ import { Observable } from "rxjs";
 import { SimpleChanges } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import * as _ from 'lodash';
-import numeral from 'numeral';
+
+// Type declaration for numeral
+declare const numeral: any;
 
 export function toBase64(file: File) {
   return new Promise((resolve, reject) => {
