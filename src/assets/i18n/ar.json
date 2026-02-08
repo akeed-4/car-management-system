@@ -397,6 +397,36 @@
   "INVOICE_ADDITIONAL": {
     "ALREADY_ADDED": "هذه السيارة مضافة بالفعل إلى الفاتورة"
   },
+  "CAR_CATEGORY": {
+    "LIST_TITLE": "فئات السيارات",
+    "ADD_NEW": "إضافة فئة جديدة",
+    "EDIT": "تعديل الفئة",
+    "DELETE": "حذف",
+    "SEARCH_PLACEHOLDER": "البحث في الفئات...",
+    "NO_CATEGORIES": "لا توجد فئات مسجلة.",
+    "FORM": {
+      "TITLE_NEW": "إضافة فئة جديدة",
+      "TITLE_EDIT": "تعديل الفئة",
+      "BACK_TO_LIST": "العودة إلى القائمة",
+      "NAME": "اسم الفئة",
+      "NAME_AR": "الاسم بالعربية",
+      "NAME_EN": "الاسم بالإنجليزية",
+      "DESCRIPTION": "الوصف",
+      "CANCEL": "إلغاء",
+      "SAVE": "حفظ",
+      "SAVE_CHANGES": "حفظ التغييرات"
+    },
+    "COLUMNS": {
+      "ID": "الرقم",
+      "NAME": "الاسم",
+      "DESCRIPTION": "الوصف",
+      "ACTIONS": "الإجراءات"
+    },
+    "MODAL": {
+      "DELETE_TITLE": "تأكيد حذف الفئة",
+      "DELETE_MESSAGE": "هل أنت متأكد من حذف هذه الفئة؟ لا يمكن التراجع عن هذا الإجراء."
+    }
+  },
   "TEST_DRIVES": {
     "SCHEDULE_TITLE": "جدول تجارب القيادة",
     "BOOK_NEW": "حجز تجربة قيادة جديدة",
@@ -437,6 +467,8 @@
       "SELECT_MANUFACTURER": "اختر الشركة المصنعة",
       "MODEL": "الموديل",
       "SELECT_MODEL": "اختر الموديل",
+      "CATEGORY": "الفئة",
+      "SELECT_CATEGORY": "اختر الفئة",
       "YEAR": "سنة الصنع",
       "SELECT_YEAR": "اختر السنة",
       "CURRENT_LOCATION": "الموقع الحالي",

@@ -391,6 +391,36 @@
   "INVOICE_ADDITIONAL": {
     "ALREADY_ADDED": "This car is already added to the invoice"
   },
+  "CAR_CATEGORY": {
+    "LIST_TITLE": "Car Categories",
+    "ADD_NEW": "Add New Category",
+    "EDIT": "Edit Category",
+    "DELETE": "Delete",
+    "SEARCH_PLACEHOLDER": "Search categories...",
+    "NO_CATEGORIES": "No categories registered.",
+    "FORM": {
+      "TITLE_NEW": "Add New Category",
+      "TITLE_EDIT": "Edit Category",
+      "BACK_TO_LIST": "Back to List",
+      "NAME": "Category Name",
+      "NAME_AR": "Name in Arabic",
+      "NAME_EN": "Name in English",
+      "DESCRIPTION": "Description",
+      "CANCEL": "Cancel",
+      "SAVE": "Save",
+      "SAVE_CHANGES": "Save Changes"
+    },
+    "COLUMNS": {
+      "ID": "ID",
+      "NAME": "Name",
+      "DESCRIPTION": "Description",
+      "ACTIONS": "Actions"
+    },
+    "MODAL": {
+      "DELETE_TITLE": "Confirm Delete Category",
+      "DELETE_MESSAGE": "Are you sure you want to delete this category? This action cannot be undone."
+    }
+  },
   "TEST_DRIVES": {
     "SCHEDULE_TITLE": "Test Drive Schedule",
     "BOOK_NEW": "Book New Test Drive",
@@ -412,6 +442,8 @@
       "SELECT_MANUFACTURER": "Select Manufacturer",
       "MODEL": "Model",
       "SELECT_MODEL": "Select Model",
+      "CATEGORY": "Category",
+      "SELECT_CATEGORY": "Select Category",
       "YEAR": "Manufacture Year",
       "SELECT_YEAR": "Select Year",
       "CURRENT_LOCATION": "Current Location",

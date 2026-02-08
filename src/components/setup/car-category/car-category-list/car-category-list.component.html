@@ -1,0 +1,53 @@
+<div class="container">
+  <div class="page-header">
+    <h2>{{ 'CAR_CATEGORY.LIST_TITLE' | translate }}</h2>
+    <a routerLink="/setup/car-category/new" mat-raised-button color="primary">
+      <mat-icon>add</mat-icon>
+      {{ 'CAR_CATEGORY.ADD_NEW' | translate }}
+    </a>
+  </div>
+
+  <dx-data-grid
+    [dataSource]="categories()"
+    [showBorders]="true"
+    [rowAlternationEnabled]="true"
+    [hoverStateEnabled]="true"
+    [columnAutoWidth]="true"
+    [showColumnLines]="true"
+    [showRowLines]="true">
+    
+    <dxo-filter-row [visible]="true"></dxo-filter-row>
+    <dxo-header-filter [visible]="true"></dxo-header-filter>
+    <dxo-search-panel [visible]="true" [width]="240" placeholder="{{ 'CAR_CATEGORY.SEARCH_PLACEHOLDER' | translate }}"></dxo-search-panel>
+    <dxo-paging [pageSize]="10"></dxo-paging>
+    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 25, 50]" [showInfo]="true"></dxo-pager>
+
+    <dxi-column dataField="id" [caption]="getCaption('ID')" [width]="80" alignment="center"></dxi-column>
+    <dxi-column dataField="name" [caption]="getCaption('NAME')" [minWidth]="200"></dxi-column>
+    <dxi-column dataField="description" [caption]="getCaption('DESCRIPTION')" [minWidth]="300"></dxi-column>
+    
+    <dxi-column 
+      type="buttons" 
+      [caption]="getCaption('ACTIONS')" 
+      [width]="120"
+      alignment="center">
+      <dxi-button
+        icon="edit"
+        [hint]="'CAR_CATEGORY.EDIT' | translate"
+        (onClick)="onEdit($event)">
+      </dxi-button>
+      <dxi-button
+        icon="trash"
+        [hint]="'CAR_CATEGORY.DELETE' | translate"
+        (onClick)="deleteCategory($event.row.data.id)">
+      </dxi-button>
+    </dxi-column>
+
+    <div *dxTemplate="let data of 'noDataTemplate'">
+      <div class="empty-state">
+        <mat-icon>category</mat-icon>
+        <p>{{ 'CAR_CATEGORY.NO_CATEGORIES' | translate }}</p>
+      </div>
+    </div>
+  </dx-data-grid>
+</div>

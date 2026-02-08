@@ -14,7 +14,7 @@
                         <mat-grid-tile [colspan]="1" [rowspan]="1">
                             <mat-form-field appearance="outline" class="full-width">
                                 <mat-label>{{ 'INVENTORY.FORM.MANUFACTURER' | translate }}</mat-label>
-                                <mat-select formControlName="make" required>
+                                <mat-select formControlName="make" required (selectionChange)="onManufacturerChange($event.value)">
                                     <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_MANUFACTURER' | translate }}</mat-option>
                                     @for (manufacturer of manufacturers(); track manufacturer.id) {
                                         <mat-option [value]="manufacturer.name">{{ manufacturer.name }}</mat-option>
@@ -25,18 +25,31 @@
                         <mat-grid-tile [colspan]="1" [rowspan]="1">
                             <mat-form-field appearance="outline" class="full-width">
                                 <mat-label>{{ 'INVENTORY.FORM.MODEL' | translate }}</mat-label>
-                                <mat-select formControlName="modelId" required>
+                                <mat-select formControlName="modelId" required (selectionChange)="onModelChange($event.value)">
                                     <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_MODEL' | translate }}</mat-option>
-                                    @for (carModel of allModels(); track carModel.id) {
+                                    @for (carModel of filteredModels(); track carModel.id) {
                                         <mat-option [value]="carModel.id">{{ carModel.name }}</mat-option>
                                     }
                                 </mat-select>
                             </mat-form-field>
                         </mat-grid-tile>
+
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>{{ 'INVENTORY.FORM.CATEGORY' | translate }}</mat-label>
+                                <mat-select formControlName="categoryId">
+                                    <mat-option [value]="null">{{ 'INVENTORY.FORM.SELECT_CATEGORY' | translate }}</mat-option>
+                                    @for (cat of filteredCategories(); track cat.id) {
+                                        <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        </mat-grid-tile>
+                        
                         <mat-grid-tile [colspan]="1" [rowspan]="1">
                             <mat-form-field appearance="outline" class="full-width">
                                 <mat-label>{{ 'INVENTORY.FORM.YEAR' | translate }}</mat-label>
-                                <mat-select formControlName="year" required>
+                                <mat-select formControlName="year" required (selectionChange)="onYearChange($event.value)">
                                     <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_YEAR' | translate }}</mat-option>
                                     @for (y of years(); track y) {
                                         <mat-option [value]="y">{{ y }}</mat-option>

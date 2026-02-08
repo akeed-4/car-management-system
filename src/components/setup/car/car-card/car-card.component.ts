@@ -20,6 +20,7 @@ import { FloorPlanService } from '../../../../services/floor-plan.service';
 import { CurrentSettingService } from '../../../../services/current-setting.service';
 import { ExpenseService } from '../../../../services/expense.service';
 import { ToastService } from '../../../../services/toast.service';
+import { CarCategoryService } from '../../../../services/car-category.service';
 
 import { Car, CarCondition } from '../../../../models/car.model';
 import { PriceSuggestion } from '../../../../models/price-suggestion.model';
@@ -62,6 +63,7 @@ export class CarCardComponent implements OnInit {
   private currentSettingService = inject(CurrentSettingService);
   private cdr = inject(ChangeDetectorRef);
   private toastService = inject(ToastService);
+  private carCategoryService = inject(CarCategoryService);
 
   layout$ = this.currentSettingService.getCardLayout(3);
   private fb = inject(FormBuilder);
@@ -74,6 +76,7 @@ export class CarCardComponent implements OnInit {
   allModels = this.carModelService.carmodel$;
   years = this.yearService.years$;
   floorPlans = this.floorPlanService.floorPlans$;
+  categories = this.carCategoryService.categories$;
 
   // Component state
   editMode = signal(false);
@@ -126,6 +129,23 @@ export class CarCardComponent implements OnInit {
     return this.allModels().filter(m => m.manufacturerId === selectedManufacturer.id);
   });
 
+  // Computed signal for filtered categories
+  filteredCategories = computed(() => {
+    return this.categories();
+  });
+  constructor() { 
+     // Reset model when manufacturer changes and set manufacturerId
+     effect(() => {
+       const make = this.carForm?.value?.make;
+       if (make && this.carForm) {
+         const selectedManufacturer = this.manufacturers().find(m => m.name === make);
+         this.carForm.patchValue({ 
+           modelId: null,
+           manufacturerId: selectedManufacturer?.id || null
+         });
+       }
+     });
+  }
   canSuggestPrice = computed(() => {
     const formValue = this.carForm?.value || {};
     return formValue.make && formValue.model && formValue.year && formValue.mileage;
@@ -151,8 +171,10 @@ export class CarCardComponent implements OnInit {
       plateNumber: [''],
       istimaraExpiry: [''],
       fahasStatus: ['Valid'],
+      manufacturerId: [null],
       make: [''],
       modelId: [null],
+      categoryId: [null],
       year: [new Date().getFullYear()],
       condition: ['Used'],
       exteriorColor: [''],
@@ -192,11 +214,19 @@ export class CarCardComponent implements OnInit {
           existingCar.photos = existingCar.photos.filter((photo): photo is string => typeof photo === 'string');
         }
         this.carForm.patchValue(existingCar);
-        // Set modelId from model name
+        // Set manufacturerId, modelId, yearId from existing data
+        const manufacturer = this.manufacturers().find(m => m.name === existingCar.make);
+        if (manufacturer) {
+          this.carForm.patchValue({ manufacturerId: manufacturer.id });
+        }
+        
         const model = this.allModels().find(m => m.name === existingCar.model);
         if (model) {
           this.carForm.patchValue({ modelId: model.id });
         }
+        
+    
+        
         // Update selected photo from loaded car
         if (existingCar.photos && existingCar.photos.length > 0) {
           this.selectedPhoto.set(existingCar.photos[0]);
@@ -222,6 +252,20 @@ backToCard(): void {
     this.carForm.patchValue({ vin });
     this.isScannerOpen.set(false);
   }
+
+  onManufacturerChange(manufacturerName: string): void {
+    const manufacturer = this.manufacturers().find(m => m.name === manufacturerName);
+    if (manufacturer) {
+      this.carForm.patchValue({ manufacturerId: manufacturer.id });
+    }
+  }
+
+  onModelChange(modelId: number): void {
+    // Model name is computed in selectedModel signal
+    // No additional action needed as the computed signal handles it
+  }
+
+
 
   async saveCar(): Promise<void> {
     if (this.carForm.valid) {
@@ -281,7 +325,7 @@ backToCard(): void {
   navigateToDepositForm(): void {
     const carId = this.carForm.value.id;
     if (carId) {
-      this.router.navigate(['/accounts/deposits/new', carId]);
+      this.router.navigate(['setup/cars', carId]);
     }
   }
 

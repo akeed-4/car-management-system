@@ -98,6 +98,8 @@ import { BalanceSheetComponent } from './components/reports/balance-sheet/balanc
 import { BusinessActivityComponent } from './components/reports/business-activity/business-activity.component';
 import { GeneralJournalComponent } from './components/reports/general-journal/general-journal.component';
 import { TrialBalanceComponent } from './components/reports/trial-balance/trial-balance.component';
+import { CarCategoryListComponent } from './components/setup/car-category/car-category-list/car-category-list.component';
+import { CarCategoryFormComponent } from './components/setup/car-category/car-category-form/car-category-form.component';
 
 export const APP_ROUTES: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -109,8 +111,11 @@ export const APP_ROUTES: Routes = [
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'setup/manufacturers', component: ManufacturersComponent },
-  { path: 'setup/models', component: CarModelsComponent },
-  { path: 'setup/year', component: ManufactureYearComponent },
+      { path: 'setup/models', component: CarModelsComponent },
+      { path: 'setup/car-categories', component: CarCategoryListComponent },
+      { path: 'setup/car-categories/new', component: CarCategoryFormComponent },
+      { path: 'setup/car-categories/edit/:id', component: CarCategoryFormComponent },
+      { path: 'setup/year', component: ManufactureYearComponent },
       { path: 'setup/card', component :CarCardComponent },
       { path: 'setup/cars', component :CarListComponent },
       { path: 'setup/cars-grid', component :CarGridListComponent },
