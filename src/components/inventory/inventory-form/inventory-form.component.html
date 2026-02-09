@@ -321,6 +321,13 @@
           </mat-form-field>
         </div>
 
+        <div class="form-row">
+          <mat-checkbox formControlName="trackByBatch" color="primary">
+            {{ 'INVENTORY.FORM.TRACK_BY_BATCH' | translate }}
+          </mat-checkbox>
+          <mat-hint>{{ 'INVENTORY.FORM.TRACK_BY_BATCH_HINT' | translate }}</mat-hint>
+        </div>
+
         <div *ngIf="priceSuggestion() as suggestion" class="price-suggestions">
           <button mat-stroked-button color="primary" (click)="applySuggestedPrice(suggestion.low)">
             {{ 'INVENTORY.FORM.SUGGESTION_LOW' | translate }}: {{ suggestion.low | currency:'SAR':'symbol':'1.0-0' }}

@@ -160,6 +160,16 @@ export const menuData = [
     ]
   },
   {
+    id: 13,
+    name: 'الموافقات',
+    englishName: 'Approvals',
+    submenu: [
+      { id: 113, name: 'إدارة سير العمل', englishName: 'Workflow Management', route: '/approvals/workflows' },
+      { id: 114, name: 'الموافقات المعلقة', englishName: 'Pending Approvals', route: '/approvals/pending' },
+      { id: 115, name: 'لوحة الموافقات', englishName: 'Manager Approval Dashboard', route: '/approvals/manager' }
+    ]
+  },
+  {
     id: 12,
     name: 'الاعدادات النظام',
     englishName: 'System Settings',

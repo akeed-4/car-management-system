@@ -1,0 +1,127 @@
+<mat-card class="workflow-form-card">
+  <mat-card-header>
+    <mat-card-title>{{ editMode() ? 'APPROVALS.EDIT_WORKFLOW' : 'APPROVALS.CREATE_WORKFLOW' | translate }}</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form [formGroup]="workflowForm" (ngSubmit)="saveWorkflow()">
+      <!-- Basic Information -->
+      <div class="form-section">
+        <h3>{{ 'APPROVALS.BASIC_INFO' | translate }}</h3>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'APPROVALS.WORKFLOW_NAME' | translate }}</mat-label>
+          <input matInput formControlName="name" required>
+          <mat-error *ngIf="workflowForm.get('name')?.invalid && workflowForm.get('name')?.touched">
+            {{ 'APPROVALS.NAME_REQUIRED' | translate }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'APPROVALS.DOCUMENT_TYPE' | translate }}</mat-label>
+          <mat-select formControlName="documentType" required>
+            <mat-option *ngFor="let type of documentTypes" [value]="type.value">
+              {{ type.label | translate }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="workflowForm.get('documentType')?.invalid && workflowForm.get('documentType')?.touched">
+            {{ 'APPROVALS.DOCUMENT_TYPE_REQUIRED' | translate }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'APPROVALS.DESCRIPTION' | translate }}</mat-label>
+          <textarea matInput formControlName="description" rows="3"></textarea>
+        </mat-form-field>
+
+        <mat-checkbox formControlName="isActive" class="active-checkbox">
+          {{ 'APPROVALS.IS_ACTIVE' | translate }}
+        </mat-checkbox>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Approval Levels -->
+      <div class="form-section">
+        <div class="levels-header">
+          <h3>{{ 'APPROVALS.APPROVAL_LEVELS' | translate }}</h3>
+          <button mat-raised-button color="primary" type="button" (click)="addLevel()">
+            <mat-icon>add</mat-icon>
+            {{ 'APPROVALS.ADD_LEVEL' | translate }}
+          </button>
+        </div>
+
+        <div class="levels-container" formArrayName="levels">
+          <mat-card *ngFor="let level of levels; let i = index" class="level-card" [formGroupName]="i">
+            <mat-card-header>
+              <mat-card-title>{{ 'APPROVALS.LEVEL' | translate }} {{ i + 1 }}</mat-card-title>
+              <div class="level-actions">
+                <button mat-icon-button [disabled]="i === 0" (click)="moveLevel(i, 'up')" matTooltip="{{ 'APPROVALS.MOVE_UP' | translate }}">
+                  <mat-icon>arrow_upward</mat-icon>
+                </button>
+                <button mat-icon-button [disabled]="i === levels.length - 1" (click)="moveLevel(i, 'down')" matTooltip="{{ 'APPROVALS.MOVE_DOWN' | translate }}">
+                  <mat-icon>arrow_downward</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" (click)="removeLevel(i)" matTooltip="{{ 'APPROVALS.REMOVE_LEVEL' | translate }}">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </mat-card-header>
+
+            <mat-card-content>
+              <div class="level-form-row">
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'APPROVALS.LEVEL_NAME' | translate }}</mat-label>
+                  <input matInput formControlName="levelName" required>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'APPROVALS.APPROVER_TYPE' | translate }}</mat-label>
+                  <mat-select formControlName="approverType" required>
+                    <mat-option *ngFor="let type of approverTypes" [value]="type.value">
+                      {{ type.label | translate }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <div class="level-form-row">
+                <mat-form-field appearance="outline" class="approver-field">
+                  <mat-label>{{ 'APPROVALS.APPROVER' | translate }}</mat-label>
+                  <mat-select formControlName="approverId" required>
+                    <mat-option *ngFor="let option of getApproverOptions(level.get('approverType')?.value)" [value]="option.id">
+                      {{ option.name }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-checkbox formControlName="isParallel" class="parallel-checkbox">
+                  {{ 'APPROVALS.IS_PARALLEL' | translate }}
+                </mat-checkbox>
+              </div>
+
+              <mat-form-field appearance="outline" *ngIf="level.get('isParallel')?.value" class="min-approvals-field">
+                <mat-label>{{ 'APPROVALS.MINIMUM_APPROVALS' | translate }}</mat-label>
+                <input matInput type="number" formControlName="minimumApprovals" min="1">
+              </mat-form-field>
+            </mat-card-content>
+          </mat-card>
+
+          <div *ngIf="levels.length === 0" class="no-levels">
+            <p>{{ 'APPROVALS.NO_LEVELS_MESSAGE' | translate }}</p>
+          </div>
+        </div>
+      </div>
+    </form>
+  </mat-card-content>
+
+  <mat-card-actions align="end">
+    <button mat-button type="button" (click)="cancel()">
+      {{ 'COMMON.CANCEL' | translate }}
+    </button>
+    <button mat-raised-button color="primary" type="submit" [disabled]="workflowForm.invalid || isSubmitting()" (click)="saveWorkflow()">
+      <mat-icon *ngIf="isSubmitting()">hourglass_empty</mat-icon>
+      {{ editMode() ? ('APPROVALS.UPDATE' | translate) : ('APPROVALS.CREATE' | translate) }}
+    </button>
+  </mat-card-actions>
+</mat-card>

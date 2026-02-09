@@ -1,4 +1,7 @@
+import { BatchAllocation } from './batch.model';
+
 export interface InvoiceItem {
+  id?: number;
   returnQuantity?: number;
   carId: number;
   carDescription: string;
@@ -8,10 +11,13 @@ export interface InvoiceItem {
   lineTotal: number;
   carImage?: string | null;
   carName?: string;
+  vinNumbers?: string[];
   installmentDetails?: {
     downPayment: number;
     numberOfInstallments: number;
     installmentAmount: number;
     firstInstallmentDate: Date;
   };
+  batchAllocations?: BatchAllocation[];
+  trackByBatch?: boolean;
 }

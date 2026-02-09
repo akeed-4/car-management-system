@@ -1,0 +1,179 @@
+<div class="container">
+  <div class="page-header">
+    <div class="header-content">
+      <h2>{{ 'APPROVALS.PENDING_APPROVALS_TITLE' | translate }}</h2>
+      <p class="subtitle">{{ 'APPROVALS.PENDING_APPROVALS_SUBTITLE' | translate }}</p>
+    </div>
+    <div class="header-actions">
+      <button mat-icon-button (click)="loadPendingApprovals()" matTooltip="{{ 'APPROVALS.REFRESH' | translate }}">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  @if (summary()) {
+    <div class="summary-cards">
+      <mat-card class="summary-card total">
+        <mat-icon>pending_actions</mat-icon>
+        <div class="summary-content">
+          <span class="summary-value">{{ summary()!.totalPending }}</span>
+          <span class="summary-label">{{ 'APPROVALS.TOTAL_PENDING' | translate }}</span>
+        </div>
+      </mat-card>
+
+      <mat-card class="summary-card high-priority">
+        <mat-icon>priority_high</mat-icon>
+        <div class="summary-content">
+          <span class="summary-value">{{ summary()!.highPriority }}</span>
+          <span class="summary-label">{{ 'APPROVALS.HIGH_PRIORITY' | translate }}</span>
+        </div>
+      </mat-card>
+
+      <mat-card class="summary-card overdue">
+        <mat-icon>schedule</mat-icon>
+        <div class="summary-content">
+          <span class="summary-value">{{ summary()!.overdue }}</span>
+          <span class="summary-label">{{ 'APPROVALS.OVERDUE' | translate }}</span>
+        </div>
+      </mat-card>
+    </div>
+  }
+
+  <!-- Approvals Grid -->
+  <mat-card>
+    <mat-card-content>
+      <dx-data-grid
+        [dataSource]="pendingApprovals()"
+        [showBorders]="true"
+        [columnAutoWidth]="true"
+        [rowAlternationEnabled]="true"
+        [hoverStateEnabled]="true"
+        [noDataText]="'APPROVALS.NO_PENDING_APPROVALS' | translate"
+        keyExpr="id">
+
+        <!-- Document Info -->
+        <dxi-column 
+          dataField="documentNumber" 
+          caption="{{ 'APPROVALS.DOCUMENT_NUMBER' | translate }}"
+          [width]="150">
+        </dxi-column>
+
+        <dxi-column 
+          dataField="documentType" 
+          caption="{{ 'APPROVALS.DOCUMENT_TYPE' | translate }}"
+          [width]="150"
+          cellTemplate="documentTypeTemplate">
+        </dxi-column>
+
+        <dxi-column 
+          dataField="documentAmount" 
+          caption="{{ 'APPROVALS.AMOUNT' | translate }}"
+          dataType="number"
+          format="currency"
+          [width]="120">
+        </dxi-column>
+
+        <!-- Requester -->
+        <dxi-column 
+          dataField="requestedBy" 
+          caption="{{ 'APPROVALS.REQUESTED_BY' | translate }}"
+          [width]="150">
+        </dxi-column>
+
+        <dxi-column 
+          dataField="requestedAt" 
+          caption="{{ 'APPROVALS.REQUESTED_DATE' | translate }}"
+          dataType="date"
+          format="shortDate"
+          [width]="120">
+        </dxi-column>
+
+        <!-- Progress -->
+        <dxi-column 
+          caption="{{ 'APPROVALS.PROGRESS' | translate }}"
+          [width]="150"
+          cellTemplate="progressTemplate">
+        </dxi-column>
+
+        <!-- Priority -->
+        <dxi-column 
+          dataField="priority" 
+          caption="{{ 'APPROVALS.PRIORITY' | translate }}"
+          [width]="100"
+          alignment="center"
+          cellTemplate="priorityTemplate">
+        </dxi-column>
+
+        <!-- Due Date -->
+        <dxi-column 
+          dataField="dueDate" 
+          caption="{{ 'APPROVALS.DUE_DATE' | translate }}"
+          dataType="date"
+          format="shortDate"
+          [width]="120"
+          cellTemplate="dueDateTemplate">
+        </dxi-column>
+
+        <!-- Actions -->
+        <dxi-column 
+          type="buttons"
+          caption="{{ 'APPROVALS.ACTIONS' | translate }}"
+          [width]="100">
+          <dxi-button
+            icon="check"
+            hint="{{ 'APPROVALS.REVIEW' | translate }}"
+            [onClick]="openApprovalDialog">
+          </dxi-button>
+        </dxi-column>
+
+        <!-- Document Type Template -->
+        <div *dxTemplate="let data of 'documentTypeTemplate'">
+          <mat-chip [color]="'accent'" selected>
+            {{ data.value }}
+          </mat-chip>
+        </div>
+
+        <!-- Progress Template -->
+        <div *dxTemplate="let data of 'progressTemplate'">
+          <div class="progress-container">
+            <span class="progress-text">{{ data.data.currentLevel }} / {{ data.data.totalLevels }}</span>
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="getProgressPercentage(data.data)"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Priority Template -->
+        <div *dxTemplate="let data of 'priorityTemplate'">
+          <mat-chip 
+            [color]="getPriorityColor(data.value)" 
+            selected>
+            {{ data.value || 'Normal' }}
+          </mat-chip>
+        </div>
+
+        <!-- Due Date Template -->
+        <div *dxTemplate="let data of 'dueDateTemplate'">
+          @if (data.value) {
+            <span [class.overdue]="isOverdue(data.data)">
+              {{ formatDate(data.value) }}
+              @if (isOverdue(data.data)) {
+                <mat-icon class="overdue-icon">warning</mat-icon>
+              }
+            </span>
+          }
+        </div>
+
+        <dxo-paging [pageSize]="20"></dxo-paging>
+        <dxo-pager 
+          [showPageSizeSelector]="true" 
+          [allowedPageSizes]="[10, 20, 50]"
+          [showInfo]="true">
+        </dxo-pager>
+        <dxo-filter-row [visible]="true"></dxo-filter-row>
+        <dxo-search-panel [visible]="true" [width]="240"></dxo-search-panel>
+      </dx-data-grid>
+    </mat-card-content>
+  </mat-card>
+</div>

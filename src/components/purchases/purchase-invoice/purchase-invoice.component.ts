@@ -22,6 +22,7 @@ import { CurrentSettingService } from '../../../services/current-setting.service
 import { StoreService } from '../../../services/store.service';
 import { SalesService } from '../../../services/sales.service';
 import { ChartOfAccountsService } from '../../../services/chart-of-accounts.service';
+import { VinService } from '../../../services/vin.service';
 import { PurchaseInvoice } from '../../../models/purchase-invoice.model';
 import { InvoiceItem } from '../../../models/invoice-item.model';
 import { Car } from '../../../models/car.model';
@@ -37,6 +38,9 @@ import { ToastService } from '@/src/services/toast.service';
 import { LanguageService } from '@/src/services/language.service';
 import { Direction } from '@angular/cdk/bidi';
 import { CarSelectionDialogComponent } from './car-selection-dialog/car-selection-dialog.component';
+import { BatchService } from '../../../services/batch.service';
+import { VinManagementComponent } from '../vin-management/vin-management.component';
+import { BatchAllocationDialogComponent } from '../batch-allocation-dialog/batch-allocation-dialog.component';
 
 const VAT_RATE = 0.15; // 15% VAT
 
@@ -107,6 +111,8 @@ export class PurchaseInvoiceComponent implements OnInit {
   private salesService = inject(SalesService);
   private accountingService = inject(AccountingService);
   private languageService = inject(LanguageService);
+  private vinService = inject(VinService);
+  private batchService = inject(BatchService);
   private router = inject(Router);
   private translate = inject(TranslateService);
   private fb = inject(FormBuilder);
@@ -490,6 +496,20 @@ export class PurchaseInvoiceComponent implements OnInit {
     this.invoiceItems.update(items => items.filter(item => item.carId !== carId));
   }
 
+  /**
+   * Get the appropriate icon for the edit button based on batch tracking
+   */
+  getEditIcon(data: any): string {
+    return data.trackByBatch ? 'inventory_2' : 'edit';
+  }
+
+  /**
+   * Get the appropriate hint for the edit button based on batch tracking
+   */
+  getEditHint(data: any): string {
+    return data.trackByBatch ? 'Allocate Batches' : 'Edit Quantity & VINs';
+  }
+
   onCarSelectionChange(carId: number | null): void {
     this.selectedCarId.set(carId);
     if (carId) {
@@ -519,6 +539,7 @@ export class PurchaseInvoiceComponent implements OnInit {
       quantity: 1,
       unitPrice: car.purchasePrice || 0,
       lineTotal: (car.purchasePrice || 0) * 1,
+      trackByBatch: car.trackByBatch || false
     };
 
     // Add to invoice items
@@ -601,18 +622,144 @@ export class PurchaseInvoiceComponent implements OnInit {
     } else {
       this.procurementService.addInvoice(newInvoice).subscribe({
         next: (savedInvoice) => {
-          // Update inventory for each purchased item
-          items.forEach(item => {
-            this.inventoryService.incrementCarQuantity(item.carId, item.quantity);
+          // Handle batch allocations for batch-tracked items
+          const batchAllocationPromises: Promise<any>[] = [];
+          
+          savedInvoice.items.forEach((savedItem, index) => {
+            const originalItem = items[index];
+            if (originalItem.trackByBatch && originalItem.batchAllocations && originalItem.batchAllocations.length > 0) {
+              // Allocate batches for this purchase item
+              const promise = this.batchService.allocateBatchesForPurchase(savedItem.id, originalItem.batchAllocations).toPromise();
+              batchAllocationPromises.push(promise);
+            } else if (!originalItem.trackByBatch) {
+              // Update inventory for non-batch items
+              this.inventoryService.incrementCarQuantity(savedItem.carId, savedItem.quantity);
+            }
           });
 
-          this.notificationService.showSuccess('TOAST.ADD_SUCCESS');
+          // Wait for all batch allocations to complete
+          if (batchAllocationPromises.length > 0) {
+            Promise.all(batchAllocationPromises).then(() => {
+              this.notificationService.showSuccess('TOAST.ADD_SUCCESS');
+            }).catch((error) => {
+              console.error('Error allocating batches:', error);
+              this.notificationService.showError('Invoice saved but batch allocation failed');
+            });
+          } else {
+            this.notificationService.showSuccess('TOAST.ADD_SUCCESS');
+          }
         },
         error: (error) => {
           console.error('Error saving purchase invoice:', error);
           this.notificationService.showError('TOAST.SAVE_ERROR');
         }
       });
+    }
+  }
+
+  editQuantity(item: InvoiceItem): void {
+    // Check if item tracks by batch
+    if (item.trackByBatch) {
+      this.openBatchAllocationDialog(item);
+    } else {
+      this.openVinManagementDialog(item);
+    }
+  }
+
+  /**
+   * Open batch allocation dialog for batch-tracked items
+   */
+  private openBatchAllocationDialog(item: InvoiceItem): void {
+    // Load existing batch allocations for this purchase item
+    this.batchService.getBatchAllocationsForPurchase(item.carId).subscribe({
+      next: (existingAllocations) => {
+        const dialogRef = this.dialog.open(BatchAllocationDialogComponent, {
+          width: '1000px',
+          maxWidth: '95vw',
+          data: {
+            item: item,
+            currentBatchAllocations: existingAllocations?.batchAllocations || [],
+            totalQuantity: item.quantity
+          }
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+          if (result) {
+            // Update the item with new batch allocations
+            const updatedItem = { ...item, batchAllocations: result };
+            this.updateInvoiceItem(updatedItem);
+          }
+        });
+      },
+      error: (error) => {
+        console.error('Failed to load existing batch allocations:', error);
+        // Open dialog with empty allocations if loading fails
+        const dialogRef = this.dialog.open(BatchAllocationDialogComponent, {
+          width: '1000px',
+          maxWidth: '95vw',
+          data: {
+            item: item,
+            currentBatchAllocations: [],
+            totalQuantity: item.quantity
+          }
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+          if (result) {
+            // Update the item with new batch allocations
+            const updatedItem = { ...item, batchAllocations: result };
+            this.updateInvoiceItem(updatedItem);
+          }
+        });
+      }
+    });
+  }
+
+  /**
+   * Open VIN management dialog for non-batch-tracked items
+   */
+  private openVinManagementDialog(item: InvoiceItem): void {
+    // Load existing VINs for this purchase item from API
+    this.vinService.getVinsByPurchaseItem(item.carId).subscribe({
+      next: (existingVins) => {
+        const dialogRef = this.dialog.open(VinManagementComponent, {
+          width: '800px',
+          data: { item: item, currentVins: existingVins || [] }
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+          if (result) {
+            // Update the item with new VINs and quantity
+            const updatedItem = { ...item, vinNumbers: result, quantity: result.length };
+            this.updateInvoiceItem(updatedItem);
+          }
+        });
+      },
+      error: (error) => {
+        console.error('Failed to load existing VINs:', error);
+        // Open dialog with empty VINs if loading fails
+        const dialogRef = this.dialog.open(VinManagementComponent, {
+          width: '800px',
+          data: { item: item, currentVins: [] }
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+          if (result) {
+            // Update the item with new VINs and quantity
+            const updatedItem = { ...item, vinNumbers: result, quantity: result.length };
+            this.updateInvoiceItem(updatedItem);
+          }
+        });
+      }
+    });
+  }
+
+  private updateInvoiceItem(updatedItem: InvoiceItem): void {
+    const items = this.invoiceItems();
+    const index = items.findIndex(item => item.carId === updatedItem.carId);
+    if (index !== -1) {
+      items[index] = updatedItem;
+      this.invoiceItems.set([...items]);
     }
   }
 }

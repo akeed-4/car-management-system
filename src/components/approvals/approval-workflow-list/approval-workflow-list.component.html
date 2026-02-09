@@ -1,0 +1,121 @@
+<div class="container">
+  <div class="page-header">
+    <div class="header-content">
+      <h2>{{ 'APPROVALS.WORKFLOW_LIST_TITLE' | translate }}</h2>
+      <p class="subtitle">{{ 'APPROVALS.WORKFLOW_LIST_SUBTITLE' | translate }}</p>
+    </div>
+    <button mat-raised-button color="primary" (click)="createWorkflow()">
+      <mat-icon>add</mat-icon>
+      {{ 'APPROVALS.CREATE_WORKFLOW' | translate }}
+    </button>
+  </div>
+
+  <mat-card>
+    <mat-card-content>
+      <dx-data-grid
+        [dataSource]="workflows()"
+        [showBorders]="true"
+        [columnAutoWidth]="true"
+        [rowAlternationEnabled]="true"
+        [hoverStateEnabled]="true"
+        [noDataText]="'APPROVALS.NO_WORKFLOWS' | translate"
+        keyExpr="id">
+
+        <!-- Workflow Name -->
+        <dxi-column 
+          dataField="name" 
+          caption="{{ 'APPROVALS.WORKFLOW_NAME' | translate }}"
+          [width]="250">
+        </dxi-column>
+
+        <!-- Document Type -->
+        <dxi-column 
+          dataField="documentType" 
+          caption="{{ 'APPROVALS.DOCUMENT_TYPE' | translate }}"
+          [width]="180"
+          cellTemplate="documentTypeTemplate">
+        </dxi-column>
+
+        <!-- Description -->
+        <dxi-column 
+          dataField="description" 
+          caption="{{ 'APPROVALS.DESCRIPTION' | translate }}"
+          [minWidth]="200">
+        </dxi-column>
+
+        <!-- Levels -->
+        <dxi-column 
+          caption="{{ 'APPROVALS.LEVELS' | translate }}"
+          [width]="100"
+          alignment="center"
+          cellTemplate="levelsTemplate">
+        </dxi-column>
+
+        <!-- Status -->
+        <dxi-column 
+          dataField="isActive" 
+          caption="{{ 'APPROVALS.STATUS' | translate }}"
+          [width]="120"
+          alignment="center"
+          cellTemplate="statusTemplate">
+        </dxi-column>
+
+        <!-- Actions -->
+        <dxi-column 
+          type="buttons"
+          caption="{{ 'APPROVALS.ACTIONS' | translate }}"
+          [width]="180">
+          <dxi-button
+            icon="edit"
+            hint="{{ 'APPROVALS.EDIT_WORKFLOW' | translate }}"
+            [onClick]="editWorkflow">
+          </dxi-button>
+          <dxi-button
+            [icon]="getStatusIcon"
+            [hint]="getStatusHint"
+            [onClick]="toggleStatus">
+          </dxi-button>
+          <dxi-button
+            icon="trash"
+            hint="{{ 'APPROVALS.DELETE_WORKFLOW' | translate }}"
+            [onClick]="deleteWorkflow">
+          </dxi-button>
+        </dxi-column>
+
+        <!-- Document Type Template -->
+        <div *dxTemplate="let data of 'documentTypeTemplate'">
+          <mat-chip [color]="'accent'" selected>
+            {{ getDocumentTypeLabel(data.value) }}
+          </mat-chip>
+        </div>
+
+        <!-- Levels Template -->
+        <div *dxTemplate="let data of 'levelsTemplate'">
+          <span class="level-badge">
+            <mat-icon>layers</mat-icon>
+            {{ data.data.levels.length }}
+          </span>
+        </div>
+
+        <!-- Status Template -->
+        <div *dxTemplate="let data of 'statusTemplate'">
+          <mat-chip 
+            [color]="getStatusColor(data.value)" 
+            selected>
+            {{ data.value ? ('APPROVALS.ACTIVE' | translate) : ('APPROVALS.INACTIVE' | translate) }}
+          </mat-chip>
+        </div>
+
+        <dxo-paging [pageSize]="10"></dxo-paging>
+        <dxo-pager 
+          [showPageSizeSelector]="true" 
+          [allowedPageSizes]="[10, 20, 50]"
+          [showInfo]="true">
+        </dxo-pager>
+        <dxo-filter-row [visible]="true"></dxo-filter-row>
+        <dxo-header-filter [visible]="true"></dxo-header-filter>
+        <dxo-search-panel [visible]="true" [width]="240"></dxo-search-panel>
+      </dx-data-grid>
+    </mat-card-content>
+  </mat-card>
+</div>

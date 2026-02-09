@@ -100,6 +100,10 @@ import { GeneralJournalComponent } from './components/reports/general-journal/ge
 import { TrialBalanceComponent } from './components/reports/trial-balance/trial-balance.component';
 import { CarCategoryListComponent } from './components/setup/car-category/car-category-list/car-category-list.component';
 import { CarCategoryFormComponent } from './components/setup/car-category/car-category-form/car-category-form.component';
+import { ApprovalWorkflowListComponent } from './components/approvals/approval-workflow-list/approval-workflow-list.component';
+import { ApprovalWorkflowFormComponent } from './components/approvals/approval-workflow-form/approval-workflow-form.component';
+import { PendingApprovalsComponent } from './components/approvals/pending-approvals/pending-approvals.component';
+import { ManagerApprovalComponent } from './components/approvals/manager-approval/manager-approval.component';
 
 export const APP_ROUTES: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -241,6 +245,11 @@ export const APP_ROUTES: Routes = [
   { path: 'maintenance/edit/:id', component: ServiceOrderFormComponent },
   { path: 'deliveries', component: DeliveryScheduleComponent },
   { path: 'deliveries/schedule/:invoiceId', component: DeliveryFormComponent },
+  { path: 'approvals/workflows', component: ApprovalWorkflowListComponent },
+  { path: 'approvals/workflows/new', component: ApprovalWorkflowFormComponent },
+  { path: 'approvals/workflows/edit/:id', component: ApprovalWorkflowFormComponent },
+  { path: 'approvals/pending', component: PendingApprovalsComponent },
+  { path: 'approvals/manager', component: ManagerApprovalComponent },
   {
     path: 'installments',
     loadChildren: () => import('./components/installment/installment.module').then(m => m.InstallmentModule)

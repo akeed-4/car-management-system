@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { InventoryService } from '../../../../services/inventory.service';
@@ -42,6 +43,7 @@ import { PublishModalComponent } from '../../../shared/publish-modal/publish-mod
     MatIconModule,
     MatGridListModule,
     MatRadioModule,
+    MatSlideToggleModule,
     TranslateModule,
     VinScannerComponent,
     PublishModalComponent
@@ -193,7 +195,8 @@ export class CarCardComponent implements OnInit {
       purchaseDate: [new Date().toISOString().split('T')[0]],
       floorPlanId: [null],
       isArchived: [false],
-      quantity: [1]
+      quantity: [1],
+      trackByBatch: [false]
     });
 
     // Initialize selected photo from form
@@ -394,5 +397,9 @@ backToCard(): void {
     // Force change detection for OnPush strategy
     this.carForm.updateValueAndValidity();
     this.cdr.detectChanges();
+  }
+
+  cancelForm(): void {
+    this.router.navigate(['/setup/cars']);
   }
 }

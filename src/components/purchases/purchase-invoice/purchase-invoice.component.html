@@ -161,16 +161,23 @@
             keyExpr="carId"
           >
             <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}"></dxi-column>
-            <dxi-column dataField="quantity" caption="{{ 'PURCHASE_INVOICE.QUANTITY' | translate }}" dataType="number"></dxi-column>
+            <dxi-column dataField="quantity" caption="{{ 'PURCHASE_INVOICE.QUANTITY' | translate }}" dataType="number">
+              <dxo-format type="fixedPoint" [precision]="0"></dxo-format>
+            </dxi-column>
             <dxi-column dataField="unitPrice" caption="{{ 'PURCHASE_INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
             <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" dataType="number" format="currency"></dxi-column>
-            <dxi-column caption="{{ 'PURCHASE_INVOICE.tools' | translate }}" cellTemplate="actionsTemplate"></dxi-column>
-
-            <div *dxTemplate="let data of 'actionsTemplate'">
-              <button mat-icon-button color="warn" (click)="removeItem(data.data.carId)">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
+            <dxi-column type="buttons" caption="{{ 'PURCHASE_INVOICE.tools' | translate }}" width="120">
+              <dxi-button
+                [icon]="getEditIcon"
+                [hint]="getEditHint"
+                [onClick]="editQuantity">
+              </dxi-button>
+              <dxi-button
+                icon="trash"
+                hint="{{ 'PURCHASE_INVOICE.REMOVE_ITEM' | translate }}"
+                [onClick]="removeItem">
+              </dxi-button>
+            </dxi-column>
 
             <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false"
               [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>

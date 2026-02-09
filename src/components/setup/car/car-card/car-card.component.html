@@ -232,6 +232,13 @@
                                 </mat-select>
                             </mat-form-field>
                         </mat-grid-tile>
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <div class="toggle-container">
+                                <mat-slide-toggle formControlName="trackByBatch">
+                                    {{ 'INVENTORY.FORM.TRACK_BY_BATCH' | translate }}
+                                </mat-slide-toggle>
+                            </div>
+                        </mat-grid-tile>
                     </mat-grid-list>
                 </ng-container>
             </section>
@@ -273,31 +280,33 @@
                                 <textarea matInput formControlName="description" rows="6"></textarea>
                             </mat-form-field>
                         </mat-grid-tile>
-                        <mat-grid-tile [colspan]="1" [rowspan]="2">
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
                             <div class="photo-upload-container">
                                 <label class="form-label">{{ 'INVENTORY.FORM.PHOTOS' | translate }}</label>
-                                <div class="photo-upload-box">
-                                    <div class="photo-upload-content">
-                                        <mat-icon class="upload-icon">cloud_upload</mat-icon>
-                                        <p>
-                                            <button mat-raised-button type="button" class="upload-btn" (click)="fileInput.click()">
-                                                {{ 'INVENTORY.FORM.UPLOAD_FILE' | translate }}
-                                            </button>
-                                        </p>
+                                <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" style="display: none;">
+                                
+                                @if(selectedPhoto()) {
+                                <div class="photo-display-wrapper">
+                                    <img [src]="selectedPhoto()" alt="Car image" class="photo-preview-professional">
+                                    <div class="photo-button-group">
+                                        <button mat-raised-button color="primary" type="button" (click)="fileInput.click()" class="browse-photo-btn">
+                                            <mat-icon>add_photo_alternate</mat-icon>
+                                            {{ 'INVENTORY.FORM.BROWSE_IMAGE' | translate }}
+                                        </button>
+                                        <button mat-raised-button color="warn" type="button" (click)="removePhoto()" class="delete-photo-btn">
+                                            <mat-icon>delete</mat-icon>
+                                            {{ 'INVENTORY.FORM.REMOVE' | translate }}
+                                        </button>
                                     </div>
                                 </div>
-                                <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" style="display: none;">
-                                @if(selectedPhoto()) {
-                                <div class="photo-display-container">
-                                    <img [src]="selectedPhoto()" alt="Car image" class="photo-preview">
-                                    <div class="photo-actions">
-                                        <button mat-icon-button type="button" (click)="removePhoto()" class="remove-photo-btn" title="Remove photo">
-                                            <mat-icon>delete</mat-icon>
-                                        </button>
-                                        <button mat-icon-button type="button" (click)="fileInput.click()" class="change-photo-btn" title="Change photo">
-                                            <mat-icon>edit</mat-icon>
-                                        </button>
-                                    </div>
+                                } @else {
+                                <div class="photo-upload-empty">
+                                    <mat-icon class="upload-placeholder-icon">image</mat-icon>
+                                    <p class="upload-placeholder-text">{{ 'INVENTORY.FORM.NO_IMAGE' | translate }}</p>
+                                    <button mat-raised-button color="primary" type="button" class="upload-btn-main" (click)="fileInput.click()">
+                                        <mat-icon>add_photo_alternate</mat-icon>
+                                        {{ 'INVENTORY.FORM.BROWSE_IMAGE' | translate }}
+                                    </button>
                                 </div>
                                 }
                             </div>
@@ -308,7 +317,7 @@
 
             <!-- Form Actions -->
             <div class="form-actions">
-                <a routerLink="/inventory" class="btn btn-light">{{ 'INVENTORY.FORM.CANCEL' | translate }}</a>
+                <button type="button" (click)="cancelForm()" class="btn btn-light">{{ 'INVENTORY.FORM.CANCEL' | translate }}</button>
                <button type="button" (click)="saveCar()" [disabled]="carForm.invalid" class="btn btn-primary">
                     {{ editMode() ? ( 'INVENTORY.FORM.SAVE_CHANGES' | translate ) : ( 'INVENTORY.FORM.ADD_CAR' |
                     translate ) }}

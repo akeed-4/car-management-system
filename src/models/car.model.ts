@@ -1,6 +1,3 @@
-
-
-
 export type CarStatus = 'Available' | 'Reserved' | 'Sold' | 'In Maintenance';
 export type CarLocation = string;
 export type CarCondition = 'New' | 'Used';
@@ -59,4 +56,6 @@ export interface Car {
   costCenter?: string;
   documentImages?: string[];
   allowEntryToShowroom?: boolean;
+  trackByBatch?: boolean;
 }
+

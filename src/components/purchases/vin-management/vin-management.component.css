@@ -1,0 +1,326 @@
+.vin-management-dialog {
+  min-width: 900px;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Item Info Section */
+.item-info {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.item-info p {
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* Dialog Content */
+.dialog-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+::ng-deep .mat-mdc-tab-group {
+  height: 100%;
+}
+
+::ng-deep .mat-mdc-tab-body-wrapper {
+  height: 600px;
+}
+
+.tab-content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: 100%;
+  overflow-y: auto;
+}
+
+/* Sections */
+.section {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.2rem;
+  background: #fafafa;
+  transition: all 0.3s ease;
+}
+
+.section:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.section h3 {
+  margin: 0 0 1rem 0;
+  color: #1976d2;
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Range Inputs */
+.range-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.range-inputs mat-form-field {
+  width: 100%;
+}
+
+.range-inputs button {
+  white-space: nowrap;
+}
+
+/* File Upload */
+.file-upload {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.file-upload button {
+  white-space: nowrap;
+}
+
+.file-name {
+  padding: 0.5rem 1rem;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #666;
+  flex: 1;
+  min-width: 200px;
+}
+
+/* Manual Input */
+.manual-input {
+  width: 100% !important;
+}
+
+.manual-input textarea {
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+}
+
+/* Progress Section */
+.progress-section {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.progress-section mat-progress-bar {
+  margin-bottom: 0.5rem;
+}
+
+.progress-text {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.9rem;
+  color: #856404;
+}
+
+/* Error Section */
+.error-section {
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.error-icon {
+  color: #721c24;
+  min-width: 24px;
+}
+
+.error-messages {
+  flex: 1;
+}
+
+.error-messages p {
+  margin: 0.25rem 0;
+  color: #721c24;
+  font-size: 0.9rem;
+}
+
+/* Validation Legend */
+.validation-legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+  background: #f5f5f5;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.legend-item mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* DataGrid */
+.vin-grid {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+}
+
+::ng-deep .vin-grid .dx-datagrid {
+  border-radius: 8px;
+}
+
+::ng-deep .vin-grid .dx-datagrid-rowsview {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+/* Status Cell */
+.status-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 100%;
+}
+
+.status-cell mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+/* Grid Actions */
+.grid-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-start;
+  padding-top: 1rem;
+}
+
+.grid-actions button {
+  min-width: auto;
+}
+
+/* Dialog Actions */
+mat-dialog-actions {
+  padding: 1rem;
+  border-top: 1px solid #e0e0e0;
+  gap: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .vin-management-dialog {
+    min-width: 90vw;
+  }
+
+  .range-inputs {
+    grid-template-columns: 1fr;
+  }
+
+  .validation-legend {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* DevExtreme Grid Customization */
+::ng-deep .dx-editor-cell {
+  padding: 0;
+}
+
+::ng-deep .dx-texteditor-input {
+  border: 1px solid #ddd;
+  padding: 6px 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+}
+
+::ng-deep .dx-texteditor-input:focus {
+  border-color: #1976d2;
+  outline: none;
+}
+
+::ng-deep .dx-datagrid-rowsview tr:hover {
+  background-color: #f0f7ff;
+}
+
+
+.manual-input {
+  width: 100%;
+}
+
+.progress-section {
+  text-align: center;
+}
+
+.progress-section p {
+  margin: 0.5rem 0;
+  color: #666;
+}
+
+.vin-list-section h3 {
+  margin-bottom: 1rem;
+}
+
+.vin-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background: white;
+}
+
+.vin-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.vin-item:last-child {
+  border-bottom: none;
+}
+
+.vin-item span {
+  font-family: monospace;
+  font-size: 0.9rem;
+}
+
+.vin-item button {
+  opacity: 0.7;
+}
+
+.vin-item button:hover {
+  opacity: 1;
+}
