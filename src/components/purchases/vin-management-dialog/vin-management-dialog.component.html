@@ -1,0 +1,132 @@
+<div class="vin-management-dialog">
+  <h2 mat-dialog-title>
+    {{ 'VIN_MANAGEMENT.TITLE' | translate }} - {{ data?.item?.carDescription }}
+  </h2>
+
+  @if(data?.item) {
+  <div class="summary-info">
+    <div class="summary-item">
+      <span class="summary-label">{{ 'VIN_MANAGEMENT.REQUIRED' | translate }}:</span>
+      <span class="summary-value required">{{ totalRequired() }}</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">{{ 'VIN_MANAGEMENT.RECEIVED' | translate }}:</span>
+      <span class="summary-value received">{{ totalReceived() }}</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">{{ 'VIN_MANAGEMENT.REMAINING' | translate }}:</span>
+      <span class="summary-value remaining" [style.color]="statusColor()">
+        {{ totalRemaining() }}
+      </span>
+      <span class="status-text">({{ statusText() }})</span>
+    </div>
+  </div>
+  }
+
+  <mat-dialog-content class="dialog-content">
+    <!-- Error Messages -->
+    <div *ngIf="hasErrors()" class="error-section">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <div class="error-messages">
+        <p *ngFor="let error of errorMessages()">{{ error }}</p>
+      </div>
+    </div>
+
+    <!-- DevExtreme DataGrid for VIN Entries -->
+    <div class="grid-container">
+      <dx-data-grid
+        [dataSource]="vinEntries()"
+        [allowColumnResizing]="true"
+        [allowColumnReordering]="true"
+        [columnResizingMode]="'widget'"
+        [rowAlternationEnabled]="true"
+        [showBorders]="true"
+        [noDataText]="'VIN_MANAGEMENT.NO_VINS' | translate"
+        keyExpr="vin"
+        class="vin-grid">
+
+        <!-- VIN Column -->
+        <dxi-column
+          dataField="vin"
+          caption="{{ 'VIN_MANAGEMENT.VIN' | translate }}"
+          [width]="250"
+          [allowEditing]="true">
+        </dxi-column>
+
+        <!-- Color Column -->
+        <dxi-column
+          dataField="color"
+          caption="{{ 'VIN_MANAGEMENT.COLOR' | translate }}"
+          [width]="120"
+          [allowEditing]="true">
+        </dxi-column>
+
+        <!-- Engine Number Column -->
+        <dxi-column
+          dataField="engineNumber"
+          caption="{{ 'VIN_MANAGEMENT.ENGINE_NUMBER' | translate }}"
+          [width]="180"
+          [allowEditing]="true">
+        </dxi-column>
+
+        <!-- Status Column -->
+        <dxi-column
+          dataField="status"
+          caption="{{ 'VIN_MANAGEMENT.STATUS' | translate }}"
+          [width]="120"
+          [allowEditing]="false">
+        </dxi-column>
+
+        <!-- Actions Column -->
+        <dxi-column
+          type="buttons"
+          width="80"
+          caption="{{ 'VIN_MANAGEMENT.ACTIONS' | translate }}">
+          <dxi-button
+            icon="trash"
+            [onClick]="removeVinRow">
+          </dxi-button>
+        </dxi-column>
+
+        <dxo-editing mode="cell" [allowUpdating]="true" [allowAdding]="false" [allowDeleting]="false"></dxo-editing>
+        <dxo-scrolling mode="standard"></dxo-scrolling>
+      </dx-data-grid>
+    </div>
+
+    <!-- Add VIN Row Section -->
+    <div class="add-vin-section">
+      <button mat-button class="add-vin-button" (click)="addVinRow()">
+        <span class="add-icon">+</span>
+        {{ 'VIN_MANAGEMENT.ADD_VIN' | translate }}
+      </button>
+    </div>
+
+    <!-- Processing Indicator -->
+    <div *ngIf="isProcessing()" class="processing-section">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      <p>{{ 'VIN_MANAGEMENT.PROCESSING' | translate }}</p>
+    </div>
+
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-button (click)="autoGenerateVins()" class="action-button auto-generate">
+      <mat-icon>settings</mat-icon>
+      {{ 'VIN_MANAGEMENT.AUTO_GENERATE' | translate }}
+    </button>
+    <button mat-button (click)="importFromExcel()" class="action-button import">
+      {{ 'VIN_MANAGEMENT.IMPORT_EXCEL' | translate }}
+    </button>
+    <button mat-button (click)="cancel()" class="action-button cancel">
+      {{ 'VIN_MANAGEMENT.CANCEL' | translate }}
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="save()"
+      [disabled]="isProcessing() || !isValidAllocation()"
+      class="action-button save">
+      {{ 'VIN_MANAGEMENT.SAVE' | translate }}
+    </button>
+  </mat-dialog-actions>
+</div>

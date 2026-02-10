@@ -196,7 +196,7 @@ export class CarCardComponent implements OnInit {
       floorPlanId: [null],
       isArchived: [false],
       quantity: [1],
-      trackByBatch: [false]
+      trackByBatch: [true]
     });
 
     // Initialize selected photo from form
