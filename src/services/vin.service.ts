@@ -79,7 +79,7 @@ export class VinService {
   }
 
   // Add VINs for a purchase invoice item
-  addVins(vins: string[]): Observable<any> {
-    return this.http.post(this.apiUrl + '/add-vins', vins);
+  addVins(vins: string[], carId: number): Observable<any> {
+    return this.http.post(this.apiUrl + '/add-vins', { vins, carId });
   }
 }

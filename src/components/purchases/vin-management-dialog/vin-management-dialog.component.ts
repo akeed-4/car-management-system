@@ -221,7 +221,7 @@ export class VinManagementDialogComponent {
     if (this.data) {
       this.isProcessing.set(true);
       const vinNumbers = this.vinEntries().map(v => v.vin);
-      this.vinService.addVins(vinNumbers).subscribe({
+      this.vinService.addVins(vinNumbers, this.data.item.carId).subscribe({
         next: (response) => {
           this.isProcessing.set(false);
           this.toastService.showSuccess(this.translate.instant('VIN_MANAGEMENT.SAVE_SUCCESS'));
