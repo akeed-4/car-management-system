@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RoleService, PERMISSIONS_LIST } from '../../../services/role.service';
+import { RoleService } from '../../../services/role.service';
 import { Role } from '../../../models/role.model';
 import { KeyValuePipe } from '@angular/common';
 
@@ -16,14 +16,14 @@ export class RolesComponent {
   private roleService = inject(RoleService);
 
   roles = this.roleService.roles$;
-  permissionsList = PERMISSIONS_LIST;
+  permissionsList = this.roleService.permissionsList$;
   
   selectedRoleId = signal<number | null>(null);
   currentPermissions = signal<{ [key: string]: boolean }>({});
   newRoleName = signal('');
   
   // Convert object to array for @for loop
-  permissionGroups = Object.entries(this.permissionsList);
+  permissionGroups = computed(() => Object.entries(this.permissionsList()));
   
   onRoleSelect(roleId: number | null): void {
     this.selectedRoleId.set(roleId);

@@ -24,6 +24,8 @@ import { CurrentUserService } from '../../../services/current-user.service';
 import { LanguageService } from '../../../services/language.service';
 import { welcomeData } from '../../../models/welcomeData';
 import { MenuService } from '../../../services/menu.service';
+import { DynamicMenuService } from '../../../services/dynamic-menu.service';
+import { MenuItem } from '../../../models/menu.model';
 import { DxMenuModule, DxTreeListModule } from 'devextreme-angular';
 
 @Component({
@@ -132,6 +134,7 @@ export class LayoutComponent {
     private currentUserService: CurrentUserService,
     private languageService: LanguageService,
     @Inject(MenuService) private menuService: MenuService,
+    private dynamicMenuService: DynamicMenuService,
     public oidcSecurityService: OidcSecurityService,
     @Inject(DOCUMENT) private document: Document,
     private titleService: Title,
@@ -193,15 +196,27 @@ export class LayoutComponent {
   }
 
   loadMenus() {
-    this.menuService.getMenus().subscribe({
+    // Subscribe to dynamic menu service for real-time updates
+    this.dynamicMenuService.menu$.subscribe({
       next: (menus) => {
-        this.menus = this.transformMenuForCurrentLanguage(menus);
-        console.log('Menus loaded:', this.menus);
+        this.menus = this.convertMenuItemsToDevExtreme(menus);
+        console.log('Menus loaded from dynamic service:', this.menus);
+      }
+    });
+
+    // Load menus from API (with JWT token via interceptor)
+    this.dynamicMenuService.loadMenus().subscribe({
+      next: (menus) => {
+        console.log('Menus successfully loaded from API');
       },
       error: (err) => {
-        console.error('Failed to load menus', err);
-        // Optionally, fall back to hardcoded menus
-        // this.menus = this.menuService.menuData;
+        console.error('Failed to load menus from API:', err);
+        // Fall back to static menus if API fails
+        this.menuService.getMenus().subscribe({
+          next: (staticMenus) => {
+            this.menus = this.transformMenuForCurrentLanguage(staticMenus);
+          }
+        });
       }
     });
   }
@@ -217,16 +232,38 @@ export class LayoutComponent {
     }));
   }
 
+  /**
+   * Convert MenuItem[] from DynamicMenuService to DevExtreme menu format
+   */
+  private convertMenuItemsToDevExtreme(items: MenuItem[]): any[] {
+    return items.map(item => ({
+      id: item.id,
+      name: this.currentLanguage === 'en' && item.englishName ? item.englishName : item.name,
+      englishName: item.englishName,
+      route: item.route,
+      icon: item.icon,
+      submenu: item.children && item.children.length > 0 
+        ? this.convertMenuItemsToDevExtreme(item.children) 
+        : undefined
+    }));
+  }
+
   private updateMenusForLanguage() {
-    // Get the original menu data and transform it for the current language
-    this.menuService.getMenus().subscribe({
-      next: (menus) => {
-        this.menus = this.transformMenuForCurrentLanguage(menus);
-      },
-      error: (err) => {
-        console.error('Failed to update menus for language change', err);
-      }
-    });
+    // Get current menus from dynamic service and update for language
+    const currentMenus = this.dynamicMenuService.getCurrentMenus();
+    if (currentMenus && currentMenus.length > 0) {
+      this.menus = this.convertMenuItemsToDevExtreme(currentMenus);
+    } else {
+      // Fall back to static menus if no dynamic menus available
+      this.menuService.getMenus().subscribe({
+        next: (menus) => {
+          this.menus = this.transformMenuForCurrentLanguage(menus);
+        },
+        error: (err) => {
+          console.error('Failed to update menus for language change', err);
+        }
+      });
+    }
   }
 
 
