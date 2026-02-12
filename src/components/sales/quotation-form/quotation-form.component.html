@@ -1,0 +1,68 @@
+<div class="quotation-form-container">
+  <h2>{{ isEditMode ? ('QUOTATION.EDIT_TITLE' | translate) : ('QUOTATION.CREATE_TITLE' | translate) }}</h2>
+
+  <form [formGroup]="quotationForm" (ngSubmit)="onSubmit()" class="quotation-form">
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'QUOTATION.QUOTATION_NUMBER' | translate }}</mat-label>
+        <input matInput formControlName="quotationNumber" required>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'QUOTATION.QUOTATION_DATE' | translate }}</mat-label>
+        <input matInput [matDatepicker]="quotationDatePicker" formControlName="quotationDate" required>
+        <mat-datepicker-toggle matSuffix [for]="quotationDatePicker"></mat-datepicker-toggle>
+        <mat-datepicker #quotationDatePicker></mat-datepicker>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'QUOTATION.CUSTOMER' | translate }}</mat-label>
+        <input matInput formControlName="customerId" type="number" required>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'QUOTATION.CAR' | translate }}</mat-label>
+        <input matInput formControlName="carId" type="number" required>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'QUOTATION.QUOTED_PRICE' | translate }}</mat-label>
+        <input matInput formControlName="quotedPrice" type="number" step="0.01" required>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'QUOTATION.STATUS' | translate }}</mat-label>
+        <mat-select formControlName="status" required>
+          <mat-option value="Pending">{{ 'QUOTATION.STATUS_PENDING' | translate }}</mat-option>
+          <mat-option value="Accepted">{{ 'QUOTATION.STATUS_ACCEPTED' | translate }}</mat-option>
+          <mat-option value="Rejected">{{ 'QUOTATION.STATUS_REJECTED' | translate }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ 'QUOTATION.TERMS' | translate }}</mat-label>
+        <textarea matInput formControlName="terms" rows="3"></textarea>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ 'QUOTATION.NOTES' | translate }}</mat-label>
+        <textarea matInput formControlName="notes" rows="3"></textarea>
+      </mat-form-field>
+    </div>
+
+    <div class="form-actions">
+      <button mat-button type="button" (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
+      <button mat-raised-button color="primary" type="submit" [disabled]="!quotationForm.valid">
+        {{ isEditMode ? ('COMMON.UPDATE' | translate) : ('COMMON.CREATE' | translate) }}
+      </button>
+    </div>
+  </form>
+</div>

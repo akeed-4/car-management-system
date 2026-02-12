@@ -108,10 +108,13 @@ export const menuData = [
     name: 'المشتريات',
     englishName: 'Purchases',
     submenu: [
-      { id: 61, name: 'فواتير المشتريات النقدية', englishName: 'Cash Purchase Invoices', route: '/purchases/invoice/cash' },
-      { id: 62, name: 'فواتير المشتريات الاجلة', englishName: 'Credit Purchase Invoices', route: '/purchases/invoice/credit' },
-      { id: 63, name: 'مرتجعات المشتريات النقدية', englishName: 'Cash Purchase Returns', route: '/purchases/return/cash' },
-      { id: 64, name: 'مرتجعات المشتريات الاجلة', englishName: 'Credit Purchase Returns', route: '/purchases/return/credit' }
+      { id: 61, name: 'عروض المشتريات', englishName: 'Purchase Offers', route: '/purchases/offers' },
+      { id: 62, name: 'استلام السيارات', englishName: 'Car Receipts', route: '/purchases/receipts' },
+      { id: 63, name: 'عروض الموردين', englishName: 'Suppliers Quotations', route: '/purchases/suppliers-quotations' },
+      { id: 64, name: 'فواتير المشتريات النقدية', englishName: 'Cash Purchase Invoices', route: '/purchases/invoice/cash' },
+      { id: 65, name: 'فواتير المشتريات الاجلة', englishName: 'Credit Purchase Invoices', route: '/purchases/invoice/credit' },
+      { id: 66, name: 'مرتجعات المشتريات النقدية', englishName: 'Cash Purchase Returns', route: '/purchases/return/cash' },
+      { id: 67, name: 'مرتجعات المشتريات الاجلة', englishName: 'Credit Purchase Returns', route: '/purchases/return/credit' }
     ]
   },
   {
@@ -119,12 +122,13 @@ export const menuData = [
     name: 'المبيعات',
     englishName: 'Sales',
     submenu: [
-      { id: 51, name: 'فواتير المبيعات النقدية', englishName: 'Cash Sales Invoices', route: '/sales/invoice/cash' },
-      { id: 52,  name: 'فواتير المبيعات الاجلة', englishName: 'Credit Sales Invoices', route: '/sales/invoice/credit' },
-      { id: 53, name: 'إدارة الأقساط', englishName: 'Installment Management', route: '/installments' },
-      { id: 54, name: 'مرتجعات المبيعات النقدية', englishName: 'Cash Sales Returns', route: '/sales/return/cash' },
-      { id: 55, name: 'مرتجعات المبيعات الاجلة', englishName: 'Credit Sales Returns', route: '/sales/return/credit' },
-      { id: 56, name: 'اعتماد مرتجعات المبيعات', englishName: 'Approve Sales Returns', route: '/sales/returns-approval' }
+      { id: 51, name: 'عروض العملاء', englishName: 'Customer Quotations', route: '/sales/quotations' },
+      { id: 52, name: 'فواتير المبيعات النقدية', englishName: 'Cash Sales Invoices', route: '/sales/invoice/cash' },
+      { id: 53,  name: 'فواتير المبيعات الاجلة', englishName: 'Credit Sales Invoices', route: '/sales/invoice/credit' },
+      { id: 54, name: 'إدارة الأقساط', englishName: 'Installment Management', route: '/installments' },
+      { id: 55, name: 'مرتجعات المبيعات النقدية', englishName: 'Cash Sales Returns', route: '/sales/return/cash' },
+      { id: 56, name: 'مرتجعات المبيعات الاجلة', englishName: 'Credit Sales Returns', route: '/sales/return/credit' },
+      { id: 57, name: 'اعتماد مرتجعات المبيعات', englishName: 'Approve Sales Returns', route: '/sales/returns-approval' }
     ]
 
   },

@@ -104,6 +104,11 @@ import { ApprovalWorkflowListComponent } from './components/approvals/approval-w
 import { ApprovalWorkflowFormComponent } from './components/approvals/approval-workflow-form/approval-workflow-form.component';
 import { PendingApprovalsComponent } from './components/approvals/pending-approvals/pending-approvals.component';
 import { ManagerApprovalComponent } from './components/approvals/manager-approval/manager-approval.component';
+import { PurchaseOffersComponent } from './components/purchases/purchase-offers/purchase-offers.component';
+import { PurchaseOfferFormComponent } from './components/purchases/purchase-offer-form/purchase-offer-form.component';
+import { CarReceiptsComponent } from './components/purchases/car-receipts/car-receipts.component';
+import { QuotationsComponent } from './components/sales/quotations/quotations.component';
+import { QuotationFormComponent } from './components/sales/quotation-form/quotation-form.component';
 
 export const APP_ROUTES: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -162,6 +167,9 @@ export const APP_ROUTES: Routes = [
   { path: 'daily-entries/new', component: DailyEntryFormComponent },
   { path: 'daily-entries/:id/edit', component: DailyEntryFormComponent },
   { path: 'sales/invoice-credit-list', component: InvoiceCreditListComponent },
+  { path: 'sales/quotations', component: QuotationsComponent },
+  { path: 'sales/quotations/new', component: QuotationFormComponent },
+  { path: 'sales/quotations/edit/:id', component: QuotationFormComponent },
   { path: 'sales/invoice/cash/new', component: SalesInvoiceCashComponent },
   { path: 'sales/invoice/cash/edit/:id', component: SalesInvoiceCashComponent },
   { path: 'sales/invoice/credit/new', component: SalesInvoiceCreditComponent },
@@ -178,6 +186,10 @@ export const APP_ROUTES: Routes = [
   { path: 'sales/return/cash', component: SalesCashReturnInvoiceListComponent },
   { path: 'sales/return/credit', component: SalesCreditReturnInvoiceListComponent },
   { path: 'purchases', component: PurchasesComponent },
+  { path: 'purchases/offers', component: PurchaseOffersComponent },
+  { path: 'purchases/offers/new', component: PurchaseOfferFormComponent },
+  { path: 'purchases/offers/edit/:id', component: PurchaseOfferFormComponent },
+  { path: 'purchases/receipts', component: CarReceiptsComponent },
   { path: 'purchases/invoice/cash', component: CashPurchaseInvoiceListComponent },
   { path: 'purchases/invoice/credit', component: CreditPurchaseInvoiceListComponent },
   { path: 'purchases/invoice/cash/new', component: PurchaseCashInvoiceComponent },

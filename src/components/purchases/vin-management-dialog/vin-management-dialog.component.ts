@@ -8,6 +8,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DxDataGridModule } from 'devextreme-angular';
 import { ToastService } from '../../../services/toast.service';
 import { VinService } from '../../../services/vin.service';
+import { PurchaseCycleService } from '../../../services/purchase-cycle.service';
 
 export interface VinEntry {
   vin: string;
@@ -75,7 +76,8 @@ export class VinManagementDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: VinManagementDialogData,
     private translate: TranslateService,
     private toastService: ToastService,
-    private vinService: VinService
+    private vinService: VinService,
+    private purchaseCycleService: PurchaseCycleService
   ) {
     // Initialize with existing VINs if provided
     if (data.existingVins && data.existingVins.length > 0) {
@@ -225,6 +227,15 @@ export class VinManagementDialogComponent {
         next: (response) => {
           this.isProcessing.set(false);
           this.toastService.showSuccess(this.translate.instant('VIN_MANAGEMENT.SAVE_SUCCESS'));
+          // Update car status to Available after adding VINs
+          this.purchaseCycleService.updateCarStatusToAvailable(this.data.item.carId).subscribe({
+            next: () => {
+              console.log('Car status updated to Available');
+            },
+            error: (error) => {
+              console.error('Error updating car status:', error);
+            }
+          });
           this.dialogRef.close({
             vins: this.vinEntries(),
             carId: this.data.item.carId,

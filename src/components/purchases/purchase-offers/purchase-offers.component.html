@@ -1,0 +1,24 @@
+<div class="purchase-offers-container">
+  <h2>{{ 'PURCHASE_OFFERS.TITLE' | translate }}</h2>
+
+  <dx-data-grid
+    [dataSource]="purchaseOffers"
+    [allowColumnResizing]="true"
+    [allowColumnReordering]="true"
+    [columnResizingMode]="'widget'"
+    [rowAlternationEnabled]="true"
+    [showBorders]="true"
+    keyExpr="id"
+    class="purchase-offers-grid">
+
+    <dxi-column dataField="offerNumber" caption="{{ 'PURCHASE_OFFERS.OFFER_NUMBER' | translate }}"></dxi-column>
+    <dxi-column dataField="offerDate" caption="{{ 'PURCHASE_OFFERS.OFFER_DATE' | translate }}" dataType="date"></dxi-column>
+    <dxi-column dataField="supplier.name" caption="{{ 'PURCHASE_OFFERS.SUPPLIER' | translate }}"></dxi-column>
+    <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_OFFERS.CAR_DESCRIPTION' | translate }}"></dxi-column>
+    <dxi-column dataField="offeredPrice" caption="{{ 'PURCHASE_OFFERS.OFFERED_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
+    <dxi-column dataField="status" caption="{{ 'PURCHASE_OFFERS.STATUS' | translate }}"></dxi-column>
+
+    <dxo-paging [pageSize]="10"></dxo-paging>
+    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
+  </dx-data-grid>
+</div>

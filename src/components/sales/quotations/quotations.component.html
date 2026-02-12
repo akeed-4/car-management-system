@@ -1,0 +1,24 @@
+<div class="quotations-container">
+  <h2>{{ 'QUOTATIONS.TITLE' | translate }}</h2>
+
+  <dx-data-grid
+    [dataSource]="quotations"
+    [allowColumnResizing]="true"
+    [allowColumnReordering]="true"
+    [columnResizingMode]="'widget'"
+    [rowAlternationEnabled]="true"
+    [showBorders]="true"
+    keyExpr="id"
+    class="quotations-grid">
+
+    <dxi-column dataField="quotationNumber" caption="{{ 'QUOTATIONS.QUOTATION_NUMBER' | translate }}"></dxi-column>
+    <dxi-column dataField="quotationDate" caption="{{ 'QUOTATIONS.QUOTATION_DATE' | translate }}" dataType="date"></dxi-column>
+    <dxi-column dataField="customer.name" caption="{{ 'QUOTATIONS.CUSTOMER' | translate }}"></dxi-column>
+    <dxi-column dataField="car.description" caption="{{ 'QUOTATIONS.CAR' | translate }}"></dxi-column>
+    <dxi-column dataField="quotedPrice" caption="{{ 'QUOTATIONS.QUOTED_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
+    <dxi-column dataField="status" caption="{{ 'QUOTATIONS.STATUS' | translate }}"></dxi-column>
+
+    <dxo-paging [pageSize]="10"></dxo-paging>
+    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
+  </dx-data-grid>
+</div>

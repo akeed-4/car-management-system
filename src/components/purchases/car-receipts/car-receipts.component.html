@@ -1,0 +1,23 @@
+<div class="car-receipts-container">
+  <h2>{{ 'CAR_RECEIPTS.TITLE' | translate }}</h2>
+
+  <dx-data-grid
+    [dataSource]="carReceipts"
+    [allowColumnResizing]="true"
+    [allowColumnReordering]="true"
+    [columnResizingMode]="'widget'"
+    [rowAlternationEnabled]="true"
+    [showBorders]="true"
+    keyExpr="id"
+    class="car-receipts-grid">
+
+    <dxi-column dataField="receiptNumber" caption="{{ 'CAR_RECEIPTS.RECEIPT_NUMBER' | translate }}"></dxi-column>
+    <dxi-column dataField="receiptDate" caption="{{ 'CAR_RECEIPTS.RECEIPT_DATE' | translate }}" dataType="date"></dxi-column>
+    <dxi-column dataField="supplier.name" caption="{{ 'CAR_RECEIPTS.SUPPLIER' | translate }}"></dxi-column>
+    <dxi-column dataField="purchaseOffer.offerNumber" caption="{{ 'CAR_RECEIPTS.PURCHASE_OFFER' | translate }}"></dxi-column>
+    <dxi-column dataField="carReceiptItems" caption="{{ 'CAR_RECEIPTS.ITEMS_COUNT' | translate }}" [calculateCellValue]="getItemsCount"></dxi-column>
+
+    <dxo-paging [pageSize]="10"></dxo-paging>
+    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
+  </dx-data-grid>
+</div>
