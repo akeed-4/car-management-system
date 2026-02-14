@@ -52,6 +52,25 @@ h2[mat-dialog-title] {
   color: #1976d2;
 }
 
+.editable-input {
+  background: #e3f2fd;
+  color: #1976d2;
+  border: 2px solid #bbdefb;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 24px;
+  font-weight: 700;
+  width: 80px;
+  text-align: center;
+  transition: border-color 0.2s ease;
+}
+
+.editable-input:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+}
+
 .summary-value.received {
   background: #e8f5e9;
   color: #388e3c;

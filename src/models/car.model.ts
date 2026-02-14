@@ -31,10 +31,7 @@ export interface Car {
   floorPlanId?: number;
   isArchived?: boolean;
   quantity: number; // Current quantity in inventory
-
-  // New fields
-  carType?: string;
-  transportationType?: 'Private' | 'Public' | 'Taxi';
+  categoryId?: number;
   chassisNumber?: string;
   ownerName?: string;
   ownerIdNumber?: string;
@@ -43,19 +40,7 @@ export interface Car {
   authorizedSellerIdNumber?: string;
   authorizedSellerPhone?: string;
   authorizationDocumentNumber?: string;
-  authorizationDocumentDate?: string;
-  authorizationDocumentAttachment?: string;
-  bankName?: string;
-  accountNumber?: string;
-  iban?: string;
-  buyerName?: string;
-  buyerIdNumber?: string;
-  buyerPhone?: string;
-  showroomCommission?: number;
-  floorFees?: number;
-  costCenter?: string;
-  documentImages?: string[];
-  allowEntryToShowroom?: boolean;
-  trackByBatch?: boolean;
+  carType?: string;
+  transportationType?: string;
 }
 

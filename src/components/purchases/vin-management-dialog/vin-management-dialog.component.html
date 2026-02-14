@@ -7,7 +7,12 @@
   <div class="summary-info">
     <div class="summary-item">
       <span class="summary-label">{{ 'VIN_MANAGEMENT.REQUIRED' | translate }}:</span>
-      <span class="summary-value required">{{ totalRequired() }}</span>
+      <input 
+        type="number" 
+        class="summary-value required editable-input" 
+        [value]="totalRequired()" 
+        (input)="totalRequired.set($any($event.target).valueAsNumber || 0)"
+        min="0">
     </div>
     <div class="summary-item">
       <span class="summary-label">{{ 'VIN_MANAGEMENT.RECEIVED' | translate }}:</span>
@@ -39,10 +44,11 @@
         [allowColumnResizing]="true"
         [allowColumnReordering]="true"
         [columnResizingMode]="'widget'"
+        [showBorders]="true"
+        [showRowLines]="true"
         [rowAlternationEnabled]="true"
         [showBorders]="true"
         [noDataText]="'VIN_MANAGEMENT.NO_VINS' | translate"
-        keyExpr="vin"
         class="vin-grid">
 
         <!-- VIN Column -->

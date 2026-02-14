@@ -49,10 +49,10 @@ export class VinManagementDialogComponent {
   vinEntries = signal<VinEntry[]>([]);
   isProcessing = signal(false);
   errorMessages = signal<string[]>([]);
+  totalRequired = signal(0);
 
   // Computed signals
   totalReceived = computed(() => this.vinEntries().length);
-  totalRequired = computed(() => this.data.requiredQuantity);
   totalRemaining = computed(() => this.totalRequired() - this.totalReceived());
   
   statusColor = computed(() => {
@@ -79,6 +79,9 @@ export class VinManagementDialogComponent {
     private vinService: VinService,
     private purchaseCycleService: PurchaseCycleService
   ) {
+    // Initialize total required quantity
+    this.totalRequired.set(data.requiredQuantity);
+    
     // Initialize with existing VINs if provided
     if (data.existingVins && data.existingVins.length > 0) {
       this.vinEntries.set([...data.existingVins]);

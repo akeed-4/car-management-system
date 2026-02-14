@@ -110,7 +110,6 @@ export const menuData = [
     submenu: [
       { id: 61, name: 'عروض المشتريات', englishName: 'Purchase Offers', route: '/purchases/offers' },
       { id: 62, name: 'استلام السيارات', englishName: 'Car Receipts', route: '/purchases/receipts' },
-      { id: 63, name: 'عروض الموردين', englishName: 'Suppliers Quotations', route: '/purchases/suppliers-quotations' },
       { id: 64, name: 'فواتير المشتريات النقدية', englishName: 'Cash Purchase Invoices', route: '/purchases/invoice/cash' },
       { id: 65, name: 'فواتير المشتريات الاجلة', englishName: 'Credit Purchase Invoices', route: '/purchases/invoice/credit' },
       { id: 66, name: 'مرتجعات المشتريات النقدية', englishName: 'Cash Purchase Returns', route: '/purchases/return/cash' },

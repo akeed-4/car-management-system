@@ -10,7 +10,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { InventoryService } from '../../../../services/inventory.service';
 import { GeminiService } from '../../../../services/gemini.service';
@@ -25,10 +25,12 @@ import { CarCategoryService } from '../../../../services/car-category.service';
 
 import { Car, CarCondition } from '../../../../models/car.model';
 import { PriceSuggestion } from '../../../../models/price-suggestion.model';
+import { CarCategory } from '../../../../types/car-category.model';
 
 import { ModalComponent } from '../../../shared/modal/modal.component';
 import { VinScannerComponent } from '../../../shared/vin-scanner/vin-scanner.component';
 import { PublishModalComponent } from '../../../shared/publish-modal/publish-modal.component';
+import { NotificationService } from '@/src/services/notification.service';
 
 @Component({
   selector: 'app-car-card',
@@ -66,7 +68,8 @@ export class CarCardComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   private toastService = inject(ToastService);
   private carCategoryService = inject(CarCategoryService);
-
+  private notificationService = inject(NotificationService);
+private translate = inject(TranslateService);
   layout$ = this.currentSettingService.getCardLayout(3);
   private fb = inject(FormBuilder);
 
@@ -79,10 +82,14 @@ export class CarCardComponent implements OnInit {
   years = this.yearService.years$;
   floorPlans = this.floorPlanService.floorPlans$;
   categories = this.carCategoryService.categories$;
+  filteredCategories = signal<CarCategory[]>([]);
 
   // Component state
   editMode = signal(false);
   pageTitle = signal('إضافة سيارة جديدة');
+  selectedManufacturerId = signal<number | null>(null);
+  selectedCategoryId = signal<number | null>(null);
+  categoryModelIds = signal<number[]>([]);
 
   // Current car being edited (for modals)
   car = computed(() => this.carForm?.value || {});
@@ -123,17 +130,16 @@ export class CarCardComponent implements OnInit {
 
   // Computed signal for filtered models
   filteredModels = computed(() => {
-    const carMake = this.carForm?.value?.make;
-    const selectedManufacturer = this.manufacturers().find(m => m.name === carMake);
-    if (!selectedManufacturer) {
-      return [];
+    const manufacturerId = this.selectedManufacturerId();
+    const catModelIds = this.categoryModelIds();
+    let models = null;
+    if (manufacturerId) {
+      models =  this.allModels().filter(m => m.manufacturerId === manufacturerId);
     }
-    return this.allModels().filter(m => m.manufacturerId === selectedManufacturer.id);
-  });
-
-  // Computed signal for filtered categories
-  filteredCategories = computed(() => {
-    return this.categories();
+    if (catModelIds.length > 0) {
+      models =  this.allModels().filter(m => catModelIds.includes(m.id));
+    }
+    return models;
   });
   constructor() { 
      // Reset model when manufacturer changes and set manufacturerId
@@ -144,7 +150,9 @@ export class CarCardComponent implements OnInit {
          this.carForm.patchValue({ 
            modelId: null,
            manufacturerId: selectedManufacturer?.id || null
-         });
+         }, { emitEvent: true });
+         this.filteredCategories.set([]);
+         this.cdr.markForCheck();
        }
      });
   }
@@ -155,6 +163,7 @@ export class CarCardComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
+    this.filteredCategories.set([]);
 
     // Check if editing existing car
     const idParam = this.route.snapshot.queryParams['id'];
@@ -220,12 +229,16 @@ export class CarCardComponent implements OnInit {
         // Set manufacturerId, modelId, yearId from existing data
         const manufacturer = this.manufacturers().find(m => m.name === existingCar.make);
         if (manufacturer) {
+          this.selectedManufacturerId.set(manufacturer.id);
           this.carForm.patchValue({ manufacturerId: manufacturer.id });
         }
         
         const model = this.allModels().find(m => m.name === existingCar.model);
         if (model) {
           this.carForm.patchValue({ modelId: model.id });
+          // Filter categories based on the loaded model
+          const filtered = this.categories().filter(m => m.modelId === model.id);
+          this.filteredCategories.set(filtered);
         }
         
     
@@ -259,14 +272,28 @@ backToCard(): void {
   onManufacturerChange(manufacturerName: string): void {
     const manufacturer = this.manufacturers().find(m => m.name === manufacturerName);
     if (manufacturer) {
-      this.carForm.patchValue({ manufacturerId: manufacturer.id });
+      this.selectedManufacturerId.set(manufacturer.id);
+      this.carForm.patchValue({ 
+        manufacturerId: manufacturer.id,
+        modelId: null 
+      }, { emitEvent: true });
+      this.cdr.markForCheck();
     }
   }
 
   onModelChange(modelId: number): void {
+    // Reset category when model changes
+    if (modelId) {
+      debugger
+      const filtered = this.categories().filter(m => m.modelId === modelId);
+      this.filteredCategories.set(filtered);
+    } else {
+      this.filteredCategories.set([]);
+    }
     // Model name is computed in selectedModel signal
-    // No additional action needed as the computed signal handles it
   }
+
+ 
 
 
 
@@ -281,22 +308,22 @@ backToCard(): void {
       try {
         if (this.editMode()) {
           await this.inventoryService.updateCar(carToSave).toPromise();
-          this.toastService.showSuccess('TOAST.EDIT_SUCCESS');
+          this.notificationService.showSuccess( this.translate.instant('TOAST.EDIT_SUCCESS'));
         } else {
           // id is not present on new cars
           const { id, ...newCar } = carToSave;
           await this.inventoryService.addCar(newCar as Omit<Car, 'id'>);
-          this.toastService.showSuccess('TOAST.ADD_SUCCESS');
+          this.notificationService.showSuccess(this.translate.instant('TOAST.ADD_SUCCESS'));
         }
         // Refresh the cars list
         this.inventoryService.loadCars();
         this.router.navigate(['/setup/cars']);
       } catch (error) {
         console.error('Error saving car:', error);
-        this.toastService.showError('TOAST.SAVE_ERROR');
+        this.notificationService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
       }
     } else {
-      this.toastService.showWarning('TOAST.VALIDATION_ERROR');
+      this.notificationService.showWarning(this.translate.instant('TOAST.VALIDATION_ERROR'));
     }
   }
 

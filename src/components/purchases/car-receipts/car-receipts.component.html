@@ -1,5 +1,13 @@
 <div class="car-receipts-container">
-  <h2>{{ 'CAR_RECEIPTS.TITLE' | translate }}</h2>
+  <mat-toolbar color="primary" class="toolbar">
+    <mat-toolbar-row>
+      <span>{{ 'CAR_RECEIPTS.TITLE' | translate }}</span>
+      <span class="spacer"></span>
+      <button mat-icon-button (click)="addNewReceipt()">
+        <mat-icon>add</mat-icon>
+      </button>
+    </mat-toolbar-row>
+  </mat-toolbar>
 
   <dx-data-grid
     [dataSource]="carReceipts"

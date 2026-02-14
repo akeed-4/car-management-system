@@ -1,5 +1,11 @@
 <div class="quotations-container">
-  <h2>{{ 'QUOTATIONS.TITLE' | translate }}</h2>
+  <mat-toolbar color="primary">
+    <button mat-raised-button color="accent" (click)="addNewQuotation()">
+      <mat-icon>add</mat-icon>
+      {{ 'QUOTATIONS.ADD_NEW' | translate }}
+    </button>
+    <span>{{ 'QUOTATIONS.TITLE' | translate }}</span>
+  </mat-toolbar>
 
   <dx-data-grid
     [dataSource]="quotations"

@@ -4,4 +4,5 @@ export interface CarCategory {
   nameAr?: string;
   nameEn?: string;
   description?: string;
+  modelId?: number; // List of associated model IDs
 }

@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { PurchaseCycleService } from '../../../services/purchase-cycle.service';
 import { PurchaseOffer } from '../../../models/purchase-offer.model';
 import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-purchase-offers',
@@ -11,7 +14,9 @@ import { CommonModule } from '@angular/common';
   imports: [
     CommonModule,
     DxDataGridModule,
-    TranslateModule
+    TranslateModule,
+    MatToolbarModule,
+    MatIconModule
   ],
   templateUrl: './purchase-offers.component.html',
   styleUrls: ['./purchase-offers.component.css']
@@ -19,7 +24,7 @@ import { CommonModule } from '@angular/common';
 export class PurchaseOffersComponent implements OnInit {
   purchaseOffers: PurchaseOffer[] = [];
 
-  constructor(private purchaseCycleService: PurchaseCycleService) { }
+  constructor(private purchaseCycleService: PurchaseCycleService, private router: Router) { }
 
   ngOnInit(): void {
     this.loadPurchaseOffers();
@@ -30,5 +35,9 @@ export class PurchaseOffersComponent implements OnInit {
       data => this.purchaseOffers = data,
       error => console.error('Error loading purchase offers', error)
     );
+  }
+
+  addNewOffer(): void {
+    this.router.navigate(['/purchases/offers/new']);
   }
 }

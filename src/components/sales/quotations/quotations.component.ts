@@ -1,9 +1,13 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { SalesCycleService } from '../../../services/sales-cycle.service';
 import { Quotation } from '../../../models/quotation.model';
 import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-quotations',
@@ -11,7 +15,10 @@ import { CommonModule } from '@angular/common';
   imports: [
     CommonModule,
     DxDataGridModule,
-    TranslateModule
+    TranslateModule,
+    MatToolbarModule,
+    MatButtonModule,
+    MatIconModule
   ],
   templateUrl: './quotations.component.html',
   styleUrls: ['./quotations.component.css']
@@ -19,7 +26,7 @@ import { CommonModule } from '@angular/common';
 export class QuotationsComponent implements OnInit {
   quotations: Quotation[] = [];
 
-  constructor(private salesCycleService: SalesCycleService) { }
+  constructor(private salesCycleService: SalesCycleService, private router: Router) { }
 
   ngOnInit(): void {
     this.loadQuotations();
@@ -30,5 +37,9 @@ export class QuotationsComponent implements OnInit {
       data => this.quotations = data,
       error => console.error('Error loading quotations', error)
     );
+  }
+
+  addNewQuotation(): void {
+    this.router.navigate(['/sales/quotations/new']);
   }
 }

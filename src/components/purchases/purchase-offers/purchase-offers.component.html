@@ -1,5 +1,13 @@
 <div class="purchase-offers-container">
-  <h2>{{ 'PURCHASE_OFFERS.TITLE' | translate }}</h2>
+  <div class="page-header">
+    <h2>{{ 'PURCHASE_OFFERS.TITLE' | translate }}</h2>
+    <div class="header-actions">
+      <button mat-icon-button (click)="addNewOffer()">
+        <mat-icon>add</mat-icon>
+      </button>
+   
+    </div>
+  </div>
 
   <dx-data-grid
     [dataSource]="purchaseOffers"

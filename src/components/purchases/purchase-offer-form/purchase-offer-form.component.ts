@@ -10,6 +10,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
@@ -24,6 +26,8 @@ import { TranslateModule } from '@ngx-translate/core';
     MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatGridListModule,
+    MatIconModule,
     TranslateModule
   ],
   templateUrl: './purchase-offer-form.component.html',

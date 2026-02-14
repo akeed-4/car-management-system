@@ -36,18 +36,30 @@ export class CarCategoryService {
     return this.http.get<CarCategory>(`${this.apiUrl}/GetById/${id}`);
   }
 
-  /** Add new category */
-  addCategory(category: Omit<CarCategory, 'id'>): Observable<CarCategory> {
-    return this.http.post<CarCategory>(this.apiUrl + '/Create', category).pipe(
+  /** Get model IDs for a category */
+  getModelIdsForCategory(categoryId: number): Observable<number[]> {
+    return this.http.get<number[]>(`${this.apiUrl}/GetModelIds/${categoryId}`);
+  }
+
+  /** Get categories by model ID */
+  getCategoriesByModelId(modelId: number): Observable<CarCategory[]> {
+    return this.http.get<CarCategory[]>(`${this.apiUrl}/GetByModel/${modelId}`);
+  }
+
+  /** Add new category with associated models */
+  addCategoryWithModels(category: Omit<CarCategory, 'id'>, modelIds: number[]): Observable<CarCategory> {
+    const payload = { ...category, modelIds };
+    return this.http.post<CarCategory>(this.apiUrl + '/Create', payload).pipe(
       tap((newCategory) => {
         this.categories.update((categories) => [...categories, newCategory]);
       })
     );
   }
 
-  /** Update category */
-  updateCategory(category: CarCategory): Observable<CarCategory> {
-    return this.http.put<CarCategory>(`${this.apiUrl}/${category.id}`, category).pipe(
+  /** Update category with associated models */
+  updateCategoryWithModels(category: CarCategory, modelIds: number[]): Observable<CarCategory> {
+    const payload = { ...category, modelIds };
+    return this.http.put<CarCategory>(`${this.apiUrl}/Update/${category.id}`, payload).pipe(
       tap((updatedCategory) => {
         this.categories.update((categories) =>
           categories.map((c) => (c.id === updatedCategory.id ? updatedCategory : c))
@@ -58,7 +70,7 @@ export class CarCategoryService {
 
   /** Delete category */
   deleteCategory(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+    return this.http.delete<void>(`${this.apiUrl}/Delete/${id}`).pipe(
       tap(() => {
         this.categories.update((categories) => categories.filter((c) => c.id !== id));
       })

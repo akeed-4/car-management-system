@@ -10,7 +10,7 @@
             <section class="form-section">
                 <h3 class="form-section-title">{{ 'INVENTORY.FORM.MAIN_DETAILS' | translate }}</h3>
                 <ng-container *ngIf="layout$ | async as layout">
-                    <mat-grid-list [cols]="layout.columns" rowHeight="80px" gutterSize="6px">
+                    <mat-grid-list [cols]="layout.columns" rowHeight="90px" gutterSize="6px">
                         <mat-grid-tile [colspan]="1" [rowspan]="1">
                             <mat-form-field appearance="outline" class="full-width">
                                 <mat-label>{{ 'INVENTORY.FORM.MANUFACTURER' | translate }}</mat-label>
@@ -67,7 +67,7 @@
                     </mat-grid-list>
                 </ng-container>
                 <ng-container *ngIf="layout$ | async as layout">
-                    <mat-grid-list [cols]="layout.columns" rowHeight="80px" gutterSize="6px">
+                    <mat-grid-list [cols]="layout.columns" rowHeight="90px" gutterSize="6px">
                         <mat-grid-tile [colspan]="1" [rowspan]="1">
                             <div class="radio-group-container">
                                 <label class="form-label">{{ 'INVENTORY.FORM.CONDITION' | translate }}</label>
@@ -85,7 +85,7 @@
             <section class="form-section">
                 <h3 class="form-section-title">{{ 'INVENTORY.FORM.SAUDI_DETAILS' | translate }}</h3>
                 <ng-container *ngIf="layout$ | async as layout">
-                    <mat-grid-list [cols]="layout.columns" rowHeight="80px" gutterSize="6px">
+                    <mat-grid-list [cols]="layout.columns" rowHeight="90px" gutterSize="6px">
                         <mat-grid-tile [colspan]="1" [rowspan]="1">
                             <mat-form-field appearance="outline" class="full-width">
                                 <mat-label>{{ 'INVENTORY.FORM.VIN' | translate }}</mat-label>
@@ -125,7 +125,7 @@
             <section class="form-section">
                 <h3 class="form-section-title">{{ 'INVENTORY.FORM.TECHNICAL' | translate }}</h3>
                 <ng-container *ngIf="layout$ | async as layout">
-                    <mat-grid-list [cols]="layout.columns" rowHeight="80px" gutterSize="6px">
+                    <mat-grid-list [cols]="layout.columns" rowHeight="90px" gutterSize="6px">
                         <mat-grid-tile [colspan]="1" [rowspan]="1">
                             <mat-form-field appearance="outline" class="full-width">
                                 <mat-label>{{ 'INVENTORY.FORM.MILEAGE' | translate }}</mat-label>
@@ -168,7 +168,7 @@
             <section class="form-section">
                 <h3 class="form-section-title">{{ 'INVENTORY.FORM.FINANCIALS' | translate }}</h3>
                 <ng-container *ngIf="layout$ | async as layout">
-                    <mat-grid-list [cols]="layout.columns" rowHeight="120px" gutterSize="6px">
+                    <mat-grid-list [cols]="layout.columns" rowHeight="90px" gutterSize="6px">
                         <mat-grid-tile [colspan]="1" [rowspan]="1">
                             <mat-form-field appearance="outline" class="full-width">
                                 <mat-label>{{ 'INVENTORY.FORM.PURCHASE_PRICE' | translate }}</mat-label>

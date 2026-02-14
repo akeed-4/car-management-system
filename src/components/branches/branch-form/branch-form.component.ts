@@ -13,6 +13,7 @@ import { Branch, Company } from '../../../models/branch.model';
 import { BranchService } from '../../../services/branch.service';
 import { CompanyService } from '../../../services/company.service';
 import { ToastService } from '../../../services/toast.service';
+import { NotificationService } from '@/src/services/notification.service';
 
 @Component({
   selector: 'app-branch-form',
@@ -44,6 +45,7 @@ export class BranchFormComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private toastService: ToastService,
+    private notificationService: NotificationService,
     @Optional() public dialogRef: MatDialogRef<BranchFormComponent>,
     @Optional() @Inject(MAT_DIALOG_DATA) public data: { branch?: Branch }
   ) {}
@@ -108,13 +110,13 @@ export class BranchFormComponent implements OnInit {
       if (this.isEdit && this.data?.branch) {
         this.branchService.update(this.data.branch.id, branchData).subscribe({
           next: () => {
-            this.toastService.showSuccess('TOAST.EDIT_SUCCESS');
+            this.notificationService.showSuccess('TOAST.EDIT_SUCCESS');
             this.isLoading.set(false);
             this.closeDialogOrNavigate();
           },
           error: (error) => {
             console.error('Error updating branch:', error);
-            this.toastService.showError('TOAST.SAVE_ERROR');
+            this.notificationService.showError('TOAST.SAVE_ERROR');
             this.isLoading.set(false);
           }
         });
@@ -123,7 +125,7 @@ export class BranchFormComponent implements OnInit {
         const branchId = this.route.snapshot.params['id'];
         this.branchService.update(branchId, branchData).subscribe({
           next: () => {
-            this.toastService.showSuccess('TOAST.EDIT_SUCCESS');
+            this.notificationService.showSuccess('TOAST.EDIT_SUCCESS');
             this.isLoading.set(false);
             this.closeDialogOrNavigate();
           },
@@ -136,13 +138,13 @@ export class BranchFormComponent implements OnInit {
       } else {
         this.branchService.create(branchData).subscribe({
           next: () => {
-            this.toastService.showSuccess('TOAST.ADD_SUCCESS');
+            this.notificationService.showSuccess('TOAST.ADD_SUCCESS');
             this.isLoading.set(false);
             this.closeDialogOrNavigate();
           },
           error: (error) => {
             console.error('Error creating branch:', error);
-            this.toastService.showError('TOAST.SAVE_ERROR');
+            this.notificationService.showError('TOAST.SAVE_ERROR');
             this.isLoading.set(false);
           }
         });

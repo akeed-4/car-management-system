@@ -161,15 +161,14 @@
             keyExpr="carId"
           >
             <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}"></dxi-column>
-            <dxi-column dataField="quantity" caption="{{ 'PURCHASE_INVOICE.QUANTITY' | translate }}" dataType="number">
-              <dxo-format type="fixedPoint" [precision]="0"></dxo-format>
+            <dxi-column dataField="quantity" caption="{{ 'PURCHASE_INVOICE.QUANTITY' | translate }}" dataType="number" allowEditing="true">
             </dxi-column>
             <dxi-column dataField="unitPrice" caption="{{ 'PURCHASE_INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
             <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" dataType="number" format="currency"></dxi-column>
             <dxi-column type="buttons" caption="{{ 'PURCHASE_INVOICE.tools' | translate }}" width="120">
               <dxi-button
-                [icon]="getEditIcon"
-                [hint]="getEditHint"
+                icon="edit"
+                hint="{{ 'PURCHASE_INVOICE.EDIT_ITEM' | translate }}"
                 [onClick]="editQuantity">
               </dxi-button>
               <dxi-button

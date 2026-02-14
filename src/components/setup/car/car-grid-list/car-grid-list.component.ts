@@ -190,18 +190,8 @@ export class CarGridListComponent implements OnInit {
     return car.imageUrl || 'assets/images/car-placeholder.png';
   }
 
-  canEnterShowroom(car: Car): boolean {
-    // Check if car has showroom entry permission
-    return car.allowEntryToShowroom === true;
-  }
 
-  getShowroomStatus(car: Car): string {
-    return this.canEnterShowroom(car) ? 'ALLOWED' : 'NOT_ALLOWED';
-  }
 
-  getShowroomStatusColor(car: Car): string {
-    return this.canEnterShowroom(car) ? 'success' : 'warn';
-  }
 
   clearFilters(): void {
     this.filter.set('');

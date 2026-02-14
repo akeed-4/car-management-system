@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -7,10 +7,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { TranslateModule } from '@ngx-translate/core';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CarCategoryService } from '../../../../services/car-category.service';
 import { CarCategory } from '../../../../types/car-category.model';
+import { CarModelService } from '../../../../services/car-model.service';
+import { CarModel } from '../../../../models/car-model.model';
+import { MatSelectModule } from '@angular/material/select';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { ToastService } from '@/src/services/toast.service';
+import { NotificationService } from '@/src/services/notification.service';
 
 @Component({
   selector: 'app-car-category-form',
@@ -24,6 +30,8 @@ import { CarCategory } from '../../../../types/car-category.model';
     MatFormFieldModule,
     MatInputModule,
     MatToolbarModule,
+    MatSelectModule,
+    MatGridListModule,
     TranslateModule
   ],
   templateUrl: './car-category-form.component.html',
@@ -34,10 +42,21 @@ export class CarCategoryFormComponent implements OnInit {
   private router = inject(Router);
   private fb = inject(FormBuilder);
   private carCategoryService = inject(CarCategoryService);
+  private carModelService = inject(CarModelService);
+  private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   categoryForm!: FormGroup;
   editMode = signal(false);
   pageTitle = signal('CAR_CATEGORY.FORM.TITLE_NEW');
+  models: Signal<CarModel[]> = this.carModelService.carmodel$;
+
+  selectedModel = computed(() => {
+    const modelId = this.categoryForm?.value?.modelId;
+    if (!modelId) return '';
+    const model = this.models().find(m => m.id === modelId);
+    return model ? model.name : '';
+  });
 
   ngOnInit(): void {
     this.initForm();
@@ -47,7 +66,6 @@ export class CarCategoryFormComponent implements OnInit {
       const id = Number(idParam);
       this.editMode.set(true);
       this.pageTitle.set('CAR_CATEGORY.FORM.TITLE_EDIT');
-      this.loadCategoryForEdit(id);
     }
   }
 
@@ -57,21 +75,12 @@ export class CarCategoryFormComponent implements OnInit {
       name: ['', Validators.required],
       nameAr: [''],
       nameEn: [''],
-      description: ['']
+      description: [''],
+      modelId: [null]
     });
   }
 
-  private loadCategoryForEdit(id: number): void {
-    this.carCategoryService.getCategoryById(id).subscribe({
-      next: (category) => {
-        this.categoryForm.patchValue(category);
-      },
-      error: (error) => {
-        console.error('Error loading category', error);
-        this.router.navigate(['/setup/car-category']);
-      }
-    });
-  }
+
 
   saveCategory(): void {
     if (this.categoryForm.invalid) {
@@ -81,10 +90,12 @@ export class CarCategoryFormComponent implements OnInit {
     const categoryData = this.categoryForm.value;
 
     if (this.editMode()) {
-      this.carCategoryService.updateCategory(categoryData).subscribe({
+      const { ...category } = categoryData;
+      const modelIds = categoryData.modelId ? [categoryData.modelId] : [];
+      this.carCategoryService.updateCategoryWithModels(category, modelIds).subscribe({
         next: () => {
-          console.log('Category updated successfully');
-          this.router.navigate(['/setup/car-category']);
+          this.notificationService.showSuccess(this.translate.instant('CAR_CATEGORY.FORM.UPDATE_SUCCESS'));
+          this.router.navigate(['/setup/car-categories']);
         },
         error: (error) => {
           console.error('Error updating category', error);
@@ -92,10 +103,11 @@ export class CarCategoryFormComponent implements OnInit {
       });
     } else {
       const { id, ...newCategory } = categoryData;
-      this.carCategoryService.addCategory(newCategory).subscribe({
+      const modelIds = categoryData.modelId ? [categoryData.modelId] : [];
+      this.carCategoryService.addCategoryWithModels(newCategory, modelIds).subscribe({
         next: () => {
-          console.log('Category created successfully');
-          this.router.navigate(['/setup/car-category']);
+        this.notificationService.showSuccess(this.translate.instant('CAR_CATEGORY.FORM.CREATE_SUCCESS'));
+          this.router.navigate(['/setup/car-categories']);  
         },
         error: (error) => {
           console.error('Error creating category', error);

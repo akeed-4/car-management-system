@@ -26,14 +26,14 @@ export class ToastService {
   private getOptions(timeOut: number, extraClass: string = '') {
     const options: any = {
       timeOut,
-      positionClass: this.translate.currentLang === 'ar' ? 'toast-top-right' : 'toast-top-left',
+      positionClass: this.translate.currentLang === 'ar' ? 'toast-bottom-right' : 'toast-bottom-left',
       progressBar: true,
       closeButton: true
     };
 
     if (this.containerId) {
       options.containerId = this.containerId;
-      options.positionClass = this.translate.currentLang === 'ar' ? 'toast-top-right' : 'toast-top-left';
+      options.positionClass = this.translate.currentLang === 'ar' ? 'toast-bottom-right' : 'toast-bottom-left';
     }
 
     if (extraClass) {

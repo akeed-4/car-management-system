@@ -30,6 +30,8 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DxDataGridModule } from 'devextreme-angular';
+import { CarCategoryService } from '../../../services/car-category.service';
+import { CarCategory } from '../../../types/car-category.model';
 
 @Component({
   selector: 'app-inventory-form',
@@ -70,6 +72,7 @@ export class InventoryFormComponent implements OnInit {
   private yearService = inject(ManufactureYearService);
   private floorPlanService = inject(FloorPlanService);
   private expenseService = inject(ExpenseService);
+  private carCategoryService = inject(CarCategoryService);
 
   carForm!: FormGroup;
 
