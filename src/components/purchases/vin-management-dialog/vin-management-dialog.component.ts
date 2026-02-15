@@ -242,6 +242,7 @@ export class VinManagementDialogComponent {
           this.dialogRef.close({
             vins: this.vinEntries(),
             carId: this.data.item.carId,
+            totalRequired: this.totalRequired(),
             apiResponse: response
           });
         },
@@ -255,7 +256,8 @@ export class VinManagementDialogComponent {
       // If no API parameters, just close with data (backward compatibility)
       this.dialogRef.close({
         vins: this.vinEntries(),
-        carId: this.data.item.carId
+        carId: this.data.item.carId,
+        totalRequired: this.totalRequired()
       });
     }
   }
