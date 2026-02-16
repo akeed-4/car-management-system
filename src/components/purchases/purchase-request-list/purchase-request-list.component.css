@@ -1,0 +1,19 @@
+.purchase-request-list-container {
+  padding: 1rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.header-actions button {
+  background-color: #1976d2;
+  color: white;
+}
+
+.purchase-request-list-grid {
+  height: 500px;
+}

@@ -1,0 +1,107 @@
+<div class="supplier-quotation-container">
+  <div class="page-header">
+    <h2>{{ 'SUPPLIER_QUOTATION.TITLE' | translate }}</h2>
+  </div>
+
+  <form [formGroup]="headerForm" class="header-form">
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'SUPPLIER_QUOTATION.QUOTATION_NUMBER' | translate }}</mat-label>
+      <input matInput formControlName="quotationNumber" readonly>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'SUPPLIER_QUOTATION.LINKED_PURCHASE_REQUEST' | translate }}</mat-label>
+      <input matInput formControlName="purchaseRequestId" type="number">
+      <mat-error *ngIf="headerForm.get('purchaseRequestId')?.hasError('required')">
+        {{ 'SUPPLIER_QUOTATION.REQUIRED_FIELD' | translate }}
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'SUPPLIER_QUOTATION.QUOTATION_DATE' | translate }}</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="quotationDate">
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+      <mat-error *ngIf="headerForm.get('quotationDate')?.hasError('required')">
+        {{ 'SUPPLIER_QUOTATION.REQUIRED_FIELD' | translate }}
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'SUPPLIER_QUOTATION.VALIDITY_PERIOD' | translate }}</mat-label>
+      <input matInput formControlName="validityPeriod" placeholder="{{ 'SUPPLIER_QUOTATION.VALIDITY_PLACEHOLDER' | translate }}">
+      <mat-error *ngIf="headerForm.get('validityPeriod')?.hasError('required')">
+        {{ 'SUPPLIER_QUOTATION.REQUIRED_FIELD' | translate }}
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'SUPPLIER_QUOTATION.CURRENCY' | translate }}</mat-label>
+      <mat-select formControlName="currency">
+        <mat-option *ngFor="let curr of currencies" [value]="curr.value">
+          {{ curr.label }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="headerForm.get('currency')?.hasError('required')">
+        {{ 'SUPPLIER_QUOTATION.REQUIRED_FIELD' | translate }}
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'SUPPLIER_QUOTATION.NOTES' | translate }}</mat-label>
+      <textarea matInput formControlName="notes" rows="3"></textarea>
+    </mat-form-field>
+  </form>
+
+  <div class="details-section">
+    <div class="section-header">
+      <h3>{{ 'SUPPLIER_QUOTATION.DETAILS_TITLE' | translate }}</h3>
+      <button mat-raised-button color="primary" (click)="addDetail()">
+        <mat-icon>add</mat-icon>
+        {{ 'SUPPLIER_QUOTATION.ADD_ITEM' | translate }}
+      </button>
+    </div>
+
+    <dx-data-grid
+      [dataSource]="details"
+      [showBorders]="true"
+      [rowAlternationEnabled]="true"
+      keyExpr="__id"
+      (onRowInserted)="onRowInserted($event)"
+      (onRowUpdated)="onRowUpdated($event)"
+      (onRowRemoved)="onRowRemoved($event)">
+
+      <dxo-editing mode="row" [allowUpdating]="true" [allowAdding]="true" [allowDeleting]="true"></dxo-editing>
+
+      <dxi-column dataField="item" [caption]="'SUPPLIER_QUOTATION.ITEM' | translate"></dxi-column>
+      <dxi-column dataField="price" [caption]="'SUPPLIER_QUOTATION.PRICE' | translate" dataType="number" ></dxi-column>
+      <dxi-column dataField="discount" [caption]="'SUPPLIER_QUOTATION.DISCOUNT' | translate" dataType="number"></dxi-column>
+      <dxi-column dataField="tax" [caption]="'SUPPLIER_QUOTATION.TAX_PERCENT' | translate" dataType="number"></dxi-column>
+      <dxi-column dataField="deliveryPeriod" [caption]="'SUPPLIER_QUOTATION.DELIVERY_PERIOD' | translate"></dxi-column>
+      <dxi-column [caption]="'SUPPLIER_QUOTATION.LINE_TOTAL' | translate" dataField="lineTotal" [calculateCellValue]="calculateLineTotalForGrid"></dxi-column>
+
+      <dxi-column type="buttons">
+        <dx-button name="remove"></dx-button>
+      </dxi-column>
+
+      <dxo-paging [pageSize]="10"></dxo-paging>
+      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
+    </dx-data-grid>
+
+    <div class="empty-state" *ngIf="details.length === 0">
+      <mat-icon>inbox</mat-icon>
+      <p>{{ 'SUPPLIER_QUOTATION.NO_ITEMS' | translate }}</p>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button mat-raised-button color="primary" (click)="onSave()">
+      <mat-icon>save</mat-icon>
+      {{ 'SUPPLIER_QUOTATION.SAVE' | translate }}
+    </button>
+    <button mat-raised-button (click)="onCancel()">
+      <mat-icon>cancel</mat-icon>
+      {{ 'SUPPLIER_QUOTATION.CANCEL' | translate }}
+    </button>
+  </div>
+</div>

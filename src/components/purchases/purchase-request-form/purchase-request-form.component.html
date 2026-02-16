@@ -1,0 +1,148 @@
+<div class="container">
+  <div class="page-header strong-header">
+    <div class="header-info">
+      <h2 class="strong-title">{{ 'PURCHASE_OFFER.NOTES' | translate }}</h2>
+    </div>
+    <div class="header-actions">
+      <button mat-button class="btn btn-secondary btn-small" (click)="showDetails()">
+        {{ 'PURCHASE_OFFER.DETAILS' | translate }}
+      </button>
+      <button mat-button class="btn btn-secondary btn-small" (click)="showClassification()">
+        {{ 'PURCHASE_OFFER.CLASSIFICATION' | translate }}
+      </button>
+      <a routerLink="/purchases/offers" class="btn btn-secondary btn-small">
+        <mat-icon>arrow_back</mat-icon>
+        <span>{{ 'PURCHASE_OFFER.BACK_TO_OFFERS' | translate }}</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="card invoice-card">
+    <form [formGroup]="purchaseOfferForm" (ngSubmit)="onSubmit()">
+      <section class="form-section">
+        <h3 class="form-section-title">{{ 'PURCHASE_OFFER.MAIN_DATA' | translate }}</h3>
+        
+        <ng-container *ngIf="cardLayout3 | async as layout">
+          <mat-grid-list [cols]="layout.columns" rowHeight="90">
+            <!-- رقم السند -->
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'PURCHASE_OFFER.DOCUMENT_NUMBER' | translate }}</mat-label>
+                <input matInput formControlName="offerNumber" required>
+              </mat-form-field>
+            </mat-grid-tile>
+
+            <!-- تاريخ السند -->
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'PURCHASE_OFFER.DOCUMENT_DATE' | translate }}</mat-label>
+                <input matInput [matDatepicker]="offerDatePicker" formControlName="offerDate" required>
+                <mat-datepicker-toggle matSuffix [for]="offerDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #offerDatePicker></mat-datepicker>
+              </mat-form-field>
+            </mat-grid-tile>
+
+            <!-- الرقم المرجعي -->
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'PURCHASE_OFFER.REFERENCE_NUMBER' | translate }}</mat-label>
+                <input matInput formControlName="referenceNumber">
+              </mat-form-field>
+            </mat-grid-tile>
+          </mat-grid-list>
+        </ng-container>
+
+
+          </mat-grid-list>
+        </ng-container>
+
+        <ng-container *ngIf="cardLayout3 | async as layout">
+          <mat-grid-list [cols]="layout.columns" rowHeight="90">
+            <!-- وصف السند بالعربية -->
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'PURCHASE_OFFER.DESCRIPTION_AR' | translate }}</mat-label>
+                <input matInput formControlName="descriptionAr">
+              </mat-form-field>
+            </mat-grid-tile>
+
+            <!-- وصف السند بالانجليزي -->
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'PURCHASE_OFFER.DESCRIPTION_EN' | translate }}</mat-label>
+                <input matInput formControlName="descriptionEn">
+              </mat-form-field>
+            </mat-grid-tile>
+          </mat-grid-list>
+        </ng-container>
+      </section>
+
+      <section class="form-section">
+        <div class="table-actions">
+          <button mat-raised-button color="primary" type="button" (click)="searchItems()">
+            <mat-icon>search</mat-icon>
+            {{ 'PURCHASE_OFFER.SEARCH_ITEMS' | translate }}
+          </button>
+          <button mat-button type="button" (click)="tableSettings()">
+            <mat-icon>settings</mat-icon>
+            {{ 'PURCHASE_OFFER.TABLE_SETTINGS' | translate }}
+          </button>
+          <button mat-button type="button" (click)="toggleHiddenColumns()">
+            <mat-icon>view_column</mat-icon>
+            {{ 'PURCHASE_OFFER.HIDDEN_COLUMNS' | translate }}
+          </button>
+          <button mat-raised-button color="accent" type="button" (click)="addNewRow()">
+            <mat-icon>add</mat-icon>
+            {{ 'PURCHASE_OFFER.NEW_ROW' | translate }}
+          </button>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="table-wrapper premium-table">
+          <dx-data-grid
+            [dataSource]="offerItems"
+            [showBorders]="true"
+            [columnAutoWidth]="true"
+            [rowAlternationEnabled]="true"
+            [editing]="{ mode: 'cell', allowUpdating: true, allowDeleting: true, allowAdding: true }"
+            [rtlEnabled]="true"
+            (onRowRemoving)="removeItem($event)"
+            (onCellValueChanged)="onCellValueChanged($event)"
+            [noDataText]="'PURCHASE_OFFER.NO_ITEMS' | translate"
+            [height]="400"
+          >
+       
+              <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}"></dxi-column>
+            <dxi-column dataField="quantity" caption="{{ 'PURCHASE_INVOICE.QUANTITY' | translate }}" dataType="number" allowEditing="true">
+            </dxi-column>
+            <dxi-column dataField="unitPrice" caption="{{ 'PURCHASE_INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
+            <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" dataType="number" format="currency"></dxi-column>
+
+            <!-- أدوات -->
+            <dxi-column type="buttons" caption="{{ 'PURCHASE_OFFER.TOOLS' | translate }}" [width]="100">
+              <dxi-button name="delete" icon="trash"></dxi-button>
+            </dxi-column>
+
+            <dxo-filter-row [visible]="true"></dxo-filter-row>
+            <dxo-header-filter [visible]="true"></dxo-header-filter>
+            <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false"
+              [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
+            <dxo-selection mode="single"></dxo-selection>
+            <dxo-paging [pageSize]="10"></dxo-paging>
+            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
+          </dx-data-grid>
+        </div>
+      </section>
+
+
+
+      <div class="form-actions">
+        <a routerLink="/purchases/offers" class="btn btn-secondary">{{ 'COMMON.CANCEL' | translate }}</a>
+        <button mat-raised-button color="primary" type="submit" [disabled]="!purchaseOfferForm.valid || offerItems.length === 0" class="btn-primary">
+          {{ isEditMode ? ('COMMON.UPDATE' | translate) : ('COMMON.CREATE' | translate) }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
