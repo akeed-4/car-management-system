@@ -1,7 +1,7 @@
 import { Customer } from './customer.model';
 import { Car } from './car.model';
 
-export interface ClientQuotationItem {
+export interface CustomerQuotationItem {
   id?: number;
   carId: number;
   car?: Car;
@@ -15,7 +15,7 @@ export interface ClientQuotationItem {
   notes?: string;
 }
 
-export interface ClientQuotation {
+export interface CustomerQuotation {
   id?: number;
   quotationNumber: string;
   customerId: number;
@@ -25,7 +25,7 @@ export interface ClientQuotation {
   currency: string;
   paymentTerms?: string;
   status: string; // Draft, Submitted, Accepted, Rejected
-  items: ClientQuotationItem[];
+  items: CustomerQuotationItem[];
   totalAmount: number;
   notes?: string;
   linkedSalesRequestId?: number;

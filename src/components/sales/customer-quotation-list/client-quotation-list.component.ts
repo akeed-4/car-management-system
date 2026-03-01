@@ -2,17 +2,17 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
-import { ClientQuotation } from '../../../models/client-quotation.model';
+import { CustomerQuotation } from '../../../models/customer-quotation.model';
 
 @Component({
-  selector: 'app-client-quotation-list',
+  selector: 'app-customer-quotation-list',
   standalone: true,
   imports: [CommonModule, DxDataGridModule, DxButtonModule, TranslateModule],
-  templateUrl: './client-quotation-list.component.html',
-  styleUrls: ['./client-quotation-list.component.css']
+  templateUrl: './customer-quotation-list.component.html',
+  styleUrls: ['./customer-quotation-list.component.css']
 })
-export class ClientQuotationListComponent {
-  quotations: ClientQuotation[] = [
+export class CustomerQuotationListComponent {
+  quotations: CustomerQuotation[] = [
     {
       id: 1,
       quotationNumber: 'CQ-001',
@@ -37,17 +37,17 @@ export class ClientQuotationListComponent {
     }
   ];
 
-  onEdit(quotation: ClientQuotation) {
+  onEdit(quotation: CustomerQuotation) {
     // Navigate to edit form or open modal
     console.log('Edit quotation:', quotation);
   }
 
-  onDelete(quotation: ClientQuotation) {
+  onDelete(quotation: CustomerQuotation) {
     // Delete logic
     console.log('Delete quotation:', quotation);
   }
 
-  onView(quotation: ClientQuotation) {
+  onView(quotation: CustomerQuotation) {
     // View details
     console.log('View quotation:', quotation);
   }

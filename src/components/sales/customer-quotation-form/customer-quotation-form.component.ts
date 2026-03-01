@@ -13,10 +13,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { ClientQuotation, ClientQuotationItem } from '../../../models/client-quotation.model';
+import { CustomerQuotation, CustomerQuotationItem } from '../../../models/customer-quotation.model';
 
 @Component({
-  selector: 'app-client-quotation-form',
+  selector: 'app-customer-quotation-form',
   standalone: true,
   imports: [
     CommonModule,
@@ -34,12 +34,12 @@ import { ClientQuotation, ClientQuotationItem } from '../../../models/client-quo
     MatNativeDateModule,
     TranslateModule
   ],
-  templateUrl: './client-quotation-form.component.html',
-  styleUrls: ['./client-quotation-form.component.css']
+  templateUrl: './customer-quotation-form.component.html',
+  styleUrls: ['./customer-quotation-form.component.css']
 })
-export class ClientQuotationFormComponent {
+export class CustomerQuotationFormComponent {
   headerForm: FormGroup;
-  details: ClientQuotationItem[] = [];
+  details: CustomerQuotationItem[] = [];
   displayedColumns: string[] = ['carDescription', 'quantity', 'unitPrice', 'discount', 'tax', 'lineTotal', 'actions'];
 
   currencies = [
@@ -60,7 +60,7 @@ export class ClientQuotationFormComponent {
   }
 
   addDetail(): void {
-    const newItem: ClientQuotationItem = {
+    const newItem: CustomerQuotationItem = {
       carId: 0,
       carDescription: '',
       quantity: 1,
@@ -79,7 +79,7 @@ export class ClientQuotationFormComponent {
     this.details = [...this.details];
   }
 
-  calculateLineTotal(detail: ClientQuotationItem): void {
+  calculateLineTotal(detail: CustomerQuotationItem): void {
     const subtotal = (detail.quantity * detail.unitPrice) - (detail.discount || 0);
     detail.lineTotal = subtotal + (subtotal * (detail.tax || 0) / 100);
   }
