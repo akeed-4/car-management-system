@@ -1,71 +1,79 @@
 <div class="container">
   <div class="page-header strong-header">
     <div class="header-info">
-      <h2 class="strong-title">{{ 'PURCHASE_OFFER.NOTES' | translate }}</h2>
+      <h2 class="strong-title">{{ 'SALES_REQUEST.TITLE' | translate }}</h2>
     </div>
     <div class="header-actions">
       <button mat-button class="btn btn-secondary btn-small" (click)="showDetails()">
-        {{ 'PURCHASE_OFFER.DETAILS' | translate }}
+        {{ 'SALES_REQUEST.DETAILS' | translate }}
       </button>
       <button mat-button class="btn btn-secondary btn-small" (click)="showClassification()">
-        {{ 'PURCHASE_OFFER.CLASSIFICATION' | translate }}
+        {{ 'SALES_REQUEST.CLASSIFICATION' | translate }}
       </button>
-      <a routerLink="/purchases/offers" class="btn btn-secondary btn-small">
+      <a routerLink="/sales/requests" class="btn btn-secondary btn-small">
         <mat-icon>arrow_back</mat-icon>
-        <span>{{ 'PURCHASE_OFFER.BACK_TO_OFFERS' | translate }}</span>
+        <span>{{ 'SALES_REQUEST.BACK_TO_REQUESTS' | translate }}</span>
       </a>
     </div>
   </div>
 
   <div class="card invoice-card">
-    <form [formGroup]="purchaseOfferForm" (ngSubmit)="onSubmit()">
+    <form [formGroup]="salesRequestForm" (ngSubmit)="onSubmit()">
       <section class="form-section">
-        <h3 class="form-section-title">{{ 'PURCHASE_OFFER.MAIN_DATA' | translate }}</h3>
-        
+        <h3 class="form-section-title">{{ 'SALES_REQUEST.MAIN_DATA' | translate }}</h3>
+
         <ng-container *ngIf="cardLayout3 | async as layout">
           <mat-grid-list [cols]="layout.columns" rowHeight="90">
-            <!-- رقم السند -->
+            <!-- Request Number -->
             <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
               <mat-form-field appearance="outline" class="form-field">
-                <mat-label>{{ 'PURCHASE_OFFER.DOCUMENT_NUMBER' | translate }}</mat-label>
-                <input matInput formControlName="offerNumber" required>
+                <mat-label>{{ 'SALES_REQUEST.REQUEST_NUMBER' | translate }}</mat-label>
+                <input matInput formControlName="requestNumber" required>
               </mat-form-field>
             </mat-grid-tile>
 
-            <!-- تاريخ السند -->
+            <!-- Request Date -->
             <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
               <mat-form-field appearance="outline" class="form-field">
-                <mat-label>{{ 'PURCHASE_OFFER.DOCUMENT_DATE' | translate }}</mat-label>
-                <input matInput [matDatepicker]="offerDatePicker" formControlName="offerDate" required>
-                <mat-datepicker-toggle matSuffix [for]="offerDatePicker"></mat-datepicker-toggle>
-                <mat-datepicker #offerDatePicker></mat-datepicker>
+                <mat-label>{{ 'SALES_REQUEST.REQUEST_DATE' | translate }}</mat-label>
+                <input matInput [matDatepicker]="requestDatePicker" formControlName="requestDate" required>
+                <mat-datepicker-toggle matSuffix [for]="requestDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #requestDatePicker></mat-datepicker>
               </mat-form-field>
             </mat-grid-tile>
 
-            <!-- الرقم المرجعي -->
+            <!-- Customer -->
             <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
               <mat-form-field appearance="outline" class="form-field">
-                <mat-label>{{ 'PURCHASE_OFFER.REFERENCE_NUMBER' | translate }}</mat-label>
+                <mat-label>{{ 'SALES_REQUEST.CUSTOMER' | translate }}</mat-label>
+                <mat-select formControlName="customerId" required>
+                  <mat-option *ngFor="let customer of customers" [value]="customer.id">
+                    {{ customer.name }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </mat-grid-tile>
+
+            <!-- Reference Number -->
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'SALES_REQUEST.REFERENCE_NUMBER' | translate }}</mat-label>
                 <input matInput formControlName="referenceNumber">
               </mat-form-field>
             </mat-grid-tile>
-          </mat-grid-list>
-        </ng-container>
 
-        <ng-container *ngIf="cardLayout3 | async as layout">
-          <mat-grid-list [cols]="layout.columns" rowHeight="90">
-            <!-- وصف السند بالعربية -->
+            <!-- Description Arabic -->
             <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
               <mat-form-field appearance="outline" class="form-field">
-                <mat-label>{{ 'PURCHASE_OFFER.DESCRIPTION_AR' | translate }}</mat-label>
+                <mat-label>{{ 'SALES_REQUEST.DESCRIPTION_AR' | translate }}</mat-label>
                 <input matInput formControlName="descriptionAr">
               </mat-form-field>
             </mat-grid-tile>
 
-            <!-- وصف السند بالانجليزي -->
+            <!-- Description English -->
             <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
               <mat-form-field appearance="outline" class="form-field">
-                <mat-label>{{ 'PURCHASE_OFFER.DESCRIPTION_EN' | translate }}</mat-label>
+                <mat-label>{{ 'SALES_REQUEST.DESCRIPTION_EN' | translate }}</mat-label>
                 <input matInput formControlName="descriptionEn">
               </mat-form-field>
             </mat-grid-tile>
@@ -77,19 +85,19 @@
         <div class="table-actions">
           <button mat-raised-button color="primary" type="button" (click)="searchItems()">
             <mat-icon>search</mat-icon>
-            {{ 'PURCHASE_OFFER.SEARCH_ITEMS' | translate }}
+            {{ 'SALES_REQUEST.SEARCH_ITEMS' | translate }}
           </button>
           <button mat-button type="button" (click)="tableSettings()">
             <mat-icon>settings</mat-icon>
-            {{ 'PURCHASE_OFFER.TABLE_SETTINGS' | translate }}
+            {{ 'SALES_REQUEST.TABLE_SETTINGS' | translate }}
           </button>
           <button mat-button type="button" (click)="toggleHiddenColumns()">
             <mat-icon>view_column</mat-icon>
-            {{ 'PURCHASE_OFFER.HIDDEN_COLUMNS' | translate }}
+            {{ 'SALES_REQUEST.HIDDEN_COLUMNS' | translate }}
           </button>
           <button mat-raised-button color="accent" type="button" (click)="addNewRow()">
             <mat-icon>add</mat-icon>
-            {{ 'PURCHASE_OFFER.NEW_ROW' | translate }}
+            {{ 'SALES_REQUEST.NEW_ROW' | translate }}
           </button>
         </div>
       </section>
@@ -97,7 +105,7 @@
       <section class="form-section">
         <div class="table-wrapper premium-table">
           <dx-data-grid
-            [dataSource]="offerItems"
+            [dataSource]="requestItems"
             [showBorders]="true"
             [columnAutoWidth]="true"
             [rowAlternationEnabled]="true"
@@ -105,18 +113,15 @@
             [rtlEnabled]="true"
             (onRowRemoving)="removeItem($event)"
             (onCellValueChanged)="onCellValueChanged($event)"
-            [noDataText]="'PURCHASE_OFFER.NO_ITEMS' | translate"
+            [noDataText]="'SALES_REQUEST.NO_ITEMS' | translate"
             [height]="400"
           >
-       
-              <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}"></dxi-column>
-            <dxi-column dataField="quantity" caption="{{ 'PURCHASE_INVOICE.QUANTITY' | translate }}" dataType="number" allowEditing="true">
-            </dxi-column>
-            <dxi-column dataField="unitPrice" caption="{{ 'PURCHASE_INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
-            <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" dataType="number" format="currency"></dxi-column>
+            <dxi-column dataField="carDescription" caption="{{ 'SALES_REQUEST.CAR' | translate }}"></dxi-column>
+            <dxi-column dataField="quantity" caption="{{ 'SALES_REQUEST.QUANTITY' | translate }}" dataType="number" allowEditing="true"></dxi-column>
+            <dxi-column dataField="requestedPrice" caption="{{ 'SALES_REQUEST.REQUESTED_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
+            <dxi-column dataField="notes" caption="{{ 'SALES_REQUEST.NOTES' | translate }}"></dxi-column>
 
-            <!-- أدوات -->
-            <dxi-column type="buttons" caption="{{ 'PURCHASE_OFFER.TOOLS' | translate }}" [width]="100">
+            <dxi-column type="buttons" caption="{{ 'SALES_REQUEST.TOOLS' | translate }}" [width]="100">
               <dxi-button name="delete" icon="trash"></dxi-button>
             </dxi-column>
 
@@ -131,11 +136,9 @@
         </div>
       </section>
 
-
-
       <div class="form-actions">
-        <a routerLink="/purchases/offers" class="btn btn-secondary">{{ 'COMMON.CANCEL' | translate }}</a>
-        <button mat-raised-button color="primary" type="submit" [disabled]="!purchaseOfferForm.valid || offerItems.length === 0" class="btn-primary">
+        <a routerLink="/sales/requests" class="btn btn-secondary">{{ 'COMMON.CANCEL' | translate }}</a>
+        <button mat-raised-button color="primary" type="submit" [disabled]="!salesRequestForm.valid || requestItems.length === 0" class="btn-primary">
           {{ isEditMode ? ('COMMON.UPDATE' | translate) : ('COMMON.CREATE' | translate) }}
         </button>
       </div>

@@ -1,0 +1,40 @@
+<div class="container">
+  <div class="page-header">
+    <h2>{{ 'SALES_REQUEST.LIST_TITLE' | translate }}</h2>
+    <button mat-raised-button color="primary" (click)="createNewRequest()">
+      <mat-icon>add</mat-icon>
+      {{ 'SALES_REQUEST.CREATE_NEW' | translate }}
+    </button>
+  </div>
+
+  <div class="table-container">
+    <dx-data-grid
+      [dataSource]="dataSource"
+      [showBorders]="true"
+      [columnAutoWidth]="true"
+      [rowAlternationEnabled]="true"
+      [rtlEnabled]="true"
+      [height]="500"
+    >
+      <dxi-column dataField="requestNumber" caption="{{ 'SALES_REQUEST.REQUEST_NUMBER' | translate }}"></dxi-column>
+      <dxi-column dataField="requestDate" caption="{{ 'SALES_REQUEST.REQUEST_DATE' | translate }}" dataType="date"></dxi-column>
+      <dxi-column dataField="customerName" caption="{{ 'SALES_REQUEST.CUSTOMER' | translate }}"></dxi-column>
+      <dxi-column dataField="status" caption="{{ 'SALES_REQUEST.STATUS' | translate }}"></dxi-column>
+      <dxi-column dataField="totalItems" caption="{{ 'SALES_REQUEST.TOTAL_ITEMS' | translate }}" dataType="number"></dxi-column>
+
+      <dxi-column type="buttons" caption="{{ 'COMMON.ACTIONS' | translate }}" [width]="150">
+        <dxi-button name="view" icon="eye" [onClick]="viewRequest"></dxi-button>
+        <dxi-button name="edit" icon="edit" [onClick]="editRequest"></dxi-button>
+        <dxi-button name="delete" icon="trash" [onClick]="deleteRequest"></dxi-button>
+      </dxi-column>
+
+      <dxo-filter-row [visible]="true"></dxo-filter-row>
+      <dxo-header-filter [visible]="true"></dxo-header-filter>
+      <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false"
+        [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
+      <dxo-selection mode="single"></dxo-selection>
+      <dxo-paging [pageSize]="10"></dxo-paging>
+      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
+    </dx-data-grid>
+  </div>
+</div>

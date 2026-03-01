@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -8,24 +9,36 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 import { PurchaseCycleService } from '@/src/services/purchase-cycle.service';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Router } from '@angular/router';
 import { Observable, map } from 'rxjs';
-import { OfferItem } from '@/src/models/offer-item.model';
+import { PurchaseRequest, PurchaseRequestItem } from '../../../models/purchase-request.model';
+import dxDataGrid from 'devextreme/ui/data_grid';
+import { DxDataGridModule } from 'devextreme-angular';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-purchase-request-form',
   standalone: true,
   imports: [
     CommonModule,
+    ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
     MatTableModule,
     MatIconModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatGridListModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    DxDataGridModule,
+    TranslateModule
   ],
   templateUrl: './purchase-request-form.component.html',
   styleUrls: ['./purchase-request-form.component.css']
@@ -36,7 +49,7 @@ export class PurchaseRequestFormComponent {
     purchaseOfferId: number | null = null;
   
     // Data arrays
-    offerItems: OfferItem[] = [];
+    offerItems: PurchaseRequestItem[] = [];
     suppliers: any[] = [];
     requestedCars: any[] = [];
     classifiers: any[] = [];
@@ -111,7 +124,7 @@ export class PurchaseRequestFormComponent {
     }
   
     addNewRow(): void {
-      const newItem: OfferItem =
+      const newItem: PurchaseRequestItem =
       {
         carDescription: '',
         quantity: 1,
@@ -131,7 +144,7 @@ export class PurchaseRequestFormComponent {
   
     onCellValueChanged(e: any): void {
       if (e && e.data) {
-        const item = e.data as OfferItem;
+        const item = e.data as PurchaseRequestItem;
         item.lineTotal = this.calculateTotal(item);
         // replace the changed item in the array to trigger change detection
         const idx = this.offerItems.indexOf(e.data);
@@ -142,7 +155,7 @@ export class PurchaseRequestFormComponent {
       this.updateSummary();
     }
   
-    calculateTotal = (rowData: OfferItem): number => {
+    calculateTotal = (rowData: PurchaseRequestItem): number => {
       return (rowData.quantity || 0) * (rowData.unitPrice || 0);
     }
   
@@ -162,9 +175,25 @@ export class PurchaseRequestFormComponent {
       this.taxCostPrice = this.lastPurchasePrice * 0.15;
       this.unitCostPrice = this.offerItems.length > 0 ? this.lastPurchasePrice / this.offerItems.length : 0;
     }
-  
    
   
+    showClassification(): void {
+      // TODO: Implement show classification functionality
+      console.log('Show classification clicked');
+    }
+  
+    searchItems(): void {
+      // TODO: Implement search items functionality
+      console.log('Search items clicked');
+    }
+  
+    tableSettings(): void {
+      // TODO: Implement table settings functionality
+      console.log('Table settings clicked');
+    }
+  
+   
+
       // Calculate summary values
   
     onSubmit(): void {

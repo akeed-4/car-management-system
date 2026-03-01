@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import { DxDataGridModule } from 'devextreme-angular';
+import { PurchaseRequest } from '../../../models/purchase-request.model';
 
 @Component({
   selector: 'app-purchase-request-list',
@@ -19,23 +20,23 @@ import { DxDataGridModule } from 'devextreme-angular';
   styleUrls: ['./purchase-request-list.component.css']
 })
 export class PurchaseRequestListComponent {
-  purchaseRequests = [
+  purchaseRequests: PurchaseRequest[] = [
     {
       id: 1,
       requestNumber: 'REQ-001',
-      requestDate: new Date(),
-      supplier: { name: 'Supplier A' },
-      carDescription: 'Car Model A',
-      requestedPrice: 15000,
+      requestDate: new Date().toISOString(),
+      supplierId: 1,
+      supplier: { id: 1, name: 'Supplier A' } as any,
+      items: [],
       status: 'Pending'
     },
     {
       id: 2,
       requestNumber: 'REQ-002',
-      requestDate: new Date(),
-      supplier: { name: 'Supplier B' },
-      carDescription: 'Car Model B',
-      requestedPrice: 20000,
+      requestDate: new Date().toISOString(),
+      supplierId: 2,
+      supplier: { id: 2, name: 'Supplier B' } as any,
+      items: [],
       status: 'Approved'
     }
   ];

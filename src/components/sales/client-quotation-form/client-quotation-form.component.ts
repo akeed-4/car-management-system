@@ -13,19 +13,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { TranslateModule } from '@ngx-translate/core';
-
-export interface QuotationDetail {
-  item: string;
-  price: number;
-  discount: number;
-  tax: number;
-  deliveryPeriod: string;
-  lineTotal: number;
-  __id?: number | string;
-}
+import { ClientQuotation, ClientQuotationItem } from '../../../models/client-quotation.model';
 
 @Component({
-  selector: 'app-supplier-quotation-form',
+  selector: 'app-client-quotation-form',
   standalone: true,
   imports: [
     CommonModule,
@@ -43,13 +34,13 @@ export interface QuotationDetail {
     MatNativeDateModule,
     TranslateModule
   ],
-  templateUrl: './supplier-quotation-form.component.html',
-  styleUrls: ['./supplier-quotation-form.component.css']
+  templateUrl: './client-quotation-form.component.html',
+  styleUrls: ['./client-quotation-form.component.css']
 })
-export class SupplierQuotationFormComponent {
+export class ClientQuotationFormComponent {
   headerForm: FormGroup;
-  details: QuotationDetail[] = [];
-  displayedColumns: string[] = ['item', 'price', 'discount', 'tax', 'deliveryPeriod', 'lineTotal', 'actions'];
+  details: ClientQuotationItem[] = [];
+  displayedColumns: string[] = ['carDescription', 'quantity', 'unitPrice', 'discount', 'tax', 'lineTotal', 'actions'];
 
   currencies = [
     { value: 'SAR', label: 'ريال سعودي (SAR)' },
@@ -60,7 +51,7 @@ export class SupplierQuotationFormComponent {
   constructor(private fb: FormBuilder) {
     this.headerForm = this.fb.group({
       quotationNumber: [{ value: 'Auto Number', disabled: true }],
-      purchaseRequestId: [null, Validators.required],
+      customerId: [null, Validators.required],
       quotationDate: [new Date(), Validators.required],
       validityPeriod: ['', Validators.required],
       currency: ['SAR', Validators.required],
@@ -69,15 +60,17 @@ export class SupplierQuotationFormComponent {
   }
 
   addDetail(): void {
-    const newItem: QuotationDetail = {
-      item: '',
-      price: 0,
+    const newItem: ClientQuotationItem = {
+      carId: 0,
+      carDescription: '',
+      quantity: 1,
+      unitPrice: 0,
       discount: 0,
       tax: 0,
+      lineTotal: 0,
       deliveryPeriod: '',
-      lineTotal: 0
+      notes: ''
     };
-    newItem.__id = Date.now() + Math.floor(Math.random() * 1000);
     this.details = [...this.details, newItem];
   }
 
@@ -86,17 +79,18 @@ export class SupplierQuotationFormComponent {
     this.details = [...this.details];
   }
 
-  calculateLineTotal(detail: QuotationDetail): void {
-    const subtotal = detail.price - detail.discount;
-    detail.lineTotal = subtotal + (subtotal * detail.tax / 100);
+  calculateLineTotal(detail: ClientQuotationItem): void {
+    const subtotal = (detail.quantity * detail.unitPrice) - (detail.discount || 0);
+    detail.lineTotal = subtotal + (subtotal * (detail.tax || 0) / 100);
   }
 
   // DevExtreme grid helper: calculate displayed line total for a row
   calculateLineTotalForGrid = (data: any) => {
-    const price = data?.price || 0;
+    const quantity = data?.quantity || 1;
+    const unitPrice = data?.unitPrice || 0;
     const discount = data?.discount || 0;
     const tax = data?.tax || 0;
-    const subtotal = price - discount;
+    const subtotal = (quantity * unitPrice) - discount;
     return +(subtotal + (subtotal * tax / 100)).toFixed(2);
   }
 
