@@ -20,6 +20,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastService } from '../../../../services/toast.service';
+import { NotificationService } from '@/src/services/notification.service';
 
 @Component({
   selector: 'app-customer-form',
@@ -49,7 +50,7 @@ export class CustomerFormComponent implements OnInit {
   private customerService = inject(CustomerService);
   private salesService = inject(SalesService);
   private inventoryService = inject(InventoryService);
-  private toastService = inject(ToastService);
+  private toastService = inject(NotificationService);
   private fb = inject(FormBuilder);
 
   customerForm!: FormGroup;

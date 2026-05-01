@@ -16,7 +16,7 @@
           <mat-grid-tile [colspan]="2" [rowspan]="1">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>{{ 'CAR_CATEGORY.FORM.MODELS' | translate }}</mat-label>
-              <mat-select formControlName="modelId">
+              <mat-select formControlName="modelId" aria-required="true">
                 <mat-option *ngFor="let model of models()" [value]="model.id">
                   {{ model.name }}
                 </mat-option>

@@ -73,10 +73,10 @@ export class CarCategoryFormComponent implements OnInit {
     this.categoryForm = this.fb.group({
       id: [null],
       name: ['', Validators.required],
-      nameAr: [''],
-      nameEn: [''],
+      nameAr: ['',Validators.required],
+      nameEn: ['',Validators.required],
       description: [''],
-      modelId: [null]
+      modelId: [null,Validators.required]
     });
   }
 

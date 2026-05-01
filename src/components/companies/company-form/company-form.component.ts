@@ -13,6 +13,7 @@ import { Branch, Company } from '@/src/models/branch.model';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { NotificationService } from '@/src/services/notification.service';
 
 @Component({
   selector: 'app-company-form',
@@ -41,7 +42,7 @@ export class CompanyFormComponent implements OnInit {
     private fb: FormBuilder,
     private companyService: CompanyService,
     private branchService: BranchService,
-    private toastService: ToastService,
+    private toastService: NotificationService,
     private route: ActivatedRoute,
     private router: Router,
     @Optional() public dialogRef: MatDialogRef<CompanyFormComponent>,

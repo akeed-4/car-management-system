@@ -29,6 +29,7 @@ import { SalesInvoice } from '@/src/models/sales-invoice.model';
 import { StoreCarStockDto } from '@/src/models/store-car-stock.model';
 import { ToastService } from '@/src/services/toast.service';
 import { SalesInvoiceFormComponent } from '../sales-invoice-form.component';
+import { NotificationService } from '@/src/services/notification.service';
 
 const VAT_RATE_FULL = 0.15; // 15% for new cars on full sale price
 const VAT_RATE_MARGIN = 0.15; // 15% applied to profit margin for used cars
@@ -96,7 +97,7 @@ export class SalesInvoiceCashComponent implements OnInit {
     private translate: TranslateService,
     private dialog: MatDialog,
     private route: ActivatedRoute,
-    private toastService: ToastService
+    private toastService: NotificationService
   ) {
     this.invoiceNumber.set(`INV-${Date.now()}`);
   }

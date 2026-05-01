@@ -18,6 +18,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CostCenterService } from '../../../services/cost-center.service';
 import { CostCenter } from '../../../models/cost-center.model';
 import { ActivatedRoute, Router } from '@angular/router';
+import { NotificationService } from '@/src/services/notification.service';
 
 @Component({
   selector: 'app-add-account',
@@ -84,7 +85,7 @@ export class AddAccountComponent implements OnChanges, OnInit {
     private costCenterService: CostCenterService,
     private translate: TranslateService,
     private route: ActivatedRoute,
-    private toastService: ToastService,
+    private toastService: NotificationService,
     private router: Router
   ) {
     this.accountForm = this.fb.group({

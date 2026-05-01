@@ -15,6 +15,7 @@ import { CurrentSettingService } from '../../../../services/current-setting.serv
 import { ModalComponent } from '../../../shared/modal/modal.component';
 import { ToastService } from '../../../../services/toast.service';
 import { CarModel } from '../../../../models/car-model.model';
+import { NotificationService } from '@/src/services/notification.service';
 
 type SortColumn = keyof CarModel | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -32,7 +33,7 @@ export class CarModelsComponent implements OnInit {
   private manufacturerService = inject(ManufacturerService);
   private currentSettingService = inject(CurrentSettingService);
   private fb = inject(FormBuilder);
-  private toastService = inject(ToastService);
+  private toastService = inject(NotificationService);
 
   carModels = toSignal(this.carModelService.getCarModels(), { initialValue: [] });
   manufacturers = this.manufacturerService.manufacturers$;

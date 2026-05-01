@@ -114,7 +114,7 @@ export class PurchaseInvoiceComponent implements OnInit {
   private router = inject(Router);
   private translate = inject(TranslateService);
   private fb = inject(FormBuilder);
-  private toastService = inject(ToastService);
+  private toastService = inject(NotificationService);
   private route = inject(ActivatedRoute);
   private dialog = inject(MatDialog);
   private notificationService = inject(NotificationService);

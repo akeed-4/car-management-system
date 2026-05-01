@@ -14,6 +14,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ApprovalService } from '../../../services/approval.service';
 import { ApprovalRequest, ApprovalAction } from '../../../models/approval-request.model';
 import { ToastService } from '../../../services/toast.service';
+import { NotificationService } from '@/src/services/notification.service';
 
 interface DialogData {
   approval: ApprovalRequest;
@@ -43,7 +44,7 @@ export class ApprovalActionDialogComponent {
   private fb = inject(FormBuilder);
   private approvalService = inject(ApprovalService);
   private dialogRef = inject(MatDialogRef<ApprovalActionDialogComponent>);
-  private toastService = inject(ToastService);
+  private toastService = inject(NotificationService);
   public data: DialogData = inject(MAT_DIALOG_DATA);
 
   actionForm: FormGroup;

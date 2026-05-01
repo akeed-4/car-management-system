@@ -9,6 +9,7 @@ import { Account } from '../models';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastService } from '@/src/services/toast.service';
+import { NotificationService } from '@/src/services/notification.service';
 
 @Component({
   selector: 'app-chart-of-accounts-tree',
@@ -73,7 +74,7 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
     public translate: TranslateService,
     private accountingService: AccountingService,
     private router: Router,
-    private toastService: ToastService
+    private toastService: NotificationService
   ) {
     this.onAddSubAccount = this.onAddSubAccount.bind(this);
     this.onEditAccount = this.onEditAccount.bind(this);

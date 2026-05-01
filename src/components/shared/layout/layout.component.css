@@ -77,9 +77,7 @@
     transform: scaleY(1);
 }
 
-.footer {
-    flex: 1 1 auto;
-}
+
 
 .footer-version {
     color: white;
@@ -489,4 +487,7 @@ only screen and (max-device-width: 740px) {
 }
 
 
+.footer {
+    flex-shrink: 0; /* يمنع الفوتر من التمدد */
+}
 

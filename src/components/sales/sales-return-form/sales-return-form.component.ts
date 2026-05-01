@@ -23,6 +23,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { ToastService } from '../../../services/toast.service';
 import { SalesReturnInvoice } from '@/src/models/sales-return-invoice.model';
+import { NotificationService } from '@/src/services/notification.service';
 
 @Component({
   selector: 'app-sales-return-form',
@@ -36,7 +37,7 @@ import { SalesReturnInvoice } from '@/src/models/sales-return-invoice.model';
 export class SalesReturnFormComponent implements OnInit {
 
  @Input() isCashReturn: boolean = false;
-  customTitle: string;
+  customTitle!: string;
   private salesService = inject(SalesService);
   private fb = inject(FormBuilder);
   private salesReturnService = inject(SalesReturnService);
@@ -46,7 +47,7 @@ export class SalesReturnFormComponent implements OnInit {
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
   private translate = inject(TranslateService);
-  private toastService = inject(ToastService);
+  private toastService = inject(NotificationService);
 
   returnForm: FormGroup;
 

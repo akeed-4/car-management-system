@@ -30,6 +30,7 @@ import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
 import { CarSelectionDialogComponent } from '../../car-selection-dialog/car-selection-dialog.component';
 import { InvoiceItemDialogComponent } from '../../invoice-item-dialog/invoice-item-dialog.component';
 import { SalesReturnFormComponent } from '../sales-return-form.component';
+import { NotificationService } from '@/src/services/notification.service';
 const VAT_RATE_FULL = 0.15; // 15% for new cars on full sale price
 const VAT_RATE_MARGIN = 0.15; // 15% applied to profit margin for used cars
 
@@ -79,7 +80,7 @@ export class CreditInvoiceFormComponent {
       private translate: TranslateService,
       private dialog: MatDialog,
       private route: ActivatedRoute,
-      private toastService: ToastService
+      private toastService: NotificationService
     ) {
       this.invoiceNumber.set(`INV-${Date.now()}`);
     }

@@ -18,6 +18,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { NotificationService } from '@/src/services/notification.service';
 
 @Component({
   selector: 'app-journal-entries',
@@ -41,7 +42,7 @@ import { TranslateModule } from '@ngx-translate/core';
   ]
 })
 export class JournalEntriesComponent implements OnInit {
-  @ViewChild(DxDataGridComponent) grid: DxDataGridComponent;
+  @ViewChild(DxDataGridComponent) grid!: DxDataGridComponent;
   journalEntries$: Observable<JournalEntry[]>;
   accounts$: Observable<Account[]>;
   journalEntries: JournalEntry[] = [];
@@ -59,7 +60,7 @@ export class JournalEntriesComponent implements OnInit {
     private translate: TranslateService,
     private route: ActivatedRoute,
     private router: Router,
-    private toastService: ToastService
+    private toastService: NotificationService
   ) {
     this.journalEntries$ = this.accountingService.journalEntries$;
     this.accounts$ = this.accountingService.accounts$;

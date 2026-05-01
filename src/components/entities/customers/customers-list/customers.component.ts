@@ -14,6 +14,7 @@ import {
 import { TranslateModule } from '@ngx-translate/core';
 import { MatIconModule } from '@angular/material/icon';
 import { ToastService } from '../../../../services/toast.service';
+import { NotificationService } from '@/src/services/notification.service';
 
 type SortColumn = keyof Customer | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -40,7 +41,7 @@ type SortDirection = 'asc' | 'desc' | '';
 export class CustomersComponent {
   private customerService = inject(CustomerService);
   private router = inject(Router);
-  private toastService = inject(ToastService);
+  private toastService = inject(NotificationService);
   
   // customers = this.customerService.customers$;
   filter = signal('');

@@ -10,6 +10,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component'; // Corre
 import { TranslateModule } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { ToastService } from '../../../../services/toast.service';
+import { NotificationService } from '@/src/services/notification.service';
 
 type SortColumn = keyof Manufacturer | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -25,7 +26,7 @@ type SortDirection = 'asc' | 'desc' | '';
 export class ManufacturersComponent implements OnInit {
   private manufacturerService = inject(ManufacturerService);
   private fb = inject(FormBuilder);
-  private toastService = inject(ToastService);
+  private toastService = inject(NotificationService);
 
   manufacturers = this.manufacturerService.manufacturers$;
   manufacturerForm!: FormGroup;

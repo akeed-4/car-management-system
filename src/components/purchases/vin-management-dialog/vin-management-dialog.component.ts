@@ -9,6 +9,7 @@ import { DxDataGridModule } from 'devextreme-angular';
 import { ToastService } from '../../../services/toast.service';
 import { VinService } from '../../../services/vin.service';
 import { PurchaseCycleService } from '../../../services/purchase-cycle.service';
+import { NotificationService } from '@/src/services/notification.service';
 
 export interface VinEntry {
   vin: string;
@@ -75,7 +76,7 @@ export class VinManagementDialogComponent {
     public dialogRef: MatDialogRef<VinManagementDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: VinManagementDialogData,
     private translate: TranslateService,
-    private toastService: ToastService,
+    private toastService: NotificationService,
     private vinService: VinService,
     private purchaseCycleService: PurchaseCycleService
   ) {

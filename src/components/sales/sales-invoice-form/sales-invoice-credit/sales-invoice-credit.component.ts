@@ -31,6 +31,7 @@ import { InvoiceItemDialogComponent } from '../../invoice-item-dialog/invoice-it
 import { DxoValueErrorBarComponent } from 'devextreme-angular/ui/nested';
 import { ToastService } from '../../../../services/toast.service';
 import { SalesInvoiceFormComponent } from '../sales-invoice-form.component';
+import { NotificationService } from '@/src/services/notification.service';
 
 const VAT_RATE_FULL = 0.15; // 15% for new cars on full sale price
 const VAT_RATE_MARGIN = 0.15; // 15% applied to profit margin for used cars
@@ -99,7 +100,7 @@ export class SalesInvoiceCreditComponent implements OnInit {
     private translate: TranslateService,
     private dialog: MatDialog,
     private route: ActivatedRoute,
-    private toastService: ToastService
+    private toastService: NotificationService
   ) {
     this.invoiceNumber.set(`INV-${Date.now()}`);
   }

@@ -14,6 +14,7 @@ import { ApprovalService } from '../../../services/approval.service';
 import { ApprovalRequest, PendingApprovalSummary } from '../../../models/approval-request.model';
 import { ApprovalActionDialogComponent } from '../approval-action-dialog/approval-action-dialog.component';
 import { ToastService } from '../../../services/toast.service';
+import { NotificationService } from '@/src/services/notification.service';
 
 @Component({
   selector: 'app-pending-approvals',
@@ -37,7 +38,7 @@ import { ToastService } from '../../../services/toast.service';
 export class PendingApprovalsComponent implements OnInit {
   private approvalService = inject(ApprovalService);
   private dialog = inject(MatDialog);
-  private toastService = inject(ToastService);
+  private toastService = inject(NotificationService);
 
   pendingApprovals = signal<ApprovalRequest[]>([]);
   summary = signal<PendingApprovalSummary | null>(null);

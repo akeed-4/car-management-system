@@ -2545,5 +2545,12 @@
     "NO_LEVELS_ADDED": "No approval levels added yet. Add at least one level.",
     "PARALLEL_APPROVAL_HELP": "All approvers at this level must approve in parallel",
     "CONDITION_HELP": "Define conditions for this approval level (optional)"
+  },
+  "admin": {
+    "login": "Login",
+    "logout": "Logout",
+    "changePassword": "Change Password",
+    "systemAdmin": "System Administration",
+    "userProfile": "User Profile"
   }
 }

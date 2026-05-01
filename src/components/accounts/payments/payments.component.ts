@@ -18,6 +18,7 @@ import { Account } from '../../accounting/models';
 import CustomStore from 'devextreme/data/custom_store';
 import { map } from 'rxjs';
 import { ToastService } from '@/src/services/toast.service';
+import { NotificationService } from '@/src/services/notification.service';
 
 @Component({
   selector: 'app-payments',
@@ -45,7 +46,7 @@ export class PaymentsComponent implements OnDestroy, AfterViewInit {
   private router = inject(Router);
   private translate = inject(TranslateService);
   private accountingService = inject(AccountingService);
-  private toastService = inject(ToastService);
+  private toastService = inject(NotificationService);
 
   @ViewChild('toastContainer') toastContainer!: ElementRef;
   
@@ -93,12 +94,12 @@ export class PaymentsComponent implements OnDestroy, AfterViewInit {
   ngAfterViewInit(): void {
     // Set the toast container for this component
     if (this.toastContainer) {
-      this.toastService.setContainer('toast-payments-container');
+      // this.toastService.setContainer('toast-payments-container');
     }
   }
 
   ngOnDestroy(): void {
     // Clear the container when component is destroyed
-    this.toastService.clearContainer();
+    // this.toastService.clearContainer();
   }
 }

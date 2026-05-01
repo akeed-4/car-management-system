@@ -24,6 +24,7 @@ import {
   CONDITION_OPERATORS
 } from '../../../models/approval-workflow.model';
 import { ToastService } from '../../../services/toast.service';
+import { NotificationService } from '@/src/services/notification.service';
 
 @Component({
   selector: 'app-approval-workflow-form',
@@ -54,7 +55,7 @@ export class ApprovalWorkflowFormComponent implements OnInit {
   private approvalService = inject(ApprovalService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private toastService = inject(ToastService);
+  private toastService = inject(NotificationService);
 
   workflowForm!: FormGroup;
   editMode = signal(false);

@@ -9,7 +9,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { NotificationService } from '@/src/services/notification.service';
 
 @Component({
   selector: 'app-supplier-form',
@@ -34,7 +35,9 @@ export class SupplierFormComponent implements OnInit {
   private router = inject(Router);
   private supplierService = inject(SupplierService);
   private fb = inject(FormBuilder);
-
+  private translateService= TranslateService
+  
+private notificationService:NotificationService | undefined
   supplierForm!: FormGroup;
   supplier = signal<Partial<Supplier>>({});
   editMode = signal(false);
@@ -109,7 +112,7 @@ export class SupplierFormComponent implements OnInit {
           next: () => {
             this.supplierForm.reset();
             this.supplierForm.markAsPristine();
-            alert('Supplier added successfully!');
+           this.notificationService?.showSuccess('TOAST.ADD_SUCCESS');
           },
           error: (error) => {
             console.error('Failed to add supplier:', error);

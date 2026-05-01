@@ -15,6 +15,7 @@ import { ReceiptService } from '../../../services/receipt.service';
 import { ReceiptVoucher } from '../../../models/receipt-voucher.model';
 import CustomStore from 'devextreme/data/custom_store';
 import { ToastService } from '@/src/services/toast.service';
+import { NotificationService } from '@/src/services/notification.service';
 
 @Component({
   selector: 'app-receipts',
@@ -48,7 +49,7 @@ export class ReceiptsComponent {
       return this.receiptService.getReceipts().toPromise();
     }
   });
-  toastService = inject(ToastService);
+  toastService = inject(NotificationService);
 
   constructor() {
     console.log('ReceiptsComponent initialized');

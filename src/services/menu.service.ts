@@ -68,8 +68,6 @@ export const menuData = [
       { id: 28, name: 'فئات السيارات', englishName: 'Car Categories', route: '/setup/car-categories' },
       { id: 27, name: 'سنة الصنع', englishName: 'Manufacture Year', route: '/setup/year' },
       { id: 29, name: 'بطاقة السيارة', englishName: 'Car Card', route: '/setup/cars' },
-      { id: 30, name: 'إعدادات حساب التكلفة', englishName: 'Cost Price Settings', route: '/setup/cost-price-settings' },
-      { id: 31, name: 'معلومات البنوك', englishName: 'Info Bank', route: '/bank/list' }
     ]
   },
 
@@ -100,7 +98,9 @@ export const menuData = [
     englishName: 'Entities',
     submenu: [
       { id: 91, name: 'العملاء', englishName: 'Customers', route: '/entities/customers' },
-      { id: 92, name: 'الموردين', englishName: 'Suppliers', route: '/entities/suppliers' }
+      { id: 92, name: 'الموردين', englishName: 'Suppliers', route: '/entities/suppliers' },
+      { id: 93, name: ' البنوك', englishName: 'Bank', route: '/bank/list' }
+   
     ]
   },
     {
@@ -177,7 +177,9 @@ export const menuData = [
     name: 'الاعدادات النظام',
     englishName: 'System Settings',
     submenu: [
-      { id: 121, name: 'اعدادات حساب التكلفة', englishName: 'Cost Price Settings', route: '/setup/cost-price-settings' }
+      { id: 121, name: 'اعدادات حساب التكلفة', englishName: 'Cost Price Settings', route: '/setup/cost-price-settings' },
+      { id: 30, name: 'إعدادات حساب التكلفة', englishName: 'Cost Price Settings', route: '/setup/cost-price-settings' },
+  
     ]
   }
 ];

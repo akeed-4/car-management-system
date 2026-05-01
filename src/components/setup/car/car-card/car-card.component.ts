@@ -66,7 +66,7 @@ export class CarCardComponent implements OnInit {
   private expenseService = inject(ExpenseService);
   private currentSettingService = inject(CurrentSettingService);
   private cdr = inject(ChangeDetectorRef);
-  private toastService = inject(ToastService);
+  private toastService = inject(NotificationService);
   private carCategoryService = inject(CarCategoryService);
   private notificationService = inject(NotificationService);
 private translate = inject(TranslateService);

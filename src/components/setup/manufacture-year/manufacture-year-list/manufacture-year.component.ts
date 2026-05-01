@@ -11,6 +11,7 @@ import { ManufactureYearService } from '../../../../services/manufacture-year.se
 import { CurrentSettingService } from '../../../../services/current-setting.service';
 import { ModalComponent } from '../../../shared/modal/modal.component';
 import { ToastService } from '../../../../services/toast.service';
+import { NotificationService } from '@/src/services/notification.service';
 
 @Component({
   selector: 'app-manufacture-year',
@@ -24,7 +25,7 @@ export class ManufactureYearComponent implements OnInit {
   private yearService = inject(ManufactureYearService);
   private currentSettingService = inject(CurrentSettingService);
   private fb = inject(FormBuilder);
-  private toastService = inject(ToastService);
+  private toastService = inject(NotificationService);
 
   years = this.yearService.years$;
   yearForm!: FormGroup;

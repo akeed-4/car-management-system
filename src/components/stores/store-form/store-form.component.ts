@@ -12,6 +12,7 @@ import { StoreService } from '../../../services/store.service';
 import { CompanyService } from '../../../services/company.service';
 import { BranchService } from '../../../services/branch.service';
 import { ToastService } from '../../../services/toast.service';
+import { NotificationService } from '@/src/services/notification.service';
 
 @Component({
   selector: 'app-store-form',
@@ -45,7 +46,7 @@ export class StoreFormComponent implements OnInit {
     private storeService: StoreService,
     private companyService: CompanyService,
     private branchService: BranchService,
-    private toastService: ToastService,
+    private toastService: NotificationService,
     @Optional() public dialogRef: MatDialogRef<StoreFormComponent>,
     @Optional() @Inject(MAT_DIALOG_DATA) public data: number | null
   ) {}

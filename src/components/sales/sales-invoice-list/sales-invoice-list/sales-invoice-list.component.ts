@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SalesService } from '../../../../services/sales.service';
 import { ToastService } from '../../../../services/toast.service';
+import { NotificationService } from '@/src/services/notification.service';
 
 @Component({
   selector: 'app-sales-invoice-list',
@@ -24,7 +25,7 @@ export class SalesInvoiceListComponent {
 
   private salesService = inject(SalesService);
   private router = inject(Router);
-  private toastService = inject(ToastService);
+  private toastService = inject(NotificationService);
   allInvoices = toSignal(this.salesService.getInvoices(), { initialValue: [] });
 
   invoices = computed(() => {
