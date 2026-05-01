@@ -1,0 +1,147 @@
+<div class="container">
+  <div class="page-header strong-header">
+    <div class="header-info">
+      <h2 class="strong-title">{{ 'SALES_REQUEST.TITLE' | translate }}</h2>
+    </div>
+    <div class="header-actions">
+      <button mat-button class="btn btn-secondary btn-small" (click)="showDetails()">
+        {{ 'SALES_REQUEST.DETAILS' | translate }}
+      </button>
+      <button mat-button class="btn btn-secondary btn-small" (click)="showClassification()">
+        {{ 'SALES_REQUEST.CLASSIFICATION' | translate }}
+      </button>
+      <a routerLink="/sales/requests" class="btn btn-secondary btn-small">
+        <mat-icon>arrow_back</mat-icon>
+        <span>{{ 'SALES_REQUEST.BACK_TO_REQUESTS' | translate }}</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="card invoice-card">
+    <form [formGroup]="salesRequestForm" (ngSubmit)="onSubmit()">
+      <section class="form-section">
+        <h3 class="form-section-title">{{ 'SALES_REQUEST.MAIN_DATA' | translate }}</h3>
+
+        <ng-container *ngIf="cardLayout3 | async as layout">
+          <mat-grid-list [cols]="layout.columns" rowHeight="90">
+            <!-- Request Number -->
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'SALES_REQUEST.REQUEST_NUMBER' | translate }}</mat-label>
+                <input matInput formControlName="requestNumber" required>
+              </mat-form-field>
+            </mat-grid-tile>
+
+            <!-- Request Date -->
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'SALES_REQUEST.REQUEST_DATE' | translate }}</mat-label>
+                <input matInput [matDatepicker]="requestDatePicker" formControlName="requestDate" required>
+                <mat-datepicker-toggle matSuffix [for]="requestDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #requestDatePicker></mat-datepicker>
+              </mat-form-field>
+            </mat-grid-tile>
+
+            <!-- Customer -->
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'SALES_REQUEST.CUSTOMER' | translate }}</mat-label>
+                <mat-select formControlName="customerId" required>
+                  <mat-option *ngFor="let customer of customers" [value]="customer.id">
+                    {{ customer.name }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </mat-grid-tile>
+
+            <!-- Reference Number -->
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'SALES_REQUEST.REFERENCE_NUMBER' | translate }}</mat-label>
+                <input matInput formControlName="referenceNumber">
+              </mat-form-field>
+            </mat-grid-tile>
+
+            <!-- Description Arabic -->
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'SALES_REQUEST.DESCRIPTION_AR' | translate }}</mat-label>
+                <input matInput formControlName="descriptionAr">
+              </mat-form-field>
+            </mat-grid-tile>
+
+            <!-- Description English -->
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'SALES_REQUEST.DESCRIPTION_EN' | translate }}</mat-label>
+                <input matInput formControlName="descriptionEn">
+              </mat-form-field>
+            </mat-grid-tile>
+          </mat-grid-list>
+        </ng-container>
+      </section>
+
+      <section class="form-section">
+        <div class="table-actions">
+          <button mat-raised-button color="primary" type="button" (click)="searchItems()">
+            <mat-icon>search</mat-icon>
+            {{ 'SALES_REQUEST.SEARCH_ITEMS' | translate }}
+          </button>
+          <button mat-button type="button" (click)="tableSettings()">
+            <mat-icon>settings</mat-icon>
+            {{ 'SALES_REQUEST.TABLE_SETTINGS' | translate }}
+          </button>
+          <button mat-button type="button" (click)="toggleHiddenColumns()">
+            <mat-icon>view_column</mat-icon>
+            {{ 'SALES_REQUEST.HIDDEN_COLUMNS' | translate }}
+          </button>
+          <button mat-raised-button color="accent" type="button" (click)="addNewRow()">
+            <mat-icon>add</mat-icon>
+            {{ 'SALES_REQUEST.NEW_ROW' | translate }}
+          </button>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="table-wrapper premium-table">
+          <dx-data-grid
+            [dataSource]="requestItems"
+            [showBorders]="true"
+            [columnAutoWidth]="true"
+            [rowAlternationEnabled]="true"
+            [editing]="{ mode: 'cell', allowUpdating: true, allowDeleting: true, allowAdding: true }"
+            [rtlEnabled]="true"
+            (onRowRemoving)="removeItem($event)"
+            (onCellValueChanged)="onCellValueChanged($event)"
+            [noDataText]="'SALES_REQUEST.NO_ITEMS' | translate"
+            [height]="400"
+          >
+            <dxi-column dataField="carDescription" caption="{{ 'SALES_REQUEST.CAR' | translate }}"></dxi-column>
+            <dxi-column dataField="quantity" caption="{{ 'SALES_REQUEST.QUANTITY' | translate }}" dataType="number" allowEditing="true"></dxi-column>
+            <dxi-column dataField="requestedPrice" caption="{{ 'SALES_REQUEST.REQUESTED_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
+            <dxi-column dataField="notes" caption="{{ 'SALES_REQUEST.NOTES' | translate }}"></dxi-column>
+
+            <dxi-column type="buttons" caption="{{ 'SALES_REQUEST.TOOLS' | translate }}" [width]="100">
+              <dxi-button name="delete" icon="trash"></dxi-button>
+            </dxi-column>
+
+            <dxo-filter-row [visible]="true"></dxo-filter-row>
+            <dxo-header-filter [visible]="true"></dxo-header-filter>
+            <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false"
+              [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
+            <dxo-selection mode="single"></dxo-selection>
+            <dxo-paging [pageSize]="10"></dxo-paging>
+            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
+          </dx-data-grid>
+        </div>
+      </section>
+
+      <div class="form-actions">
+        <a routerLink="/sales/requests" class="btn btn-secondary">{{ 'COMMON.CANCEL' | translate }}</a>
+        <button mat-raised-button color="primary" type="submit" [disabled]="!salesRequestForm.valid || requestItems.length === 0" class="btn-primary">
+          {{ isEditMode ? ('COMMON.UPDATE' | translate) : ('COMMON.CREATE' | translate) }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

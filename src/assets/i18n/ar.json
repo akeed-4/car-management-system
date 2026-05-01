@@ -2483,5 +2483,27 @@
     "changePassword": "تغيير كلمة المرور",
     "systemAdmin": "إدارة النظام",
     "userProfile": "الملف الشخصي"
+  },
+  "SUPPLIER_QUOTATION": {
+    "TITLE": "عرض أسعار المورد",
+    "QUOTATION_NUMBER": "رقم عرض الأسعار",
+    "LINKED_PURCHASE_REQUEST": "رقم طلب الشراء المرتبط",
+    "QUOTATION_DATE": "تاريخ عرض الأسعار",
+    "VALIDITY_PERIOD": "فترة الصلاحية",
+    "VALIDITY_PLACEHOLDER": "مثال: 30 يوم",
+    "CURRENCY": "العملة",
+    "NOTES": "ملاحظات",
+    "DETAILS_TITLE": "تفاصيل عرض الأسعار",
+    "ADD_ITEM": "إضافة عنصر",
+    "ITEM": "العنصر",
+    "PRICE": "السعر",
+    "DISCOUNT": "الخصم",
+    "TAX_PERCENT": "نسبة الضريبة %",
+    "DELIVERY_PERIOD": "فترة التسليم",
+    "LINE_TOTAL": "إجمالي السطر",
+    "NO_ITEMS": "لا توجد عناصر. انقر على 'إضافة عنصر' للبدء.",
+    "SAVE": "حفظ",
+    "CANCEL": "إلغاء",
+    "REQUIRED_FIELD": "هذا الحقل مطلوب"
   }
 }

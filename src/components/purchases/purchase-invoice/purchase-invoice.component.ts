@@ -687,9 +687,15 @@ export class PurchaseInvoiceComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.vins) {
-        // Update the item with the VIN numbers
+        // Update the item with the VIN numbers and quantity from totalRequired
         const vinNumbers = result.vins.map((v: VinEntry) => v.vin);
-        const updatedItem = { ...item, vinNumbers };
+        const updatedQuantity = result.totalRequired ?? item.quantity;
+        const updatedItem = { 
+          ...item, 
+          vinNumbers,
+          quantity: updatedQuantity,
+          lineTotal: item.unitPrice * updatedQuantity
+        };
         this.updateInvoiceItem(updatedItem);
         this.notificationService.showSuccess('VIN numbers updated successfully');
       }

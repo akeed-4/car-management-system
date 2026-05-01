@@ -579,7 +579,7 @@
       "ERROR_NAME_USER": "Please enter stock take name and responsible user.",
       "ERROR_NO_ITEMS": "Please add at least one car to the stock take.",
       "ERROR_SELECT_CAR": "Please select a car for every row in the table."
-    ,
+    },
     "TITLE": "Inventory",
     "SCAN_VIN": "Scan VIN",
     "ADD_NEW_CAR": "Add New Car",
@@ -2546,11 +2546,58 @@
     "PARALLEL_APPROVAL_HELP": "All approvers at this level must approve in parallel",
     "CONDITION_HELP": "Define conditions for this approval level (optional)"
   },
+<<<<<<< HEAD
   "admin": {
     "login": "Login",
     "logout": "Logout",
     "changePassword": "Change Password",
     "systemAdmin": "System Administration",
     "userProfile": "User Profile"
+=======
+  "SUPPLIER_QUOTATION": {
+    "TITLE": "Supplier Quotation",
+    "QUOTATION_NUMBER": "Quotation Number",
+    "LINKED_PURCHASE_REQUEST": "Linked Purchase Request Number",
+    "QUOTATION_DATE": "Quotation Date",
+    "VALIDITY_PERIOD": "Validity Period",
+    "VALIDITY_PLACEHOLDER": "e.g., 30 days",
+    "CURRENCY": "Currency",
+    "NOTES": "Notes",
+    "DETAILS_TITLE": "Quotation Details",
+    "ADD_ITEM": "Add Item",
+    "ITEM": "Item",
+    "PRICE": "Price",
+    "DISCOUNT": "Discount",
+    "TAX_PERCENT": "Tax %",
+    "DELIVERY_PERIOD": "Delivery Period",
+    "LINE_TOTAL": "Line Total",
+    "NO_ITEMS": "No items. Click 'Add Item' to start.",
+    "SAVE": "Save",
+    "CANCEL": "Cancel",
+    "REQUIRED_FIELD": "This field is required"
+  },
+  "SUPPLIER_QUOTATION_LIST": {
+    "TITLE": "Supplier Quotations",
+    "SEARCH_PLACEHOLDER": "Search quotations...",
+    "QUOTATION_NUMBER": "Quotation Number",
+    "LINKED_PURCHASE_REQUEST": "Linked Purchase Request",
+    "QUOTATION_DATE": "Quotation Date",
+    "VALIDITY_PERIOD": "Validity Period",
+    "CURRENCY": "Currency",
+    "STATUS": "Status",
+    "TOTAL_AMOUNT": "Total Amount",
+    "ACTIONS": "Actions",
+    "EDIT": "Edit",
+    "DELETE": "Delete",
+    "VIEW": "View"
+  },
+  "PURCHASE_REQUESTS": {
+    "TITLE": "Purchase Requests",
+    "REQUEST_NUMBER": "Request Number",
+    "REQUEST_DATE": "Request Date",
+    "SUPPLIER": "Supplier",
+    "CAR_DESCRIPTION": "Car Description",
+    "REQUESTED_PRICE": "Requested Price",
+    "STATUS": "Status"
   }
 }

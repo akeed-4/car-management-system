@@ -126,8 +126,8 @@ export class MenuCodeData {
   public static readonly SupplierDebitMemo = 67;
   public static readonly SupplierCreditMemo = 68;
   public static readonly ClientPriceRequest = 69;
-  public static readonly ClientQuotation = 70;
-  public static readonly ClientQuotationApproval = 71;
+  public static readonly CustomerQuotation = 70;
+  public static readonly CustomerQuotationApproval = 71;
   public static readonly CashSalesInvoice = 72;
   public static readonly CreditSalesInvoice = 73;
   public static readonly CashSalesInvoiceReturn = 74;

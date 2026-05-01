@@ -1,0 +1,31 @@
+<div class="purchase-request-list-container">
+  <div class="page-header">
+    <h2>{{ 'PURCHASE_REQUESTS.TITLE' | translate }}</h2>
+    <div class="header-actions">
+      <button mat-icon-button (click)="addNewRequest()">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <dx-data-grid
+    [dataSource]="purchaseRequests"
+    [allowColumnResizing]="true"
+    [allowColumnReordering]="true"
+    [columnResizingMode]="'widget'"
+    [rowAlternationEnabled]="true"
+    [showBorders]="true"
+    keyExpr="id"
+    class="purchase-request-list-grid">
+
+    <dxi-column dataField="requestNumber" caption="{{ 'PURCHASE_REQUESTS.REQUEST_NUMBER' | translate }}"></dxi-column>
+    <dxi-column dataField="requestDate" caption="{{ 'PURCHASE_REQUESTS.REQUEST_DATE' | translate }}" dataType="date"></dxi-column>
+    <dxi-column dataField="supplier.name" caption="{{ 'PURCHASE_REQUESTS.SUPPLIER' | translate }}"></dxi-column>
+    <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_REQUESTS.CAR_DESCRIPTION' | translate }}"></dxi-column>
+    <dxi-column dataField="requestedPrice" caption="{{ 'PURCHASE_REQUESTS.REQUESTED_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
+    <dxi-column dataField="status" caption="{{ 'PURCHASE_REQUESTS.STATUS' | translate }}"></dxi-column>
+
+    <dxo-paging [pageSize]="10"></dxo-paging>
+    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
+  </dx-data-grid>
+</div>
