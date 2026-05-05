@@ -66,4 +66,14 @@ export class DepositService {
       )
       .subscribe();
   }
+
+  /** Get deposits by vehicle ID */
+  getDepositsByVehicle(vehicleId: number) {
+    return this.http.get<DepositVoucher[]>(`${this.apiUrl}/vehicle/${vehicleId}`);
+  }
+
+  /** Mark deposit as invoiced */
+  markDepositAsInvoiced(depositId: number) {
+    return this.http.post<void>(`${this.apiUrl}/MarkAsInvoiced/${depositId}`, {});
+  }
 }

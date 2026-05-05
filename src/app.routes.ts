@@ -109,6 +109,8 @@ import { PurchaseOfferFormComponent } from './components/purchases/purchase-offe
 import { CarReceiptsComponent } from './components/purchases/car-receipts/car-receipts.component';
 import { QuotationsComponent } from './components/sales/quotations/quotations.component';
 import { QuotationFormComponent } from './components/sales/quotation-form/quotation-form.component';
+import { SalesOrderFormComponent } from './components/sales/sales-order-form/sales-order-form.component';
+import { PreparationManagementComponent } from './components/sales/preparation-management/preparation-management.component';
 
 export const APP_ROUTES: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -170,6 +172,8 @@ export const APP_ROUTES: Routes = [
   { path: 'sales/quotations', component: QuotationsComponent },
   { path: 'sales/quotations/new', component: QuotationFormComponent },
   { path: 'sales/quotations/edit/:id', component: QuotationFormComponent },
+  { path: 'sales/orders/new', component: SalesOrderFormComponent },
+  { path: 'sales/preparation/:vehicleId', component: PreparationManagementComponent },
   { path: 'sales/invoice/cash/new', component: SalesInvoiceCashComponent },
   { path: 'sales/invoice/cash/edit/:id', component: SalesInvoiceCashComponent },
   { path: 'sales/invoice/credit/new', component: SalesInvoiceCreditComponent },

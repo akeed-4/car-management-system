@@ -226,6 +226,10 @@
               <span>{{ 'INVOICE.VAT' | translate }}</span>
               <span class="amount">+ {{ vatAmount() | currency:'SAR':'symbol':'1.0-0' }}</span>
             </div>
+            <div class="summary-row" *ngIf="depositAmount() > 0">
+              <span>{{ 'INVOICE.PAID_DEPOSIT' | translate }}</span>
+              <span class="amount">- {{ depositAmount() | currency:'SAR':'symbol':'1.0-0' }}</span>
+            </div>
             <hr class="summary-divider">
             <div class="summary-row total-row">
               <span class="total-label">{{ 'INVOICE.TOTAL' | translate }}</span>

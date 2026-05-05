@@ -17,4 +17,5 @@ export interface InvoiceItem {
     firstInstallmentDate: Date;
   };
   trackByBatch?: boolean;
+  isPreparationCharge?: boolean;
 }
