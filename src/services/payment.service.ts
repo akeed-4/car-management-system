@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { PaymentVoucher } from '../models/payment-voucher.model';
+import { CarPaymentVoucher } from '../models/car-payment-voucher.model';
 import { Observable, tap, forkJoin, of } from 'rxjs';
 import { environment } from '../environments/environment';
 import { map, switchMap } from 'rxjs/operators';
@@ -49,5 +50,10 @@ export class PaymentService {
   // حذف دفعة
   deletePayment(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/Delete/${id}`);
+  }
+
+  // Save Car Payment Voucher
+  saveCarPaymentVoucher(voucher: CarPaymentVoucher): Observable<CarPaymentVoucher> {
+    return this.http.post<CarPaymentVoucher>(`${this.apiUrl}/CreateCarPayment`, voucher);
   }
 }

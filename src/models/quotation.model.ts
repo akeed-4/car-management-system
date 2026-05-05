@@ -1,0 +1,1 @@
+export type { CustomerQuotation as Quotation, CustomerQuotationItem as QuotationItem } from './customer-quotation.model';

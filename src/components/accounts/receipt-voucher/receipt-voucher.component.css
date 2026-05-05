@@ -1,0 +1,45 @@
+.form-card {
+  margin: 16px;
+}
+
+.form-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.header-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.details-section {
+  margin-top: 24px;
+}
+
+.details-section table {
+  width: 100%;
+}
+
+.details-section mat-form-field {
+  width: 100%;
+}
+
+.table-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.total-row {
+  font-size: 1.2em;
+}
+
+.form-actions {
+  margin-top: 24px;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
