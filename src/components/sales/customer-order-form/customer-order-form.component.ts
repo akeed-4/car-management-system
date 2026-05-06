@@ -12,14 +12,14 @@ import { TranslateModule } from '@ngx-translate/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Router } from '@angular/router';
 import { Observable, map } from 'rxjs';
-import { SalesOrder } from '../../../models/sales-order.model';
+import { CustomerOrder } from '../../../models/customer-order.model';
 import { CustomerService } from '../../../services/customer.service';
 import { InventoryService } from '../../../services/inventory.service';
 import { SalesService } from '../../../services/sales.service';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-  selector: 'app-sales-order-form',
+  selector: 'app-customer-order-form',
   standalone: true,
   imports: [
     CommonModule,
@@ -33,13 +33,13 @@ import { MatIconModule } from '@angular/material/icon';
     TranslateModule,
     MatIconModule
   ],
-  templateUrl: './sales-order-form.component.html',
-  styleUrls: ['./sales-order-form.component.css']
+  templateUrl: './customer-order-form.component.html',
+  styleUrls: ['./customer-order-form.component.css']
 })
-export class SalesOrderFormComponent implements OnInit {
-  salesOrderForm: FormGroup;
+export class CustomerOrderFormComponent implements OnInit {
+  customerOrderForm: FormGroup;
   isEditMode = false;
-  salesOrderId: number | null = null;
+  customerOrderId: number | null = null;
 
   customers = this.customerService.customers$;
   cars = this.inventoryService.cars$;
@@ -71,7 +71,7 @@ export class SalesOrderFormComponent implements OnInit {
     private customerService: CustomerService,
     private inventoryService: InventoryService
   ) {
-    this.salesOrderForm = this.fb.group({
+    this.customerOrderForm = this.fb.group({
       orderNumber: [{ value: '', disabled: true }, Validators.required],
       customerId: ['', Validators.required],
       vehicleId: ['', Validators.required],
@@ -88,8 +88,8 @@ export class SalesOrderFormComponent implements OnInit {
   generateOrderNumber(): void {
     // Simple auto-generation, in real app might call API
     const timestamp = Date.now();
-    this.salesOrderForm.patchValue({
-      orderNumber: `SO-${timestamp}`
+    this.customerOrderForm.patchValue({
+      orderNumber: `CO-${timestamp}`
     });
   }
 
@@ -98,15 +98,15 @@ export class SalesOrderFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.salesOrderForm.valid) {
-      const formValue: SalesOrder = {
-        ...this.salesOrderForm.getRawValue(),
+    if (this.customerOrderForm.valid) {
+      const formValue: CustomerOrder = {
+        ...this.customerOrderForm.getRawValue(),
         createdDate: new Date().toISOString(),
         lastUpdated: new Date().toISOString()
       };
 
-      // Save the sales order
-      this.salesService.createSalesOrder(formValue).subscribe({
+      // Save the customer order
+      this.salesService.createCustomerOrder(formValue).subscribe({
         next: (order) => {
           // Update car status to 'Offered'
           const vehicleId = formValue.vehicleId;
@@ -121,7 +121,7 @@ export class SalesOrderFormComponent implements OnInit {
           });
         },
         error: (error) => {
-          console.error('Failed to create sales order', error);
+          console.error('Failed to create customer order', error);
         }
       });
     }
