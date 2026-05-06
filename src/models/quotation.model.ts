@@ -1,1 +1,11 @@
-export type { CustomerQuotation as Quotation, CustomerQuotationItem as QuotationItem } from './customer-quotation.model';
+export interface Quotation {
+  id?: number;
+  orderNumber: string;
+  customerId: number;
+  carId: number;
+  salesperson?: string;
+  storeId?: number;
+  status: 'Pending' | 'Confirmed' | 'Cancelled';
+  createdDate: string;
+  lastUpdated: string;
+}

@@ -123,7 +123,7 @@ export class SalesInvoiceFormComponent implements OnInit {
   // Deposit signals
   selectedDeposit = signal<any | null>(null);
   depositAmount = signal(0);
-  selectedSalesOrder = signal<any | null>(null);
+  selectedQuotation = signal<any | null>(null);
 
   constructor(
     private inventoryService: InventoryService,
@@ -249,7 +249,7 @@ export class SalesInvoiceFormComponent implements OnInit {
       next: (orders) => {
         if (orders.length > 0) {
           const order = orders[0]; // Take the first pending order
-          this.selectedSalesOrder.set(order);
+          this.selectedQuotation.set(order);
           // Auto-fill fields
           this.invoiceForm.patchValue({
             selectedCarId: order.vehicleId,
@@ -635,7 +635,7 @@ export class SalesInvoiceFormComponent implements OnInit {
       amountPaid: 0,
       amountDue: this.totalAmount(),
       ownershipTransferStatus: 'Not Started',
-      salesOrderId: this.selectedSalesOrder()?.id || null,
+      salesOrderId: this.selectedQuotation()?.id || null,
       depositId: this.selectedDeposit()?.id || null,
     };
 
@@ -655,8 +655,8 @@ export class SalesInvoiceFormComponent implements OnInit {
           // Mark preparation charges as applied
           this.markPreparationChargesAsApplied(savedInvoice.id);
           // Mark sales order as invoiced
-          if (this.selectedSalesOrder()) {
-            this.salesService.markSalesOrderAsInvoiced(this.selectedSalesOrder().id).subscribe();
+          if (this.selectedQuotation()) {
+            this.salesService.markSalesOrderAsInvoiced(this.selectedQuotation().id).subscribe();
           }
           // Mark deposit as invoiced
           if (this.selectedDeposit()) {

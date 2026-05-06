@@ -1,68 +1,76 @@
-<div class="quotation-form-container">
-  <h2>{{ isEditMode ? ('QUOTATION.EDIT_TITLE' | translate) : ('QUOTATION.CREATE_TITLE' | translate) }}</h2>
-
-  <form [formGroup]="quotationForm" (ngSubmit)="onSubmit()" class="quotation-form">
-    <div class="form-row">
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'QUOTATION.QUOTATION_NUMBER' | translate }}</mat-label>
-        <input matInput formControlName="quotationNumber" required>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'QUOTATION.QUOTATION_DATE' | translate }}</mat-label>
-        <input matInput [matDatepicker]="quotationDatePicker" formControlName="quotationDate" required>
-        <mat-datepicker-toggle matSuffix [for]="quotationDatePicker"></mat-datepicker-toggle>
-        <mat-datepicker #quotationDatePicker></mat-datepicker>
-      </mat-form-field>
+<div class="container">
+  <div class="page-header strong-header">
+    <div class="header-info">
+      <h2 class="strong-title">{{ 'QUOTATION.TITLE' | translate }}</h2>
     </div>
-
-    <div class="form-row">
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'QUOTATION.CUSTOMER' | translate }}</mat-label>
-        <input matInput formControlName="customerId" type="number" required>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'QUOTATION.CAR' | translate }}</mat-label>
-        <input matInput formControlName="carId" type="number" required>
-      </mat-form-field>
+    <div class="header-actions">
+      <a routerLink="/sales/quotations" class="btn btn-secondary btn-small">
+        <mat-icon>arrow_back</mat-icon>
+        <span>Back to Quotations</span>
+      </a>
     </div>
+  </div>
 
-    <div class="form-row">
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'QUOTATION.QUOTED_PRICE' | translate }}</mat-label>
-        <input matInput formControlName="quotedPrice" type="number" step="0.01" required>
-      </mat-form-field>
+  <mat-card class="quotation-card">
+    <mat-card-header>
+      <mat-card-title>{{ 'QUOTATION.CREATE' | translate }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="quotationForm" (ngSubmit)="onSubmit()">
+        <ng-container *ngIf="cardLayout | async as layout">
+          <mat-grid-list [cols]="layout.columns" rowHeight="90">
+            <!-- Order Number -->
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'QUOTATION.NUMBER' | translate }}</mat-label>
+                <input matInput formControlName="orderNumber" readonly>
+              </mat-form-field>
+            </mat-grid-tile>
 
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'QUOTATION.STATUS' | translate }}</mat-label>
-        <mat-select formControlName="status" required>
-          <mat-option value="Pending">{{ 'QUOTATION.STATUS_PENDING' | translate }}</mat-option>
-          <mat-option value="Accepted">{{ 'QUOTATION.STATUS_ACCEPTED' | translate }}</mat-option>
-          <mat-option value="Rejected">{{ 'QUOTATION.STATUS_REJECTED' | translate }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
+            <!-- Customer -->
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Customer</mat-label>
+                <mat-select formControlName="customerId" required>
+                  <mat-option *ngFor="let customer of customers()" [value]="customer.id">
+                    {{ customer.name }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </mat-grid-tile>
 
-    <div class="form-row">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>{{ 'QUOTATION.TERMS' | translate }}</mat-label>
-        <textarea matInput formControlName="terms" rows="3"></textarea>
-      </mat-form-field>
-    </div>
+            <!-- Vehicle -->
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Vehicle</mat-label>
+                <mat-select formControlName="vehicleId" required>
+                  <mat-option *ngFor="let car of availableCars" [value]="car.id">
+                    {{ car.make }} {{ car.model }} - {{ car.vin }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </mat-grid-tile>
 
-    <div class="form-row">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>{{ 'QUOTATION.NOTES' | translate }}</mat-label>
-        <textarea matInput formControlName="notes" rows="3"></textarea>
-      </mat-form-field>
-    </div>
+            <!-- Status -->
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="status">
+                  <mat-option value="Pending">Pending</mat-option>
+                  <mat-option value="Confirmed">Confirmed</mat-option>
+                  <mat-option value="Cancelled">Cancelled</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </mat-grid-tile>
+          </mat-grid-list>
+        </ng-container>
 
-    <div class="form-actions">
-      <button mat-button type="button" (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
-      <button mat-raised-button color="primary" type="submit" [disabled]="!quotationForm.valid">
-        {{ isEditMode ? ('COMMON.UPDATE' | translate) : ('COMMON.CREATE' | translate) }}
-      </button>
-    </div>
-  </form>
+        <div class="form-actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="!quotationForm.valid">
+            Save
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
 </div>

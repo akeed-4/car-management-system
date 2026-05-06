@@ -1,31 +1,40 @@
-.quotation-form-container {
+/* Sales Order Form Styles */
+.container {
   padding: 20px;
-  max-width: 800px;
-  margin: 0 auto;
 }
 
-.quotation-form {
+.page-header {
   display: flex;
-  flex-direction: column;
-  gap: 20px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
-.form-row {
+.header-info h2 {
+  margin: 0;
+}
+
+.header-actions {
   display: flex;
-  gap: 20px;
+  gap: 10px;
 }
 
-.form-row mat-form-field {
-  flex: 1;
+.sales-order-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.full-width {
+mat-card-content {
+  padding: 20px;
+}
+
+.form-field {
   width: 100%;
 }
 
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
   margin-top: 20px;
 }
