@@ -189,9 +189,6 @@
     "STATUS": "Status"
   },
   "QUOTATION": {
-    "TITLE": "Quotation",
-    "CREATE": "Create Quotation",
-    "NUMBER": "Quotation Number",
     "EDIT_TITLE": "Edit Quotation",
     "CREATE_TITLE": "Create Quotation",
     "QUOTATION_NUMBER": "Quotation Number",

@@ -1,0 +1,76 @@
+<div class="container">
+  <div class="page-header strong-header">
+    <div class="header-info">
+      <h2 class="strong-title">Sales Order</h2>
+    </div>
+    <div class="header-actions">
+      <a routerLink="/sales/orders" class="btn btn-secondary btn-small">
+        <mat-icon>arrow_back</mat-icon>
+        <span>Back to Orders</span>
+      </a>
+    </div>
+  </div>
+
+  <mat-card class="sales-order-card">
+    <mat-card-header>
+      <mat-card-title>Create Sales Order</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="salesOrderForm" (ngSubmit)="onSubmit()">
+        <ng-container *ngIf="cardLayout | async as layout">
+          <mat-grid-list [cols]="layout.columns" rowHeight="90">
+            <!-- Order Number -->
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Order Number</mat-label>
+                <input matInput formControlName="orderNumber" readonly>
+              </mat-form-field>
+            </mat-grid-tile>
+
+            <!-- Customer -->
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Customer</mat-label>
+                <mat-select formControlName="customerId" required>
+                  <mat-option *ngFor="let customer of customers()" [value]="customer.id">
+                    {{ customer.name }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </mat-grid-tile>
+
+            <!-- Vehicle -->
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Vehicle</mat-label>
+                <mat-select formControlName="vehicleId" required>
+                  <mat-option *ngFor="let car of availableCars" [value]="car.id">
+                    {{ car.make }} {{ car.model }} - {{ car.vin }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </mat-grid-tile>
+
+            <!-- Status -->
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="status">
+                  <mat-option value="Pending">Pending</mat-option>
+                  <mat-option value="Confirmed">Confirmed</mat-option>
+                  <mat-option value="Cancelled">Cancelled</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </mat-grid-tile>
+          </mat-grid-list>
+        </ng-container>
+
+        <div class="form-actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="!salesOrderForm.valid">
+            Save
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

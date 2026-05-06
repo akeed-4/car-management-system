@@ -5,7 +5,7 @@ import { Observable, tap } from 'rxjs';
 import { InventoryService } from './inventory.service';
 import { environment } from '../environments/environment';
 import { StoreCarStockDto } from '../models/store-car-stock.model';
-import { Quotation } from '../models/sales-order.model';
+import { SalesOrder } from '../models/sales-order.model';
 import { PreparationCharge } from '../models/preparation-charge.model';
 
 @Injectable({
@@ -100,8 +100,8 @@ getOutstandingInvoicesByCustomerId(customerId: number): Observable<SalesInvoice[
   }
 
   // إنشاء طلب مبيعات
-  createSalesOrder(order: Quotation): Observable<Quotation> {
-    return this.http.post<Quotation>(`${environment.origin}api/SalesOrders/Create`, order);
+  createSalesOrder(order: SalesOrder): Observable<SalesOrder> {
+    return this.http.post<SalesOrder>(`${environment.origin}api/SalesOrders/Create`, order);
   }
 
   // حفظ رسوم التحضير
@@ -120,8 +120,8 @@ getOutstandingInvoicesByCustomerId(customerId: number): Observable<SalesInvoice[
   }
 
   // جلب الطلبات المعلقة للعميل
-  getPendingOrders(customerId: number): Observable<Quotation[]> {
-    return this.http.get<Quotation[]>(`${environment.origin}api/SalesOrders/GetPendingByCustomer/${customerId}`);
+  getPendingOrders(customerId: number): Observable<SalesOrder[]> {
+    return this.http.get<SalesOrder[]>(`${environment.origin}api/SalesOrders/GetPendingByCustomer/${customerId}`);
   }
 
   // تحديث حالة الطلب إلى 'Invoiced'

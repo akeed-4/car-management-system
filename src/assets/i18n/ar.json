@@ -190,9 +190,6 @@
     "STATUS": "الحالة"
   },
   "QUOTATION": {
-    "TITLE": "عرض السعر",
-    "CREATE": "إنشاء عرض سعر",
-    "NUMBER": "رقم عرض السعر",
     "EDIT_TITLE": "تعديل عرض السعر",
     "CREATE_TITLE": "إنشاء عرض سعر",
     "QUOTATION_NUMBER": "رقم عرض السعر",

@@ -1,4 +1,4 @@
-export interface Quotation {
+export interface SalesOrder {
   id?: number;
   orderNumber: string;
   customerId: number;
