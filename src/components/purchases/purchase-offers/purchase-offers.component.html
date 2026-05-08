@@ -1,0 +1,38 @@
+<div class="container-fluid p-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ 'PURCHASE_OFFERS.TITLE' | translate }}</h2>
+    <button mat-raised-button color="primary" (click)="onCreateNew()">
+      <mat-icon>add</mat-icon>
+      {{ 'PURCHASE_OFFER.CREATE_TITLE' | translate }}
+    </button>
+  </div>
+
+  <dx-data-grid
+    [dataSource]="purchaseOffers"
+    [showBorders]="true"
+    [columnAutoWidth]="true"
+    [rowAlternationEnabled]="true"
+    [hoverStateEnabled]="true">
+
+    <dxo-search-panel [visible]="true"></dxo-search-panel>
+    <dxo-filter-row [visible]="true"></dxo-filter-row>
+    <dxo-header-filter [visible]="true"></dxo-header-filter>
+    <dxo-paging [pageSize]="10"></dxo-paging>
+    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
+
+    <dxi-column dataField="offerNumber" [caption]="'PURCHASE_OFFER.OFFER_NUMBER' | translate"></dxi-column>
+    <dxi-column dataField="supplier.name" [caption]="'PURCHASE_OFFER.SUPPLIER' | translate"></dxi-column>
+    <dxi-column dataField="offerDate" [caption]="'PURCHASE_OFFER.OFFER_DATE' | translate" dataType="date"></dxi-column>
+    <dxi-column dataField="carDescription" [caption]="'PURCHASE_OFFER.CAR_DESCRIPTION' | translate"></dxi-column>
+    <dxi-column dataField="offeredPrice" [caption]="'PURCHASE_OFFER.OFFERED_PRICE' | translate" format="currency"></dxi-column>
+    <dxi-column dataField="status" [caption]="'PURCHASE_OFFER.STATUS' | translate"></dxi-column>
+
+    <dxi-column type="buttons" [width]="110">
+      <dxi-button
+        icon="edit"
+        [hint]="'COMMON.EDIT' | translate"
+        [onClick]="onEdit.bind(this)">
+      </dxi-button>
+    </dxi-column>
+  </dx-data-grid>
+</div>

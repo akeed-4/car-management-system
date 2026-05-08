@@ -694,7 +694,7 @@ export class PurchaseInvoiceComponent implements OnInit {
           ...item, 
           vinNumbers,
           quantity: updatedQuantity,
-          lineTotal: item.unitPrice * updatedQuantity
+          lineTotal: item.unitPrice ? item.unitPrice * updatedQuantity : 0
         };
         this.updateInvoiceItem(updatedItem);
         this.notificationService.showSuccess('VIN numbers updated successfully');

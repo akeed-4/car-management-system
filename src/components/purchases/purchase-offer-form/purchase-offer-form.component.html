@@ -1,0 +1,76 @@
+<div class="container-fluid p-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-white">
+      <h3>{{ (isEditMode ? 'PURCHASE_OFFER.EDIT_TITLE' : 'PURCHASE_OFFER.CREATE_TITLE') | translate }}</h3>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="offerForm" (ngSubmit)="onSubmit()">
+        <div class="row">
+          <div class="col-md-3">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'PURCHASE_OFFER.OFFER_NUMBER' | translate }}</mat-label>
+              <input matInput formControlName="offerNumber">
+            </mat-form-field>
+          </div>
+          <div class="col-md-3">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'PURCHASE_OFFER.OFFER_DATE' | translate }}</mat-label>
+              <input matInput [matDatepicker]="picker1" formControlName="offerDate">
+              <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+              <mat-datepicker #picker1></mat-datepicker>
+            </mat-form-field>
+          </div>
+          <div class="col-md-3">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'PURCHASE_OFFER.CAR_DESCRIPTION' | translate }}</mat-label>
+              <input matInput formControlName="carDescription">
+            </mat-form-field>
+          </div>
+          <div class="col-md-3">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'PURCHASE_OFFER.OFFERED_PRICE' | translate }}</mat-label>
+              <input matInput type="number" formControlName="offeredPrice">
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-4">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'PURCHASE_OFFER.MAKE' | translate }}</mat-label>
+              <input matInput formControlName="make">
+            </mat-form-field>
+          </div>
+          <div class="col-md-4">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'PURCHASE_OFFER.MODEL' | translate }}</mat-label>
+              <input matInput formControlName="model">
+            </mat-form-field>
+          </div>
+          <div class="col-md-4">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'PURCHASE_OFFER.YEAR' | translate }}</mat-label>
+              <input matInput type="number" formControlName="year">
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="row mt-4">
+          <div class="col-12">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'PURCHASE_OFFER.NOTES' | translate }}</mat-label>
+              <textarea matInput formControlName="notes" rows="3"></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+          <button mat-button type="button" (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="offerForm.invalid">
+            {{ (isEditMode ? 'COMMON.UPDATE' : 'COMMON.SAVE') | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

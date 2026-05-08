@@ -1,0 +1,13 @@
+.container-fluid {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.master-detail-caption {
+  padding: 10px 0;
+  font-weight: bold;
+}
+
+h2 {
+  margin-bottom: 0;
+}
