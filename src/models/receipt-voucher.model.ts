@@ -29,3 +29,20 @@ customerId?: number;
   // Navigation (frontend references)
 }
 
+export interface SimpleReceiptVoucher {
+  id?: number;
+  totalAmount: number;
+  date: string;
+  paymentMethod: string;
+  sourceAccountId: number;
+  details: SimpleReceiptDetail[];
+}
+
+export interface SimpleReceiptDetail {
+  incomeAccountId: number | null;
+  carId?: number | null;
+  amount: number;
+  note: string;
+  balance?: number;
+}
+

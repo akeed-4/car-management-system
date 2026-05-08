@@ -1,0 +1,63 @@
+<mat-toolbar color="primary" class="mb-4">
+  <mat-toolbar-row>
+    <span>Floor Plan Form</span>
+    <span class="spacer"></span>
+    <a mat-button routerLink="/accounts/floor-plans" class="back-link">
+      <mat-icon>arrow_back</mat-icon>
+      Back
+    </a>
+  </mat-toolbar-row>
+</mat-toolbar>
+
+<mat-card class="form-card">
+  <mat-card-content>
+    <form [formGroup]="financingForm" (ngSubmit)="save()">
+      <div class="form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Car</mat-label>
+          <mat-select formControlName="carId" required>
+            <mat-option [value]="null" disabled>Select Car</mat-option>
+            <!-- Add car options here -->
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Financier</mat-label>
+          <mat-select formControlName="financierId" required>
+            <mat-option [value]="null" disabled>Select Financier</mat-option>
+            <!-- Add financier options here -->
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Financed Amount</mat-label>
+          <input matInput type="number" formControlName="financedAmount" required min="1">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Start Date</mat-label>
+          <input matInput type="date" formControlName="startDate" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Annual Interest Rate (%)</mat-label>
+          <input matInput type="number" formControlName="annualInterestRate" required min="0">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Grace Period Days</mat-label>
+          <input matInput type="number" formControlName="gracePeriodDays" min="0">
+        </mat-form-field>
+      </div>
+
+      <mat-card-actions align="end" class="form-actions">
+        <a mat-stroked-button routerLink="/accounts/floor-plans">
+          Cancel
+        </a>
+        <button mat-raised-button color="primary" type="submit" [disabled]="financingForm.invalid">
+          Save
+        </button>
+      </mat-card-actions>
+    </form>
+  </mat-card-content>
+</mat-card>

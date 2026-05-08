@@ -1,4 +1,4 @@
-export type CarStatus = 'Available' | 'Reserved' | 'Sold' | 'In Maintenance';
+export type CarStatus = 'Available' | 'Reserved' | 'Sold' | 'In Maintenance' | 'Offered';
 export type CarLocation = string;
 export type CarCondition = 'New' | 'Used';
 

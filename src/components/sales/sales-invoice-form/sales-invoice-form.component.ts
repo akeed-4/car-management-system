@@ -9,7 +9,7 @@ import { CustomerService } from '../../../services/customer.service';
 import { SalesService } from '../../../services/sales.service';
 import { CurrentSettingService } from '../../../services/current-setting.service';
 import { StoreService } from '../../../services/store.service';
-import { AccountingService } from '../../accounting/accounting.service';
+import { DepositService } from '../../../services/deposit.service';
 import { SalesInvoice } from '../../../models/sales-invoice.model';
 import { InvoiceItem } from '../../../models/invoice-item.model';
 import { Car } from '../../../models/car.model';
@@ -33,6 +33,7 @@ import { InvoiceItemDialogComponent } from '../invoice-item-dialog/invoice-item-
 import { CarSelectionDialogComponent } from '../car-selection-dialog/car-selection-dialog.component';
 import { DxoValueErrorBarComponent } from 'devextreme-angular/ui/nested';
 import { NotificationService } from '@/src/services/notification.service';
+import { AccountingService } from '../../accounting/accounting.service';
 
 const VAT_RATE_FULL = 0.15; // 15% for new cars on full sale price
 const VAT_RATE_MARGIN = 0.15; // 15% applied to profit margin for used cars
@@ -119,6 +120,11 @@ export class SalesInvoiceFormComponent implements OnInit {
   debitAccounts = signal<any[]>([]);
   creditAccounts = signal<any[]>([]);
 
+  // Deposit signals
+  selectedDeposit = signal<any | null>(null);
+  depositAmount = signal(0);
+  selectedCustomerOrder = signal<any | null>(null);
+
   constructor(
     private inventoryService: InventoryService,
     private customerService: CustomerService,
@@ -126,6 +132,7 @@ export class SalesInvoiceFormComponent implements OnInit {
     private currentSettingService: CurrentSettingService,
     private storeService: StoreService,
     private accountingService: AccountingService,
+    private depositService: DepositService,
     private router: Router,
     private translate: TranslateService,
     private dialog: MatDialog,
@@ -181,12 +188,17 @@ export class SalesInvoiceFormComponent implements OnInit {
 
  
 
-    // Watch for customer changes to set payment method
+    // Watch for customer changes to set payment method and check for pending orders
     this.invoiceForm.get('customer')?.valueChanges.subscribe(customerId => {
       const customer = this.customers().find(c => c.id === customerId);
       this.selectedCustomer.set(customer || null);
       // Set payment method based on isCash input
       this.invoiceForm.get('paymentMethod')?.setValue(this.isCash ? 'Cash' : 'Credit');
+
+      // Check for pending orders
+      if (customerId) {
+        this.checkPendingOrders(customerId);
+      }
     });
   }
 
@@ -230,6 +242,35 @@ export class SalesInvoiceFormComponent implements OnInit {
         this.router.navigate(['/sales']);
       }
     });
+  }
+
+  checkPendingOrders(customerId: number): void {
+    this.salesService.getPendingCustomerOrders(customerId).subscribe({
+      next: (orders) => {
+        if (orders.length > 0) {
+          const order = orders[0]; // Take the first pending order
+          this.selectedCustomerOrder.set(order);
+          // Auto-fill fields
+          this.invoiceForm.patchValue({
+            selectedCarId: order.vehicleId,
+            salesperson: order.salesperson || '',
+            storeId: order.storeId || null
+          });
+          // Optionally, add the vehicle to invoice items
+          this.addCarToInvoiceById(order.vehicleId);
+        }
+      },
+      error: (error) => {
+        console.error('Failed to check pending orders', error);
+      }
+    });
+  }
+
+  addCarToInvoiceById(vehicleId: number): void {
+    const car = this.allCars().find(c => c.id === vehicleId);
+    if (car) {
+      this.addCarToInvoice(car);
+    }
   }
 
   loadCarStocks(storeId: number) {
@@ -308,6 +349,9 @@ export class SalesInvoiceFormComponent implements OnInit {
 
     // Add to invoice items
     this.invoiceItems.update(items => [...items, newItem]);
+
+    // Load and add preparation charges for this vehicle
+    this.loadPreparationCharges(car.id);
   }
 
   // Computed properties for calculations
@@ -317,7 +361,9 @@ export class SalesInvoiceFormComponent implements OnInit {
     return this.subtotal() * VAT_RATE_FULL;
   });
 
-  totalAmount = computed(() => this.subtotal() + this.vatAmount());
+  grossTotal = computed(() => this.subtotal() + this.vatAmount());
+
+  totalAmount = computed(() => this.grossTotal() - this.depositAmount());
 
   hasInstallments = computed(() => {
     return this.invoiceItems().some(item => item.installmentDetails);
@@ -376,6 +422,61 @@ export class SalesInvoiceFormComponent implements OnInit {
 
         // Add to invoice items
         this.invoiceItems.update(items => [...items, newItem]);
+
+        // Load and add preparation charges for this vehicle
+        this.loadPreparationCharges(car.carId);
+
+        // Check for deposits for this vehicle
+        this.checkForDeposit(car.carId);
+      }
+    });
+  }
+
+  checkForDeposit(vehicleId: number): void {
+    // Assuming depositService has a method to get deposits by vehicleId
+    this.depositService.getDepositsByVehicle(vehicleId).subscribe({
+      next: (deposits) => {
+        if (deposits.length > 0) {
+          const deposit = deposits[0]; // Take the first deposit
+          this.selectedDeposit.set(deposit);
+          this.depositAmount.set(deposit.amount);
+        }
+      },
+      error: (error) => {
+        console.error('Failed to check for deposits', error);
+      }
+    });
+  }
+
+  loadPreparationCharges(vehicleId: number): void {
+    this.salesService.getPreparationChargesByVehicle(vehicleId).subscribe({
+      next: (charges) => {
+        const pendingCharges = charges.filter(charge => charge.status === 'Pending');
+        pendingCharges.forEach(charge => {
+          const chargeItem: InvoiceItem = {
+            carId: vehicleId,
+            carDescription: `Preparation: ${charge.itemName}`,
+            quantity: 1,
+            unitPrice: charge.price,
+            lineTotal: charge.price,
+            isPreparationCharge: true // Flag to identify preparation charges
+          };
+          this.invoiceItems.update(items => [...items, chargeItem]);
+        });
+      },
+      error: (error) => {
+        console.error('Failed to load preparation charges', error);
+      }
+    });
+  }
+
+  markPreparationChargesAsApplied(invoiceId: number): void {
+    this.salesService.markPreparationChargesAsApplied(invoiceId).subscribe({
+      next: () => {
+        console.log('Preparation charges marked as applied');
+      },
+      error: (error) => {
+        console.error('Failed to mark preparation charges as applied', error);
       }
     });
   }
@@ -509,7 +610,7 @@ export class SalesInvoiceFormComponent implements OnInit {
     }
 
     // Prepare invoice data (adjust fields as needed)
-    const invoiceData: SalesInvoice = {
+    const invoiceData: any = {
       id: this.isEditMode() ? this.currentInvoiceId()! : 0,
       invoiceNumber: this.invoiceNumber(),
       invoiceDate: this.invoiceForm.get('invoiceDate')?.value.toISOString(),
@@ -534,6 +635,8 @@ export class SalesInvoiceFormComponent implements OnInit {
       amountPaid: 0,
       amountDue: this.totalAmount(),
       ownershipTransferStatus: 'Not Started',
+      salesOrderId: this.selectedCustomerOrder()?.id || null,
+      depositId: this.selectedDeposit()?.id || null,
     };
 
     if (this.isEditMode()) {
@@ -547,8 +650,18 @@ export class SalesInvoiceFormComponent implements OnInit {
       });
     } else {
       this.salesService.addInvoice(invoiceData).subscribe({
-        next: () => {
+        next: (savedInvoice) => {
           this.notificationService.showSuccess('TOAST.ADD_SUCCESS');
+          // Mark preparation charges as applied
+          this.markPreparationChargesAsApplied(savedInvoice.id);
+          // Mark customer order as invoiced
+          if (this.selectedCustomerOrder()) {
+            this.salesService.markCustomerOrderAsInvoiced(this.selectedCustomerOrder().id).subscribe();
+          }
+          // Mark deposit as invoiced
+          if (this.selectedDeposit()) {
+            this.depositService.markDepositAsInvoiced(this.selectedDeposit().id).subscribe();
+          }
           this.router.navigate(['/sales']);
         },
         error: () => {

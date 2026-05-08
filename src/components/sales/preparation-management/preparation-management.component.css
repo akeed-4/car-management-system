@@ -1,0 +1,67 @@
+/* Preparation Management Styles */
+.container {
+  padding: 20px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header-info h2 {
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.preparation-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+mat-card-content {
+  padding: 20px;
+}
+
+.form-field {
+  width: 100%;
+}
+
+.preparation-items {
+  margin: 20px 0;
+}
+
+.preparation-items h3 {
+  margin-bottom: 16px;
+}
+
+.item-content {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.price {
+  font-weight: bold;
+  color: #1976d2;
+}
+
+.total-section {
+  margin: 20px 0;
+  padding: 16px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}

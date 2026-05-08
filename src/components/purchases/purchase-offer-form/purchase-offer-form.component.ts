@@ -98,4 +98,5 @@ export class PurchaseOfferFormComponent implements OnInit {
   onCancel(): void {
     this.router.navigate(['/purchases/offers']);
   }
+
 }

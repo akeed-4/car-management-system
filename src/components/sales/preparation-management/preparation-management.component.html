@@ -1,0 +1,62 @@
+<div class="container">
+  <div class="page-header strong-header">
+    <div class="header-info">
+      <h2 class="strong-title">Preparation Management</h2>
+    </div>
+    <div class="header-actions">
+      <a routerLink="/sales/orders" class="btn btn-secondary btn-small">
+        <mat-icon>arrow_back</mat-icon>
+        <span>Back to Sales</span>
+      </a>
+    </div>
+  </div>
+
+  <mat-card class="preparation-card">
+    <mat-card-header>
+      <mat-card-title>Vehicle Preparation Charges</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="preparationForm" (ngSubmit)="onSave()">
+        <ng-container *ngIf="cardLayout | async as layout">
+          <mat-grid-list [cols]="layout.columns" rowHeight="90">
+            <!-- Vehicle Selection -->
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Vehicle (Chassis Number)</mat-label>
+                <mat-select formControlName="vehicleId" required>
+                  <mat-option *ngFor="let car of cars()" [value]="car.id">
+                    {{ car.chassisNumber || car.vin }} - {{ car.make }} {{ car.model }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </mat-grid-tile>
+          </mat-grid-list>
+        </ng-container>
+
+        <!-- Preparation Items -->
+        <div class="preparation-items">
+          <h3>Select Preparation Items</h3>
+          <mat-selection-list (selectionChange)="onSelectionChange()">
+            <mat-list-option *ngFor="let item of preparationItems" [value]="item" [selected]="item.selected" (click)="item.selected = !item.selected">
+              <div class="item-content">
+                <span>{{ item.name }}</span>
+                <span class="price">{{ item.price | currency:'SAR':'symbol':'1.0-0' }}</span>
+              </div>
+            </mat-list-option>
+          </mat-selection-list>
+        </div>
+
+        <!-- Total -->
+        <div class="total-section">
+          <strong>Total Preparation Fees: {{ totalPreparationFees | currency:'SAR':'symbol':'1.0-0' }}</strong>
+        </div>
+
+        <div class="form-actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="!preparationForm.valid || totalPreparationFees === 0">
+            Save Preparation Charges
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

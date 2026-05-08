@@ -1,0 +1,111 @@
+<mat-toolbar color="primary" class="mb-4 mr-3">
+  <mat-toolbar-row>
+    <span>Car Payment Voucher</span>
+    <span class="spacer"></span>
+    <a mat-button routerLink="/accounts/payments" class="back-link">
+      <mat-icon>arrow_back</mat-icon>
+      Back
+    </a>
+  </mat-toolbar-row>
+</mat-toolbar>
+
+<mat-card class="form-card">
+  <mat-card-content>
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <div class="form-grid">
+        <!-- Header Info -->
+        <div class="header-section">
+          <mat-form-field appearance="outline">
+            <mat-label>Voucher Number</mat-label>
+            <input matInput type="text" formControlName="voucherNumber">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Date</mat-label>
+            <input matInput type="date" formControlName="voucherDate" required>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Total Amount</mat-label>
+            <input matInput type="number" formControlName="totalAmount" required min="0.01">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Debit Account</mat-label>
+            <mat-select formControlName="accountId" required>
+              <mat-option [value]="null" disabled>Select Account</mat-option>
+              <mat-option *ngFor="let acc of accounts$ | async; trackBy: trackByAccountId" [value]="acc.id">{{ acc.accountCode }} - {{ acc.accountNameAr }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Purchase Invoice</mat-label>
+            <mat-select formControlName="purchaseInvoiceId" (selectionChange)="onPurchaseInvoiceChange($event.value)">
+              <mat-option [value]="null">None</mat-option>
+              <mat-option *ngFor="let inv of invoices$ | async; trackBy: trackByInvoiceId" [value]="inv.id">{{ inv.invoiceNumber }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Details Table -->
+        <div class="details-section">
+          <h3>Payment Details</h3>
+          <dx-data-grid
+            [dataSource]="detailsData | async"
+            [showBorders]="true"
+            [allowColumnReordering]="true"
+            [allowColumnResizing]="true"
+            [columnAutoWidth]="true"
+            [editing]="{ mode: 'cell', allowUpdating: true, allowAdding: !form.get('purchaseInvoiceId')?.value, allowDeleting: !form.get('purchaseInvoiceId')?.value }"
+            (onRowInserted)="onRowInserted($event)"
+            (onRowRemoved)="onRowRemoved($event)"
+            (onRowUpdated)="onRowUpdated($event)">
+            
+            <dxo-paging [enabled]="false"></dxo-paging>
+            <dxo-editing
+              mode="cell"
+              [allowUpdating]="true"
+              [allowAdding]="!form.get('purchaseInvoiceId')?.value"
+              [allowDeleting]="!form.get('purchaseInvoiceId')?.value">
+            </dxo-editing>
+
+            <dxi-column dataField="expenseAccountId" caption="Expense Account">
+              <dxo-lookup
+                [dataSource]="accounts$ | async"
+                valueExpr="id"
+                displayExpr="accountNameAr">
+              </dxo-lookup>
+            </dxi-column>
+
+            <dxi-column dataField="carId" caption="Car" [allowEditing]="false">
+            </dxi-column>
+
+            <dxi-column dataField="amount" caption="Amount" dataType="number">
+            </dxi-column>
+
+            <dxi-column dataField="note" caption="Note">
+            </dxi-column>
+          </dx-data-grid>
+
+          <div class="table-footer">
+            <button mat-stroked-button type="button" (click)="distributeEvenly()" *ngIf="(detailsData | async)?.length > 0">
+              Distribute Evenly
+            </button>
+            <div class="total-row">
+              <strong>Total: {{ getTotalAmount() | currency:'SAR' }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <mat-card-actions align="end" class="form-actions">
+        <a mat-stroked-button routerLink="/accounts/payments">
+          Cancel
+        </a>
+        <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
+          Save
+        </button>
+      </mat-card-actions>
+    </form>
+  </mat-card-content>
+</mat-card>

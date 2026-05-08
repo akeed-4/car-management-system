@@ -5,6 +5,8 @@ import { Observable, tap } from 'rxjs';
 import { InventoryService } from './inventory.service';
 import { environment } from '../environments/environment';
 import { StoreCarStockDto } from '../models/store-car-stock.model';
+import { CustomerOrder } from '../models/customer-order.model';
+import { PreparationCharge } from '../models/preparation-charge.model';
 
 @Injectable({
   providedIn: 'root',
@@ -95,5 +97,35 @@ getOutstandingInvoicesByCustomerId(customerId: number): Observable<SalesInvoice[
   // جلب السيارات المتاحة حسب المتجر
   getAvailableCarsByStore(storeId: number): Observable<StoreCarStockDto[]> {
     return this.http.get<StoreCarStockDto[]>(`${this.apiUrl}/availableCars/${storeId}`);
+  }
+
+  // إنشاء طلب عميل
+  createCustomerOrder(order: CustomerOrder): Observable<CustomerOrder> {
+    return this.http.post<CustomerOrder>(`${environment.origin}api/CustomerOrders/Create`, order);
+  }
+
+  // حفظ رسوم التحضير
+  savePreparationCharges(charges: PreparationCharge[]): Observable<PreparationCharge[]> {
+    return this.http.post<PreparationCharge[]>(`${environment.origin}api/PreparationCharges/CreateBulk`, charges);
+  }
+
+  // جلب رسوم التحضير لمركبة معينة
+  getPreparationChargesByVehicle(vehicleId: number): Observable<PreparationCharge[]> {
+    return this.http.get<PreparationCharge[]>(`${environment.origin}api/PreparationCharges/GetByVehicle/${vehicleId}`);
+  }
+
+  // تحديث حالة رسوم التحضير إلى 'Applied'
+  markPreparationChargesAsApplied(invoiceId: number): Observable<void> {
+    return this.http.post<void>(`${environment.origin}api/PreparationCharges/MarkAsApplied/${invoiceId}`, {});
+  }
+
+  // جلب الطلبات المعلقة للعميل
+  getPendingCustomerOrders(customerId: number): Observable<CustomerOrder[]> {
+    return this.http.get<CustomerOrder[]>(`${environment.origin}api/CustomerOrders/GetPendingByCustomer/${customerId}`);
+  }
+
+  // تحديث حالة الطلب إلى 'Invoiced'
+  markCustomerOrderAsInvoiced(orderId: number): Observable<void> {
+    return this.http.post<void>(`${environment.origin}api/CustomerOrders/MarkAsInvoiced/${orderId}`, {});
   }
 }
