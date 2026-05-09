@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormGroup, FormControl, ReactiveFormsModule, Validators, FormArray, FormBuilder } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CurrencyPipe, CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -17,10 +17,14 @@ import { InvoiceDropdownGridComponent } from '../../shared/invoice-dropdown-grid
 import { SupplierService } from '../../../services/supplier.service';
 import { PurchasesService } from '../../../services/purchases.service';
 import { PaymentService } from '../../../services/payment.service';
-import { TreasuryService } from '../../../services/treasury.service';
+import { InventoryService } from '../../../services/inventory.service';
 import { PurchaseInvoice } from '../../../models/purchase-invoice.model';
-import { PaymentVoucher, PaymentMethod, VoucherStatus, BeneficiaryType } from '@/src/models/payment-voucher.model';
+import { Payment, PaymentDetail, BeneficiaryType } from '../../../models/payment.model';
+import { PaymentMethod, VoucherStatus } from '../../../models/payment-voucher.model';
 import { AccountingService } from '../../accounting/accounting.service';
+import { MatTableModule } from '@angular/material/table';
+import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
+import { NotificationService } from '@/src/services/notification.service';
 
 @Component({
   selector: 'app-payment-form',
@@ -40,6 +44,9 @@ import { AccountingService } from '../../accounting/accounting.service';
     MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatTableModule,
+    DxDataGridModule,
+    DxButtonModule,
     InvoiceDropdownGridComponent,
   ],
   templateUrl: './payment-form.component.html',
@@ -54,18 +61,22 @@ export class PaymentFormComponent implements OnInit {
   private purchasesService = inject(PurchasesService);
   private paymentService = inject(PaymentService);
   private accountingService = inject(AccountingService);
+  private inventoryService = inject(InventoryService);
+  private notificationService = inject(NotificationService);
+  private fb = inject(FormBuilder);
   
 
   paymentForm!: FormGroup;
 
-  suppliers = toSignal(this.supplierService.getSuppliers(), { initialValue: [] });
+  suppliers = signal<any[]>([]);
   accounts = toSignal(this.accountingService.accounts$, { initialValue: [] });
+  expenseAccounts = signal<any[]>([]);
   
   outstandingInvoices = signal<PurchaseInvoice[]>([]);
   selectedInvoiceId = signal<number | null>(null);
   
   isEditMode = signal(false);
-  editingPayment = signal<PaymentVoucher | null>(null);
+  editingPayment = signal<Payment | null>(null);
   
   selectedInvoiceDetails = computed(() => {
     const invId = this.selectedInvoiceId();
@@ -73,15 +84,37 @@ export class PaymentFormComponent implements OnInit {
     return this.outstandingInvoices().find(inv => inv.id === invId);
   });
 
+  totalAmount = computed(() => {
+    const details = this.details.value;
+    return details.reduce((sum: number, detail: any) => sum + (detail.amount || 0), 0);
+  });
+
+  difference = computed(() => {
+    const totalVoucherAmount = this.paymentForm.get('totalVoucherAmount')?.value || 0;
+    return totalVoucherAmount - this.totalAmount();
+  });
+
   onInvoiceSelected(invoice: any) {
     this.paymentForm.patchValue({ 
-      invoice: invoice.id,
-      amount: invoice.amountDue 
+      purchaseInvoiceId: invoice.id
     });
   }
 
   ngOnInit() {
     this.initForm();
+    
+    // Load suppliers first
+    this.supplierService.getSuppliers().subscribe(suppliers => {
+      this.suppliers.set(suppliers);
+      
+      // Load outstanding invoices for the first supplier if available
+      if (suppliers.length > 0) {
+        this.purchasesService.getInvoices().subscribe(invoices => {
+          this.outstandingInvoices.set(invoices);
+        });
+      }
+    });
+    
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
@@ -101,59 +134,106 @@ export class PaymentFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading payment:', error);
-        alert(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.ERROR_LOADING') || 'Error loading payment');
+        this.notificationService.showError(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.ERROR_LOADING') || 'Error loading payment');
         this.router.navigate(['/accounts/payments']);
       }
     });
   }
 
-  private populateForm(payment: PaymentVoucher) {
-    const paymentMethodStr = payment.paymentMethod === PaymentMethod.Bank ? 'BANK_TRANSFER' : 'CASH';
-    const statusStr = payment.status === VoucherStatus.Draft ? 'DRAFT' : payment.status === VoucherStatus.Approved ? 'APPROVED' : 'CANCELLED';
+  private populateForm(payment: Payment) {
     console.log('Populating form with payment:', payment);
     this.paymentForm.patchValue({
       voucherNumber: payment.voucherNumber,
-      voucherDate: payment.voucherDate,
-      invoice: payment.referenceId,
-      amount: payment.amount,
-      paymentMethod: paymentMethodStr,
-      accountId: payment.accountId,
-      referenceId: payment.referenceId,
+      voucherDate: payment.voucherDate.toISOString().split('T')[0],
+      totalVoucherAmount: payment.amount,
       notes: payment.notes,
-      status: statusStr,
-      createdBy: payment.createdBy,
-      supplierId: payment.supplierId,
-
+      status: payment.status === VoucherStatus.Draft ? 'DRAFT' : payment.status === VoucherStatus.Approved ? 'APPROVED' : 'CANCELLED',
+      createdBy: payment.createdBy
     });
-    if (payment.referenceId) {
-      this.selectedInvoiceId.set(payment.referenceId);
+    // Clear existing details
+    while (this.details.length > 0) {
+      this.details.removeAt(0);
     }
-    if (payment.supplierId) {
-      this.onSupplierChange(payment.supplierId, true);
+    // Add details
+    payment.details.forEach(detail => {
+      const detailGroup = this.fb.group({
+        chassisNumber: [detail.chassisNumber || '', Validators.required],
+        model: [detail.model || '', Validators.required],
+        carId: [detail.carId],
+        expenseAccountId: [detail.expenseAccountId || null],
+        amount: [detail.amount, [Validators.required, Validators.min(0.01)]],
+        note: [detail.note || '']
+      });
+      this.details.push(detailGroup);
+    });
+    if (payment.purchaseInvoiceId) {
+      this.selectedInvoiceId.set(payment.purchaseInvoiceId);
+      this.onSupplierChange(payment.beneficiaryId!, true);
     }
   }
 
   private initForm() {
-    this.paymentForm = new FormGroup({
-      voucherNumber: new FormControl(`PV-${Date.now()}`),
-      voucherDate: new FormControl(new Date().toISOString().split('T')[0], Validators.required),
-      supplierId: new FormControl(null, Validators.required),
-      invoice: new FormControl(null),
-      amount: new FormControl(0, [Validators.required, Validators.min(0.01)]),
-      paymentMethod: new FormControl('BANK_TRANSFER', Validators.required),
-      accountId: new FormControl(null, Validators.required),
-      referenceId: new FormControl(null),
-      notes: new FormControl(''),
-      status: new FormControl('DRAFT'),
-      createdBy: new FormControl(1)
+    this.paymentForm = this.fb.group({
+      voucherNumber: [`PV-${Date.now()}`],
+      voucherDate: [new Date().toISOString().split('T')[0], Validators.required],
+      paymentMethod: ['BANK_TRANSFER', Validators.required],
+      accountId: [null, Validators.required],
+      purchaseInvoiceId: [null],
+      totalVoucherAmount: [0, [Validators.required, Validators.min(0.01)]],
+      notes: [''],
+      status: ['DRAFT'],
+      createdBy: [1],
+      details: this.fb.array([])
     });
+    // Add at least one detail
+    this.addDetail();
+    // Load expense accounts for payment details
+    this.accountingService.getAccountsByCategory('expense').subscribe(accounts => {
+      this.expenseAccounts.set(accounts);
+    });
+
+  }
+
+  get details(): FormArray {
+    return this.paymentForm.get('details') as FormArray;
+  }
+
+  addDetail(car?: any) {
+    const detail = this.fb.group({
+      chassisNumber: [car?.chassisNumber || '', Validators.required],
+      model: [car?.model || '', Validators.required],
+      carId: [car?.id || null],
+      expenseAccountId: [null], // Optional expense account
+      amount: [0, [Validators.required, Validators.min(0.01)]],
+      note: ['']
+    });
+    this.details.push(detail);
+  }
+
+  removeDetail(index: number) {
+    if (this.details.length > 1) {
+      this.details.removeAt(index);
+    }
+  }
+
+  autoDistributeAmount() {
+    const totalAmount = this.paymentForm.get('totalVoucherAmount')?.value || 0;
+    const numDetails = this.details.length;
+    if (numDetails > 0 && totalAmount > 0) {
+      const amountPerDetail = totalAmount / numDetails;
+      this.details.controls.forEach(detail => {
+        detail.patchValue({ amount: amountPerDetail });
+      });
+    }
   }
 
   onSupplierChange(supplierId: number | null, preserveAmount: boolean = false) {
     const currentAmount = preserveAmount ? this.paymentForm.get('amount')?.value : 0;
-    this.paymentForm.patchValue({ invoice: null, amount: currentAmount });
+    this.paymentForm.patchValue({ purchaseInvoiceId: null });
     if (supplierId) {
-      this.purchasesService.getOutstandingInvoicesBySupplierId(supplierId).subscribe(invoices => this.outstandingInvoices.set(invoices));
+      this.purchasesService.getOutstandingInvoicesBySupplierId(supplierId).subscribe(invoices => {
+        this.outstandingInvoices.set(invoices);
+      });
     } else {
       this.outstandingInvoices.set([]);
     }
@@ -161,8 +241,43 @@ export class PaymentFormComponent implements OnInit {
 
   onInvoiceChange(invoiceId: number | null) {
     this.selectedInvoiceId.set(invoiceId);
-    const invoice = this.outstandingInvoices().find(inv => inv.id === invoiceId);
-    this.paymentForm.patchValue({ amount: invoice ? invoice.amountDue : 0 });
+    this.paymentForm.patchValue({ purchaseInvoiceId: invoiceId });
+    if (invoiceId) {
+      this.loadCarsByInvoice(invoiceId);
+    } else {
+      // Clear details if no invoice selected
+      while (this.details.length > 0) {
+        this.details.removeAt(0);
+      }
+    }
+  }
+
+  private loadCarsByInvoice(invoiceId: number) {
+    this.inventoryService.getCarsByPurchaseInvoice(invoiceId).subscribe({
+      next: (cars) => {
+        // Clear existing details
+        while (this.details.length > 0) {
+          this.details.removeAt(0);
+        }
+        // Add cars as details
+        cars.forEach(car => {
+          this.addDetail({
+            id: car.id,
+            chassisNumber: car.chassisNumber || car.vin,
+            model: `${car.make} ${car.model} ${car.year}`
+          });
+        });
+        // If no cars, add one empty detail
+        if (cars.length === 0) {
+          this.addDetail();
+        }
+      },
+      error: (error) => {
+        console.error('Error loading cars for invoice:', error);
+        // Add one empty detail if error
+        this.addDetail();
+      }
+    });
   }
 
   savePayment() {
@@ -171,50 +286,50 @@ export class PaymentFormComponent implements OnInit {
     }
 
     const formValue = this.paymentForm.value;
-    const supplier = this.suppliers().find(s => s.id === formValue.supplierId);
-    const invoice = this.selectedInvoiceDetails();
-    const account = this.accounts().find(a => a.id === formValue.accountId);
 
-    // Validate base requirements (supplier, account, amount)
-    if (!supplier || !account || formValue.amount <= 0) {
-      alert(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.FILL_REQUIRED'));
+    // Calculate total amount from details
+    const totalAmount = formValue.details.reduce((sum: number, detail: any) => sum + (detail.amount || 0), 0);
+    if (totalAmount <= 0) {
+      alert('Total amount must be greater than 0');
       return;
     }
 
-    // If invoice is selected, enforce amount bounds and apply payment
-    // if (invoice) {
-    //   if (formValue.amount > invoice.amountDue) {
-    //     alert(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.AMOUNT_EXCEEDS'));
-    //     return;
-    //   }
-    // }
+    // Check if total matches
+    if (Math.abs(formValue.totalVoucherAmount - totalAmount) > 0.01) {
+      alert('Total voucher amount must equal the sum of all detail amounts');
+      return;
+    }
 
-    // Create and save the payment voucher using unified Voucher model
-    const paymentMethodEnum = formValue.paymentMethod === 'BANK_TRANSFER' ? PaymentMethod.Bank : PaymentMethod.Cash;
+    // Create details
+    const details: PaymentDetail[] = formValue.details.map((d: any) => ({
+      carId: d.carId,
+      chassisNumber: d.chassisNumber,
+      model: d.model,
+      amount: d.amount,
+      note: d.note || undefined,
+      expenseAccountId: d.expenseAccountId || undefined
+    }));
+
+    // Create and save the payment using Payment model
     const statusEnum = formValue.status === 'DRAFT' ? VoucherStatus.Draft : formValue.status === 'APPROVED' ? VoucherStatus.Approved : VoucherStatus.Cancelled;
     
-    const voucher: Partial<PaymentVoucher> = {
+    const payment: Partial<Payment> = {
       voucherNumber: formValue.voucherNumber,
       voucherDate: new Date(formValue.voucherDate),
-      amount: formValue.amount,
-      paymentMethod: paymentMethodEnum,
-      accountId: account.id,
+      amount: totalAmount,
       status: statusEnum,
-      notes: formValue.notes || `Payment to ${supplier.name}${invoice ? ` for invoice ${invoice.invoiceNumber}` : ''}`,
+      notes: formValue.notes || `Payment for ${formValue.details.length} cars`,
       createdBy: formValue.createdBy || 1,
       createdAt: new Date(),
-      beneficiaryType: BeneficiaryType.Supplier,
-      beneficiaryId: supplier.id,
-      referenceId: invoice?.id ?? undefined,
-      date: new Date(formValue.voucherDate), // legacy
-      paymentNumber: formValue.voucherNumber, // legacy
-      purchaseInvoiceId: invoice?.id,
-      supplierId: supplier.id,
-      description: formValue.notes || `Payment to ${supplier.name}${invoice ? ` for invoice ${invoice.invoiceNumber}` : ''}`
+      beneficiaryType: BeneficiaryType.Supplier, // Assuming supplier payments
+      beneficiaryId: 1, // TODO: Get from form if needed
+      purchaseInvoiceId: formValue.purchaseInvoiceId,
+      accountId: formValue.accountId, // Add the account ID
+      details: details
     };
     
     if (this.isEditMode()) {
-      this.paymentService.updatePayment(voucher, this.editingPayment()!.id).subscribe({
+      this.paymentService.updatePayment(payment, this.editingPayment()!.id!).subscribe({
         next: (updatedPayment) => {
           alert(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.UPDATED'));
           this.router.navigate(['/accounts/payments']);
@@ -225,15 +340,14 @@ export class PaymentFormComponent implements OnInit {
         }
       });
     } else {
-      debugger
-      this.paymentService.addPayment(voucher).subscribe({
+      this.paymentService.addPayment(payment).subscribe({
         next: (savedPayment) => {
-          alert(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.SAVED'));
+          this.notificationService.showSuccess(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.SAVED') || 'Payment saved successfully'); 
           this.router.navigate(['/accounts/payments']);
         },
         error: (error) => {
           console.error('Error saving payment:', error);
-          alert(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.ERROR_SAVING') || 'Error saving payment');
+          this.notificationService.showError(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.ERROR_SAVING') || 'Error saving payment');
         }
       });
     }

@@ -13,41 +13,113 @@
 
 .header-section {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1rem;
   padding-bottom: 1.5rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.12);
 }
 
-.customer-section {
-  display: block;
+.account-customer-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1rem;
+  align-items: start;
   margin-bottom: 1rem;
 }
 
-.invoice-dropdown-section {
+.allocation-card {
   margin-bottom: 1.5rem;
 }
 
-.invoice-dropdown-section .dropdown-label {
-  display: block;
-  font-size: 14px;
+.allocation-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+.allocation-table th,
+.allocation-table td {
+  padding: 12px 8px;
+  text-align: left;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.allocation-table th {
   font-weight: 500;
   color: rgba(0, 0, 0, 0.6);
-  margin-bottom: 8px;
+  background-color: rgba(0, 0, 0, 0.04);
 }
 
-.invoice-dropdown-section dx-drop-down-box {
+.allocation-table td .table-field {
   width: 100%;
+  margin: 0;
 }
 
-.customer-invoice-section {
+.accounting-card {
+  margin-bottom: 1.5rem;
+}
+
+.accounting-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 2rem;
+  margin-bottom: 1rem;
 }
 
-.invoice-details-card {
-  margin: 1rem 0;
+.accounting-section h4 {
+  margin: 0 0 1rem 0;
+  color: rgba(0, 0, 0, 0.87);
+  font-weight: 500;
+}
+
+.accounting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: rgba(0, 0, 0, 0.04);
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.accounting-item .amount {
+  font-weight: 500;
+  color: #1976d2;
+}
+
+.balance-section {
+  text-align: center;
+  padding: 1rem;
+  border-radius: 4px;
+  background-color: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.2);
+}
+
+.balance-section.warning {
+  background-color: rgba(244, 67, 54, 0.1);
+  border-color: rgba(244, 67, 54, 0.2);
+}
+
+.balance-section strong {
+  color: #4caf50;
+}
+
+.balance-section.warning strong {
+  color: #f44336;
+}
+
+.notes-field {
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.form-actions {
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.back-link {
+  color: white;
 }
 
 .invoice-details-grid {

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, Inject } from '@angular/core';
-import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormGroup, FormControl, ReactiveFormsModule, Validators, FormArray, FormBuilder } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CurrencyPipe, CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -12,6 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatTableModule } from '@angular/material/table';
 import { InvoiceDropdownGridComponent } from '../../shared/invoice-dropdown-grid/invoice-dropdown-grid.component';
 import { CustomerService } from '../../../services/customer.service';
 import { SalesService } from '../../../services/sales.service';
@@ -23,6 +24,7 @@ import { PaymentMethod, VoucherStatus, BeneficiaryType } from '@/src/models/paym
 import { AccountingService } from '../../accounting/accounting.service';
 import { Account } from '../../accounting/models';
 import { ToastService } from '@/src/services/toast.service';
+import { InventoryService } from '../../../services/inventory.service';
 
 @Component({
   selector: 'app-receipt-form',
@@ -42,6 +44,8 @@ import { ToastService } from '@/src/services/toast.service';
     MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatTableModule,
+    InvoiceDropdownGridComponent,
   ],
   templateUrl: './receipt-form.component.html',
   styleUrl: './receipt-form.component.css',
@@ -54,38 +58,34 @@ export class ReceiptFormComponent implements OnInit {
   private salesService = inject(SalesService);
   private receiptService = inject(ReceiptService);
   private accountingService = inject(AccountingService);
+  private inventoryService = inject(InventoryService);
   private translate = inject(TranslateService);
+  private fb = inject(FormBuilder);
 
   receiptForm!: FormGroup;
 
   customers = this.customerService.customers$;
   accounts = signal<Account[]>([]);
-  
-  outstandingInvoices = signal<SalesInvoice[]>([]);
 
+  customerInvoices = signal<any[]>([]);
   isEditMode = signal(false);
   editingReceipt = signal<ReceiptVoucher | null>(null);
-  
-  selectedInvoiceId = signal<number | null>(null);
-  
-  selectedInvoiceDetails = computed(() => {
-    const invId = this.selectedInvoiceId();
-    if (!invId) return null;
-    return this.outstandingInvoices().find(inv => inv.id === invId);
-  });
-  toastService = inject(ToastService);
 
-  onInvoiceSelected(invoice: any) {
-    this.receiptForm.patchValue({ 
-      invoice: invoice.id,
-      amount: invoice.amountDue 
-    });
+  totalAmountReceived = computed(() => this.receiptForm?.get('totalAmountReceived')?.value || 0);
+  totalAllocated = computed(() => {
+    const allocations = this.allocations.value;
+    return allocations.reduce((sum: number, alloc: any) => sum + (alloc.amountToPay || 0), 0);
+  });
+  unallocatedBalance = computed(() => this.totalAmountReceived() - this.totalAllocated());
+
+  get allocations(): FormArray {
+    return this.receiptForm.get('allocations') as FormArray;
   }
 
   ngOnInit() {
     this.initForm();
     this.accountingService.accounts$.subscribe(accounts => this.accounts.set(accounts));
-    console.log('Receipt Form Init - checking for edit mode'+this.accounts());
+
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
@@ -95,6 +95,71 @@ export class ReceiptFormComponent implements OnInit {
         this.isEditMode.set(false);
       }
     });
+  }
+
+
+  onCustomerChange(customerId: number | null) {
+    this.receiptForm.patchValue({ customerId });
+    if (customerId) {
+      this.loadCustomerInvoices(customerId);
+    } else {
+      this.customerInvoices.set([]);
+      this.clearAllocations();
+    }
+  }
+
+  private loadCustomerInvoices(customerId: number) {
+    // Load outstanding invoices for the customer
+    this.salesService.getOutstandingInvoicesByCustomerId(customerId).subscribe({
+      next: (invoices) => {
+        this.customerInvoices.set(invoices);
+        this.createAllocationsFromInvoices(invoices);
+      },
+      error: (error) => {
+        console.error('Error loading customer invoices:', error);
+        this.customerInvoices.set([]);
+        this.clearAllocations();
+      }
+    });
+  }
+
+  private createAllocationsFromInvoices(invoices: any[]) {
+    this.clearAllocations();
+    invoices.forEach(invoice => {
+      const allocation = this.fb.group({
+        invoiceId: [invoice.id],
+        reference: [invoice.invoiceNumber],
+        originalBalance: [invoice.amountDue],
+        amountToPay: [0, [Validators.min(0)]]
+      });
+      this.allocations.push(allocation);
+    });
+  }
+
+  private clearAllocations() {
+    while (this.allocations.length > 0) {
+      this.allocations.removeAt(0);
+    }
+  }
+
+  distributeAmount() {
+    const totalAmount = this.totalAmountReceived();
+    const numAllocations = this.allocations.length;
+
+    if (numAllocations > 0 && totalAmount > 0) {
+      // FIFO distribution - apply to oldest invoices first
+      let remainingAmount = totalAmount;
+      this.allocations.controls.forEach((allocation, index) => {
+        if (remainingAmount > 0) {
+          const originalBalance = allocation.get('originalBalance')?.value || 0;
+          const amountToApply = Math.min(remainingAmount, originalBalance);
+          allocation.patchValue({ amountToPay: amountToApply });
+          remainingAmount -= amountToApply;
+        } else {
+          allocation.patchValue({ amountToPay: 0 });
+        }
+      });
+    }
   }
 
   private loadReceipt(id: number) {
@@ -111,73 +176,55 @@ export class ReceiptFormComponent implements OnInit {
     });
   }
 
-  private populateForm(receipt: ReceiptVoucher) {
-   const paymentMethodStr =
-    receipt.paymentMethod === PaymentMethod.Bank
-      ? 'BANK_TRANSFER'
-      : receipt.paymentMethod === PaymentMethod.Card
-      ? 'CARD'
-      : 'CASH';
 
-  const statusStr =
-    receipt.status === VoucherStatus.Draft
-      ? 'DRAFT'
-      : receipt.status === VoucherStatus.Approved
-      ? 'APPROVED'
-      : 'CANCELLED';
+  private populateForm(receipt: ReceiptVoucher) {
+    // This would need to be updated based on the actual ReceiptVoucher structure
     this.receiptForm.patchValue({
       voucherNumber: receipt.voucherNumber,
-      voucherDate: receipt.voucherDate,
-      customer: receipt.beneficiaryId,
-      invoice: receipt.referenceId,
-      amount: receipt.amount,
-      paymentMethod: paymentMethodStr,
-      accountId: receipt.accountId,
-      referenceId: receipt.referenceId,
-      notes: receipt.notes,
-      status: statusStr,
-      createdBy: receipt.createdBy,
+      voucherDate: receipt.voucherDate?.toISOString().split('T')[0],
+      totalAmountReceived: receipt.amount,
+      receiptMethod: receipt.paymentMethod,
+      targetAccountId: receipt.accountId,
       customerId: receipt.customerId,
+      notes: receipt.notes
     });
-    if (receipt.referenceId) {
-      this.selectedInvoiceId.set(receipt.referenceId);
-    }
-    if (receipt.beneficiaryId) {
-      this.onCustomerChange(receipt.beneficiaryId);
-    }
+
+    // Populate allocations if they exist in the receipt
+    // This depends on the actual ReceiptVoucher model structure
   }
 
   private initForm() {
-    this.receiptForm = new FormGroup({
-      voucherNumber: new FormControl(`RV-${Date.now()}`),
-      voucherDate: new FormControl(new Date().toISOString().split('T')[0], Validators.required),
-      customerId: new FormControl(null, Validators.required),
-      invoice: new FormControl(null),
-      amount: new FormControl(0, [Validators.required, Validators.min(0.01)]),
-      paymentMethod: new FormControl('CASH', Validators.required),
-      accountId: new FormControl(null, Validators.required),
-      referenceId: new FormControl(null),
-      notes: new FormControl(''),
-      status: new FormControl('DRAFT'),
-      createdBy: new FormControl(1)
+    this.receiptForm = this.fb.group({
+      voucherNumber: [`RV-${Date.now()}`],
+      voucherDate: [new Date().toISOString().split('T')[0], Validators.required],
+      totalAmountReceived: [0, [Validators.required, Validators.min(0.01)]],
+      receiptMethod: ['CASH', Validators.required],
+      targetAccountId: [null, Validators.required],
+      customerId: [null, Validators.required],
+      notes: [''],
+      status: ['DRAFT'],
+      createdBy: [1],
+      allocations: this.fb.array([])
     });
+    // Add at least one detail
+    this.addDetail();
   }
 
-  onCustomerChange(customerId: number | null) {
-    this.receiptForm.patchValue({ invoice: null, amount: 0 });
-    if (customerId) {
-      this.salesService.getOutstandingInvoicesByCustomerId(customerId).subscribe(invoices => this.outstandingInvoices.set(invoices));
-    } else {
-      this.outstandingInvoices.set([]);
+
+  addDetail() {
+    const detail = this.fb.group({
+      invoiceId: [null],
+      reference: [''],
+      originalBalance: [0],
+      amountToPay: [0, [Validators.min(0)]]
+    });
+    this.allocations.push(detail);
+  }
+
+  removeDetail(index: number) {
+    if (this.allocations.length > 1) {
+      this.allocations.removeAt(index);
     }
-  }
-
-
-
-  onInvoiceChange(invoiceId: number | null) {
-    this.selectedInvoiceId.set(invoiceId);
-    const invoice = this.outstandingInvoices().find(inv => inv.id === invoiceId);
-    this.receiptForm.patchValue({ amount: invoice ? invoice.amountDue : 0 });
   }
 
   saveReceipt() {
@@ -185,52 +232,26 @@ export class ReceiptFormComponent implements OnInit {
       return;
     }
 
-    const formValue = this.receiptForm.value;
-    const customer = this.customers().find(c => c.id === formValue.customerId);
-    const invoice = this.selectedInvoiceDetails();
-    const account = this.accounts().find(a => a.id === formValue.accountId);
-    if (!customer || !account || formValue.amount <= 0) {
-      alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.FILL_REQUIRED'));
+    if (this.unallocatedBalance() !== 0) {
+      alert('Total allocated amount must equal the total amount received');
       return;
     }
-    // if (formValue.amount > invoice.amountDue) {
-    //   alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.AMOUNT_EXCEEDS'));
-    //   return;
-    // }
 
-    // 1. Apply payment to the sales invoice
-    // this.salesService.applyPayment(invoice.id, formValue.amount);
+    const formValue = this.receiptForm.value;
 
-    // 2. Create and save the receipt voucher using unified Voucher model
-    const paymentMethodEnum = formValue.paymentMethod === 'Bank Transfer' ? PaymentMethod.Bank : PaymentMethod.Cash;
-    const statusEnum = formValue.status === 'DRAFT' ? VoucherStatus.Draft : formValue.status === 'APPROVED' ? VoucherStatus.Approved : VoucherStatus.Cancelled;
-    
-    const voucher: Partial<ReceiptVoucher> = {
-      voucherNumber: formValue.voucherNumber,
-      voucherDate: new Date(formValue.voucherDate),
-      amount: formValue.amount,
-      paymentMethod: paymentMethodEnum,
-      accountId: account.id,
-      status: statusEnum,
-      notes: formValue.notes || `Receipt from ${customer.name}${invoice ? ` for invoice ${invoice.invoiceNumber}` : ''}`,
-      createdBy: formValue.createdBy || 1,
-      createdAt: new Date(),
-      beneficiaryType: BeneficiaryType.Customer,
-      beneficiaryId: customer.id,
-      referenceId: invoice?.id ?? undefined,
-      date: new Date(formValue.voucherDate), // legacy
-      paymentNumber: formValue.voucherNumber, // legacy
-      salesInvoiceId: invoice?.id,
-      customerName: customer.name,
-      customerId: formValue.customerId,
-      description: formValue.notes || `Receipt from ${customer.name}${invoice ? ` for invoice ${invoice.invoiceNumber}` : ''}`
+    const receiptData = {
+      ...formValue,
+      allocations: formValue.allocations.map((alloc: any) => ({
+        invoiceId: alloc.invoiceId,
+        amountToPay: alloc.amountToPay
+      }))
     };
-    
+
     if (this.isEditMode()) {
-      this.receiptService.updateReceipt(voucher, this.editingReceipt()!.id).subscribe({
-        next: (updatedReceipt) => {
+      this.receiptService.updateReceipt(receiptData, this.editingReceipt()!.id).subscribe({
+        next: () => {
           alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.UPDATED'));
-          this.toastService.showSuccess(this.translate.instant('ACCOUNTS.RECEIPT_FORM.UPDATED') || 'Receipt updated successfully');
+          this.router.navigate(['/accounts/receipts']);
         },
         error: (error) => {
           console.error('Error updating receipt:', error);
@@ -238,11 +259,10 @@ export class ReceiptFormComponent implements OnInit {
         }
       });
     } else {
-      console.log(voucher)
-      this.receiptService.addReceipt(voucher).subscribe({
-        next: (savedReceipt) => {
+      this.receiptService.addReceipt(receiptData).subscribe({
+        next: () => {
           alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.SAVED'));
-          this.toastService.showSuccess(this.translate.instant('ACCOUNTS.RECEIPT_FORM.SAVED') || 'Receipt saved successfully');
+          this.router.navigate(['/accounts/receipts']);
         },
         error: (error) => {
           console.error('Error saving receipt:', error);
@@ -254,10 +274,6 @@ export class ReceiptFormComponent implements OnInit {
 
   trackByCustomerId(index: number, customer: any): number {
     return customer.id;
-  }
-
-  trackByInvoiceId(index: number, invoice: SalesInvoice): number {
-    return invoice.id;
   }
 
   trackByAccountId(index: number, account: any): number {

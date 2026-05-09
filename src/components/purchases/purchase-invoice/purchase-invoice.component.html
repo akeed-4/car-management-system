@@ -23,7 +23,7 @@
             <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>{{ 'PURCHASE_INVOICE.INVOICE_NUMBER' | translate }}</mat-label>
-                <input matInput [value]="invoiceNumber()" readonly>
+                <input matInput formControlName="invoiceNumber" >
               </mat-form-field>
             </mat-grid-tile>
               <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">

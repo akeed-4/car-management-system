@@ -12,7 +12,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
 import { PaymentService } from '../../../services/payment.service';
-import { PaymentVoucher } from '../../../models/payment-voucher.model';
+import { Payment } from '../../../models/payment.model';
 import { AccountingService } from '../../accounting/accounting.service';
 import { Account } from '../../accounting/models';
 import CustomStore from 'devextreme/data/custom_store';
@@ -77,8 +77,8 @@ export class PaymentsComponent implements OnDestroy, AfterViewInit {
     }
   }
 
-  trackByPaymentId(index: number, payment: PaymentVoucher): number {
-    return payment.id;
+  trackByPaymentId(index: number, payment: Payment): number {
+    return payment.id!;
   }
 
   payments = toSignal(this.paymentService.payments$, {initialValue: []});

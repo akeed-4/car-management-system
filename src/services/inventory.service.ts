@@ -34,6 +34,10 @@ export class InventoryService {
     return this.http.get<Car>(`${this.apiUrl + '/GetById'}/${id}`);
   }
 
+  getCarsByPurchaseInvoice(invoiceId: number): Observable<Car[]> {
+    return this.http.get<Car[]>(`${this.apiUrl}/GetByPurchaseInvoice/${invoiceId}`);
+  }
+
   /**
    * Get only available vehicles (status = 'Available', not sold or reserved)
    * Used by Vehicle Lookup Modal in Sales Invoice
@@ -51,18 +55,36 @@ export class InventoryService {
   // POST
   // =======================
 async addCar(car: Omit<Car, 'id' | 'totalCost'>): Promise<Car> {
-  const newCar = { ...car, totalCost: car.purchasePrice + car.additionalCosts };
-  // Format istimaraExpiry as "yyyy-MM-dd" or set to null
+  const newCar = { ...car };
+  
+  // Remove any undefined or null values that shouldn't be sent
+  Object.keys(newCar).forEach(key => {
+    if (newCar[key as keyof typeof newCar] === undefined || newCar[key as keyof typeof newCar] === '') {
+      delete newCar[key as keyof typeof newCar];
+    }
+  });
+  
+  // Format istimaraExpiry as "yyyy-MM-dd" or remove it if invalid
   if (newCar.istimaraExpiry) {
     const date = new Date(newCar.istimaraExpiry);
     if (!isNaN(date.getTime())) {
       newCar.istimaraExpiry = date.toISOString().split('T')[0]; // "yyyy-MM-dd"
     } else {
-      newCar.istimaraExpiry = null;
+      delete (newCar as any).istimaraExpiry;
     }
-  } else {
-    newCar.istimaraExpiry = null;
   }
+  
+  // Format purchaseDate similarly
+  if (newCar.purchaseDate) {
+    const date = new Date(newCar.purchaseDate);
+    if (!isNaN(date.getTime())) {
+      newCar.purchaseDate = date.toISOString().split('T')[0];
+    } else {
+      delete (newCar as any).purchaseDate;
+    }
+  }
+  
+  console.log('Sending car data to backend:', newCar);
   const addedCar = await firstValueFrom(this.http.post<Car>(this.apiUrl + '/Create', newCar));
   // Refresh the cars list
   this.loadCars();

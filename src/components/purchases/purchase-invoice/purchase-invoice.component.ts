@@ -362,6 +362,7 @@ export class PurchaseInvoiceComponent implements OnInit {
 
   private initForm(): void {
     this.purchaseInvoiceForm = this.fb.group({
+      invoiceNumber: ['', Validators.required], // User-entered invoice number
       supplierId: [null, Validators.required],
       debitAccountId: [null, Validators.required],
       creditAccountId: [null, Validators.required],
@@ -379,13 +380,6 @@ export class PurchaseInvoiceComponent implements OnInit {
 
     // Set initial invoice type
     this.invoiceType.set(InvoiceType.Taxable);
-
-    // Generate invoice number
-    const newInvoiceNumber = `PO-${Date.now()}`;
-    this.invoiceNumberSignal.set(newInvoiceNumber);
-    this.purchaseInvoiceForm.patchValue({
-      invoiceNumber: newInvoiceNumber
-    });
   }
 
   private accountValidator(group: AbstractControl): { [key: string]: any } | null {
@@ -413,6 +407,7 @@ export class PurchaseInvoiceComponent implements OnInit {
       next: (invoice) => {
         // Initialize form with existing invoice data
         this.purchaseInvoiceForm = this.fb.group({
+          invoiceNumber: [invoice.invoiceNumber || '', Validators.required],
           supplierId: [invoice.supplierId, Validators.required],
           debitAccountId: [invoice.debitAccountId, Validators.required],
           creditAccountId: [invoice.creditAccountId, Validators.required],
@@ -424,7 +419,7 @@ export class PurchaseInvoiceComponent implements OnInit {
           notes: [invoice.notes || ''],
         }, { validators: [this.accountValidator, this.dueDateValidator] });
 
-        // Set invoice number
+        // Set invoice number signal
         this.invoiceNumberSignal.set(invoice.invoiceNumber);
 
         // Set invoice type signal
@@ -616,7 +611,7 @@ export class PurchaseInvoiceComponent implements OnInit {
     }
 
     const newInvoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue' | 'createdAt' | 'updatedAt' | 'supplier' | 'debitAccount' | 'creditAccount'> = {
-      invoiceNumber: this.invoiceNumberSignal(), // Use the signal value
+      invoiceNumber: formValue.invoiceNumber, // Use the form value
       invoiceDate: formValue.invoiceDate.toISOString(),
       supplierId: supplierId,
       debitAccountId: formValue.debitAccountId,

@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { PaymentVoucher } from '../models/payment-voucher.model';
+import { Payment } from '../models/payment.model';
 import { CarPaymentVoucher } from '../models/car-payment-voucher.model';
 import { Observable, tap, forkJoin, of } from 'rxjs';
 import { environment } from '../environments/environment';
@@ -25,16 +25,16 @@ export class PaymentService {
   constructor() {}
 
   // إضافة دفع عبر API باستخدام نموذج Voucher الموحد
-  addPayment(payment: Partial<PaymentVoucher>): Observable<PaymentVoucher> {
-    return this.http.post<PaymentVoucher>(this.apiUrl+'/Create', payment);
+  addPayment(payment: Partial<Payment>): Observable<Payment> {
+    return this.http.post<Payment>(this.apiUrl+'/Create', payment);
   }
  // إضافة دفع عبر API باستخدام نموذج Voucher الموحد
-  updatePayment(payment: Partial<PaymentVoucher>,paymentId: number): Observable<PaymentVoucher> {
-    return this.http.post<PaymentVoucher>(this.apiUrl+'/Update', payment);
+  updatePayment(payment: Partial<Payment>,paymentId: number): Observable<Payment> {
+    return this.http.post<Payment>(this.apiUrl+'/Update', payment);
   }
   // استدعاء كل المدفوعات
-  getPayments(): Observable<PaymentVoucher[]> {
-    return this.http.get<PaymentVoucher[]>(this.apiUrl+`/GetAll`);
+  getPayments(): Observable<Payment[]> {
+    return this.http.get<Payment[]>(this.apiUrl+`/GetAll`);
   }
 
   // استدعاء كل المدفوعات مع خيارات التحميل
@@ -43,8 +43,8 @@ export class PaymentService {
   }
 
   // استدعاء دفعة واحدة بالمعرف
-  getPaymentById(id: number): Observable<PaymentVoucher> {
-    return this.http.get<PaymentVoucher>(`${this.apiUrl}/GetById/${id}`);
+  getPaymentById(id: number): Observable<Payment> {
+    return this.http.get<Payment>(`${this.apiUrl}/GetById/${id}`);
   }
 
   // حذف دفعة

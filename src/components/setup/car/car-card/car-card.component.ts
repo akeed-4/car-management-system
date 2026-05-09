@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal, OnInit, computed, effect, ChangeDetectorRef } from '@angular/core';
-import { ReactiveFormsModule, FormGroup, FormBuilder } from '@angular/forms';
+import { ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,6 +11,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { InventoryService } from '../../../../services/inventory.service';
 import { GeminiService } from '../../../../services/gemini.service';
@@ -192,7 +193,7 @@ private translate = inject(TranslateService);
       interiorColor: [''],
       mileage: [0],
       transmission: ['Automatic'],
-      engineSize: [''],
+      engineSize: ['', Validators.required],
       status: ['Available'],
       currentLocation: ['In Showroom'],
       photos: [[]], // Initialize as empty array
@@ -200,7 +201,7 @@ private translate = inject(TranslateService);
       additionalCosts: [0],
       totalCost: [0],
       salePrice: [0],
-      description: [''],
+      description: ['', Validators.required],
       purchaseDate: [new Date().toISOString().split('T')[0]],
       floorPlanId: [null],
       isArchived: [false],
@@ -299,20 +300,44 @@ backToCard(): void {
 
   async saveCar(): Promise<void> {
     if (this.carForm.valid) {
+      const formValue = this.carForm.value;
+      
+      // Remove fields that don't belong in the API request
+      const { id, manufacturerId, modelId, trackByBatch, totalCost, ...carData } = formValue;
+      
       const carToSave = {
-        ...this.carForm.value,
+        ...carData,
         model: this.selectedModel(),
-        totalCost: this.calculatedTotalCost()
-      } as Car;
+        totalCost: this.calculatedTotalCost(),
+        // Ensure required fields have proper values
+        purchasePrice: carData.purchasePrice || 0,
+        additionalCosts: carData.additionalCosts || 0,
+        salePrice: carData.salePrice || 0,
+        mileage: carData.mileage || 0,
+        quantity: carData.quantity || 1,
+        photos: Array.isArray(carData.photos) ? carData.photos : [],
+        // Convert empty strings to null for optional fields
+        floorPlanId: carData.floorPlanId || null,
+        categoryId: carData.categoryId || null,
+        chassisNumber: carData.chassisNumber || null,
+        ownerName: carData.ownerName || null,
+        ownerIdNumber: carData.ownerIdNumber || null,
+        ownerPhone: carData.ownerPhone || null,
+        authorizedSellerName: carData.authorizedSellerName || null,
+        authorizedSellerIdNumber: carData.authorizedSellerIdNumber || null,
+        authorizedSellerPhone: carData.authorizedSellerPhone || null,
+        authorizationDocumentNumber: carData.authorizationDocumentNumber || null,
+        carType: carData.carType || null,
+        transportationType: carData.transportationType || null
+      };
 
       try {
         if (this.editMode()) {
-          await this.inventoryService.updateCar(carToSave).toPromise();
-          this.notificationService.showSuccess( this.translate.instant('TOAST.EDIT_SUCCESS'));
+          const carToUpdate = { ...carToSave, id: formValue.id };
+          await this.inventoryService.updateCar(carToUpdate as Car).toPromise();
+          this.notificationService.showSuccess(this.translate.instant('TOAST.EDIT_SUCCESS'));
         } else {
-          // id is not present on new cars
-          const { id, ...newCar } = carToSave;
-          await this.inventoryService.addCar(newCar as Omit<Car, 'id'>);
+          await this.inventoryService.addCar(carToSave as any);
           this.notificationService.showSuccess(this.translate.instant('TOAST.ADD_SUCCESS'));
         }
         // Refresh the cars list
@@ -320,7 +345,22 @@ backToCard(): void {
         this.router.navigate(['/setup/cars']);
       } catch (error) {
         console.error('Error saving car:', error);
-        this.notificationService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
+        if (error instanceof HttpErrorResponse) {
+          if (error.error?.errors) {
+            // Extract validation errors from the response
+            const validationErrors = Object.entries(error.error.errors)
+              .map(([field, messages]) => `${field}: ${Array.isArray(messages) ? messages.join(', ') : messages}`)
+              .join('\n');
+            console.error('Validation errors:', validationErrors);
+            this.notificationService.showError(`Validation failed:\n${validationErrors}`);
+          } else if (error.error?.title) {
+            this.notificationService.showError(error.error.title);
+          } else {
+            this.notificationService.showError(`Error: ${error.status} - ${error.statusText}`);
+          }
+        } else {
+          this.notificationService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
+        }
       }
     } else {
       this.notificationService.showWarning(this.translate.instant('TOAST.VALIDATION_ERROR'));
