@@ -460,6 +460,21 @@ only screen and (max-device-width: 740px) {
 .example-sidenav-content {
     width: 100% !important;
     padding: 0 !important;
+    transition: margin-left 300ms ease, margin-right 300ms ease, width 300ms ease;
+    box-sizing: border-box;
+}
+
+/* When sidenav is open, shift the page content instead of overlaying */
+.example-sidenav-content.sidenav-open {
+    margin-left: var(--sidebar-width, 256px);
+    width: calc(100% - var(--sidebar-width, 256px)) !important;
+}
+
+/* RTL support: shift from the right instead */
+.example-sidenav-content.rtl.sidenav-open {
+    margin-right: var(--sidebar-width, 256px);
+    margin-left: 0;
+    width: calc(100% - var(--sidebar-width, 256px)) !important;
 }
 
 /* Remove per-component max-widths and let .container fill the available space */

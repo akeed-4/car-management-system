@@ -1,5 +1,3 @@
-/* Material Design Styles for Payment Form */
-
 .form-card {
   margin: 16px auto;
   max-width: 1200px;
@@ -14,19 +12,28 @@
 }
 
 .form-section {
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(0,0,0,.12);
   border-radius: 8px;
   padding: 1.5rem;
-  background-color: #fafafa;
-}
+  background: #fafafa;
 
-.form-section h3 {
-  margin: 0 0 1rem 0;
-  color: rgba(0, 0, 0, 0.87);
-  font-size: 1.25rem;
-  font-weight: 500;
-  border-bottom: 2px solid #1976d2;
-  padding-bottom: 0.5rem;
+  h3 {
+    margin: 0 0 1rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-bottom: 2px solid #1976d2;
+    padding-bottom: .5rem;
+    color: rgba(0,0,0,.87);
+  }
+
+  h4 {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 .5rem;
+    font-size: 1rem;
+    font-weight: 500;
+  }
 }
 
 .form-row {
@@ -41,320 +48,114 @@
   min-width: 200px;
 }
 
-.distribute-btn {
-  align-self: flex-end;
-  margin-top: 16px;
+.debit-field .mat-mdc-text-field-wrapper  { border-left: 3px solid #d32f2f; }
+.credit-field .mat-mdc-text-field-wrapper { border-left: 3px solid #388e3c; }
+
+.field-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  margin-right: 4px;
 }
 
 .table-container {
   overflow-x: auto;
   border-radius: 4px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(0,0,0,.12);
 }
 
 .distribution-table {
   width: 100%;
   border-collapse: collapse;
-  background-color: white;
+  background: #fff;
+
+  th, td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid rgba(0,0,0,.08);
+  }
+
+  th {
+    font-weight: 500;
+    font-size: .85rem;
+    color: rgba(0,0,0,.6);
+    background: #f5f5f5;
+  }
 }
 
-.distribution-table th,
-.distribution-table td {
-  padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-}
-
-.distribution-table th {
-  font-weight: 500;
-  color: rgba(0, 0, 0, 0.6);
-  background-color: #f5f5f5;
-}
-
-.table-field {
-  width: 100%;
-  margin-bottom: 0;
-}
+.table-field { width: 100%; }
 
 .invoice-details-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
   gap: 1rem;
-  margin-top: 1rem;
 }
 
 .detail-item {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-}
+  gap: .25rem;
 
-.detail-item .label {
-  font-weight: 500;
-  color: rgba(0, 0, 0, 0.6);
-  font-size: 0.875rem;
-}
-
-.detail-item .value {
-  font-size: 1.125rem;
-  font-weight: 500;
-  color: rgba(0, 0, 0, 0.87);
-}
-
-.detail-item .value.due-amount {
-  color: #d32f2f;
+  .label { font-size: .8rem; color: rgba(0,0,0,.55); font-weight: 500; }
+  .value { font-size: 1rem; font-weight: 600; }
+  .due-amount { color: #d32f2f; }
 }
 
 .accounting-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  margin: 1rem 0;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
 }
 
-.accounting-section h4 {
-  margin: 0 0 0.5rem 0;
-  color: rgba(0, 0, 0, 0.87);
-  font-size: 1rem;
-  font-weight: 500;
+.accounting-card {
+  border-radius: 6px;
+  padding: 1rem;
+  border: 1px solid rgba(0,0,0,.1);
+
+  &.debit-card  { background: #fff8f8; border-top: 3px solid #d32f2f; h4 { color: #d32f2f; } }
+  &.credit-card { background: #f8fff8; border-top: 3px solid #388e3c; h4 { color: #388e3c; } }
 }
 
 .accounting-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem;
-  background-color: white;
+  padding: .5rem;
+  background: #fff;
   border-radius: 4px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-}
+  border: 1px solid rgba(0,0,0,.08);
 
-.accounting-item .amount {
-  font-weight: 500;
-  color: #1976d2;
+  .debit-amount  { color: #d32f2f; font-weight: 600; }
+  .credit-amount { color: #388e3c; font-weight: 600; }
 }
 
 .difference-section {
-  margin-top: 1rem;
-  padding: 1rem;
+  padding: .75rem 1rem;
   border-radius: 4px;
   text-align: center;
-  font-size: 1.125rem;
+  font-size: 1rem;
+
+  &:not(.error) { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+  &.error       { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
 }
 
-.difference-section.error {
-  background-color: #ffebee;
-  color: #d32f2f;
-  border: 1px solid #ffcdd2;
-}
-
-.difference-section:not(.error) {
-  background-color: #e8f5e8;
-  color: #2e7d32;
-  border: 1px solid #c8e6c9;
-}
-
-.notes-field {
-  width: 100%;
-}
+.notes-field   { width: 100%; }
+.distribute-btn { margin-top: 16px; }
+.spacer        { flex: 1 1 auto; }
+.back-link     { color: #fff !important; }
 
 .form-actions {
   padding: 1rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
-  background-color: #fafafa;
+  border-top: 1px solid rgba(0,0,0,.12);
+  background: #fafafa;
+  display: flex;
+  gap: .75rem;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
-  .form-container {
-    padding: 0.5rem;
-    gap: 1rem;
-  }
-
-  .form-section {
-    padding: 1rem;
-  }
-
-  .form-row {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .form-field {
-    min-width: auto;
-  }
-
-  .accounting-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .invoice-details-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.form-actions {
-  padding-top: 1.5rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
-}
-
-.back-link {
-  color: white;
-}
-
-.detail-item .value {
-  font-size: 1rem;
-  color: rgba(0, 0, 0, 0.87);
-}
-
-.detail-item .value.due-amount {
-  color: #f44336;
-  font-weight: 500;
-}
-
-.details-card {
-  margin-bottom: 1.5rem;
-}
-
-.details-card mat-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.details-card dx-data-grid {
-  margin-bottom: 1rem;
-}
-
-.grid-field {
-  width: 100%;
-  margin: 0;
-}
-
-.grid-field .mat-mdc-form-field-infix {
-  padding-top: 8px;
-  padding-bottom: 8px;
-}
-
-.grid-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
-}
-
-.total-amount {
-  text-align: right;
-  font-size: 1.1rem;
-  color: #1976d2;
-}
-
-.notes-field {
-  width: 100%;
-  margin-bottom: 1.5rem;
-}
-
-.form-actions {
-  padding-top: 1.5rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
-}
-
-.back-link {
-  color: white;
-
-  margin-bottom: 1rem;
-  font-weight: 500;
-}
-
-.supplier-invoice-section {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.invoice-details-card {
-  margin: 1rem 0;
-}
-
-.invoice-details-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-}
-
-.detail-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.label {
-  font-size: 0.875rem;
-  color: rgba(0, 0, 0, 0.6);
-  font-weight: 500;
-}
-
-.value {
-  font-size: 1rem;
-  font-weight: 500;
-  font-family: 'Roboto Mono', monospace;
-}
-
-.due-amount {
-  color: #d32f2f;
-}
-
-.payment-details-section {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
-}
-
-.form-actions {
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
-}
-
-.spacer {
-  flex: 1 1 auto;
-}
-
-.back-link {
-  color: white !important;
-  text-decoration: none;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .header-section,
-  .supplier-invoice-section,
-  .invoice-details-grid,
-  .payment-details-section {
-    grid-template-columns: 1fr;
-  }
-
-  .form-card {
-    margin: 1rem;
-  }
-
-  .form-grid {
-    gap: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .form-card {
-    margin: 0.5rem;
-  }
-
-  .invoice-details-grid {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
-  }
+  .form-row        { flex-direction: column; gap: .5rem; }
+  .form-field      { min-width: auto; }
+  .accounting-grid { grid-template-columns: 1fr; }
 }

@@ -82,7 +82,7 @@
         </div>
     </mat-sidenav>
 
-    <div class="example-sidenav-content">
+    <div class="example-sidenav-content" [class.sidenav-open]="sideNavOpen && !isMobile" [class.rtl]="textDir === 'rtl'">
 
         <div class="dx-viewport" id="margin-body">
             <div class="container">

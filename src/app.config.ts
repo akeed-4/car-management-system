@@ -7,6 +7,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { HttpClient } from '@angular/common/http';
 import { APP_ROUTES } from './app.routes';
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
+import { ApiResponseInterceptor } from './interceptors/api-response.interceptor';
 
 // Factory function for TranslateHttpLoader
 export function HttpLoaderFactory(http: HttpClient) {
@@ -22,6 +23,12 @@ export const appConfig: ApplicationConfig = {
     {
       provide: HTTP_INTERCEPTORS,
       useClass: JwtInterceptor,
+      multi: true
+    },
+    // Register ApiResponse unwrapping interceptor
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ApiResponseInterceptor,
       multi: true
     },
     importProvidersFrom(

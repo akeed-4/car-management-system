@@ -179,6 +179,9 @@
     "UPDATE": "تحديث",
     "CREATE": "إنشاء"
   },
+  "VALIDATION": {
+    "REQUIRED": "هذا الحقل مطلوب"
+  },
   "QUOTATIONS": {
     "TITLE": "عروض الأسعار",
     "ADD_NEW": "إضافة جديد",
@@ -1164,10 +1167,39 @@
       "ERROR_LOADING": "خطأ في تحميل السند",
       "ERROR_UPDATING": "خطأ في تحديث السند",
       "ERROR_SAVING": "خطأ في حفظ السند"
-    }
-  },
-  "MANUFACTURERS": {
-    "TITLE": "إدارة المصنعين",
+    },
+    "FORM": {
+      "TITLE": "إنشاء سند صرف",
+      "BACK": "العودة إلى سندات الصرف",
+      "PAYMENT_DETAILS": "تفاصيل الدفع",
+      "VOUCHER_NUMBER": "رقم السند",
+      "DATE": "التاريخ",
+      "DEBIT_ACCOUNT": "الحساب المدين",
+      "SELECT_ACCOUNT": "-- اختر الحساب --",
+      "CREDIT_ACCOUNT": "الحساب الدائن",
+      "INVOICE_SELECTION": "اختيار الفاتورة",
+      "INVOICE": "الفاتورة المستحقة",
+      "SELECT_INVOICE": "-- اختر الفاتورة --",
+      "SELECTED_INVOICE_DETAILS": "تفاصيل الفاتورة المحددة",
+      "TOTAL": "الإجمالي",
+      "PAID": "المدفوع",
+      "DUE": "المستحق",
+      "AMOUNT": "المبلغ",
+      "TOTAL_VOUCHER_AMOUNT": "إجمالي مبلغ السند",
+      "AUTO_DISTRIBUTE": "توزيع تلقائي",
+      "CAR_DISTRIBUTION": "توزيع السيارات",
+      "CHASSIS_NUMBER": "رقم الهيكل",
+      "MODEL": "الموديل",
+      "ACCOUNTING_PREVIEW": "المعاينة المحاسبية",
+      "DEBIT": "مدين",
+      "CREDIT": "دائن",
+      "DIFFERENCE": "الفرق",
+      "NOTES": "ملاحظات",
+      "CANCEL": "إلغاء",
+      "SAVE": "حفظ سند الصرف",
+      "UPDATE": "تحديث",
+      "AUTO_DISTRIBUTE_TOOLTIP": "توزيع الإجمالي تلقائيًا بين صفوف السيارات"
+    },
     "ADD_NEW": "إضافة مصنع جديد",
     "EDIT_TITLE": "تعديل المصنع",
     "NAME_LABEL": "اسم المصنع",

@@ -1,7 +1,7 @@
 import { Account } from '../components/accounting/models';
 import { Car } from './car.model';
 import { PurchaseInvoice } from './purchase-invoice.model';
-import { Voucher } from './voucher.model';
+import { Voucher, VoucherStatus } from './voucher.model';
 
 export enum BeneficiaryType {
   Supplier = 1,
@@ -9,30 +9,30 @@ export enum BeneficiaryType {
   Customer = 3
 }
 
-export interface Payment extends Voucher {
-  beneficiaryType: BeneficiaryType;
-  beneficiaryId?: number;
-  accountId: number; // Source account for the payment
-
-  // ربط الدفعة بفاتورة شراء كاملة
-  purchaseInvoiceId?: number;
-  purchaseInvoice?: PurchaseInvoice;
-
-  details: PaymentDetail[];
+export interface Payment {
+  id?:               number;
+  voucherNumber:     string;
+  voucherDate:       Date;
+  amount:            number;
+  status:            VoucherStatus;
+  notes?:            string;
+  createdBy:         number;
+  createdAt?:        Date;
+  updatedAt?:        Date;
+  beneficiaryType:   BeneficiaryType;
+  beneficiaryId?:    number;
+  purchaseInvoiceId?:number;
+  debitAccountId:    number;      // ← NEW
+  creditAccountId:   number;      // ← NEW
+  details:           PaymentDetail[];
 }
 
 export interface PaymentDetail {
-  id?: number;
-  paymentId?: number;
-
-  expenseAccountId?: number;
-  expenseAccount?: any; // Account type
-
+  id?:           number;
+  paymentId?:    number;
+  carId?:        number;
   chassisNumber: string;
-  model: string;
-  carId?: number;
-  car?: Car;
-
-  amount: number;
-  note?: string;
+  model:         string;
+  amount:        number;
+  note?:         string;
 }

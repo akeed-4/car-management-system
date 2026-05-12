@@ -8,15 +8,14 @@ export class ReceiptVoucher {
   voucherDate!: Date;
   amount!: number;
   paymentMethod!: PaymentMethod;
-  accountId!: number; // Cash / Bank
+  creditAccountId!: number; // Cash / Bank
+  debitAccountId!: number;  // Customer
   status!: VoucherStatus;
   notes?: string;
   createdAt: Date = new Date();
   createdBy!: number;
-customerId?: number;
+  customerId?: number;
   // Beneficiary fields
-  beneficiaryType!: BeneficiaryType;
-  beneficiaryId!: number; // Supplier / Employee / Customer
   referenceId?: number;   // Expense / Invoice
 
   // Legacy fields
@@ -34,7 +33,8 @@ export interface SimpleReceiptVoucher {
   totalAmount: number;
   date: string;
   paymentMethod: string;
-  sourceAccountId: number;
+  creditAccountId: number;
+  debitAccountId: number;
   details: SimpleReceiptDetail[];
 }
 

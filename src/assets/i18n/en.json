@@ -178,6 +178,9 @@
     "UPDATE": "Update",
     "CREATE": "Create"
   },
+  "VALIDATION": {
+    "REQUIRED": "This field is required"
+  },
   "QUOTATIONS": {
     "TITLE": "Quotations",
     "ADD_NEW": "Add New",
@@ -1070,6 +1073,38 @@
       "ERROR_SAVING": "Error saving payment"
 
       }
+    },
+    "FORM": {
+      "TITLE": "Create Payment Voucher",
+      "BACK": "Back to Payments",
+      "PAYMENT_DETAILS": "Payment Details",
+      "VOUCHER_NUMBER": "Voucher Number",
+      "DATE": "Date",
+      "DEBIT_ACCOUNT": "Debit Account",
+      "SELECT_ACCOUNT": "-- Select account --",
+      "CREDIT_ACCOUNT": "Credit Account",
+      "INVOICE_SELECTION": "Invoice Selection",
+      "INVOICE": "Outstanding Invoice",
+      "SELECT_INVOICE": "-- Select invoice --",
+      "SELECTED_INVOICE_DETAILS": "Selected Invoice Details",
+      "TOTAL": "Total",
+      "PAID": "Paid",
+      "DUE": "Due",
+      "AMOUNT": "Amount",
+      "TOTAL_VOUCHER_AMOUNT": "Total Voucher Amount",
+      "AUTO_DISTRIBUTE": "Auto Distribute",
+      "CAR_DISTRIBUTION": "Car Distribution",
+      "CHASSIS_NUMBER": "Chassis Number",
+      "MODEL": "Model",
+      "ACCOUNTING_PREVIEW": "Accounting Preview",
+      "DEBIT": "Debit",
+      "CREDIT": "Credit",
+      "DIFFERENCE": "Difference",
+      "NOTES": "Notes",
+      "CANCEL": "Cancel",
+      "SAVE": "Save Payment Voucher",
+      "UPDATE": "Update",
+      "AUTO_DISTRIBUTE_TOOLTIP": "Automatically distribute the total among car rows"
     },
    
     "DEPOSITS": {

@@ -12,63 +12,115 @@
 <mat-card class="form-card">
   <mat-card-content>
     <form [formGroup]="receiptForm" (ngSubmit)="saveReceipt()">
-      <div class="form-grid">
+      <div class="form-container">
+
         <!-- Header Section -->
-        <div class="header-section">
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.VOUCHER_NUMBER' | translate }}</mat-label>
-            <input matInput type="text" formControlName="voucherNumber" readonly>
-          </mat-form-field>
+        <div class="form-section header-section">
+          <h3>{{ 'ACCOUNTS.RECEIPT_FORM.RECEIPT_DETAILS' | translate }}</h3>
 
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.DATE' | translate }}</mat-label>
-            <input matInput type="date" formControlName="voucherDate" required>
-          </mat-form-field>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.VOUCHER_NUMBER' | translate }}</mat-label>
+              <input matInput formControlName="voucherNumber" readonly>
+            </mat-form-field>
 
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.TOTAL_AMOUNT_RECEIVED' | translate }}</mat-label>
-            <input matInput type="number" formControlName="totalAmountReceived" required min="0.01">
-          </mat-form-field>
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.DATE' | translate }}</mat-label>
+              <input matInput type="date" formControlName="voucherDate" required>
+            </mat-form-field>
+          </div>
 
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.RECEIPT_METHOD' | translate }}</mat-label>
-            <mat-select formControlName="receiptMethod" required>
-              <mat-option value="CASH">{{ 'INVOICE.PAYMENT_CASH' | translate }}</mat-option>
-              <mat-option value="BANK_TRANSFER">{{ 'INVOICE.PAYMENT_BANK_TRANSFER' | translate }}</mat-option>
-            </mat-select>
-          </mat-form-field>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.RECEIPT_METHOD' | translate }}</mat-label>
+              <mat-select formControlName="receiptMethod" required>
+                <mat-option value="CASH">{{ 'INVOICE.PAYMENT_CASH' | translate }}</mat-option>
+                <mat-option value="BANK_TRANSFER">{{ 'INVOICE.PAYMENT_BANK_TRANSFER' | translate }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.TOTAL_AMOUNT_RECEIVED' | translate }}</mat-label>
+              <input matInput type="number" formControlName="totalAmountReceived" required min="0.01">
+            </mat-form-field>
+          </div>
+
+          <!-- Debit / Credit Accounts Row -->
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field debit-field">
+              <mat-label>
+                <mat-icon class="field-icon">arrow_upward</mat-icon>
+                {{ 'ACCOUNTS.RECEIPT_FORM.DEBIT_ACCOUNT' | translate }}
+              </mat-label>
+              <mat-select formControlName="debitAccountId" required>
+                <mat-option [value]="null" disabled>
+                  {{ 'ACCOUNTS.RECEIPT_FORM.SELECT_ACCOUNT' | translate }}
+                </mat-option>
+                <mat-option *ngFor="let acc of accounts(); trackBy: trackByAccountId" [value]="acc.id">
+                  {{ acc.accountCode }} - {{ acc.accountNameAr }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="receiptForm.get('debitAccountId')?.hasError('required')">
+                {{ 'VALIDATION.REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field credit-field">
+              <mat-label>
+                <mat-icon class="field-icon">arrow_downward</mat-icon>
+                {{ 'ACCOUNTS.RECEIPT_FORM.CREDIT_ACCOUNT' | translate }}
+              </mat-label>
+              <mat-select formControlName="creditAccountId" required>
+                <mat-option [value]="null" disabled>
+                  {{ 'ACCOUNTS.RECEIPT_FORM.SELECT_ACCOUNT' | translate }}
+                </mat-option>
+                <mat-option *ngFor="let acc of accounts(); trackBy: trackByAccountId" [value]="acc.id">
+                  {{ acc.accountCode }} - {{ acc.accountNameAr }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="receiptForm.get('creditAccountId')?.hasError('required')">
+                {{ 'VALIDATION.REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
         </div>
 
-        <!-- Account & Customer Selection -->
-        <div class="account-customer-section">
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.TARGET_ACCOUNT' | translate }}</mat-label>
-            <mat-select formControlName="targetAccountId" required>
-              <mat-option [value]="null" disabled>{{ 'ACCOUNTS.RECEIPT_FORM.SELECT_ACCOUNT' | translate }}</mat-option>
-              <mat-option *ngFor="let acc of accounts(); trackBy: trackByAccountId" [value]="acc.id">{{ acc.accountCode }} - {{ acc.accountNameAr }}</mat-option>
-            </mat-select>
-          </mat-form-field>
+        <!-- Customer Selection -->
+        <div class="form-section customer-section">
+          <h3>{{ 'ACCOUNTS.RECEIPT_FORM.CUSTOMER_SELECTION' | translate }}</h3>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.CUSTOMER' | translate }}</mat-label>
+              <mat-select formControlName="customerId"
+                          (selectionChange)="onCustomerChange($event.value)" required>
+                <mat-option [value]="null" disabled>
+                  {{ 'ACCOUNTS.RECEIPT_FORM.SELECT_CUSTOMER' | translate }}
+                </mat-option>
+                <mat-option *ngFor="let c of customers(); trackBy: trackByCustomerId" [value]="c.id">
+                  {{ c.name }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="receiptForm.get('customerId')?.hasError('required')">
+                {{ 'VALIDATION.REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
 
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.CUSTOMER' | translate }}</mat-label>
-            <mat-select formControlName="customerId" (selectionChange)="onCustomerChange($event.value)" required>
-              <mat-option [value]="null" disabled>{{ 'ACCOUNTS.RECEIPT_FORM.SELECT_CUSTOMER' | translate }}</mat-option>
-              <mat-option *ngFor="let c of customers(); trackBy: trackByCustomerId" [value]="c.id">{{ c.name }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <button mat-raised-button color="accent" type="button" (click)="distributeAmount()" [disabled]="!receiptForm.get('totalAmountReceived')?.value || allocations.length === 0">
-            <mat-icon>call_split</mat-icon>
-            {{ 'ACCOUNTS.RECEIPT_FORM.DISTRIBUTE' | translate }}
-          </button>
+            <div class="form-field distribute-wrapper">
+              <button mat-raised-button color="accent" type="button"
+                      (click)="distributeAmount()"
+                      [disabled]="!receiptForm.get('totalAmountReceived')?.value || allocations.length === 0"
+                      class="distribute-btn">
+                <mat-icon>call_split</mat-icon>
+                {{ 'ACCOUNTS.RECEIPT_FORM.DISTRIBUTE' | translate }}
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Allocation Table -->
-        <mat-card class="allocation-card" *ngIf="allocations.length > 0">
-          <mat-card-header>
-            <mat-card-title>{{ 'ACCOUNTS.RECEIPT_FORM.ALLOCATION_TABLE' | translate }}</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
+        <div class="form-section allocation-section" *ngIf="allocations.length > 0">
+          <h3>{{ 'ACCOUNTS.RECEIPT_FORM.ALLOCATION_TABLE' | translate }}</h3>
+          <div class="table-container">
             <table class="allocation-table">
               <thead>
                 <tr>
@@ -78,67 +130,84 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let allocation of allocations.controls; let i = index" [formGroup]="allocation">
-                  <td>
-                    <span>{{ allocation.get('reference')?.value }}</span>
-                  </td>
-                  <td>
-                    <span>{{ allocation.get('originalBalance')?.value | currency:'SAR' }}</span>
-                  </td>
+                <tr *ngFor="let allocation of allocations.controls; let i = index"
+                    [formGroup]="allocation">
+                  <td>{{ allocation.get('reference')?.value }}</td>
+                  <td>{{ allocation.get('originalBalance')?.value | currency:'SAR' }}</td>
                   <td>
                     <mat-form-field appearance="outline" class="table-field">
-                      <input matInput type="number" formControlName="amountToPay" min="0" [max]="allocation.get('originalBalance')?.value">
+                      <input matInput type="number" formControlName="amountToPay"
+                             min="0"
+                             [max]="allocation.get('originalBalance')?.value">
                     </mat-form-field>
                   </td>
                 </tr>
               </tbody>
             </table>
-          </mat-card-content>
-        </mat-card>
+          </div>
+        </div>
 
         <!-- Accounting Preview -->
-        <mat-card class="accounting-card">
-          <mat-card-header>
-            <mat-card-title>{{ 'ACCOUNTS.RECEIPT_FORM.ACCOUNTING_PREVIEW' | translate }}</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="accounting-grid">
-              <div class="accounting-section">
-                <h4>{{ 'ACCOUNTS.RECEIPT_FORM.DEBIT' | translate }}</h4>
-                <div class="accounting-item">
-                  <span>{{ 'ACCOUNTS.RECEIPT_FORM.TARGET_ACCOUNT' | translate }}</span>
-                  <span class="amount">{{ totalAmountReceived() | currency:'SAR' }}</span>
-                </div>
-              </div>
-              <div class="accounting-section">
-                <h4>{{ 'ACCOUNTS.RECEIPT_FORM.CREDIT' | translate }}</h4>
-                <div class="accounting-item">
-                  <span>{{ 'ACCOUNTS.RECEIPT_FORM.CUSTOMER_RECEIVABLES' | translate }}</span>
-                  <span class="amount">{{ totalAllocated() | currency:'SAR' }}</span>
-                </div>
+        <div class="form-section accounting-section">
+          <h3>{{ 'ACCOUNTS.RECEIPT_FORM.ACCOUNTING_PREVIEW' | translate }}</h3>
+          <div class="accounting-grid">
+
+            <div class="accounting-card debit-card">
+              <h4>
+                <mat-icon>arrow_upward</mat-icon>
+                {{ 'ACCOUNTS.RECEIPT_FORM.DEBIT' | translate }}
+              </h4>
+              <div class="accounting-item">
+                <span>{{ getAccountName(receiptForm.get('debitAccountId')?.value) }}</span>
+                <span class="amount debit-amount">
+                  {{ receiptForm.get('totalAmountReceived')?.value | currency:'SAR' }}
+                </span>
               </div>
             </div>
-            <div class="balance-section" [class.warning]="unallocatedBalance() !== 0">
-              <strong>{{ 'ACCOUNTS.RECEIPT_FORM.UNALLOCATED_BALANCE' | translate }}: {{ unallocatedBalance() | currency:'SAR' }}</strong>
+
+            <div class="accounting-card credit-card">
+              <h4>
+                <mat-icon>arrow_downward</mat-icon>
+                {{ 'ACCOUNTS.RECEIPT_FORM.CREDIT' | translate }}
+              </h4>
+              <div class="accounting-item">
+                <span>{{ getAccountName(receiptForm.get('creditAccountId')?.value) }}</span>
+                <span class="amount credit-amount">
+                  {{ totalAllocated() | currency:'SAR' }}
+                </span>
+              </div>
             </div>
-          </mat-card-content>
-        </mat-card>
+
+          </div>
+
+          <div class="difference-section" [class.error]="unallocatedBalance() !== 0">
+            <strong>
+              {{ 'ACCOUNTS.RECEIPT_FORM.UNALLOCATED_BALANCE' | translate }}:
+              {{ unallocatedBalance() | currency:'SAR' }}
+            </strong>
+          </div>
+        </div>
 
         <!-- Notes -->
-        <mat-form-field appearance="outline" class="notes-field">
-          <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.NOTES' | translate }}</mat-label>
-          <textarea matInput formControlName="notes" rows="3"></textarea>
-        </mat-form-field>
+        <div class="form-section notes-section">
+          <mat-form-field appearance="outline" class="notes-field">
+            <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.NOTES' | translate }}</mat-label>
+            <textarea matInput formControlName="notes" rows="3"></textarea>
+          </mat-form-field>
+        </div>
+
       </div>
 
       <mat-card-actions align="end" class="form-actions">
         <a mat-stroked-button routerLink="/accounts/receipts">
           {{ 'ACCOUNTS.RECEIPT_FORM.CANCEL' | translate }}
         </a>
-        <button mat-raised-button color="primary" type="submit" [disabled]="receiptForm.invalid || unallocatedBalance() !== 0">
+        <button mat-raised-button color="primary" type="submit"
+                [disabled]="receiptForm.invalid || unallocatedBalance() !== 0">
           {{ (isEditMode() ? 'ACCOUNTS.RECEIPT_FORM.UPDATE' : 'ACCOUNTS.RECEIPT_FORM.SAVE') | translate }}
         </button>
       </mat-card-actions>
+
     </form>
   </mat-card-content>
 </mat-card>

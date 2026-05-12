@@ -184,13 +184,20 @@ export class ReceiptFormComponent implements OnInit {
       voucherDate: receipt.voucherDate?.toISOString().split('T')[0],
       totalAmountReceived: receipt.amount,
       receiptMethod: receipt.paymentMethod,
-      targetAccountId: receipt.accountId,
+      creditAccountId: receipt.creditAccountId,
+      debitAccountId: receipt.debitAccountId,
       customerId: receipt.customerId,
       notes: receipt.notes
     });
 
     // Populate allocations if they exist in the receipt
     // This depends on the actual ReceiptVoucher model structure
+  }
+  // ── Account Name Helper ──────────────────────────────────────────────────────
+  getAccountName(accountId: number | null): string {
+    if (!accountId) return '-';
+    const acc = (this.accounts() as any[]).find(a => a.id === accountId);
+    return acc ? `${acc.accountCode} - ${acc.accountNameAr}` : '-';
   }
 
   private initForm() {
@@ -199,7 +206,8 @@ export class ReceiptFormComponent implements OnInit {
       voucherDate: [new Date().toISOString().split('T')[0], Validators.required],
       totalAmountReceived: [0, [Validators.required, Validators.min(0.01)]],
       receiptMethod: ['CASH', Validators.required],
-      targetAccountId: [null, Validators.required],
+      creditAccountId: [null, Validators.required],
+      debitAccountId: [null, Validators.required],
       customerId: [null, Validators.required],
       notes: [''],
       status: ['DRAFT'],
@@ -250,7 +258,6 @@ export class ReceiptFormComponent implements OnInit {
     if (this.isEditMode()) {
       this.receiptService.updateReceipt(receiptData, this.editingReceipt()!.id).subscribe({
         next: () => {
-          alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.UPDATED'));
           this.router.navigate(['/accounts/receipts']);
         },
         error: (error) => {
@@ -260,8 +267,7 @@ export class ReceiptFormComponent implements OnInit {
       });
     } else {
       this.receiptService.addReceipt(receiptData).subscribe({
-        next: () => {
-          alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.SAVED'));
+        next: (response) => {
           this.router.navigate(['/accounts/receipts']);
         },
         error: (error) => {

@@ -54,314 +54,216 @@ import { NotificationService } from '@/src/services/notification.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PaymentFormComponent implements OnInit {
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  private translate = inject(TranslateService);
-  private supplierService = inject(SupplierService);
-  private purchasesService = inject(PurchasesService);
-  private paymentService = inject(PaymentService);
+  private router         = inject(Router);
+  private route          = inject(ActivatedRoute);
+  private translate      = inject(TranslateService);
+  private supplierService   = inject(SupplierService);
+  private purchasesService  = inject(PurchasesService);
+  private paymentService    = inject(PaymentService);
   private accountingService = inject(AccountingService);
-  private inventoryService = inject(InventoryService);
+  private inventoryService  = inject(InventoryService);
   private notificationService = inject(NotificationService);
   private fb = inject(FormBuilder);
-  
 
   paymentForm!: FormGroup;
 
-  suppliers = signal<any[]>([]);
-  accounts = toSignal(this.accountingService.accounts$, { initialValue: [] });
-  expenseAccounts = signal<any[]>([]);
-  
+  accounts        = toSignal(this.accountingService.accounts$, { initialValue: [] });
   outstandingInvoices = signal<PurchaseInvoice[]>([]);
-  selectedInvoiceId = signal<number | null>(null);
-  
-  isEditMode = signal(false);
-  editingPayment = signal<Payment | null>(null);
-  
+  selectedInvoiceId   = signal<number | null>(null);
+  isEditMode          = signal(false);
+  editingPayment      = signal<Payment | null>(null);
+
   selectedInvoiceDetails = computed(() => {
     const invId = this.selectedInvoiceId();
     if (!invId) return null;
-    return this.outstandingInvoices().find(inv => inv.id === invId);
+    return this.outstandingInvoices().find(inv => inv.id === invId) ?? null;
   });
 
-  totalAmount = computed(() => {
-    const details = this.details.value;
-    return details.reduce((sum: number, detail: any) => sum + (detail.amount || 0), 0);
-  });
+  totalAmount = computed(() =>
+    this.details.value.reduce((sum: number, d: any) => sum + (d.amount || 0), 0)
+  );
 
   difference = computed(() => {
-    const totalVoucherAmount = this.paymentForm.get('totalVoucherAmount')?.value || 0;
-    return totalVoucherAmount - this.totalAmount();
+    const voucher = this.paymentForm?.get('totalVoucherAmount')?.value || 0;
+    return voucher - this.totalAmount();
   });
 
-  onInvoiceSelected(invoice: any) {
-    this.paymentForm.patchValue({ 
-      purchaseInvoiceId: invoice.id
-    });
-  }
-
-  ngOnInit() {
+  // ── Lifecycle ────────────────────────────────────────────────────────────────
+  ngOnInit(): void {
     this.initForm();
-    
-    // Load suppliers first
-    this.supplierService.getSuppliers().subscribe(suppliers => {
-      this.suppliers.set(suppliers);
-      
-      // Load outstanding invoices for the first supplier if available
-      if (suppliers.length > 0) {
-        this.purchasesService.getInvoices().subscribe(invoices => {
-          this.outstandingInvoices.set(invoices);
-        });
-      }
+
+    this.purchasesService.getInvoices().subscribe(invoices => {
+      this.outstandingInvoices.set(invoices);
     });
-    
+
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
         this.isEditMode.set(true);
         this.loadPayment(+id);
-      } else {
-        this.isEditMode.set(false);
       }
     });
   }
 
-  private loadPayment(id: number) {
-    this.paymentService.getPaymentById(id).subscribe({
-      next: (payment) => {
-        this.editingPayment.set(payment);
-        this.populateForm(payment);
-      },
-      error: (error) => {
-        console.error('Error loading payment:', error);
-        this.notificationService.showError(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.ERROR_LOADING') || 'Error loading payment');
-        this.router.navigate(['/accounts/payments']);
-      }
-    });
-  }
-
-  private populateForm(payment: Payment) {
-    console.log('Populating form with payment:', payment);
-    this.paymentForm.patchValue({
-      voucherNumber: payment.voucherNumber,
-      voucherDate: payment.voucherDate.toISOString().split('T')[0],
-      totalVoucherAmount: payment.amount,
-      notes: payment.notes,
-      status: payment.status === VoucherStatus.Draft ? 'DRAFT' : payment.status === VoucherStatus.Approved ? 'APPROVED' : 'CANCELLED',
-      createdBy: payment.createdBy
-    });
-    // Clear existing details
-    while (this.details.length > 0) {
-      this.details.removeAt(0);
-    }
-    // Add details
-    payment.details.forEach(detail => {
-      const detailGroup = this.fb.group({
-        chassisNumber: [detail.chassisNumber || '', Validators.required],
-        model: [detail.model || '', Validators.required],
-        carId: [detail.carId],
-        expenseAccountId: [detail.expenseAccountId || null],
-        amount: [detail.amount, [Validators.required, Validators.min(0.01)]],
-        note: [detail.note || '']
-      });
-      this.details.push(detailGroup);
-    });
-    if (payment.purchaseInvoiceId) {
-      this.selectedInvoiceId.set(payment.purchaseInvoiceId);
-      this.onSupplierChange(payment.beneficiaryId!, true);
-    }
-  }
-
-  private initForm() {
+  // ── Form Init ────────────────────────────────────────────────────────────────
+  private initForm(): void {
     this.paymentForm = this.fb.group({
-      voucherNumber: [`PV-${Date.now()}`],
-      voucherDate: [new Date().toISOString().split('T')[0], Validators.required],
-      paymentMethod: ['BANK_TRANSFER', Validators.required],
-      accountId: [null, Validators.required],
-      purchaseInvoiceId: [null],
+      voucherNumber:      [`PV-${Date.now()}`],
+      voucherDate:        [new Date().toISOString().split('T')[0], Validators.required],
+      paymentMethod:      ['BANK_TRANSFER',  Validators.required],
       totalVoucherAmount: [0, [Validators.required, Validators.min(0.01)]],
-      notes: [''],
-      status: ['DRAFT'],
-      createdBy: [1],
-      details: this.fb.array([])
-    });
-    // Add at least one detail
-    this.addDetail();
-    // Load expense accounts for payment details
-    this.accountingService.getAccountsByCategory('expense').subscribe(accounts => {
-      this.expenseAccounts.set(accounts);
+      debitAccountId:     [null, Validators.required],   // ← NEW
+      creditAccountId:    [null, Validators.required],   // ← NEW
+      purchaseInvoiceId:  [null],
+      notes:              [''],
+      status:             ['DRAFT'],
+      createdBy:          [1],
+      details:            this.fb.array([])
     });
 
+    this.addDetail();
   }
 
   get details(): FormArray {
     return this.paymentForm.get('details') as FormArray;
   }
 
-  addDetail(car?: any) {
-    const detail = this.fb.group({
-      chassisNumber: [car?.chassisNumber || '', Validators.required],
-      model: [car?.model || '', Validators.required],
-      carId: [car?.id || null],
-      expenseAccountId: [null], // Optional expense account
-      amount: [0, [Validators.required, Validators.min(0.01)]],
-      note: ['']
-    });
-    this.details.push(detail);
-  }
-
-  removeDetail(index: number) {
-    if (this.details.length > 1) {
-      this.details.removeAt(index);
-    }
-  }
-
-  autoDistributeAmount() {
-    const totalAmount = this.paymentForm.get('totalVoucherAmount')?.value || 0;
-    const numDetails = this.details.length;
-    if (numDetails > 0 && totalAmount > 0) {
-      const amountPerDetail = totalAmount / numDetails;
-      this.details.controls.forEach(detail => {
-        detail.patchValue({ amount: amountPerDetail });
-      });
-    }
-  }
-
-  onSupplierChange(supplierId: number | null, preserveAmount: boolean = false) {
-    const currentAmount = preserveAmount ? this.paymentForm.get('amount')?.value : 0;
-    this.paymentForm.patchValue({ purchaseInvoiceId: null });
-    if (supplierId) {
-      this.purchasesService.getOutstandingInvoicesBySupplierId(supplierId).subscribe(invoices => {
-        this.outstandingInvoices.set(invoices);
-      });
-    } else {
-      this.outstandingInvoices.set([]);
-    }
-  }
-
-  onInvoiceChange(invoiceId: number | null) {
-    this.selectedInvoiceId.set(invoiceId);
-    this.paymentForm.patchValue({ purchaseInvoiceId: invoiceId });
-    if (invoiceId) {
-      this.loadCarsByInvoice(invoiceId);
-    } else {
-      // Clear details if no invoice selected
-      while (this.details.length > 0) {
-        this.details.removeAt(0);
+  // ── Load / Populate ──────────────────────────────────────────────────────────
+  private loadPayment(id: number): void {
+    this.paymentService.getPaymentById(id).subscribe({
+      next:  p  => { this.editingPayment.set(p); this.populateForm(p); },
+      error: () => {
+        this.notificationService.showError(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.ERROR_LOADING'));
+        this.router.navigate(['/accounts/payments']);
       }
+    });
+  }
+
+  private populateForm(payment: Payment): void {
+    this.paymentForm.patchValue({
+      voucherNumber:      payment.voucherNumber,
+      voucherDate:        new Date(payment.voucherDate).toISOString().split('T')[0],
+      totalVoucherAmount: payment.amount,
+      debitAccountId:     payment.debitAccountId  ?? null,
+      creditAccountId:    payment.creditAccountId ?? null,
+      notes:              payment.notes,
+      status:             payment.status,
+    });
+
+    while (this.details.length) this.details.removeAt(0);
+    payment.details.forEach(d => this.details.push(this.buildDetailGroup(d)));
+
+    if (payment.purchaseInvoiceId) {
+      this.selectedInvoiceId.set(payment.purchaseInvoiceId);
     }
   }
 
-  private loadCarsByInvoice(invoiceId: number) {
+  // ── Detail Helpers ───────────────────────────────────────────────────────────
+  private buildDetailGroup(car?: any): FormGroup {
+    return this.fb.group({
+      chassisNumber: [car?.chassisNumber || '', Validators.required],
+      model:         [car?.model         || '', Validators.required],
+      carId:         [car?.carId         || car?.id || null],
+      amount:        [car?.amount        || 0, [Validators.required, Validators.min(0.01)]],
+      note:          [car?.note          || '']
+    });
+  }
+
+  addDetail(car?: any): void {
+    this.details.push(this.buildDetailGroup(car));
+  }
+
+  removeDetail(index: number): void {
+    if (this.details.length > 1) this.details.removeAt(index);
+  }
+
+  autoDistributeAmount(): void {
+    const total = this.paymentForm.get('totalVoucherAmount')?.value || 0;
+    const per   = total / this.details.length;
+    this.details.controls.forEach(c => c.patchValue({ amount: per }));
+  }
+
+  // ── Invoice Change ───────────────────────────────────────────────────────────
+  onInvoiceChange(invoiceId: number | null): void {
+    this.selectedInvoiceId.set(invoiceId);
+    if (!invoiceId) {
+      while (this.details.length) this.details.removeAt(0);
+      this.addDetail();
+      return;
+    }
     this.inventoryService.getCarsByPurchaseInvoice(invoiceId).subscribe({
-      next: (cars) => {
-        // Clear existing details
-        while (this.details.length > 0) {
-          this.details.removeAt(0);
-        }
-        // Add cars as details
-        cars.forEach(car => {
-          this.addDetail({
-            id: car.id,
+      next: cars => {
+        while (this.details.length) this.details.removeAt(0);
+        if (cars.length) {
+          cars.forEach(car => this.addDetail({
+            id:            car.id,
             chassisNumber: car.chassisNumber || car.vin,
-            model: `${car.make} ${car.model} ${car.year}`
-          });
-        });
-        // If no cars, add one empty detail
-        if (cars.length === 0) {
+            model:         `${car.make} ${car.model} ${car.year}`
+          }));
+        } else {
           this.addDetail();
         }
       },
-      error: (error) => {
-        console.error('Error loading cars for invoice:', error);
-        // Add one empty detail if error
-        this.addDetail();
-      }
+      error: () => { while (this.details.length) this.details.removeAt(0); this.addDetail(); }
     });
   }
 
-  savePayment() {
-    if (this.paymentForm.invalid) {
+  // ── Account Name Helper ──────────────────────────────────────────────────────
+  getAccountName(accountId: number | null): string {
+    if (!accountId) return '-';
+    const acc = (this.accounts() as any[]).find(a => a.id === accountId);
+    return acc ? `${acc.accountCode} - ${acc.accountNameAr}` : '-';
+  }
+
+  // ── Save ─────────────────────────────────────────────────────────────────────
+  savePayment(): void {
+    if (this.paymentForm.invalid) { this.paymentForm.markAllAsTouched(); return; }
+    if (Math.abs(this.difference()) > 0.01) {
+      this.notificationService.showError(this.translate.instant('ACCOUNTS.FORM.DIFFERENCE_ERROR'));
       return;
     }
 
-    const formValue = this.paymentForm.value;
-
-    // Calculate total amount from details
-    const totalAmount = formValue.details.reduce((sum: number, detail: any) => sum + (detail.amount || 0), 0);
-    if (totalAmount <= 0) {
-      alert('Total amount must be greater than 0');
-      return;
-    }
-
-    // Check if total matches
-    if (Math.abs(formValue.totalVoucherAmount - totalAmount) > 0.01) {
-      alert('Total voucher amount must equal the sum of all detail amounts');
-      return;
-    }
-
-    // Create details
-    const details: PaymentDetail[] = formValue.details.map((d: any) => ({
-      carId: d.carId,
-      chassisNumber: d.chassisNumber,
-      model: d.model,
-      amount: d.amount,
-      note: d.note || undefined,
-      expenseAccountId: d.expenseAccountId || undefined
-    }));
-
-    // Create and save the payment using Payment model
-    const statusEnum = formValue.status === 'DRAFT' ? VoucherStatus.Draft : formValue.status === 'APPROVED' ? VoucherStatus.Approved : VoucherStatus.Cancelled;
-    
+    const v = this.paymentForm.value;
     const payment: Partial<Payment> = {
-      voucherNumber: formValue.voucherNumber,
-      voucherDate: new Date(formValue.voucherDate),
-      amount: totalAmount,
-      status: statusEnum,
-      notes: formValue.notes || `Payment for ${formValue.details.length} cars`,
-      createdBy: formValue.createdBy || 1,
-      createdAt: new Date(),
-      beneficiaryType: BeneficiaryType.Supplier, // Assuming supplier payments
-      beneficiaryId: 1, // TODO: Get from form if needed
-      purchaseInvoiceId: formValue.purchaseInvoiceId,
-      accountId: formValue.accountId, // Add the account ID
-      details: details
+      voucherNumber:    v.voucherNumber,
+      voucherDate:      new Date(v.voucherDate),
+      amount:           this.totalAmount(),
+      status:           v.status === 'DRAFT' ? VoucherStatus.Draft : VoucherStatus.Approved,
+      notes:            v.notes,
+      createdBy:        v.createdBy || 1,
+      beneficiaryType:  BeneficiaryType.Supplier,
+      purchaseInvoiceId:v.purchaseInvoiceId,
+      debitAccountId:   v.debitAccountId,    // ← NEW
+      creditAccountId:  v.creditAccountId,   // ← NEW
+      details: v.details.map((d: any) => ({
+        carId:         d.carId,
+        chassisNumber: d.chassisNumber,
+        model:         d.model,
+        amount:        d.amount,
+        note:          d.note || undefined,
+      }))
     };
-    
-    if (this.isEditMode()) {
-      this.paymentService.updatePayment(payment, this.editingPayment()!.id!).subscribe({
-        next: (updatedPayment) => {
-          alert(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.UPDATED'));
-          this.router.navigate(['/accounts/payments']);
-        },
-        error: (error) => {
-          console.error('Error updating payment:', error);
-          alert(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.ERROR_UPDATING') || 'Error updating payment');
-        }
-      });
-    } else {
-      this.paymentService.addPayment(payment).subscribe({
-        next: (savedPayment) => {
-          this.notificationService.showSuccess(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.SAVED') || 'Payment saved successfully'); 
-          this.router.navigate(['/accounts/payments']);
-        },
-        error: (error) => {
-          console.error('Error saving payment:', error);
-          this.notificationService.showError(this.translate.instant('ACCOUNTS.PAYMENTS.FORM.ERROR_SAVING') || 'Error saving payment');
-        }
-      });
-    }
+
+    const action$ = this.isEditMode()
+      ? this.paymentService.updatePayment(payment, this.editingPayment()!.id!)
+      : this.paymentService.addPayment(payment);
+
+    action$.subscribe({
+      next:  () => {
+        this.notificationService.showSuccess(
+          this.translate.instant(this.isEditMode()
+            ? 'ACCOUNTS.PAYMENTS.FORM.UPDATED'
+            : 'ACCOUNTS.PAYMENTS.FORM.SAVED')
+        );
+        this.router.navigate(['/accounts/payments']);
+      },
+      error: () => this.notificationService.showError(
+        this.translate.instant('ACCOUNTS.PAYMENTS.FORM.ERROR_SAVING')
+      )
+    });
   }
 
-  trackBySupplierId(index: number, supplier: any): number {
-    return supplier.id;
-  }
-
-  trackByInvoiceId(index: number, invoice: PurchaseInvoice): number {
-    return invoice.id;
-  }
-
-  trackByAccountId(index: number, account: any): number {
-    return account.id;
-  }
+  // ── TrackBy ──────────────────────────────────────────────────────────────────
+  trackByInvoiceId(_: number, inv: PurchaseInvoice): number { return inv.id; }
+  trackByAccountId(_: number, acc: any): number             { return acc.id; }
 }
