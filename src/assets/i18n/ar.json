@@ -283,6 +283,11 @@
     "SAVE_ERROR": "فشل في حفظ البيانات",
     "VALIDATION_ERROR": "يرجى التحقق من الأخطاء في النموذج"
   },
+  "NOTIFICATION": {
+    "CONFIRM_TITLE": "تأكيد",
+    "YES": "نعم",
+    "CANCEL": "إلغاء"
+  },
   "CRUD": {
     "ADD": "إضافة",
     "EDIT": "تعديل",
@@ -1410,8 +1415,10 @@
   "BRANCHES": {
     "LIST_TITLE": "إدارة الفروع",
     "ADD_NEW": "إضافة فرع جديد",
+    "SEARCH_PLACEHOLDER": "البحث في الفروع...",
     "COLUMNS": {
       "CODE": "الرمز",
+      "NAME": "الاسم",
       "NAME_EN": "الاسم (EN)",
       "NAME_AR": "الاسم (AR)",
       "DESCRIPTION": "الوصف",

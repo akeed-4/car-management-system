@@ -6,7 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ManufactureYearService } from '../../../../services/manufacture-year.service';
 import { CurrentSettingService } from '../../../../services/current-setting.service';
 import { ModalComponent } from '../../../shared/modal/modal.component';
@@ -26,6 +26,7 @@ export class ManufactureYearComponent implements OnInit {
   private currentSettingService = inject(CurrentSettingService);
   private fb = inject(FormBuilder);
   private toastService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   years = this.yearService.years$;
   yearForm!: FormGroup;
@@ -69,7 +70,7 @@ export class ManufactureYearComponent implements OnInit {
           }
         } catch (error) {
           console.error('Failed to add/update year', error);
-          this.toastService.showError('TOAST.SAVE_ERROR');
+         this.toastService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
         }
       }
     } else {
@@ -105,7 +106,7 @@ export class ManufactureYearComponent implements OnInit {
         this.closeDeleteModal();
       } catch (error) {
         console.error('Failed to delete year', error);
-        this.toastService.showError('TOAST.SAVE_ERROR');
+       this.toastService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
       }
     }
   }

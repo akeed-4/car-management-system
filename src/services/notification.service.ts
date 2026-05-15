@@ -11,7 +11,7 @@ export class NotificationService {
 
   showSuccess(message: string,title?: string) {
     if(title == null){
-      title = this.translateService.instant('notification.successTitle')
+      title = this.translateService.instant('TOAST.SUCCESS')
     }
     this.toastr.success(message, title, {
       positionClass: this.translateService.currentLang == 'ar' ? 'toast-bottom-right' : 'toast-bottom-left',
@@ -28,7 +28,7 @@ export class NotificationService {
 
   showError(message: string,title?: string) {
     if(title == null){
-      title = this.translateService.instant('notification.errorTitle')
+      title = this.translateService.instant('TOAST.ERROR')
     }
     this.toastr.error(message, title, {
       positionClass: this.translateService.currentLang == 'ar' ? 'toast-bottom-right' : 'toast-bottom-left',
@@ -54,7 +54,7 @@ export class NotificationService {
 
   showWarning(message: string,title?: string) {
     if(title == null){
-      title = this.translateService.instant('notification.warningTitle')
+      title = this.translateService.instant('TOAST.WARNING')
     }
     this.toastr.warning(message, title, {
       positionClass: this.translateService.currentLang == 'ar' ? 'toast-bottom-right' : 'toast-bottom-left',
@@ -66,12 +66,12 @@ export class NotificationService {
 
   public async confirmAlert(title: string, text?: string, confirmButtonText?: string) {
     return Swal.fire({
-      title: title || this.translateService.instant('notification.confirmTitle'),
+      title: title || this.translateService.instant('NOTIFICATION.CONFIRM_TITLE'),
       text: text,
       icon: 'question',
       showCancelButton: true,
-      confirmButtonText: confirmButtonText || this.translateService.instant('notification.yes'),
-      cancelButtonText: this.translateService.instant('notification.cancel'),
+      confirmButtonText: confirmButtonText || this.translateService.instant('NOTIFICATION.YES'),
+      cancelButtonText: this.translateService.instant('NOTIFICATION.CANCEL'),
       allowOutsideClick: false,
       cancelButtonColor: '#3085d6',
       confirmButtonColor: '#d33',

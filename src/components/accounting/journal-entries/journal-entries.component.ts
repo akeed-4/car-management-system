@@ -302,7 +302,7 @@ export class JournalEntriesComponent implements OnInit {
           },
           error: (error) => {
             console.error('Failed to update journal entry:', error);
-            this.toastService.showError('ACCOUNTING.ERROR_UPDATING_ENTRY');
+           this.toastService.showError(this.translate.instant('ACCOUNTING.ERROR_UPDATING_ENTRY'));
           }
         });
       } else {
@@ -321,7 +321,7 @@ export class JournalEntriesComponent implements OnInit {
           },
           error: (error) => {
             console.error('Failed to create journal entry:', error);
-            this.toastService.showError('ACCOUNTING.ERROR_CREATING_ENTRY');
+           this.toastService.showError(this.translate.instant('ACCOUNTING.ERROR_CREATING_ENTRY'));
           }
         });
       }
@@ -337,7 +337,7 @@ export class JournalEntriesComponent implements OnInit {
           this.accountingService.getJournalEntries().subscribe();
         },
         error: (error) => {
-          this.toastService.showError('ACCOUNTING.ERROR_DELETING_ENTRY');
+         this.toastService.showError(this.translate.instant('ACCOUNTING.ERROR_DELETING_ENTRY'));
         }
       });
     }

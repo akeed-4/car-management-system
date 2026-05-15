@@ -330,7 +330,7 @@ export class SalesInvoiceCashComponent implements OnInit {
         this.router.navigate(['/sales']);
       },
       error: () => {
-        this.toastService.showError('TOAST.SAVE_ERROR');
+       this.toastService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
       }
     });
   }

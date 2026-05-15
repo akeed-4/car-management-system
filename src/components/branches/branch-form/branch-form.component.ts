@@ -8,7 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Branch, Company } from '../../../models/branch.model';
 import { BranchService } from '../../../services/branch.service';
 import { CompanyService } from '../../../services/company.service';
@@ -42,6 +42,7 @@ export class BranchFormComponent implements OnInit {
     private fb: FormBuilder,
     private branchService: BranchService,
     private companyService: CompanyService,
+    private translateService: TranslateService,
     private route: ActivatedRoute,
     private router: Router,
     private toastService: ToastService,
@@ -110,13 +111,13 @@ export class BranchFormComponent implements OnInit {
       if (this.isEdit && this.data?.branch) {
         this.branchService.update(this.data.branch.id, branchData).subscribe({
           next: () => {
-            this.notificationService.showSuccess('TOAST.EDIT_SUCCESS');
+            this.notificationService.showSuccess(this.translateService.instant('TOAST.EDIT_SUCCESS'));
             this.isLoading.set(false);
             this.closeDialogOrNavigate();
           },
           error: (error) => {
             console.error('Error updating branch:', error);
-            this.notificationService.showError('TOAST.SAVE_ERROR');
+            this.notificationService.showError(this.translateService.instant('TOAST.SAVE_ERROR'));
             this.isLoading.set(false);
           }
         });
@@ -125,26 +126,26 @@ export class BranchFormComponent implements OnInit {
         const branchId = this.route.snapshot.params['id'];
         this.branchService.update(branchId, branchData).subscribe({
           next: () => {
-            this.notificationService.showSuccess('TOAST.EDIT_SUCCESS');
+            this.notificationService.showSuccess(this.translateService.instant('TOAST.EDIT_SUCCESS'));
             this.isLoading.set(false);
             this.closeDialogOrNavigate();
           },
           error: (error) => {
             console.error('Error updating branch:', error);
-            this.toastService.showError('TOAST.SAVE_ERROR');
+           this.toastService.showError(this.translateService.instant('TOAST.SAVE_ERROR'));
             this.isLoading.set(false);
           }
         });
       } else {
         this.branchService.create(branchData).subscribe({
           next: () => {
-            this.notificationService.showSuccess('TOAST.ADD_SUCCESS');
+            this.notificationService.showSuccess(this.translateService.instant('TOAST.ADD_SUCCESS'));
             this.isLoading.set(false);
             this.closeDialogOrNavigate();
           },
           error: (error) => {
             console.error('Error creating branch:', error);
-            this.notificationService.showError('TOAST.SAVE_ERROR');
+            this.notificationService.showError(this.translateService.instant('TOAST.SAVE_ERROR'));
             this.isLoading.set(false);
           }
         });
@@ -188,7 +189,7 @@ export class BranchFormComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error loading branch for edit:', error);
-          this.toastService.showError('TOAST.LOAD_ERROR');
+         this.toastService.showError(this.translateService.instant('TOAST.LOAD_ERROR'));
           this.isLoading.set(false);
           this.router.navigate(['/branches']);
         }

@@ -12,7 +12,7 @@ import { ToastService } from '@/src/services/toast.service';
 import { Branch, Company } from '@/src/models/branch.model';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NotificationService } from '@/src/services/notification.service';
 
 @Component({
@@ -44,6 +44,7 @@ export class CompanyFormComponent implements OnInit {
     private branchService: BranchService,
     private toastService: NotificationService,
     private route: ActivatedRoute,
+    private translateService: TranslateService,
     private router: Router,
     @Optional() public dialogRef: MatDialogRef<CompanyFormComponent>,
     @Optional() @Inject(MAT_DIALOG_DATA) public data: { company?: Company }
@@ -67,17 +68,24 @@ export class CompanyFormComponent implements OnInit {
 
   populateForm(company: Company): void {
     this.companyForm.patchValue({
-      nameEn: company.nameEn,
-      nameAr: company.nameAr,
-      description: company.description,
-      status: company.status,
-      lat: company.geo.lat,
-      lng: company.geo.lng,
-      street: company.address.street,
-      city: company.address.city,
-      state: company.address.state,
-      country: company.address.country,
-      zipCode: company.address.zipCode
+      nameEn: company.nameEn || '',
+      nameAr: company.nameAr || '',
+      description: company.description || '',
+      status: company.status || 'active',
+      lat: company.geo?.lat || 0,
+      lng: company.geo?.lng || 0,
+      street: company.address?.street || '',
+      city: company.address?.city || '',
+      state: company.address?.state || '',
+      country: company.address?.country || '',
+      zipCode: company.address?.zipCode || ''
+    });
+    // Ensure form controls are marked as touched for validation display
+    Object.keys(this.companyForm.controls).forEach(key => {
+      const control = this.companyForm.get(key);
+      if (control && control.value) {
+        control.markAsTouched();
+      }
     });
   }
 
@@ -111,12 +119,12 @@ export class CompanyFormComponent implements OnInit {
       if (this.isEdit && this.data?.company) {
         this.companyService.update(this.data.company.id, companyData).subscribe({
           next: () => {
-            this.toastService.showSuccess('TOAST.EDIT_SUCCESS');
+            this.toastService.showSuccess(this.translateService.instant('TOAST.EDIT_SUCCESS'));
             this.closeDialogOrNavigate();
           },
           error: (error) => {
             console.error('Error updating company:', error);
-            this.toastService.showError('TOAST.SAVE_ERROR');
+           this.toastService.showError(this.translateService.instant(this.translateService.instant('TOAST.SAVE_ERROR')));
           }
         });
       } else if (this.isEdit && this.route.snapshot.params['id']) {
@@ -124,28 +132,28 @@ export class CompanyFormComponent implements OnInit {
         const companyId = this.route.snapshot.params['id'];
         this.companyService.update(companyId, companyData).subscribe({
           next: () => {
-            this.toastService.showSuccess('TOAST.EDIT_SUCCESS');
+            this.toastService.showSuccess(this.translateService.instant('TOAST.EDIT_SUCCESS'));
             this.closeDialogOrNavigate();
           },
           error: (error) => {
             console.error('Error updating company:', error);
-            this.toastService.showError('TOAST.SAVE_ERROR');
+           this.toastService.showError(this.translateService.instant(this.translateService.instant('TOAST.SAVE_ERROR')));
           }
         });
       } else {
         this.companyService.create(companyData).subscribe({
           next: () => {
-            this.toastService.showSuccess('TOAST.ADD_SUCCESS');
+            this.toastService.showSuccess(this.translateService.instant('TOAST.ADD_SUCCESS'));
             this.closeDialogOrNavigate();
           },
           error: (error) => {
             console.error('Error creating company:', error);
-            this.toastService.showError('TOAST.SAVE_ERROR');
+           this.toastService.showError(this.translateService.instant(this.translateService.instant('TOAST.SAVE_ERROR')));
           }
         });
       }
     } else {
-      this.toastService.showWarning('TOAST.VALIDATION_ERROR');
+      this.toastService.showWarning(this.translateService.instant('TOAST.VALIDATION_ERROR'));
     }
   }
 
@@ -170,14 +178,13 @@ export class CompanyFormComponent implements OnInit {
     if (routeId) {
       this.isEdit = true;
       this.isLoading.set(true);
-      this.companyService.getById(routeId).subscribe({
+      this.companyService.getById(+routeId).subscribe({
         next: (company) => {
           this.populateForm(company);
           this.isLoading.set(false);
         },
         error: (error) => {
-          console.error('Error loading company for edit:', error);
-          this.toastService.showError('TOAST.LOAD_ERROR');
+         this.toastService.showError(this.translateService.instant(this.translateService.instant('TOAST.LOAD_ERROR')));
           this.isLoading.set(false);
           this.router.navigate(['/companies']);
         }
@@ -185,6 +192,8 @@ export class CompanyFormComponent implements OnInit {
     } else if (this.data?.company) {
       this.isEdit = true;
       this.populateForm(this.data.company);
+    } else {
+      console.log('Creating new company');
     }
   }
 

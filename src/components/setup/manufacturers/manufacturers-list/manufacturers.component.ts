@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { ManufacturerService } from '../../../../services/manufacturer.service';
 import { Manufacturer } from '../../../../models/manufacturer.model';
 import { ModalComponent } from '../../../shared/modal/modal.component'; // Corrected import path
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { ToastService } from '../../../../services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
@@ -27,6 +27,7 @@ export class ManufacturersComponent implements OnInit {
   private manufacturerService = inject(ManufacturerService);
   private fb = inject(FormBuilder);
   private toastService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   manufacturers = this.manufacturerService.manufacturers$;
   manufacturerForm!: FormGroup;
@@ -116,7 +117,7 @@ export class ManufacturersComponent implements OnInit {
           }
         } catch (error) {
           console.error('Failed to add/update manufacturer', error);
-          this.toastService.showError('TOAST.SAVE_ERROR');
+         this.toastService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
         }
       }
     } else {
@@ -159,7 +160,7 @@ export class ManufacturersComponent implements OnInit {
         this.closeDeleteModal();
       } catch (error) {
         console.error('Failed to delete manufacturer', error);
-        this.toastService.showError('TOAST.SAVE_ERROR');
+       this.toastService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
       }
     }
   }

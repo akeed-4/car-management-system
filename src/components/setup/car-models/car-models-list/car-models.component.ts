@@ -8,7 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CarModelService } from '../../../../services/car-model.service';
 import { ManufacturerService } from '../../../../services/manufacturer.service';
 import { CurrentSettingService } from '../../../../services/current-setting.service';
@@ -34,6 +34,7 @@ export class CarModelsComponent implements OnInit {
   private currentSettingService = inject(CurrentSettingService);
   private fb = inject(FormBuilder);
   private toastService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   carModels = toSignal(this.carModelService.getCarModels(), { initialValue: [] });
   manufacturers = this.manufacturerService.manufacturers$;
@@ -158,7 +159,7 @@ export class CarModelsComponent implements OnInit {
           }
         } catch (error) {
           console.error('Failed to add/update car model', error);
-          this.toastService.showError('TOAST.SAVE_ERROR');
+         this.toastService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
         }
       }
     } else {
@@ -196,7 +197,7 @@ export class CarModelsComponent implements OnInit {
         },
         error: (error) => {
           console.error('Failed to delete car model', error);
-          this.toastService.showError('TOAST.SAVE_ERROR');
+         this.toastService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
         }
       });
       this.closeDeleteModal();

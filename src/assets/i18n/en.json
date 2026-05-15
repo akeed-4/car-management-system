@@ -282,6 +282,11 @@
     "SAVE_ERROR": "Failed to save data",
     "VALIDATION_ERROR": "Please check the form for errors"
   },
+  "NOTIFICATION": {
+    "CONFIRM_TITLE": "Confirm",
+    "YES": "Yes",
+    "CANCEL": "Cancel"
+  },
   "CRUD": {
     "ADD": "Add",
     "EDIT": "Edit",
@@ -1400,8 +1405,10 @@
   "BRANCHES": {
     "LIST_TITLE": "Branches Management",
     "ADD_NEW": "Add New Branch",
+    "SEARCH_PLACEHOLDER": "Search branches...",
     "COLUMNS": {
       "CODE": "Code",
+      "NAME": "Name",
       "NAME_EN": "Name (EN)",
       "NAME_AR": "Name (AR)",
       "DESCRIPTION": "Description",

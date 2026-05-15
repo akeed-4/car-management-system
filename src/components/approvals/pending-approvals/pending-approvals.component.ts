@@ -8,7 +8,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DxDataGridModule } from 'devextreme-angular';
 import { ApprovalService } from '../../../services/approval.service';
 import { ApprovalRequest, PendingApprovalSummary } from '../../../models/approval-request.model';
@@ -39,7 +39,7 @@ export class PendingApprovalsComponent implements OnInit {
   private approvalService = inject(ApprovalService);
   private dialog = inject(MatDialog);
   private toastService = inject(NotificationService);
-
+private translate = inject(TranslateService);
   pendingApprovals = signal<ApprovalRequest[]>([]);
   summary = signal<PendingApprovalSummary | null>(null);
   isLoading = signal(false);
@@ -59,7 +59,7 @@ export class PendingApprovalsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading pending approvals:', error);
-        this.toastService.showError('APPROVALS.ERROR_LOADING_PENDING');
+       this.toastService.showError(this.translate.instant('APPROVALS.ERROR_LOADING_PENDING'));
         this.isLoading.set(false);
       }
     });

@@ -225,13 +225,13 @@ export class CreditInvoiceFormComponent {
           // Check if already exists
           const alreadyExists = this.invoiceItems().some(item => item.carId === car.carId);
           if (alreadyExists) {
-            this.toastService.showError('INVOICE.ALREADY_ADDED');
+           this.toastService.showError(this.translate.instant('INVOICE.ALREADY_ADDED'));
             return;
           }
   
           // Check quantity
           if (quantity > car.availableQuantity) {
-            this.toastService.showError('INVOICE.INSUFFICIENT_STOCK');
+           this.toastService.showError(this.translate.instant('INVOICE.INSUFFICIENT_STOCK'));
             return;
           }
   
@@ -400,9 +400,10 @@ export class CreditInvoiceFormComponent {
           this.router.navigate(['/sales']);
         },
         error: () => {
-          this.toastService.showError('TOAST.SAVE_ERROR');
+         this.toastService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
         }
       });
     }
   }
+  
   

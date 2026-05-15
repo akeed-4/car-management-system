@@ -157,7 +157,7 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
           this.loadAccounts();
         },
         error: (error) => {
-          this.toastService.showError('ACCOUNTING.ERROR_DELETING_ACCOUNT');
+         this.toastService.showError(this.translate.instant('ACCOUNTING.ERROR_DELETING_ACCOUNT'));
         }
       });
     }

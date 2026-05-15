@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, Input, computed } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink, Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DxDataGridModule } from 'devextreme-angular';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -26,6 +26,7 @@ export class SalesInvoiceListComponent {
   private salesService = inject(SalesService);
   private router = inject(Router);
   private toastService = inject(NotificationService);
+  private translate = inject(TranslateService);
   allInvoices = toSignal(this.salesService.getInvoices(), { initialValue: [] });
 
   invoices = computed(() => {
@@ -74,7 +75,7 @@ export class SalesInvoiceListComponent {
         },
         error: (error) => {
           console.error('Failed to delete invoice', error);
-          this.toastService.showError('INVOICE.DELETED_ERROR');
+         this.toastService.showError(this.translate.instant('INVOICE.DELETED_ERROR'));
         }
       });
     }
