@@ -185,6 +185,7 @@ export class PaymentFormComponent implements OnInit {
 
   // ── Invoice Change ───────────────────────────────────────────────────────────
   onInvoiceChange(invoiceId: number | null): void {
+    debugger
     this.selectedInvoiceId.set(invoiceId);
     if (!invoiceId) {
       while (this.details.length) this.details.removeAt(0);
@@ -196,9 +197,11 @@ export class PaymentFormComponent implements OnInit {
         while (this.details.length) this.details.removeAt(0);
         if (cars.length) {
           cars.forEach(car => this.addDetail({
-            id:            car.id,
+            carId:         car.id,
             chassisNumber: car.chassisNumber || car.vin,
-            model:         `${car.make} ${car.model} ${car.year}`
+            model:         `${car.make} ${car.model} ${car.year}`,
+            amount:        car.purchasePrice ?? car.totalCost ?? 0,
+            note:          ''
           }));
         } else {
           this.addDetail();
@@ -227,7 +230,7 @@ export class PaymentFormComponent implements OnInit {
     const payment: Partial<Payment> = {
       voucherNumber:    v.voucherNumber,
       voucherDate:      new Date(v.voucherDate),
-      amount:           this.totalAmount(),
+      amount:           v.totalVoucherAmount,
       status:           v.status === 'DRAFT' ? VoucherStatus.Draft : VoucherStatus.Approved,
       notes:            v.notes,
       createdBy:        v.createdBy || 1,
@@ -250,15 +253,14 @@ export class PaymentFormComponent implements OnInit {
 
     action$.subscribe({
       next:  () => {
-        this.notificationService.showSuccess(
-          this.translate.instant(this.isEditMode()
-            ? 'ACCOUNTS.PAYMENTS.FORM.UPDATED'
-            : 'ACCOUNTS.PAYMENTS.FORM.SAVED')
+        this.notificationService.showSuccess( this.translate.instant(this.isEditMode()
+            ? 'TOAST.UPDATED'
+            : 'TOAST.ADD_SUCCESS')
         );
         this.router.navigate(['/accounts/payments']);
       },
       error: () => this.notificationService.showError(
-        this.translate.instant('ACCOUNTS.PAYMENTS.FORM.ERROR_SAVING')
+        this.translate.instant('TOAST.ERROR_SAVING')
       )
     });
   }

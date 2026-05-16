@@ -68,15 +68,90 @@ export class ReceiptFormComponent implements OnInit {
   accounts = signal<Account[]>([]);
 
   customerInvoices = signal<any[]>([]);
+  selectedInvoiceId = signal<number | null>(null);
+  selectedInvoiceCars = signal<any[]>([]);
+  receiptTypes = ['CUSTOMER','GENERAL','ADVANCE','TRANSFER'];
   isEditMode = signal(false);
   editingReceipt = signal<ReceiptVoucher | null>(null);
-
   totalAmountReceived = computed(() => this.receiptForm?.get('totalAmountReceived')?.value || 0);
   totalAllocated = computed(() => {
     const allocations = this.allocations.value;
     return allocations.reduce((sum: number, alloc: any) => sum + (alloc.amountToPay || 0), 0);
   });
   unallocatedBalance = computed(() => this.totalAmountReceived() - this.totalAllocated());
+
+  isCustomerReceipt = computed(() => {
+    return (this.receiptForm?.get('receiptType')?.value || 'CUSTOMER') === 'CUSTOMER';
+  });
+
+  // Journal preview: builds journal lines based on current form and allocations
+  journalPreview = computed(() => {
+    const lines: Array<any> = [];
+    const debitAccId = this.receiptForm?.get('debitAccountId')?.value;
+    const creditAccId = this.receiptForm?.get('creditAccountId')?.value;
+    const total = this.totalAmountReceived() || 0;
+
+    // If accounts are not set, still build preview with placeholders so UI shows amounts
+    const debitName = debitAccId ? this.getAccountName(debitAccId) : 'Unassigned (Debit)';
+    const creditName = creditAccId ? this.getAccountName(creditAccId) : 'Unassigned (Credit)';
+
+    // Debit line - single line for cash/bank (or placeholder)
+    // Debit should show the amount on the debit side only (credit = 0)
+    lines.push({
+      accountId: debitAccId || null,
+      accountName: debitName,
+      debit: total,
+      credit: 0,
+      link: null
+    });
+
+    // If allocations exist (customer receipts), create credit lines per allocation
+    const allocs = this.allocations.value || [];
+    if (allocs.length > 0) {
+      allocs.forEach((a: any) => {
+        const amt = a.amountToPay || 0;
+        lines.push({
+          accountId: creditAccId || null,
+          accountName: creditAccId ? this.getAccountName(creditAccId) : 'Unassigned (Credit)',
+          debit: 0,
+          credit: amt,
+          link: a.invoiceId || null,
+          reference: a.reference || null
+        });
+      });
+      // If allocations don't sum to total, add a final credit to cover remainder (suspense)
+      const sumAlloc = allocs.reduce((s: number, x: any) => s + (x.amountToPay || 0), 0);
+      const rem = +(total - sumAlloc).toFixed(2);
+      if (rem > 0.001) {
+        lines.push({
+          accountId: creditAccId || null,
+          accountName: creditName,
+          debit: 0,
+          credit: rem,
+          link: null,
+          reference: 'Unallocated'
+        });
+      }
+    } else {
+      // No allocations: single credit line
+      lines.push({
+        accountId: creditAccId || null,
+        accountName: creditName,
+        debit: 0,
+        credit: total,
+        link: null
+      });
+    }
+
+    return lines;
+  });
+
+  journalTotals = computed(() => {
+    const lines = this.journalPreview();
+    const totalDebit = lines.reduce((s: number, l: any) => s + (l.debit || 0), 0);
+    const totalCredit = lines.reduce((s: number, l: any) => s + (l.credit || 0), 0);
+    return { totalDebit, totalCredit, diff: +(totalDebit - totalCredit).toFixed(2) };
+  });
 
   get allocations(): FormArray {
     return this.receiptForm.get('allocations') as FormArray;
@@ -85,6 +160,16 @@ export class ReceiptFormComponent implements OnInit {
   ngOnInit() {
     this.initForm();
     this.accountingService.accounts$.subscribe(accounts => this.accounts.set(accounts));
+
+    // react to receiptType changes: clear customer/invoices/allocations when not CUSTOMER
+    this.receiptForm.get('receiptType')?.valueChanges.subscribe((val: string) => {
+      if (val !== 'CUSTOMER') {
+        this.receiptForm.patchValue({ customerId: null });
+        this.customerInvoices.set([]);
+        this.selectedInvoiceCars.set([]);
+        this.clearAllocations();
+      }
+    });
 
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
@@ -99,7 +184,14 @@ export class ReceiptFormComponent implements OnInit {
 
 
   onCustomerChange(customerId: number | null) {
+    // Only apply customer/invoice logic for CUSTOMER receipt type
     this.receiptForm.patchValue({ customerId });
+    if (!this.isCustomerReceipt()) {
+      this.customerInvoices.set([]);
+      this.clearAllocations();
+      return;
+    }
+
     if (customerId) {
       this.loadCustomerInvoices(customerId);
     } else {
@@ -123,14 +215,44 @@ export class ReceiptFormComponent implements OnInit {
     });
   }
 
+  loadInvoiceCars(invoiceId: number | null) {
+    if (!this.isCustomerReceipt()) { this.selectedInvoiceCars.set([]); this.selectedInvoiceId.set(null); return; }
+    this.selectedInvoiceId.set(invoiceId);
+    if (!invoiceId) { this.selectedInvoiceCars.set([]); return; }
+    this.inventoryService.getCarsByPurchaseInvoice(invoiceId).subscribe({
+      next: cars => this.selectedInvoiceCars.set(cars || []),
+      error: err => { console.error('Failed loading cars for invoice', err); this.selectedInvoiceCars.set([]); }
+    });
+  }
+
+  addSelectedInvoiceCarsToAllocations() {
+    if (!this.isCustomerReceipt()) return;
+    const cars = this.selectedInvoiceCars();
+    if (!cars || !cars.length) return;
+    // Convert each car to an allocation row (invoice-level association kept)
+    while (this.allocations.length) this.allocations.removeAt(0);
+    cars.forEach(car => {
+      const allocation = this.fb.group({
+        invoiceId: [this.selectedInvoiceId() || null],
+        reference: [car.chassisNumber || car.vin || ''],
+        originalBalance: [car.purchasePrice ?? car.totalCost ?? 0],
+        amountToPay: [car.purchasePrice ?? car.totalCost ?? 0, [Validators.min(0)]]
+      });
+      this.allocations.push(allocation);
+    });
+  }
+
   private createAllocationsFromInvoices(invoices: any[]) {
+    if (!this.isCustomerReceipt()) return;
     this.clearAllocations();
     invoices.forEach(invoice => {
       const allocation = this.fb.group({
         invoiceId: [invoice.id],
         reference: [invoice.invoiceNumber],
         originalBalance: [invoice.amountDue],
-        amountToPay: [0, [Validators.min(0)]]
+        amountToPay: [0, [Validators.min(0)]],
+        // store the invoice's receivable account (debit on invoice) so receipt credits that account
+        invoiceAccountId: [invoice.debitAccountId || null]
       });
       this.allocations.push(allocation);
     });
@@ -143,6 +265,7 @@ export class ReceiptFormComponent implements OnInit {
   }
 
   distributeAmount() {
+    if (!this.isCustomerReceipt()) return; // only for customer receipts
     const totalAmount = this.totalAmountReceived();
     const numAllocations = this.allocations.length;
 
@@ -180,6 +303,7 @@ export class ReceiptFormComponent implements OnInit {
   private populateForm(receipt: ReceiptVoucher) {
     // This would need to be updated based on the actual ReceiptVoucher structure
     this.receiptForm.patchValue({
+      receiptType: (receipt as any).receiptType || 'CUSTOMER',
       voucherNumber: receipt.voucherNumber,
       voucherDate: receipt.voucherDate?.toISOString().split('T')[0],
       totalAmountReceived: receipt.amount,
@@ -202,13 +326,14 @@ export class ReceiptFormComponent implements OnInit {
 
   private initForm() {
     this.receiptForm = this.fb.group({
+      receiptType: ['CUSTOMER', Validators.required],
       voucherNumber: [`RV-${Date.now()}`],
       voucherDate: [new Date().toISOString().split('T')[0], Validators.required],
       totalAmountReceived: [0, [Validators.required, Validators.min(0.01)]],
       receiptMethod: ['CASH', Validators.required],
       creditAccountId: [null, Validators.required],
       debitAccountId: [null, Validators.required],
-      customerId: [null, Validators.required],
+      customerId: [null],
       notes: [''],
       status: ['DRAFT'],
       createdBy: [1],
@@ -239,8 +364,9 @@ export class ReceiptFormComponent implements OnInit {
     if (this.receiptForm.invalid) {
       return;
     }
-
-    if (this.unallocatedBalance() !== 0) {
+debugger
+    // Only enforce allocation balance for CUSTOMER receipts
+    if (this.isCustomerReceipt() && this.unallocatedBalance() !== 0) {
       alert('Total allocated amount must equal the total amount received');
       return;
     }

@@ -76,6 +76,11 @@ export class JournalEntriesComponent implements OnInit {
     });
   }
 
+  // Return only partial (non-main) accounts for lookups
+  get partialAccounts(): Account[] {
+    return this.accounts.filter(a => !a.isMainAccount && a.accountLevel > 1);
+  }
+
   ngOnInit() {
     this.journalEntries$.subscribe(entries => {
       this.journalEntries = entries;
@@ -128,6 +133,8 @@ export class JournalEntriesComponent implements OnInit {
   addLine() {
     const lineForm = this.fb.group({
       accountId: [null, Validators.required],
+      accountCode: [''],
+      accountName: [''],
       debit: [0, [Validators.required, Validators.min(0)]],
       credit: [0, [Validators.required, Validators.min(0)]],
       costCenter: [null], // Add this
@@ -139,6 +146,8 @@ export class JournalEntriesComponent implements OnInit {
     this.linesData.push({
       lineNumber: lineNumber,
       accountId: null,
+      accountCode: '',
+      accountName: '',
       debit: 0,
       credit: 0,
       costCenter: null,
@@ -296,7 +305,7 @@ export class JournalEntriesComponent implements OnInit {
         };
         this.accountingService.updateJournalEntry(updateDto).subscribe({
           next: () => {
-            this.toastService.showSuccess('ACCOUNTING.JOURNAL_ENTRY_UPDATED');
+            this.toastService.showSuccess(this.translate.instant('ACCOUNTING.JOURNAL_ENTRY_UPDATED'));
             localStorage.removeItem('journalEntryDraft');
             this.router.navigate(['accounts/journal-entries-list']);
           },
@@ -315,7 +324,7 @@ export class JournalEntriesComponent implements OnInit {
         };
         this.accountingService.createJournalEntry(createDto).subscribe({
           next: () => {
-            this.toastService.showSuccess('ACCOUNTING.JOURNAL_ENTRY_CREATED');
+            this.toastService.showSuccess(this.translate.instant('ACCOUNTING.JOURNAL_ENTRY_CREATED'));
             localStorage.removeItem('journalEntryDraft');
             this.onAddEntry();
           },
@@ -332,7 +341,7 @@ export class JournalEntriesComponent implements OnInit {
     if (confirm(this.translate.instant('ACCOUNTING.CONFIRM_DELETE_ENTRY'))) {
       this.accountingService.deleteJournalEntry(entry.id).subscribe({
         next: () => {
-          this.toastService.showSuccess('ACCOUNTING.JOURNAL_ENTRY_DELETED');
+          this.toastService.showSuccess(this.translate.instant('ACCOUNTING.JOURNAL_ENTRY_DELETED'));
           // Refresh the list
           this.accountingService.getJournalEntries().subscribe();
         },
@@ -367,7 +376,12 @@ export class JournalEntriesComponent implements OnInit {
     const account = this.accounts.find(a => a.id === rowData.accountId);
     return account ? account.accountNameEn : '';
   }
-
+setAccountCellValue = (currentData: any, value: any) => {
+    currentData.accountId = value;
+    const account = this.accounts.find(acc => acc.id === value);
+    currentData.accountCode = account ? account.accountCode : '';
+    currentData.accountName = account ? account.accountNameEn : '';
+    }
   onRowRemoved(e: any) {
     if (!this.linesData) return;
     const index = this.linesData.indexOf(e.data);
@@ -384,9 +398,26 @@ export class JournalEntriesComponent implements OnInit {
   onRowUpdated(e: any) {
     if (!this.linesData) return;
     const index = this.linesData.indexOf(e.data);
-    if (index >= 0) {
-      const formGroup = this.lines.at(index);
+    // Fallback: try to find by lineNumber if direct object match fails
+    let resolvedIndex = index;
+    if (resolvedIndex < 0 && e.data && e.data.lineNumber) {
+      resolvedIndex = this.linesData.findIndex(ld => ld.lineNumber === e.data.lineNumber);
+    }
+    if (resolvedIndex >= 0) {
+      const formGroup = this.lines.at(resolvedIndex);
+      // Patch form values
       formGroup.patchValue(e.data);
+
+      // If accountId changed or set, populate accountCode and accountName
+      const accountId = e.data.accountId || formGroup.get('accountId')?.value;
+      if (accountId) {
+        const code = this.getAccountCode(accountId);
+        const name = this.getAccountName(accountId);
+        formGroup.patchValue({ accountCode: code, accountName: name }, { emitEvent: false });
+        this.linesData[resolvedIndex].accountCode = code;
+        this.linesData[resolvedIndex].accountName = name;
+      }
+
       this.saveDraft();
     }
     // Refresh the grid to ensure all updates are reflected

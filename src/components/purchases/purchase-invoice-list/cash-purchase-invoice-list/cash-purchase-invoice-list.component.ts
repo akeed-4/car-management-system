@@ -30,6 +30,7 @@ constructor() {
   this.deleteInvoice = this.deleteInvoice.bind(this);
   this.editInvoice = this.editInvoice.bind(this);
   this.printInvoice = this.printInvoice.bind(this);
+  this.getinvoice()
 }
     filter = signal('');
     sortColumn = signal<SortColumn>('');
@@ -37,6 +38,7 @@ constructor() {
     showArchived = signal(false);
 
     filteredAndSortedInvoices = computed(() => {
+      debugger
       const searchTerm = this.filter().toLowerCase();
       const column = this.sortColumn();
       const direction = this.sortDirection();
@@ -120,7 +122,9 @@ constructor() {
         this.sortDirection.set('asc');
       }
     }
-
+getinvoice(){
+  return this.invoices();
+}
     getSortIcon(column: SortColumn) {
       if (this.sortColumn() !== column) return '';
       if (this.sortDirection() === 'asc') return '▲';

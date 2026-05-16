@@ -32,6 +32,13 @@
 
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Receipt Type</mat-label>
+              <mat-select formControlName="receiptType">
+                <mat-option *ngFor="let t of receiptTypes" [value]="t">{{ t }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'ACCOUNTS.FORM.RECEIPT_METHOD' | translate }}</mat-label>
               <mat-select formControlName="receiptMethod" required>
                 <mat-option value="CASH">{{ 'INVOICE.PAYMENT_CASH' | translate }}</mat-option>
@@ -86,13 +93,13 @@
         </div>
 
         <!-- Customer Selection -->
-        <div class="form-section customer-section">
+        <div class="form-section customer-section" *ngIf="isCustomerReceipt()">
           <h3>{{ 'ACCOUNTS.FORM.CUSTOMER_SELECTION' | translate }}</h3>
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'ACCOUNTS.FORM.CUSTOMER' | translate }}</mat-label>
               <mat-select formControlName="customerId"
-                          (selectionChange)="onCustomerChange($event.value)" required>
+                          (selectionChange)="onCustomerChange($event.value)" >
                 <mat-option [value]="null" disabled>
                   {{ 'ACCOUNTS.FORM.SELECT_CUSTOMER' | translate }}
                 </mat-option>
@@ -117,8 +124,50 @@
           </div>
         </div>
 
+        <!-- Invoice Selection & Cars -->
+        <div class="form-section invoice-cars-section" *ngIf="isCustomerReceipt() && customerInvoices().length > 0">
+          <h3>{{ 'ACCOUNTS.FORM.INVOICE_SELECTION' | translate }}</h3>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'ACCOUNTS.FORM.INVOICE' | translate }}</mat-label>
+              <mat-select [value]="selectedInvoiceId()" (selectionChange)="loadInvoiceCars($event.value)">
+                <mat-option [value]="null" disabled>{{ 'ACCOUNTS.FORM.SELECT_INVOICE' | translate }}</mat-option>
+                <mat-option *ngFor="let inv of customerInvoices(); trackBy: trackByInvoiceId" [value]="inv.id">
+                  {{ inv.invoiceNumber }} ({{ inv.amountDue | currency:'SAR' }})
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <div class="form-field">
+              <button mat-stroked-button color="primary" type="button" (click)="addSelectedInvoiceCarsToAllocations()"
+                      [disabled]="!selectedInvoiceCars() || selectedInvoiceCars().length === 0">
+                {{ 'ACCOUNTS.FORM.CAR_DISTRIBUTION' | translate }}
+              </button>
+            </div>
+          </div>
+
+          <div class="table-container" *ngIf="selectedInvoiceCars().length > 0">
+            <table class="invoice-cars-table">
+              <thead>
+                <tr>
+                  <th>{{ 'ACCOUNTS.FORM.CHASSIS_NUMBER' | translate }}</th>
+                  <th>{{ 'ACCOUNTS.FORM.MODEL' | translate }}</th>
+                  <th>{{ 'ACCOUNTS.FORM.AMOUNT' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let car of selectedInvoiceCars()">
+                  <td>{{ car.chassisNumber || car.vin }}</td>
+                  <td>{{ car.make }} {{ car.model }} {{ car.year }}</td>
+                  <td>{{ car.purchasePrice ?? car.totalCost | currency:'SAR' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- Allocation Table -->
-        <div class="form-section allocation-section" *ngIf="allocations.length > 0">
+        <div class="form-section allocation-section" *ngIf="isCustomerReceipt() && allocations.length > 0">
           <h3>{{ 'ACCOUNTS.FORM.ALLOCATION_TABLE' | translate }}</h3>
           <div class="table-container">
             <table class="allocation-table">

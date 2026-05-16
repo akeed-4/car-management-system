@@ -398,6 +398,22 @@
       "EDIT": "Edit",
       "DELETE": "Delete"
     },
+    "MANUFACTURERS": {
+      "TITLE": "Manufacturers",
+      "EDIT_TITLE": "Edit Manufacturer",
+      "ADD_NEW": "Add Manufacturer",
+      "NAME_LABEL": "Manufacturer Name",
+      "NAME_PLACEHOLDER": "Enter manufacturer name",
+      "UPDATE_BUTTON": "Update",
+      "ADD_BUTTON": "Add",
+      "CANCEL_BUTTON": "Cancel",
+      "LIST_TITLE": "Manufacturers",
+      "NO_MANUFACTURERS": "No manufacturers found",
+      "EDIT": "Edit",
+      "DELETE": "Delete",
+      "DELETE_CONFIRM_TITLE": "Delete Manufacturer",
+      "DELETE_CONFIRM_MESSAGE": "Are you sure you want to delete this manufacturer?"
+    },
     "DELETE_MODAL": {
       "TITLE": "Delete Supplier",
       "MESSAGE": "Are you sure you want to delete this supplier? This action cannot be undone."

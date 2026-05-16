@@ -133,6 +133,12 @@
           icon="edit"
           [onClick]="onEditAccount">
         </dxi-button>
+        <dxi-button
+          [visible]="isDeleteVisible"
+          [hint]="translate.instant('ACCOUNTING.DELETE_ACCOUNT')"
+          icon="trash"
+          [onClick]="onDeleteAccount">
+        </dxi-button>
       </dxi-column>
       
       

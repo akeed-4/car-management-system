@@ -59,13 +59,13 @@ export class ManufactureYearComponent implements OnInit {
             const editingYear = this.editingYear();
             if (editingYear !== null) {
               await this.yearService.updateYear(editingYear, year);
-              this.toastService.showSuccess('TOAST.EDIT_SUCCESS');
+              this.toastService.showSuccess(this.translate.instant('TOAST.EDIT_SUCCESS'));
               this.cancelEdit();
             }
           } else {
             // Add new year
             await this.yearService.addYear(year);
-            this.toastService.showSuccess('TOAST.ADD_SUCCESS');
+            this.toastService.showSuccess(this.translate.instant('TOAST.ADD_SUCCESS'));
             this.yearForm.reset({ year: new Date().getFullYear() });
           }
         } catch (error) {
@@ -74,7 +74,7 @@ export class ManufactureYearComponent implements OnInit {
         }
       }
     } else {
-      this.toastService.showWarning('TOAST.VALIDATION_ERROR');
+      this.toastService.showWarning(this.translate.instant('TOAST.VALIDATION_ERROR'));
     }
   }
 
@@ -102,7 +102,7 @@ export class ManufactureYearComponent implements OnInit {
     if (year !== null) {
       try {
         await this.yearService.deleteYear(year);
-        this.toastService.showSuccess('TOAST.DELETE_SUCCESS');
+        this.toastService.showSuccess(this.translate.instant('TOAST.DELETE_SUCCESS'));
         this.closeDeleteModal();
       } catch (error) {
         console.error('Failed to delete year', error);

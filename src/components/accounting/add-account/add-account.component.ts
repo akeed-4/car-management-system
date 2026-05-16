@@ -148,7 +148,38 @@ export class AddAccountComponent implements OnChanges, OnInit {
       if (code) {
         const mainAccount = this.accountingService.getAccountByCode(code);
         if (mainAccount) {
-          this.accountForm.get('mainAccountName')?.setValue(mainAccount.accountNameEn);
+          this.accountForm.patchValue({
+            mainAccountName: mainAccount.accountNameEn,
+            mainAccountId: mainAccount.id,
+            accountTypeId: mainAccount.accountTypeId,
+            accountCategoryId: mainAccount.accountCategoryId,
+            currencyId: mainAccount.currencyId,
+            companyId: mainAccount.companyId,
+            // For partial accounts: set level to parent's level + 1
+            accountLevel: (mainAccount.accountLevel || 0) + 1
+          }, { emitEvent: false });
+        }
+      } else {
+        // Clear dependent fields when code is empty
+        this.accountForm.patchValue({ mainAccountName: '', mainAccountId: 0 }, { emitEvent: false });
+      }
+    });
+
+    // Watch for mainAccountId changes to populate related fields (useful if set programmatically)
+    this.accountForm.get('mainAccountId')?.valueChanges.subscribe(id => {
+      if (id && id !== 0) {
+        const accounts = this.accountingService.getCurrentAccounts();
+        const mainAccount = accounts.find(a => a.id === +id);
+        if (mainAccount) {
+          this.accountForm.patchValue({
+            mainAccountCode: mainAccount.accountCode,
+            mainAccountName: mainAccount.accountNameEn,
+            accountTypeId: mainAccount.accountTypeId,
+            accountCategoryId: mainAccount.accountCategoryId,
+            currencyId: mainAccount.currencyId,
+            companyId: mainAccount.companyId,
+            accountLevel: (mainAccount.accountLevel || 0) + 1
+          }, { emitEvent: false });
         }
       }
     });

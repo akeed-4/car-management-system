@@ -144,7 +144,7 @@ export class CarModelsComponent implements OnInit {
                 manufacturerId,
                 manufacturerName: manufacturer.name 
               });
-              this.toastService.showSuccess('TOAST.EDIT_SUCCESS');
+              this.toastService.showSuccess(this.translate.instant('TOAST.EDIT_SUCCESS'));
               this.cancelEdit();
             }
           } else {
@@ -154,7 +154,7 @@ export class CarModelsComponent implements OnInit {
               manufacturerId,
               manufacturerName: manufacturer.name 
             });
-            this.toastService.showSuccess('TOAST.ADD_SUCCESS');
+            this.toastService.showSuccess(this.translate.instant('TOAST.ADD_SUCCESS'));
             this.carModelForm.reset();
           }
         } catch (error) {
@@ -163,7 +163,7 @@ export class CarModelsComponent implements OnInit {
         }
       }
     } else {
-      this.toastService.showWarning('TOAST.VALIDATION_ERROR');
+      this.toastService.showWarning(this.translate.instant('TOAST.VALIDATION_ERROR'));
     }
   }
 
@@ -193,7 +193,7 @@ export class CarModelsComponent implements OnInit {
     if (id) {
       this.carModelService.deleteCarModel(id).subscribe({
         next: () => {
-          this.toastService.showSuccess('TOAST.DELETE_SUCCESS');
+          this.toastService.showSuccess(this.translate.instant('TOAST.DELETE_SUCCESS'));
         },
         error: (error) => {
           console.error('Failed to delete car model', error);

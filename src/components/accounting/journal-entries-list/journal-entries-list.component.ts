@@ -40,7 +40,7 @@ export class JournalEntriesListComponent implements OnInit {
 
   // Check if edit button should be visible for a journal entry
   isEditButtonVisible(data: any): boolean {
-    return data.isGeneratedDynamically;
+    return data.isGeneratedDynamically !== true; // Hide edit button for dynamically generated entries
   }
 
   // DevExtreme DataGrid columns configuration with translation
