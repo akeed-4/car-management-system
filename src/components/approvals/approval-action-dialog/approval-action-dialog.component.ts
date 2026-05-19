@@ -10,7 +10,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ApprovalService } from '../../../services/approval.service';
 import { ApprovalRequest, ApprovalAction } from '../../../models/approval-request.model';
 import { ToastService } from '../../../services/toast.service';
@@ -46,6 +46,7 @@ export class ApprovalActionDialogComponent {
   private dialogRef = inject(MatDialogRef<ApprovalActionDialogComponent>);
   private toastService = inject(NotificationService);
   public data: DialogData = inject(MAT_DIALOG_DATA);
+    private transalte = inject(TranslateService);
 
   actionForm: FormGroup;
   isProcessing = signal(false);
@@ -92,7 +93,7 @@ export class ApprovalActionDialogComponent {
       },
       error: (error) => {
         console.error('Error processing approval:', error);
-        this.toastService.showError('APPROVALS.ERROR_PROCESS_APPROVAL');
+       this.toastService.showError(this.transalte.instant('APPROVALS.ERROR_PROCESS_APPROVAL'));
         this.isProcessing.set(false);
       }
     });

@@ -1,10 +1,10 @@
 <mat-toolbar color="primary" class="mb-4 mr-3">
   <mat-toolbar-row>
-    <span>{{ 'ACCOUNTS.RECEIPT_FORM.TITLE' | translate }}</span>
+    <span>{{ 'ACCOUNTS.FORM.RECEIPT_TITLE' | translate }}</span>
     <span class="spacer"></span>
     <a mat-button routerLink="/accounts/receipts" class="back-link">
       <mat-icon>arrow_back</mat-icon>
-      {{ 'ACCOUNTS.RECEIPT_FORM.BACK' | translate }}
+      {{ 'ACCOUNTS.FORM.RECEIPT_BACK' | translate }}
     </a>
   </mat-toolbar-row>
 </mat-toolbar>
@@ -16,23 +16,30 @@
 
         <!-- Header Section -->
         <div class="form-section header-section">
-          <h3>{{ 'ACCOUNTS.RECEIPT_FORM.RECEIPT_DETAILS' | translate }}</h3>
+          <h3>{{ 'ACCOUNTS.FORM.RECEIPT_DETAILS' | translate }}</h3>
 
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.VOUCHER_NUMBER' | translate }}</mat-label>
+              <mat-label>{{ 'ACCOUNTS.FORM.VOUCHER_NUMBER' | translate }}</mat-label>
               <input matInput formControlName="voucherNumber" readonly>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.DATE' | translate }}</mat-label>
+              <mat-label>{{ 'ACCOUNTS.FORM.DATE' | translate }}</mat-label>
               <input matInput type="date" formControlName="voucherDate" required>
             </mat-form-field>
           </div>
 
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.RECEIPT_METHOD' | translate }}</mat-label>
+              <mat-label>Receipt Type</mat-label>
+              <mat-select formControlName="receiptType">
+                <mat-option *ngFor="let t of receiptTypes" [value]="t">{{ t }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'ACCOUNTS.FORM.RECEIPT_METHOD' | translate }}</mat-label>
               <mat-select formControlName="receiptMethod" required>
                 <mat-option value="CASH">{{ 'INVOICE.PAYMENT_CASH' | translate }}</mat-option>
                 <mat-option value="BANK_TRANSFER">{{ 'INVOICE.PAYMENT_BANK_TRANSFER' | translate }}</mat-option>
@@ -40,7 +47,7 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.TOTAL_AMOUNT_RECEIVED' | translate }}</mat-label>
+              <mat-label>{{ 'ACCOUNTS.FORM.TOTAL_AMOUNT_RECEIVED' | translate }}</mat-label>
               <input matInput type="number" formControlName="totalAmountReceived" required min="0.01">
             </mat-form-field>
           </div>
@@ -50,11 +57,11 @@
             <mat-form-field appearance="outline" class="form-field debit-field">
               <mat-label>
                 <mat-icon class="field-icon">arrow_upward</mat-icon>
-                {{ 'ACCOUNTS.RECEIPT_FORM.DEBIT_ACCOUNT' | translate }}
+                {{ 'ACCOUNTS.FORM.DEBIT_ACCOUNT' | translate }}
               </mat-label>
               <mat-select formControlName="debitAccountId" required>
                 <mat-option [value]="null" disabled>
-                  {{ 'ACCOUNTS.RECEIPT_FORM.SELECT_ACCOUNT' | translate }}
+                  {{ 'ACCOUNTS.FORM.SELECT_ACCOUNT' | translate }}
                 </mat-option>
                 <mat-option *ngFor="let acc of accounts(); trackBy: trackByAccountId" [value]="acc.id">
                   {{ acc.accountCode }} - {{ acc.accountNameAr }}
@@ -68,11 +75,11 @@
             <mat-form-field appearance="outline" class="form-field credit-field">
               <mat-label>
                 <mat-icon class="field-icon">arrow_downward</mat-icon>
-                {{ 'ACCOUNTS.RECEIPT_FORM.CREDIT_ACCOUNT' | translate }}
+                {{ 'ACCOUNTS.FORM.CREDIT_ACCOUNT' | translate }}
               </mat-label>
               <mat-select formControlName="creditAccountId" required>
                 <mat-option [value]="null" disabled>
-                  {{ 'ACCOUNTS.RECEIPT_FORM.SELECT_ACCOUNT' | translate }}
+                  {{ 'ACCOUNTS.FORM.SELECT_ACCOUNT' | translate }}
                 </mat-option>
                 <mat-option *ngFor="let acc of accounts(); trackBy: trackByAccountId" [value]="acc.id">
                   {{ acc.accountCode }} - {{ acc.accountNameAr }}
@@ -86,31 +93,90 @@
         </div>
 
         <!-- Customer Selection -->
-        <div class="form-section customer-section">
-          <h3>{{ 'ACCOUNTS.RECEIPT_FORM.CUSTOMER_SELECTION' | translate }}</h3>
+        <div class="form-section customer-section" *ngIf="isCustomerReceipt()">
+          <h3>{{ 'ACCOUNTS.FORM.CUSTOMER_SELECTION' | translate }}</h3>
           <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'ACCOUNTS.FORM.CUSTOMER' | translate }}</mat-label>
+              <mat-select formControlName="customerId"
+                          (selectionChange)="onCustomerChange($event.value)" >
+                <mat-option [value]="null" disabled>
+                  {{ 'ACCOUNTS.FORM.SELECT_CUSTOMER' | translate }}
+                </mat-option>
+                <mat-option *ngFor="let c of customers(); trackBy: trackByCustomerId" [value]="c.id">
+                  {{ c.name }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="receiptForm.get('customerId')?.hasError('required')">
+                {{ 'VALIDATION.REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+
+
             <div class="form-field distribute-wrapper">
               <button mat-raised-button color="accent" type="button"
                       (click)="distributeAmount()"
                       [disabled]="!receiptForm.get('totalAmountReceived')?.value || allocations.length === 0"
                       class="distribute-btn">
                 <mat-icon>call_split</mat-icon>
-                {{ 'ACCOUNTS.RECEIPT_FORM.DISTRIBUTE' | translate }}
+                {{ 'ACCOUNTS.FORM.DISTRIBUTE' | translate }}
               </button>
             </div>
           </div>
         </div>
 
+        <!-- Invoice Selection & Cars -->
+        <div class="form-section invoice-cars-section" *ngIf="isCustomerReceipt() && customerInvoices().length > 0">
+          <h3>{{ 'ACCOUNTS.FORM.INVOICE_SELECTION' | translate }}</h3>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'ACCOUNTS.FORM.INVOICE' | translate }}</mat-label>
+              <mat-select [value]="selectedInvoiceId()" (selectionChange)="loadInvoiceCars($event.value)">
+                <mat-option [value]="null" disabled>{{ 'ACCOUNTS.FORM.SELECT_INVOICE' | translate }}</mat-option>
+                <mat-option *ngFor="let inv of customerInvoices(); trackBy: trackByInvoiceId" [value]="inv.id">
+                  {{ inv.invoiceNumber }} ({{ inv.amountDue | currency:'SAR' }})
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <div class="form-field">
+              <button mat-stroked-button color="primary" type="button" (click)="addSelectedInvoiceCarsToAllocations()"
+                      [disabled]="!selectedInvoiceCars() || selectedInvoiceCars().length === 0">
+                {{ 'ACCOUNTS.FORM.CAR_DISTRIBUTION' | translate }}
+              </button>
+            </div>
+          </div>
+
+          <div class="table-container" *ngIf="selectedInvoiceCars().length > 0">
+            <table class="invoice-cars-table">
+              <thead>
+                <tr>
+                  <th>{{ 'ACCOUNTS.FORM.CHASSIS_NUMBER' | translate }}</th>
+                  <th>{{ 'ACCOUNTS.FORM.MODEL' | translate }}</th>
+                  <th>{{ 'ACCOUNTS.FORM.AMOUNT' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let car of selectedInvoiceCars()">
+                  <td>{{ car.chassisNumber || car.vin }}</td>
+                  <td>{{ car.make }} {{ car.model }} {{ car.year }}</td>
+                  <td>{{ car.purchasePrice ?? car.totalCost | currency:'SAR' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- Allocation Table -->
-        <div class="form-section allocation-section" *ngIf="allocations.length > 0">
-          <h3>{{ 'ACCOUNTS.RECEIPT_FORM.ALLOCATION_TABLE' | translate }}</h3>
+        <div class="form-section allocation-section" *ngIf="isCustomerReceipt() && allocations.length > 0">
+          <h3>{{ 'ACCOUNTS.FORM.ALLOCATION_TABLE' | translate }}</h3>
           <div class="table-container">
             <table class="allocation-table">
               <thead>
                 <tr>
-                  <th>{{ 'ACCOUNTS.RECEIPT_FORM.REFERENCE' | translate }}</th>
-                  <th>{{ 'ACCOUNTS.RECEIPT_FORM.ORIGINAL_BALANCE' | translate }}</th>
-                  <th>{{ 'ACCOUNTS.RECEIPT_FORM.AMOUNT_TO_PAY' | translate }}</th>
+                  <th>{{ 'ACCOUNTS.FORM.REFERENCE' | translate }}</th>
+                  <th>{{ 'ACCOUNTS.FORM.ORIGINAL_BALANCE' | translate }}</th>
+                  <th>{{ 'ACCOUNTS.FORM.AMOUNT_TO_PAY' | translate }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -151,13 +217,13 @@
 
         <!-- Accounting Preview -->
         <div class="form-section accounting-section">
-          <h3>{{ 'ACCOUNTS.RECEIPT_FORM.ACCOUNTING_PREVIEW' | translate }}</h3>
+          <h3>{{ 'ACCOUNTS.FORM.ACCOUNTING_PREVIEW' | translate }}</h3>
           <div class="accounting-grid">
 
             <div class="accounting-card debit-card">
               <h4>
                 <mat-icon>arrow_upward</mat-icon>
-                {{ 'ACCOUNTS.RECEIPT_FORM.DEBIT' | translate }}
+                {{ 'ACCOUNTS.FORM.DEBIT' | translate }}
               </h4>
               <div class="accounting-item">
                 <span>{{ getAccountName(receiptForm.get('debitAccountId')?.value) }}</span>
@@ -170,7 +236,7 @@
             <div class="accounting-card credit-card">
               <h4>
                 <mat-icon>arrow_downward</mat-icon>
-                {{ 'ACCOUNTS.RECEIPT_FORM.CREDIT' | translate }}
+                {{ 'ACCOUNTS.FORM.CREDIT' | translate }}
               </h4>
               <div class="accounting-item">
                 <span>{{ getAccountName(receiptForm.get('creditAccountId')?.value) }}</span>
@@ -184,7 +250,7 @@
 
           <div class="difference-section" [class.error]="unallocatedBalance() !== 0">
             <strong>
-              {{ 'ACCOUNTS.RECEIPT_FORM.UNALLOCATED_BALANCE' | translate }}:
+              {{ 'ACCOUNTS.FORM.UNALLOCATED_BALANCE' | translate }}:
               {{ unallocatedBalance() | currency:'SAR' }}
             </strong>
           </div>
@@ -193,7 +259,7 @@
         <!-- Notes -->
         <div class="form-section notes-section">
           <mat-form-field appearance="outline" class="notes-field">
-            <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.NOTES' | translate }}</mat-label>
+            <mat-label>{{ 'ACCOUNTS.FORM.NOTES' | translate }}</mat-label>
             <textarea matInput formControlName="notes" rows="3"></textarea>
           </mat-form-field>
         </div>
@@ -202,11 +268,11 @@
 
       <mat-card-actions align="end" class="form-actions">
         <a mat-stroked-button routerLink="/accounts/receipts">
-          {{ 'ACCOUNTS.RECEIPT_FORM.CANCEL' | translate }}
+          {{ 'ACCOUNTS.FORM.CANCEL' | translate }}
         </a>
         <button mat-raised-button color="primary" type="submit"
                 [disabled]="receiptForm.invalid || unallocatedBalance() !== 0">
-          {{ (isEditMode() ? 'ACCOUNTS.RECEIPT_FORM.UPDATE' : 'ACCOUNTS.RECEIPT_FORM.SAVE') | translate }}
+          {{ (isEditMode() ? 'ACCOUNTS.FORM.UPDATE' : 'ACCOUNTS.FORM.SAVE_RECEIPT') | translate }}
         </button>
       </mat-card-actions>
 

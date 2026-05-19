@@ -77,6 +77,7 @@ export class BranchListComponent {
       height: '80%',
       data: null
     });
+    dialogRef.afterClosed().subscribe(() => this.loadBranches());
   }
 
   onEdit(event: any): void {
@@ -87,6 +88,7 @@ export class BranchListComponent {
         height: '80%',
         data: { branch }
       });
+      dialogRef.afterClosed().subscribe(() => this.loadBranches());
     } else {
       console.error('Invalid branch data:', branch);
     }

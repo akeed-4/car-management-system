@@ -6,7 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Store, Company, Branch } from '../../../models/branch.model';
 import { StoreService } from '../../../services/store.service';
 import { CompanyService } from '../../../services/company.service';
@@ -47,6 +47,7 @@ export class StoreFormComponent implements OnInit {
     private companyService: CompanyService,
     private branchService: BranchService,
     private toastService: NotificationService,
+      private translateService: TranslateService,
     @Optional() public dialogRef: MatDialogRef<StoreFormComponent>,
     @Optional() @Inject(MAT_DIALOG_DATA) public data: number | null
   ) {}
@@ -125,28 +126,28 @@ export class StoreFormComponent implements OnInit {
       if (this.isEdit && this.data) {
         this.storeService.update(this.data, storeData).subscribe({
           next: () => {
-            this.toastService.showSuccess('TOAST.EDIT_SUCCESS');
+            this.toastService.showSuccess(this.translateService.instant('TOAST.EDIT_SUCCESS'));
             this.closeDialog();
           },
           error: (error) => {
             console.error('Error updating store:', error);
-            this.toastService.showError('TOAST.SAVE_ERROR');
+           this.toastService.showError(this.translateService.instant('TOAST.SAVE_ERROR'));
           }
         });
       } else {
         this.storeService.create(storeData).subscribe({
           next: () => {
-            this.toastService.showSuccess('TOAST.ADD_SUCCESS');
+            this.toastService.showSuccess(this.translateService.instant('TOAST.ADD_SUCCESS'));
             this.closeDialog();
           },
           error: (error) => {
             console.error('Error creating store:', error);
-            this.toastService.showError('TOAST.SAVE_ERROR');
+           this.toastService.showError(this.translateService.instant('TOAST.SAVE_ERROR'));
           }
         });
       }
     } else {
-      this.toastService.showWarning('TOAST.VALIDATION_ERROR');
+      this.toastService.showWarning(this.translateService.instant('TOAST.VALIDATION_ERROR'));
     }
   }
 

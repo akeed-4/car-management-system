@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DxDataGridModule } from 'devextreme-angular';
 import { ApprovalService } from '../../../services/approval.service';
 import { ApprovalWorkflow, DOCUMENT_TYPES } from '../../../models/approval-workflow.model';
@@ -35,7 +35,7 @@ export class ApprovalWorkflowListComponent implements OnInit {
   private router = inject(Router);
   private toastService = inject(ToastService);
   private notificationService = inject(NotificationService);
-
+  private translate = inject(TranslateService);
   workflows = signal<ApprovalWorkflow[]>([]);
   isLoading = signal(false);
 
@@ -54,7 +54,7 @@ export class ApprovalWorkflowListComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading workflows:', error);
-        this.toastService.showError('APPROVALS.ERROR_LOADING_WORKFLOWS');
+       this.toastService.showError(this.translate.instant('APPROVALS.ERROR_LOADING_WORKFLOWS'));
         this.isLoading.set(false);
       }
     });
@@ -87,7 +87,7 @@ export class ApprovalWorkflowListComponent implements OnInit {
         },
         error: (error) => {
           console.error(`Error ${action}ing workflow:`, error);
-          this.toastService.showError(`APPROVALS.ERROR_${action.toUpperCase()}_WORKFLOW`);
+         this.toastService.showError(this.translate.instant(`APPROVALS.ERROR_${action.toUpperCase()}_WORKFLOW`)) ;
         }
       });
     }
@@ -107,7 +107,7 @@ export class ApprovalWorkflowListComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error deleting workflow:', error);
-          this.toastService.showError('APPROVALS.ERROR_DELETE_WORKFLOW');
+         this.toastService.showError(this.translate.instant('APPROVALS.ERROR_DELETE_WORKFLOW'));
         }
       });
     }

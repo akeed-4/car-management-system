@@ -35,9 +35,8 @@ export class SupplierFormComponent implements OnInit {
   private router = inject(Router);
   private supplierService = inject(SupplierService);
   private fb = inject(FormBuilder);
-  private translateService= TranslateService
-  
-private notificationService:NotificationService | undefined
+  private translateService = inject(TranslateService);
+  private notificationService = inject(NotificationService);
   supplierForm!: FormGroup;
   supplier = signal<Partial<Supplier>>({});
   editMode = signal(false);
@@ -67,7 +66,7 @@ private notificationService:NotificationService | undefined
       name: ['', [Validators.required, Validators.minLength(2)]],
       crNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
       taxNumber: [''],
-      phone: ['', [Validators.required, Validators.pattern(/^\+966\d{9}$/)]],
+      phone: ['', [Validators.required, ]],
       phone2: [''],
       email: ['', [Validators.email]],
       website: [''],
@@ -100,7 +99,16 @@ private notificationService:NotificationService | undefined
           ...formValue,
           lastUpdated: currentDate
         } as Supplier;
-        this.supplierService.updateSupplier(updatedSupplier);
+        this.supplierService.updateSupplier(updatedSupplier).subscribe({
+          next: () => {
+            this.supplierForm.reset();
+            this.supplierForm.markAsPristine();
+            this.notificationService.showSuccess(this.translateService.instant('TOAST.UPDATE_SUCCESS'));
+          },
+          error: (error) => {
+            console.error('Failed to update supplier:', error);
+          }
+        });
       } else {
         const newSupplier: Omit<Supplier, 'id'> = {
           ...formValue,
@@ -112,7 +120,7 @@ private notificationService:NotificationService | undefined
           next: () => {
             this.supplierForm.reset();
             this.supplierForm.markAsPristine();
-           this.notificationService?.showSuccess('TOAST.ADD_SUCCESS');
+            this.notificationService.showSuccess(this.translateService.instant('TOAST.ADD_SUCCESS'));
           },
           error: (error) => {
             console.error('Failed to add supplier:', error);

@@ -153,16 +153,28 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
     if (confirm(this.translate.instant('ACCOUNTING.CONFIRM_DELETE'))) {
       this.accountingService.deleteAccount(account.id).subscribe({
         next: () => {
-          this.toastService.showSuccess('ACCOUNTING.ACCOUNT_DELETED');
+          this.toastService.showSuccess(this.translate.instant('ACCOUNTING.ACCOUNT_DELETED'));
           this.loadAccounts();
         },
         error: (error) => {
-          this.toastService.showError('ACCOUNTING.ERROR_DELETING_ACCOUNT');
+         this.toastService.showError(this.translate.instant('ACCOUNTING.ERROR_DELETING_ACCOUNT'));
         }
       });
     }
   }
+isaccountDeletable(account: Account): boolean {
+    // An account is deletable if it has no children
+    const accounts = this.accounts();
+    const hasChildren = accounts.some(acc => acc.parentId === account.id);
+    return !hasChildren;
+  }
 
+  // DevExtreme buttons can use a function for `visible` which receives the row context.
+  isDeleteVisible = (e: any): boolean => {
+    const account: Account = e && e.row && e.row.data ? e.row.data : e;
+    if (!account || !account.id) return false;
+    return this.isaccountDeletable(account);
+  }
   translateAccountName(accountName: string): string {
     return this.accountingService.translateAccountName(accountName);
   }

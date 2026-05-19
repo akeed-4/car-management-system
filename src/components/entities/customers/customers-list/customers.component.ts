@@ -11,7 +11,7 @@ import {
   DxLoadPanelModule,
   DxScrollViewModule
 } from 'devextreme-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatIconModule } from '@angular/material/icon';
 import { ToastService } from '../../../../services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
@@ -42,6 +42,7 @@ export class CustomersComponent {
   private customerService = inject(CustomerService);
   private router = inject(Router);
   private toastService = inject(NotificationService);
+  private translate = inject(TranslateService);
   
   // customers = this.customerService.customers$;
   filter = signal('');
@@ -139,7 +140,7 @@ constructor(){
         },
         error: (error) => {
           console.error('Error deleting customer:', error);
-          this.toastService.showError('TOAST.SAVE_ERROR');
+          this.toastService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
         }
       });
     }

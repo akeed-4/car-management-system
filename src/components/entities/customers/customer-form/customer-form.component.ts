@@ -18,7 +18,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { provideNativeDateAdapter } from '@angular/material/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../../../services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
 
@@ -51,6 +51,7 @@ export class CustomerFormComponent implements OnInit {
   private salesService = inject(SalesService);
   private inventoryService = inject(InventoryService);
   private toastService = inject(NotificationService);
+  private translate = inject(TranslateService);
   private fb = inject(FormBuilder);
 
   customerForm!: FormGroup;
@@ -147,7 +148,7 @@ export class CustomerFormComponent implements OnInit {
           },
           error: (error) => {
             console.error('Error updating customer:', error);
-            this.toastService.showError('TOAST.SAVE_ERROR');
+           this.toastService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
           }
         });
       } else {
@@ -164,7 +165,7 @@ export class CustomerFormComponent implements OnInit {
           },
           error: (error) => {
             console.error('Error adding customer:', error);
-            this.toastService.showError('TOAST.SAVE_ERROR');
+           this.toastService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
           }
         });
       }

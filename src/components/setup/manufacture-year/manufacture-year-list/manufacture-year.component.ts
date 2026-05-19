@@ -6,7 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ManufactureYearService } from '../../../../services/manufacture-year.service';
 import { CurrentSettingService } from '../../../../services/current-setting.service';
 import { ModalComponent } from '../../../shared/modal/modal.component';
@@ -26,6 +26,7 @@ export class ManufactureYearComponent implements OnInit {
   private currentSettingService = inject(CurrentSettingService);
   private fb = inject(FormBuilder);
   private toastService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   years = this.yearService.years$;
   yearForm!: FormGroup;
@@ -58,22 +59,22 @@ export class ManufactureYearComponent implements OnInit {
             const editingYear = this.editingYear();
             if (editingYear !== null) {
               await this.yearService.updateYear(editingYear, year);
-              this.toastService.showSuccess('TOAST.EDIT_SUCCESS');
+              this.toastService.showSuccess(this.translate.instant('TOAST.EDIT_SUCCESS'));
               this.cancelEdit();
             }
           } else {
             // Add new year
             await this.yearService.addYear(year);
-            this.toastService.showSuccess('TOAST.ADD_SUCCESS');
+            this.toastService.showSuccess(this.translate.instant('TOAST.ADD_SUCCESS'));
             this.yearForm.reset({ year: new Date().getFullYear() });
           }
         } catch (error) {
           console.error('Failed to add/update year', error);
-          this.toastService.showError('TOAST.SAVE_ERROR');
+         this.toastService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
         }
       }
     } else {
-      this.toastService.showWarning('TOAST.VALIDATION_ERROR');
+      this.toastService.showWarning(this.translate.instant('TOAST.VALIDATION_ERROR'));
     }
   }
 
@@ -101,11 +102,11 @@ export class ManufactureYearComponent implements OnInit {
     if (year !== null) {
       try {
         await this.yearService.deleteYear(year);
-        this.toastService.showSuccess('TOAST.DELETE_SUCCESS');
+        this.toastService.showSuccess(this.translate.instant('TOAST.DELETE_SUCCESS'));
         this.closeDeleteModal();
       } catch (error) {
         console.error('Failed to delete year', error);
-        this.toastService.showError('TOAST.SAVE_ERROR');
+       this.toastService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
       }
     }
   }

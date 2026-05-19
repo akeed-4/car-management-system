@@ -598,15 +598,15 @@ export class PurchaseInvoiceComponent implements OnInit {
     const items = this.invoiceItems();
 
     if (!supplierId || !supplier) {
-      this.notificationService.showError('PURCHASE_INVOICE.ERROR_SELECT_SUPPLIER');
+      this.notificationService.showError(this.translate.instant('PURCHASE_INVOICE.ERROR_SELECT_SUPPLIER'));
       return;
     }
     if (items.length === 0) {
-      this.notificationService.showError('PURCHASE_INVOICE.ERROR_NO_ITEMS');
+      this.notificationService.showError(this.translate.instant('PURCHASE_INVOICE.ERROR_NO_ITEMS'));
       return;
     }
     if (this.totalAmount() <= 0) {
-      this.notificationService.showError('Total amount must be greater than 0');
+      this.notificationService.showError(this.translate.instant('PURCHASE_INVOICE.ERROR_TOTAL_AMOUNT'));
       return;
     }
 
@@ -636,22 +636,22 @@ export class PurchaseInvoiceComponent implements OnInit {
       }
       this.procurementService.updateInvoice(invoiceId, newInvoice).subscribe({
         next: (savedInvoice) => {
-          this.notificationService.showSuccess('TOAST.UPDATE_SUCCESS');
+          this.notificationService.showSuccess(this.translate.instant('TOAST.UPDATE_SUCCESS'));
           // Optionally navigate or reset
         },
         error: (error) => {
           console.error('Error updating purchase invoice:', error);
-          this.notificationService.showError('TOAST.SAVE_ERROR');
+          this.notificationService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
         }
       });
     } else {
       this.procurementService.addInvoice(newInvoice).subscribe({
         next: (savedInvoice) => {
-            this.notificationService.showSuccess('TOAST.ADD_SUCCESS');
+            this.notificationService.showSuccess(this.translate.instant('TOAST.ADD_SUCCESS'));
         },
         error: (error) => {
           console.error('Error saving purchase invoice:', error);
-          this.notificationService.showError('TOAST.SAVE_ERROR');
+          this.notificationService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
         }
       });
     }
@@ -692,7 +692,7 @@ export class PurchaseInvoiceComponent implements OnInit {
           lineTotal: item.unitPrice ? item.unitPrice * updatedQuantity : 0
         };
         this.updateInvoiceItem(updatedItem);
-        this.notificationService.showSuccess('VIN numbers updated successfully');
+        this.notificationService.showSuccess(this.translate.instant('PURCHASE_INVOICE.VIN_UPDATED_SUCCESS'));
       }
     });
   }

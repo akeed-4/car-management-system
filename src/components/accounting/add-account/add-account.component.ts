@@ -128,6 +128,7 @@ export class AddAccountComponent implements OnChanges, OnInit {
 
     // Watch for account type selection changes to update validation
     this.accountForm.get('accountTypeSelection')?.valueChanges.subscribe(value => {
+      this.syncAccountTypeSelection(value);
       this.updateValidationBasedOnAccountType(value);
     });
 
@@ -147,12 +148,44 @@ export class AddAccountComponent implements OnChanges, OnInit {
       if (code) {
         const mainAccount = this.accountingService.getAccountByCode(code);
         if (mainAccount) {
-          this.accountForm.get('mainAccountName')?.setValue(mainAccount.accountNameEn);
+          this.accountForm.patchValue({
+            mainAccountName: mainAccount.accountNameEn,
+            mainAccountId: mainAccount.id,
+            accountTypeId: mainAccount.accountTypeId,
+            accountCategoryId: mainAccount.accountCategoryId,
+            currencyId: mainAccount.currencyId,
+            companyId: mainAccount.companyId,
+            // For partial accounts: set level to parent's level + 1
+            accountLevel: (mainAccount.accountLevel || 0) + 1
+          }, { emitEvent: false });
+        }
+      } else {
+        // Clear dependent fields when code is empty
+        this.accountForm.patchValue({ mainAccountName: '', mainAccountId: 0 }, { emitEvent: false });
+      }
+    });
+
+    // Watch for mainAccountId changes to populate related fields (useful if set programmatically)
+    this.accountForm.get('mainAccountId')?.valueChanges.subscribe(id => {
+      if (id && id !== 0) {
+        const accounts = this.accountingService.getCurrentAccounts();
+        const mainAccount = accounts.find(a => a.id === +id);
+        if (mainAccount) {
+          this.accountForm.patchValue({
+            mainAccountCode: mainAccount.accountCode,
+            mainAccountName: mainAccount.accountNameEn,
+            accountTypeId: mainAccount.accountTypeId,
+            accountCategoryId: mainAccount.accountCategoryId,
+            currencyId: mainAccount.currencyId,
+            companyId: mainAccount.companyId,
+            accountLevel: (mainAccount.accountLevel || 0) + 1
+          }, { emitEvent: false });
         }
       }
     });
 
-    // Set initial validation
+    // Set initial selection state and validation
+    this.syncAccountTypeSelection('main');
     this.updateValidationBasedOnAccountType('main');
   }
 
@@ -214,7 +247,7 @@ export class AddAccountComponent implements OnChanges, OnInit {
       },
       error: (error) => {
         console.error('Error loading cost centers:', error);
-        this.toastService.showError('Failed to load cost centers');
+        this.toastService.showError(this.translate.instant('Failed to load cost centers'));
       }
     });
   }
@@ -223,7 +256,6 @@ export class AddAccountComponent implements OnChanges, OnInit {
     this.accountingService.getAccountById(accountId).subscribe(account => {
       if (account) {
         this.onEditAccount(account);
-        // Manually trigger ngOnChanges since @Input is not used for routed component
       }
     });
   }
@@ -231,6 +263,7 @@ export class AddAccountComponent implements OnChanges, OnInit {
   private onEditAccount(account: Account) {
     this.isEditing = true;
     this.editingAccount = account;
+    this.updateFormForEditing();
   }
 
   private updateValidationBasedOnAccountType(accountType: string) {
@@ -254,6 +287,23 @@ export class AddAccountComponent implements OnChanges, OnInit {
     // Update validation
     accountNameArControl?.updateValueAndValidity();
     mainAccountCodeControl?.updateValueAndValidity();
+  }
+
+  private syncAccountTypeSelection(accountType: string) {
+    const isMainAccount = accountType === 'main';
+
+    this.accountForm.patchValue({
+      isMainAccount
+    }, { emitEvent: false });
+
+    if (isMainAccount) {
+      this.accountForm.patchValue({
+        mainAccountId: 0,
+        mainAccountCode: '',
+        mainAccountName: '',
+        parentId: null
+      }, { emitEvent: false });
+    }
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -293,20 +343,17 @@ export class AddAccountComponent implements OnChanges, OnInit {
       if (this.isEditing && this.editingAccount) {
         const updateDto: UpdateAccountDto = {
           id: this.editingAccount.id,
-          ...processedData,
-          isActive: true
+          ...processedData
         };
-        console.log('Sending update DTO:', updateDto);
         this.accountingService.updateAccount(updateDto).subscribe({
           next: (account) => {
-            console.log('Account updated successfully:', account);
-            this.toastService.showSuccess('ACCOUNTING.ACCOUNT_UPDATED');
+            debugger
+            this.toastService.showSuccess(this.translate.instant('ACCOUNTING.ACCOUNT_UPDATED'));
             this.accountSaved.emit(account);
             this.isSaving = false;
           },
           error: (error) => {
-            console.error('Error updating account:', error);
-            this.toastService.showError('ACCOUNTING.ERROR_UPDATING_ACCOUNT');
+           this.toastService.showError(this.translate.instant('ACCOUNTING.ERROR_UPDATING_ACCOUNT'));
             this.isSaving = false;
           }
         });
@@ -315,14 +362,13 @@ export class AddAccountComponent implements OnChanges, OnInit {
         console.log('Sending create DTO:', createDto);
         this.accountingService.createAccount(createDto).subscribe({
           next: (account) => {
-            console.log('Account created successfully:', account);
-            this.toastService.showSuccess('ACCOUNTING.ACCOUNT_CREATED');
+            this.toastService.showSuccess(this.translate.instant('ACCOUNTING.ACCOUNT_CREATED'));
             this.accountSaved.emit(account);
             this.isSaving = false;
           },
           error: (error) => {
             console.error('Error creating account:', error);
-            this.toastService.showError('ACCOUNTING.ERROR_CREATING_ACCOUNT');
+           this.toastService.showError(this.translate.instant('ACCOUNTING.ERROR_CREATING_ACCOUNT'));
             this.isSaving = false;
           }
         });
@@ -380,6 +426,7 @@ export class AddAccountComponent implements OnChanges, OnInit {
         bankId: this.editingAccount.bankId,
         bankName: this.editingAccount.bankName
       });
+      this.syncAccountTypeSelection(accountTypeSelection);
       this.updateValidationBasedOnAccountType(accountTypeSelection);
       // If this is a partial account, ensure the main account fields are populated
       if (!this.editingAccount.isMainAccount) {

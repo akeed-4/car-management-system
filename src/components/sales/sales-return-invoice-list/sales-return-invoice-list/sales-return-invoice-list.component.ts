@@ -80,7 +80,7 @@ constructor() {
         },
         error: (error) => {
           console.error('Failed to delete invoice', error);
-          this.toastService.showError('INVOICE.DELETED_ERROR');
+         this.toastService.showError(this.translate.instant('INVOICE.DELETED_ERROR'));
         }
       });
     }

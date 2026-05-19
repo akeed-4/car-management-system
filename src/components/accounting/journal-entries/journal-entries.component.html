@@ -82,17 +82,17 @@
                 (onCellPrepared)="onCellPrepared($event)">
                 <dxi-column dataField="lineNumber" caption="{{ 'ACCOUNTING.LINE_NUMBER' | translate }}"
                   [allowEditing]="false"></dxi-column>
-                <dxi-column dataField="accountId" caption="{{ 'ACCOUNTING.ACCOUNT' | translate }}">
+                <dxi-column dataField="accountId" caption="{{ 'ACCOUNTING.ACCOUNT' | translate }}" [setCellValue]="setAccountCellValue">
 
-                  <dxo-lookup [dataSource]="accounts" valueExpr="id" displayExpr="accountNameAr">
+                  <dxo-lookup [dataSource]="partialAccounts" valueExpr="id" displayExpr="accountNameAr">
                   </dxo-lookup>
 
                 </dxi-column>
 
                 <dxi-column dataField="accountCode" caption="{{ 'ACCOUNTING.ACCOUNT_CODE' | translate }}"
-                  [allowEditing]="false" [calculateCellValue]="calculateAccountCode"></dxi-column>
+                  [allowEditing]="false"></dxi-column>
                 <dxi-column dataField="accountName" caption="{{ 'ACCOUNTING.ACCOUNT_NAME' | translate }}"
-                  [allowEditing]="false" [calculateCellValue]="calculateAccountName"></dxi-column>
+                  [allowEditing]="false"></dxi-column>
                 <dxi-column dataField="debit" caption="{{ 'ACCOUNTING.DEBIT' | translate }}"
                   dataType="number"></dxi-column>
                 <dxi-column dataField="credit" caption="{{ 'ACCOUNTING.CREDIT' | translate }}"

@@ -74,7 +74,7 @@ export class CarCategoryFormComponent implements OnInit {
       id: [null],
       name: ['', Validators.required],
       nameAr: ['',Validators.required],
-      nameEn: ['',Validators.required],
+      nameEn: [''],
       description: [''],
       modelId: [null,Validators.required]
     });
@@ -94,7 +94,7 @@ export class CarCategoryFormComponent implements OnInit {
       const modelIds = categoryData.modelId ? [categoryData.modelId] : [];
       this.carCategoryService.updateCategoryWithModels(category, modelIds).subscribe({
         next: () => {
-          this.notificationService.showSuccess(this.translate.instant('CAR_CATEGORY.FORM.UPDATE_SUCCESS'));
+          this.notificationService.showSuccess(this.translate.instant('TOAST.UPDATE_SUCCESS'));
           this.router.navigate(['/setup/car-categories']);
         },
         error: (error) => {
@@ -106,7 +106,7 @@ export class CarCategoryFormComponent implements OnInit {
       const modelIds = categoryData.modelId ? [categoryData.modelId] : [];
       this.carCategoryService.addCategoryWithModels(newCategory, modelIds).subscribe({
         next: () => {
-        this.notificationService.showSuccess(this.translate.instant('CAR_CATEGORY.FORM.CREATE_SUCCESS'));
+          this.notificationService.showSuccess(this.translate.instant('TOAST.ADD_SUCCESS'));
           this.router.navigate(['/setup/car-categories']);  
         },
         error: (error) => {

@@ -14,7 +14,7 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ApprovalService } from '../../../services/approval.service';
 import { 
   ApprovalWorkflow, 
@@ -56,6 +56,7 @@ export class ApprovalWorkflowFormComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private toastService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   workflowForm!: FormGroup;
   editMode = signal(false);
@@ -129,7 +130,7 @@ export class ApprovalWorkflowFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading workflow:', error);
-        this.toastService.showError('APPROVALS.ERROR_LOADING_WORKFLOW');
+       this.toastService.showError(this.translate.instant('APPROVALS.ERROR_LOADING_WORKFLOW'));
         this.router.navigate(['/approvals/workflows']);
       }
     });
@@ -216,7 +217,7 @@ export class ApprovalWorkflowFormComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error updating workflow:', error);
-          this.toastService.showError('APPROVALS.ERROR_UPDATE_WORKFLOW');
+         this.toastService.showError(this.translate.instant('APPROVALS.ERROR_UPDATE_WORKFLOW'));
           this.isSubmitting.set(false);
         }
       });
@@ -228,7 +229,7 @@ export class ApprovalWorkflowFormComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error creating workflow:', error);
-          this.toastService.showError('APPROVALS.ERROR_CREATE_WORKFLOW');
+         this.toastService.showError(this.translate.instant('APPROVALS.ERROR_CREATE_WORKFLOW'));
           this.isSubmitting.set(false);
         }
       });

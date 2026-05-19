@@ -8,7 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CarModelService } from '../../../../services/car-model.service';
 import { ManufacturerService } from '../../../../services/manufacturer.service';
 import { CurrentSettingService } from '../../../../services/current-setting.service';
@@ -34,6 +34,7 @@ export class CarModelsComponent implements OnInit {
   private currentSettingService = inject(CurrentSettingService);
   private fb = inject(FormBuilder);
   private toastService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   carModels = toSignal(this.carModelService.getCarModels(), { initialValue: [] });
   manufacturers = this.manufacturerService.manufacturers$;
@@ -143,7 +144,7 @@ export class CarModelsComponent implements OnInit {
                 manufacturerId,
                 manufacturerName: manufacturer.name 
               });
-              this.toastService.showSuccess('TOAST.EDIT_SUCCESS');
+              this.toastService.showSuccess(this.translate.instant('TOAST.EDIT_SUCCESS'));
               this.cancelEdit();
             }
           } else {
@@ -153,16 +154,16 @@ export class CarModelsComponent implements OnInit {
               manufacturerId,
               manufacturerName: manufacturer.name 
             });
-            this.toastService.showSuccess('TOAST.ADD_SUCCESS');
+            this.toastService.showSuccess(this.translate.instant('TOAST.ADD_SUCCESS'));
             this.carModelForm.reset();
           }
         } catch (error) {
           console.error('Failed to add/update car model', error);
-          this.toastService.showError('TOAST.SAVE_ERROR');
+         this.toastService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
         }
       }
     } else {
-      this.toastService.showWarning('TOAST.VALIDATION_ERROR');
+      this.toastService.showWarning(this.translate.instant('TOAST.VALIDATION_ERROR'));
     }
   }
 
@@ -192,11 +193,11 @@ export class CarModelsComponent implements OnInit {
     if (id) {
       this.carModelService.deleteCarModel(id).subscribe({
         next: () => {
-          this.toastService.showSuccess('TOAST.DELETE_SUCCESS');
+          this.toastService.showSuccess(this.translate.instant('TOAST.DELETE_SUCCESS'));
         },
         error: (error) => {
           console.error('Failed to delete car model', error);
-          this.toastService.showError('TOAST.SAVE_ERROR');
+         this.toastService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
         }
       });
       this.closeDeleteModal();

@@ -1,153 +1,153 @@
-/* Material Design Styles for Receipt Form */
-
 .form-card {
-  margin: 0 auto;
+  margin: 16px auto;
+  max-width: 1200px;
   margin-bottom: 2rem;
 }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.5rem;
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 1rem;
 }
 
-.header-section {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+.form-section {
+  border: 1px solid rgba(0,0,0,.12);
+  border-radius: 8px;
+  padding: 1.5rem;
+  background: #fafafa;
+
+  h3 {
+    margin: 0 0 1rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-bottom: 2px solid #1976d2;
+    padding-bottom: .5rem;
+    color: rgba(0,0,0,.87);
+  }
+
+  h4 {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 .5rem;
+    font-size: 1rem;
+    font-weight: 500;
+  }
 }
 
-.account-customer-section {
-  display: grid;
-  grid-template-columns: 1fr 1fr auto;
+.form-row {
+  display: flex;
   gap: 1rem;
-  align-items: start;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
 
-.allocation-card {
-  margin-bottom: 1.5rem;
+.form-field {
+  flex: 1;
+  min-width: 200px;
+}
+
+.debit-field .mat-mdc-text-field-wrapper  { border-left: 3px solid #d32f2f; }
+.credit-field .mat-mdc-text-field-wrapper { border-left: 3px solid #388e3c; }
+
+.field-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.table-container {
+  overflow-x: auto;
+  border-radius: 4px;
+  border: 1px solid rgba(0,0,0,.12);
 }
 
 .allocation-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 1rem;
+  background: #fff;
+
+  th, td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid rgba(0,0,0,.08);
+  }
+
+  th {
+    font-weight: 500;
+    font-size: .85rem;
+    color: rgba(0,0,0,.6);
+    background: #f5f5f5;
+  }
 }
 
-.allocation-table th,
-.allocation-table td {
-  padding: 12px 8px;
-  text-align: left;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-}
-
-.allocation-table th {
-  font-weight: 500;
-  color: rgba(0, 0, 0, 0.6);
-  background-color: rgba(0, 0, 0, 0.04);
-}
-
-.allocation-table td .table-field {
-  width: 100%;
-  margin: 0;
-}
-
-.accounting-card {
-  margin-bottom: 1.5rem;
-}
-
-.accounting-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  margin-bottom: 1rem;
-}
-
-.accounting-section h4 {
-  margin: 0 0 1rem 0;
-  color: rgba(0, 0, 0, 0.87);
-  font-weight: 500;
-}
-
-.accounting-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem;
-  background-color: rgba(0, 0, 0, 0.04);
-  border-radius: 4px;
-  margin-bottom: 0.5rem;
-}
-
-.accounting-item .amount {
-  font-weight: 500;
-  color: #1976d2;
-}
-
-.balance-section {
-  text-align: center;
-  padding: 1rem;
-  border-radius: 4px;
-  background-color: rgba(76, 175, 80, 0.1);
-  border: 1px solid rgba(76, 175, 80, 0.2);
-}
-
-.balance-section.warning {
-  background-color: rgba(244, 67, 54, 0.1);
-  border-color: rgba(244, 67, 54, 0.2);
-}
-
-.balance-section strong {
-  color: #4caf50;
-}
-
-.balance-section.warning strong {
-  color: #f44336;
-}
-
-.notes-field {
-  width: 100%;
-  margin-bottom: 1.5rem;
-}
-
-.form-actions {
-  padding-top: 1.5rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
-}
-
-.back-link {
-  color: white;
-}
+.table-field { width: 100%; }
 
 .invoice-details-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
   gap: 1rem;
 }
 
 .detail-item {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: .25rem;
+
+  .label { font-size: .8rem; color: rgba(0,0,0,.55); font-weight: 500; }
+  .value { font-size: 1rem; font-weight: 600; }
+  .due-amount { color: #d32f2f; }
 }
 
-.label {
-  font-size: 0.875rem;
-  color: rgba(0, 0, 0, 0.6);
-  font-weight: 500;
+.accounting-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
 }
 
-.value {
+.accounting-card {
+  border-radius: 6px;
+  padding: 1rem;
+  border: 1px solid rgba(0,0,0,.1);
+
+  &.debit-card  { background: #fff8f8; border-top: 3px solid #d32f2f; h4 { color: #d32f2f; } }
+  &.credit-card { background: #f8fff8; border-top: 3px solid #388e3c; h4 { color: #388e3c; } }
+}
+
+.accounting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .5rem;
+  background: #fff;
+  border-radius: 4px;
+  border: 1px solid rgba(0,0,0,.08);
+
+  .debit-amount  { color: #d32f2f; font-weight: 600; }
+  .credit-amount { color: #388e3c; font-weight: 600; }
+}
+
+.difference-section {
+  padding: .75rem 1rem;
+  border-radius: 4px;
+  text-align: center;
   font-size: 1rem;
-  font-weight: 500;
-  font-family: 'Roboto Mono', monospace;
+
+  &:not(.error) { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+  &.error       { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
 }
 
-.due-amount {
-  color: #d32f2f;
+.notes-field   { width: 100%; }
+.distribute-btn { margin-top: 16px; }
+.spacer        { flex: 1 1 auto; }
+.back-link     { color: #fff !important; }
+
+.form-actions {
+  padding: 1rem;
 }
 
 .payment-details-section {
