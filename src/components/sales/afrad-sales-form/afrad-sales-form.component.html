@@ -1,0 +1,267 @@
+<div class="afrad-form-container">
+  <!-- Header -->
+  <div class="page-header">
+    <button mat-icon-button (click)="goBack()" class="back-button">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="header-content">
+      <mat-icon class="header-icon">person</mat-icon>
+      <div>
+        <h1 class="page-title">
+          {{ (isEditMode ? 'SALES_LIFECYCLE.AFRAD.EDIT_ORDER' : 'SALES_LIFECYCLE.AFRAD.CREATE_ORDER') | translate }}
+        </h1>
+        <p class="page-subtitle" *ngIf="order">
+          {{ 'SALES_LIFECYCLE.AFRAD.ORDER_NUMBER' | translate }}: {{ order.orderNumber }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <!-- Main Form -->
+  <div *ngIf="!isLoading">
+    <mat-stepper [linear]="true" #stepper>
+      <!-- Step 1: Order Information -->
+      <mat-step [stepControl]="orderForm" label="{{ 'SALES_LIFECYCLE.AFRAD.ORDER_INFORMATION' | translate }}">
+        <form [formGroup]="orderForm">
+          <mat-card class="form-card">
+            <mat-card-header>
+              <mat-card-title>{{ 'SALES_LIFECYCLE.AFRAD.BASIC_INFORMATION' | translate }}</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field-full">
+                  <mat-label>{{ 'SALES_LIFECYCLE.AFRAD.CUSTOMER' | translate }}</mat-label>
+                  <mat-select formControlName="customerId" (selectionChange)="onCustomerChange($event.value)" [disabled]="!canEdit()">
+                    <mat-option *ngFor="let customer of customers" [value]="customer.id">
+                      {{ customer.nameAr }} - {{ customer.phone }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="orderForm.get('customerId')?.hasError('required')">
+                    {{ 'COMMON.REQUIRED_FIELD' | translate }}
+                  </mat-error>
+                </mat-form-field>
+              </div>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field-full">
+                  <mat-label>{{ 'SALES_LIFECYCLE.AFRAD.VEHICLE' | translate }}</mat-label>
+                  <mat-select formControlName="vehicleId" (selectionChange)="onVehicleChange($event.value)" [disabled]="!canEdit()">
+                    <mat-option *ngFor="let vehicle of vehicles" [value]="vehicle.id" [disabled]="!vehicle.available">
+                      {{ vehicle.modelNameAr }} - {{ vehicle.vin }}
+                      <span *ngIf="!vehicle.available">({{ 'COMMON.NOT_AVAILABLE' | translate }})</span>
+                    </mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="orderForm.get('vehicleId')?.hasError('required')">
+                    {{ 'COMMON.REQUIRED_FIELD' | translate }}
+                  </mat-error>
+                </mat-form-field>
+              </div>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field-half">
+                  <mat-label>{{ 'SALES_LIFECYCLE.AFRAD.BRANCH' | translate }}</mat-label>
+                  <mat-select formControlName="branchId" [disabled]="!canEdit()">
+                    <mat-option *ngFor="let branch of branches" [value]="branch.id">
+                      {{ branch.nameAr }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="orderForm.get('branchId')?.hasError('required')">
+                    {{ 'COMMON.REQUIRED_FIELD' | translate }}
+                  </mat-error>
+                </mat-form-field>
+              </div>
+
+              <mat-divider></mat-divider>
+
+              <h3 class="section-title">{{ 'SALES_LIFECYCLE.AFRAD.PRICING' | translate }}</h3>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field-third">
+                  <mat-label>{{ 'SALES_LIFECYCLE.AFRAD.TOTAL_AMOUNT' | translate }}</mat-label>
+                  <input matInput type="number" formControlName="totalAmount" [disabled]="!canEdit()">
+                  <span matSuffix>SAR</span>
+                  <mat-error *ngIf="orderForm.get('totalAmount')?.hasError('required')">
+                    {{ 'COMMON.REQUIRED_FIELD' | translate }}
+                  </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="form-field-third">
+                  <mat-label>{{ 'SALES_LIFECYCLE.AFRAD.ADVANCE_PAYMENT' | translate }}</mat-label>
+                  <input matInput type="number" formControlName="advancePaymentAmount" [disabled]="!canEdit()">
+                  <span matSuffix>SAR</span>
+                  <mat-error *ngIf="orderForm.get('advancePaymentAmount')?.hasError('required')">
+                    {{ 'COMMON.REQUIRED_FIELD' | translate }}
+                  </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="form-field-third">
+                  <mat-label>{{ 'SALES_LIFECYCLE.AFRAD.REMAINING_AMOUNT' | translate }}</mat-label>
+                  <input matInput type="number" formControlName="remainingAmount" readonly>
+                  <span matSuffix>SAR</span>
+                </mat-form-field>
+              </div>
+
+              <mat-divider></mat-divider>
+
+              <h3 class="section-title">{{ 'SALES_LIFECYCLE.AFRAD.FINANCING_DETAILS' | translate }}</h3>
+
+              <div class="form-row">
+                <mat-checkbox formControlName="isFinanced" [disabled]="!canEdit()">
+                  {{ 'SALES_LIFECYCLE.AFRAD.IS_FINANCED' | translate }}
+                </mat-checkbox>
+              </div>
+
+              <div *ngIf="orderForm.get('isFinanced')?.value" class="financing-section">
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="form-field-half">
+                    <mat-label>{{ 'SALES_LIFECYCLE.AFRAD.BANK' | translate }}</mat-label>
+                    <mat-select formControlName="bankId" [disabled]="!canEdit()">
+                      <mat-option *ngFor="let bank of banks" [value]="bank.id">
+                        {{ bank.nameAr }}
+                      </mat-option>
+                    </mat-select>
+                    <mat-error *ngIf="orderForm.get('bankId')?.hasError('required')">
+                      {{ 'COMMON.REQUIRED_FIELD' | translate }}
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="form-field-half">
+                    <mat-label>{{ 'SALES_LIFECYCLE.AFRAD.FINANCE_TERM' | translate }}</mat-label>
+                    <input matInput type="number" formControlName="financeTerm" [disabled]="!canEdit()">
+                    <span matSuffix>{{ 'COMMON.MONTHS' | translate }}</span>
+                    <mat-error *ngIf="orderForm.get('financeTerm')?.hasError('required')">
+                      {{ 'COMMON.REQUIRED_FIELD' | translate }}
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="form-field-half">
+                    <mat-label>{{ 'SALES_LIFECYCLE.AFRAD.PROFIT_RATE' | translate }}</mat-label>
+                    <input matInput type="number" step="0.1" formControlName="profitRate" [disabled]="!canEdit()">
+                    <span matSuffix>%</span>
+                    <mat-error *ngIf="orderForm.get('profitRate')?.hasError('required')">
+                      {{ 'COMMON.REQUIRED_FIELD' | translate }}
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="form-field-half">
+                    <mat-label>{{ 'SALES_LIFECYCLE.AFRAD.MONTHLY_INSTALLMENT' | translate }}</mat-label>
+                    <input matInput type="number" formControlName="monthlyInstallment" [disabled]="!canEdit()">
+                    <span matSuffix>SAR</span>
+                    <mat-error *ngIf="orderForm.get('monthlyInstallment')?.hasError('required')">
+                      {{ 'COMMON.REQUIRED_FIELD' | translate }}
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <mat-divider></mat-divider>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field-full">
+                  <mat-label>{{ 'COMMON.NOTES' | translate }}</mat-label>
+                  <textarea matInput formControlName="notes" rows="3" [disabled]="!canEdit()"></textarea>
+                </mat-form-field>
+              </div>
+            </mat-card-content>
+            <mat-card-actions>
+              <button mat-raised-button color="primary" (click)="saveOrder()" [disabled]="isSaving || !canEdit()">
+                <mat-icon>save</mat-icon>
+                {{ 'COMMON.SAVE' | translate }}
+              </button>
+              <button mat-raised-button matStepperNext *ngIf="isEditMode">
+                {{ 'COMMON.NEXT' | translate }}
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        </form>
+      </mat-step>
+
+      <!-- Step 2: Vehicle Reservation (Edit Mode Only) -->
+      <mat-step *ngIf="isEditMode" label="{{ 'SALES_LIFECYCLE.AFRAD.VEHICLE_RESERVATION' | translate }}">
+        <mat-card class="form-card">
+          <mat-card-header>
+            <mat-card-title>{{ 'SALES_LIFECYCLE.AFRAD.RESERVE_VEHICLE' | translate }}</mat-card-title>
+            <mat-card-subtitle>{{ 'SALES_LIFECYCLE.AFRAD.LINK_ADVANCE_PAYMENT' | translate }}</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <form [formGroup]="reservationForm">
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field-full">
+                  <mat-label>{{ 'SALES_LIFECYCLE.AFRAD.ADVANCE_PAYMENT_VOUCHER' | translate }}</mat-label>
+                  <mat-select formControlName="advancePaymentVoucherId">
+                    <mat-option *ngFor="let voucher of advanceVouchers" [value]="voucher.id">
+                      {{ voucher.voucherNumber }} - {{ voucher.amount | currency:'SAR' }} - {{ voucher.date | date }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-hint *ngIf="advanceVouchers.length === 0">
+                    {{ 'SALES_LIFECYCLE.AFRAD.NO_VOUCHERS_AVAILABLE' | translate }}
+                  </mat-hint>
+                </mat-form-field>
+              </div>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field-full">
+                  <mat-label>{{ 'COMMON.NOTES' | translate }}</mat-label>
+                  <textarea matInput formControlName="reservationNotes" rows="3"></textarea>
+                </mat-form-field>
+              </div>
+            </form>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-raised-button color="accent" (click)="reserveVehicle()" 
+              [disabled]="reservationForm.invalid || order?.status === 'Reserved'">
+              <mat-icon>check_circle</mat-icon>
+              {{ 'SALES_LIFECYCLE.AFRAD.RESERVE' | translate }}
+            </button>
+            <button mat-button matStepperPrevious>{{ 'COMMON.BACK' | translate }}</button>
+            <button mat-button matStepperNext>{{ 'COMMON.NEXT' | translate }}</button>
+          </mat-card-actions>
+        </mat-card>
+      </mat-step>
+
+      <!-- Step 3: Approval & Actions (Edit Mode Only) -->
+      <mat-step *ngIf="isEditMode" label="{{ 'SALES_LIFECYCLE.AFRAD.APPROVAL' | translate }}">
+        <mat-card class="form-card">
+          <mat-card-header>
+            <mat-card-title>{{ 'SALES_LIFECYCLE.AFRAD.ORDER_APPROVAL' | translate }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="status-section">
+              <div class="status-badge" [style.background-color]="order ? InvoiceStatusHelper.getColor(order.status) : '#ccc'">
+                {{ order ? ('SALES_LIFECYCLE.STATUS.' + order.status | translate) : '' }}
+              </div>
+            </div>
+
+            <div class="actions-section">
+              <button mat-raised-button color="primary" (click)="approveOrder()" 
+                [disabled]="!canApprove()">
+                <mat-icon>thumb_up</mat-icon>
+                {{ 'SALES_LIFECYCLE.AFRAD.APPROVE_ORDER' | translate }}
+              </button>
+
+              <button mat-raised-button color="warn" (click)="cancelOrder()" 
+                [disabled]="!canEdit()">
+                <mat-icon>cancel</mat-icon>
+                {{ 'COMMON.CANCEL' | translate }}
+              </button>
+            </div>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button matStepperPrevious>{{ 'COMMON.BACK' | translate }}</button>
+            <button mat-raised-button color="primary" (click)="goBack()">
+              <mat-icon>done</mat-icon>
+              {{ 'COMMON.FINISH' | translate }}
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </mat-step>
+    </mat-stepper>
+  </div>
+</div>

@@ -2635,5 +2635,89 @@
     "SAVE": "حفظ",
     "CANCEL": "إلغاء",
     "REQUIRED_FIELD": "هذا الحقل مطلوب"
+  },
+  "SALES_LIFECYCLE": {
+    "TITLE": "إدارة دورة حياة المبيعات",
+    "SUBTITLE": "إدارة جميع قنوات المبيعات من لوحة تحكم مركزية واحدة",
+    "CHANNELS": {
+      "AFRAD": "مبيعات الأفراد",
+      "SHARIKAT": "مبيعات الشركات",
+      "BUNUK": "مبيعات البنوك والتمويل"
+    },
+    "STATS": {
+      "TOTAL_ORDERS": "إجمالي الطلبات",
+      "RESERVED": "محجوز",
+      "APPROVED": "معتمد",
+      "DELIVERED": "مُسلّم",
+      "TOTAL_AMOUNT": "إجمالي المبلغ",
+      "PENDING_APPROVAL": "بانتظار الاعتماد",
+      "FINANCE_APPROVED": "معتمد من التمويل",
+      "PENDING_FINANCING": "بانتظار التمويل"
+    },
+    "STATUS": {
+      "Draft": "مسودة",
+      "Reserved": "محجوز",
+      "Approved": "معتمد",
+      "Invoiced": "تمت فوترته",
+      "Delivered": "مُسلّم",
+      "Cancelled": "ملغى",
+      "PendingApproval": "بانتظار الاعتماد",
+      "Rejected": "مرفوض",
+      "PartiallyDelivered": "مُسلّم جزئياً",
+      "PendingFinancing": "بانتظار التمويل",
+      "FinanceApproved": "معتمد من التمويل",
+      "FinanceRejected": "مرفوض من التمويل",
+      "TaameedReceived": "تم استلام التعميد"
+    },
+    "APPLICATION_STATUS": {
+      "Draft": "مسودة",
+      "Submitted": "مُقدّم",
+      "UnderReview": "قيد المراجعة",
+      "PendingDocuments": "بانتظار المستندات",
+      "BankApproved": "معتمد من البنك",
+      "BankRejected": "مرفوض من البنك",
+      "TaameedReceived": "تم استلام التعميد",
+      "Completed": "مكتمل",
+      "Cancelled": "ملغى"
+    },
+    "INVOICE_STATUS": {
+      "DRAFT": "مسودة",
+      "APPROVED": "معتمد",
+      "PAID": "مدفوع",
+      "DELIVERED": "مُسلّم"
+    },
+    "AFRAD": {
+      "CREATE_ORDER": "طلب مبيعات فردي جديد",
+      "ORDER_NUMBER": "رقم الطلب",
+      "CUSTOMER": "العميل",
+      "VIN": "رقم الهيكل",
+      "MAKE": "الصانع",
+      "MODEL": "الموديل",
+      "TOTAL_AMOUNT": "إجمالي المبلغ",
+      "ADVANCE_PAYMENT": "الدفعة المقدمة",
+      "STATUS": "الحالة",
+      "CREATED_DATE": "تاريخ الإنشاء"
+    },
+    "SHARIKAT": {
+      "CREATE_ORDER": "طلب مبيعات شركات جديد",
+      "ORDER_NUMBER": "رقم الطلب",
+      "COMPANY": "الشركة",
+      "PO_NUMBER": "رقم أمر الشراء",
+      "VEHICLES_COUNT": "عدد المركبات",
+      "TOTAL_AMOUNT": "إجمالي المبلغ",
+      "STATUS": "الحالة",
+      "CREATED_DATE": "تاريخ الإنشاء"
+    },
+    "BUNUK": {
+      "CREATE_ORDER": "طلب مبيعات تمويلي جديد",
+      "ORDER_NUMBER": "رقم الطلب",
+      "CUSTOMER": "العميل",
+      "BANK": "البنك",
+      "TAAMEED_NUMBER": "رقم التعميد",
+      "VIN": "رقم الهيكل",
+      "GRAND_TOTAL": "المجموع الإجمالي",
+      "APPLICATION_STATUS": "حالة الطلب",
+      "CREATED_DATE": "تاريخ الإنشاء"
+    }
   }
 }

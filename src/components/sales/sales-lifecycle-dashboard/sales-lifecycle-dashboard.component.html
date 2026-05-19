@@ -1,0 +1,327 @@
+<div class="sales-lifecycle-container">
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="title-section">
+        <mat-icon class="header-icon">trending_up</mat-icon>
+        <div>
+          <h1 class="page-title">{{ 'SALES_LIFECYCLE.TITLE' | translate }}</h1>
+          <p class="page-subtitle">{{ 'SALES_LIFECYCLE.SUBTITLE' | translate }}</p>
+        </div>
+      </div>
+      <button mat-raised-button color="primary" (click)="refreshCurrentTab()">
+        <mat-icon>refresh</mat-icon>
+        {{ 'COMMON.REFRESH' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <!-- Main Content -->
+  <mat-tab-group [(selectedIndex)]="selectedTabIndex" (selectedIndexChange)="onTabChange($event)"
+    class="sales-tabs" animationDuration="300ms">
+
+    <!-- AFRAD (Individual Sales) Tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">person</mat-icon>
+        {{ 'SALES_LIFECYCLE.CHANNELS.AFRAD' | translate }}
+        <mat-chip class="tab-count">{{ statistics.afrad.total }}</mat-chip>
+      </ng-template>
+
+      <div class="tab-content">
+        <!-- Statistics Cards -->
+        <div class="statistics-row">
+          <mat-card class="stat-card stat-primary">
+            <mat-icon>shopping_cart</mat-icon>
+            <div class="stat-content">
+              <span class="stat-value">{{ statistics.afrad.total }}</span>
+              <span class="stat-label">{{ 'SALES_LIFECYCLE.STATS.TOTAL_ORDERS' | translate }}</span>
+            </div>
+          </mat-card>
+
+          <mat-card class="stat-card stat-info">
+            <mat-icon>bookmark</mat-icon>
+            <div class="stat-content">
+              <span class="stat-value">{{ statistics.afrad.reserved }}</span>
+              <span class="stat-label">{{ 'SALES_LIFECYCLE.STATS.RESERVED' | translate }}</span>
+            </div>
+          </mat-card>
+
+          <mat-card class="stat-card stat-success">
+            <mat-icon>check_circle</mat-icon>
+            <div class="stat-content">
+              <span class="stat-value">{{ statistics.afrad.approved }}</span>
+              <span class="stat-label">{{ 'SALES_LIFECYCLE.STATS.APPROVED' | translate }}</span>
+            </div>
+          </mat-card>
+
+          <mat-card class="stat-card stat-accent">
+            <mat-icon>local_shipping</mat-icon>
+            <div class="stat-content">
+              <span class="stat-value">{{ statistics.afrad.delivered }}</span>
+              <span class="stat-label">{{ 'SALES_LIFECYCLE.STATS.DELIVERED' | translate }}</span>
+            </div>
+          </mat-card>
+
+          <mat-card class="stat-card stat-total">
+            <mat-icon>attach_money</mat-icon>
+            <div class="stat-content">
+              <span class="stat-value">{{ formatCurrency(statistics.afrad.totalAmount) }}</span>
+              <span class="stat-label">{{ 'SALES_LIFECYCLE.STATS.TOTAL_AMOUNT' | translate }}</span>
+            </div>
+          </mat-card>
+        </div>
+
+        <!-- Action Toolbar -->
+        <div class="action-toolbar">
+          <button mat-raised-button color="primary" (click)="createAfradOrder()">
+            <mat-icon>add</mat-icon>
+            {{ 'SALES_LIFECYCLE.AFRAD.CREATE_ORDER' | translate }}
+          </button>
+        </div>
+
+        <!-- Data Grid -->
+        <dx-data-grid #afradGrid [dataSource]="afradOrders" [showBorders]="true" [rowAlternationEnabled]="true"
+          [columnAutoWidth]="true" [allowColumnReordering]="true" [allowColumnResizing]="true"
+          (onRowDblClick)="viewAfradOrder($event)" class="sales-grid">
+
+          <dxo-paging [pageSize]="20"></dxo-paging>
+          <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50, 100]"
+            [showInfo]="true"></dxo-pager>
+          <dxo-filter-row [visible]="true"></dxo-filter-row>
+          <dxo-header-filter [visible]="true"></dxo-header-filter>
+          <dxo-search-panel [visible]="true"></dxo-search-panel>
+          <dxo-export [enabled]="true" [fileName]="'afrad-sales'"></dxo-export>
+
+          <dxi-column dataField="orderNumber" [caption]="'SALES_LIFECYCLE.AFRAD.ORDER_NUMBER' | translate"
+            [width]="150"></dxi-column>
+          <dxi-column dataField="customerName" [caption]="'SALES_LIFECYCLE.AFRAD.CUSTOMER' | translate"></dxi-column>
+          <dxi-column dataField="vehicleVin" [caption]="'SALES_LIFECYCLE.AFRAD.VIN' | translate"
+            [width]="180"></dxi-column>
+          <dxi-column dataField="vehicleMake" [caption]="'SALES_LIFECYCLE.AFRAD.MAKE' | translate"
+            [width]="120"></dxi-column>
+          <dxi-column dataField="vehicleModel" [caption]="'SALES_LIFECYCLE.AFRAD.MODEL' | translate"
+            [width]="120"></dxi-column>
+          <dxi-column dataField="totalAmount" [caption]="'SALES_LIFECYCLE.AFRAD.TOTAL_AMOUNT' | translate"
+            dataType="number" format="#,##0.00 SAR" [width]="140"></dxi-column>
+          <dxi-column dataField="advancePaymentAmount"
+            [caption]="'SALES_LIFECYCLE.AFRAD.ADVANCE_PAYMENT' | translate" dataType="number" format="#,##0.00 SAR"
+            [width]="140"></dxi-column>
+          <dxi-column dataField="status" [caption]="'SALES_LIFECYCLE.AFRAD.STATUS' | translate" [width]="130"
+            cellTemplate="statusTemplate"></dxi-column>
+          <dxi-column dataField="createdDate" [caption]="'SALES_LIFECYCLE.AFRAD.CREATED_DATE' | translate"
+            dataType="date" format="dd/MM/yyyy" [width]="120"></dxi-column>
+
+          <div *dxTemplate="let cell of 'statusTemplate'">
+            <span class="status-badge" [style.background-color]="getStatusColor(cell.value)"
+              [style.color]="'white'">
+              {{ 'SALES_LIFECYCLE.STATUS.' + cell.value | translate }}
+            </span>
+          </div>
+        </dx-data-grid>
+      </div>
+    </mat-tab>
+
+    <!-- SHARIKAT (Corporate Sales) Tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">business</mat-icon>
+        {{ 'SALES_LIFECYCLE.CHANNELS.SHARIKAT' | translate }}
+        <mat-chip class="tab-count">{{ statistics.sharikat.total }}</mat-chip>
+      </ng-template>
+
+      <div class="tab-content">
+        <!-- Statistics Cards -->
+        <div class="statistics-row">
+          <mat-card class="stat-card stat-primary">
+            <mat-icon>shopping_cart</mat-icon>
+            <div class="stat-content">
+              <span class="stat-value">{{ statistics.sharikat.total }}</span>
+              <span class="stat-label">{{ 'SALES_LIFECYCLE.STATS.TOTAL_ORDERS' | translate }}</span>
+            </div>
+          </mat-card>
+
+          <mat-card class="stat-card stat-warning">
+            <mat-icon>pending_actions</mat-icon>
+            <div class="stat-content">
+              <span class="stat-value">{{ statistics.sharikat.pending }}</span>
+              <span class="stat-label">{{ 'SALES_LIFECYCLE.STATS.PENDING_APPROVAL' | translate }}</span>
+            </div>
+          </mat-card>
+
+          <mat-card class="stat-card stat-success">
+            <mat-icon>check_circle</mat-icon>
+            <div class="stat-content">
+              <span class="stat-value">{{ statistics.sharikat.approved }}</span>
+              <span class="stat-label">{{ 'SALES_LIFECYCLE.STATS.APPROVED' | translate }}</span>
+            </div>
+          </mat-card>
+
+          <mat-card class="stat-card stat-accent">
+            <mat-icon>local_shipping</mat-icon>
+            <div class="stat-content">
+              <span class="stat-value">{{ statistics.sharikat.delivered }}</span>
+              <span class="stat-label">{{ 'SALES_LIFECYCLE.STATS.DELIVERED' | translate }}</span>
+            </div>
+          </mat-card>
+
+          <mat-card class="stat-card stat-total">
+            <mat-icon>attach_money</mat-icon>
+            <div class="stat-content">
+              <span class="stat-value">{{ formatCurrency(statistics.sharikat.totalAmount) }}</span>
+              <span class="stat-label">{{ 'SALES_LIFECYCLE.STATS.TOTAL_AMOUNT' | translate }}</span>
+            </div>
+          </mat-card>
+        </div>
+
+        <!-- Action Toolbar -->
+        <div class="action-toolbar">
+          <button mat-raised-button color="primary" (click)="createSharikatOrder()">
+            <mat-icon>add</mat-icon>
+            {{ 'SALES_LIFECYCLE.SHARIKAT.CREATE_ORDER' | translate }}
+          </button>
+        </div>
+
+        <!-- Data Grid -->
+        <dx-data-grid #sharikatGrid [dataSource]="sharikatOrders" [showBorders]="true"
+          [rowAlternationEnabled]="true" [columnAutoWidth]="true" [allowColumnReordering]="true"
+          [allowColumnResizing]="true" (onRowDblClick)="viewSharikatOrder($event)" class="sales-grid">
+
+          <dxo-paging [pageSize]="20"></dxo-paging>
+          <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50, 100]"
+            [showInfo]="true"></dxo-pager>
+          <dxo-filter-row [visible]="true"></dxo-filter-row>
+          <dxo-header-filter [visible]="true"></dxo-header-filter>
+          <dxo-search-panel [visible]="true"></dxo-search-panel>
+          <dxo-export [enabled]="true" [fileName]="'sharikat-sales'"></dxo-export>
+
+          <dxi-column dataField="orderNumber" [caption]="'SALES_LIFECYCLE.SHARIKAT.ORDER_NUMBER' | translate"
+            [width]="150"></dxi-column>
+          <dxi-column dataField="companyName" [caption]="'SALES_LIFECYCLE.SHARIKAT.COMPANY' | translate"></dxi-column>
+          <dxi-column dataField="purchaseOrderNumber" [caption]="'SALES_LIFECYCLE.SHARIKAT.PO_NUMBER' | translate"
+            [width]="150"></dxi-column>
+          <dxi-column dataField="totalVehicles" [caption]="'SALES_LIFECYCLE.SHARIKAT.VEHICLES_COUNT' | translate"
+            dataType="number" [width]="100"></dxi-column>
+          <dxi-column dataField="totalAmount" [caption]="'SALES_LIFECYCLE.SHARIKAT.TOTAL_AMOUNT' | translate"
+            dataType="number" format="#,##0.00 SAR" [width]="140"></dxi-column>
+          <dxi-column dataField="status" [caption]="'SALES_LIFECYCLE.SHARIKAT.STATUS' | translate" [width]="150"
+            cellTemplate="statusTemplate"></dxi-column>
+          <dxi-column dataField="createdDate" [caption]="'SALES_LIFECYCLE.SHARIKAT.CREATED_DATE' | translate"
+            dataType="date" format="dd/MM/yyyy" [width]="120"></dxi-column>
+
+          <div *dxTemplate="let cell of 'statusTemplate'">
+            <span class="status-badge" [style.background-color]="getStatusColor(cell.value)"
+              [style.color]="'white'">
+              {{ 'SALES_LIFECYCLE.STATUS.' + cell.value | translate }}
+            </span>
+          </div>
+        </dx-data-grid>
+      </div>
+    </mat-tab>
+
+    <!-- BUNUK (Bank/Finance Sales) Tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">account_balance</mat-icon>
+        {{ 'SALES_LIFECYCLE.CHANNELS.BUNUK' | translate }}
+        <mat-chip class="tab-count">{{ statistics.bunuk.total }}</mat-chip>
+      </ng-template>
+
+      <div class="tab-content">
+        <!-- Statistics Cards -->
+        <div class="statistics-row">
+          <mat-card class="stat-card stat-primary">
+            <mat-icon>shopping_cart</mat-icon>
+            <div class="stat-content">
+              <span class="stat-value">{{ statistics.bunuk.total }}</span>
+              <span class="stat-label">{{ 'SALES_LIFECYCLE.STATS.TOTAL_ORDERS' | translate }}</span>
+            </div>
+          </mat-card>
+
+          <mat-card class="stat-card stat-warning">
+            <mat-icon>pending</mat-icon>
+            <div class="stat-content">
+              <span class="stat-value">{{ statistics.bunuk.pendingFinancing }}</span>
+              <span class="stat-label">{{ 'SALES_LIFECYCLE.STATS.PENDING_FINANCING' | translate }}</span>
+            </div>
+          </mat-card>
+
+          <mat-card class="stat-card stat-success">
+            <mat-icon>verified</mat-icon>
+            <div class="stat-content">
+              <span class="stat-value">{{ statistics.bunuk.approved }}</span>
+              <span class="stat-label">{{ 'SALES_LIFECYCLE.STATS.FINANCE_APPROVED' | translate }}</span>
+            </div>
+          </mat-card>
+
+          <mat-card class="stat-card stat-accent">
+            <mat-icon>local_shipping</mat-icon>
+            <div class="stat-content">
+              <span class="stat-value">{{ statistics.bunuk.delivered }}</span>
+              <span class="stat-label">{{ 'SALES_LIFECYCLE.STATS.DELIVERED' | translate }}</span>
+            </div>
+          </mat-card>
+
+          <mat-card class="stat-card stat-total">
+            <mat-icon>attach_money</mat-icon>
+            <div class="stat-content">
+              <span class="stat-value">{{ formatCurrency(statistics.bunuk.totalAmount) }}</span>
+              <span class="stat-label">{{ 'SALES_LIFECYCLE.STATS.TOTAL_AMOUNT' | translate }}</span>
+            </div>
+          </mat-card>
+        </div>
+
+        <!-- Action Toolbar -->
+        <div class="action-toolbar">
+          <button mat-raised-button color="primary" (click)="createBunukOrder()">
+            <mat-icon>add</mat-icon>
+            {{ 'SALES_LIFECYCLE.BUNUK.CREATE_ORDER' | translate }}
+          </button>
+        </div>
+
+        <!-- Data Grid -->
+        <dx-data-grid #bunukGrid [dataSource]="bunukOrders" [showBorders]="true" [rowAlternationEnabled]="true"
+          [columnAutoWidth]="true" [allowColumnReordering]="true" [allowColumnResizing]="true"
+          (onRowDblClick)="viewBunukOrder($event)" class="sales-grid">
+
+          <dxo-paging [pageSize]="20"></dxo-paging>
+          <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50, 100]"
+            [showInfo]="true"></dxo-pager>
+          <dxo-filter-row [visible]="true"></dxo-filter-row>
+          <dxo-header-filter [visible]="true"></dxo-header-filter>
+          <dxo-search-panel [visible]="true"></dxo-search-panel>
+          <dxo-export [enabled]="true" [fileName]="'bunuk-sales'"></dxo-export>
+
+          <dxi-column dataField="orderNumber" [caption]="'SALES_LIFECYCLE.BUNUK.ORDER_NUMBER' | translate"
+            [width]="150"></dxi-column>
+          <dxi-column dataField="customerName" [caption]="'SALES_LIFECYCLE.BUNUK.CUSTOMER' | translate"></dxi-column>
+          <dxi-column dataField="bankName" [caption]="'SALES_LIFECYCLE.BUNUK.BANK' | translate"
+            [width]="150"></dxi-column>
+          <dxi-column dataField="taameedNumber" [caption]="'SALES_LIFECYCLE.BUNUK.TAAMEED_NUMBER' | translate"
+            [width]="150"></dxi-column>
+          <dxi-column dataField="vehicleVin" [caption]="'SALES_LIFECYCLE.BUNUK.VIN' | translate"
+            [width]="180"></dxi-column>
+          <dxi-column dataField="grandTotal" [caption]="'SALES_LIFECYCLE.BUNUK.GRAND_TOTAL' | translate"
+            dataType="number" format="#,##0.00 SAR" [width]="140"></dxi-column>
+          <dxi-column dataField="applicationStatus"
+            [caption]="'SALES_LIFECYCLE.BUNUK.APPLICATION_STATUS' | translate" [width]="180"
+            cellTemplate="statusTemplate"></dxi-column>
+          <dxi-column dataField="createdDate" [caption]="'SALES_LIFECYCLE.BUNUK.CREATED_DATE' | translate"
+            dataType="date" format="dd/MM/yyyy" [width]="120"></dxi-column>
+
+          <div *dxTemplate="let cell of 'statusTemplate'">
+            <span class="status-badge" [style.background-color]="getStatusColor(cell.value)"
+              [style.color]="'white'">
+              {{ 'SALES_LIFECYCLE.APPLICATION_STATUS.' + cell.value | translate }}
+            </span>
+          </div>
+        </dx-data-grid>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

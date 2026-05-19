@@ -2731,5 +2731,89 @@
     "CAR_DESCRIPTION": "Car Description",
     "REQUESTED_PRICE": "Requested Price",
     "STATUS": "Status"
+  },
+  "SALES_LIFECYCLE": {
+    "TITLE": "Sales Lifecycle Management",
+    "SUBTITLE": "Manage all sales channels from one central dashboard",
+    "CHANNELS": {
+      "AFRAD": "Individual Sales (Afrad)",
+      "SHARIKAT": "Corporate Sales (Sharikat)",
+      "BUNUK": "Bank Finance Sales (Bunuk)"
+    },
+    "STATS": {
+      "TOTAL_ORDERS": "Total Orders",
+      "RESERVED": "Reserved",
+      "APPROVED": "Approved",
+      "DELIVERED": "Delivered",
+      "TOTAL_AMOUNT": "Total Amount",
+      "PENDING_APPROVAL": "Pending Approval",
+      "FINANCE_APPROVED": "Finance Approved",
+      "PENDING_FINANCING": "Pending Financing"
+    },
+    "STATUS": {
+      "Draft": "Draft",
+      "Reserved": "Reserved",
+      "Approved": "Approved",
+      "Invoiced": "Invoiced",
+      "Delivered": "Delivered",
+      "Cancelled": "Cancelled",
+      "PendingApproval": "Pending Approval",
+      "Rejected": "Rejected",
+      "PartiallyDelivered": "Partially Delivered",
+      "PendingFinancing": "Pending Financing",
+      "FinanceApproved": "Finance Approved",
+      "FinanceRejected": "Finance Rejected",
+      "TaameedReceived": "Taameed Received"
+    },
+    "APPLICATION_STATUS": {
+      "Draft": "Draft",
+      "Submitted": "Submitted",
+      "UnderReview": "Under Review",
+      "PendingDocuments": "Pending Documents",
+      "BankApproved": "Bank Approved",
+      "BankRejected": "Bank Rejected",
+      "TaameedReceived": "Taameed Received",
+      "Completed": "Completed",
+      "Cancelled": "Cancelled"
+    },
+    "INVOICE_STATUS": {
+      "DRAFT": "Draft",
+      "APPROVED": "Approved",
+      "PAID": "Paid",
+      "DELIVERED": "Delivered"
+    },
+    "AFRAD": {
+      "CREATE_ORDER": "New Individual Sale",
+      "ORDER_NUMBER": "Order Number",
+      "CUSTOMER": "Customer",
+      "VIN": "VIN",
+      "MAKE": "Make",
+      "MODEL": "Model",
+      "TOTAL_AMOUNT": "Total Amount",
+      "ADVANCE_PAYMENT": "Advance Payment",
+      "STATUS": "Status",
+      "CREATED_DATE": "Created Date"
+    },
+    "SHARIKAT": {
+      "CREATE_ORDER": "New Corporate Sale",
+      "ORDER_NUMBER": "Order Number",
+      "COMPANY": "Company",
+      "PO_NUMBER": "PO Number",
+      "VEHICLES_COUNT": "Vehicles",
+      "TOTAL_AMOUNT": "Total Amount",
+      "STATUS": "Status",
+      "CREATED_DATE": "Created Date"
+    },
+    "BUNUK": {
+      "CREATE_ORDER": "New Finance Sale",
+      "ORDER_NUMBER": "Order Number",
+      "CUSTOMER": "Customer",
+      "BANK": "Bank",
+      "TAAMEED_NUMBER": "Taameed Number",
+      "VIN": "VIN",
+      "GRAND_TOTAL": "Grand Total",
+      "APPLICATION_STATUS": "Application Status",
+      "CREATED_DATE": "Created Date"
+    }
   }
 }

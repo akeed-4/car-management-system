@@ -111,6 +111,10 @@ import { QuotationsComponent } from './components/sales/quotations/quotations.co
 import { QuotationFormComponent } from './components/sales/quotation-form/quotation-form.component';
 import { CustomerOrderFormComponent } from './components/sales/customer-order-form/customer-order-form.component';
 import { PreparationManagementComponent } from './components/sales/preparation-management/preparation-management.component';
+import { SalesLifecycleDashboardComponent } from './components/sales/sales-lifecycle-dashboard/sales-lifecycle-dashboard.component';
+import { AfradSalesFormComponent } from './components/sales/afrad-sales-form/afrad-sales-form.component';
+import { SharikatSalesFormComponent } from './components/sales/sharikat-sales-form/sharikat-sales-form.component';
+import { BunukSalesFormComponent } from './components/sales/bunuk-sales-form/bunuk-sales-form.component';
 
 export const APP_ROUTES: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -173,6 +177,13 @@ export const APP_ROUTES: Routes = [
   { path: 'sales/quotations/new', component: QuotationFormComponent },
   { path: 'sales/quotations/edit/:id', component: QuotationFormComponent },
   { path: 'sales/customer-orders/new', component: CustomerOrderFormComponent },
+  { path: 'sales/lifecycle', component: SalesLifecycleDashboardComponent },
+  { path: 'sales/lifecycle/afrad/create', component: AfradSalesFormComponent },
+  { path: 'sales/lifecycle/afrad/:id', component: AfradSalesFormComponent },
+  { path: 'sales/lifecycle/sharikat/create', component: SharikatSalesFormComponent },
+  { path: 'sales/lifecycle/sharikat/:id', component: SharikatSalesFormComponent },
+  { path: 'sales/lifecycle/bunuk/create', component: BunukSalesFormComponent },
+  { path: 'sales/lifecycle/bunuk/:id', component: BunukSalesFormComponent },
   { path: 'sales/preparation/:vehicleId', component: PreparationManagementComponent },
   { path: 'sales/invoice/cash/new', component: SalesInvoiceCashComponent },
   { path: 'sales/invoice/cash/edit/:id', component: SalesInvoiceCashComponent },
