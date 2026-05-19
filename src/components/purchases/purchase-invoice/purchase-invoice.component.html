@@ -87,20 +87,6 @@
             </mat-grid-tile>
             <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
               <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'PURCHASE_INVOICE.PAYMENT_METHOD' | translate }}</mat-label>
-                <mat-select formControlName="paymentMethod">
-                  <mat-option>
-                    <ngx-mat-select-search [formControl]="paymentMethodFilterCtrl" 
-                      placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
-                      noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
-                    </ngx-mat-select-search>
-                  </mat-option>
-                  <mat-option *ngFor="let method of filteredPaymentMethods()" [value]="method.value">{{ method.label | translate }}</mat-option>
-                </mat-select>
-              </mat-form-field>
-            </mat-grid-tile>
-            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-              <mat-form-field appearance="outline" class="full-width">
                 <mat-label>{{ 'PURCHASE_INVOICE.INVOICE_TYPE' | translate }}</mat-label>
                 <mat-select formControlName="invoiceType" (selectionChange)="onInvoiceTypeChange($event)">
                   <mat-option [value]="InvoiceType.Taxable">{{ 'PURCHASE_INVOICE.TAXABLE' | translate }}</mat-option>

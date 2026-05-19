@@ -13,13 +13,13 @@
   <mat-card-content>
     <form [formGroup]="financingForm" (ngSubmit)="save()">
       <div class="form-grid">
-        <mat-form-field appearance="outline">
-          <mat-label>Car</mat-label>
-          <mat-select formControlName="carId" required>
-            <mat-option [value]="null" disabled>Select Car</mat-option>
-            <!-- Add car options here -->
-          </mat-select>
-        </mat-form-field>
+
+        <div class="form-field vehicle-select-row">
+          <button mat-stroked-button color="primary" type="button" (click)="openCarSelectionDialog()">
+            <mat-icon>directions_car</mat-icon>
+            {{ selectedVehicle ? getVehicleLabel(selectedVehicle) : 'Select Vehicle' }}
+          </button>
+        </div>
 
         <mat-form-field appearance="outline">
           <mat-label>Financier</mat-label>

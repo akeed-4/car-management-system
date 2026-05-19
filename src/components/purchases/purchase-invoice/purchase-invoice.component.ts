@@ -367,7 +367,7 @@ export class PurchaseInvoiceComponent implements OnInit {
       debitAccountId: [null, Validators.required],
       creditAccountId: [null, Validators.required],
       invoiceDate: [new Date(), Validators.required],
-      paymentMethod: ['cash' , Validators.required],
+      paymentMethod: [this.fixedPaymentMethod , Validators.required],
       paymentType: [this.fixedPaymentMethod || 'Bank Transfer'],
       dueDate: [null], // Optional, required only for credit invoices
       invoiceType: [InvoiceType.Taxable, Validators.required],

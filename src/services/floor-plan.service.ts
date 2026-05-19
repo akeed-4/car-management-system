@@ -2,12 +2,13 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs';
 import { FloorPlan } from '../models/floor-plan.model';
+import { environment } from '../environments/environment.development';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FloorPlanService {
-  private apiUrl = 'http://localhost:5294/api/floorplans';
+  private apiUrl = `${environment.origin}/api/FloorPlanFinancings`;
 
   private floorPlans = signal<FloorPlan[]>([]);
   public floorPlans$ = this.floorPlans.asReadonly();

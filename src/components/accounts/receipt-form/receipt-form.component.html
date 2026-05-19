@@ -89,22 +89,6 @@
         <div class="form-section customer-section">
           <h3>{{ 'ACCOUNTS.RECEIPT_FORM.CUSTOMER_SELECTION' | translate }}</h3>
           <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.CUSTOMER' | translate }}</mat-label>
-              <mat-select formControlName="customerId"
-                          (selectionChange)="onCustomerChange($event.value)" required>
-                <mat-option [value]="null" disabled>
-                  {{ 'ACCOUNTS.RECEIPT_FORM.SELECT_CUSTOMER' | translate }}
-                </mat-option>
-                <mat-option *ngFor="let c of customers(); trackBy: trackByCustomerId" [value]="c.id">
-                  {{ c.name }}
-                </mat-option>
-              </mat-select>
-              <mat-error *ngIf="receiptForm.get('customerId')?.hasError('required')">
-                {{ 'VALIDATION.REQUIRED' | translate }}
-              </mat-error>
-            </mat-form-field>
-
             <div class="form-field distribute-wrapper">
               <button mat-raised-button color="accent" type="button"
                       (click)="distributeAmount()"
@@ -130,9 +114,17 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let allocation of allocations.controls; let i = index"
-                    [formGroup]="allocation">
-                  <td>{{ allocation.get('reference')?.value }}</td>
+                <tr *ngFor="let allocation of allocations.controls; let i = index" [formGroup]="allocation">
+                  <td>
+                    <mat-form-field appearance="outline" class="table-field">
+                      <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.SELECT_INVOICE' | translate }}</mat-label>
+                      <mat-select formControlName="selectedInvoice">
+                        <mat-option *ngFor="let inv of customerInvoices()" [value]="inv.id">
+                          {{ inv.invoiceNumber }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </td>
                   <td>{{ allocation.get('originalBalance')?.value | currency:'SAR' }}</td>
                   <td>
                     <mat-form-field appearance="outline" class="table-field">
@@ -140,6 +132,16 @@
                              min="0"
                              [max]="allocation.get('originalBalance')?.value">
                     </mat-form-field>
+                  </td>
+                </tr>
+                <tr *ngFor="let allocation of allocations.controls; let i = index" [formGroup]="allocation">
+                  <td colspan="3" *ngIf="getInvoiceById(allocation.get('selectedInvoice')?.value)">
+                    <div class="car-list">
+                      <span *ngFor="let car of getInvoiceById(allocation.get('selectedInvoice')?.value)?.items">
+                        <mat-icon>directions_car</mat-icon>
+                        {{ car.carDescription }}
+                      </span>
+                    </div>
                   </td>
                 </tr>
               </tbody>

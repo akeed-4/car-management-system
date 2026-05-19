@@ -130,7 +130,8 @@ export class ReceiptFormComponent implements OnInit {
         invoiceId: [invoice.id],
         reference: [invoice.invoiceNumber],
         originalBalance: [invoice.amountDue],
-        amountToPay: [0, [Validators.min(0)]]
+        amountToPay: [0, [Validators.min(0)]],
+        selectedInvoice: [invoice.id], // for dropdown selection
       });
       this.allocations.push(allocation);
     });
@@ -216,6 +217,10 @@ export class ReceiptFormComponent implements OnInit {
     });
     // Add at least one detail
     this.addDetail();
+  }
+
+  getInvoiceById(id: number) {
+    return this.customerInvoices().find(inv => inv.id === id);
   }
 
 
