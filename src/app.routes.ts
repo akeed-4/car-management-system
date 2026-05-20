@@ -112,9 +112,9 @@ import { QuotationFormComponent } from './components/sales/quotation-form/quotat
 import { CustomerOrderFormComponent } from './components/sales/customer-order-form/customer-order-form.component';
 import { PreparationManagementComponent } from './components/sales/preparation-management/preparation-management.component';
 import { SalesLifecycleDashboardComponent } from './components/sales/sales-lifecycle-dashboard/sales-lifecycle-dashboard.component';
-import { AfradSalesFormComponent } from './components/sales/afrad-sales-form/afrad-sales-form.component';
-import { SharikatSalesFormComponent } from './components/sales/sharikat-sales-form/sharikat-sales-form.component';
-import { BunukSalesFormComponent } from './components/sales/bunuk-sales-form/bunuk-sales-form.component';
+import { DirectInvoiceFormComponent } from './components/sales/direct-invoice-form/direct-invoice-form.component';
+import { BankInvoiceFormComponent } from './components/sales/bank-invoice-form/bank-invoice-form.component';
+import { CompaniesInvoiceFormComponent } from './components/sales/companies-invoice-form/companies-invoice-form.component';
 
 export const APP_ROUTES: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -178,12 +178,12 @@ export const APP_ROUTES: Routes = [
   { path: 'sales/quotations/edit/:id', component: QuotationFormComponent },
   { path: 'sales/customer-orders/new', component: CustomerOrderFormComponent },
   { path: 'sales/lifecycle', component: SalesLifecycleDashboardComponent },
-  { path: 'sales/lifecycle/afrad/create', component: AfradSalesFormComponent },
-  { path: 'sales/lifecycle/afrad/:id', component: AfradSalesFormComponent },
-  { path: 'sales/lifecycle/sharikat/create', component: SharikatSalesFormComponent },
-  { path: 'sales/lifecycle/sharikat/:id', component: SharikatSalesFormComponent },
-  { path: 'sales/lifecycle/bunuk/create', component: BunukSalesFormComponent },
-  { path: 'sales/lifecycle/bunuk/:id', component: BunukSalesFormComponent },
+  { path: 'sales/lifecycle/afrad/create', component: DirectInvoiceFormComponent },
+  { path: 'sales/lifecycle/afrad/:id', component: DirectInvoiceFormComponent },
+  { path: 'sales/lifecycle/sharikat/create', component: CompaniesInvoiceFormComponent },
+  { path: 'sales/lifecycle/sharikat/:id', component: CompaniesInvoiceFormComponent },
+  { path: 'sales/lifecycle/bunuk/create', component: BankInvoiceFormComponent },
+  { path: 'sales/lifecycle/bunuk/:id', component: BankInvoiceFormComponent },
   { path: 'sales/preparation/:vehicleId', component: PreparationManagementComponent },
   { path: 'sales/invoice/cash/new', component: SalesInvoiceCashComponent },
   { path: 'sales/invoice/cash/edit/:id', component: SalesInvoiceCashComponent },
@@ -194,8 +194,16 @@ export const APP_ROUTES: Routes = [
   { path: 'sales/invoice/print/:id', component: PrintableSalesInvoiceComponent },
   { path: 'sales/return', component: SalesReturnInvoiceListComponent },
   { path: 'sales/returns', component: SalesReturnInvoiceListComponent }, // Added plural route
-  { path: 'sales/return/new', component: SalesReturnFormComponent },
-  { path: 'sales/return/:id/edit', component: SalesReturnFormComponent },
+  { path: 'sales/cash/return/new', component: CashInvoiceFormComponent },
+  { path: 'sales/cash/return/new/:id', component: CashInvoiceFormComponent },
+  { path: 'sales/credit/return/new', component: CreditInvoiceFormComponent },
+  { path: 'sales/credit/return/new/:id', component: CreditInvoiceFormComponent },
+  { path: 'sales/individual-invoice', component: DirectInvoiceFormComponent },
+  { path: 'sales/individual-invoice/:id', component: DirectInvoiceFormComponent },
+  { path: 'sales/bank-invoice', component: BankInvoiceFormComponent },
+  { path: 'sales/bank-invoice/:id', component: BankInvoiceFormComponent },
+  { path: 'sales/sharikat-invoice', component: CompaniesInvoiceFormComponent },
+  { path: 'sales/sharikat-invoice/:id', component: CompaniesInvoiceFormComponent },
   { path: 'sales/return/cash/new', component: CashInvoiceFormComponent },
   { path: 'sales/return/credit/new', component: CreditInvoiceFormComponent },
   { path: 'sales/return/cash', component: SalesCashReturnInvoiceListComponent },

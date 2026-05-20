@@ -19,8 +19,8 @@ import { environment } from '../environments/environment';
 @Injectable({
   providedIn: 'root'
 })
-export class AfradSalesService {
-  private readonly apiUrl = `${environment.origin}/api/AfradSales`;
+export class DirectSalesService {
+  private readonly apiUrl = `${environment.origin}/api/DirectSales`;
   private readonly voucherApiUrl = `${environment.origin}/api/AdvancePaymentVouchers`;
 
   constructor(private http: HttpClient) {}
@@ -28,7 +28,7 @@ export class AfradSalesService {
   // ==================== Sales Orders ====================
 
   /**
-   * Get all Afrad sales orders with optional filtering
+   * Get all Direct sales orders with optional filtering
    */
   getAll(filters?: {
     status?: string;

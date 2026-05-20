@@ -58,7 +58,9 @@ export class FloorPlanReportComponent {
       const timeDiff = today.getTime() - purchaseDate.getTime();
       const daysInStock = Math.max(0, Math.ceil(timeDiff / (1000 * 60 * 60 * 24)));
       
-      const dailyInterest = (car.purchasePrice * (plan?.interestRate ?? 0)) / 365;
+
+      // Use annualInterestRate from FloorPlan model
+      const dailyInterest = (car.purchasePrice * (plan?.annualInterestRate ?? 0)) / 365;
       const accruedCost = dailyInterest * daysInStock;
 
       return {
@@ -66,9 +68,9 @@ export class FloorPlanReportComponent {
         carDescription: `${car.make} ${car.model} (${car.year})`,
         purchasePrice: car.purchasePrice,
         purchaseDate: car.purchaseDate!,
-        planName: plan?.planName ?? 'N/A',
-        financier: plan?.financier ?? 'N/A',
-        interestRate: plan?.interestRate ?? 0,
+        planName: (plan as any)?.planName ?? 'N/A', // fallback, not in model
+        financier: (plan as any)?.financier ?? 'N/A', // fallback, not in model
+        interestRate: plan?.annualInterestRate ?? 0,
         daysInStock: daysInStock,
         accruedCost: accruedCost,
       };

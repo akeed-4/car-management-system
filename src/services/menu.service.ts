@@ -17,7 +17,7 @@ export class MenuService {
     private http: HttpClient,
     private currentSettingService: CurrentSettingService,
     @Inject(DOCUMENT) private document: Document
-  ) {}
+  ) { }
 
   getMenus(): Observable<any[]> {
     // Return the static menu data
@@ -33,15 +33,16 @@ export const menuData = [
     route: '/dashboard',
   },
   {
-  id: 1,
-  name: 'البيانات الأساسية',
-  englishName: 'Master Data',
-  submenu: [
-    { id: 12, name: 'الانشطة', route: '/setup/companies' },
-    { id: 13, name: 'الفروع', route: '/setup/branches' },
-    { id: 14, name: 'المعارض', route: '/setup/stores' }
-  ]
-},
+    id: 1,
+    name: 'البيانات الأساسية',
+    englishName: 'Master Data',
+    submenu: [
+      { id: 12, name: 'الانشطة', englishName: 'Activities', route: '/setup/companies' },
+      { id: 13, name: 'الفروع', englishName: 'Branches', route: '/setup/branches' },
+      { id: 14, name: 'المعارض', englishName: 'Stores', route: '/setup/stores' }
+    ]
+  },
+
   {
     id: 8,
     name: 'المعاملات المحاسبية',
@@ -49,7 +50,7 @@ export const menuData = [
     submenu: [
       { id: 81, name: 'شجرة الحسابات', englishName: 'Chart of Accounts (Tree)', route: '/accounts/chart-of-accounts' },
       { id: 83, name: 'مراكز التكلفة', englishName: 'Cost Centers', route: '/cost-centers' },
-      { id: 82, name: ' قيود اليومية', englishName: 'Journal Entries',route: '/accounts/journal-entries-list' },
+      { id: 82, name: ' قيود اليومية', englishName: 'Journal Entries', route: '/accounts/journal-entries-list' },
       { id: 84, name: 'الأرصدة الافتتاحية المالية', englishName: 'Opening Balances Financial', route: '/accounts/opening-balances-financial' },
       { id: 85, name: 'سندات القبض', englishName: 'Receipt Vouchers', route: '/accounts/receipts' },
       { id: 86, name: 'سندات الصرف', englishName: 'Payment Vouchers', route: '/accounts/payments' },
@@ -100,10 +101,10 @@ export const menuData = [
       { id: 91, name: 'العملاء', englishName: 'Customers', route: '/entities/customers' },
       { id: 92, name: 'الموردين', englishName: 'Suppliers', route: '/entities/suppliers' },
       { id: 93, name: ' البنوك', englishName: 'Bank', route: '/bank/list' }
-   
+
     ]
   },
-    {
+  {
     id: 6,
     name: 'المشتريات',
     englishName: 'Purchases',
@@ -121,9 +122,36 @@ export const menuData = [
     name: 'المبيعات',
     englishName: 'Sales',
     submenu: [
+      {
+        id: 1001,
+        name: 'البيع المباشر',
+        englishName: 'Direct Invoice',
+        submenu: [
+          { id: 10011, name: 'فواتير المبيعات النقدية', englishName: 'Direct Sales Invoices', route: 'sales/invoice/cash/new' },
+          { id: 10012, name: 'مرتجعات المبيعات الاجلة', englishName: 'Direct Sales Returns', route: 'sales/return/credit/new' },
+          { id: 10013, name: 'اعتماد مرتجعات المبيعات النقدية', englishName: 'Approve Direct Sales Returns', route: 'sales/invoice/cash/return/new' },
+          { id: 10014, name: 'اعتماد مرتجعات المبيعات الاجلة', englishName: 'Approve Direct Sales Returns', route: 'sales/invoice/credit/return/new' }
+        ],
+      },
+      {
+        id: 1002,
+        name: 'البنوك',
+        englishName: 'Banks',
+        route: '/sales/bank-invoice',
+      },
+      {
+        id: 1003,
+        name: 'الشركات',
+        englishName: 'Companies',
+        submenu: [
+          { id: 10031, name: 'عروض الأسعار', englishName: 'Quotations', route: '/sales/quotations' },
+          { id: 10032, name: 'أوامر الشراء', englishName: 'Purchase Orders', route: '/sales/companies/purchase-orders' },
+          { id: 10033, name: 'الفوترة الآجلة', englishName: 'Credit Invoicing', route: '/sales/companies/companies-invoice' }
+        ]
+      },
       { id: 51, name: 'عروض العملاء', englishName: 'Customer Quotations', route: '/sales/quotations' },
       { id: 52, name: 'فواتير المبيعات النقدية', englishName: 'Cash Sales Invoices', route: '/sales/invoice/cash' },
-      { id: 53,  name: 'فواتير المبيعات الاجلة', englishName: 'Credit Sales Invoices', route: '/sales/invoice/credit' },
+      { id: 53, name: 'فواتير المبيعات الاجلة', englishName: 'Credit Sales Invoices', route: '/sales/invoice/credit' },
       { id: 54, name: 'إدارة الأقساط', englishName: 'Installment Management', route: '/installments' },
       { id: 55, name: 'مرتجعات المبيعات النقدية', englishName: 'Cash Sales Returns', route: '/sales/return/cash' },
       { id: 56, name: 'مرتجعات المبيعات الاجلة', englishName: 'Credit Sales Returns', route: '/sales/return/credit' },
@@ -142,7 +170,7 @@ export const menuData = [
     ]
   },
 
-  
+
   {
     id: 10,
     name: 'التقارير',
@@ -179,7 +207,7 @@ export const menuData = [
     submenu: [
       { id: 121, name: 'اعدادات حساب التكلفة', englishName: 'Cost Price Settings', route: '/setup/cost-price-settings' },
       { id: 30, name: 'إعدادات حساب التكلفة', englishName: 'Cost Price Settings', route: '/setup/cost-price-settings' },
-  
+
     ]
   }
 ];

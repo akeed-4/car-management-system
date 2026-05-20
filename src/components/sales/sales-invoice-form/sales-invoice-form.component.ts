@@ -76,6 +76,7 @@ export class SalesInvoiceFormComponent implements OnInit {
     @Input() fixedPaymentMethod: any;
     @Input() customTitle:any;
     @Input() isCash: boolean = false;
+  @Input() titleKey = 'INVOICE.CREATE_TITLE';
     // Expose enum to template
     InvoiceType = InvoiceType;
     // Utility to calculate total amount

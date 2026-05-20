@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
 import {
   SharikatSalesOrder,
   CreateSharikatSalesOrderDto,
@@ -9,6 +8,7 @@ import {
   CreditLimitCheckDto,
   CreditLimitCheckResult
 } from '../models/sales-lifecycle/sharikat-sales-order.model';
+import { environment } from '../environments/environment.development';
 
 /**
  * Service for managing Sharikat (Corporate/Fleet) Sales operations
@@ -16,15 +16,15 @@ import {
 @Injectable({
   providedIn: 'root'
 })
-export class SharikatSalesService {
-  private readonly apiUrl = `${environment.apiUrl}/api/SharikatSales`;
+export class CompaniesSalesService {
+  private readonly apiUrl = `${environment.origin}/api/CompaniesSales`;
 
   constructor(private http: HttpClient) {}
 
   // ==================== Sales Orders ====================
 
   /**
-   * Get all Sharikat sales orders with optional filtering
+   * Get all Companies sales orders with optional filtering
    */
   getAll(filters?: {
     status?: string;

@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
 import {
   BunukSalesOrder,
   CreateBunukSalesOrderDto,
@@ -10,6 +9,7 @@ import {
   RecordBankSettlementDto,
   FinanceCalculationResult
 } from '../models/sales-lifecycle/bunuk-sales-order.model';
+import { environment } from '../environments/environment';
 
 /**
  * Service for managing Bunuk (Bank/Finance) Sales operations
@@ -18,7 +18,7 @@ import {
   providedIn: 'root'
 })
 export class BunukSalesService {
-  private readonly apiUrl = `${environment.apiUrl}/api/BunukSales`;
+  private readonly apiUrl = `${environment.origin}/api/BunukSales`;
 
   constructor(private http: HttpClient) {}
 

@@ -9,10 +9,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DxDataGridModule, DxDataGridComponent } from 'devextreme-angular';
-import { AfradSalesService } from '../../../services/afrad-sales.service';
-import { SharikatSalesService } from '../../../services/sharikat-sales.service';
 import { BunukSalesService } from '../../../services/bunuk-sales.service';
 import { SalesChannel } from '../../../models/enums/sales-channel.enum';
+import { CompaniesSalesService } from '@/src/services/companeis-sales.service';
+import { DirectSalesService } from '@/src/services/direct-sales.service';
 
 /**
  * Sales Lifecycle Dashboard Component
@@ -59,8 +59,8 @@ export class SalesLifecycleDashboardComponent implements OnInit {
   SalesChannel = SalesChannel;
 
   constructor(
-    private afradService: AfradSalesService,
-    private sharikatService: SharikatSalesService,
+    private directSalesService: DirectSalesService,
+    private companiesSalesService: CompaniesSalesService,
     private bunukService: BunukSalesService,
     private router: Router
   ) {}
@@ -82,7 +82,7 @@ export class SalesLifecycleDashboardComponent implements OnInit {
 
   loadAfradData(): Promise<void> {
     return new Promise((resolve) => {
-      this.afradService.getAll().subscribe({
+      this.directSalesService.getAll().subscribe({
         next: (data) => {
           this.afradOrders = data;
           this.calculateAfradStatistics();
@@ -95,7 +95,7 @@ export class SalesLifecycleDashboardComponent implements OnInit {
 
   loadSharikatData(): Promise<void> {
     return new Promise((resolve) => {
-      this.sharikatService.getAll().subscribe({
+      this.companiesSalesService.getAll().subscribe({
         next: (data) => {
           this.sharikatOrders = data;
           this.calculateSharikatStatistics();
