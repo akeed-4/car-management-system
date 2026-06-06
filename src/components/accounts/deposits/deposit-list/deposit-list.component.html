@@ -21,6 +21,7 @@
         [allowColumnResizing]="true"
         [columnAutoWidth]="true"
         [rtlEnabled]="true"
+        height="600px"
         keyExpr="id">
 
         <dxo-paging [pageSize]="10"></dxo-paging>
@@ -64,29 +65,27 @@
         </dxi-column>
 
         <dxi-column
-          dataField="amount"
+          dataField="totalAmount"
           caption="{{ 'ACCOUNTS.DEPOSITS.COL_AMOUNT' | translate }}"
           dataType="number"
           format="currency"
           >
         </dxi-column>
 
+      
         <dxi-column
-          caption="{{ 'ACCOUNTS.ACTIONS' | translate }}"
-          
-          [allowFiltering]="false"
-          [allowSorting]="false"
-          cellTemplate="actionsTemplate">
+          type="buttons"  >
+          <dxi-button
+            icon="edit"
+            [onClick]="Edite"
+            [hint]="'ACCOUNTS.DEPOSITS.NOTES_TOOLTIP' | translate">
+          </dxi-button>
+          <dxi-button
+            icon="trash"
+            [onClick]="deleteDeposit"
+            [hint]="'ACCOUNTS.DEPOSITS.DELETE_TOOLTIP' | translate">
+          </dxi-button>
         </dxi-column>
-
-        <!-- Templates -->
-        <div *dxTemplate="let data of 'actionsTemplate'">
-          <div class="actions-cell">
-            <button mat-icon-button matTooltip="عرض/تعديل" color="primary">
-              <mat-icon>edit</mat-icon>
-            </button>
-          </div>
-        </div>
       </dx-data-grid>
     </mat-card-content>
   </mat-card>

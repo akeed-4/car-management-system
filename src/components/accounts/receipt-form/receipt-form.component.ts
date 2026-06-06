@@ -368,7 +368,6 @@ export class ReceiptFormComponent implements OnInit {
     if (this.receiptForm.invalid) {
       return;
     }
-debugger
     // Only enforce allocation balance for CUSTOMER receipts
     if (this.isCustomerReceipt() && this.unallocatedBalance() !== 0) {
       alert('Total allocated amount must equal the total amount received');

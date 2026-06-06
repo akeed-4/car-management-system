@@ -1,8 +1,8 @@
 
 .deposit-page {
-  max-width: 1240px;
+  max-width: 1300px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 16px;
   background:
     radial-gradient(circle at top left, rgba(74, 144, 226, 0.08), transparent 28%),
     linear-gradient(180deg, #f8fafc 0%, #eef3f8 100%);
@@ -12,13 +12,13 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
 .page-header h1 {
   margin: 0;
-  font-size: 2rem;
+  font-size: 1.55rem;
   font-weight: 800;
   color: #122033;
 }
@@ -26,43 +26,44 @@
 .page-header p {
   margin: 6px 0 0;
   color: #4d5e74;
-  font-size: 1rem;
+  font-size: 0.92rem;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
 .status-chip {
   display: inline-flex;
   align-items: center;
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-radius: 999px;
   background: #eef2ff;
   color: #3f51b5;
   font-weight: 700;
+  font-size: 0.85rem;
 }
 
 .page-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 .top-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 0.92fr);
-  gap: 20px;
+  gap: 16px;
 }
 
 .sheet-card {
-  padding: 20px;
-  border-radius: 24px;
+  padding: 16px;
+  border-radius: 20px;
   border: 1px solid rgba(18, 32, 51, 0.08);
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
 }
 
 .wide-card {
@@ -73,13 +74,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
 .section-header h2 {
   margin: 0;
-  font-size: 1.65rem;
+  font-size: 1.1rem;
   font-weight: 800;
   color: #111827;
 }
@@ -87,11 +88,11 @@
 .system-badge {
   display: inline-flex;
   align-items: center;
-  padding: 6px 12px;
+  padding: 5px 10px;
   border-radius: 999px;
   background: #e7f8ee;
   color: #21834f;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   font-weight: 700;
 }
 
@@ -99,24 +100,26 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 16px;
-  margin-bottom: 12px;
+  gap: 12px;
+  margin-bottom: 10px;
   flex-wrap: wrap;
 }
 
 .label-inline {
   color: #243447;
   font-weight: 700;
+  font-size: 0.9rem;
 }
 
 .customer-type-group {
   display: flex;
-  gap: 16px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .form-grid {
   display: grid;
-  gap: 16px;
+  gap: 12px;
 }
 
 .two-columns {
@@ -146,16 +149,30 @@
   min-height: 56px;
 }
 
+.vehicle-actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 4px 0 12px;
+  flex-wrap: wrap;
+}
+
 .reservation-note {
   margin: 0;
   color: #a63a3a;
   font-weight: 700;
+  font-size: 0.82rem;
 }
 
 .page-actions {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+}
+
+.notes-field {
+  width: 100%;
 }
 
 mat-form-field {
@@ -177,7 +194,8 @@ mat-form-field {
 
   .page-header,
   .page-actions,
-  .customer-type-row {
+  .customer-type-row,
+  .vehicle-actions-row {
     flex-direction: column;
     align-items: stretch;
   }

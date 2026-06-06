@@ -47,14 +47,29 @@ getOutstandingInvoicesByCustomerId(customerId: number): Observable<SalesInvoice[
 
   // إضافة فاتورة جديدة
   addInvoice(invoice: SalesInvoice): Observable<SalesInvoice> {
-    const newInvoice = {
+    const payload: any = {
       ...invoice,
       amountPaid: 0,
       amountDue: invoice.totalAmount,
       ownershipTransferStatus: 'Not Started',
       isArchived: false,
     };
-    return this.http.post<SalesInvoice>(this.apiUrl+'/Create', newInvoice);
+
+    if (typeof payload.paymentMethod === 'string') {
+      const m = String(payload.paymentMethod).toUpperCase();
+      const map: Record<string, number> = {
+        CASH: 1,
+        BANK_TRANSFER: 2,
+        BANK: 2,
+        CARD: 3,
+        CHECK: 4,
+        CHEQUE: 4,
+        'FINANCE': 5
+      };
+      payload.paymentMethod = map[m] ?? payload.paymentMethod;
+    }
+
+    return this.http.post<SalesInvoice>(this.apiUrl+'/Create', payload);
   }
 
   // تحديث فاتورة موجودة

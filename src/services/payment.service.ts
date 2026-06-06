@@ -26,7 +26,21 @@ export class PaymentService {
 
   // إضافة دفع عبر API باستخدام نموذج Voucher الموحد
   addPayment(payment: Partial<Payment>): Observable<Payment> {
-    return this.http.post<Payment>(this.apiUrl+'/Create', payment);
+    const payload: any = { ...payment };
+    if (typeof payload.paymentMethod === 'string') {
+      const m = String(payload.paymentMethod).toUpperCase();
+      const map: Record<string, number> = {
+        CASH: 1,
+        BANK_TRANSFER: 2,
+        BANK: 2,
+        CARD: 3,
+        CHECK: 4,
+        CHEQUE: 4,
+        'BANKTRANSFER': 2
+      };
+      payload.paymentMethod = map[m] ?? payload.paymentMethod;
+    }
+    return this.http.post<Payment>(this.apiUrl+'/Create', payload);
   }
  // إضافة دفع عبر API باستخدام نموذج Voucher الموحد
   updatePayment(payment: Partial<Payment>,paymentId: number): Observable<Payment> {

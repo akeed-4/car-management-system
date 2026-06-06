@@ -22,22 +22,52 @@ export class PurchasesService {
   }
 
   addInvoice(invoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue' | 'createdAt' | 'updatedAt' | 'supplier' | 'debitAccount' | 'creditAccount'>): Observable<PurchaseInvoice> {
-    const payload = {
+    const payload: any = {
       ...invoice,
       amountPaid: 0,
       amountDue: invoice.totalAmount,
       isArchived: false,
     };
+
+    if (typeof payload.paymentMethod === 'string') {
+      const m = String(payload.paymentMethod).toUpperCase();
+      const map: Record<string, number> = {
+        CASH: 1,
+        BANK_TRANSFER: 2,
+        BANK: 2,
+        CARD: 3,
+        CHECK: 4,
+        CHEQUE: 4,
+        'FINANCE': 5
+      };
+      payload.paymentMethod = map[m] ?? payload.paymentMethod;
+    }
+
     return this.http.post<PurchaseInvoice>(this.apiUrl+'/Create', payload);
   }
 
   updateInvoice(id: number, invoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue' | 'createdAt' | 'updatedAt' | 'supplier' | 'debitAccount' | 'creditAccount'>): Observable<PurchaseInvoice> {
-    const payload = {
+    const payload: any = {
       ...invoice,
       amountPaid: 0,
       amountDue: invoice.totalAmount,
       isArchived: false,
     };
+
+    if (typeof payload.paymentMethod === 'string') {
+      const m = String(payload.paymentMethod).toUpperCase();
+      const map: Record<string, number> = {
+        CASH: 1,
+        BANK_TRANSFER: 2,
+        BANK: 2,
+        CARD: 3,
+        CHECK: 4,
+        CHEQUE: 4,
+        'FINANCE': 5
+      };
+      payload.paymentMethod = map[m] ?? payload.paymentMethod;
+    }
+
     return this.http.put<PurchaseInvoice>(`${this.apiUrl}/Update/${id}`, payload);
   }
 

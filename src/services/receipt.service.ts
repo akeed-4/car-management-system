@@ -34,7 +34,23 @@ export class ReceiptService {
 
   // إضافة إيصال جديد
   addReceipt(receipt: Partial<ReceiptVoucher>): Observable<ReceiptVoucher> {
-    return this.http.post<ReceiptVoucher>(this.apiUrl+'/Create', receipt);
+    // Ensure paymentMethod is a numeric code when server expects an integer
+    const payload: any = { ...receipt };
+    if (typeof payload.paymentMethod === 'string') {
+      const m = String(payload.paymentMethod).toUpperCase();
+      const map: Record<string, number> = {
+        CASH: 1,
+        BANK_TRANSFER: 2,
+        BANK: 2,
+        CARD: 3,
+        CHECK: 4,
+        CHEQUE: 4,
+        'BANKTRANSFER': 2
+      };
+      payload.paymentMethod = map[m] ?? payload.paymentMethod;
+    }
+
+    return this.http.post<ReceiptVoucher>(this.apiUrl+'/Create', payload);
   }
 
   // تحديث إيصال

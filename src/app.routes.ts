@@ -115,6 +115,7 @@ import { SalesLifecycleDashboardComponent } from './components/sales/sales-lifec
 import { DirectInvoiceFormComponent } from './components/sales/direct-invoice-form/direct-invoice-form.component';
 import { BankInvoiceFormComponent } from './components/sales/bank-invoice-form/bank-invoice-form.component';
 import { CompaniesInvoiceFormComponent } from './components/sales/companies-invoice-form/companies-invoice-form.component';
+import { CarReceiptsFormComponent } from './components/purchases/car-receipts/car-receipts-form/car-receipts-form.component';
 
 export const APP_ROUTES: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -213,6 +214,8 @@ export const APP_ROUTES: Routes = [
   { path: 'purchases/offers/new', component: PurchaseOfferFormComponent },
   { path: 'purchases/offers/edit/:id', component: PurchaseOfferFormComponent },
   { path: 'purchases/receipts', component: CarReceiptsComponent },
+  { path: 'purchases/receipts/new', component: CarReceiptsFormComponent },
+  { path: 'purchases/receipts/new/:id', component: CarReceiptsFormComponent },
   { path: 'purchases/invoice/cash', component: CashPurchaseInvoiceListComponent },
   { path: 'purchases/invoice/credit', component: CreditPurchaseInvoiceListComponent },
   { path: 'purchases/invoice/cash/new', component: PurchaseCashInvoiceComponent },
@@ -239,7 +242,8 @@ export const APP_ROUTES: Routes = [
 
   { path: 'accounts/deposits', component: DepositListComponent }, // New Deposit List
   { path: 'accounts/deposits/new', component: DepositFormComponent }, // New Deposit Form
-  { path: 'accounts/deposits/new/:carId', component: DepositFormComponent }, // New Deposit Form with pre-selected car
+  { path: 'accounts/deposits/new/:id', component: DepositFormComponent }, // New Deposit Form with pre-selected car
+  { path: 'accounts/deposits/edit/:id', component: DepositFormComponent }, // Edit Deposit Form
   { path: 'accounts/floor-plan-financing', component: FloorPlanReportComponent },
   { path: 'accounts/chart-of-accounts', component: ChartOfAccountsTreeComponent },
   { path: 'accounts/chart-of-accounts-new', component: ChartOfAccountsComponent },

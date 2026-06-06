@@ -1,0 +1,75 @@
+<div class="purchase-receipt-container p-4">
+  <mat-card class="styled-card">
+    <mat-card-content class="p-4">
+      <form [formGroup]="receiptForm" (ngSubmit)="onSubmit()">
+
+        <div class="doc-section-title">
+          <mat-icon class="section-icon">receipt</mat-icon>
+          <span>{{ 'CAR_RECEIPTS.MAIN_DATA' | translate }}</span>
+        </div>
+
+        <div class="form-row-flex mb-3">
+          <div class="flex-1">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'CAR_RECEIPTS.RECEIPT_NUMBER' | translate }}</mat-label>
+              <input matInput formControlName="receiptNumber">
+            </mat-form-field>
+          </div>
+          <div class="flex-1">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'CAR_RECEIPTS.SUPPLIER' | translate }}</mat-label>
+              <mat-select formControlName="supplierId">
+                <mat-option *ngFor="let s of suppliers" [value]="s.id">{{ s.name }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="flex-1">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'CAR_RECEIPTS.RECEIPT_DATE' | translate }}</mat-label>
+              <input matInput [matDatepicker]="picker" formControlName="receiptDate">
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="mb-2 d-flex justify-content-end">
+          <button mat-stroked-button type="button" (click)="openCarSelector()">
+            <mat-icon>add</mat-icon>
+            {{ 'PURCHASE_INVOICE.SELECT_CAR' | translate }}
+          </button>
+        </div>
+
+        <div class="details-grid-wrapper mb-3">
+          <dx-data-grid [dataSource]="receiptItems" [showBorders]="true" [columnAutoWidth]="true">
+            <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}"></dxi-column>
+            <dxi-column dataField="quantity" caption="{{ 'PURCHASE_INVOICE.QUANTITY' | translate }}" dataType="number"></dxi-column>
+            <dxi-column dataField="unitPrice" caption="{{ 'PURCHASE_INVOICE.UNIT_PRICE' | translate }}" format="currency"></dxi-column>
+            <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" format="currency"></dxi-column>
+            <dxi-column type="buttons" [width]="90">
+              <dxi-button icon="trash" [onClick]="removeItem.bind(this)" hint="{{ 'PURCHASE_INVOICE.REMOVE_ITEM' | translate }}"></dxi-button>
+            </dxi-column>
+          </dx-data-grid>
+        </div>
+
+        <div class="doc-total-row mb-3" *ngIf="documentDetails.length > 0">
+          <span class="total-label">{{ 'PURCHASE_INVOICE.TOTAL' | translate }}</span>
+          <span class="total-value">{{ grandTotal | currency }}</span>
+        </div>
+
+        <div class="mb-3">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>{{ 'CAR_RECEIPTS.NOTES' | translate }}</mat-label>
+            <textarea matInput formControlName="notes" rows="3"></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+          <button mat-stroked-button type="button" (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
+          <button mat-raised-button color="primary" type="submit">{{ 'COMMON.SAVE' | translate }}</button>
+        </div>
+
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

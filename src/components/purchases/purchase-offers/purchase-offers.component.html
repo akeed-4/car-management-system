@@ -1,10 +1,14 @@
 <div class="container-fluid p-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>{{ 'PURCHASE_OFFERS.TITLE' | translate }}</h2>
-    <button mat-raised-button color="primary" (click)="onCreateNew()">
-      <mat-icon>add</mat-icon>
-      {{ 'PURCHASE_OFFER.CREATE_TITLE' | translate }}
-    </button>
+  <div class="page-header strong-header header-row">
+    <div class="header-left">
+      <h2>{{ 'PURCHASE_OFFERS.TITLE' | translate }}</h2>
+    </div>
+    <div class="header-right">
+      <button mat-raised-button color="primary" (click)="onCreateNew()">
+        <mat-icon>add</mat-icon>
+        {{ 'PURCHASE_OFFER.CREATE_TITLE' | translate }}
+      </button>
+    </div>
   </div>
 
   <dx-data-grid
@@ -36,4 +40,3 @@
     </dxi-column>
   </dx-data-grid>
 </div>
-<p>purchase-offers works!</p>

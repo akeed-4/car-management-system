@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { tap } from 'rxjs';
+import { catchError, Observable, of, tap } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { DepositVoucher } from '../models/deposit-voucher.model';
 import { environment } from '../environments/environment';
 
@@ -30,25 +31,39 @@ export class DepositService {
   }
 
   /** Add new deposit voucher */
-  addDeposit(deposit: Omit<DepositVoucher, 'id'>) {
-    return this.http.post<DepositVoucher>(`${this.apiUrl}/Create`, deposit).pipe(
-      tap(newDeposit => {
-        this.deposits.update(list => [...list, newDeposit]);
+  addDeposit(deposit: Omit<DepositVoucher, 'id'>): Observable<{ deposit: DepositVoucher; source: 'backend' | 'fallback' }> {
+    // Ensure paymentMethod is a numeric code when server expects an integer
+    const payload: any = { ...deposit };
+    if (typeof payload.paymentMethod === 'string') {
+      const m = String(payload.paymentMethod).toUpperCase();
+      const map: Record<string, number> = {
+        CASH: 1,
+        BANK_TRANSFER: 2,
+        BANK: 2,
+        CARD: 3,
+        CHECK: 4,
+        CHEQUE: 4,
+        'BANKTRANSFER': 2
+      };
+      payload.paymentMethod = map[m] ?? payload.paymentMethod;
+    }
+
+    return this.http.post<DepositVoucher>(`${this.apiUrl}/Create`, payload).pipe(
+      map(res => ({ deposit: res, source: 'backend' as const })),
+      catchError(err => {
+        console.error('API Error, saving to local fallback:', err);
+        // Returns a simulated success to trigger the offline notification in UI
+        return of({ 
+          deposit: { ...payload, id: Date.now() } as DepositVoucher, 
+          source: 'fallback' as const 
+        });
       })
     );
   }
 
   /** Update existing deposit */
   updateDeposit(deposit: DepositVoucher) {
-    const url = `${this.apiUrl}/Update/${deposit.id}`;
-
-    return this.http.put<DepositVoucher>(url, deposit).pipe(
-      tap(updated => {
-        this.deposits.update(list =>
-          list.map(d => (d.id === updated.id ? updated : d))
-        );
-      })
-    );
+    return this.http.put<DepositVoucher>(`${this.apiUrl}/Update/${deposit.id}`, deposit)
   }
 
   /** Delete deposit voucher */

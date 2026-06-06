@@ -1,3 +1,211 @@
-.w-100 { width: 100%; }
-.card { margin-top: 20px; }
-.gap-2 { gap: 0.5rem; }
+.purchase-offer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+
+  .styled-card {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  .card-header-accent {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    
+    .small-tracking {
+      letter-spacing: 1px;
+      font-size: 0.75rem;
+    }
+    .page-title {
+      color: #212529;
+      font-size: 1.35rem;
+    }
+  }
+
+  .form-section-title {
+    h5 {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #5c677d;
+      font-weight: 600;
+      margin: 0;
+    }
+    .section-divider {
+      margin: 0.5rem 0 1.5rem 0;
+      opacity: 0.15;
+    }
+  }
+
+  .dark-label mat-label {
+    color: #495057 !important;
+  }
+
+  .finance-field {
+    ::ng-deep .mat-mdc-text-field-wrapper {
+      background-color: rgba(#0d6efd, 0.02) !important;
+    }
+    .currency-prefix {
+      font-size: 0.9rem;
+    }
+  }
+
+  .action-btn {
+    padding: 0 24px !important;
+    height: 42px !important;
+    font-weight: 500;
+    border-radius: 6px;
+  }
+}
+
+/* Section title with icon */
+.doc-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #5c677d;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 0.5rem;
+}
+
+.doc-section-title .section-icon {
+  font-size: 1.1rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: #0d6efd;
+}
+
+/* Details grid wrapper */
+.details-grid-wrapper {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e9ecef;
+}
+
+/* Document preview */
+.document-preview {
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+
+.doc-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, #1a3a5c 0%, #2563eb 100%);
+  color: #fff;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.doc-preview-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.doc-preview-logo mat-icon {
+  font-size: 1.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  opacity: 0.9;
+}
+
+.doc-preview-meta {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.meta-label {
+  font-size: 0.68rem;
+  opacity: 0.75;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.meta-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.doc-preview-body {
+  background: #fff;
+  padding: 0;
+}
+
+.doc-total-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+  background: #f8f9fa;
+  border-top: 2px solid #dee2e6;
+}
+
+.total-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #5c677d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.total-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1a3a5c;
+}
+
+.doc-notes-band {
+  padding: 0.75rem 1.25rem;
+  font-size: 0.85rem;
+  color: #495057;
+  border-top: 1px solid #e9ecef;
+  background: #fffbf0;
+}
+
+@media print {
+  .purchase-offer-container * { box-shadow: none !important; }
+  .document-preview { page-break-inside: avoid; }
+  .header-actions, button.action-btn { display: none !important; }
+}
+
+@media (max-width: 768px) {
+  .doc-preview-header { flex-direction: column; align-items: flex-start; }
+  .meta-item { align-items: flex-start; }
+}
+
+/* Small layout helpers for inline form rows */
+.form-row-flex {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+.form-row-flex .flex-1 {
+  flex: 1 1 0;
+  min-width: 0; /* allow truncation inside flex */
+}
+
+@media (max-width: 768px) {
+  .form-row-flex { flex-direction: column; }
+}

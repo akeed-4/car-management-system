@@ -16,12 +16,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
-import { finalize, map, of, switchMap } from 'rxjs';
+import { debounce, finalize, map, of, switchMap } from 'rxjs';
 
 import { DepositVoucher, DepositPaymentMethod } from '@/src/models/deposit-voucher.model';
 import { ChartOfAccountsService } from '../../../../services/chart-of-accounts.service';
 import { AccountNode } from '../../../../models/account-node.model';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { AccountingService } from '@/src/components/accounting/accounting.service';
+import { Account } from '@/src/components/accounting/models';
+import { NotificationService } from '@/src/services/notification.service';
 
 @Component({
   selector: 'app-deposit-form',
@@ -53,11 +56,11 @@ export class DepositFormComponent implements OnInit {
   private depositService: DepositService = inject(DepositService);
   private translate = inject(TranslateService);
   private dialog = inject(MatDialog);
-
-  private chartOfAccountsService: ChartOfAccountsService = inject(ChartOfAccountsService);
-  accounts = signal<AccountNode[]>([]);
-  creditAccounts = computed(() => this.accounts().filter(a => a.type === 'ACCOUNT'));
-  debitAccounts = computed(() => this.accounts().filter(a => a.type === 'ACCOUNT'));
+private notificationService = inject(NotificationService);
+  private accountingService: AccountingService = inject(AccountingService);
+  accounts = signal<Account[]>([]);
+  creditAccounts = computed(() => this.accounts());
+  debitAccounts = computed(() => this.accounts());
   openCarSelectionDialog() {
     import('../../../../components/sales/car-selection-dialog/car-selection-dialog.component').then(({ CarSelectionDialogComponent }) => {
       const dialogRef = this.dialog.open(CarSelectionDialogComponent, {
@@ -150,9 +153,45 @@ export class DepositFormComponent implements OnInit {
     this.watchFormControls();
 
     // Load accounts for dropdowns
-    this.chartOfAccountsService.accounts$.subscribe(accs => this.accounts.set(accs));
+    this.accountingService.accounts$.subscribe(accs => this.accounts.set(accs));
 
-    const carIdParam = this.route.snapshot.params['carId'];
+    const routePath = this.route.snapshot.routeConfig?.path ?? '';
+
+    // If the route is the edit path, treat the 'id' param as the deposit id to load
+    if (routePath.includes('edit')) {
+      const idParam = this.route.snapshot.params['id'];
+      if (idParam) {
+        const id = Number(idParam);
+        const deposit = this.depositService.getDepositById(id);
+        if (deposit) {
+          this.depositForm.patchValue({
+            voucherNumber: deposit.voucherNumber,
+            date: new Date(deposit.date).toISOString().split('T')[0],
+            status: deposit.status,
+            customerType: deposit.customerType,
+            customerId: deposit.customerId,
+            customerName: deposit.customerName,
+            vehicleId: deposit.carId,
+            agreedSellingPrice: deposit.agreedSellingPrice,
+            finalInvoicePriceFixed: deposit.finalInvoicePriceFixed,
+            depositAmount: deposit.amount,
+            paymentMethod: deposit.paymentMethod,
+            currency: deposit.currency,
+            reservationValidityDays: deposit.reservationValidityDays,
+            isRefundable: deposit.isRefundable,
+            notes: deposit.notes,
+            creditAccountId: deposit.creditAccountId,
+            debitAccountId: deposit.debitAccountId
+          });
+          this.selectedVehicleId.set(deposit.carId);
+          this.selectedCustomerId.set(deposit.customerId ?? null);
+        }
+      }
+      return;
+    }
+
+    // Otherwise treat 'id' (or 'carId') as a pre-selected vehicle id for a new deposit
+    const carIdParam = this.route.snapshot.params['id'];
     if (carIdParam) {
       const carId = Number(carIdParam);
       this.depositForm.patchValue({ vehicleId: carId });
@@ -261,7 +300,16 @@ export class DepositFormComponent implements OnInit {
       voucherType: 'DEPOSIT',
       date: new Date(formValue.date),
       amount: Number(formValue.depositAmount),
-      paymentMethod: formValue.paymentMethod,
+      // map string payment methods to backend numeric codes when required
+      paymentMethod: ((): any => {
+        const map: Record<string, number> = {
+          CASH: 1,
+          BANK_TRANSFER: 2,
+          CARD: 3,
+          CHEQUE: 4
+        };
+        return (map as any)[String(formValue.paymentMethod)] ?? formValue.paymentMethod;
+      })(),
       customerType: formValue.customerType,
       customerId: customer?.id,
       customerName: formValue.customerName.trim(),
@@ -283,27 +331,28 @@ export class DepositFormComponent implements OnInit {
       referenceId: vehicle.id,
       notes: formValue.notes?.trim() || undefined,
       status: 'DRAFT',
+      creditAccountId: formValue.creditAccountId,
+      debitAccountId: formValue.debitAccountId
     };
 
     this.isSaving.set(true);
-    this.depositService.addDeposit(newDeposit).pipe(
-      switchMap(savedDeposit => {
-        if (vehicle.status === 'Reserved') {
-          return of(savedDeposit);
-        }
 
-        return this.inventoryService.updateCarStatus(vehicle.id, 'Reserved').pipe(
-          map(() => savedDeposit)
-        );
-      }),
+    this.depositService.addDeposit(newDeposit).pipe(
       finalize(() => this.isSaving.set(false))
     ).subscribe({
-      next: () => {
-        alert(this.translate.instant('ACCOUNTS.DEPOSITS.FORM.SAVED'));
+      next: (result) => {
+        const message = result.source === 'backend' 
+          ? this.translate.instant('ACCOUNTS.DEPOSITS.FORM.SAVED')
+          : this.translate.instant('ACCOUNTS.DEPOSITS.FORM.SAVED_OFFLINE');
+        
+        this.notificationService.showSuccess(message);
         this.router.navigate(['/accounts/deposits']);
       },
-      error: () => {
-        alert(this.translate.instant('ACCOUNTS.DEPOSITS.FORM.ERROR_SAVING'));
+      error: (err) => {
+        console.error('Save failed', err);
+        const backendMessage = err.error?.message || err.error;
+        const msg = typeof backendMessage === 'string' ? backendMessage : this.translate.instant('ACCOUNTS.DEPOSITS.FORM.SAVE_FAILED');
+        this.notificationService.showError(msg);
       }
     });
   }
@@ -324,8 +373,16 @@ export class DepositFormComponent implements OnInit {
     return `${vehicle.plateNumber || '-'} - ${vehicle.make} ${vehicle.model} ${vehicle.year}`;
   }
 
+  getAccountLabel(account: AccountNode): string {
+    return [account.accountCode, account.accountNameAr].filter(Boolean).join(' - ');
+  }
+
   trackByCustomer(index: number, customer: any): any {
     return customer.id;
+  }
+
+  trackByAccount(index: number, account: AccountNode): number {
+    return account.id;
   }
 
   trackByVehicle(index: number, vehicle: any): any {
