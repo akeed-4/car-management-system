@@ -1,0 +1,31 @@
+.fleet-item-table {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+table {
+  width: 100%;
+}
+
+td input {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  padding: 4px;
+}
+
+td input:focus {
+  outline: none;
+  border-bottom: 1px solid #1976d2;
+}
+
+.add-row-btn {
+  align-self: flex-start;
+}
+
+.empty-state {
+  padding: 12px;
+  color: #757575;
+}

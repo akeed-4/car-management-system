@@ -1,0 +1,30 @@
+<form [formGroup]="form" class="customer-info-form">
+  <h3>{{ 'RETAIL.CUSTOMER_INFO' | translate }}</h3>
+
+  <mat-form-field appearance="outline">
+    <mat-label>{{ 'RETAIL.CUSTOMER_NAME' | translate }}</mat-label>
+    <input matInput formControlName="name" required />
+    <mat-error *ngIf="form.get('name')?.hasError('required')">
+      {{ 'RETAIL.NAME_REQUIRED' | translate }}
+    </mat-error>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>{{ 'RETAIL.MOBILE' | translate }}</mat-label>
+    <input matInput formControlName="mobile" required />
+    <mat-error *ngIf="form.get('mobile')?.hasError('required')">
+      {{ 'RETAIL.MOBILE_REQUIRED' | translate }}
+    </mat-error>
+    <mat-error *ngIf="form.get('mobile')?.hasError('pattern')">
+      {{ 'RETAIL.MOBILE_INVALID' | translate }}
+    </mat-error>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>{{ 'RETAIL.NATIONAL_ID' | translate }}</mat-label>
+    <input matInput formControlName="nationalId" required />
+    <mat-error *ngIf="form.get('nationalId')?.hasError('required')">
+      {{ 'RETAIL.NATIONAL_ID_REQUIRED' | translate }}
+    </mat-error>
+  </mat-form-field>
+</form>

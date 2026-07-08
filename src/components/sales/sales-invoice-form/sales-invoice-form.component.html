@@ -11,8 +11,43 @@
     </div>
   </div>
 
+  <!-- BAND 1: ACTION & TRACEABILITY HEADER BAR -->
+  <div class="trace-bar">
+    <div class="trace-bar-selector">
+      <mat-icon class="trace-bar-icon">request_quote</mat-icon>
+      <mat-form-field appearance="outline" class="quotation-select">
+        <mat-label>{{ 'INVOICE.PARENT_QUOTATION' | translate }}</mat-label>
+        <mat-select [value]="selectedQuotationId()" (selectionChange)="onQuotationSelected($event.value)">
+          <mat-option [value]="null">{{ 'INVOICE.NO_QUOTATION' | translate }}</mat-option>
+          <mat-option *ngFor="let q of activeQuotations()" [value]="q.id">
+            {{ q.quotationNumber }} — {{ q.customer?.name }} ({{ q.totalAmount | currency:'SAR':'symbol':'1.0-0' }})
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="lineage-trail" *ngIf="hasQuotationLineage(); else noLineage">
+      <div class="trail-node source">
+        <mat-icon>request_quote</mat-icon>
+        <span>{{ linkedQuotation()?.quotationNumber }}</span>
+      </div>
+      <mat-icon class="trail-arrow">arrow_back</mat-icon>
+      <div class="trail-node current">
+        <mat-icon>description</mat-icon>
+        <span>{{ titleKey | translate }}</span>
+      </div>
+    </div>
+    <ng-template #noLineage>
+      <div class="lineage-trail lineage-trail-empty">
+        <mat-icon>info_outline</mat-icon>
+        <span>{{ 'INVOICE.NO_QUOTATION_LINKED' | translate }}</span>
+      </div>
+    </ng-template>
+  </div>
+
   <div class="card invoice-card">
     <form [formGroup]="invoiceForm" >
+      <!-- BAND 2: INVOICE HEADER FORM -->
       <section class="form-section">
         <h3 class="form-section-title">{{ 'INVOICE.MAIN_DATA' | translate }}</h3>
             <ng-container *ngIf="cardLayout3 | async as layout">
@@ -170,9 +205,10 @@
       </section>
 
 
+      <!-- BAND 3: INVOICE LINE ITEMS GRID -->
       <section class="form-section">
         <div class="table-wrapper premium-table">
-         
+
           <dx-data-grid
             [dataSource]="invoiceItems()"
             [showBorders]="true"

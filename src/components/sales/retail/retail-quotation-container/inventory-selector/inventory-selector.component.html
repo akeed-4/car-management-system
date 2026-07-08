@@ -1,0 +1,14 @@
+<mat-form-field appearance="outline" class="inventory-selector">
+  <mat-label>{{ 'RETAIL.SELECT_VEHICLE' | translate }}</mat-label>
+  <mat-select
+    [(ngModel)]="selectedCarId"
+    [disabled]="loading"
+    (selectionChange)="onSelectionChange($event.value)">
+    <mat-option *ngFor="let car of availableCars" [value]="car.id">
+      {{ car.make }} {{ car.model }} ({{ car.year }}) - {{ car.vin }}
+    </mat-option>
+  </mat-select>
+  <mat-hint *ngIf="!loading && availableCars.length === 0">
+    {{ 'RETAIL.NO_AVAILABLE_CARS' | translate }}
+  </mat-hint>
+</mat-form-field>

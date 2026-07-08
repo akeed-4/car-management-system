@@ -2,7 +2,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, effect, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
-import { ReactiveFormsModule, FormGroup, FormBuilder, Validators, AbstractControl, FormControl } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormGroup, FormBuilder, Validators, AbstractControl, FormControl } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -61,6 +61,7 @@ import { OidcSecurityService } from 'angular-auth-oidc-client';
   imports: [
     RouterModule,
     ReactiveFormsModule,
+    FormsModule,
     CommonModule,
     TranslateModule,
     MatFormFieldModule,
@@ -217,6 +218,14 @@ export class PurchaseInvoiceComponent implements OnInit {
   selectedReceiptIds = signal<number[]>([]);
   linkedReceiptIds = signal<number[]>([]);
 
+  // Traceability: the currently linked GRNs, for the lineage trail in the action bar
+  linkedReceipts = computed(() =>
+    this.openCarReceiptsHistory().filter(r => this.linkedReceiptIds().includes(r.id))
+  );
+  private openCarReceiptsHistory = signal<CarReceipt[]>([]);
+
+  hasGrnLineage = computed(() => this.linkedReceiptIds().length > 0);
+
   // Temp state for adding a new item
   selectedCarId = signal<number | null>(null);
   selectedQuantity = signal(1);
@@ -318,7 +327,18 @@ export class PurchaseInvoiceComponent implements OnInit {
   /** Un-invoiced GRNs across all suppliers -- the eligible dropdown source for this screen. */
   loadUninvoicedReceipts(): void {
     this.purchaseCycleService.getUninvoicedReceipts().subscribe({
-      next: (receipts) => this.openCarReceipts.set(receipts || []),
+      next: (receipts) => {
+        this.openCarReceipts.set(receipts || []);
+        this.openCarReceiptsHistory.update(history => {
+          const merged = [...history];
+          for (const receipt of receipts || []) {
+            if (!merged.some(r => r.id === receipt.id)) {
+              merged.push(receipt);
+            }
+          }
+          return merged;
+        });
+      },
       error: (err) => {
         console.error('Error loading uninvoiced car receipts', err);
         this.openCarReceipts.set([]);
@@ -370,6 +390,7 @@ export class PurchaseInvoiceComponent implements OnInit {
           items[existingIndex] = {
             ...existing,
             carReceiptItemId: existing.carReceiptItemId ?? line.id,
+            receivedQuantity: (existing.receivedQuantity ?? 0) + line.receivedQuantity,
             quantity: newQuantity,
             unitPrice: newUnitPrice,
             lineTotal: newQuantity * newUnitPrice
@@ -379,6 +400,7 @@ export class PurchaseInvoiceComponent implements OnInit {
             carId: line.carId,
             carReceiptItemId: line.id,
             carDescription,
+            receivedQuantity: line.receivedQuantity,
             quantity: line.receivedQuantity,
             unitPrice: line.unitCost,
             lineTotal: line.receivedQuantity * line.unitCost
@@ -599,6 +621,18 @@ export class PurchaseInvoiceComponent implements OnInit {
   removeItem = (e: any): void => {
     const carId = e.row.data.carId;
     this.invoiceItems.update(items => items.filter(item => item.carId !== carId));
+  };
+
+  /** Recompute lineTotal when the editable Billing Qty cell changes in the grid. */
+  onBillingQuantityChanged = (e: any): void => {
+    const carId = e.data.carId;
+    this.invoiceItems.update(items =>
+      items.map(item =>
+        item.carId === carId
+          ? { ...item, quantity: e.value, lineTotal: (item.unitPrice ?? 0) * e.value }
+          : item
+      )
+    );
   };
 
   /**

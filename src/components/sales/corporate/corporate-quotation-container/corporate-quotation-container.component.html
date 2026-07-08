@@ -1,0 +1,23 @@
+<mat-card class="corporate-quotation-container">
+  <mat-card-header>
+    <mat-card-title>{{ 'CORPORATE.NEW_FLEET_QUOTATION' | translate }}</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content class="content">
+    <app-corporate-client-selector (clientSelected)="onClientSelected($event)"></app-corporate-client-selector>
+
+    <app-fleet-item-table (itemsChange)="onItemsChange($event)"></app-fleet-item-table>
+
+    <div class="summary" *ngIf="items.length > 0">
+      <div><span>{{ 'RETAIL.SUB_TOTAL' | translate }}:</span> {{ subTotal | number:'1.2-2' }}</div>
+      <div><span>{{ 'CORPORATE.TOTAL_DISCOUNT' | translate }}:</span> {{ totalDiscount | number:'1.2-2' }}</div>
+      <div class="total"><span>{{ 'RETAIL.TOTAL_AMOUNT' | translate }}:</span> <strong>{{ totalAmount | number:'1.2-2' }}</strong></div>
+    </div>
+  </mat-card-content>
+
+  <mat-card-actions>
+    <button mat-raised-button color="primary" [disabled]="!isFormValid || submitting" (click)="onSubmit()">
+      {{ 'CORPORATE.CREATE_QUOTATION' | translate }}
+    </button>
+  </mat-card-actions>
+</mat-card>

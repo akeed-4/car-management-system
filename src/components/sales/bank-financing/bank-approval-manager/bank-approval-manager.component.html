@@ -1,0 +1,22 @@
+<mat-card class="bank-approval-manager">
+  <mat-card-header>
+    <mat-card-title>{{ 'BANK_FINANCING.APPROVAL_VERIFICATION' | translate }}</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content class="content">
+    <app-pending-bank-quotes-dropdown (quotationSelected)="onQuotationSelected($event)"></app-pending-bank-quotes-dropdown>
+
+    <ng-container *ngIf="selectedQuotation">
+      <app-lpo-verification-form
+        [vehiclePrice]="selectedQuotation.vehiclePrice"
+        (lpoDataChange)="onLpoDataChange($event)">
+      </app-lpo-verification-form>
+    </ng-container>
+  </mat-card-content>
+
+  <mat-card-actions>
+    <button mat-raised-button color="primary" [disabled]="!isFormValid || submitting" (click)="onSubmit()">
+      {{ 'BANK_FINANCING.CONFIRM_APPROVAL' | translate }}
+    </button>
+  </mat-card-actions>
+</mat-card>

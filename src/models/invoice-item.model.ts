@@ -6,6 +6,8 @@ export interface InvoiceItem {
   carReceiptItemId?: number;
   carDescription: string;
   quantity: number;
+  /** Quantity originally received on the linked GRN (car receipt) line, read-only once set. */
+  receivedQuantity?: number;
   unitPrice?: number;
   salesPrice?: number;
   lineTotal: number;

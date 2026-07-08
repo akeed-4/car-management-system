@@ -120,6 +120,15 @@ import { PurchaseRequestListComponent } from './components/purchases/purchase-re
 import { PurchaseRequestFormComponent } from './components/purchases/purchase-request-form/purchase-request-form.component';
 import { PurchaseOrderListComponent } from './components/purchases/purchase-order-list/purchase-order-list.component';
 import { PurchaseOrderFormComponent } from './components/purchases/purchase-order-form/purchase-order-form.component';
+import { RetailQuotationContainerComponent } from './components/sales/retail/retail-quotation-container/retail-quotation-container.component';
+import { RetailInvoiceManagerComponent } from './components/sales/retail/retail-invoice-manager/retail-invoice-manager.component';
+import { RetailDeliveryContainerComponent } from './components/sales/retail/retail-delivery-container/retail-delivery-container.component';
+import { BankQuotationContainerComponent } from './components/sales/bank-financing/bank-quotation-container/bank-quotation-container.component';
+import { BankApprovalManagerComponent } from './components/sales/bank-financing/bank-approval-manager/bank-approval-manager.component';
+import { BankInvoiceSettlementComponent } from './components/sales/bank-financing/bank-invoice-settlement/bank-invoice-settlement.component';
+import { CorporateQuotationContainerComponent } from './components/sales/corporate/corporate-quotation-container/corporate-quotation-container.component';
+import { CorporateOrderManagerComponent } from './components/sales/corporate/corporate-order-manager/corporate-order-manager.component';
+import { CorporateFleetDispatcherComponent } from './components/sales/corporate/corporate-fleet-dispatcher/corporate-fleet-dispatcher.component';
 
 export const APP_ROUTES: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -189,6 +198,15 @@ export const APP_ROUTES: Routes = [
   { path: 'sales/lifecycle/sharikat/:id', component: CompaniesInvoiceFormComponent },
   { path: 'sales/lifecycle/bunuk/create', component: BankInvoiceFormComponent },
   { path: 'sales/lifecycle/bunuk/:id', component: BankInvoiceFormComponent },
+  { path: 'sales/retail/quotations/new', component: RetailQuotationContainerComponent },
+  { path: 'sales/retail/invoices/new', component: RetailInvoiceManagerComponent },
+  { path: 'sales/retail/deliveries/new', component: RetailDeliveryContainerComponent },
+  { path: 'sales/bank-financing/quotations/new', component: BankQuotationContainerComponent },
+  { path: 'sales/bank-financing/approvals/new', component: BankApprovalManagerComponent },
+  { path: 'sales/bank-financing/invoices/new', component: BankInvoiceSettlementComponent },
+  { path: 'sales/corporate/quotations/new', component: CorporateQuotationContainerComponent },
+  { path: 'sales/corporate/orders/new', component: CorporateOrderManagerComponent },
+  { path: 'sales/corporate/dispatch', component: CorporateFleetDispatcherComponent },
   { path: 'sales/preparation/:vehicleId', component: PreparationManagementComponent },
   { path: 'sales/invoice/cash/new', component: SalesInvoiceCashComponent },
   { path: 'sales/invoice/cash/edit/:id', component: SalesInvoiceCashComponent },

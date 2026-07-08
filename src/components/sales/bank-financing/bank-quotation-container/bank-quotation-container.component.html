@@ -1,0 +1,19 @@
+<mat-card class="bank-quotation-container">
+  <mat-card-header>
+    <mat-card-title>{{ 'BANK_FINANCING.NEW_QUOTATION' | translate }}</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content class="content">
+    <app-customer-info-form (customerChange)="onCustomerChange($event)"></app-customer-info-form>
+
+    <app-bank-partner-dropdown (bankSelected)="onBankSelected($event)"></app-bank-partner-dropdown>
+
+    <app-vin-lock-table (vinSelected)="onVinSelected($event)"></app-vin-lock-table>
+  </mat-card-content>
+
+  <mat-card-actions>
+    <button mat-raised-button color="primary" [disabled]="!isFormValid || submitting" (click)="onSubmit()">
+      {{ 'BANK_FINANCING.CREATE_QUOTATION_AND_LOCK' | translate }}
+    </button>
+  </mat-card-actions>
+</mat-card>

@@ -1,0 +1,18 @@
+<form [formGroup]="form" class="po-reference-form">
+  <h3>{{ 'CORPORATE.PO_REFERENCE' | translate }}</h3>
+
+  <mat-form-field appearance="outline">
+    <mat-label>{{ 'CORPORATE.PO_NUMBER' | translate }}</mat-label>
+    <input matInput formControlName="purchaseOrderReference" required />
+    <mat-error *ngIf="form.get('purchaseOrderReference')?.hasError('required')">
+      {{ 'CORPORATE.PO_NUMBER_REQUIRED' | translate }}
+    </mat-error>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>{{ 'CORPORATE.CONTRACT_TERM' | translate }}</mat-label>
+    <mat-select formControlName="contractTerm" required>
+      <mat-option *ngFor="let term of contractTerms" [value]="term">{{ term }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+</form>

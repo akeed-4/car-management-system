@@ -1,0 +1,10 @@
+.lpo-verification-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 420px;
+}
+
+.lpo-verification-form h3 {
+  margin: 0 0 4px;
+}

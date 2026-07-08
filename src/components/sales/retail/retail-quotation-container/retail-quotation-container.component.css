@@ -1,0 +1,18 @@
+.retail-quotation-container {
+  max-width: 640px;
+  margin: 24px auto;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.summary {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-top: 1px solid #e0e0e0;
+  font-size: 1.1rem;
+}

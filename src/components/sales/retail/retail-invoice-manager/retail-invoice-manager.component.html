@@ -1,0 +1,34 @@
+<mat-card class="retail-invoice-manager">
+  <mat-card-header>
+    <mat-card-title>{{ 'RETAIL.NEW_INVOICE' | translate }}</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content class="content">
+    <app-quotation-selector (quotationIdSelected)="onQuotationIdSelected($event)"></app-quotation-selector>
+
+    <div *ngIf="loadingQuotation">{{ 'RETAIL.LOADING' | translate }}</div>
+
+    <ng-container *ngIf="activeQuotation">
+      <div class="quotation-summary">
+        <div><span>{{ 'RETAIL.CUSTOMER' | translate }}:</span> {{ activeQuotation.customer.name }}</div>
+        <div><span>{{ 'RETAIL.SUB_TOTAL' | translate }}:</span> {{ subTotal | number:'1.2-2' }}</div>
+
+        <mat-form-field appearance="outline" class="discount-field">
+          <mat-label>{{ 'RETAIL.DISCOUNT' | translate }}</mat-label>
+          <input matInput type="number" min="0" [(ngModel)]="discount" />
+        </mat-form-field>
+
+        <div><span>{{ 'RETAIL.TAX' | translate }}:</span> {{ tax | number:'1.2-2' }}</div>
+        <div class="total"><span>{{ 'RETAIL.TOTAL_AMOUNT' | translate }}:</span> <strong>{{ totalAmount | number:'1.2-2' }}</strong></div>
+      </div>
+
+      <app-payment-gateway-form [amountDue]="totalAmount" (paymentChange)="onPaymentChange($event)"></app-payment-gateway-form>
+    </ng-container>
+  </mat-card-content>
+
+  <mat-card-actions>
+    <button mat-raised-button color="primary" [disabled]="!isFormValid || submitting" (click)="onSubmit()">
+      {{ 'RETAIL.CREATE_INVOICE' | translate }}
+    </button>
+  </mat-card-actions>
+</mat-card>

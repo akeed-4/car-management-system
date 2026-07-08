@@ -1,0 +1,24 @@
+<mat-card class="credit-utilization-widget" [class]="'risk-' + riskLevel">
+  <mat-card-header>
+    <mat-card-title>{{ 'CORPORATE.CREDIT_UTILIZATION' | translate }}</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <mat-progress-bar mode="determinate" [value]="utilizationPercentage" [color]="progressBarColor"></mat-progress-bar>
+
+    <div class="stats-grid">
+      <div class="stat"><span>{{ 'CORPORATE.APPROVED_CREDIT_LIMIT' | translate }}</span><strong>{{ approvedCreditLimit | number:'1.2-2' }}</strong></div>
+      <div class="stat"><span>{{ 'CORPORATE.OUTSTANDING_BALANCE' | translate }}</span><strong>{{ currentOutstandingBalance | number:'1.2-2' }}</strong></div>
+      <div class="stat"><span>{{ 'CORPORATE.AVAILABLE_CREDIT' | translate }}</span><strong>{{ availableCredit | number:'1.2-2' }}</strong></div>
+      <div class="stat"><span>{{ 'CORPORATE.PROJECTED_BALANCE' | translate }}</span><strong>{{ projectedBalance | number:'1.2-2' }}</strong></div>
+    </div>
+
+    <div class="risk-badge" [class]="'risk-' + riskLevel">
+      {{ ('CORPORATE.RISK_' + riskLevel.toUpperCase()) | translate }}
+    </div>
+
+    <div class="exceeds-warning" *ngIf="exceedsLimit">
+      {{ 'CORPORATE.EXCEEDS_CREDIT_LIMIT' | translate }}
+    </div>
+  </mat-card-content>
+</mat-card>

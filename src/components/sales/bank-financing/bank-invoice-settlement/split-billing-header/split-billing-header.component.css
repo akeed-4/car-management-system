@@ -1,0 +1,41 @@
+.split-billing-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.party-card.bill-to {
+  border-left: 4px solid #1976d2;
+}
+
+.party-card.owner {
+  border-left: 4px solid #388e3c;
+}
+
+.party-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.field span {
+  font-size: 0.8rem;
+  color: #757575;
+}
+
+.totals-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px;
+  background: #fafafa;
+  border-radius: 4px;
+}
+
+.totals-row .total strong {
+  font-size: 1.1rem;
+}

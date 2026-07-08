@@ -1,0 +1,10 @@
+.bank-approval-manager {
+  max-width: 640px;
+  margin: 24px auto;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}

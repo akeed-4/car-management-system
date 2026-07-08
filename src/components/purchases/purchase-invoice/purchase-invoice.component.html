@@ -11,10 +11,49 @@
     </a>
   </div>
 
+  <!-- BAND 1: ACTION & TRACEABILITY HEADER BAR -->
+  <div class="trace-bar">
+    <div class="trace-bar-selector">
+      <mat-icon class="trace-bar-icon">receipt_long</mat-icon>
+      <mat-form-field appearance="outline" class="grn-select">
+        <mat-label>{{ 'PURCHASE_INVOICE.PARENT_GRN' | translate }}</mat-label>
+        <mat-select [value]="selectedReceiptIds()" (selectionChange)="selectedReceiptIds.set($event.value)" multiple>
+          <mat-option *ngFor="let receipt of openCarReceipts()" [value]="receipt.id">
+            {{ receipt.receiptNumber }} — {{ receipt.receiptDate | date:'shortDate' }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-flat-button color="primary" type="button" class="apply-grn-btn"
+        (click)="applySelectedReceipts()" [disabled]="selectedReceiptIds().length === 0">
+        <mat-icon>playlist_add</mat-icon>
+        {{ 'PURCHASE_INVOICE.ADD_SELECTED_RECEIPTS' | translate }}
+      </button>
+    </div>
+
+    <div class="lineage-trail" *ngIf="hasGrnLineage(); else noLineage">
+      <div class="trail-node source">
+        <mat-icon>inventory_2</mat-icon>
+        <span>{{ linkedReceipts().length }} {{ 'PURCHASE_INVOICE.GRN_LINKED' | translate }}</span>
+      </div>
+      <mat-icon class="trail-arrow">arrow_back</mat-icon>
+      <div class="trail-node current">
+        <mat-icon>description</mat-icon>
+        <span>{{ getTitle() }}</span>
+      </div>
+    </div>
+    <ng-template #noLineage>
+      <div class="lineage-trail lineage-trail-empty">
+        <mat-icon>info_outline</mat-icon>
+        <span>{{ 'PURCHASE_INVOICE.NO_GRN_LINKED' | translate }}</span>
+      </div>
+    </ng-template>
+  </div>
+
   <mat-card>
 
     <form [formGroup]="purchaseInvoiceForm" >
 
+      <!-- BAND 2: INVOICE HEADER FORM -->
       <section class="form-section">
         <h3 class="form-section-title">{{ 'PURCHASE_INVOICE.MAIN_DATA' | translate }}</h3>
         <ng-container *ngIf="cardLayout2 | async as layout">
@@ -125,30 +164,6 @@
         </div>
       </section>
 
-      <section class="form-section" *ngIf="openCarReceipts().length > 0">
-        <div class="section-header">
-          <h3 class="form-section-title">{{ 'PURCHASE_INVOICE.LOAD_FROM_RECEIPTS' | translate }}</h3>
-          <button mat-raised-button color="accent" type="button" (click)="applySelectedReceipts()" [disabled]="selectedReceiptIds().length === 0">
-            <mat-icon>playlist_add</mat-icon>
-            {{ 'PURCHASE_INVOICE.ADD_SELECTED_RECEIPTS' | translate }}
-          </button>
-        </div>
-        <dx-data-grid
-          [dataSource]="openCarReceipts()"
-          [showBorders]="true"
-          [columnAutoWidth]="true"
-          [rowAlternationEnabled]="true"
-          [rtlEnabled]="true"
-          keyExpr="id"
-          [selection]="{ mode: 'multiple', showCheckBoxesMode: 'always' }"
-          (onSelectionChanged)="onReceiptSelectionChanged($event)">
-          <dxi-column dataField="receiptNumber" caption="{{ 'CAR_RECEIPTS.RECEIPT_NUMBER' | translate }}"></dxi-column>
-          <dxi-column dataField="receiptDate" caption="{{ 'CAR_RECEIPTS.RECEIPT_DATE' | translate }}" dataType="date"></dxi-column>
-          <dxi-column dataField="carReceiptItems" caption="{{ 'CAR_RECEIPTS.ITEMS_COUNT' | translate }}" [calculateCellValue]="getReceiptItemsCount"></dxi-column>
-          <dxi-column caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" [calculateCellValue]="getReceiptTotal" format="currency"></dxi-column>
-        </dx-data-grid>
-      </section>
-
       <section class="form-section" *ngIf="linkedReceiptIds().length > 0">
         <div class="linked-receipts-note">
           <mat-icon>link</mat-icon>
@@ -167,7 +182,7 @@
       </section>
 
       <section class="form-section">
-        <div class="table-container">
+        <div class="table-container premium-table">
           <dx-data-grid
             [dataSource]="invoiceItems()"
             [showBorders]="true"
@@ -175,13 +190,16 @@
             [rowAlternationEnabled]="true"
             [rtlEnabled]="true"
             [noDataText]="'PURCHASE_INVOICE.NO_ITEMS' | translate"
+            [editing]="{ mode: 'cell', allowUpdating: true }"
+            (onCellValueChanged)="onBillingQuantityChanged($event)"
             keyExpr="carId"
           >
-            <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}"></dxi-column>
-            <dxi-column dataField="quantity" caption="{{ 'PURCHASE_INVOICE.QUANTITY' | translate }}" dataType="number" allowEditing="true">
+            <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}" [allowEditing]="false"></dxi-column>
+            <dxi-column dataField="receivedQuantity" caption="{{ 'PURCHASE_INVOICE.RECEIVED_QTY' | translate }}" dataType="number" [allowEditing]="false" [visible]="hasGrnLineage()" cssClass="readonly-col"></dxi-column>
+            <dxi-column dataField="quantity" caption="{{ (hasGrnLineage() ? 'PURCHASE_INVOICE.BILLING_QTY' : 'PURCHASE_INVOICE.QUANTITY') | translate }}" dataType="number" [allowEditing]="true">
             </dxi-column>
-            <dxi-column dataField="unitPrice" caption="{{ 'PURCHASE_INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
-            <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" dataType="number" format="currency"></dxi-column>
+            <dxi-column dataField="unitPrice" caption="{{ 'PURCHASE_INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency" [allowEditing]="false"></dxi-column>
+            <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" dataType="number" format="currency" [allowEditing]="false"></dxi-column>
             <dxi-column type="buttons" caption="{{ 'PURCHASE_INVOICE.tools' | translate }}" width="120">
               <dxi-button
                 icon="edit"

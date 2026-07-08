@@ -1,0 +1,51 @@
+.credit-utilization-widget {
+  max-width: 420px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat span {
+  font-size: 0.8rem;
+  color: #757575;
+}
+
+.risk-badge {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.risk-badge.risk-low {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.risk-badge.risk-medium {
+  background: #fff3e0;
+  color: #ef6c00;
+}
+
+.risk-badge.risk-high {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.exceeds-warning {
+  margin-top: 8px;
+  color: #c62828;
+  font-size: 0.85rem;
+  font-weight: 500;
+}

@@ -1,0 +1,20 @@
+<mat-card class="corporate-fleet-dispatcher">
+  <mat-card-header>
+    <mat-card-title>{{ 'CORPORATE.INVOICING_MULTI_DELIVERY' | translate }}</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content class="content">
+    <div *ngIf="loading">{{ 'RETAIL.LOADING' | translate }}</div>
+    <div *ngIf="!loading && !orderId">{{ 'CORPORATE.NO_ORDER_SELECTED' | translate }}</div>
+
+    <app-order-fulfillment-summary [progress]="progress"></app-order-fulfillment-summary>
+
+    <app-vin-batch-selector [candidates]="remainingVins" (selectionChange)="onSelectionChange($event)"></app-vin-batch-selector>
+  </mat-card-content>
+
+  <mat-card-actions>
+    <button mat-raised-button color="primary" [disabled]="!isFormValid || submitting" (click)="onSubmit()">
+      {{ 'CORPORATE.PROCESS_BATCH' | translate }}
+    </button>
+  </mat-card-actions>
+</mat-card>

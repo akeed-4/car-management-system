@@ -1,0 +1,22 @@
+<mat-card class="retail-quotation-container">
+  <mat-card-header>
+    <mat-card-title>{{ 'RETAIL.NEW_QUOTATION' | translate }}</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content class="content">
+    <app-customer-info-form (customerChange)="onCustomerChange($event)"></app-customer-info-form>
+
+    <app-inventory-selector (carSelected)="onCarSelected($event)"></app-inventory-selector>
+
+    <div class="summary" *ngIf="selectedCar">
+      <span>{{ 'RETAIL.TOTAL_AMOUNT' | translate }}:</span>
+      <strong>{{ totalAmount | number:'1.2-2' }}</strong>
+    </div>
+  </mat-card-content>
+
+  <mat-card-actions>
+    <button mat-raised-button color="primary" [disabled]="!isFormValid || submitting" (click)="onSubmit()">
+      {{ 'RETAIL.CREATE_QUOTATION' | translate }}
+    </button>
+  </mat-card-actions>
+</mat-card>

@@ -155,6 +155,36 @@ export const menuData = [
           { id: 10033, name: 'الفوترة الآجلة', englishName: 'Credit Invoicing', route: '/sales/companies/companies-invoice' }
         ]
       },
+      {
+        id: 1004,
+        name: 'البيع المباشر للأفراد',
+        englishName: 'Direct Retail Sales',
+        submenu: [
+          { id: 10041, name: 'عرض سعر التجزئة', englishName: 'Retail Quotation', route: '/sales/retail/quotations/new' },
+          { id: 10042, name: 'فاتورة ودفع التجزئة', englishName: 'Retail Invoice & Payment', route: '/sales/retail/invoices/new' },
+          { id: 10043, name: 'إذن تسليم التجزئة', englishName: 'Retail Delivery Note', route: '/sales/retail/deliveries/new' }
+        ]
+      },
+      {
+        id: 1005,
+        name: 'مبيعات التمويل البنكي',
+        englishName: 'Bank Financing Sales',
+        submenu: [
+          { id: 10051, name: 'عرض السعر وحجز الشاصي', englishName: 'Finance Quotation & VIN Lock', route: '/sales/bank-financing/quotations/new' },
+          { id: 10052, name: 'اعتماد أمر الشراء البنكي', englishName: 'Bank LPO & Approval', route: '/sales/bank-financing/approvals/new' },
+          { id: 10053, name: 'الفاتورة المقسمة والتسليم', englishName: 'Split Invoice & Handover', route: '/sales/bank-financing/invoices/new' }
+        ]
+      },
+      {
+        id: 1006,
+        name: 'مبيعات الأسطول للشركات',
+        englishName: 'B2B Corporate Fleet Sales',
+        submenu: [
+          { id: 10061, name: 'عرض سعر الأسطول', englishName: 'Fleet Quotation', route: '/sales/corporate/quotations/new' },
+          { id: 10062, name: 'اعتماد الائتمان وأمر الشراء', englishName: 'Credit & PO Verification', route: '/sales/corporate/orders/new' },
+          { id: 10063, name: 'الفوترة والتسليم الدفعي', englishName: 'Invoicing & Multi-Delivery', route: '/sales/corporate/dispatch' }
+        ]
+      },
       { id: 51, name: 'عروض العملاء', englishName: 'Customer Quotations', route: '/sales/quotations' },
       { id: 52, name: 'فواتير المبيعات النقدية', englishName: 'Cash Sales Invoices', route: '/sales/invoice/cash' },
       { id: 53, name: 'فواتير المبيعات الاجلة', englishName: 'Credit Sales Invoices', route: '/sales/invoice/credit' },

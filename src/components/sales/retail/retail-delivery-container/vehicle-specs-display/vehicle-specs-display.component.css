@@ -1,0 +1,19 @@
+.vehicle-specs-display {
+  max-width: 420px;
+}
+
+.specs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.spec {
+  display: flex;
+  flex-direction: column;
+}
+
+.spec span {
+  font-size: 0.8rem;
+  color: #757575;
+}

@@ -1,0 +1,34 @@
+.retail-invoice-manager {
+  max-width: 640px;
+  margin: 24px auto;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.quotation-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  background: #fafafa;
+  border-radius: 4px;
+}
+
+.quotation-summary span {
+  font-weight: 500;
+  margin-right: 4px;
+}
+
+.quotation-summary .total {
+  border-top: 1px solid #e0e0e0;
+  padding-top: 6px;
+  font-size: 1.1rem;
+}
+
+.discount-field {
+  max-width: 200px;
+}

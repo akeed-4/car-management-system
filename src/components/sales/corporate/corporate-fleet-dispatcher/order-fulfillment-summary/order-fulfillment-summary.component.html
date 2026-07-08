@@ -1,0 +1,15 @@
+<mat-card class="order-fulfillment-summary" *ngIf="progress">
+  <mat-card-header>
+    <mat-card-title>{{ 'CORPORATE.FULFILLMENT_PROGRESS' | translate }}</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <mat-progress-bar mode="determinate" [value]="deliveredPercentage" color="primary"></mat-progress-bar>
+
+    <div class="stats-grid">
+      <div class="stat"><span>{{ 'CORPORATE.TOTAL_ORDERED' | translate }}</span><strong>{{ progress.totalOrdered }}</strong></div>
+      <div class="stat"><span>{{ 'CORPORATE.TOTAL_DELIVERED' | translate }}</span><strong>{{ progress.totalDelivered }}</strong></div>
+      <div class="stat"><span>{{ 'CORPORATE.REMAINING' | translate }}</span><strong>{{ progress.remaining }}</strong></div>
+    </div>
+  </mat-card-content>
+</mat-card>

@@ -1,0 +1,30 @@
+<mat-card class="corporate-order-manager">
+  <mat-card-header>
+    <mat-card-title>{{ 'CORPORATE.CREDIT_PO_VERIFICATION' | translate }}</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content class="content">
+    <div *ngIf="loading">{{ 'RETAIL.LOADING' | translate }}</div>
+
+    <ng-container *ngIf="quotation && client">
+      <div class="quotation-summary">
+        <div><span>{{ 'CORPORATE.CLIENT' | translate }}:</span> {{ client.companyName }}</div>
+        <div><span>{{ 'RETAIL.TOTAL_AMOUNT' | translate }}:</span> {{ quotation.totalAmount | number:'1.2-2' }}</div>
+      </div>
+
+      <app-credit-utilization-widget
+        [approvedCreditLimit]="client.creditLimit"
+        [currentOutstandingBalance]="client.currentOutstandingBalance"
+        [orderTotal]="quotation.totalAmount">
+      </app-credit-utilization-widget>
+
+      <app-po-reference-form (poDataChange)="onPoDataChange($event)"></app-po-reference-form>
+    </ng-container>
+  </mat-card-content>
+
+  <mat-card-actions>
+    <button mat-raised-button color="primary" [disabled]="!isFormValid || submitting" (click)="onSubmit()">
+      {{ 'CORPORATE.CREATE_ORDER' | translate }}
+    </button>
+  </mat-card-actions>
+</mat-card>

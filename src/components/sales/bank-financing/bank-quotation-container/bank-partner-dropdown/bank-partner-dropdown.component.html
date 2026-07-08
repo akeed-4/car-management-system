@@ -1,0 +1,14 @@
+<mat-form-field appearance="outline" class="bank-partner-dropdown">
+  <mat-label>{{ 'BANK_FINANCING.SELECT_BANK' | translate }}</mat-label>
+  <mat-select
+    [(ngModel)]="selectedBankId"
+    [disabled]="loading"
+    (selectionChange)="onSelectionChange($event.value)">
+    <mat-option *ngFor="let partner of partners" [value]="partner.id">
+      {{ partner.name }}
+    </mat-option>
+  </mat-select>
+  <mat-hint *ngIf="!loading && partners.length === 0">
+    {{ 'BANK_FINANCING.NO_VERIFIED_BANKS' | translate }}
+  </mat-hint>
+</mat-form-field>

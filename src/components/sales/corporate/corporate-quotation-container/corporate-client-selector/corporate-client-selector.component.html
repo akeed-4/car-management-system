@@ -1,0 +1,14 @@
+<mat-form-field appearance="outline" class="corporate-client-selector">
+  <mat-label>{{ 'CORPORATE.SELECT_CLIENT' | translate }}</mat-label>
+  <mat-select
+    [(ngModel)]="selectedClientId"
+    [disabled]="loading"
+    (selectionChange)="onSelectionChange($event.value)">
+    <mat-option *ngFor="let client of clients" [value]="client.id">
+      {{ client.companyName }}
+    </mat-option>
+  </mat-select>
+  <mat-hint *ngIf="!loading && clients.length === 0">
+    {{ 'CORPORATE.NO_CLIENTS' | translate }}
+  </mat-hint>
+</mat-form-field>

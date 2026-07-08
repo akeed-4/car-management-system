@@ -5,6 +5,10 @@
     "INSTALLMENT_INVOICE_SUBTITLE": "Set up flexible payment terms for your customers",
     "ISSUE_INSTALLMENT_INVOICE": "Issue Installment Invoice",
     "BACK_TO_SALES": "Back to Sales",
+    "PARENT_QUOTATION": "Parent Quotation",
+    "NO_QUOTATION": "No quotation (walk-in)",
+    "NO_QUOTATION_LINKED": "No quotation linked — items added manually",
+    "QUOTATION_APPLIED": "Quotation items and customer loaded",
     "MAIN_DATA": "Main Invoice Data",
     "CUSTOMER": "Customer",
     "STORE": "Store",
@@ -159,7 +163,12 @@
     "LINKED_RECEIPTS_NOTE": "This invoice is linked to {{count}} car receipt(s). They will be closed when the invoice is saved.",
     "RECEIPTS_APPLIED": "Receipt items added to the invoice",
     "RECEIPT_CLOSE_WARNING": "Invoice saved, but the linked car receipts could not be marked as closed",
-    "RECEIPT_SUPPLIER_MISMATCH": "All selected car receipts must belong to the same supplier"
+    "RECEIPT_SUPPLIER_MISMATCH": "All selected car receipts must belong to the same supplier",
+    "PARENT_GRN": "Parent GRN",
+    "GRN_LINKED": "GRN(s) linked",
+    "NO_GRN_LINKED": "No GRN linked — items added manually",
+    "BILLING_QTY": "Billing Qty",
+    "RECEIVED_QTY": "Received Qty"
   },
   "COMMON": {
     "RESET": "Reset",

@@ -1,0 +1,28 @@
+<form [formGroup]="form" class="gate-pass-checklist">
+  <h3>{{ 'RETAIL.GATE_PASS_CHECKLIST' | translate }}</h3>
+
+  <mat-form-field appearance="outline">
+    <mat-label>{{ 'RETAIL.GATE_PASS_SERIAL' | translate }}</mat-label>
+    <input matInput formControlName="gatePassSerial" required />
+    <mat-error *ngIf="form.get('gatePassSerial')?.hasError('required')">
+      {{ 'RETAIL.GATE_PASS_SERIAL_REQUIRED' | translate }}
+    </mat-error>
+  </mat-form-field>
+
+  <mat-checkbox formControlName="keysConfirmed">
+    {{ 'RETAIL.KEYS_CONFIRMED' | translate }}
+  </mat-checkbox>
+
+  <mat-checkbox formControlName="spareTireConfirmed">
+    {{ 'RETAIL.SPARE_TIRE_CONFIRMED' | translate }}
+  </mat-checkbox>
+
+  <mat-checkbox formControlName="ownerManualConfirmed">
+    {{ 'RETAIL.OWNER_MANUAL_CONFIRMED' | translate }}
+  </mat-checkbox>
+
+  <mat-form-field appearance="outline">
+    <mat-label>{{ 'RETAIL.NOTES' | translate }}</mat-label>
+    <textarea matInput formControlName="notes" rows="2"></textarea>
+  </mat-form-field>
+</form>

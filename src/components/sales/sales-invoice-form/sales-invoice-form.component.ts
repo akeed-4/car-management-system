@@ -34,6 +34,8 @@ import { CarSelectionDialogComponent } from '../car-selection-dialog/car-selecti
 import { DxoValueErrorBarComponent } from 'devextreme-angular/ui/nested';
 import { NotificationService } from '@/src/services/notification.service';
 import { AccountingService } from '../../accounting/accounting.service';
+import { SalesCycleService } from '../../../services/sales-cycle.service';
+import { Quotation } from '../../../models/quotation.model';
 
 const VAT_RATE_FULL = 0.15; // 15% for new cars on full sale price
 const VAT_RATE_MARGIN = 0.15; // 15% applied to profit margin for used cars
@@ -126,9 +128,16 @@ export class SalesInvoiceFormComponent implements OnInit {
   depositAmount = signal(0);
   selectedCustomerOrder = signal<any | null>(null);
 
+  // Traceability: Parent Quotation lineage state
+  activeQuotations = signal<Quotation[]>([]);
+  selectedQuotationId = signal<number | null>(null);
+  linkedQuotation = signal<Quotation | null>(null);
+  hasQuotationLineage = computed(() => !!this.linkedQuotation());
+
   constructor(
     private inventoryService: InventoryService,
     private customerService: CustomerService,
+    private salesCycleService: SalesCycleService,
     private salesService: SalesService,
     private currentSettingService: CurrentSettingService,
     private storeService: StoreService,
@@ -187,7 +196,8 @@ export class SalesInvoiceFormComponent implements OnInit {
     // Load accounts
     this.loadAccounts();
 
- 
+    // Load active quotations for the traceability bar's Parent Quotation dropdown
+    this.loadActiveQuotations();
 
     // Watch for customer changes to set payment method and check for pending orders
     this.invoiceForm.get('customer')?.valueChanges.subscribe(customerId => {
@@ -201,6 +211,47 @@ export class SalesInvoiceFormComponent implements OnInit {
         this.checkPendingOrders(customerId);
       }
     });
+  }
+
+  /** Un-invoiced quotations -- the eligible dropdown source for the traceability bar. */
+  loadActiveQuotations(): void {
+    this.salesCycleService.getQuotations().subscribe({
+      next: (quotations) => this.activeQuotations.set((quotations || []).filter(q => q.status !== 'Invoiced')),
+      error: (err) => {
+        console.error('Error loading active quotations', err);
+        this.activeQuotations.set([]);
+      }
+    });
+  }
+
+  onQuotationSelected(quotationId: number | null): void {
+    this.selectedQuotationId.set(quotationId);
+    if (!quotationId) {
+      return;
+    }
+
+    const quotation = this.activeQuotations().find(q => q.id === quotationId);
+    if (!quotation) {
+      return;
+    }
+
+    this.linkedQuotation.set(quotation);
+
+    // Inherit and lock the customer from the quotation -- the invoice is financially tied to it.
+    this.invoiceForm.patchValue({ customer: quotation.customerId });
+    this.invoiceForm.get('customer')?.disable();
+
+    const items: InvoiceItem[] = (quotation.items || []).map(line => ({
+      carId: line.carId,
+      carDescription: line.carDescription,
+      quantity: line.quantity,
+      unitPrice: line.unitPrice,
+      salesPrice: line.unitPrice,
+      lineTotal: line.lineTotal
+    }));
+    this.invoiceItems.set(items);
+
+    this.notificationService.showSuccess(this.translate.instant('INVOICE.QUOTATION_APPLIED'));
   }
 
   loadInvoiceForEdit(invoiceId: number) {
@@ -593,7 +644,7 @@ export class SalesInvoiceFormComponent implements OnInit {
 
   saveInvoice(): void {
     const storeId = this.invoiceForm.get('storeId')?.value;
-    const customerId = this.invoiceForm.get('customer')?.value;
+    const customerId = this.invoiceForm.getRawValue().customer;
     const customer = this.customers().find(c => c.id === customerId);
     const items = this.invoiceItems();
 
@@ -626,6 +677,8 @@ export class SalesInvoiceFormComponent implements OnInit {
       invoiceType: this.invoiceForm.get('invoiceType')?.value,
       salesperson: this.invoiceForm.get('salesperson')?.value,
       isCash: this.isCash,
+      quotationId: this.linkedQuotation()?.id,
+      quotationNumber: this.linkedQuotation()?.quotationNumber,
       items: items,
       subtotal: this.subtotal(),
       totalAmount: this.totalAmount(),
