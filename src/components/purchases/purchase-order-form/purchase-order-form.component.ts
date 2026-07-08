@@ -14,7 +14,7 @@ import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PurchaseCycleService } from '../../../services/purchase-cycle.service';
 import { NotificationService } from '../../../services/notification.service';
-import { PurchaseRequestDto } from '../../../models/purchase-request.model';
+import { PurchaseOfferDto } from '../../../models/purchase-offer.model';
 import { CreatePoDto } from '../../../models/purchase-order.model';
 
 interface PoLineItem {
@@ -58,9 +58,9 @@ export class PurchaseOrderFormComponent implements OnInit {
   documentDetails: PoLineItem[] = [];
   grandTotal = 0;
 
-  /** Approved Purchase Requests not yet converted into a PO -- the only eligible dropdown source. */
-  eligibleRequests = signal<PurchaseRequestDto[]>([]);
-  selectedRequest: PurchaseRequestDto | null = null;
+  /** Accepted Purchase Offers not yet converted -- the only eligible dropdown source. */
+  eligibleOffers = signal<PurchaseOfferDto[]>([]);
+  selectedOffer: PurchaseOfferDto | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -75,7 +75,7 @@ export class PurchaseOrderFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadEligibleRequests();
+    this.loadEligibleOffers();
     this.route.params.subscribe(params => {
       if (params['id']) {
         this.isEditMode = true;
@@ -89,36 +89,36 @@ export class PurchaseOrderFormComponent implements OnInit {
     this.poForm = this.fb.group({
       poNumber: ['', Validators.required],
       poDate: [new Date(), Validators.required],
-      purchaseRequestId: [null, Validators.required],
+      purchaseOfferId: [null, Validators.required],
       supplierId: [{ value: null, disabled: true }],
       notes: ['']
     });
   }
 
-  loadEligibleRequests(): void {
-    this.purchaseCycleService.getEligibleRequestsForPo().subscribe({
-      next: (requests) => this.eligibleRequests.set(requests || []),
+  loadEligibleOffers(): void {
+    this.purchaseCycleService.getEligibleOffersForRequest().subscribe({
+      next: (offers) => this.eligibleOffers.set(offers || []),
       error: (err) => {
-        console.error('Error loading eligible purchase requests', err);
-        this.eligibleRequests.set([]);
+        console.error('Error loading eligible purchase offers', err);
+        this.eligibleOffers.set([]);
       }
     });
   }
 
-  /** Cascading onChange: selecting a Purchase Request auto-fills supplier (locked) and all approved quantities/prices. */
-  onRequestSelected(requestId: number | null): void {
+  /** Cascading onChange: selecting a Purchase Offer auto-fills supplier (locked) and all accepted quantities/prices. */
+  onOfferSelected(offerId: number | null): void {
     this.poItems = [];
-    this.selectedRequest = null;
+    this.selectedOffer = null;
     this.poForm.patchValue({ supplierId: null }, { emitEvent: false });
 
-    if (!requestId) return;
+    if (!offerId) return;
 
-    this.purchaseCycleService.getPurchaseRequest(requestId).subscribe({
-      next: (request) => {
-        this.selectedRequest = request;
-        this.poForm.patchValue({ supplierId: request.supplierId }, { emitEvent: false });
+    this.purchaseCycleService.getPurchaseOffer(offerId).subscribe({
+      next: (offer) => {
+        this.selectedOffer = offer;
+        this.poForm.patchValue({ supplierId: offer.supplierId }, { emitEvent: false });
 
-        this.poItems = (request.items || []).map(item => ({
+        this.poItems = (offer.items || []).map(item => ({
           carId: item.carId,
           carDescription: item.car?.description || `${item.car?.make ?? ''} ${item.car?.model ?? ''} ${item.car?.year ?? ''}`.trim(),
           make: item.car?.make || '',
@@ -132,8 +132,8 @@ export class PurchaseOrderFormComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Error loading purchase request lines', err);
-        this.notificationService.showError(this.translateService.instant('PURCHASE_ORDER.LOAD_REQUEST_ERROR'));
+        console.error('Error loading purchase offer lines', err);
+        this.notificationService.showError(this.translateService.instant('PURCHASE_ORDER.LOAD_OFFER_ERROR'));
       }
     });
   }
@@ -161,7 +161,7 @@ export class PurchaseOrderFormComponent implements OnInit {
         this.poForm.patchValue({
           poNumber: po.poNumber,
           poDate: po.poDate,
-          purchaseRequestId: po.purchaseRequestId,
+          purchaseOfferId: po.purchaseOfferId,
           supplierId: po.supplierId,
           notes: po.notes
         });
@@ -196,7 +196,7 @@ export class PurchaseOrderFormComponent implements OnInit {
     const dto: CreatePoDto = {
       poNumber: this.poForm.value.poNumber,
       poDate: this.poForm.value.poDate,
-      purchaseRequestId: this.poForm.value.purchaseRequestId,
+      purchaseOfferId: this.poForm.value.purchaseOfferId,
       notes: this.poForm.value.notes,
       items: this.poItems.map(item => ({
         carId: item.carId,

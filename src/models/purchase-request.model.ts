@@ -13,7 +13,9 @@ export interface CreatePurchaseRequestItemDto {
 export interface CreatePurchaseRequestDto {
   requestNumber: string;
   requestDate: Date | string;
-  purchaseOfferId: number;
+  supplierId: number;
+  /** Optional -- Requests are now created directly from a car selection, no longer required to originate from an Offer. */
+  purchaseOfferId?: number;
   notes?: string;
   items: CreatePurchaseRequestItemDto[];
 }

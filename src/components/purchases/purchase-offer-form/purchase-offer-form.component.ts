@@ -1,6 +1,6 @@
-import { ChangeDetectorRef, Component, computed, OnInit, signal, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -12,15 +12,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { DxDataGridModule, DxButtonModule, DxSelectBoxModule, DxPopupModule, DxDataGridComponent } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CreatePurchaseOfferDto } from '../../../models/purchase-offer.model';
+import { PurchaseRequestDto } from '../../../models/purchase-request.model';
 import { PurchaseCycleService } from '../../../services/purchase-cycle.service';
-import { InventoryService } from '../../../services/inventory.service';
 import { MatCardModule } from '@angular/material/card';
-import { CarSelectionDialogComponent } from '../purchase-invoice/car-selection-dialog/car-selection-dialog.component';
-import { MatDialog } from '@angular/material/dialog';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
-import { SupplierService } from '@/src/services/supplier.service';
-import { Supplier } from '@/src/models/supplier.model';
 import { NotificationService } from '@/src/services/notification.service';
 
 @Component({
@@ -41,8 +35,7 @@ import { NotificationService } from '@/src/services/notification.service';
     DxButtonModule,
     DxSelectBoxModule,
     TranslateModule,
-    MatCardModule,
-    NgxMatSelectSearchModule
+    MatCardModule
   ],
   templateUrl: './purchase-offer-form.component.html',
   styleUrls: ['./purchase-offer-form.component.css']
@@ -51,22 +44,23 @@ export class PurchaseOfferFormComponent implements OnInit {
   offerForm!: FormGroup;
   isEditMode = false;
   offerId?: number;
-  cars: any[] = [];
-  carPopupVisible = false;
   offerItems: any[] = [];
   documentDetails: any[] = [];
   grandTotal = 0;
-@ViewChild(DxDataGridComponent)
-grid!: DxDataGridComponent;
+
+  /** Purchase Requests (Supplier Price Requests) -- the only eligible dropdown source. */
+  eligibleRequests = signal<PurchaseRequestDto[]>([]);
+  selectedRequest: PurchaseRequestDto | null = null;
+
+  @ViewChild(DxDataGridComponent)
+  grid!: DxDataGridComponent;
+
   constructor(
     private fb: FormBuilder,
     private purchaseCycleService: PurchaseCycleService,
-    private inventoryService: InventoryService,
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef,
-    private dialog: MatDialog,
     private router: Router,
-    private supplierService: SupplierService,
     private notificationService: NotificationService,
     private translateService: TranslateService
 
@@ -75,6 +69,7 @@ grid!: DxDataGridComponent;
   }
 
   ngOnInit(): void {
+    this.loadEligibleRequests();
     this.route.params.subscribe(params => {
       if (params['id']) {
         this.isEditMode = true;
@@ -83,14 +78,14 @@ grid!: DxDataGridComponent;
       }
     });
     this.offerForm.valueChanges.subscribe(() => this.updateDocumentPreview());
-    this.loadSuppliers();
   }
 
 
   initForm(): void {
     this.offerForm = this.fb.group({
       offerNumber: ['', Validators.required],
-      supplierId: [null, Validators.required],
+      purchaseRequestId: [null, Validators.required],
+      supplierId: [{ value: null, disabled: true }],
       offerDate: [new Date(), Validators.required],
       paymentTerms: [''],
       deliveryTerms: [''],
@@ -99,10 +94,54 @@ grid!: DxDataGridComponent;
     });
   }
 
+  loadEligibleRequests(): void {
+    this.purchaseCycleService.getPurchaseRequests().subscribe({
+      next: (requests) => this.eligibleRequests.set(requests || []),
+      error: (err) => {
+        console.error('Error loading purchase requests', err);
+        this.eligibleRequests.set([]);
+      }
+    });
+  }
+
+  /** Cascading onChange: selecting a Supplier Price Request auto-fills supplier and items. */
+  onRequestSelected(requestId: number | null): void {
+    this.offerItems = [];
+    this.selectedRequest = null;
+    this.offerForm.patchValue({ supplierId: null }, { emitEvent: false });
+
+    if (!requestId) return;
+
+    this.purchaseCycleService.getPurchaseRequest(requestId).subscribe({
+      next: (request) => {
+        this.selectedRequest = request;
+        this.offerForm.patchValue({ supplierId: request.supplierId }, { emitEvent: false });
+
+        this.offerItems = (request.items || []).map(item => ({
+          carId: item.carId,
+          carDescription: item.car?.description || `${item.car?.make ?? ''} ${item.car?.model ?? ''} ${item.car?.year ?? ''}`.trim(),
+          make: item.car?.make || '',
+          model: item.car?.model || '',
+          year: item.car?.year || new Date().getFullYear(),
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          lineTotal: item.lineTotal
+        }));
+        this.updateDocumentPreview();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error loading purchase request lines', err);
+        this.notificationService.showError(this.translateService.instant('PURCHASE_OFFER.LOAD_REQUEST_ERROR'));
+      }
+    });
+  }
+
   loadOffer(id: number): void {
     this.purchaseCycleService.getPurchaseOffer(id).subscribe(offer => {
       this.offerForm.patchValue({
         offerNumber: offer.offerNumber,
+        purchaseRequestId: offer.purchaseRequestId,
         supplierId: offer.supplierId,
         offerDate: offer.offerDate,
         paymentTerms: offer.paymentTerms,
@@ -136,7 +175,8 @@ onSubmit(): void {
   const dto: CreatePurchaseOfferDto = {
     offerNumber: this.offerForm.value.offerNumber,
     offerDate: this.offerForm.value.offerDate,
-    supplierId: this.offerForm.value.supplierId,
+    supplierId: this.offerForm.getRawValue().supplierId,
+    purchaseRequestId: this.offerForm.value.purchaseRequestId,
     paymentTerms: this.offerForm.value.paymentTerms,
     deliveryTerms: this.offerForm.value.deliveryTerms,
     taxRate: this.offerForm.value.taxRate,
@@ -161,88 +201,12 @@ onSubmit(): void {
     this.router.navigate(['/purchases/offers']);
   }
 
-  openCarSelector(): void {
-    this.inventoryService.getCars().subscribe({
-      next: cars => this.cars = cars,
-      error: err => console.error('Error loading cars', err)
-    });
-  }
-
-  onCarRowClick(e: any): void {
-    const car = e.data;
-    this.selectCar(car);
-  }
-  toggleCarCards(): void {
-    const dialogRef = this.dialog.open(CarSelectionDialogComponent, {
-      width: '90vw',
-      maxWidth: '1200px',
-      height: '80vh',
-      data: {}
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.selectCar(result);
-      }
-    });
-  }
-
-  selectCar(car: any): void {
-    if (!car) return;
-    const quantity = 1;
-    const unitPrice = car.salePrice ?? car.purchasePrice ?? 0;
-    const lineTotal = quantity * unitPrice;
-    const newItem = {
-      carId: car.id,
-      carDescription: car.description || `${car.make} ${car.model} ${car.year}`,
-      make: car.make || '',
-      model: car.model || '',
-      year: car.year || new Date().getFullYear(),
-      quantity,
-      unitPrice,
-      lineTotal
-    };
-    this.offerItems = [...this.offerItems, newItem];
-
-    this.updateDocumentPreview();
-    this.cdr.detectChanges();
-  }
-
   removeItem(e: any): void {
     const carId = e.row?.data?.carId;
     this.offerItems = this.offerItems.filter(i => i.carId !== carId);
     this.updateDocumentPreview();
   }
 
-  supplierFilterCtrl = new FormControl('');
-
-  suppliers = signal<Supplier[]>([]);
-
-  supplierFilterSignal = toSignal(
-    this.supplierFilterCtrl.valueChanges,
-    { initialValue: '' }
-  );
-
-  filteredSuppliers = computed(() => {
-    const filter = (this.supplierFilterSignal() ?? '').toLowerCase().trim();
-
-    if (!filter) {
-      return this.suppliers();
-    }
-
-    return this.suppliers().filter(s =>
-      s.name.toLowerCase().includes(filter)
-    );
-  });
-  loadSuppliers(): void {
-    this.supplierService.getSuppliers().subscribe({
-      next: (data: Supplier[]) => {
-        console.log(data);      // Check if data arrives
-        this.suppliers.set(data);
-      },
-      error: err => console.error(err)
-    });
-  }
   updateDocumentPreview(): void {
     this.documentDetails = [...this.offerItems];
     this.grandTotal = this.documentDetails.reduce((sum, i) => sum + (i.lineTotal || 0), 0);
