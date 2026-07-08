@@ -39,6 +39,8 @@ import { LanguageService } from '@/src/services/language.service';
 import { Direction } from '@angular/cdk/bidi';
 import { CarSelectionDialogComponent } from './car-selection-dialog/car-selection-dialog.component';
 import { VinManagementDialogComponent, VinEntry } from '../vin-management-dialog/vin-management-dialog.component';
+import { PurchaseCycleService } from '../../../services/purchase-cycle.service';
+import { CarReceipt } from '../../../models/car-receipt.model';
 
 const VAT_RATE = 0.15; // 15% VAT
 
@@ -111,6 +113,7 @@ export class PurchaseInvoiceComponent implements OnInit {
   private accountingService = inject(AccountingService);
   private languageService = inject(LanguageService);
   private vinService = inject(VinService);
+  private purchaseCycleService = inject(PurchaseCycleService);
   private router = inject(Router);
   private translate = inject(TranslateService);
   private fb = inject(FormBuilder);
@@ -152,12 +155,14 @@ export class PurchaseInvoiceComponent implements OnInit {
   private paymentMethodFilterSignal = toSignal(this.paymentMethodFilterCtrl.valueChanges, { initialValue: '' });
 
   // Filtered signals
-  filteredSuppliers = computed(() => {
-    const filter = this.supplierFilterSignal()?.toLowerCase() || '';
-    return this.suppliers().filter(s =>
-      s.name?.toLowerCase().includes(filter) ?? false
-    );
-  });
+ filteredSuppliers = computed(() => {
+
+  const filter = this.supplierFilterSignal()?.toLowerCase() ?? '';
+
+  return this.suppliers().filter(s =>
+    s.name?.toLowerCase().includes(filter)
+  );
+});
 
   filteredDebitAccounts = computed(() => {
     const filter = this.debitAccountFilterSignal()?.toLowerCase() || '';
@@ -206,6 +211,11 @@ export class PurchaseInvoiceComponent implements OnInit {
 
   // Invoice items state
   invoiceItems = signal<InvoiceItem[]>([]);
+
+  // Car Receipts (GRN) linking state
+  openCarReceipts = signal<CarReceipt[]>([]);
+  selectedReceiptIds = signal<number[]>([]);
+  linkedReceiptIds = signal<number[]>([]);
 
   // Temp state for adding a new item
   selectedCarId = signal<number | null>(null);
@@ -300,6 +310,89 @@ export class PurchaseInvoiceComponent implements OnInit {
 
     // Load accounts
     this.loadAccounts();
+
+    // GRN dropdown is not gated behind supplier selection -- picking a GRN inherits and locks the supplier.
+    this.loadUninvoicedReceipts();
+  }
+
+  /** Un-invoiced GRNs across all suppliers -- the eligible dropdown source for this screen. */
+  loadUninvoicedReceipts(): void {
+    this.purchaseCycleService.getUninvoicedReceipts().subscribe({
+      next: (receipts) => this.openCarReceipts.set(receipts || []),
+      error: (err) => {
+        console.error('Error loading uninvoiced car receipts', err);
+        this.openCarReceipts.set([]);
+      }
+    });
+  }
+
+  onReceiptSelectionChanged(e: any): void {
+    this.selectedReceiptIds.set((e.selectedRowKeys || []) as number[]);
+  }
+
+  getReceiptItemsCount(receipt: CarReceipt): number {
+    return receipt.carReceiptItems ? receipt.carReceiptItems.length : 0;
+  }
+
+  getReceiptTotal(receipt: CarReceipt): number {
+    return (receipt.carReceiptItems || []).reduce((sum, line) => sum + line.receivedQuantity * line.unitCost, 0);
+  }
+
+  applySelectedReceipts(): void {
+    const receipts = this.openCarReceipts().filter(r => this.selectedReceiptIds().includes(r.id));
+    if (receipts.length === 0) return;
+
+    const currentSupplierId = this.purchaseInvoiceForm.get('supplierId')?.value;
+    const mismatchedSupplier = receipts.find(r => currentSupplierId && r.supplierId !== currentSupplierId);
+    if (mismatchedSupplier) {
+      this.notificationService.showError(this.translate.instant('PURCHASE_INVOICE.RECEIPT_SUPPLIER_MISMATCH'));
+      return;
+    }
+
+    // Supplier is inherited from the selected GRN(s) and locked -- financial matching requires a single supplier.
+    if (!currentSupplierId) {
+      this.purchaseInvoiceForm.patchValue({ supplierId: receipts[0].supplierId });
+      this.purchaseInvoiceForm.get('supplierId')?.disable();
+    }
+
+    const items = [...this.invoiceItems()];
+
+    for (const receipt of receipts) {
+      for (const line of receipt.carReceiptItems || []) {
+        const carDescription = line.car?.description
+          || `${line.car?.make ?? ''} ${line.car?.model ?? ''} ${line.car?.year ?? ''}`.trim();
+        const existingIndex = items.findIndex(i => i.carId === line.carId);
+
+        if (existingIndex !== -1) {
+          const existing = items[existingIndex];
+          const newQuantity = existing.quantity + line.receivedQuantity;
+          const newUnitPrice = ((existing.unitPrice ?? 0) * existing.quantity + line.unitCost * line.receivedQuantity) / newQuantity;
+          items[existingIndex] = {
+            ...existing,
+            carReceiptItemId: existing.carReceiptItemId ?? line.id,
+            quantity: newQuantity,
+            unitPrice: newUnitPrice,
+            lineTotal: newQuantity * newUnitPrice
+          };
+        } else {
+          items.push({
+            carId: line.carId,
+            carReceiptItemId: line.id,
+            carDescription,
+            quantity: line.receivedQuantity,
+            unitPrice: line.unitCost,
+            lineTotal: line.receivedQuantity * line.unitCost
+          });
+        }
+      }
+    }
+
+    this.invoiceItems.set(items);
+    this.linkedReceiptIds.update(ids => Array.from(new Set([...ids, ...receipts.map(r => r.id)])));
+    this.openCarReceipts.update(list => list.filter(r => !this.selectedReceiptIds().includes(r.id)));
+    this.selectedReceiptIds.set([]);
+
+    this.notificationService.showSuccess(this.translate.instant('PURCHASE_INVOICE.RECEIPTS_APPLIED'));
   }
 
   /**
@@ -427,6 +520,10 @@ export class PurchaseInvoiceComponent implements OnInit {
 
         // Set invoice items
         this.invoiceItems.set(invoice.items || []);
+
+        // Restore linked Car Receipts
+        this.linkedReceiptIds.set(invoice.carReceiptIds || []);
+        this.loadUninvoicedReceipts();
       },
       error: (error) => {
         console.error('Failed to load invoice for edit', error);
@@ -592,7 +689,7 @@ export class PurchaseInvoiceComponent implements OnInit {
       return;
     }
 
-    const formValue = this.purchaseInvoiceForm.value;
+    const formValue = this.purchaseInvoiceForm.getRawValue();
     const supplierId = formValue.supplierId;
     const supplier = this.suppliers().find(s => s.id === supplierId);
     const items = this.invoiceItems();
@@ -625,7 +722,8 @@ export class PurchaseInvoiceComponent implements OnInit {
       totalAmount: this.totalAmount(),
       notes: formValue.notes,
       status: 'Unpaid',
-      isArchived: false
+      isArchived: false,
+      carReceiptIds: this.linkedReceiptIds()
     };
 
     if (this.isEditMode()) {
@@ -637,7 +735,7 @@ export class PurchaseInvoiceComponent implements OnInit {
       this.procurementService.updateInvoice(invoiceId, newInvoice).subscribe({
         next: (savedInvoice) => {
           this.notificationService.showSuccess(this.translate.instant('TOAST.UPDATE_SUCCESS'));
-          // Optionally navigate or reset
+          this.markLinkedReceiptsInvoiced(invoiceId);
         },
         error: (error) => {
           console.error('Error updating purchase invoice:', error);
@@ -648,6 +746,7 @@ export class PurchaseInvoiceComponent implements OnInit {
       this.procurementService.addInvoice(newInvoice).subscribe({
         next: (savedInvoice) => {
             this.notificationService.showSuccess(this.translate.instant('TOAST.ADD_SUCCESS'));
+            this.markLinkedReceiptsInvoiced(savedInvoice.id);
         },
         error: (error) => {
           console.error('Error saving purchase invoice:', error);
@@ -655,6 +754,18 @@ export class PurchaseInvoiceComponent implements OnInit {
         }
       });
     }
+  }
+
+  private markLinkedReceiptsInvoiced(invoiceId: number): void {
+    const receiptIds = this.linkedReceiptIds();
+    if (receiptIds.length === 0) return;
+
+    this.purchaseCycleService.markCarReceiptsInvoiced(receiptIds, invoiceId).subscribe({
+      error: (error) => {
+        console.error('Error marking car receipts as invoiced:', error);
+        this.notificationService.showWarning(this.translate.instant('PURCHASE_INVOICE.RECEIPT_CLOSE_WARNING'));
+      }
+    });
   }
 
   editQuantity = (e: any): void => {

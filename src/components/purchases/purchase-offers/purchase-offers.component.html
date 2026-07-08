@@ -13,10 +13,15 @@
 
   <dx-data-grid
     [dataSource]="purchaseOffers"
-    [showBorders]="true"
-    [columnAutoWidth]="true"
-    [rowAlternationEnabled]="true"
-    [hoverStateEnabled]="true">
+   [showBorders]="true"
+        [columnAutoWidth]="true"
+        [rowAlternationEnabled]="true"
+        [rtlEnabled]="true"
+        height="600px"
+        [showRowLines]="true"
+        [allowColumnReordering]="true"
+        [allowColumnResizing]="true"
+        >
 
     <dxo-search-panel [visible]="true"></dxo-search-panel>
     <dxo-filter-row [visible]="true"></dxo-filter-row>
@@ -27,15 +32,36 @@
     <dxi-column dataField="offerNumber" [caption]="'PURCHASE_OFFER.OFFER_NUMBER' | translate"></dxi-column>
     <dxi-column dataField="supplier.name" [caption]="'PURCHASE_OFFER.SUPPLIER' | translate"></dxi-column>
     <dxi-column dataField="offerDate" [caption]="'PURCHASE_OFFER.OFFER_DATE' | translate" dataType="date"></dxi-column>
-    <dxi-column dataField="carDescription" [caption]="'PURCHASE_OFFER.CAR_DESCRIPTION' | translate"></dxi-column>
-    <dxi-column dataField="offeredPrice" [caption]="'PURCHASE_OFFER.OFFERED_PRICE' | translate" format="currency"></dxi-column>
-    <dxi-column dataField="status" [caption]="'PURCHASE_OFFER.STATUS' | translate"></dxi-column>
+    <dxi-column dataField="items" [caption]="'PURCHASE_OFFERS.ITEMS_COUNT' | translate" [calculateCellValue]="getItemsCount"></dxi-column>
+    <dxi-column dataField="totalAmount" [caption]="'PURCHASE_OFFERS.TOTAL_AMOUNT' | translate" format="currency"></dxi-column>
+    <dxi-column dataField="status" [caption]="'PURCHASE_OFFER.STATUS' | translate" cellTemplate="statusCellTemplate"></dxi-column>
+    <div *dxTemplate="let cell of 'statusCellTemplate'">
+      <span class="status-badge" [ngClass]="{
+        'status-pending': cell.value === 'Pending',
+        'status-accepted': cell.value === 'Accepted',
+        'status-rejected': cell.value === 'Rejected'
+      }">
+        {{ ('PURCHASE_OFFER.STATUS_' + cell.value?.toUpperCase()) | translate }}
+      </span>
+    </div>
 
-    <dxi-column type="buttons" [width]="110">
+    <dxi-column type="buttons" [width]="160">
       <dxi-button
         icon="edit"
         [hint]="'COMMON.EDIT' | translate"
         [onClick]="onEdit.bind(this)">
+      </dxi-button>
+      <dxi-button
+        icon="check"
+        [hint]="'PURCHASE_OFFERS.APPROVE' | translate"
+        [visible]="isPending"
+        [onClick]="onApprove.bind(this)">
+      </dxi-button>
+      <dxi-button
+        icon="close"
+        [hint]="'PURCHASE_OFFERS.REJECT' | translate"
+        [visible]="isPending"
+        [onClick]="onReject.bind(this)">
       </dxi-button>
     </dxi-column>
   </dx-data-grid>

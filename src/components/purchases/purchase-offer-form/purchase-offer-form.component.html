@@ -1,7 +1,7 @@
 <div class="purchase-offer-container p-4">
   <mat-card class="styled-card" appearance="raised">
 
-   
+
 
     <mat-card-content class="p-4">
       <form [formGroup]="offerForm" (ngSubmit)="onSubmit()" autocomplete="off">
@@ -12,79 +12,119 @@
           <span>{{ 'PURCHASE_OFFER.SEC_CORE_INFO' | translate }}</span>
         </div>
 
-      <div class="form-row-flex">
-  <div class="flex-1">
-    <mat-form-field appearance="outline" class="w-100">
-      <mat-label>{{ 'PURCHASE_OFFER.OFFER_NUMBER' | translate }}</mat-label>
-      <input matInput formControlName="offerNumber" placeholder="PO-0000">
-      <mat-icon matSuffix>tag</mat-icon>
-      <mat-error *ngIf="offerForm.get('offerNumber')?.hasError('required')">
-        {{ 'COMMON.REQUIRED' | translate }}
-      </mat-error>
-    </mat-form-field>
-  </div>
-  
-  <div class="flex-1">
-    <mat-form-field appearance="outline" class="w-100">
-      <mat-label>{{ 'PURCHASE_OFFER.SUPPLIER' | translate }}</mat-label>
-      <mat-select formControlName="supplierId">
-        <mat-option *ngFor="let s of suppliers" [value]="s.id">{{ s.name }}</mat-option>
-      </mat-select>
-      <mat-icon matSuffix>store</mat-icon>
-      <mat-error *ngIf="offerForm.get('supplierId')?.hasError('required')">
-        {{ 'COMMON.REQUIRED' | translate }}
-      </mat-error>
-    </mat-form-field>
-  </div>
-  
-  <div class="flex-1">
-    <mat-form-field appearance="outline" class="w-100">
-      <mat-label>{{ 'PURCHASE_OFFER.OFFER_DATE' | translate }}</mat-label>
-      <input matInput [matDatepicker]="picker1" formControlName="offerDate">
-      <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
-      <mat-datepicker #picker1></mat-datepicker>
-    </mat-form-field>
-  </div>
-</div>
+        <div class="form-row-flex">
+          <div class="flex-1">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'PURCHASE_OFFER.OFFER_NUMBER' | translate }}</mat-label>
+              <input matInput formControlName="offerNumber" placeholder="PO-0000">
+              <mat-icon matSuffix>tag</mat-icon>
+              <mat-error *ngIf="offerForm.get('offerNumber')?.hasError('required')">
+                {{ 'COMMON.REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
 
-      
- <!-- ══════════════════ CARD HEADER ══════════════════ -->
-    <div class="card-header-accent p-4 d-flex align-items-center justify-content-between">
-      <div class="header-title-group">
-        <span class="text-muted text-uppercase small-tracking font-weight-bold">
-          {{ 'PURCHASE_OFFER.MODULE_NAME' | translate }}
-        </span>
-        <h3 class="m-0 page-title font-weight-bold mt-1">
-          {{ (isEditMode ? 'PURCHASE_OFFER.EDIT_TITLE' : 'PURCHASE_OFFER.CREATE_TITLE') | translate }}
-        </h3>
-      </div>
-      <div class="header-actions d-flex gap-2">
-        <button mat-stroked-button color="accent" type="button" (click)="toggleCarCards()">
-          <mat-icon>search</mat-icon>
-          {{ 'PURCHASE_INVOICE.SELECT_CAR' | translate }}
-        </button>
-      </div>
-    </div>
+
+          <div class="flex-1">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'PURCHASE_OFFER.SUPPLIER' | translate }}</mat-label>
+
+              <mat-select formControlName="supplierId">
+
+                <mat-option>
+                  <ngx-mat-select-search [formControl]="supplierFilterCtrl"
+                    [noEntriesFoundLabel]="'PURCHASE_OFFER.NO_RESULTS' | translate">
+                  </ngx-mat-select-search>
+                </mat-option>
+
+                <mat-option *ngFor="let s of filteredSuppliers()" [value]="s.id">
+                  {{ s.name }}
+                </mat-option>
+
+              </mat-select>
+
+              <mat-icon matSuffix>store</mat-icon>
+
+              <mat-error *ngIf="offerForm.get('supplierId')?.hasError('required')">
+                {{ 'COMMON.REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="flex-1">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'PURCHASE_OFFER.OFFER_DATE' | translate }}</mat-label>
+              <input matInput [matDatepicker]="picker1" formControlName="offerDate">
+              <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+              <mat-datepicker #picker1></mat-datepicker>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="form-row-flex">
+          <div class="flex-1">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'PURCHASE_OFFER.PAYMENT_TERMS' | translate }}</mat-label>
+              <input matInput formControlName="paymentTerms" placeholder="Net 30">
+            </mat-form-field>
+          </div>
+          <div class="flex-1">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'PURCHASE_OFFER.DELIVERY_TERMS' | translate }}</mat-label>
+              <input matInput formControlName="deliveryTerms" placeholder="FOB Port">
+            </mat-form-field>
+          </div>
+          <div class="flex-1">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'PURCHASE_OFFER.TAX_RATE' | translate }}</mat-label>
+              <input matInput type="number" formControlName="taxRate" min="0" max="100">
+              <span matSuffix>%</span>
+            </mat-form-field>
+          </div>
+        </div>
+
+
+        <!-- ══════════════════ CARD HEADER ══════════════════ -->
+        <div class="card-header-accent p-4 d-flex align-items-center justify-content-between">
+          <div class="header-title-group">
+            <span class="text-muted text-uppercase small-tracking font-weight-bold">
+              {{ 'PURCHASE_OFFER.MODULE_NAME' | translate }}
+            </span>
+            <h3 class="m-0 page-title font-weight-bold mt-1">
+              {{ (isEditMode ? 'PURCHASE_OFFER.EDIT_TITLE' : 'PURCHASE_OFFER.CREATE_TITLE') | translate }}
+            </h3>
+          </div>
+          <div class="header-actions d-flex gap-2">
+            <button mat-stroked-button color="accent" type="button" (click)="toggleCarCards()">
+              <mat-icon>search</mat-icon>
+              {{ 'PURCHASE_INVOICE.SELECT_CAR' | translate }}
+            </button>
+          </div>
+        </div>
         <div class="details-grid-wrapper mb-3">
-          <dx-data-grid
-            [dataSource]="offerItems"
-            [showBorders]="true"
-            [columnAutoWidth]="true"
-            [rowAlternationEnabled]="true"
-            [hoverStateEnabled]="true"
-            noDataText="{{ 'PURCHASE_OFFER.NO_ITEMS' | translate }}">
+          <dx-data-grid [dataSource]="offerItems" [showBorders]="true" [columnAutoWidth]="true"
+            [rowAlternationEnabled]="true" [hoverStateEnabled]="true"
+            noDataText="{{ 'PURCHASE_OFFER.NO_ITEMS' | translate }}"
+              (onEditorPreparing)="onCellValueChanged($event)">
 
             <dxo-search-panel [visible]="false"></dxo-search-panel>
-
-            <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_OFFER.DESCRIPTION' | translate }}"></dxi-column>
-            <dxi-column dataField="make"  caption="{{ 'PURCHASE_OFFER.MAKE' | translate }}"></dxi-column>
+            <dxo-editing mode="cell" [allowUpdating]="true">
+            </dxo-editing>
+            <dxi-column dataField="carDescription"
+              caption="{{ 'PURCHASE_OFFER.DESCRIPTION' | translate }}"></dxi-column>
+            <dxi-column dataField="make" caption="{{ 'PURCHASE_OFFER.MAKE' | translate }}"></dxi-column>
             <dxi-column dataField="model" caption="{{ 'PURCHASE_OFFER.MODEL' | translate }}"></dxi-column>
-            <dxi-column dataField="year"  caption="{{ 'PURCHASE_OFFER.YEAR' | translate }}" dataType="number" [width]="90"></dxi-column>
-            <dxi-column dataField="quantity" caption="{{ 'PURCHASE_INVOICE.QUANTITY' | translate }}" dataType="number" [width]="90"></dxi-column>
-            <dxi-column dataField="unitPrice"  caption="{{ 'PURCHASE_INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
-            <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" dataType="number" format="currency"></dxi-column>
+            <dxi-column dataField="year" caption="{{ 'PURCHASE_OFFER.YEAR' | translate }}" dataType="number"
+              [width]="90"></dxi-column>
+            <dxi-column dataField="quantity" caption="{{ 'PURCHASE_INVOICE.QUANTITY' | translate }}" dataType="number"
+              [allowEditing]="true" [width]="90" [setCellValue]="quantity"></dxi-column>
+            <dxi-column dataField="unitPrice" caption="{{ 'PURCHASE_INVOICE.UNIT_PRICE' | translate }}"
+              dataType="number" [allowEditing]="true" format="currency" [setCellValue]="unitPrice"></dxi-column>
+            <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" dataType="number"
+              format="currency"></dxi-column>
             <dxi-column type="buttons" [width]="90" caption="">
-              <dxi-button icon="trash" hint="{{ 'PURCHASE_INVOICE.REMOVE_ITEM' | translate }}" [onClick]="removeItem.bind(this)"></dxi-button>
+              <dxi-button icon="trash" hint="{{ 'PURCHASE_INVOICE.REMOVE_ITEM' | translate }}"
+                [onClick]="removeItem"></dxi-button>
             </dxi-column>
 
           </dx-data-grid>
@@ -121,28 +161,27 @@
               </div>
               <div class="meta-item">
                 <span class="meta-label">{{ 'PURCHASE_OFFER.SUPPLIER' | translate }}</span>
-                <span class="meta-value">{{ getSupplierName(offerForm.get('supplierId')?.value) }}</span>
               </div>
             </div>
           </div>
 
           <!-- Document Details band -->
           <div class="doc-preview-body">
-            <dx-data-grid
-              [dataSource]="documentDetails"
-              [showBorders]="false"
-              [columnAutoWidth]="true"
-              [showColumnLines]="false"
-              [showRowLines]="true"
-              [rowAlternationEnabled]="true">
+            <dx-data-grid [dataSource]="documentDetails" [showBorders]="false" [columnAutoWidth]="true"
+              [showColumnLines]="false" [showRowLines]="true" [rowAlternationEnabled]="true">
 
-              <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_OFFER.DESCRIPTION' | translate }}"></dxi-column>
-              <dxi-column dataField="make"      caption="{{ 'PURCHASE_OFFER.MAKE' | translate }}"></dxi-column>
-              <dxi-column dataField="model"     caption="{{ 'PURCHASE_OFFER.MODEL' | translate }}"></dxi-column>
-              <dxi-column dataField="year"      caption="{{ 'PURCHASE_OFFER.YEAR' | translate }}" dataType="number" [width]="80"></dxi-column>
-              <dxi-column dataField="quantity"  caption="{{ 'PURCHASE_INVOICE.QUANTITY' | translate }}" dataType="number" [width]="80"></dxi-column>
-              <dxi-column dataField="unitPrice" caption="{{ 'PURCHASE_INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
-              <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" dataType="number" format="currency"></dxi-column>
+              <dxi-column dataField="carDescription"
+                caption="{{ 'PURCHASE_OFFER.DESCRIPTION' | translate }}"></dxi-column>
+              <dxi-column dataField="make" caption="{{ 'PURCHASE_OFFER.MAKE' | translate }}"></dxi-column>
+              <dxi-column dataField="model" caption="{{ 'PURCHASE_OFFER.MODEL' | translate }}"></dxi-column>
+              <dxi-column dataField="year" caption="{{ 'PURCHASE_OFFER.YEAR' | translate }}" dataType="number"
+                [width]="80"></dxi-column>
+              <dxi-column dataField="quantity" caption="{{ 'PURCHASE_INVOICE.QUANTITY' | translate }}" dataType="number"
+                [width]="80"></dxi-column>
+              <dxi-column dataField="unitPrice" caption="{{ 'PURCHASE_INVOICE.UNIT_PRICE' | translate }}"
+                dataType="number" format="currency"></dxi-column>
+              <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" dataType="number"
+                format="currency"></dxi-column>
 
             </dx-data-grid>
 
@@ -163,13 +202,14 @@
 
         <!-- ══════════════════ FORM ACTIONS ══════════════════ -->
         <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
-          <button mat-stroked-button type="button" class="action-btn" (click)="onCancel()">
-            {{ 'COMMON.CANCEL' | translate }}
-          </button>
-          <button mat-raised-button color="primary" type="submit" class="action-btn" [disabled]="offerForm.invalid">
+         <button mat-raised-button color="primary" type="submit" class="action-btn" [disabled]="offerForm.invalid || offerItems.length === 0">
             <mat-icon class="me-1">save</mat-icon>
             {{ (isEditMode ? 'COMMON.UPDATE' : 'COMMON.SAVE') | translate }}
           </button>
+          <button mat-stroked-button type="button" class="action-btn" (click)="onCancel()">
+            {{ 'COMMON.CANCEL' | translate }}
+          </button>
+       
         </div>
 
       </form>

@@ -22,6 +22,7 @@ export interface PurchaseInvoice {
   createdAt?: string;
   updatedAt?: string;
   paymentType?: string;
+  carReceiptIds?: number[]; // Car Receipts (GRNs) this invoice was generated from
 ClassificationId?: number;
   // Navigation properties
   supplier?: Supplier;

@@ -22,7 +22,7 @@
     <dxi-column dataField="receiptNumber" caption="{{ 'CAR_RECEIPTS.RECEIPT_NUMBER' | translate }}"></dxi-column>
     <dxi-column dataField="receiptDate" caption="{{ 'CAR_RECEIPTS.RECEIPT_DATE' | translate }}" dataType="date"></dxi-column>
     <dxi-column dataField="supplier.name" caption="{{ 'CAR_RECEIPTS.SUPPLIER' | translate }}"></dxi-column>
-    <dxi-column dataField="purchaseOffer.offerNumber" caption="{{ 'CAR_RECEIPTS.PURCHASE_OFFER' | translate }}"></dxi-column>
+    <dxi-column dataField="purchaseOrder.poNumber" caption="{{ 'CAR_RECEIPTS.PURCHASE_ORDER' | translate }}"></dxi-column>
     <dxi-column dataField="carReceiptItems" caption="{{ 'CAR_RECEIPTS.ITEMS_COUNT' | translate }}" [calculateCellValue]="getItemsCount"></dxi-column>
 
     <dxo-paging [pageSize]="10"></dxo-paging>

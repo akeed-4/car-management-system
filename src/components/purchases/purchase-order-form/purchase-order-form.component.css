@@ -1,4 +1,4 @@
-.purchase-request-container {
+.purchase-order-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 1rem;
@@ -14,7 +14,6 @@
 .card-header-accent {
   background-color: #f8f9fa;
   border-bottom: 1px solid #e9ecef;
-  padding: 1rem 1.25rem;
   border-radius: 8px;
   margin-bottom: 1rem;
 }
@@ -62,6 +61,31 @@
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid #e9ecef;
+}
+
+.doc-total-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+  background: #f8f9fa;
+  border-top: 2px solid #dee2e6;
+  border-radius: 6px;
+}
+
+.total-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #5c677d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.total-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1a3a5c;
 }
 
 .form-row-flex {

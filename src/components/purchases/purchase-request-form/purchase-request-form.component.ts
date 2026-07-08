@@ -1,25 +1,33 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ChangeDetectorRef, Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
-import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { PurchaseCycleService } from '@/src/services/purchase-cycle.service';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Router } from '@angular/router';
-import { Observable, map } from 'rxjs';
-import { PurchaseRequest, PurchaseRequestItem } from '../../../models/purchase-request.model';
-import dxDataGrid from 'devextreme/ui/data_grid';
+import { MatCardModule } from '@angular/material/card';
 import { DxDataGridModule } from 'devextreme-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { PurchaseCycleService } from '../../../services/purchase-cycle.service';
+import { NotificationService } from '../../../services/notification.service';
+import { PurchaseOfferDto } from '../../../models/purchase-offer.model';
+import { CreatePurchaseRequestDto } from '../../../models/purchase-request.model';
+
+interface RequestLineItem {
+  carId: number;
+  carDescription: string;
+  make: string;
+  model: string;
+  year: number;
+  quantity: number;
+  unitPrice: number;
+  lineTotal: number;
+}
 
 @Component({
   selector: 'app-purchase-request-form',
@@ -31,194 +39,191 @@ import { TranslateModule } from '@ngx-translate/core';
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
-    MatTableModule,
     MatIconModule,
-    MatTooltipModule,
     MatGridListModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatCardModule,
     DxDataGridModule,
     TranslateModule
   ],
   templateUrl: './purchase-request-form.component.html',
   styleUrls: ['./purchase-request-form.component.css']
 })
-export class PurchaseRequestFormComponent {
-  purchaseOfferForm: FormGroup;
-    isEditMode = false;
-    purchaseOfferId: number | null = null;
-  
-    // Data arrays
-    offerItems: PurchaseRequestItem[] = [];
-    suppliers: any[] = [];
-    requestedCars: any[] = [];
-    classifiers: any[] = [];
-    units: any[] = [];
-  
-    // Summary properties
-    lastPurchasePrice: number = 0;
-    salePrice: number = 0;
-    taxCostPrice: number = 0;
-    unitCostPrice: number = 0;
-  
-    // Layout observable for responsive design
-    cardLayout3: Observable<any>;
-  
-    constructor(
-        private fb: FormBuilder,
-        private purchaseCycleService: PurchaseCycleService,
-        private router: Router,
-        private breakpointObserver: BreakpointObserver
-    ) {
-        this.purchaseOfferForm = this.fb.group({
-            offerNumber: ['', Validators.required],
-            offerDate: [new Date(), Validators.required],
-            referenceNumber: [''],
-            descriptionAr: [''],
-            descriptionEn: [''],
-            status: ['Pending'],
-            notes: ['']
-        });
-  
-    }
-  
-    ngOnInit(): void {
-    
-      // Check if editing
-      const id = this.router.url.split('/').pop();
-      if (id && !isNaN(+id)) {
-        this.isEditMode = true;
-        this.purchaseOfferId = +id;
-        this.loadPurchaseOffer(this.purchaseOfferId);
-      }
-    }
-  
+export class PurchaseRequestFormComponent implements OnInit {
+  requestForm!: FormGroup;
+  isEditMode = false;
+  requestId: number | null = null;
 
+  requestItems: RequestLineItem[] = [];
+  documentDetails: RequestLineItem[] = [];
+  grandTotal = 0;
 
-    loadPurchaseOffer(id: number): void {
-      this.purchaseCycleService.getPurchaseOffer(id).subscribe(
-        data => {
-          this.purchaseOfferForm.patchValue(data);
-          // TODO: Load offer items
-          this.offerItems = [];
-        },
-        error => console.error('Error loading purchase offer', error)
-      );
-    }
-  
-    showDetails(): void {
-      // TODO: Implement details view
-      console.log('Show details');
-    }
-  
-  
-  
-  
+  /** Accepted offers not yet converted into a request -- the only eligible dropdown source. */
+  eligibleOffers = signal<PurchaseOfferDto[]>([]);
+  selectedOffer: PurchaseOfferDto | null = null;
 
- 
-  
-  
-    toggleHiddenColumns(): void {
-      // TODO: Implement hidden columns toggle
-      console.log('Toggle hidden columns');
-    }
-  
-    addNewRow(): void {
-      const newItem: PurchaseRequestItem =
-      {
-        carDescription: '',
-        quantity: 1,
-        unitPrice: 0,
-        lineTotal: 0
-      };
-      this.offerItems = [...this.offerItems, newItem];
-    }
-  
-    removeItem(e: any): void {
-      const index = this.offerItems.indexOf(e.data);
-      if (index > -1) {
-        this.offerItems.splice(index, 1);
-        this.offerItems = [...this.offerItems];
-      }
-    }
-  
-    onCellValueChanged(e: any): void {
-      if (e && e.data) {
-        const item = e.data as PurchaseRequestItem;
-        item.lineTotal = this.calculateTotal(item);
-        // replace the changed item in the array to trigger change detection
-        const idx = this.offerItems.indexOf(e.data);
-        if (idx > -1) {
-          this.offerItems[idx] = item;
-        }
-      }
-      this.updateSummary();
-    }
-  
-    calculateTotal = (rowData: PurchaseRequestItem): number => {
-      return (rowData.quantity || 0) * (rowData.unitPrice || 0);
-    }
-  
-  
-    updateSummary(): void {
-      this.lastPurchasePrice = 0;
-      this.salePrice = 0;
-      this.taxCostPrice = 0;
-      this.unitCostPrice = 0;
-  
-      this.offerItems.forEach(item => {
-        const line = item.lineTotal !== undefined ? item.lineTotal : this.calculateTotal(item);
-      });
-  
-      // Example summary calculations — adapt to business rules as needed
-      this.salePrice = this.lastPurchasePrice * 1.15;
-      this.taxCostPrice = this.lastPurchasePrice * 0.15;
-      this.unitCostPrice = this.offerItems.length > 0 ? this.lastPurchasePrice / this.offerItems.length : 0;
-    }
-   
-  
-    showClassification(): void {
-      // TODO: Implement show classification functionality
-      console.log('Show classification clicked');
-    }
-  
-    searchItems(): void {
-      // TODO: Implement search items functionality
-      console.log('Search items clicked');
-    }
-  
-    tableSettings(): void {
-      // TODO: Implement table settings functionality
-      console.log('Table settings clicked');
-    }
-  
-   
-
-      // Calculate summary values
-  
-    onSubmit(): void {
-      if (this.purchaseOfferForm.valid && this.offerItems.length > 0) {
-        const formValue = {
-          ...this.purchaseOfferForm.value,
-          items: this.offerItems
-        };
-  
-        if (this.isEditMode && this.purchaseOfferId) {
-          this.purchaseCycleService.updatePurchaseOffer(this.purchaseOfferId, formValue).subscribe(
-            () => this.router.navigate(['/purchases/offers']),
-            error => console.error('Error updating purchase offer', error)
-          );
-        } else {
-          this.purchaseCycleService.createPurchaseOffer(formValue).subscribe(
-            () => this.router.navigate(['/purchases/offers']),
-            error => console.error('Error creating purchase offer', error)
-          );
-        }
-      }
-    }
-  
-    onCancel(): void {
-      this.router.navigate(['/purchases/offers']);
-    }
+  constructor(
+    private fb: FormBuilder,
+    private purchaseCycleService: PurchaseCycleService,
+    private notificationService: NotificationService,
+    private translateService: TranslateService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
+  ) {
+    this.initForm();
   }
-  
+
+  ngOnInit(): void {
+    this.loadEligibleOffers();
+    this.route.params.subscribe(params => {
+      if (params['id']) {
+        this.isEditMode = true;
+        this.requestId = +params['id'];
+        this.loadRequest(this.requestId);
+      }
+    });
+  }
+
+  initForm(): void {
+    this.requestForm = this.fb.group({
+      requestNumber: ['', Validators.required],
+      requestDate: [new Date(), Validators.required],
+      purchaseOfferId: [null, Validators.required],
+      supplierId: [{ value: null, disabled: true }],
+      notes: ['']
+    });
+  }
+
+  loadEligibleOffers(): void {
+    this.purchaseCycleService.getEligibleOffersForRequest().subscribe({
+      next: (offers) => this.eligibleOffers.set(offers || []),
+      error: (err) => {
+        console.error('Error loading eligible offers', err);
+        this.eligibleOffers.set([]);
+      }
+    });
+  }
+
+  /** Cascading onChange: selecting an Offer auto-fills supplier, items, quantities, prices, tax and terms. */
+  onOfferSelected(offerId: number | null): void {
+    this.requestItems = [];
+    this.selectedOffer = null;
+    this.requestForm.patchValue({ supplierId: null }, { emitEvent: false });
+
+    if (!offerId) return;
+
+    this.purchaseCycleService.getPurchaseOffer(offerId).subscribe({
+      next: (offer) => {
+        this.selectedOffer = offer;
+        // Supplier is inherited from the offer and locked -- never editable once a parent doc is chosen.
+        this.requestForm.patchValue({ supplierId: offer.supplierId }, { emitEvent: false });
+
+        this.requestItems = (offer.items || []).map(item => ({
+          carId: item.carId,
+          carDescription: item.car?.description || `${item.car?.make ?? ''} ${item.car?.model ?? ''} ${item.car?.year ?? ''}`.trim(),
+          make: item.car?.make || '',
+          model: item.car?.model || '',
+          year: item.car?.year || new Date().getFullYear(),
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          lineTotal: item.lineTotal
+        }));
+        this.updateDocumentPreview();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error loading offer lines', err);
+        this.notificationService.showError(this.translateService.instant('PURCHASE_REQUESTS.LOAD_OFFER_ERROR'));
+      }
+    });
+  }
+
+  loadRequest(id: number): void {
+    this.purchaseCycleService.getPurchaseRequest(id).subscribe({
+      next: (request) => {
+        this.requestForm.patchValue({
+          requestNumber: request.requestNumber,
+          requestDate: request.requestDate,
+          purchaseOfferId: request.purchaseOfferId,
+          supplierId: request.supplierId,
+          notes: request.notes
+        });
+        this.requestItems = (request.items || []).map(item => ({
+          carId: item.carId,
+          carDescription: item.car?.description || `${item.car?.make ?? ''} ${item.car?.model ?? ''} ${item.car?.year ?? ''}`.trim(),
+          make: item.car?.make || '',
+          model: item.car?.model || '',
+          year: item.car?.year || new Date().getFullYear(),
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          lineTotal: item.lineTotal
+        }));
+        this.updateDocumentPreview();
+      },
+      error: (err) => {
+        console.error('Error loading purchase request', err);
+        this.notificationService.showError(this.translateService.instant('PURCHASE_REQUESTS.LOAD_ERROR'));
+      }
+    });
+  }
+
+  quantitySetCellValue = (newData: any, value: number, currentRowData: RequestLineItem): void => {
+    newData.quantity = value;
+    newData.lineTotal = value * currentRowData.unitPrice;
+    setTimeout(() => this.updateDocumentPreview());
+  };
+
+  unitPriceSetCellValue = (newData: any, value: number, currentRowData: RequestLineItem): void => {
+    newData.unitPrice = value;
+    newData.lineTotal = currentRowData.quantity * value;
+    setTimeout(() => this.updateDocumentPreview());
+  };
+
+  updateDocumentPreview(): void {
+    this.documentDetails = [...this.requestItems];
+    this.grandTotal = this.documentDetails.reduce((sum, i) => sum + (i.lineTotal || 0), 0);
+  }
+
+  onSubmit(): void {
+    if (this.requestForm.invalid || this.requestItems.length === 0) {
+      this.requestForm.markAllAsTouched();
+      if (this.requestItems.length === 0) {
+        this.notificationService.showWarning(this.translateService.instant('PURCHASE_REQUESTS.NO_ITEMS_WARNING'));
+      }
+      return;
+    }
+
+    const dto: CreatePurchaseRequestDto = {
+      requestNumber: this.requestForm.value.requestNumber,
+      requestDate: this.requestForm.value.requestDate,
+      purchaseOfferId: this.requestForm.value.purchaseOfferId,
+      notes: this.requestForm.value.notes,
+      items: this.requestItems.map(item => ({
+        carId: item.carId,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice
+      }))
+    };
+
+    const request = this.isEditMode && this.requestId
+      ? this.purchaseCycleService.updatePurchaseRequest(this.requestId, dto)
+      : this.purchaseCycleService.createPurchaseRequest(dto);
+
+    request.subscribe({
+      next: () => {
+        this.notificationService.showSuccess(this.translateService.instant('PURCHASE_REQUESTS.SAVE_SUCCESS'));
+        this.router.navigate(['/purchases/requests']);
+      },
+      error: (err) => {
+        console.error('Error saving purchase request', err);
+        this.notificationService.showError(this.translateService.instant('PURCHASE_REQUESTS.SAVE_ERROR') + ': ' + (err?.message || 'Unknown error'));
+      }
+    });
+  }
+
+  onCancel(): void {
+    this.router.navigate(['/purchases/requests']);
+  }
+}

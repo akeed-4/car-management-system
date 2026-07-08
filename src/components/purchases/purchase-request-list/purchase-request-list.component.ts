@@ -1,47 +1,101 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
+import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { PurchaseCycleService } from '../../../services/purchase-cycle.service';
+import { NotificationService } from '../../../services/notification.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslateModule } from '@ngx-translate/core';
-import { DxDataGridModule } from 'devextreme-angular';
-import { PurchaseRequest } from '../../../models/purchase-request.model';
+import { PurchaseRequestDto } from '../../../models/purchase-request.model';
 
 @Component({
   selector: 'app-purchase-request-list',
   standalone: true,
   imports: [
     CommonModule,
-    MatButtonModule,
-    MatIconModule,
+    RouterModule,
+    DxDataGridModule,
+    DxButtonModule,
+    DxTemplateModule,
     TranslateModule,
-    DxDataGridModule
+    MatButtonModule,
+    MatIconModule
   ],
   templateUrl: './purchase-request-list.component.html',
   styleUrls: ['./purchase-request-list.component.css']
 })
-export class PurchaseRequestListComponent {
-  purchaseRequests: PurchaseRequest[] = [
-    {
-      id: 1,
-      requestNumber: 'REQ-001',
-      requestDate: new Date().toISOString(),
-      supplierId: 1,
-      supplier: { id: 1, name: 'Supplier A' } as any,
-      items: [],
-      status: 'Pending'
-    },
-    {
-      id: 2,
-      requestNumber: 'REQ-002',
-      requestDate: new Date().toISOString(),
-      supplierId: 2,
-      supplier: { id: 2, name: 'Supplier B' } as any,
-      items: [],
-      status: 'Approved'
-    }
-  ];
+export class PurchaseRequestListComponent implements OnInit {
+  purchaseRequests: PurchaseRequestDto[] = [];
+
+  constructor(
+    private purchaseCycleService: PurchaseCycleService,
+    private notificationService: NotificationService,
+    private translateService: TranslateService,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.loadRequests();
+  }
+
+  loadRequests(): void {
+    this.purchaseCycleService.getPurchaseRequests().subscribe({
+      next: (requests: any) => {
+        this.purchaseRequests = Array.isArray(requests) ? requests : (requests?.data ?? []);
+      },
+      error: (err) => {
+        console.error('Error loading purchase requests', err);
+      }
+    });
+  }
 
   addNewRequest(): void {
-    console.log('Add new purchase request');
+    this.router.navigate(['/purchases/requests/new']);
+  }
+
+  onEdit(e: any): void {
+    const id = e.row.data.id;
+    this.router.navigate(['/purchases/requests/edit', id]);
+  }
+
+  getItemsCount(rowData: PurchaseRequestDto): number {
+    return rowData.items ? rowData.items.length : 0;
+  }
+
+  isDraft = (e: any): boolean => {
+    return e?.row?.data?.status === 'Draft' || e?.row?.data?.status === 'PendingApproval';
+  };
+
+  onApprove(e: any): void {
+    const request: PurchaseRequestDto = e.row.data;
+    this.purchaseCycleService.updatePurchaseRequestStatus(request.id, 'Approved').subscribe({
+      next: () => {
+        this.notificationService.showSuccess(this.translateService.instant('PURCHASE_REQUESTS.APPROVE_SUCCESS'));
+        this.loadRequests();
+      },
+      error: (err) => {
+        this.notificationService.showError(this.translateService.instant('PURCHASE_REQUESTS.APPROVE_ERROR') + ': ' + (err?.message || 'Unknown error'));
+      }
+    });
+  }
+
+  async onReject(e: any): Promise<void> {
+    const request: PurchaseRequestDto = e.row.data;
+    const result = await this.notificationService.confirmAlert(
+      this.translateService.instant('PURCHASE_REQUESTS.REJECT_CONFIRM_TITLE'),
+      this.translateService.instant('PURCHASE_REQUESTS.REJECT_CONFIRM_TEXT')
+    );
+    if (!result.isConfirmed) return;
+
+    this.purchaseCycleService.updatePurchaseRequestStatus(request.id, 'Rejected').subscribe({
+      next: () => {
+        this.notificationService.showSuccess(this.translateService.instant('PURCHASE_REQUESTS.REJECT_SUCCESS'));
+        this.loadRequests();
+      },
+      error: (err) => {
+        this.notificationService.showError(this.translateService.instant('PURCHASE_REQUESTS.REJECT_ERROR') + ': ' + (err?.message || 'Unknown error'));
+      }
+    });
   }
 }

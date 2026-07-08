@@ -1,62 +1,82 @@
+/* Purchase Offer Container */
 .purchase-offer-container {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 1rem;
+}
 
-  .styled-card {
-    border-radius: 12px;
-    overflow: hidden;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+/* Styled Card */
+.styled-card {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Card Header Accent */
+.card-header-accent {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  
+  /* Small Tracking */
+  .small-tracking {
+    letter-spacing: 1px;
+    font-size: 0.75rem;
   }
-
-  .card-header-accent {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #e9ecef;
-    
-    .small-tracking {
-      letter-spacing: 1px;
-      font-size: 0.75rem;
-    }
-    .page-title {
-      color: #212529;
-      font-size: 1.35rem;
-    }
+  
+  /* Page Title */
+  .page-title {
+    color: #212529;
+    font-size: 1.35rem;
+    font-weight: 700;
   }
+}
 
-  .form-section-title {
-    h5 {
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #5c677d;
-      font-weight: 600;
-      margin: 0;
-    }
-    .section-divider {
-      margin: 0.5rem 0 1.5rem 0;
-      opacity: 0.15;
-    }
+/* Form Section Title */
+.form-section-title {
+  /* Title */
+  h5 {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #5c677d;
+    font-weight: 600;
+    margin: 0;
   }
-
-  .dark-label mat-label {
-    color: #495057 !important;
+  
+  /* Section Divider */
+  .section-divider {
+    margin: 0.5rem 0 1.5rem 0;
+    opacity: 0.15;
+    border-top: 1px solid #e9ecef;
   }
+}
 
-  .finance-field {
-    ::ng-deep .mat-mdc-text-field-wrapper {
-      background-color: rgba(#0d6efd, 0.02) !important;
-    }
-    .currency-prefix {
-      font-size: 0.9rem;
-    }
+/* Dark Label */
+.dark-label mat-label {
+  color: #495057 !important;
+}
+
+/* Finance Field */
+.finance-field {
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    background-color: rgba(#0d6efd, 0.02) !important;
   }
-
-  .action-btn {
-    padding: 0 24px !important;
-    height: 42px !important;
+  
+  /* Currency Prefix */
+  .currency-prefix {
+    font-size: 0.9rem;
     font-weight: 500;
-    border-radius: 6px;
   }
+}
+
+/* Action Button */
+.action-btn {
+  padding: 0 24px !important;
+  height: 42px !important;
+  font-weight: 500;
+  border-radius: 6px;
+
 }
 
 /* Section title with icon */

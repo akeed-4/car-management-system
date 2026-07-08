@@ -1,0 +1,118 @@
+<div class="purchase-order-container p-4">
+  <mat-card class="styled-card" appearance="raised">
+    <mat-card-content class="p-4">
+      <form [formGroup]="poForm" (ngSubmit)="onSubmit()" autocomplete="off">
+
+        <div class="doc-section-title">
+          <mat-icon class="section-icon">info</mat-icon>
+          <span>{{ 'PURCHASE_ORDER.SEC_CORE_INFO' | translate }}</span>
+        </div>
+
+        <div class="form-row-flex">
+          <div class="flex-1">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'PURCHASE_ORDER.PO_NUMBER' | translate }}</mat-label>
+              <input matInput formControlName="poNumber" placeholder="PO-0000">
+              <mat-icon matSuffix>tag</mat-icon>
+              <mat-error *ngIf="poForm.get('poNumber')?.hasError('required')">
+                {{ 'COMMON.REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="flex-1">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'PURCHASE_ORDER.PO_DATE' | translate }}</mat-label>
+              <input matInput [matDatepicker]="picker1" formControlName="poDate">
+              <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+              <mat-datepicker #picker1></mat-datepicker>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="form-row-flex">
+          <div class="flex-1">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'PURCHASE_ORDER.SELECT_REQUEST' | translate }}</mat-label>
+              <mat-select formControlName="purchaseRequestId" (selectionChange)="onRequestSelected($event.value)">
+                <mat-option *ngFor="let r of eligibleRequests()" [value]="r.id">{{ r.requestNumber }} — {{ r.supplier?.name }} — {{ r.totalAmount | currency }}</mat-option>
+              </mat-select>
+              <mat-icon matSuffix>assignment</mat-icon>
+              <mat-hint>{{ 'PURCHASE_ORDER.SELECT_REQUEST_HINT' | translate }}</mat-hint>
+              <mat-error *ngIf="poForm.get('purchaseRequestId')?.hasError('required')">
+                {{ 'COMMON.REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="flex-1">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'PURCHASE_ORDER.SUPPLIER' | translate }}</mat-label>
+              <input matInput [value]="selectedRequest?.supplier?.name || ''" readonly disabled>
+              <mat-icon matSuffix>lock</mat-icon>
+              <mat-hint>{{ 'PURCHASE_ORDER.SUPPLIER_LOCKED_HINT' | translate }}</mat-hint>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="card-header-accent p-4 d-flex align-items-center justify-content-between">
+          <div class="header-title-group">
+            <span class="text-muted text-uppercase small-tracking font-weight-bold">
+              {{ 'PURCHASE_ORDER.MODULE_NAME' | translate }}
+            </span>
+            <h3 class="m-0 page-title font-weight-bold mt-1">
+              {{ (isEditMode ? 'PURCHASE_ORDER.EDIT_TITLE' : 'PURCHASE_ORDER.CREATE_TITLE') | translate }}
+            </h3>
+          </div>
+        </div>
+
+        <div class="details-grid-wrapper mb-3">
+          <dx-data-grid [dataSource]="poItems" [showBorders]="true" [columnAutoWidth]="true"
+            [rowAlternationEnabled]="true" [hoverStateEnabled]="true"
+            noDataText="{{ 'PURCHASE_ORDER.NO_ITEMS' | translate }}">
+
+            <dxo-editing mode="cell" [allowUpdating]="true"></dxo-editing>
+            <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_OFFER.DESCRIPTION' | translate }}" [allowEditing]="false"></dxi-column>
+            <dxi-column dataField="make" caption="{{ 'PURCHASE_OFFER.MAKE' | translate }}" [allowEditing]="false"></dxi-column>
+            <dxi-column dataField="model" caption="{{ 'PURCHASE_OFFER.MODEL' | translate }}" [allowEditing]="false"></dxi-column>
+            <dxi-column dataField="year" caption="{{ 'PURCHASE_OFFER.YEAR' | translate }}" dataType="number" [allowEditing]="false" [width]="90"></dxi-column>
+            <dxi-column dataField="quantity" caption="{{ 'PURCHASE_INVOICE.QUANTITY' | translate }}" dataType="number"
+              [allowEditing]="true" [width]="90" [setCellValue]="quantitySetCellValue"></dxi-column>
+            <dxi-column dataField="unitPrice" caption="{{ 'PURCHASE_INVOICE.UNIT_PRICE' | translate }}"
+              dataType="number" format="currency" [allowEditing]="true" [setCellValue]="unitPriceSetCellValue"></dxi-column>
+            <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" dataType="number"
+              format="currency" [allowEditing]="false"></dxi-column>
+
+          </dx-data-grid>
+        </div>
+
+        <div class="doc-total-row mb-3" *ngIf="documentDetails.length > 0">
+          <span class="total-label">{{ 'PURCHASE_INVOICE.TOTAL' | translate }}</span>
+          <span class="total-value">{{ grandTotal | currency }}</span>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-12">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'PURCHASE_ORDER.NOTES' | translate }}</mat-label>
+              <textarea matInput formControlName="notes" rows="3"
+                placeholder="{{ 'PURCHASE_ORDER.NOTES_PLACEHOLDER' | translate }}"></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+          <button mat-raised-button color="primary" type="submit" class="action-btn"
+            [disabled]="poForm.invalid || poItems.length === 0">
+            <mat-icon class="me-1">save</mat-icon>
+            {{ (isEditMode ? 'COMMON.UPDATE' : 'COMMON.SAVE') | translate }}
+          </button>
+          <button mat-stroked-button type="button" class="action-btn" (click)="onCancel()">
+            {{ 'COMMON.CANCEL' | translate }}
+          </button>
+        </div>
+
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

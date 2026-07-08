@@ -3,6 +3,7 @@ export interface InvoiceItem {
   id?: number;
   returnQuantity?: number;
   carId: number;
+  carReceiptItemId?: number;
   carDescription: string;
   quantity: number;
   unitPrice?: number;

@@ -125,6 +125,37 @@
         </div>
       </section>
 
+      <section class="form-section" *ngIf="openCarReceipts().length > 0">
+        <div class="section-header">
+          <h3 class="form-section-title">{{ 'PURCHASE_INVOICE.LOAD_FROM_RECEIPTS' | translate }}</h3>
+          <button mat-raised-button color="accent" type="button" (click)="applySelectedReceipts()" [disabled]="selectedReceiptIds().length === 0">
+            <mat-icon>playlist_add</mat-icon>
+            {{ 'PURCHASE_INVOICE.ADD_SELECTED_RECEIPTS' | translate }}
+          </button>
+        </div>
+        <dx-data-grid
+          [dataSource]="openCarReceipts()"
+          [showBorders]="true"
+          [columnAutoWidth]="true"
+          [rowAlternationEnabled]="true"
+          [rtlEnabled]="true"
+          keyExpr="id"
+          [selection]="{ mode: 'multiple', showCheckBoxesMode: 'always' }"
+          (onSelectionChanged)="onReceiptSelectionChanged($event)">
+          <dxi-column dataField="receiptNumber" caption="{{ 'CAR_RECEIPTS.RECEIPT_NUMBER' | translate }}"></dxi-column>
+          <dxi-column dataField="receiptDate" caption="{{ 'CAR_RECEIPTS.RECEIPT_DATE' | translate }}" dataType="date"></dxi-column>
+          <dxi-column dataField="carReceiptItems" caption="{{ 'CAR_RECEIPTS.ITEMS_COUNT' | translate }}" [calculateCellValue]="getReceiptItemsCount"></dxi-column>
+          <dxi-column caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" [calculateCellValue]="getReceiptTotal" format="currency"></dxi-column>
+        </dx-data-grid>
+      </section>
+
+      <section class="form-section" *ngIf="linkedReceiptIds().length > 0">
+        <div class="linked-receipts-note">
+          <mat-icon>link</mat-icon>
+          {{ 'PURCHASE_INVOICE.LINKED_RECEIPTS_NOTE' | translate: { count: linkedReceiptIds().length } }}
+        </div>
+      </section>
+
       <section class="form-section">
         <div class="section-header">
           <h3 class="form-section-title">{{ 'PURCHASE_INVOICE.SELECT_CAR_CARD' | translate }}</h3>

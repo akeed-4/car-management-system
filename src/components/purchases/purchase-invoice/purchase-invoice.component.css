@@ -4,6 +4,17 @@
   height: 30px;
 }
 
+.linked-receipts-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background-color: #e8f4fd;
+  color: #0c5aa6;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
 .btn-small .icon {
   width: 16px;
   height: 16px;

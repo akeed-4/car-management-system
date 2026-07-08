@@ -116,6 +116,10 @@ import { DirectInvoiceFormComponent } from './components/sales/direct-invoice-fo
 import { BankInvoiceFormComponent } from './components/sales/bank-invoice-form/bank-invoice-form.component';
 import { CompaniesInvoiceFormComponent } from './components/sales/companies-invoice-form/companies-invoice-form.component';
 import { CarReceiptsFormComponent } from './components/purchases/car-receipts/car-receipts-form/car-receipts-form.component';
+import { PurchaseRequestListComponent } from './components/purchases/purchase-request-list/purchase-request-list.component';
+import { PurchaseRequestFormComponent } from './components/purchases/purchase-request-form/purchase-request-form.component';
+import { PurchaseOrderListComponent } from './components/purchases/purchase-order-list/purchase-order-list.component';
+import { PurchaseOrderFormComponent } from './components/purchases/purchase-order-form/purchase-order-form.component';
 
 export const APP_ROUTES: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -210,9 +214,15 @@ export const APP_ROUTES: Routes = [
   { path: 'sales/return/cash', component: SalesCashReturnInvoiceListComponent },
   { path: 'sales/return/credit', component: SalesCreditReturnInvoiceListComponent },
   { path: 'purchases', component: PurchasesComponent },
+  { path: 'purchases/requests', component: PurchaseRequestListComponent },
+  { path: 'purchases/requests/new', component: PurchaseRequestFormComponent },
+  { path: 'purchases/requests/edit/:id', component: PurchaseRequestFormComponent },
   { path: 'purchases/offers', component: PurchaseOffersComponent },
   { path: 'purchases/offers/new', component: PurchaseOfferFormComponent },
   { path: 'purchases/offers/edit/:id', component: PurchaseOfferFormComponent },
+  { path: 'purchases/orders', component: PurchaseOrderListComponent },
+  { path: 'purchases/orders/new', component: PurchaseOrderFormComponent },
+  { path: 'purchases/orders/edit/:id', component: PurchaseOrderFormComponent },
   { path: 'purchases/receipts', component: CarReceiptsComponent },
   { path: 'purchases/receipts/new', component: CarReceiptsFormComponent },
   { path: 'purchases/receipts/new/:id', component: CarReceiptsFormComponent },

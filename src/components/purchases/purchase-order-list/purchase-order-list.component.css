@@ -51,6 +51,16 @@ h2 {
 }
 
 .status-open {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-partial {
+  background-color: #cce5ff;
+  color: #004085;
+}
+
+.status-full {
   background-color: #d4edda;
   color: #155724;
 }

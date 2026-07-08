@@ -8,7 +8,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DxDataGridModule } from 'devextreme-angular';
 import { ToastService } from '../../../services/toast.service';
 import { VinService } from '../../../services/vin.service';
-import { PurchaseCycleService } from '../../../services/purchase-cycle.service';
+import { InventoryService } from '../../../services/inventory.service';
 import { NotificationService } from '@/src/services/notification.service';
 
 export interface VinEntry {
@@ -78,7 +78,7 @@ export class VinManagementDialogComponent {
     private translate: TranslateService,
     private toastService: NotificationService,
     private vinService: VinService,
-    private purchaseCycleService: PurchaseCycleService
+    private inventoryService: InventoryService
   ) {
     // Initialize total required quantity
     this.totalRequired.set(data.requiredQuantity);
@@ -223,44 +223,34 @@ export class VinManagementDialogComponent {
       return;
     }
 
-    // Check if we have the required parameters for API call
-    if (this.data) {
-      this.isProcessing.set(true);
-      const vinNumbers = this.vinEntries().map(v => v.vin);
-      this.vinService.addVins(vinNumbers, this.data.item.carId).subscribe({
-        next: (response) => {
-          this.isProcessing.set(false);
-          this.toastService.showSuccess(this.translate.instant('VIN_MANAGEMENT.SAVE_SUCCESS'));
-          // Update car status to Available after adding VINs
-          this.purchaseCycleService.updateCarStatusToAvailable(this.data.item.carId).subscribe({
-            next: () => {
-              console.log('Car status updated to Available');
-            },
-            error: (error) => {
-              console.error('Error updating car status:', error);
-            }
-          });
-          this.dialogRef.close({
-            vins: this.vinEntries(),
-            carId: this.data.item.carId,
-            totalRequired: this.totalRequired(),
-            apiResponse: response
-          });
-        },
-        error: (error) => {
-          this.isProcessing.set(false);
-          console.error('Error saving VINs:', error);
-          this.toastService.showError(this.translate.instant('VIN_MANAGEMENT.SAVE_ERROR'));
-        }
-      });
-    } else {
-      // If no API parameters, just close with data (backward compatibility)
-      this.dialogRef.close({
-        vins: this.vinEntries(),
-        carId: this.data.item.carId,
-        totalRequired: this.totalRequired()
-      });
-    }
+    this.isProcessing.set(true);
+    const vinNumbers = this.vinEntries().map(v => v.vin);
+    this.vinService.addVins(vinNumbers, this.data.item.carId).subscribe({
+      next: (response) => {
+        this.isProcessing.set(false);
+        this.toastService.showSuccess(this.translate.instant('VIN_MANAGEMENT.SAVE_SUCCESS'));
+        // Update car status to Available after adding VINs
+        this.inventoryService.updateCarStatus(this.data.item.carId, 'Available').subscribe({
+          next: () => {
+            console.log('Car status updated to Available');
+          },
+          error: (error) => {
+            console.error('Error updating car status:', error);
+          }
+        });
+        this.dialogRef.close({
+          vins: this.vinEntries(),
+          carId: this.data.item.carId,
+          totalRequired: this.totalRequired(),
+          apiResponse: response
+        });
+      },
+      error: (error) => {
+        this.isProcessing.set(false);
+        console.error('Error saving VINs:', error);
+        this.toastService.showError(this.translate.instant('VIN_MANAGEMENT.SAVE_ERROR'));
+      }
+    });
   }
 
   /**

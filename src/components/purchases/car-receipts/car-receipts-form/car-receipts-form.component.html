@@ -17,14 +17,6 @@
           </div>
           <div class="flex-1">
             <mat-form-field appearance="outline" class="w-100">
-              <mat-label>{{ 'CAR_RECEIPTS.SUPPLIER' | translate }}</mat-label>
-              <mat-select formControlName="supplierId">
-                <mat-option *ngFor="let s of suppliers" [value]="s.id">{{ s.name }}</mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-          <div class="flex-1">
-            <mat-form-field appearance="outline" class="w-100">
               <mat-label>{{ 'CAR_RECEIPTS.RECEIPT_DATE' | translate }}</mat-label>
               <input matInput [matDatepicker]="picker" formControlName="receiptDate">
               <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
@@ -33,21 +25,40 @@
           </div>
         </div>
 
-        <div class="mb-2 d-flex justify-content-end">
-          <button mat-stroked-button type="button" (click)="openCarSelector()">
-            <mat-icon>add</mat-icon>
-            {{ 'PURCHASE_INVOICE.SELECT_CAR' | translate }}
-          </button>
+        <div class="form-row-flex mb-3">
+          <div class="flex-1">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'CAR_RECEIPTS.PURCHASE_ORDER' | translate }}</mat-label>
+              <mat-select formControlName="purchaseOrderId" (selectionChange)="onPoSelected($event.value)">
+                <mat-option *ngFor="let po of openPurchaseOrders" [value]="po.id">{{ po.poNumber }} — {{ po.supplier?.name }}</mat-option>
+              </mat-select>
+              <mat-hint>{{ 'CAR_RECEIPTS.SELECT_PO_HINT' | translate }}</mat-hint>
+            </mat-form-field>
+          </div>
+          <div class="flex-1">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'CAR_RECEIPTS.SUPPLIER' | translate }}</mat-label>
+              <input matInput [value]="selectedPo?.supplier?.name || ''" readonly disabled>
+              <mat-icon matSuffix>lock</mat-icon>
+              <mat-hint>{{ 'CAR_RECEIPTS.SUPPLIER_LOCKED_HINT' | translate }}</mat-hint>
+            </mat-form-field>
+          </div>
         </div>
 
         <div class="details-grid-wrapper mb-3">
-          <dx-data-grid [dataSource]="receiptItems" [showBorders]="true" [columnAutoWidth]="true">
-            <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}"></dxi-column>
-            <dxi-column dataField="quantity" caption="{{ 'PURCHASE_INVOICE.QUANTITY' | translate }}" dataType="number"></dxi-column>
-            <dxi-column dataField="unitPrice" caption="{{ 'PURCHASE_INVOICE.UNIT_PRICE' | translate }}" format="currency"></dxi-column>
-            <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" format="currency"></dxi-column>
+          <dx-data-grid [dataSource]="receiptItems" [showBorders]="true" [columnAutoWidth]="true"
+            noDataText="{{ 'CAR_RECEIPTS.NO_ITEMS' | translate }}">
+            <dxo-editing mode="cell" [allowUpdating]="true"></dxo-editing>
+            <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}" [allowEditing]="false"></dxi-column>
+            <dxi-column dataField="orderedQty" caption="{{ 'CAR_RECEIPTS.ORDERED_QTY' | translate }}" dataType="number" [allowEditing]="false" [width]="100"></dxi-column>
+            <dxi-column dataField="alreadyReceivedQty" caption="{{ 'CAR_RECEIPTS.ALREADY_RECEIVED_QTY' | translate }}" dataType="number" [allowEditing]="false" [width]="110"></dxi-column>
+            <dxi-column dataField="remainingQty" caption="{{ 'CAR_RECEIPTS.REMAINING_QTY' | translate }}" dataType="number" [allowEditing]="false" [width]="100"></dxi-column>
+            <dxi-column dataField="receivedQty" caption="{{ 'CAR_RECEIPTS.RECEIVED_QTY' | translate }}" dataType="number" [allowEditing]="true" [width]="110" [setCellValue]="receivedQtySetCellValue"></dxi-column>
+            <dxi-column dataField="unitPrice" caption="{{ 'PURCHASE_INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency" [allowEditing]="true" [setCellValue]="unitPriceSetCellValue"></dxi-column>
+            <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" format="currency" [allowEditing]="false"></dxi-column>
+            <dxi-column caption="{{ 'CAR_RECEIPTS.VINS_CAPTURED' | translate }}" [allowEditing]="false" [width]="110" [calculateCellValue]="vinsCaptured"></dxi-column>
             <dxi-column type="buttons" [width]="90">
-              <dxi-button icon="trash" [onClick]="removeItem.bind(this)" hint="{{ 'PURCHASE_INVOICE.REMOVE_ITEM' | translate }}"></dxi-button>
+              <dxi-button icon="car" hint="{{ 'CAR_RECEIPTS.CAPTURE_VINS' | translate }}" [onClick]="captureVins.bind(this)"></dxi-button>
             </dxi-column>
           </dx-data-grid>
         </div>
@@ -66,7 +77,7 @@
 
         <div class="d-flex justify-content-end gap-2">
           <button mat-stroked-button type="button" (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
-          <button mat-raised-button color="primary" type="submit">{{ 'COMMON.SAVE' | translate }}</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="receiptForm.invalid || receiptItems.length === 0">{{ 'COMMON.SAVE' | translate }}</button>
         </div>
 
       </form>

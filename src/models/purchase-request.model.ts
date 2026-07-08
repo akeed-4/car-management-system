@@ -1,28 +1,46 @@
 import { Supplier } from './supplier.model';
+import { Car } from './car.model';
+import { PurchaseOfferDto } from './purchase-offer.model';
 
-export interface PurchaseRequestItem {
-  id?: number;
-  carDescription: string;
+export type PurchaseRequestStatus = 'Draft' | 'PendingApproval' | 'Approved' | 'Rejected';
+
+export interface CreatePurchaseRequestItemDto {
+  carId: number;
   quantity: number;
   unitPrice: number;
-  lineTotal?: number;
-  notes?: string;
 }
 
-export interface PurchaseRequest {
-  id?: number;
+export interface CreatePurchaseRequestDto {
+  requestNumber: string;
+  requestDate: Date | string;
+  purchaseOfferId: number;
+  notes?: string;
+  items: CreatePurchaseRequestItemDto[];
+}
+
+export interface PurchaseRequestItemDto {
+  id: number;
+  carId: number;
+  car?: Car;
+  quantity: number;
+  unitPrice: number;
+  lineTotal: number;
+}
+
+export interface PurchaseRequestDto {
+  id: number;
   requestNumber: string;
   requestDate: string;
   supplierId: number;
   supplier?: Supplier;
-  descriptionAr?: string;
-  descriptionEn?: string;
-  referenceNumber?: string;
-  status?: string; // Pending, Approved, Rejected
-  items: PurchaseRequestItem[];
-  totalAmount?: number;
+  purchaseOfferId: number;
+  purchaseOffer?: PurchaseOfferDto;
+  status: PurchaseRequestStatus;
+  totalAmount: number;
+  items: PurchaseRequestItemDto[];
+  /** Set once this request has been used to create a Purchase Order; hides it from the eligible dropdown. */
+  convertedToPoId?: number;
   notes?: string;
-  isArchived?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
