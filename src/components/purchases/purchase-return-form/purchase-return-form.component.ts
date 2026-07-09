@@ -92,8 +92,8 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
 
   getTitle(): string {
     return this.returnType === 'CASH'
-      ? this.translate.instant('PURCHASES.PURCHASE_RETURN.CASH_RETURN_TITLE')
-      : this.translate.instant('PURCHASES.PURCHASE_RETURN.CREDIT_RETURN_TITLE');
+      ? this.translate.instant('PURCHASE_RETURN.CASH_RETURN_TITLE')
+      : this.translate.instant('PURCHASE_RETURN.CREDIT_RETURN_TITLE');
   }
 
   backRoute(): string {

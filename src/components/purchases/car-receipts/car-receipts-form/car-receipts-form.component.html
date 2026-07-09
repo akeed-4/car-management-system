@@ -3,6 +3,17 @@
     <mat-card-content class="p-4">
       <form [formGroup]="receiptForm" (ngSubmit)="onSubmit()">
 
+        <div class="card-header-accent p-4 d-flex align-items-center justify-content-between">
+          <div class="header-title-group">
+            <span class="text-muted text-uppercase small-tracking font-weight-bold">
+              {{ 'CAR_RECEIPTS.TITLE' | translate }}
+            </span>
+            <h3 class="m-0 page-title font-weight-bold mt-1">
+              {{ 'CAR_RECEIPTS.CREATE_TITLE' | translate }}
+            </h3>
+          </div>
+        </div>
+
         <div class="doc-section-title">
           <mat-icon class="section-icon">receipt</mat-icon>
           <span>{{ 'CAR_RECEIPTS.MAIN_DATA' | translate }}</span>

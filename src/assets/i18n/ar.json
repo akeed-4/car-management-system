@@ -149,10 +149,12 @@
     "NO_RESULTS": "لا توجد نتائج",
     "CANCEL": "إلغاء",
     "SAVE": "حفظ الفاتورة",
+    "CASH_INVOICE_TITLE": "فاتورة مشتريات نقدية جديدة",
+    "CREDIT_INVOICE_TITLE": "فاتورة مشتريات آجلة جديدة",
     "CASH_INVOICE_LIST_TITLE": "فواتير المشتريات النقدية",
     "CREDIT_INVOICE_LIST_TITLE": "فواتير المشتريات الآجلة",
-    "NEW_CASH_INVOICE": "فاتورة شراء نقدية جديدة",
-    "NEW_CREDIT_INVOICE": "فاتورة شراء آجلة جديدة",
+    "NEW_CASH_INVOICE": "فاتورة مشتريات نقدية جديدة",
+    "NEW_CREDIT_INVOICE": "فاتورة مشتريات آجلة جديدة",
     "INVOICE_TYPE": "نوع الفاتورة",
     "TAXABLE": "خاضع للضريبة",
     "ZERO_RATED": " صفري",
@@ -224,10 +226,10 @@
     "NOTES": "ملاحظات"
   },
   "PURCHASE_OFFER": {
-    "EDIT_TITLE": "تعديل عرض شراء",
-    "CREATE_TITLE": "إنشاء عرض شراء",
+    "EDIT_TITLE": "اعتماد عروض الأسعار",
+    "CREATE_TITLE": "اعتماد عروض الأسعار",
     "OFFER_NUMBER": "رقم العرض",
-    "MODULE_NAME": "عروض الشراء",
+    "MODULE_NAME": "اعتماد عروض الأسعار",
     "SEC_CORE_INFO": "المعلومات الأساسية",
     "OFFER_DATE": "تاريخ العرض",
     "SUPPLIER": "المورد",
@@ -252,8 +254,8 @@
   },
   "PURCHASE_ORDER": {
     "LIST_TITLE": "أوامر الشراء",
-    "CREATE_TITLE": "إنشاء أمر شراء",
-    "EDIT_TITLE": "تعديل أمر شراء",
+    "CREATE_TITLE": "أمر شراء جديد",
+    "EDIT_TITLE": "أمر شراء جديد",
     "MODULE_NAME": "أوامر الشراء",
     "SEC_CORE_INFO": "المعلومات الأساسية",
     "PO_NUMBER": "رقم أمر الشراء",
@@ -280,7 +282,7 @@
     "LOAD_ERROR": "خطأ في تحميل أمر الشراء"
   },
   "PURCHASE_OFFERS": {
-    "TITLE": "عروض الشراء",
+    "TITLE": "اعتماد عروض الأسعار",
     "OFFER_NUMBER": "رقم العرض",
     "OFFER_DATE": "تاريخ العرض",
     "SUPPLIER": "المورد",
@@ -300,10 +302,10 @@
     "REJECT_CONFIRM_TEXT": "لن يكون هذا العرض متاحًا بعد الآن لاستلام السيارات."
   },
   "PURCHASE_REQUESTS": {
-    "TITLE": "طلبات الشراء",
-    "CREATE_TITLE": "إنشاء طلب شراء",
-    "EDIT_TITLE": "تعديل طلب شراء",
-    "MODULE_NAME": "طلبات الشراء",
+    "TITLE": "طلبات أسعار الموردين",
+    "CREATE_TITLE": "طلب أسعار جديد",
+    "EDIT_TITLE": "طلب أسعار جديد",
+    "MODULE_NAME": "طلبات أسعار الموردين",
     "SEC_CORE_INFO": "المعلومات الأساسية",
     "REQUEST_NUMBER": "رقم الطلب",
     "REQUEST_DATE": "تاريخ الطلب",
@@ -338,7 +340,8 @@
     "REJECT_CONFIRM_TEXT": "لن يكون هذا الطلب متاحًا بعد الآن للتحويل إلى أمر شراء."
   },
   "CAR_RECEIPTS": {
-    "TITLE": "إيصالات السيارات",
+    "TITLE": "استلام السيارات",
+    "CREATE_TITLE": "استلام سيارة جديد",
     "MAIN_DATA": "البيانات الرئيسية للإيصال",
     "RECEIPT_NUMBER": "رقم الإيصال",
     "RECEIPT_DATE": "تاريخ الإيصال",
@@ -840,19 +843,19 @@
     "EDIT": "تعديل",
     "DELETE": "حذف",
     "DELETE_CONFIRM": "هل أنت متأكد من حذف فاتورة المرتجع هذه؟",
-     "CASH_RETURN_TITLE": "مرتجع شراء نقدي",
-      "CREDIT_RETURN_TITLE": "مرتجع شراء آجل",
+     "CASH_RETURN_TITLE": "مرتجع مشتريات نقدي جديد",
+      "CREDIT_RETURN_TITLE": "مرتجع مشتريات آجل جديد",
       "ERROR_INVALID_FORM": "يرجى ملء جميع الحقول المطلوبة",
       "SUCCESS_RETURN_SAVED": "تم حفظ مرتجع الشراء بنجاح",
       "ERROR_SAVING_RETURN": "خطأ في حفظ مرتجع الشراء"
   },
   "CASH_PURCHASE_RETURN": {
     "LIST_TITLE": "مرتجعات المشتريات النقدية",
-    "NEW_RETURN": "إنشاء مرتجع شراء نقدي جديد"
+    "NEW_RETURN": "مرتجع مشتريات نقدي جديد"
   },
   "CREDIT_PURCHASE_RETURN": {
     "LIST_TITLE": "مرتجعات المشتريات الآجلة",
-    "NEW_RETURN": "إنشاء مرتجع شراء آجل جديد"
+    "NEW_RETURN": "مرتجع مشتريات آجل جديد"
   },
   "SALES": {
     "LIST_TITLE": "قائمة فواتير المبيعات",

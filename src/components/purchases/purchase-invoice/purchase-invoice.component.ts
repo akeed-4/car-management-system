@@ -421,7 +421,12 @@ export class PurchaseInvoiceComponent implements OnInit {
    * Get the translated title for the invoice
    */
   getTitle(): string {
-    return this.customTitle ?  this.translate.instant('PURCHASE_INVOICE.CREATE_TITLE'):this.translate.instant("PURCHASE_INVOICE.CASH_INVOICE_TITLE");
+    if (!this.customTitle) {
+      return this.translate.instant('PURCHASE_INVOICE.CREATE_TITLE');
+    }
+    return this.fixedPaymentMethod === 'credit'
+      ? this.translate.instant('PURCHASE_INVOICE.CREDIT_INVOICE_TITLE')
+      : this.translate.instant('PURCHASE_INVOICE.CASH_INVOICE_TITLE');
   }
 
   /**
