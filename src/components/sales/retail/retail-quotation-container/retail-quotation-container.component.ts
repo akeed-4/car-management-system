@@ -8,7 +8,7 @@ import { CustomerInfoFormComponent } from './customer-info-form/customer-info-fo
 import { InventorySelectorComponent } from './inventory-selector/inventory-selector.component';
 import { RetailService } from '../../../../services/retail.service';
 import { ToastService } from '../../../../services/toast.service';
-import { RetailCustomerInfo, RetailQuotationItem } from '../../../../models/retail/retail-quotation.model';
+import { RetailCustomerInfo } from '../../../../models/retail/retail-quotation.model';
 import { Car } from '../../../../models/car.model';
 
 @Component({
@@ -57,27 +57,20 @@ export class RetailQuotationContainerComponent {
       return;
     }
 
-    const items: RetailQuotationItem[] = [
-      {
-        carId: this.selectedCar.id,
-        carDescription: `${this.selectedCar.make} ${this.selectedCar.model} (${this.selectedCar.year})`,
-        unitPrice: this.selectedCar.salePrice
-      }
-    ];
-
     this.submitting = true;
     this.retailService
       .createQuotation({
-        quotationDate: new Date().toISOString().split('T')[0],
-        customer: this.customer,
-        items,
-        totalAmount: this.totalAmount
+        customerName: this.customer.name,
+        customerMobile: this.customer.mobile,
+        customerNationalId: this.customer.nationalId,
+        lines: [{ carId: this.selectedCar.id }],
+        userId: 1
       })
       .subscribe({
         next: quotation => {
           this.submitting = false;
           this.toast.showSuccess('RETAIL.QUOTATION_CREATED');
-          this.router.navigate(['/sales/retail/invoices/new'], {
+          this.router.navigate(['/sales/direct/orders/new'], {
             queryParams: { quotationId: quotation.id }
           });
         },

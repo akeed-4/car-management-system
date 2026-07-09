@@ -7,11 +7,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { TranslateModule } from '@ngx-translate/core';
-import { QuotationSelectorComponent } from './quotation-selector/quotation-selector.component';
 import { PaymentGatewayFormComponent } from './payment-gateway-form/payment-gateway-form.component';
 import { RetailService } from '../../../../services/retail.service';
+import { RetailSalesOrderService } from '../../../../services/retail-sales-order.service';
 import { ToastService } from '../../../../services/toast.service';
-import { RetailQuotation } from '../../../../models/retail/retail-quotation.model';
+import { RetailSalesOrderDto } from '../../../../models/retail-sales-order.model';
 import { RetailPaymentDetails } from '../../../../models/retail/retail-invoice.model';
 
 const TAX_RATE = 0.15;
@@ -27,43 +27,43 @@ const TAX_RATE = 0.15;
     MatFormFieldModule,
     MatInputModule,
     TranslateModule,
-    QuotationSelectorComponent,
     PaymentGatewayFormComponent
   ],
   templateUrl: './retail-invoice-manager.component.html',
   styleUrls: ['./retail-invoice-manager.component.css']
 })
 export class RetailInvoiceManagerComponent implements OnInit {
-  activeQuotation: RetailQuotation | null = null;
-  loadingQuotation = false;
+  activeOrder: RetailSalesOrderDto | null = null;
+  loadingOrder = false;
   discount = 0;
   payment: RetailPaymentDetails | null = null;
   submitting = false;
 
   constructor(
     private retailService: RetailService,
+    private retailSalesOrderService: RetailSalesOrderService,
     private toast: ToastService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    const preselectedId = Number(this.route.snapshot.queryParamMap.get('quotationId'));
-    if (preselectedId) {
-      this.onQuotationIdSelected(preselectedId);
+    const orderId = Number(this.route.snapshot.queryParamMap.get('orderId'));
+    if (orderId) {
+      this.loadOrder(orderId);
     }
   }
 
-  onQuotationIdSelected(quotationId: number): void {
-    this.loadingQuotation = true;
-    this.activeQuotation = null;
-    this.retailService.getQuotationById(quotationId).subscribe({
-      next: quotation => {
-        this.activeQuotation = quotation;
-        this.loadingQuotation = false;
+  loadOrder(orderId: number): void {
+    this.loadingOrder = true;
+    this.activeOrder = null;
+    this.retailSalesOrderService.getById(orderId).subscribe({
+      next: order => {
+        this.activeOrder = order;
+        this.loadingOrder = false;
       },
       error: () => {
-        this.loadingQuotation = false;
+        this.loadingOrder = false;
         this.toast.showError('RETAIL.QUOTATION_LOAD_FAILED');
       }
     });
@@ -74,7 +74,7 @@ export class RetailInvoiceManagerComponent implements OnInit {
   }
 
   get subTotal(): number {
-    return this.activeQuotation?.totalAmount ?? 0;
+    return this.activeOrder?.totalAmount ?? 0;
   }
 
   get tax(): number {
@@ -86,28 +86,30 @@ export class RetailInvoiceManagerComponent implements OnInit {
   }
 
   get isFormValid(): boolean {
-    return !!this.activeQuotation && !!this.payment;
+    return !!this.activeOrder && this.activeOrder.status === 'Approved' && !!this.payment;
   }
 
   onSubmit(): void {
-    if (!this.isFormValid || !this.activeQuotation?.id || !this.payment) {
+    if (!this.isFormValid || !this.activeOrder || !this.payment) {
       return;
     }
 
     this.submitting = true;
     this.retailService
       .createInvoice({
-        invoiceDate: new Date().toISOString().split('T')[0],
-        quotationId: this.activeQuotation.id,
-        discount: this.discount,
-        tax: this.tax,
-        payment: this.payment
+        retailSalesOrderId: this.activeOrder.id,
+        retailQuotationId: this.activeOrder.retailQuotationId,
+        paymentMethod: this.payment.method,
+        transactionHash: this.payment.hash ?? this.payment.reference ?? '',
+        debitAccountId: 0,
+        creditAccountId: 0,
+        userId: 1
       })
       .subscribe({
         next: invoice => {
           this.submitting = false;
           this.toast.showSuccess('RETAIL.INVOICE_CREATED');
-          this.router.navigate(['/sales/retail/deliveries/new'], {
+          this.router.navigate(['/sales/direct/deliveries/new'], {
             queryParams: { invoiceId: invoice.id }
           });
         },

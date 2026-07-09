@@ -1,4 +1,4 @@
-export type RetailQuotationStatus = 'Draft' | 'Submitted' | 'Accepted' | 'Rejected';
+export type RetailQuotationStatus = 'Active' | 'Converted' | 'Expired' | 'Cancelled';
 
 export interface RetailCustomerInfo {
   name: string;
@@ -12,22 +12,38 @@ export interface RetailQuotationItem {
   unitPrice: number;
 }
 
+export interface RetailQuotationLineDto {
+  id: number;
+  carId: number;
+  vin: string;
+  carDescription: string;
+  quotedPrice: number;
+}
+
 export interface RetailQuotation {
-  id?: number;
-  quotationNumber?: string;
+  id: number;
+  quotationNumber: string;
+  customerName: string;
+  customerMobile: string;
+  customerNationalId: string;
   quotationDate: string;
-  customer: RetailCustomerInfo;
-  items: RetailQuotationItem[];
-  totalAmount: number;
   status: RetailQuotationStatus;
+  totalAmount: number;
   notes?: string;
-  createdAt?: string;
+  createdAt: string;
+  lines: RetailQuotationLineDto[];
+}
+
+export interface CreateRetailQuotationLineDto {
+  carId?: number;
+  vin?: string;
 }
 
 export interface CreateRetailQuotationDto {
-  quotationDate: string;
-  customer: RetailCustomerInfo;
-  items: RetailQuotationItem[];
-  totalAmount: number;
+  customerName: string;
+  customerMobile: string;
+  customerNationalId: string;
+  lines: CreateRetailQuotationLineDto[];
   notes?: string;
+  userId: number;
 }

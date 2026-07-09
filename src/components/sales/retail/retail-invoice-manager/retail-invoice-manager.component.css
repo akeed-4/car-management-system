@@ -32,3 +32,10 @@
 .discount-field {
   max-width: 200px;
 }
+
+.no-order-warning {
+  padding: 12px;
+  background: #fff3cd;
+  color: #856404;
+  border-radius: 4px;
+}

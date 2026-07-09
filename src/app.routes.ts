@@ -110,7 +110,6 @@ import { QuotationsComponent } from './components/sales/quotations/quotations.co
 import { QuotationFormComponent } from './components/sales/quotation-form/quotation-form.component';
 import { CustomerOrderFormComponent } from './components/sales/customer-order-form/customer-order-form.component';
 import { PreparationManagementComponent } from './components/sales/preparation-management/preparation-management.component';
-import { SalesLifecycleDashboardComponent } from './components/sales/sales-lifecycle-dashboard/sales-lifecycle-dashboard.component';
 import { DirectInvoiceFormComponent } from './components/sales/direct-invoice-form/direct-invoice-form.component';
 import { BankInvoiceFormComponent } from './components/sales/bank-invoice-form/bank-invoice-form.component';
 import { CompaniesInvoiceFormComponent } from './components/sales/companies-invoice-form/companies-invoice-form.component';
@@ -135,6 +134,10 @@ import { BankInvoiceSettlementComponent } from './components/sales/bank-financin
 import { CorporateQuotationContainerComponent } from './components/sales/corporate/corporate-quotation-container/corporate-quotation-container.component';
 import { CorporateOrderManagerComponent } from './components/sales/corporate/corporate-order-manager/corporate-order-manager.component';
 import { CorporateFleetDispatcherComponent } from './components/sales/corporate/corporate-fleet-dispatcher/corporate-fleet-dispatcher.component';
+import { RetailSalesOrderListComponent } from './components/sales/retail-sales-order/retail-sales-order-list/retail-sales-order-list.component';
+import { RetailSalesOrderFormComponent } from './components/sales/retail-sales-order/retail-sales-order-form/retail-sales-order-form.component';
+import { RetailSalesOrderViewComponent } from './components/sales/retail-sales-order/retail-sales-order-view/retail-sales-order-view.component';
+import { RetailSalesOrderApprovalListComponent } from './components/sales/retail-sales-order/retail-sales-order-approval-list/retail-sales-order-approval-list.component';
 
 export const APP_ROUTES: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -197,22 +200,20 @@ export const APP_ROUTES: Routes = [
   { path: 'sales/quotations/new', component: QuotationFormComponent },
   { path: 'sales/quotations/edit/:id', component: QuotationFormComponent },
   { path: 'sales/customer-orders/new', component: CustomerOrderFormComponent },
-  { path: 'sales/lifecycle', component: SalesLifecycleDashboardComponent },
-  { path: 'sales/lifecycle/afrad/create', component: DirectInvoiceFormComponent },
-  { path: 'sales/lifecycle/afrad/:id', component: DirectInvoiceFormComponent },
-  { path: 'sales/lifecycle/sharikat/create', component: CompaniesInvoiceFormComponent },
-  { path: 'sales/lifecycle/sharikat/:id', component: CompaniesInvoiceFormComponent },
-  { path: 'sales/lifecycle/bunuk/create', component: BankInvoiceFormComponent },
-  { path: 'sales/lifecycle/bunuk/:id', component: BankInvoiceFormComponent },
-  { path: 'sales/retail/quotations/new', component: RetailQuotationContainerComponent },
-  { path: 'sales/retail/invoices/new', component: RetailInvoiceManagerComponent },
-  { path: 'sales/retail/deliveries/new', component: RetailDeliveryContainerComponent },
+  { path: 'sales/direct/quotations/new', component: RetailQuotationContainerComponent },
+  { path: 'sales/direct/orders', component: RetailSalesOrderListComponent },
+  { path: 'sales/direct/orders/new', component: RetailSalesOrderFormComponent },
+  { path: 'sales/direct/orders/edit/:id', component: RetailSalesOrderFormComponent },
+  { path: 'sales/direct/orders/view/:id', component: RetailSalesOrderViewComponent },
+  { path: 'sales/direct/orders-approvals', component: RetailSalesOrderApprovalListComponent },
+  { path: 'sales/direct/invoices/new', component: RetailInvoiceManagerComponent },
+  { path: 'sales/direct/deliveries/new', component: RetailDeliveryContainerComponent },
   { path: 'sales/bank-financing/quotations/new', component: BankQuotationContainerComponent },
   { path: 'sales/bank-financing/approvals/new', component: BankApprovalManagerComponent },
   { path: 'sales/bank-financing/invoices/new', component: BankInvoiceSettlementComponent },
-  { path: 'sales/corporate/quotations/new', component: CorporateQuotationContainerComponent },
-  { path: 'sales/corporate/orders/new', component: CorporateOrderManagerComponent },
-  { path: 'sales/corporate/dispatch', component: CorporateFleetDispatcherComponent },
+  { path: 'sales/companies/quotations/new', component: CorporateQuotationContainerComponent },
+  { path: 'sales/companies/orders/new', component: CorporateOrderManagerComponent },
+  { path: 'sales/companies/dispatch', component: CorporateFleetDispatcherComponent },
   { path: 'sales/preparation/:vehicleId', component: PreparationManagementComponent },
   { path: 'sales/invoice/cash/new', component: SalesInvoiceCashComponent },
   { path: 'sales/invoice/cash/edit/:id', component: SalesInvoiceCashComponent },

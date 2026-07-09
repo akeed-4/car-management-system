@@ -17,18 +17,21 @@ export interface GatePassChecklistData {
   notes?: string;
 }
 
-export type RetailDeliveryStatus = 'Pending' | 'ReadyForHandover' | 'Delivered' | 'Canceled';
-
 export interface RetailDelivery {
-  id?: number;
-  invoiceId: number;
-  car: VehicleSpecs;
-  checklist: GatePassChecklistData;
-  status: RetailDeliveryStatus;
-  deliveredAt?: string;
+  id: number;
+  deliveryNoteNumber: string;
+  salesInvoiceId: number;
+  carId: number;
+  vin: string;
+  gatePassSerial: string;
+  deliveryDate: string;
+  deliveredToName?: string;
 }
 
 export interface CreateRetailDeliveryDto {
-  invoiceId: number;
-  checklist: GatePassChecklistData;
+  salesInvoiceId: number;
+  gatePassSerial: string;
+  deliveredToName?: string;
+  notes?: string;
+  userId: number;
 }

@@ -4,13 +4,15 @@
   </mat-card-header>
 
   <mat-card-content class="content">
-    <app-quotation-selector (quotationIdSelected)="onQuotationIdSelected($event)"></app-quotation-selector>
+    <div *ngIf="loadingOrder">{{ 'RETAIL.LOADING' | translate }}</div>
 
-    <div *ngIf="loadingQuotation">{{ 'RETAIL.LOADING' | translate }}</div>
+    <div *ngIf="!loadingOrder && !activeOrder" class="no-order-warning">
+      {{ 'RETAIL.NO_APPROVED_ORDER' | translate }}
+    </div>
 
-    <ng-container *ngIf="activeQuotation">
+    <ng-container *ngIf="activeOrder">
       <div class="quotation-summary">
-        <div><span>{{ 'RETAIL.CUSTOMER' | translate }}:</span> {{ activeQuotation.customer.name }}</div>
+        <div><span>{{ 'RETAIL.CUSTOMER' | translate }}:</span> {{ activeOrder.customerName }}</div>
         <div><span>{{ 'RETAIL.SUB_TOTAL' | translate }}:</span> {{ subTotal | number:'1.2-2' }}</div>
 
         <mat-form-field appearance="outline" class="discount-field">
@@ -22,7 +24,10 @@
         <div class="total"><span>{{ 'RETAIL.TOTAL_AMOUNT' | translate }}:</span> <strong>{{ totalAmount | number:'1.2-2' }}</strong></div>
       </div>
 
-      <app-payment-gateway-form [amountDue]="totalAmount" (paymentChange)="onPaymentChange($event)"></app-payment-gateway-form>
+      <app-payment-gateway-form *ngIf="activeOrder.status === 'Approved'" [amountDue]="totalAmount" (paymentChange)="onPaymentChange($event)"></app-payment-gateway-form>
+      <div *ngIf="activeOrder.status !== 'Approved'" class="no-order-warning">
+        {{ 'RETAIL.ORDER_NOT_APPROVED' | translate }}
+      </div>
     </ng-container>
   </mat-card-content>
 

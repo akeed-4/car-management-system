@@ -8,34 +8,40 @@ export interface RetailPaymentDetails {
 }
 
 export interface RetailInvoiceLineSummary {
+  id: number;
   carId: number;
   carDescription: string;
+  quantity: number;
   unitPrice: number;
+  salesPrice: number;
+  lineTotal: number;
 }
 
 export interface RetailInvoice {
-  id?: number;
-  invoiceNumber?: string;
+  id: number;
+  invoiceNumber: string;
   invoiceDate: string;
-  quotationId: number;
-  customer: {
-    name: string;
-    mobile: string;
-    nationalId: string;
-  };
-  items: RetailInvoiceLineSummary[];
-  subTotal: number;
-  discount: number;
-  tax: number;
+  customerId: number;
+  customerName: string;
+  paymentMethod: string;
+  transactionHash: string;
+  subtotal: number;
+  vatAmount: number;
   totalAmount: number;
-  payment: RetailPaymentDetails;
-  status?: 'Draft' | 'Posted' | 'Paid';
+  amountPaid: number;
+  amountDue: number;
+  status: string;
+  isCash: boolean;
+  createdAt: string;
+  items: RetailInvoiceLineSummary[];
 }
 
 export interface CreateRetailInvoiceDto {
-  invoiceDate: string;
-  quotationId: number;
-  discount: number;
-  tax: number;
-  payment: RetailPaymentDetails;
+  retailSalesOrderId: number;
+  retailQuotationId: number;
+  paymentMethod: string;
+  transactionHash: string;
+  debitAccountId: number;
+  creditAccountId: number;
+  userId: number;
 }

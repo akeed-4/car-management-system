@@ -42,22 +42,7 @@ export class RetailDeliveryContainerComponent implements OnInit {
     const invoiceId = Number(this.route.snapshot.queryParamMap.get('invoiceId'));
     if (invoiceId) {
       this.invoiceId = invoiceId;
-      this.loadVehicleSpecs(invoiceId);
     }
-  }
-
-  private loadVehicleSpecs(invoiceId: number): void {
-    this.loading = true;
-    this.retailService.getVehicleSpecsForInvoice(invoiceId).subscribe({
-      next: specs => {
-        this.vehicleSpecs = specs;
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-        this.toast.showError('RETAIL.VEHICLE_SPECS_LOAD_FAILED');
-      }
-    });
   }
 
   onChecklistChange(checklist: GatePassChecklistData | null): void {
@@ -76,8 +61,10 @@ export class RetailDeliveryContainerComponent implements OnInit {
     this.submitting = true;
     this.retailService
       .createDelivery({
-        invoiceId: this.invoiceId,
-        checklist: this.checklist
+        salesInvoiceId: this.invoiceId,
+        gatePassSerial: this.checklist.gatePassSerial,
+        notes: this.checklist.notes,
+        userId: 1
       })
       .subscribe({
         next: () => {

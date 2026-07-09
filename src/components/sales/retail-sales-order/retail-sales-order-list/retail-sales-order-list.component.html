@@ -1,0 +1,87 @@
+<div class="container-fluid p-4">
+  <div class="page-header strong-header header-row">
+    <div class="header-left">
+      <h2>{{ 'RETAIL_SALES_ORDER.LIST_TITLE' | translate }}</h2>
+    </div>
+    <div class="header-right">
+      <button mat-raised-button color="primary" (click)="onCreateNew()">
+        <mat-icon>add</mat-icon>
+        {{ 'RETAIL_SALES_ORDER.CREATE_TITLE' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <dx-data-grid
+    [dataSource]="orders"
+    [showBorders]="true"
+    [columnAutoWidth]="true"
+    [rowAlternationEnabled]="true"
+    [rtlEnabled]="true"
+    height="600px"
+    [showRowLines]="true"
+    [allowColumnReordering]="true"
+    [allowColumnResizing]="true"
+    keyExpr="id">
+
+    <dxo-search-panel [visible]="true"></dxo-search-panel>
+    <dxo-filter-row [visible]="true"></dxo-filter-row>
+    <dxo-header-filter [visible]="true"></dxo-header-filter>
+    <dxo-paging [pageSize]="10"></dxo-paging>
+    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
+
+    <dxi-column dataField="orderNumber" [caption]="'RETAIL_SALES_ORDER.ORDER_NUMBER' | translate"></dxi-column>
+    <dxi-column dataField="orderDate" [caption]="'RETAIL_SALES_ORDER.ORDER_DATE' | translate" dataType="date"></dxi-column>
+    <dxi-column dataField="customerName" [caption]="'RETAIL_SALES_ORDER.CUSTOMER_NAME' | translate"></dxi-column>
+    <dxi-column dataField="lines" [caption]="'RETAIL_SALES_ORDER.SEC_ITEMS' | translate" [calculateCellValue]="getLinesCount"></dxi-column>
+    <dxi-column dataField="totalAmount" [caption]="'RETAIL_SALES_ORDER.TOTAL_AMOUNT' | translate" dataType="number"></dxi-column>
+    <dxi-column dataField="status" [caption]="'RETAIL_SALES_ORDER.STATUS' | translate" cellTemplate="statusCellTemplate"></dxi-column>
+    <div *dxTemplate="let cell of 'statusCellTemplate'">
+      <span class="status-badge" [ngClass]="{
+        'status-draft': cell.value === 'Draft',
+        'status-pending': cell.value === 'PendingApproval',
+        'status-accepted': cell.value === 'Approved' || cell.value === 'Converted',
+        'status-rejected': cell.value === 'Rejected' || cell.value === 'Cancelled'
+      }">
+        {{ ('RETAIL_SALES_ORDER.STATUS_' + cell.value?.toUpperCase()) | translate }}
+      </span>
+    </div>
+
+    <dxi-column type="buttons" [width]="250">
+      <dxi-button
+        icon="find"
+        [hint]="'COMMON.VIEW' | translate"
+        [onClick]="onView.bind(this)">
+      </dxi-button>
+      <dxi-button
+        icon="edit"
+        [hint]="'COMMON.EDIT' | translate"
+        [visible]="isDraft"
+        [onClick]="onEdit.bind(this)">
+      </dxi-button>
+      <dxi-button
+        icon="upload"
+        [hint]="'RETAIL_SALES_ORDER.SUBMIT' | translate"
+        [visible]="isDraft"
+        [onClick]="onSubmit.bind(this)">
+      </dxi-button>
+      <dxi-button
+        icon="check"
+        [hint]="'RETAIL_SALES_ORDER.APPROVE' | translate"
+        [visible]="isPendingApproval"
+        [onClick]="onApprove.bind(this)">
+      </dxi-button>
+      <dxi-button
+        icon="close"
+        [hint]="'RETAIL_SALES_ORDER.REJECT' | translate"
+        [visible]="isPendingApproval"
+        [onClick]="onReject.bind(this)">
+      </dxi-button>
+      <dxi-button
+        icon="arrowright"
+        [hint]="'RETAIL_SALES_ORDER.PROCEED_TO_INVOICE' | translate"
+        [visible]="isApproved"
+        [onClick]="onProceedToInvoice.bind(this)">
+      </dxi-button>
+    </dxi-column>
+  </dx-data-grid>
+</div>
