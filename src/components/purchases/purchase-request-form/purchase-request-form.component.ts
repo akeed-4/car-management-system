@@ -1,6 +1,6 @@
-import { ChangeDetectorRef, Component, OnInit, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -11,12 +11,17 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatCardModule } from '@angular/material/card';
-import { DxDataGridModule } from 'devextreme-angular';
+import { MatDialog } from '@angular/material/dialog';
+import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { PurchaseCycleService } from '../../../services/purchase-cycle.service';
 import { NotificationService } from '../../../services/notification.service';
-import { PurchaseOfferDto } from '../../../models/purchase-offer.model';
 import { CreatePurchaseRequestDto } from '../../../models/purchase-request.model';
+import { SupplierService } from '@/src/services/supplier.service';
+import { Supplier } from '@/src/models/supplier.model';
+import { CarSelectionDialogComponent } from '../purchase-invoice/car-selection-dialog/car-selection-dialog.component';
 
 interface RequestLineItem {
   carId: number;
@@ -45,7 +50,9 @@ interface RequestLineItem {
     MatNativeDateModule,
     MatCardModule,
     DxDataGridModule,
-    TranslateModule
+    DxButtonModule,
+    TranslateModule,
+    NgxMatSelectSearchModule
   ],
   templateUrl: './purchase-request-form.component.html',
   styleUrls: ['./purchase-request-form.component.css']
@@ -59,10 +66,6 @@ export class PurchaseRequestFormComponent implements OnInit {
   documentDetails: RequestLineItem[] = [];
   grandTotal = 0;
 
-  /** Accepted offers not yet converted into a request -- the only eligible dropdown source. */
-  eligibleOffers = signal<PurchaseOfferDto[]>([]);
-  selectedOffer: PurchaseOfferDto | null = null;
-
   constructor(
     private fb: FormBuilder,
     private purchaseCycleService: PurchaseCycleService,
@@ -70,13 +73,15 @@ export class PurchaseRequestFormComponent implements OnInit {
     private translateService: TranslateService,
     private router: Router,
     private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog,
+    private supplierService: SupplierService
   ) {
     this.initForm();
   }
 
   ngOnInit(): void {
-    this.loadEligibleOffers();
+    this.loadSuppliers();
     this.route.params.subscribe(params => {
       if (params['id']) {
         this.isEditMode = true;
@@ -90,54 +95,78 @@ export class PurchaseRequestFormComponent implements OnInit {
     this.requestForm = this.fb.group({
       requestNumber: ['', Validators.required],
       requestDate: [new Date(), Validators.required],
-      purchaseOfferId: [null, Validators.required],
-      supplierId: [{ value: null, disabled: true }],
+      supplierId: [null, Validators.required],
       notes: ['']
     });
   }
 
-  loadEligibleOffers(): void {
-    this.purchaseCycleService.getEligibleOffersForRequest().subscribe({
-      next: (offers) => this.eligibleOffers.set(offers || []),
-      error: (err) => {
-        console.error('Error loading eligible offers', err);
-        this.eligibleOffers.set([]);
+  supplierFilterCtrl = new FormControl('');
+
+  suppliers = signal<Supplier[]>([]);
+
+  supplierFilterSignal = toSignal(
+    this.supplierFilterCtrl.valueChanges,
+    { initialValue: '' }
+  );
+
+  filteredSuppliers = computed(() => {
+    const filter = (this.supplierFilterSignal() ?? '').toLowerCase().trim();
+
+    if (!filter) {
+      return this.suppliers();
+    }
+
+    return this.suppliers().filter(s =>
+      s.name.toLowerCase().includes(filter)
+    );
+  });
+
+  loadSuppliers(): void {
+    this.supplierService.getSuppliers().subscribe({
+      next: (data: Supplier[]) => this.suppliers.set(data),
+      error: err => console.error('Error loading suppliers', err)
+    });
+  }
+
+  toggleCarCards(): void {
+    const dialogRef = this.dialog.open(CarSelectionDialogComponent, {
+      width: '90vw',
+      maxWidth: '1200px',
+      height: '80vh',
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.selectCar(result);
       }
     });
   }
 
-  /** Cascading onChange: selecting an Offer auto-fills supplier, items, quantities, prices, tax and terms. */
-  onOfferSelected(offerId: number | null): void {
-    this.requestItems = [];
-    this.selectedOffer = null;
-    this.requestForm.patchValue({ supplierId: null }, { emitEvent: false });
+  selectCar(car: any): void {
+    if (!car) return;
+    const quantity = 1;
+    const unitPrice = car.purchasePrice ?? car.salePrice ?? 0;
+    const lineTotal = quantity * unitPrice;
+    const newItem: RequestLineItem = {
+      carId: car.id,
+      carDescription: car.description || `${car.make} ${car.model} ${car.year}`,
+      make: car.make || '',
+      model: car.model || '',
+      year: car.year || new Date().getFullYear(),
+      quantity,
+      unitPrice,
+      lineTotal
+    };
+    this.requestItems = [...this.requestItems, newItem];
+    this.updateDocumentPreview();
+    this.cdr.detectChanges();
+  }
 
-    if (!offerId) return;
-
-    this.purchaseCycleService.getPurchaseOffer(offerId).subscribe({
-      next: (offer) => {
-        this.selectedOffer = offer;
-        // Supplier is inherited from the offer and locked -- never editable once a parent doc is chosen.
-        this.requestForm.patchValue({ supplierId: offer.supplierId }, { emitEvent: false });
-
-        this.requestItems = (offer.items || []).map(item => ({
-          carId: item.carId,
-          carDescription: item.car?.description || `${item.car?.make ?? ''} ${item.car?.model ?? ''} ${item.car?.year ?? ''}`.trim(),
-          make: item.car?.make || '',
-          model: item.car?.model || '',
-          year: item.car?.year || new Date().getFullYear(),
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          lineTotal: item.lineTotal
-        }));
-        this.updateDocumentPreview();
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Error loading offer lines', err);
-        this.notificationService.showError(this.translateService.instant('PURCHASE_REQUESTS.LOAD_OFFER_ERROR'));
-      }
-    });
+  removeItem(e: any): void {
+    const carId = e.row?.data?.carId;
+    this.requestItems = this.requestItems.filter(i => i.carId !== carId);
+    this.updateDocumentPreview();
   }
 
   loadRequest(id: number): void {
@@ -146,7 +175,6 @@ export class PurchaseRequestFormComponent implements OnInit {
         this.requestForm.patchValue({
           requestNumber: request.requestNumber,
           requestDate: request.requestDate,
-          purchaseOfferId: request.purchaseOfferId,
           supplierId: request.supplierId,
           notes: request.notes
         });
@@ -198,7 +226,7 @@ export class PurchaseRequestFormComponent implements OnInit {
     const dto: CreatePurchaseRequestDto = {
       requestNumber: this.requestForm.value.requestNumber,
       requestDate: this.requestForm.value.requestDate,
-      purchaseOfferId: this.requestForm.value.purchaseOfferId,
+      supplierId: this.requestForm.value.supplierId,
       notes: this.requestForm.value.notes,
       items: this.requestItems.map(item => ({
         carId: item.carId,

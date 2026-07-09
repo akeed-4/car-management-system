@@ -12,7 +12,9 @@ export interface CreatePoItemDto {
 export interface CreatePoDto {
   poNumber: string;
   poDate: Date | string;
-  purchaseRequestId: number; // the approved Purchase Request this PO was created from
+  /** Optional for backward compatibility -- POs are now created from an approved Purchase Offer instead. */
+  purchaseRequestId?: number;
+  purchaseOfferId?: number; // the approved/accepted Purchase Offer this PO was created from
   notes?: string;
   items: CreatePoItemDto[];
 }
@@ -33,7 +35,8 @@ export interface PoDto {
   poDate: string;
   supplierId: number;
   supplier?: Supplier;
-  purchaseRequestId: number;
+  purchaseRequestId?: number;
+  purchaseOfferId?: number;
   notes?: string;
   status: PoStatus;
   totalAmount: number;

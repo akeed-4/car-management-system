@@ -12,6 +12,12 @@
               {{ (isEditMode ? 'PURCHASE_REQUESTS.EDIT_TITLE' : 'PURCHASE_REQUESTS.CREATE_TITLE') | translate }}
             </h3>
           </div>
+          <div class="header-actions d-flex gap-2">
+            <button mat-stroked-button color="accent" type="button" (click)="toggleCarCards()">
+              <mat-icon>search</mat-icon>
+              {{ 'PURCHASE_INVOICE.SELECT_CAR' | translate }}
+            </button>
+          </div>
         </div>
 
         <div class="doc-section-title">
@@ -43,48 +49,27 @@
         <div class="form-row-flex">
           <div class="flex-1">
             <mat-form-field appearance="outline" class="w-100">
-              <mat-label>{{ 'PURCHASE_REQUESTS.SELECT_OFFER' | translate }}</mat-label>
-              <mat-select formControlName="purchaseOfferId" (selectionChange)="onOfferSelected($event.value)">
-                <mat-option *ngFor="let o of eligibleOffers()" [value]="o.id">
-                  {{ o.offerNumber }} — {{ o.supplier?.name }} — {{ o.totalAmount | currency }}
+              <mat-label>{{ 'PURCHASE_REQUESTS.SUPPLIER' | translate }}</mat-label>
+
+              <mat-select formControlName="supplierId">
+
+                <mat-option>
+                  <ngx-mat-select-search [formControl]="supplierFilterCtrl"
+                    [noEntriesFoundLabel]="'PURCHASE_OFFER.NO_RESULTS' | translate">
+                  </ngx-mat-select-search>
                 </mat-option>
+
+                <mat-option *ngFor="let s of filteredSuppliers()" [value]="s.id">
+                  {{ s.name }}
+                </mat-option>
+
               </mat-select>
-              <mat-icon matSuffix>request_quote</mat-icon>
-              <mat-hint>{{ 'PURCHASE_REQUESTS.SELECT_OFFER_HINT' | translate }}</mat-hint>
-              <mat-error *ngIf="requestForm.get('purchaseOfferId')?.hasError('required')">
+
+              <mat-icon matSuffix>store</mat-icon>
+
+              <mat-error *ngIf="requestForm.get('supplierId')?.hasError('required')">
                 {{ 'COMMON.REQUIRED' | translate }}
               </mat-error>
-            </mat-form-field>
-          </div>
-
-          <div class="flex-1">
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-label>{{ 'PURCHASE_REQUESTS.SUPPLIER' | translate }}</mat-label>
-              <input matInput [value]="selectedOffer?.supplier?.name || ''" readonly disabled>
-              <mat-icon matSuffix>lock</mat-icon>
-              <mat-hint>{{ 'PURCHASE_REQUESTS.SUPPLIER_LOCKED_HINT' | translate }}</mat-hint>
-            </mat-form-field>
-          </div>
-        </div>
-
-        <div class="form-row-flex" *ngIf="selectedOffer">
-          <div class="flex-1">
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-label>{{ 'PURCHASE_OFFER.PAYMENT_TERMS' | translate }}</mat-label>
-              <input matInput [value]="selectedOffer.paymentTerms || ''" readonly disabled>
-            </mat-form-field>
-          </div>
-          <div class="flex-1">
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-label>{{ 'PURCHASE_OFFER.DELIVERY_TERMS' | translate }}</mat-label>
-              <input matInput [value]="selectedOffer.deliveryTerms || ''" readonly disabled>
-            </mat-form-field>
-          </div>
-          <div class="flex-1">
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-label>{{ 'PURCHASE_OFFER.TAX_RATE' | translate }}</mat-label>
-              <input matInput [value]="selectedOffer.taxRate || 0" readonly disabled>
-              <span matSuffix>%</span>
             </mat-form-field>
           </div>
         </div>
@@ -105,6 +90,10 @@
               dataType="number" format="currency" [allowEditing]="true" [setCellValue]="unitPriceSetCellValue"></dxi-column>
             <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" dataType="number"
               format="currency" [allowEditing]="false"></dxi-column>
+            <dxi-column type="buttons" [width]="90" caption="">
+              <dxi-button icon="trash" hint="{{ 'PURCHASE_INVOICE.REMOVE_ITEM' | translate }}"
+                [onClick]="removeItem"></dxi-button>
+            </dxi-column>
 
           </dx-data-grid>
         </div>

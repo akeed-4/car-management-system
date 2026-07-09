@@ -33,13 +33,13 @@
         <div class="form-row-flex">
           <div class="flex-1">
             <mat-form-field appearance="outline" class="w-100">
-              <mat-label>{{ 'PURCHASE_ORDER.SELECT_REQUEST' | translate }}</mat-label>
-              <mat-select formControlName="purchaseRequestId" (selectionChange)="onRequestSelected($event.value)">
-                <mat-option *ngFor="let r of eligibleRequests()" [value]="r.id">{{ r.requestNumber }} — {{ r.supplier?.name }} — {{ r.totalAmount | currency }}</mat-option>
+              <mat-label>{{ 'PURCHASE_ORDER.SELECT_OFFER' | translate }}</mat-label>
+              <mat-select formControlName="purchaseOfferId" (selectionChange)="onOfferSelected($event.value)">
+                <mat-option *ngFor="let o of eligibleOffers()" [value]="o.id">{{ o.offerNumber }} — {{ o.supplier?.name }} — {{ o.totalAmount | currency }}</mat-option>
               </mat-select>
-              <mat-icon matSuffix>assignment</mat-icon>
-              <mat-hint>{{ 'PURCHASE_ORDER.SELECT_REQUEST_HINT' | translate }}</mat-hint>
-              <mat-error *ngIf="poForm.get('purchaseRequestId')?.hasError('required')">
+              <mat-icon matSuffix>request_quote</mat-icon>
+              <mat-hint>{{ 'PURCHASE_ORDER.SELECT_OFFER_HINT' | translate }}</mat-hint>
+              <mat-error *ngIf="poForm.get('purchaseOfferId')?.hasError('required')">
                 {{ 'COMMON.REQUIRED' | translate }}
               </mat-error>
             </mat-form-field>
@@ -48,7 +48,7 @@
           <div class="flex-1">
             <mat-form-field appearance="outline" class="w-100">
               <mat-label>{{ 'PURCHASE_ORDER.SUPPLIER' | translate }}</mat-label>
-              <input matInput [value]="selectedRequest?.supplier?.name || ''" readonly disabled>
+              <input matInput [value]="selectedOffer?.supplier?.name || ''" readonly disabled>
               <mat-icon matSuffix>lock</mat-icon>
               <mat-hint>{{ 'PURCHASE_ORDER.SUPPLIER_LOCKED_HINT' | translate }}</mat-hint>
             </mat-form-field>

@@ -27,25 +27,26 @@
 
           <div class="flex-1">
             <mat-form-field appearance="outline" class="w-100">
-              <mat-label>{{ 'PURCHASE_OFFER.SUPPLIER' | translate }}</mat-label>
+              <mat-label>{{ 'PURCHASE_OFFER.OFFER_DATE' | translate }}</mat-label>
+              <input matInput [matDatepicker]="picker1" formControlName="offerDate">
+              <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+              <mat-datepicker #picker1></mat-datepicker>
+            </mat-form-field>
+          </div>
+        </div>
 
-              <mat-select formControlName="supplierId">
-
-                <mat-option>
-                  <ngx-mat-select-search [formControl]="supplierFilterCtrl"
-                    [noEntriesFoundLabel]="'PURCHASE_OFFER.NO_RESULTS' | translate">
-                  </ngx-mat-select-search>
+        <div class="form-row-flex">
+          <div class="flex-1">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'PURCHASE_OFFER.SELECT_REQUEST' | translate }}</mat-label>
+              <mat-select formControlName="purchaseRequestId" (selectionChange)="onRequestSelected($event.value)">
+                <mat-option *ngFor="let r of eligibleRequests()" [value]="r.id">
+                  {{ r.requestNumber }} — {{ r.supplier?.name }} — {{ r.totalAmount | currency }}
                 </mat-option>
-
-                <mat-option *ngFor="let s of filteredSuppliers()" [value]="s.id">
-                  {{ s.name }}
-                </mat-option>
-
               </mat-select>
-
-              <mat-icon matSuffix>store</mat-icon>
-
-              <mat-error *ngIf="offerForm.get('supplierId')?.hasError('required')">
+              <mat-icon matSuffix>assignment</mat-icon>
+              <mat-hint>{{ 'PURCHASE_OFFER.SELECT_REQUEST_HINT' | translate }}</mat-hint>
+              <mat-error *ngIf="offerForm.get('purchaseRequestId')?.hasError('required')">
                 {{ 'COMMON.REQUIRED' | translate }}
               </mat-error>
             </mat-form-field>
@@ -53,10 +54,10 @@
 
           <div class="flex-1">
             <mat-form-field appearance="outline" class="w-100">
-              <mat-label>{{ 'PURCHASE_OFFER.OFFER_DATE' | translate }}</mat-label>
-              <input matInput [matDatepicker]="picker1" formControlName="offerDate">
-              <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
-              <mat-datepicker #picker1></mat-datepicker>
+              <mat-label>{{ 'PURCHASE_OFFER.SUPPLIER' | translate }}</mat-label>
+              <input matInput [value]="selectedRequest?.supplier?.name || ''" readonly disabled>
+              <mat-icon matSuffix>lock</mat-icon>
+              <mat-hint>{{ 'PURCHASE_OFFER.SUPPLIER_LOCKED_HINT' | translate }}</mat-hint>
             </mat-form-field>
           </div>
         </div>
@@ -93,12 +94,6 @@
             <h3 class="m-0 page-title font-weight-bold mt-1">
               {{ (isEditMode ? 'PURCHASE_OFFER.EDIT_TITLE' : 'PURCHASE_OFFER.CREATE_TITLE') | translate }}
             </h3>
-          </div>
-          <div class="header-actions d-flex gap-2">
-            <button mat-stroked-button color="accent" type="button" (click)="toggleCarCards()">
-              <mat-icon>search</mat-icon>
-              {{ 'PURCHASE_INVOICE.SELECT_CAR' | translate }}
-            </button>
           </div>
         </div>
         <div class="details-grid-wrapper mb-3">

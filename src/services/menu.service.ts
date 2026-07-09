@@ -135,12 +135,7 @@ export const menuData = [
           { id: 10014, name: 'اعتماد مرتجعات المبيعات الاجلة', englishName: 'Approve Direct Sales Returns', route: 'sales/invoice/credit/return/new' }
         ],
       },
-      {
-        id: 1002,
-        name: 'البنوك',
-        englishName: 'Banks',
-        route: '/sales/bank-invoice',
-      },
+  
       {
         id: 1003,
         name: 'الشركات',
