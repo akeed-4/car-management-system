@@ -12,18 +12,18 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { PurchaseCycleService } from '../../../services/purchase-cycle.service';
+import { PurchaseOrderService } from '../../../services/purchase-order.service';
+import { SupplierService } from '../../../services/supplier.service';
 import { NotificationService } from '../../../services/notification.service';
-import { PurchaseOfferDto } from '../../../models/purchase-offer.model';
-import { CreatePoDto } from '../../../models/purchase-order.model';
+import { Supplier } from '../../../models/supplier.model';
+import { ApprovedQuotationLookupDto, CreatePoDto } from '../../../models/purchase-order.model';
 
 interface PoLineItem {
-  carId: number;
-  carDescription: string;
-  make: string;
-  model: string;
-  year: number;
-  quantity: number;
+  supplierRfqItemId: number;
+  itemDescription: string;
+  remainingQuantity: number;
+  quotedUnitPrice: number;
+  orderedQuantity: number;
   unitPrice: number;
   lineTotal: number;
 }
@@ -58,13 +58,14 @@ export class PurchaseOrderFormComponent implements OnInit {
   documentDetails: PoLineItem[] = [];
   grandTotal = 0;
 
-  /** Accepted Purchase Offers not yet converted -- the only eligible dropdown source. */
-  eligibleOffers = signal<PurchaseOfferDto[]>([]);
-  selectedOffer: PurchaseOfferDto | null = null;
+  suppliers = signal<Supplier[]>([]);
+  /** Approved quotations with remaining lines, for the selected vendor. */
+  eligibleQuotations = signal<ApprovedQuotationLookupDto[]>([]);
 
   constructor(
     private fb: FormBuilder,
-    private purchaseCycleService: PurchaseCycleService,
+    private purchaseOrderService: PurchaseOrderService,
+    private supplierService: SupplierService,
     private notificationService: NotificationService,
     private translateService: TranslateService,
     private router: Router,
@@ -75,7 +76,11 @@ export class PurchaseOrderFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadEligibleOffers();
+    this.supplierService.getSuppliers().subscribe({
+      next: (suppliers) => this.suppliers.set(suppliers || []),
+      error: (err) => console.error('Error loading suppliers', err)
+    });
+
     this.route.params.subscribe(params => {
       if (params['id']) {
         this.isEditMode = true;
@@ -89,64 +94,72 @@ export class PurchaseOrderFormComponent implements OnInit {
     this.poForm = this.fb.group({
       poNumber: ['', Validators.required],
       poDate: [new Date(), Validators.required],
-      purchaseOfferId: [null, Validators.required],
-      supplierId: [{ value: null, disabled: true }],
+      vendorId: [null, Validators.required],
+      supplierRfqId: [{ value: null, disabled: true }, Validators.required],
+      expectedDeliveryDate: [null],
       notes: ['']
     });
   }
 
-  loadEligibleOffers(): void {
-    this.purchaseCycleService.getEligibleOffersForRequest().subscribe({
-      next: (offers) => this.eligibleOffers.set(offers || []),
+  /** Cascading onChange: selecting a vendor loads its approved, not-yet-fully-ordered quotations. */
+  onVendorSelected(vendorId: number | null): void {
+    this.poItems = [];
+    this.eligibleQuotations.set([]);
+    this.poForm.patchValue({ supplierRfqId: null }, { emitEvent: false });
+    this.updateDocumentPreview();
+
+    const rfqControl = this.poForm.get('supplierRfqId');
+    if (!vendorId) {
+      rfqControl?.disable();
+      return;
+    }
+    rfqControl?.enable();
+
+    this.purchaseOrderService.getQuotationsByVendor(vendorId).subscribe({
+      next: (quotations) => this.eligibleQuotations.set(quotations || []),
       error: (err) => {
-        console.error('Error loading eligible purchase offers', err);
-        this.eligibleOffers.set([]);
+        console.error('Error loading approved quotations', err);
+        this.eligibleQuotations.set([]);
       }
     });
   }
 
-  /** Cascading onChange: selecting a Purchase Offer auto-fills supplier (locked) and all accepted quantities/prices. */
-  onOfferSelected(offerId: number | null): void {
+  /** Cascading onChange: selecting a Supplier RFQ auto-fills the PO grid with its remaining lines and negotiated prices. */
+  onQuotationSelected(supplierRfqId: number | null): void {
     this.poItems = [];
-    this.selectedOffer = null;
-    this.poForm.patchValue({ supplierId: null }, { emitEvent: false });
+    this.updateDocumentPreview();
+    if (!supplierRfqId) return;
 
-    if (!offerId) return;
-
-    this.purchaseCycleService.getPurchaseOffer(offerId).subscribe({
-      next: (offer) => {
-        this.selectedOffer = offer;
-        this.poForm.patchValue({ supplierId: offer.supplierId }, { emitEvent: false });
-
-        this.poItems = (offer.items || []).map(item => ({
-          carId: item.carId,
-          carDescription: item.car?.description || `${item.car?.make ?? ''} ${item.car?.model ?? ''} ${item.car?.year ?? ''}`.trim(),
-          make: item.car?.make || '',
-          model: item.car?.model || '',
-          year: item.car?.year || new Date().getFullYear(),
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          lineTotal: item.lineTotal
+    this.purchaseOrderService.getItemsForPO(supplierRfqId).subscribe({
+      next: (items) => {
+        this.poItems = (items || []).map(item => ({
+          supplierRfqItemId: item.supplierRfqItemId,
+          itemDescription: item.itemDescription,
+          remainingQuantity: item.remainingQuantity,
+          quotedUnitPrice: item.quotedUnitPrice,
+          orderedQuantity: item.remainingQuantity,
+          unitPrice: item.quotedUnitPrice,
+          lineTotal: item.remainingQuantity * item.quotedUnitPrice
         }));
         this.updateDocumentPreview();
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Error loading purchase offer lines', err);
-        this.notificationService.showError(this.translateService.instant('PURCHASE_ORDER.LOAD_OFFER_ERROR'));
+        console.error('Error loading quotation lines', err);
+        this.notificationService.showError(this.translateService.instant('PURCHASE_ORDER.LOAD_QUOTATION_ERROR'));
       }
     });
   }
 
   quantitySetCellValue = (newData: any, value: number, currentRowData: PoLineItem): void => {
-    newData.quantity = value;
+    newData.orderedQuantity = value;
     newData.lineTotal = value * currentRowData.unitPrice;
     setTimeout(() => this.updateDocumentPreview());
   };
 
   unitPriceSetCellValue = (newData: any, value: number, currentRowData: PoLineItem): void => {
     newData.unitPrice = value;
-    newData.lineTotal = currentRowData.quantity * value;
+    newData.lineTotal = currentRowData.orderedQuantity * value;
     setTimeout(() => this.updateDocumentPreview());
   };
 
@@ -156,26 +169,31 @@ export class PurchaseOrderFormComponent implements OnInit {
   }
 
   loadPo(id: number): void {
-    this.purchaseCycleService.getPurchaseOrder(id).subscribe({
+    this.purchaseOrderService.getById(id).subscribe({
       next: (po) => {
         this.poForm.patchValue({
           poNumber: po.poNumber,
           poDate: po.poDate,
-          purchaseOfferId: po.purchaseOfferId,
-          supplierId: po.supplierId,
+          vendorId: po.vendorId,
+          supplierRfqId: po.supplierRfqId,
+          expectedDeliveryDate: po.expectedDeliveryDate,
           notes: po.notes
         });
+        this.poForm.get('supplierRfqId')?.enable();
         this.poItems = (po.items || []).map(item => ({
-          carId: item.carId,
-          carDescription: item.car?.description || `${item.car?.make ?? ''} ${item.car?.model ?? ''} ${item.car?.year ?? ''}`.trim(),
-          make: item.car?.make || '',
-          model: item.car?.model || '',
-          year: item.car?.year || new Date().getFullYear(),
-          quantity: item.quantity,
+          supplierRfqItemId: item.supplierRfqItemId ?? 0,
+          itemDescription: item.itemDescription,
+          remainingQuantity: item.remainingQuantity,
+          quotedUnitPrice: item.unitPrice,
+          orderedQuantity: item.orderedQuantity,
           unitPrice: item.unitPrice,
           lineTotal: item.lineTotal
         }));
         this.updateDocumentPreview();
+
+        if (po.status !== 'Open') {
+          this.poForm.disable();
+        }
       },
       error: (err) => {
         console.error('Error loading PO', err);
@@ -193,32 +211,38 @@ export class PurchaseOrderFormComponent implements OnInit {
       return;
     }
 
+    const raw = this.poForm.getRawValue();
     const dto: CreatePoDto = {
-      poNumber: this.poForm.value.poNumber,
-      poDate: this.poForm.value.poDate,
-      purchaseOfferId: this.poForm.value.purchaseOfferId,
-      notes: this.poForm.value.notes,
+      poNumber: raw.poNumber,
+      poDate: raw.poDate,
+      vendorId: raw.vendorId,
+      supplierRfqId: raw.supplierRfqId,
+      expectedDeliveryDate: raw.expectedDeliveryDate,
+      notes: raw.notes,
       items: this.poItems.map(item => ({
-        carId: item.carId,
-        quantity: item.quantity,
+        supplierRfqItemId: item.supplierRfqItemId,
+        orderedQuantity: item.orderedQuantity,
         unitPrice: item.unitPrice
       }))
     };
 
-    const request = this.isEditMode && this.poId
-      ? this.purchaseCycleService.updatePurchaseOrder(this.poId, dto)
-      : this.purchaseCycleService.createPurchaseOrder(dto);
+    const onSuccess = () => {
+      this.notificationService.showSuccess(this.translateService.instant('PURCHASE_ORDER.SAVE_SUCCESS'));
+      this.router.navigate(['/purchases/orders']);
+    };
+    const onError = (err: any) => {
+      console.error('Error saving PO', err);
+      this.notificationService.showError(this.translateService.instant('PURCHASE_ORDER.SAVE_ERROR') + ': ' + (err?.message || 'Unknown error'));
+    };
 
-    request.subscribe({
-      next: () => {
-        this.notificationService.showSuccess(this.translateService.instant('PURCHASE_ORDER.SAVE_SUCCESS'));
-        this.router.navigate(['/purchases/orders']);
-      },
-      error: (err) => {
-        console.error('Error saving PO', err);
-        this.notificationService.showError(this.translateService.instant('PURCHASE_ORDER.SAVE_ERROR') + ': ' + (err?.message || 'Unknown error'));
-      }
-    });
+    if (this.isEditMode && this.poId) {
+      this.purchaseOrderService.update(this.poId, {
+        expectedDeliveryDate: dto.expectedDeliveryDate,
+        notes: dto.notes
+      }).subscribe({ next: onSuccess, error: onError });
+    } else {
+      this.purchaseOrderService.create(dto).subscribe({ next: onSuccess, error: onError });
+    }
   }
 
   onCancel(): void {

@@ -1,0 +1,69 @@
+<div class="container-fluid p-4">
+  <div class="page-header strong-header header-row">
+    <div class="header-left">
+      <h2>{{ 'SUPPLIER_RFQ.LIST_TITLE' | translate }}</h2>
+    </div>
+    <div class="header-right">
+      <button mat-raised-button color="primary" (click)="onCreateNew()">
+        <mat-icon>add</mat-icon>
+        {{ 'SUPPLIER_RFQ.CREATE_TITLE' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <dx-data-grid
+    [dataSource]="quotations"
+    [showBorders]="true"
+    [columnAutoWidth]="true"
+    [rowAlternationEnabled]="true"
+    [rtlEnabled]="true"
+    height="600px"
+    [showRowLines]="true"
+    [allowColumnReordering]="true"
+    [allowColumnResizing]="true"
+    keyExpr="id">
+
+    <dxo-search-panel [visible]="true"></dxo-search-panel>
+    <dxo-filter-row [visible]="true"></dxo-filter-row>
+    <dxo-header-filter [visible]="true"></dxo-header-filter>
+    <dxo-paging [pageSize]="10"></dxo-paging>
+    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
+
+    <dxi-column dataField="quotationNumber" [caption]="'SUPPLIER_RFQ.QUOTATION_NUMBER' | translate"></dxi-column>
+    <dxi-column dataField="quotationDate" [caption]="'SUPPLIER_RFQ.QUOTATION_DATE' | translate" dataType="date"></dxi-column>
+    <dxi-column dataField="vendorName" [caption]="'SUPPLIER_RFQ.VENDOR' | translate"></dxi-column>
+    <dxi-column dataField="requisitionNumber" [caption]="'SUPPLIER_RFQ.REQUISITION_NUMBER' | translate"></dxi-column>
+    <dxi-column dataField="items" [caption]="'SUPPLIER_RFQ.ITEMS_COUNT' | translate" [calculateCellValue]="getItemsCount"></dxi-column>
+    <dxi-column dataField="totalAmount" [caption]="'SUPPLIER_RFQ.TOTAL_AMOUNT' | translate" format="currency"></dxi-column>
+    <dxi-column dataField="status" [caption]="'SUPPLIER_RFQ.STATUS' | translate" cellTemplate="statusCellTemplate"></dxi-column>
+    <div *dxTemplate="let cell of 'statusCellTemplate'">
+      <span class="status-badge" [ngClass]="{
+        'status-pending': cell.value === 'Draft' || cell.value === 'Submitted',
+        'status-accepted': cell.value === 'Approved',
+        'status-rejected': cell.value === 'Rejected'
+      }">
+        {{ ('SUPPLIER_RFQ.STATUS_' + cell.value?.toUpperCase()) | translate }}
+      </span>
+    </div>
+
+    <dxi-column type="buttons" [width]="160">
+      <dxi-button
+        icon="edit"
+        [hint]="'COMMON.EDIT' | translate"
+        [onClick]="onEdit.bind(this)">
+      </dxi-button>
+      <dxi-button
+        icon="check"
+        [hint]="'SUPPLIER_RFQ.APPROVE' | translate"
+        [visible]="isDraft"
+        [onClick]="onApprove.bind(this)">
+      </dxi-button>
+      <dxi-button
+        icon="close"
+        [hint]="'SUPPLIER_RFQ.REJECT' | translate"
+        [visible]="isDraft"
+        [onClick]="onReject.bind(this)">
+      </dxi-button>
+    </dxi-column>
+  </dx-data-grid>
+</div>

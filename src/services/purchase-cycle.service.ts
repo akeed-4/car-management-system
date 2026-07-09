@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { CarReceipt, CreateCarReceiptDto } from '../models/car-receipt.model';
 import { CreatePurchaseOfferDto, PurchaseOfferDto, PurchaseOfferStatus } from '../models/purchase-offer.model';
 import { CreatePurchaseRequestDto, PurchaseRequestDto, PurchaseRequestStatus } from '../models/purchase-request.model';
-import { CreatePoDto, PoDto } from '../models/purchase-order.model';
+import { PoDto } from '../models/purchase-order.model';
 import { environment } from '../environments/environment';
 
 @Injectable({
@@ -75,25 +75,14 @@ export class PurchaseCycleService {
   }
 
   // ===================================================================
-  // Purchase Order -- created FROM an approved Request
+  // Purchase Order (legacy shape) -- kept only for the unreachable legacy
+  // car-receipts-form screen. New Purchase Order screens use PurchaseOrderService.
   // ===================================================================
-  getPurchaseOrders(): Observable<PoDto[]> {
-    return this.http.get<PoDto[]>(`${this.purchaseOrdersApiUrl}/GetAll`);
-  }
-
   getPurchaseOrder(id: number): Observable<PoDto> {
     return this.http.get<PoDto>(`${this.purchaseOrdersApiUrl}/GetById/${id}`);
   }
 
-  createPurchaseOrder(po: CreatePoDto): Observable<PoDto> {
-    return this.http.post<PoDto>(`${this.purchaseOrdersApiUrl}/Create`, po);
-  }
-
-  updatePurchaseOrder(id: number, po: CreatePoDto): Observable<PoDto> {
-    return this.http.put<PoDto>(`${this.purchaseOrdersApiUrl}/Update/${id}`, po);
-  }
-
-  /** Open or PartiallyReceived POs -- feeds the GRN screen's dropdown. Fully-received POs never appear. */
+  /** Open or PartiallyReceived POs -- feeds the legacy GRN screen's dropdown. */
   getOpenPurchaseOrders(): Observable<PoDto[]> {
     return this.http.get<PoDto[]>(`${this.purchaseOrdersApiUrl}/GetOpen`);
   }

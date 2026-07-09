@@ -1,46 +1,69 @@
 import { Supplier } from './supplier.model';
-import { Car } from './car.model';
 
-export type PoStatus = 'Open' | 'PartiallyReceived' | 'FullyReceived' | 'Closed';
-
-export interface CreatePoItemDto {
-  carId: number;
-  quantity: number;
-  unitPrice: number;
-}
-
-export interface CreatePoDto {
-  poNumber: string;
-  poDate: Date | string;
-  /** Optional for backward compatibility -- POs are now created from an approved Purchase Offer instead. */
-  purchaseRequestId?: number;
-  purchaseOfferId?: number; // the approved/accepted Purchase Offer this PO was created from
-  notes?: string;
-  items: CreatePoItemDto[];
-}
+export type PoStatus = 'Open' | 'PartiallyReceived' | 'FullyReceived' | 'Closed' | 'Cancelled';
 
 export interface PoItemDto {
   id: number;
-  carId: number;
-  car?: Car;
-  quantity: number;
+  supplierRfqItemId?: number;
+  itemDescription: string;
+  orderedQuantity: number;
   unitPrice: number;
   lineTotal: number;
-  receivedQuantity?: number; // cumulative quantity already received via GRNs against this PO
+  receivedQuantity: number;
+  remainingQuantity: number;
 }
 
 export interface PoDto {
   id: number;
   poNumber: string;
   poDate: string;
-  supplierId: number;
+  vendorId: number;
+  vendorName: string;
   supplier?: Supplier;
-  purchaseRequestId?: number;
-  purchaseOfferId?: number;
-  notes?: string;
+  supplierRfqId?: number;
+  quotationNumber: string;
   status: PoStatus;
   totalAmount: number;
+  expectedDeliveryDate?: string;
+  notes?: string;
+  createdAt: string;
   items: PoItemDto[];
-  createdAt?: string;
-  updatedAt?: string;
+}
+
+export interface CreatePoItemDto {
+  supplierRfqItemId: number;
+  orderedQuantity: number;
+  unitPrice: number;
+}
+
+export interface CreatePoDto {
+  poNumber: string;
+  poDate: Date | string;
+  vendorId: number;
+  supplierRfqId: number;
+  expectedDeliveryDate?: Date | string;
+  notes?: string;
+  items: CreatePoItemDto[];
+}
+
+export interface UpdatePoDto {
+  status?: PoStatus;
+  expectedDeliveryDate?: Date | string;
+  notes?: string;
+}
+
+/** Cascading dropdown row: approved quotations with remaining un-ordered lines, for the selected vendor. */
+export interface ApprovedQuotationLookupDto {
+  id: number;
+  quotationNumber: string;
+  quotationDate: string;
+  totalAmount: number;
+}
+
+/** Row shape used to auto-populate the PO grid once a quotation is selected. */
+export interface QuotationItemForPODto {
+  supplierRfqItemId: number;
+  itemDescription: string;
+  remainingQuantity: number;
+  quotedUnitPrice: number;
 }

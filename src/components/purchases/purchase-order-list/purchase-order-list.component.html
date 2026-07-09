@@ -30,7 +30,8 @@
     <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
 
     <dxi-column dataField="poNumber" [caption]="'PURCHASE_ORDER.PO_NUMBER' | translate"></dxi-column>
-    <dxi-column dataField="supplier.name" [caption]="'PURCHASE_ORDER.SUPPLIER' | translate"></dxi-column>
+    <dxi-column dataField="vendorName" [caption]="'PURCHASE_ORDER.VENDOR' | translate"></dxi-column>
+    <dxi-column dataField="quotationNumber" [caption]="'PURCHASE_ORDER.QUOTATION_NUMBER' | translate"></dxi-column>
     <dxi-column dataField="poDate" [caption]="'PURCHASE_ORDER.PO_DATE' | translate" dataType="date"></dxi-column>
     <dxi-column dataField="items" [caption]="'PURCHASE_ORDER.ITEMS_COUNT' | translate" [calculateCellValue]="getItemsCount"></dxi-column>
     <dxi-column dataField="totalAmount" [caption]="'PURCHASE_ORDER.TOTAL_AMOUNT' | translate" format="currency"></dxi-column>
@@ -40,7 +41,7 @@
         'status-open': cell.value === 'Open',
         'status-partial': cell.value === 'PartiallyReceived',
         'status-full': cell.value === 'FullyReceived',
-        'status-closed': cell.value === 'Closed'
+        'status-closed': cell.value === 'Closed' || cell.value === 'Cancelled'
       }">
         {{ ('PURCHASE_ORDER.STATUS_' + cell.value?.toUpperCase()) | translate }}
       </span>

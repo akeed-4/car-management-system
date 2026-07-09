@@ -106,7 +106,6 @@ import { PendingApprovalsComponent } from './components/approvals/pending-approv
 import { ManagerApprovalComponent } from './components/approvals/manager-approval/manager-approval.component';
 import { PurchaseOffersComponent } from './components/purchases/purchase-offers/purchase-offers.component';
 import { PurchaseOfferFormComponent } from './components/purchases/purchase-offer-form/purchase-offer-form.component';
-import { CarReceiptsComponent } from './components/purchases/car-receipts/car-receipts.component';
 import { QuotationsComponent } from './components/sales/quotations/quotations.component';
 import { QuotationFormComponent } from './components/sales/quotation-form/quotation-form.component';
 import { CustomerOrderFormComponent } from './components/sales/customer-order-form/customer-order-form.component';
@@ -115,11 +114,17 @@ import { SalesLifecycleDashboardComponent } from './components/sales/sales-lifec
 import { DirectInvoiceFormComponent } from './components/sales/direct-invoice-form/direct-invoice-form.component';
 import { BankInvoiceFormComponent } from './components/sales/bank-invoice-form/bank-invoice-form.component';
 import { CompaniesInvoiceFormComponent } from './components/sales/companies-invoice-form/companies-invoice-form.component';
-import { CarReceiptsFormComponent } from './components/purchases/car-receipts/car-receipts-form/car-receipts-form.component';
 import { PurchaseRequestListComponent } from './components/purchases/purchase-request-list/purchase-request-list.component';
 import { PurchaseRequestFormComponent } from './components/purchases/purchase-request-form/purchase-request-form.component';
 import { PurchaseOrderListComponent } from './components/purchases/purchase-order-list/purchase-order-list.component';
 import { PurchaseOrderFormComponent } from './components/purchases/purchase-order-form/purchase-order-form.component';
+import { SupplierRfqListComponent } from './components/purchases/supplier-rfq-list/supplier-rfq-list.component';
+import { SupplierRfqFormComponent } from './components/purchases/supplier-rfq-form/supplier-rfq-form.component';
+import { PurchaseRequisitionListComponent } from './components/purchases/purchase-requisition-list/purchase-requisition-list.component';
+import { PurchaseRequisitionFormComponent } from './components/purchases/purchase-requisition-form/purchase-requisition-form.component';
+import { PurchaseRequisitionViewComponent } from './components/purchases/purchase-requisition-view/purchase-requisition-view.component';
+import { CarsReceiptNoteListComponent } from './components/purchases/cars-receipt-note-list/cars-receipt-note-list.component';
+import { CarsReceiptNoteFormComponent } from './components/purchases/cars-receipt-note-form/cars-receipt-note-form.component';
 import { RetailQuotationContainerComponent } from './components/sales/retail/retail-quotation-container/retail-quotation-container.component';
 import { RetailInvoiceManagerComponent } from './components/sales/retail/retail-invoice-manager/retail-invoice-manager.component';
 import { RetailDeliveryContainerComponent } from './components/sales/retail/retail-delivery-container/retail-delivery-container.component';
@@ -241,9 +246,16 @@ export const APP_ROUTES: Routes = [
   { path: 'purchases/orders', component: PurchaseOrderListComponent },
   { path: 'purchases/orders/new', component: PurchaseOrderFormComponent },
   { path: 'purchases/orders/edit/:id', component: PurchaseOrderFormComponent },
-  { path: 'purchases/receipts', component: CarReceiptsComponent },
-  { path: 'purchases/receipts/new', component: CarReceiptsFormComponent },
-  { path: 'purchases/receipts/new/:id', component: CarReceiptsFormComponent },
+  { path: 'purchases/supplier-quotations', component: SupplierRfqListComponent },
+  { path: 'purchases/supplier-quotations/new', component: SupplierRfqFormComponent },
+  { path: 'purchases/supplier-quotations/edit/:id', component: SupplierRfqFormComponent },
+  { path: 'purchases/requisitions', component: PurchaseRequisitionListComponent },
+  { path: 'purchases/requisitions/new', component: PurchaseRequisitionFormComponent },
+  { path: 'purchases/requisitions/edit/:id', component: PurchaseRequisitionFormComponent },
+  { path: 'purchases/requisitions/view/:id', component: PurchaseRequisitionViewComponent },
+  { path: 'purchases/receipt-notes', component: CarsReceiptNoteListComponent },
+  { path: 'purchases/receipt-notes/new', component: CarsReceiptNoteFormComponent },
+  { path: 'purchases/receipt-notes/view/:id', component: CarsReceiptNoteFormComponent },
   { path: 'purchases/invoice/cash', component: CashPurchaseInvoiceListComponent },
   { path: 'purchases/invoice/credit', component: CreditPurchaseInvoiceListComponent },
   { path: 'purchases/invoice/cash/new', component: PurchaseCashInvoiceComponent },

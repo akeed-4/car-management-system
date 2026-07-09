@@ -1,0 +1,120 @@
+<div class="purchase-requisition-container p-4">
+  <mat-card class="styled-card" appearance="raised">
+    <mat-card-content class="p-4">
+      <form [formGroup]="requisitionForm" (ngSubmit)="onSubmit()" autocomplete="off">
+
+        <div class="card-header-accent p-4 d-flex align-items-center justify-content-between">
+          <div class="header-title-group">
+            <span class="text-muted text-uppercase small-tracking font-weight-bold">
+              {{ 'PURCHASE_REQUISITION.MODULE_NAME' | translate }}
+            </span>
+            <h3 class="m-0 page-title font-weight-bold mt-1">
+              {{ (isEditMode ? 'PURCHASE_REQUISITION.EDIT_TITLE' : 'PURCHASE_REQUISITION.CREATE_TITLE') | translate }}
+            </h3>
+          </div>
+        </div>
+
+        <div class="doc-section-title">
+          <mat-icon class="section-icon">info</mat-icon>
+          <span>{{ 'PURCHASE_REQUISITION.SEC_CORE_INFO' | translate }}</span>
+        </div>
+
+        <div class="form-row-flex">
+          <div class="flex-1">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'PURCHASE_REQUISITION.REQUISITION_NUMBER' | translate }}</mat-label>
+              <input matInput formControlName="requisitionNumber" placeholder="PR-0000">
+              <mat-icon matSuffix>tag</mat-icon>
+              <mat-error *ngIf="requisitionForm.get('requisitionNumber')?.hasError('required')">
+                {{ 'COMMON.REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="flex-1">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'PURCHASE_REQUISITION.REQUISITION_DATE' | translate }}</mat-label>
+              <input matInput [matDatepicker]="picker1" formControlName="requisitionDate">
+              <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+              <mat-datepicker #picker1></mat-datepicker>
+            </mat-form-field>
+          </div>
+
+          <div class="flex-1">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'PURCHASE_REQUISITION.DEPARTMENT' | translate }}</mat-label>
+              <input matInput formControlName="departmentName">
+              <mat-icon matSuffix>business</mat-icon>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="doc-section-title d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center">
+            <mat-icon class="section-icon">list_alt</mat-icon>
+            <span>{{ 'PURCHASE_REQUISITION.SEC_ITEMS' | translate }}</span>
+          </div>
+          <button mat-stroked-button type="button" color="primary" (click)="addLine()">
+            <mat-icon>add</mat-icon>
+            {{ 'PURCHASE_REQUISITION.ADD_ITEM' | translate }}
+          </button>
+        </div>
+
+        <div class="details-grid-wrapper mb-3">
+          <dx-data-grid [dataSource]="lineItems" [showBorders]="true" [columnAutoWidth]="true"
+            [rowAlternationEnabled]="true" [hoverStateEnabled]="true"
+            noDataText="{{ 'PURCHASE_REQUISITION.NO_ITEMS' | translate }}">
+
+            <dxo-editing mode="cell" [allowUpdating]="true"></dxo-editing>
+            <dxi-column dataField="itemCode" caption="{{ 'PURCHASE_REQUISITION.ITEM_CODE' | translate }}" [width]="100"></dxi-column>
+            <dxi-column dataField="itemDescription" caption="{{ 'PURCHASE_REQUISITION.ITEM_DESCRIPTION' | translate }}"></dxi-column>
+            <dxi-column dataField="unitOfMeasure" caption="{{ 'PURCHASE_REQUISITION.UOM' | translate }}" [width]="90"></dxi-column>
+            <dxi-column dataField="requestedQuantity" caption="{{ 'PURCHASE_REQUISITION.REQUESTED_QTY' | translate }}" dataType="number"
+              [width]="110" [setCellValue]="quantitySetCellValue"></dxi-column>
+            <dxi-column dataField="standardBasePrice" caption="{{ 'PURCHASE_REQUISITION.STANDARD_BASE_PRICE' | translate }}"
+              dataType="number" format="currency" [setCellValue]="basePriceSetCellValue"></dxi-column>
+            <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_REQUISITION.LINE_TOTAL' | translate }}" dataType="number"
+              format="currency" [allowEditing]="false"></dxi-column>
+            <dxi-column dataField="notes" caption="{{ 'PURCHASE_REQUISITION.NOTES' | translate }}"></dxi-column>
+
+            <dxi-column type="buttons" [width]="70">
+              <dxi-button
+                icon="trash"
+                [hint]="'COMMON.DELETE' | translate"
+                [onClick]="onRemoveClick">
+              </dxi-button>
+            </dxi-column>
+
+          </dx-data-grid>
+        </div>
+
+        <div class="doc-total-row mb-3" *ngIf="documentDetails.length > 0">
+          <span class="total-label">{{ 'PURCHASE_REQUISITION.TOTAL_AMOUNT' | translate }}</span>
+          <span class="total-value">{{ grandTotal | currency }}</span>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-12">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'PURCHASE_REQUISITION.NOTES' | translate }}</mat-label>
+              <textarea matInput formControlName="notes" rows="3"
+                placeholder="{{ 'PURCHASE_REQUISITION.NOTES_PLACEHOLDER' | translate }}"></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+          <button mat-raised-button color="primary" type="submit" class="action-btn"
+            [disabled]="requisitionForm.invalid || lineItems.length === 0 || (isEditMode && currentStatus !== 'Draft')">
+            <mat-icon class="me-1">save</mat-icon>
+            {{ (isEditMode ? 'COMMON.UPDATE' : 'COMMON.SAVE') | translate }}
+          </button>
+          <button mat-stroked-button type="button" class="action-btn" (click)="onCancel()">
+            {{ 'COMMON.CANCEL' | translate }}
+          </button>
+        </div>
+
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

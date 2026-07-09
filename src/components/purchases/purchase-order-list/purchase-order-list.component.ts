@@ -5,7 +5,7 @@ import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-a
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { PurchaseCycleService } from '../../../services/purchase-cycle.service';
+import { PurchaseOrderService } from '../../../services/purchase-order.service';
 import { PoDto } from '../../../models/purchase-order.model';
 
 @Component({
@@ -28,7 +28,7 @@ export class PurchaseOrderListComponent implements OnInit {
   purchaseOrders: PoDto[] = [];
 
   constructor(
-    private purchaseCycleService: PurchaseCycleService,
+    private purchaseOrderService: PurchaseOrderService,
     private router: Router
   ) {}
 
@@ -37,7 +37,7 @@ export class PurchaseOrderListComponent implements OnInit {
   }
 
   loadPurchaseOrders(): void {
-    this.purchaseCycleService.getPurchaseOrders().subscribe({
+    this.purchaseOrderService.getAll().subscribe({
       next: (orders: any) => {
         this.purchaseOrders = Array.isArray(orders) ? orders : (orders?.data ?? []);
       },

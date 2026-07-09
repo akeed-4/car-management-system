@@ -1,0 +1,100 @@
+<div class="cars-receipt-note-container p-4">
+  <mat-card class="styled-card" appearance="raised">
+    <mat-card-content class="p-4">
+      <form [formGroup]="grnForm" (ngSubmit)="onSubmit()" autocomplete="off">
+
+        <div class="card-header-accent p-4 d-flex align-items-center justify-content-between">
+          <div class="header-title-group">
+            <span class="text-muted text-uppercase small-tracking font-weight-bold">
+              {{ 'CARS_RECEIPT_NOTE.MODULE_NAME' | translate }}
+            </span>
+            <h3 class="m-0 page-title font-weight-bold mt-1">
+              {{ (isViewMode ? 'CARS_RECEIPT_NOTE.VIEW_TITLE' : 'CARS_RECEIPT_NOTE.CREATE_TITLE') | translate }}
+            </h3>
+          </div>
+        </div>
+
+        <div class="doc-section-title">
+          <mat-icon class="section-icon">info</mat-icon>
+          <span>{{ 'CARS_RECEIPT_NOTE.SEC_CORE_INFO' | translate }}</span>
+        </div>
+
+        <div class="form-row-flex">
+          <div class="flex-1">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'CARS_RECEIPT_NOTE.GRN_NUMBER' | translate }}</mat-label>
+              <input matInput formControlName="grnNumber" placeholder="GRN-0000">
+              <mat-icon matSuffix>tag</mat-icon>
+              <mat-error *ngIf="grnForm.get('grnNumber')?.hasError('required')">
+                {{ 'COMMON.REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="flex-1">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'CARS_RECEIPT_NOTE.RECEIPT_DATE' | translate }}</mat-label>
+              <input matInput [matDatepicker]="picker1" formControlName="receiptDate">
+              <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+              <mat-datepicker #picker1></mat-datepicker>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="form-row-flex">
+          <div class="flex-1">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'CARS_RECEIPT_NOTE.PURCHASE_ORDER' | translate }}</mat-label>
+              <mat-select formControlName="purchaseOrderId" (selectionChange)="onPoSelected($event.value)">
+                <mat-option *ngFor="let po of activePOs()" [value]="po.id">{{ po.poNumber }} — {{ po.vendorName }}</mat-option>
+              </mat-select>
+              <mat-icon matSuffix>local_shipping</mat-icon>
+              <mat-hint>{{ 'CARS_RECEIPT_NOTE.SELECT_PO_HINT' | translate }}</mat-hint>
+              <mat-error *ngIf="grnForm.get('purchaseOrderId')?.hasError('required')">
+                {{ 'COMMON.REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="details-grid-wrapper mb-3">
+          <dx-data-grid [dataSource]="lineItems" [showBorders]="true" [columnAutoWidth]="true"
+            [rowAlternationEnabled]="true" [hoverStateEnabled]="true"
+            noDataText="{{ 'CARS_RECEIPT_NOTE.NO_ITEMS' | translate }}">
+
+            <dxo-editing mode="cell" [allowUpdating]="!isViewMode"></dxo-editing>
+            <dxi-column dataField="itemDescription" caption="{{ 'CARS_RECEIPT_NOTE.ITEM_DESCRIPTION' | translate }}" [allowEditing]="false"></dxi-column>
+            <dxi-column dataField="orderedQuantity" caption="{{ 'CARS_RECEIPT_NOTE.ORDERED_QTY' | translate }}" dataType="number" [allowEditing]="false" [width]="100"></dxi-column>
+            <dxi-column dataField="previouslyReceivedQuantity" caption="{{ 'CARS_RECEIPT_NOTE.ALREADY_RECEIVED_QTY' | translate }}" dataType="number" [allowEditing]="false" [width]="130"></dxi-column>
+            <dxi-column *ngIf="!isViewMode" dataField="remainingQuantity" caption="{{ 'CARS_RECEIPT_NOTE.REMAINING_QTY' | translate }}" dataType="number" [allowEditing]="false" [width]="110"></dxi-column>
+            <dxi-column dataField="receivedQuantity" caption="{{ 'CARS_RECEIPT_NOTE.RECEIVED_QTY' | translate }}" dataType="number"
+              [allowEditing]="!isViewMode" [width]="110" [setCellValue]="receivedQuantitySetCellValue"></dxi-column>
+            <dxi-column dataField="notes" caption="{{ 'CARS_RECEIPT_NOTE.NOTES' | translate }}" [allowEditing]="!isViewMode"></dxi-column>
+
+          </dx-data-grid>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-12">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'CARS_RECEIPT_NOTE.NOTES' | translate }}</mat-label>
+              <textarea matInput formControlName="notes" rows="3"></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+          <button *ngIf="!isViewMode" mat-raised-button color="primary" type="submit" class="action-btn"
+            [disabled]="grnForm.invalid || lineItems.length === 0">
+            <mat-icon class="me-1">save</mat-icon>
+            {{ 'COMMON.SAVE' | translate }}
+          </button>
+          <button mat-stroked-button type="button" class="action-btn" (click)="onCancel()">
+            {{ (isViewMode ? 'COMMON.BACK' : 'COMMON.CANCEL') | translate }}
+          </button>
+        </div>
+
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

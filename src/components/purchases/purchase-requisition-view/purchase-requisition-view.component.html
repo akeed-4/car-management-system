@@ -1,0 +1,98 @@
+<div class="purchase-requisition-container p-4" *ngIf="requisition">
+  <mat-card class="styled-card" appearance="raised">
+    <mat-card-content class="p-4">
+
+      <div class="card-header-accent p-4 d-flex align-items-center justify-content-between">
+        <div class="header-title-group">
+          <span class="text-muted text-uppercase small-tracking font-weight-bold">
+            {{ 'PURCHASE_REQUISITION.MODULE_NAME' | translate }}
+          </span>
+          <h3 class="m-0 page-title font-weight-bold mt-1">
+            {{ requisition.requisitionNumber }}
+            <span class="status-badge" [ngClass]="{
+              'status-draft': requisition.status === 'Draft',
+              'status-pending': requisition.status === 'PendingApproval',
+              'status-accepted': requisition.status === 'Approved' || requisition.status === 'PartiallyConverted' || requisition.status === 'FullyConverted',
+              'status-rejected': requisition.status === 'Rejected'
+            }">
+              {{ ('PURCHASE_REQUISITION.STATUS_' + requisition.status?.toUpperCase()) | translate }}
+            </span>
+          </h3>
+        </div>
+      </div>
+
+      <div class="doc-section-title">
+        <mat-icon class="section-icon">info</mat-icon>
+        <span>{{ 'PURCHASE_REQUISITION.SEC_CORE_INFO' | translate }}</span>
+      </div>
+
+      <div class="form-row-flex mb-3">
+        <div class="flex-1 info-field">
+          <span class="info-label">{{ 'PURCHASE_REQUISITION.REQUISITION_DATE' | translate }}</span>
+          <span class="info-value">{{ requisition.requisitionDate | date }}</span>
+        </div>
+        <div class="flex-1 info-field">
+          <span class="info-label">{{ 'PURCHASE_REQUISITION.DEPARTMENT' | translate }}</span>
+          <span class="info-value">{{ requisition.departmentName || '-' }}</span>
+        </div>
+      </div>
+
+      <div class="doc-section-title">
+        <mat-icon class="section-icon">list_alt</mat-icon>
+        <span>{{ 'PURCHASE_REQUISITION.SEC_ITEMS' | translate }}</span>
+      </div>
+
+      <div class="details-grid-wrapper mb-3">
+        <dx-data-grid [dataSource]="requisition.items" [showBorders]="true" [columnAutoWidth]="true"
+          [rowAlternationEnabled]="true">
+          <dxi-column dataField="itemCode" caption="{{ 'PURCHASE_REQUISITION.ITEM_CODE' | translate }}" [width]="100"></dxi-column>
+          <dxi-column dataField="itemDescription" caption="{{ 'PURCHASE_REQUISITION.ITEM_DESCRIPTION' | translate }}"></dxi-column>
+          <dxi-column dataField="unitOfMeasure" caption="{{ 'PURCHASE_REQUISITION.UOM' | translate }}" [width]="90"></dxi-column>
+          <dxi-column dataField="requestedQuantity" caption="{{ 'PURCHASE_REQUISITION.REQUESTED_QTY' | translate }}" dataType="number" [width]="110"></dxi-column>
+          <dxi-column dataField="quotedQuantity" caption="{{ 'PURCHASE_REQUISITION.QUOTED_QTY' | translate }}" dataType="number" [width]="110"></dxi-column>
+          <dxi-column dataField="remainingQuantity" caption="{{ 'PURCHASE_REQUISITION.REMAINING_QTY' | translate }}" dataType="number" [width]="110"></dxi-column>
+          <dxi-column dataField="standardBasePrice" caption="{{ 'PURCHASE_REQUISITION.STANDARD_BASE_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
+        </dx-data-grid>
+      </div>
+
+      <div class="doc-total-row mb-3">
+        <span class="total-label">{{ 'PURCHASE_REQUISITION.TOTAL_AMOUNT' | translate }}</span>
+        <span class="total-value">{{ grandTotal | currency }}</span>
+      </div>
+
+      <div class="row g-3 mb-4" *ngIf="requisition.notes">
+        <div class="col-12 info-field">
+          <span class="info-label">{{ 'PURCHASE_REQUISITION.NOTES' | translate }}</span>
+          <span class="info-value">{{ requisition.notes }}</span>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+        <button mat-raised-button color="primary" type="button" class="action-btn"
+          *ngIf="requisition.status === 'Draft'" (click)="onEdit()">
+          <mat-icon class="me-1">edit</mat-icon>
+          {{ 'COMMON.EDIT' | translate }}
+        </button>
+        <button mat-raised-button color="primary" type="button" class="action-btn"
+          *ngIf="requisition.status === 'Draft'" (click)="onSubmit()">
+          <mat-icon class="me-1">upload</mat-icon>
+          {{ 'PURCHASE_REQUISITION.SUBMIT' | translate }}
+        </button>
+        <button mat-raised-button color="primary" type="button" class="action-btn"
+          *ngIf="requisition.status === 'PendingApproval'" (click)="onApprove()">
+          <mat-icon class="me-1">check</mat-icon>
+          {{ 'PURCHASE_REQUISITION.APPROVE' | translate }}
+        </button>
+        <button mat-stroked-button color="warn" type="button" class="action-btn"
+          *ngIf="requisition.status === 'PendingApproval'" (click)="onReject()">
+          <mat-icon class="me-1">close</mat-icon>
+          {{ 'PURCHASE_REQUISITION.REJECT' | translate }}
+        </button>
+        <button mat-stroked-button type="button" class="action-btn" (click)="onBack()">
+          {{ 'COMMON.BACK' | translate }}
+        </button>
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+</div>

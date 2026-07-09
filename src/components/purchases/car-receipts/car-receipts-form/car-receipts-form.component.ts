@@ -15,9 +15,27 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { PurchaseCycleService } from '../../../../services/purchase-cycle.service';
 import { NotificationService } from '../../../../services/notification.service';
-import { PoDto } from '../../../../models/purchase-order.model';
 import { CarReceipt, CarReceiptUnit, CreateCarReceiptDto } from '../../../../models/car-receipt.model';
 import { VinManagementDialogComponent, VinEntry } from '../../vin-management-dialog/vin-management-dialog.component';
+import { Car } from '../../../../models/car.model';
+
+/**
+ * This screen targets the legacy, car-based Purchase Order shape and predates the
+ * item-description-based PoDto used by the current procurement lineage (see
+ * purchase-order.model.ts). It is no longer linked from the menu -- kept compiling
+ * standalone via this local type rather than the shared (and now incompatible) PoDto.
+ */
+interface LegacyPoItemDto {
+  carId: number;
+  car?: Car;
+  quantity: number;
+  unitPrice: number;
+}
+interface LegacyPoDto {
+  id: number;
+  supplierId: number;
+  items: LegacyPoItemDto[];
+}
 
 interface ReceiptLineItem {
   carId: number;
@@ -59,8 +77,8 @@ export class CarReceiptsFormComponent implements OnInit {
   receiptForm!: FormGroup;
 
   /** Open or PartiallyReceived POs -- the only eligible dropdown source. Fully-received POs never appear. */
-  openPurchaseOrders: PoDto[] = [];
-  selectedPo: PoDto | null = null;
+  openPurchaseOrders: LegacyPoDto[] = [];
+  selectedPo: LegacyPoDto | null = null;
   private existingReceipts: CarReceipt[] = [];
 
   receiptItems: ReceiptLineItem[] = [];
@@ -105,7 +123,7 @@ export class CarReceiptsFormComponent implements OnInit {
   loadOpenPurchaseOrders(): void {
     this.purchaseCycleService.getOpenPurchaseOrders().subscribe({
       next: (orders: any) => {
-        this.openPurchaseOrders = Array.isArray(orders) ? orders : (orders?.data ?? []);
+        this.openPurchaseOrders = (Array.isArray(orders) ? orders : (orders?.data ?? [])) as unknown as LegacyPoDto[];
       },
       error: (err) => console.error('Error loading purchase orders', err)
     });
@@ -128,7 +146,8 @@ export class CarReceiptsFormComponent implements OnInit {
     if (!poId) return;
 
     this.purchaseCycleService.getPurchaseOrder(poId).subscribe({
-      next: (po) => {
+      next: (poResponse) => {
+        const po = poResponse as unknown as LegacyPoDto;
         this.selectedPo = po;
         this.receiptForm.patchValue({ supplierId: po.supplierId }, { emitEvent: false });
         this.buildItemsFromPo(po);
@@ -140,7 +159,7 @@ export class CarReceiptsFormComponent implements OnInit {
     });
   }
 
-  private buildItemsFromPo(po: PoDto): void {
+  private buildItemsFromPo(po: LegacyPoDto): void {
     const receivedMap = this.computeReceivedQtyMap(po.id);
     this.receiptItems = (po.items || []).map(item => {
       const alreadyReceived = receivedMap.get(item.carId) ?? 0;
