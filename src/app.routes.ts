@@ -123,6 +123,7 @@ import { SupplierRfqFormComponent } from './components/purchases/supplier-rfq-fo
 import { PurchaseRequisitionListComponent } from './components/purchases/purchase-requisition-list/purchase-requisition-list.component';
 import { PurchaseRequisitionFormComponent } from './components/purchases/purchase-requisition-form/purchase-requisition-form.component';
 import { PurchaseRequisitionViewComponent } from './components/purchases/purchase-requisition-view/purchase-requisition-view.component';
+import { PurchaseRequisitionApprovalListComponent } from './components/purchases/purchase-requisition-approval-list/purchase-requisition-approval-list.component';
 import { CarsReceiptNoteListComponent } from './components/purchases/cars-receipt-note-list/cars-receipt-note-list.component';
 import { CarsReceiptNoteFormComponent } from './components/purchases/cars-receipt-note-form/cars-receipt-note-form.component';
 import { RetailQuotationContainerComponent } from './components/sales/retail/retail-quotation-container/retail-quotation-container.component';
@@ -253,6 +254,7 @@ export const APP_ROUTES: Routes = [
   { path: 'purchases/requisitions/new', component: PurchaseRequisitionFormComponent },
   { path: 'purchases/requisitions/edit/:id', component: PurchaseRequisitionFormComponent },
   { path: 'purchases/requisitions/view/:id', component: PurchaseRequisitionViewComponent },
+  { path: 'purchases/requisition-approvals', component: PurchaseRequisitionApprovalListComponent },
   { path: 'purchases/receipt-notes', component: CarsReceiptNoteListComponent },
   { path: 'purchases/receipt-notes/new', component: CarsReceiptNoteFormComponent },
   { path: 'purchases/receipt-notes/view/:id', component: CarsReceiptNoteFormComponent },

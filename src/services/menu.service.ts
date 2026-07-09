@@ -109,16 +109,16 @@ export const menuData = [
     name: 'المشتريات',
     englishName: 'Purchases',
     submenu: [
+      { id: 603, name: 'طلبات الشراء', englishName: 'Purchase Requisitions', route: '/purchases/requisitions' },
+      { id: 606, name: 'اعتماد طلبات الشراء', englishName: 'Purchase Requisition Approvals', route: '/purchases/requisition-approvals' },
       { id: 600, name: 'طلبات أسعار الموردين', englishName: 'Requests for Quotation (RFQ)', route: '/purchases/requests' },
       { id: 602, name: 'اعتماد عروض الأسعار', englishName: 'Supplier Quote Approval', route: '/purchases/offers' },
-      { id: 603, name: 'طلبات الشراء', englishName: 'Purchase Requisitions', route: '/purchases/requisitions' },
       { id: 604, name: 'أوامر الشراء', englishName: 'Purchase Orders', route: '/purchases/orders' },
-      { id: 605, name: 'عروض أسعار الموردين (RFQ)', englishName: 'Supplier RFQs', route: '/purchases/supplier-quotations' },
       { id: 62, name: 'استلام السيارات (GRN)', englishName: 'Car Receipt Notes (GRN)', route: '/purchases/receipt-notes' },
       { id: 64, name: 'فواتير المشتريات النقدية', englishName: 'Cash Purchase Invoices', route: '/purchases/invoice/cash' },
-      { id: 65, name: 'فواتير المشتريات الاجلة', englishName: 'Credit Purchase Invoices', route: '/purchases/invoice/credit' },
+      { id: 65, name: 'فواتير المشتريات الآجلة', englishName: 'Credit Purchase Invoices', route: '/purchases/invoice/credit' },
       { id: 66, name: 'مرتجعات المشتريات النقدية', englishName: 'Cash Purchase Returns', route: '/purchases/return/cash' },
-      { id: 67, name: 'مرتجعات المشتريات الاجلة', englishName: 'Credit Purchase Returns', route: '/purchases/return/credit' }
+      { id: 67, name: 'مرتجعات المشتريات الآجلة', englishName: 'Credit Purchase Returns', route: '/purchases/return/credit' }
     ]
   },
   {

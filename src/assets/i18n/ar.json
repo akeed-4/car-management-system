@@ -326,6 +326,7 @@
   },
   "PURCHASE_REQUISITION": {
     "LIST_TITLE": "طلبات الشراء",
+    "APPROVAL_LIST_TITLE": "اعتماد طلبات الشراء",
     "CREATE_TITLE": "طلب شراء جديد",
     "EDIT_TITLE": "تعديل طلب الشراء",
     "MODULE_NAME": "طلبات الشراء",

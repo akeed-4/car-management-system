@@ -323,6 +323,7 @@
   },
   "PURCHASE_REQUISITION": {
     "LIST_TITLE": "Purchase Requisitions",
+    "APPROVAL_LIST_TITLE": "Purchase Requisition Approvals",
     "CREATE_TITLE": "New Purchase Requisition",
     "EDIT_TITLE": "Edit Purchase Requisition",
     "MODULE_NAME": "Purchase Requisitions",
