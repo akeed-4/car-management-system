@@ -1,3 +1,4 @@
+/** @deprecated kept only so CorporateOrderManagerComponent (not yet redesigned) keeps compiling; the backend has no corresponding endpoint. */
 export interface CorporateClient {
   id: number;
   companyName: string;
@@ -6,37 +7,40 @@ export interface CorporateClient {
   currentOutstandingBalance: number;
 }
 
-export interface FleetItem {
-  carModelId: number;
-  carModelDescription?: string;
-  quantity: number;
+export interface CorporateQuotationLine {
+  id?: number;
+  carId: number;
+  vin?: string;
+  carDescription?: string;
   unitPrice: number;
-  discountRate: number; // percentage 0-100
-  lineTotal: number;
+  discountedPrice: number;
 }
 
-export type CorporateQuotationStatus = 'Draft' | 'Submitted' | 'Accepted' | 'Rejected';
+export type CorporateQuotationStatus = 'Draft' | 'Approved' | 'Converted' | 'Rejected' | 'Expired';
 
 export interface CorporateQuotation {
   id?: number;
   quotationNumber?: string;
   quotationDate: string;
-  clientId: number;
-  clientName?: string;
-  items: FleetItem[];
-  subTotal: number;
-  totalDiscount: number;
+  expiryDate?: string;
+  contactPerson?: string;
+  paymentTerms?: string;
+  customerId: number;
+  customerName?: string;
+  volumeDiscountPercent: number;
   totalAmount: number;
   status: CorporateQuotationStatus;
   notes?: string;
+  lines: CorporateQuotationLine[];
 }
 
 export interface CreateCorporateQuotationDto {
-  quotationDate: string;
-  clientId: number;
-  items: FleetItem[];
-  subTotal: number;
-  totalDiscount: number;
-  totalAmount: number;
+  customerId: number;
+  expiryDate?: string;
+  contactPerson?: string;
+  paymentTerms?: string;
+  volumeDiscountPercent: number;
+  lines: { carId: number; unitPrice?: number }[];
   notes?: string;
+  userId: number;
 }

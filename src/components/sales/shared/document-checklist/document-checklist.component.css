@@ -1,0 +1,16 @@
+.document-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.checklist-item {
+  font-size: 0.88rem;
+}
+
+.no-items {
+  color: var(--color-gray-400, #9ca3af);
+  font-size: 0.82rem;
+  font-style: italic;
+  margin: 0;
+}

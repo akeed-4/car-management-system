@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { SalesInvoiceFormComponent } from '../sales-invoice-form/sales-invoice-form.component';
+import { SalesChannel } from '../../../models/enums/sales-channel.enum';
+import { SaleType } from '../../../models/sales-enhancements.model';
 
 @Component({
   selector: 'app-bank-invoice-form',
@@ -9,4 +11,7 @@ import { SalesInvoiceFormComponent } from '../sales-invoice-form/sales-invoice-f
   styleUrls: ['./bank-invoice-form.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BankInvoiceFormComponent {}
+export class BankInvoiceFormComponent {
+  SalesChannel = SalesChannel;
+  SaleType = SaleType;
+}

@@ -1,23 +1,33 @@
-export type ContractTerm = 'Net 30' | 'Net 60';
-
-export interface POReferenceData {
-  purchaseOrderReference: string;
-  contractTerm: ContractTerm;
+export interface CorporateOrderLine {
+  id?: number;
+  carId: number;
+  vin?: string;
+  unitPrice: number;
+  totalPrice: number;
 }
 
 export interface CorporateOrder {
   id?: number;
-  orderNumber?: string;
-  quotationId: number;
-  clientId: number;
-  purchaseOrderReference: string;
-  contractTerm: ContractTerm;
+  customerId: number;
+  customerName?: string;
+  orderDate: string;
+  status?: string;
   totalAmount: number;
-  status?: 'Draft' | 'PendingApproval' | 'Approved' | 'Rejected';
+  customerPoReference: string;
+  paymentTerms: string;
+  expectedDeliveryDate?: string;
+  salesRepresentative?: string;
+  notes?: string;
+  corporateQuotationId?: number;
+  lines: CorporateOrderLine[];
 }
 
 export interface CreateCorporateOrderDto {
-  quotationId: number;
-  purchaseOrderReference: string;
-  contractTerm: ContractTerm;
+  corporateQuotationId: number;
+  customerPoReference: string;
+  paymentTerms: string;
+  expectedDeliveryDate?: string;
+  salesRepresentative?: string;
+  notes?: string;
+  userId: number;
 }

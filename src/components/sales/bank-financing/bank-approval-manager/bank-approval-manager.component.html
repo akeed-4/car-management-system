@@ -1,22 +1,179 @@
-<mat-card class="bank-approval-manager">
-  <mat-card-header>
-    <mat-card-title>{{ 'BANK_FINANCING.APPROVAL_VERIFICATION' | translate }}</mat-card-title>
-  </mat-card-header>
+<div class="container">
+  <div class="page-header">
+    <h2>{{ 'BANK_FINANCING.APPROVAL_TITLE' | translate }}</h2>
+    <a routerLink="/sales" class="back-link">
+      <button mat-icon-button>
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <span>{{ 'INVOICE.BACK_TO_SALES' | translate }}</span>
+    </a>
+  </div>
 
-  <mat-card-content class="content">
-    <app-pending-bank-quotes-dropdown (quotationSelected)="onQuotationSelected($event)"></app-pending-bank-quotes-dropdown>
+  <form [formGroup]="approvalForm">
+    <div class="invoice-workspace">
+      <div class="workspace-main">
 
-    <ng-container *ngIf="selectedQuotation">
-      <app-lpo-verification-form
-        [vehiclePrice]="selectedQuotation.vehiclePrice"
-        (lpoDataChange)="onLpoDataChange($event)">
-      </app-lpo-verification-form>
-    </ng-container>
-  </mat-card-content>
+        <mat-card class="doc-card">
+          <section class="form-section">
+            <h3 class="form-section-title">{{ 'BANK_FINANCING.PENDING_QUOTATION' | translate }}</h3>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'BANK_FINANCING.SELECT_QUOTATION' | translate }}</mat-label>
+              <mat-select formControlName="bankQuotationId" required>
+                <mat-option [value]="null" disabled>{{ 'BANK_FINANCING.SELECT_QUOTATION' | translate }}</mat-option>
+                <mat-option *ngFor="let q of pendingQuotations()" [value]="q.id">
+                  {{ q.quotationNumber }} — {{ q.endUserName }} ({{ q.carDescription }})
+                </mat-option>
+              </mat-select>
+              <mat-hint *ngIf="pendingQuotations().length === 0">{{ 'BANK_FINANCING.NO_PENDING_QUOTATIONS' | translate }}</mat-hint>
+            </mat-form-field>
+          </section>
+        </mat-card>
 
-  <mat-card-actions>
-    <button mat-raised-button color="primary" [disabled]="!isFormValid || submitting" (click)="onSubmit()">
-      {{ 'BANK_FINANCING.CONFIRM_APPROVAL' | translate }}
-    </button>
-  </mat-card-actions>
-</mat-card>
+        <mat-card class="doc-card" *ngIf="selectedQuotation() as quotation">
+          <section class="form-section">
+            <h3 class="form-section-title">{{ 'CORPORATE.QUOTATION_DETAILS' | translate }}</h3>
+            <ng-container *ngIf="cardLayout3 | async as layout">
+              <mat-grid-list [cols]="layout.columns" rowHeight="76" gutterSize="16px">
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <div class="readonly-field">
+                    <span class="readonly-label">{{ 'BANK_FINANCING.END_USER_NAME' | translate }}</span>
+                    <span class="readonly-value">{{ quotation.endUserName }}</span>
+                  </div>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <div class="readonly-field">
+                    <span class="readonly-label">{{ 'BANK_FINANCING.END_USER_MOBILE' | translate }}</span>
+                    <span class="readonly-value">{{ quotation.endUserMobile }}</span>
+                  </div>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <div class="readonly-field">
+                    <span class="readonly-label">{{ 'BANK_FINANCING.END_USER_NATIONAL_ID' | translate }}</span>
+                    <span class="readonly-value">{{ quotation.endUserNationalId }}</span>
+                  </div>
+                </mat-grid-tile>
+              </mat-grid-list>
+            </ng-container>
+            <ng-container *ngIf="cardLayout3 | async as layout">
+              <mat-grid-list [cols]="layout.columns" rowHeight="76" gutterSize="16px">
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <div class="readonly-field">
+                    <span class="readonly-label">{{ 'BANK_FINANCING.BANK' | translate }}</span>
+                    <span class="readonly-value">{{ quotation.bankName }}</span>
+                  </div>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <div class="readonly-field">
+                    <span class="readonly-label">{{ 'BANK_FINANCING.FINANCED_VEHICLE' | translate }}</span>
+                    <span class="readonly-value">{{ quotation.carDescription }} ({{ quotation.vin }})</span>
+                  </div>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <div class="readonly-field">
+                    <span class="readonly-label">{{ 'BANK_FINANCING.STATUS' | translate }}</span>
+                    <mat-chip-set>
+                      <mat-chip>{{ quotation.status }}</mat-chip>
+                    </mat-chip-set>
+                  </div>
+                </mat-grid-tile>
+              </mat-grid-list>
+            </ng-container>
+          </section>
+        </mat-card>
+
+        <mat-card class="doc-card" *ngIf="selectedQuotation()">
+          <section class="form-section">
+            <h3 class="form-section-title">{{ 'BANK_FINANCING.FINANCING_SUMMARY' | translate }}</h3>
+            <ng-container *ngIf="cardLayout3 | async as layout">
+              <mat-grid-list [cols]="layout.columns" rowHeight="88" gutterSize="16px">
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'BANK_FINANCING.LPO_REFERENCE' | translate }}</mat-label>
+                    <input matInput formControlName="bankLpoReference" required>
+                  </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'BANK_FINANCING.APPROVED_FINANCING_AMOUNT' | translate }}</mat-label>
+                    <input matInput type="number" formControlName="approvedFinancingAmount" required>
+                  </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'BANK_FINANCING.DOWN_PAYMENT' | translate }}</mat-label>
+                    <input matInput type="number" formControlName="downPayment">
+                  </mat-form-field>
+                </mat-grid-tile>
+              </mat-grid-list>
+            </ng-container>
+            <ng-container *ngIf="cardLayout3 | async as layout">
+              <mat-grid-list [cols]="layout.columns" rowHeight="88" gutterSize="16px">
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'BANK_FINANCING.INSTALLMENT_COUNT' | translate }}</mat-label>
+                    <input matInput type="number" formControlName="installmentCount">
+                  </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'BANK_FINANCING.INSTALLMENT_TERM_MONTHS' | translate }}</mat-label>
+                    <input matInput type="number" formControlName="installmentTermMonths">
+                  </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'BANK_FINANCING.LOCK_EXPIRES_AT' | translate }}</mat-label>
+                    <input matInput [matDatepicker]="expiryPicker" formControlName="newLockExpiresAt" required>
+                    <mat-datepicker-toggle matSuffix [for]="expiryPicker"></mat-datepicker-toggle>
+                    <mat-datepicker #expiryPicker></mat-datepicker>
+                  </mat-form-field>
+                </mat-grid-tile>
+              </mat-grid-list>
+            </ng-container>
+
+            <mat-form-field appearance="outline" class="full-width notes-field">
+              <mat-label>{{ 'BANK_FINANCING.APPROVAL_NOTES' | translate }}</mat-label>
+              <textarea matInput rows="3" formControlName="approvalNotes"></textarea>
+            </mat-form-field>
+          </section>
+        </mat-card>
+
+        <mat-card class="doc-card" *ngIf="selectedQuotation() as quotation">
+          <section class="form-section">
+            <app-attachment-uploader documentType="BankQuotation" [documentId]="quotation.id"></app-attachment-uploader>
+          </section>
+        </mat-card>
+
+      </div>
+
+      <aside class="workspace-sidebar">
+        <mat-card class="summary-card">
+          <mat-card-title>{{ 'BANK_FINANCING.FINANCING_SUMMARY' | translate }}</mat-card-title>
+          <mat-card-content>
+            <div class="summary-item">
+              <p>{{ 'BANK_FINANCING.APPROVED_FINANCING_AMOUNT' | translate }}</p>
+              <p class="font-mono">{{ financedAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
+            </div>
+            <div class="summary-item">
+              <p>{{ 'BANK_FINANCING.DOWN_PAYMENT' | translate }}</p>
+              <p class="font-mono">- {{ downPaymentValue() | currency:'SAR':'symbol':'1.0-0' }}</p>
+            </div>
+            <hr>
+            <div class="summary-item total">
+              <p>{{ 'CORPORATE.NET_TOTAL' | translate }}</p>
+              <p class="font-mono">{{ netFinanced() | currency:'SAR':'symbol':'1.0-0' }}</p>
+            </div>
+          </mat-card-content>
+
+          <div class="form-actions">
+            <button mat-raised-button color="primary" class="save-btn" (click)="onSubmit()" [disabled]="!isFormValid || submitting()">
+              <mat-icon>save</mat-icon>
+              {{ 'BANK_FINANCING.RECORD_APPROVAL' | translate }}
+            </button>
+            <a routerLink="/sales" mat-button class="cancel-btn">{{ 'INVOICE.CANCEL' | translate }}</a>
+          </div>
+        </mat-card>
+      </aside>
+    </div>
+  </form>
+</div>

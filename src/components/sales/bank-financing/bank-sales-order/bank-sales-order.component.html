@@ -1,0 +1,107 @@
+<div class="container">
+  <div class="page-header">
+    <h2>{{ 'BANK_FINANCING.ORDER_TITLE' | translate }}</h2>
+    <a routerLink="/sales" class="back-link">
+      <button mat-icon-button>
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <span>{{ 'INVOICE.BACK_TO_SALES' | translate }}</span>
+    </a>
+  </div>
+
+  <div *ngIf="!approval() && !loading()" class="empty-state">
+    {{ 'BANK_FINANCING.APPROVAL_REQUIRED' | translate }}
+  </div>
+
+  <div class="invoice-workspace" *ngIf="approval() as a">
+    <div class="workspace-main">
+
+      <mat-card class="doc-card">
+        <section class="form-section">
+          <h3 class="form-section-title">{{ 'CORPORATE.QUOTATION_DETAILS' | translate }}</h3>
+          <ng-container *ngIf="cardLayout3 | async as layout">
+            <mat-grid-list [cols]="layout.columns" rowHeight="76" gutterSize="16px">
+              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                <div class="readonly-field">
+                  <span class="readonly-label">{{ 'BANK_FINANCING.END_USER_NAME' | translate }}</span>
+                  <span class="readonly-value">{{ a.endUserName }}</span>
+                </div>
+              </mat-grid-tile>
+              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                <div class="readonly-field">
+                  <span class="readonly-label">{{ 'BANK_FINANCING.BANK' | translate }}</span>
+                  <span class="readonly-value">{{ a.bankName }}</span>
+                </div>
+              </mat-grid-tile>
+              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                <div class="readonly-field">
+                  <span class="readonly-label">{{ 'BANK_FINANCING.STATUS' | translate }}</span>
+                  <mat-chip-set>
+                    <mat-chip [class.status-approved]="isApproved">{{ a.status }}</mat-chip>
+                  </mat-chip-set>
+                </div>
+              </mat-grid-tile>
+            </mat-grid-list>
+          </ng-container>
+        </section>
+      </mat-card>
+
+      <mat-card class="doc-card lines-card">
+        <div class="section-header">
+          <h3 class="form-section-title">{{ 'BANK_FINANCING.FINANCED_VEHICLE' | translate }}</h3>
+        </div>
+        <div class="table-container premium-table">
+          <dx-data-grid
+            [dataSource]="vehicleLines()"
+            [showBorders]="true"
+            [columnAutoWidth]="true"
+            [rtlEnabled]="true"
+            [height]="140"
+          >
+            <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}"></dxi-column>
+            <dxi-column dataField="vin" caption="VIN"></dxi-column>
+            <dxi-column dataField="vehiclePrice" caption="{{ 'BANK_FINANCING.VEHICLE_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
+          </dx-data-grid>
+        </div>
+      </mat-card>
+
+    </div>
+
+    <aside class="workspace-sidebar">
+      <mat-card class="summary-card">
+        <mat-card-title>{{ 'BANK_FINANCING.FINANCING_SUMMARY' | translate }}</mat-card-title>
+        <mat-card-content>
+          <div class="summary-item">
+            <p>{{ 'BANK_FINANCING.LPO_REFERENCE' | translate }}</p>
+            <p class="font-mono">{{ a.bankLpoReference }}</p>
+          </div>
+          <div class="summary-item">
+            <p>{{ 'BANK_FINANCING.APPROVED_FINANCING_AMOUNT' | translate }}</p>
+            <p class="font-mono">{{ financedAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
+          </div>
+          <div class="summary-item">
+            <p>{{ 'BANK_FINANCING.DOWN_PAYMENT' | translate }}</p>
+            <p class="font-mono">- {{ downPayment() | currency:'SAR':'symbol':'1.0-0' }}</p>
+          </div>
+          <div class="summary-item" *ngIf="a.installmentCount">
+            <p>{{ 'BANK_FINANCING.INSTALLMENT_COUNT' | translate }}</p>
+            <p class="font-mono">{{ a.installmentCount }}</p>
+          </div>
+          <hr>
+          <div class="summary-item total">
+            <p>{{ 'CORPORATE.NET_TOTAL' | translate }}</p>
+            <p class="font-mono">{{ netFinanced() | currency:'SAR':'symbol':'1.0-0' }}</p>
+          </div>
+        </mat-card-content>
+
+        <div class="form-actions">
+          <button mat-raised-button color="primary" class="save-btn" (click)="proceedToInvoice()" [disabled]="!isApproved">
+            <mat-icon>arrow_forward</mat-icon>
+            {{ 'BANK_FINANCING.PROCEED_TO_INVOICE' | translate }}
+          </button>
+          <a routerLink="/sales" mat-button class="cancel-btn">{{ 'INVOICE.CANCEL' | translate }}</a>
+        </div>
+      </mat-card>
+    </aside>
+  </div>
+</div>

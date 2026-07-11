@@ -2,9 +2,18 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
-import { CorporateClient, CorporateQuotation, CreateCorporateQuotationDto } from '../models/corporate/corporate-quotation.model';
+import { CorporateQuotation, CreateCorporateQuotationDto } from '../models/corporate/corporate-quotation.model';
 import { CorporateOrder, CreateCorporateOrderDto } from '../models/corporate/corporate-order.model';
-import { CorporateBatchDispatch, OrderFulfillmentProgress, ProcessBatchDto, RemainingVinCandidate } from '../models/corporate/corporate-dispatch.model';
+import { CorporateBatchResult, OrderFulfillmentProgress, ProcessBatchDto, RemainingVinCandidate } from '../models/corporate/corporate-dispatch.model';
+
+export interface CreditSummary {
+  isApproved: boolean;
+  creditLimit: number;
+  outstandingBalance: number;
+  availableCredit: number;
+  requestedAmount: number;
+  message: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -16,14 +25,6 @@ export class CorporateFleetService {
 
   // ==================== Quotations ====================
 
-  getCorporateClients(): Observable<CorporateClient[]> {
-    return this.http.get<CorporateClient[]>(`${this.baseUrl}/clients`);
-  }
-
-  getCorporateClientById(clientId: number): Observable<CorporateClient> {
-    return this.http.get<CorporateClient>(`${this.baseUrl}/clients/${clientId}`);
-  }
-
   createQuotation(dto: CreateCorporateQuotationDto): Observable<CorporateQuotation> {
     return this.http.post<CorporateQuotation>(`${this.baseUrl}/quotations`, dto);
   }
@@ -34,8 +35,12 @@ export class CorporateFleetService {
 
   getSubmittedQuotations(): Observable<CorporateQuotation[]> {
     return this.http.get<CorporateQuotation[]>(`${this.baseUrl}/quotations`, {
-      params: { status: 'Submitted' }
+      params: { status: 'Approved' }
     });
+  }
+
+  getCreditSummary(customerId: number): Observable<CreditSummary> {
+    return this.http.get<CreditSummary>(`${this.baseUrl}/customers/${customerId}/credit-summary`);
   }
 
   // ==================== Orders ====================
@@ -60,7 +65,7 @@ export class CorporateFleetService {
     return this.http.get<RemainingVinCandidate[]>(`${this.baseUrl}/orders/${orderId}/remaining-vins`);
   }
 
-  processBatch(dto: ProcessBatchDto): Observable<CorporateBatchDispatch> {
-    return this.http.post<CorporateBatchDispatch>(`${this.baseUrl}/process-batch`, dto);
+  processBatch(dto: ProcessBatchDto): Observable<CorporateBatchResult> {
+    return this.http.post<CorporateBatchResult>(`${this.baseUrl}/process-batch`, dto);
   }
 }

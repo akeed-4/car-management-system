@@ -1,20 +1,171 @@
-<mat-card class="corporate-fleet-dispatcher">
-  <mat-card-header>
-    <mat-card-title>{{ 'CORPORATE.INVOICING_MULTI_DELIVERY' | translate }}</mat-card-title>
-  </mat-card-header>
+<div class="container">
+  <div class="page-header">
+    <h2>{{ 'CORPORATE.DELIVERY_TITLE' | translate }}</h2>
+    <a routerLink="/sales" class="back-link">
+      <button mat-icon-button>
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <span>{{ 'INVOICE.BACK_TO_SALES' | translate }}</span>
+    </a>
+  </div>
 
-  <mat-card-content class="content">
-    <div *ngIf="loading">{{ 'RETAIL.LOADING' | translate }}</div>
-    <div *ngIf="!loading && !orderId">{{ 'CORPORATE.NO_ORDER_SELECTED' | translate }}</div>
+  <div *ngIf="!orderId" class="empty-state">
+    {{ 'CORPORATE.APPROVAL_REQUIRED' | translate }}
+  </div>
 
-    <app-order-fulfillment-summary [progress]="progress"></app-order-fulfillment-summary>
+  <div class="invoice-workspace" *ngIf="orderId">
+    <div class="workspace-main">
 
-    <app-vin-batch-selector [candidates]="remainingVins" (selectionChange)="onSelectionChange($event)"></app-vin-batch-selector>
-  </mat-card-content>
+      <mat-card class="doc-card" *ngIf="progress() as p">
+        <section class="form-section">
+          <h3 class="form-section-title">{{ 'CORPORATE.FULFILLMENT_PROGRESS' | translate }}</h3>
+          <mat-progress-bar mode="determinate" [value]="(p.totalDelivered / p.totalOrdered) * 100"></mat-progress-bar>
+          <div class="progress-stats">
+            <span>{{ p.totalDelivered }} / {{ p.totalOrdered }} {{ 'CORPORATE.VEHICLE_LINES' | translate }}</span>
+            <span>{{ p.remaining }} {{ 'CORPORATE.REMAINING_VEHICLES' | translate }}</span>
+          </div>
+        </section>
+      </mat-card>
 
-  <mat-card-actions>
-    <button mat-raised-button color="primary" [disabled]="!isFormValid || submitting" (click)="onSubmit()">
-      {{ 'CORPORATE.PROCESS_BATCH' | translate }}
-    </button>
-  </mat-card-actions>
-</mat-card>
+      <mat-card class="doc-card lines-card">
+        <div class="section-header">
+          <h3 class="form-section-title">{{ 'CORPORATE.SELECT_VEHICLES_TO_DISPATCH' | translate }}</h3>
+        </div>
+        <div class="table-container premium-table">
+          <dx-data-grid
+            [dataSource]="remainingVins()"
+            [showBorders]="true"
+            [columnAutoWidth]="true"
+            [rowAlternationEnabled]="true"
+            [rtlEnabled]="true"
+            [noDataText]="'CORPORATE.NO_VEHICLES' | translate"
+            [height]="300"
+            keyExpr="carId"
+            (onSelectionChanged)="onSelectionChanged($event)"
+          >
+            <dxo-selection mode="multiple" showCheckBoxesMode="always"></dxo-selection>
+            <dxi-column dataField="vin" caption="VIN"></dxi-column>
+            <dxi-column dataField="make" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}"></dxi-column>
+            <dxi-column dataField="model" caption="Model"></dxi-column>
+            <dxi-column dataField="year" caption="Year" dataType="number"></dxi-column>
+            <dxi-column dataField="unitPrice" caption="{{ 'INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
+          </dx-data-grid>
+        </div>
+      </mat-card>
+
+      <mat-card class="doc-card">
+        <section class="form-section">
+          <h3 class="form-section-title">{{ 'CORPORATE.RECEIVER_DETAILS' | translate }}</h3>
+          <ng-container *ngIf="cardLayout3 | async as layout">
+            <mat-grid-list [cols]="layout.columns" rowHeight="88" gutterSize="16px">
+              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'CORPORATE.RECEIVER_NAME' | translate }}</mat-label>
+                  <input matInput [(ngModel)]="receiverName" required>
+                </mat-form-field>
+              </mat-grid-tile>
+              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'CORPORATE.RECEIVER_NATIONAL_ID' | translate }}</mat-label>
+                  <input matInput [(ngModel)]="receiverNationalId">
+                </mat-form-field>
+              </mat-grid-tile>
+              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'CORPORATE.RECEIVER_PHONE' | translate }}</mat-label>
+                  <input matInput [(ngModel)]="receiverPhone">
+                </mat-form-field>
+              </mat-grid-tile>
+            </mat-grid-list>
+          </ng-container>
+          <ng-container *ngIf="cardLayout3 | async as layout">
+            <mat-grid-list [cols]="layout.columns" rowHeight="88" gutterSize="16px">
+              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'CORPORATE.DRIVER_NAME' | translate }}</mat-label>
+                  <input matInput [(ngModel)]="driverName">
+                </mat-form-field>
+              </mat-grid-tile>
+              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'INVOICE.DEBIT_ACCOUNT' | translate }}</mat-label>
+                  <mat-select [(ngModel)]="debitAccountId" required>
+                    <mat-option *ngFor="let account of debitAccounts()" [value]="account.id">
+                      {{ account.accountCode }} - {{ account.accountNameAr }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </mat-grid-tile>
+              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'INVOICE.CREDIT_ACCOUNT' | translate }}</mat-label>
+                  <mat-select [(ngModel)]="creditAccountId" required>
+                    <mat-option *ngFor="let account of creditAccounts()" [value]="account.id">
+                      {{ account.accountCode }} - {{ account.accountNameAr }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </mat-grid-tile>
+            </mat-grid-list>
+          </ng-container>
+
+          <mat-form-field appearance="outline" class="full-width notes-field">
+            <mat-label>{{ 'INVOICE.NOTES' | translate }}</mat-label>
+            <textarea matInput rows="2" [(ngModel)]="notes"></textarea>
+          </mat-form-field>
+        </section>
+      </mat-card>
+
+      <div class="checklist-signature-row">
+        <mat-card class="doc-card">
+          <section class="form-section">
+            <h3 class="form-section-title">{{ 'CORPORATE.DELIVERY_CHECKLIST' | translate }}</h3>
+            <app-document-checklist [items]="checklistItems" (itemsChange)="onChecklistChange($event)"></app-document-checklist>
+          </section>
+        </mat-card>
+
+        <mat-card class="doc-card">
+          <section class="form-section">
+            <app-signature-pad label="CORPORATE.RECEIVER_NAME" (signatureChange)="onSignatureChange($event)"></app-signature-pad>
+          </section>
+        </mat-card>
+      </div>
+
+      <mat-card class="doc-card">
+        <section class="form-section">
+          <app-attachment-uploader documentType="DeliveryNote" [documentId]="null"></app-attachment-uploader>
+        </section>
+      </mat-card>
+
+    </div>
+
+    <aside class="workspace-sidebar">
+      <mat-card class="summary-card">
+        <mat-card-title>{{ 'CORPORATE.TOTAL_VALUE' | translate }}</mat-card-title>
+        <mat-card-content>
+          <div class="summary-item">
+            <p>{{ 'INVOICE.SUBTOTAL' | translate }}</p>
+            <p class="font-mono">{{ subtotal() | currency:'SAR':'symbol':'1.0-0' }}</p>
+          </div>
+          <div class="summary-item">
+            <p>{{ 'INVOICE.VAT' | translate }}</p>
+            <p class="font-mono">+ {{ vatAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
+          </div>
+          <hr>
+          <div class="summary-item total">
+            <p>{{ 'INVOICE.TOTAL' | translate }}</p>
+            <p class="font-mono">{{ grandTotal() | currency:'SAR':'symbol':'1.0-0' }}</p>
+          </div>
+        </mat-card-content>
+
+        <div class="form-actions">
+          <button mat-raised-button color="primary" class="save-btn" (click)="onSubmit()" [disabled]="!isFormValid || submitting()">
+            <mat-icon>local_shipping</mat-icon>
+            {{ 'CORPORATE.CONFIRM_DELIVERY' | translate }}
+          </button>
+          <a routerLink="/sales" mat-button class="cancel-btn">{{ 'INVOICE.CANCEL' | translate }}</a>
+        </div>
+      </mat-card>
+    </aside>
+  </div>
+</div>

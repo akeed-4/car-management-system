@@ -5,16 +5,8 @@ export interface VehicleSpecs {
   model: string;
   year: number;
   exteriorColor: string;
-  engineNumber: string;
+  engineSize: string;
   transmission: string;
-}
-
-export interface GatePassChecklistData {
-  gatePassSerial: string;
-  keysConfirmed: boolean;
-  spareTireConfirmed: boolean;
-  ownerManualConfirmed: boolean;
-  notes?: string;
 }
 
 export interface RetailDelivery {
@@ -26,12 +18,20 @@ export interface RetailDelivery {
   gatePassSerial: string;
   deliveryDate: string;
   deliveredToName?: string;
+  deliveredToNationalId?: string;
+  deliveredToPhone?: string;
+  driverName?: string;
 }
 
 export interface CreateRetailDeliveryDto {
   salesInvoiceId: number;
   gatePassSerial: string;
   deliveredToName?: string;
+  deliveredToNationalId?: string;
+  deliveredToPhone?: string;
+  driverName?: string;
+  signatureData?: string;
+  checklistJson?: string;
   notes?: string;
   userId: number;
 }

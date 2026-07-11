@@ -1,85 +1,153 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { CommonModule, CurrencyPipe } from '@angular/common';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatIconModule } from '@angular/material/icon';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatDialog } from '@angular/material/dialog';
+import { provideNativeDateAdapter } from '@angular/material/core';
+import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
-import { BankPartnerDropdownComponent } from './bank-partner-dropdown/bank-partner-dropdown.component';
-import { VinLockTableComponent } from './vin-lock-table/vin-lock-table.component';
-import { CustomerInfoFormComponent } from '../../retail/retail-quotation-container/customer-info-form/customer-info-form.component';
 import { BankFinancingService } from '../../../../services/bank-financing.service';
-import { ToastService } from '../../../../services/toast.service';
-import { BankPartner, VinLockCandidate } from '../../../../models/bank-financing/bank-quotation.model';
-import { RetailCustomerInfo } from '../../../../models/retail/retail-quotation.model';
+import { InventoryService } from '../../../../services/inventory.service';
+import { StoreService } from '../../../../services/store.service';
+import { CurrentSettingService } from '../../../../services/current-setting.service';
+import { NotificationService } from '@/src/services/notification.service';
+import { CarSelectionDialogComponent } from '../../car-selection-dialog/car-selection-dialog.component';
+
+const VAT_RATE = 0.15;
 
 @Component({
   selector: 'app-bank-quotation-container',
   standalone: true,
   imports: [
     CommonModule,
+    RouterLink,
+    ReactiveFormsModule,
+    CurrencyPipe,
     MatButtonModule,
     MatCardModule,
-    TranslateModule,
-    CustomerInfoFormComponent,
-    BankPartnerDropdownComponent,
-    VinLockTableComponent
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    MatIconModule,
+    MatGridListModule,
+    DxDataGridModule,
+    TranslateModule
   ],
+  providers: [provideNativeDateAdapter()],
   templateUrl: './bank-quotation-container.component.html',
-  styleUrls: ['./bank-quotation-container.component.css']
+  styleUrls: ['./bank-quotation-container.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BankQuotationContainerComponent {
-  customer: RetailCustomerInfo | null = null;
-  selectedBank: BankPartner | null = null;
-  selectedVin: VinLockCandidate | null = null;
-  submitting = false;
+export class BankQuotationContainerComponent implements OnInit {
+  private bankFinancingService = inject(BankFinancingService);
+  private inventoryService = inject(InventoryService);
+  private storeService = inject(StoreService);
+  private currentSettingService = inject(CurrentSettingService);
+  private notificationService = inject(NotificationService);
+  private dialog = inject(MatDialog);
+  private router = inject(Router);
 
-  constructor(
-    private bankFinancingService: BankFinancingService,
-    private toast: ToastService,
-    private router: Router
-  ) {}
+  banks = signal<{ id: number; name: string }[]>([]);
+  cars = this.inventoryService.cars$;
+  stores = this.storeService.stores$;
 
-  onCustomerChange(customer: RetailCustomerInfo | null): void {
-    this.customer = customer;
+  cardLayout3 = this.currentSettingService.getCardLayout(3);
+
+  submitting = signal(false);
+  selectedVehicle = signal<{ carId: number; carDescription: string; vehiclePrice: number } | null>(null);
+
+  quotationForm!: FormGroup;
+
+  ngOnInit(): void {
+    this.quotationForm = new FormGroup({
+      endUserName: new FormControl('', Validators.required),
+      endUserMobile: new FormControl('', [Validators.required, Validators.pattern(/^[0-9+\s-]{7,15}$/)]),
+      endUserNationalId: new FormControl('', Validators.required),
+      bankId: new FormControl(null, Validators.required),
+      storeId: new FormControl(null, Validators.required),
+      quotationDate: new FormControl(new Date(), Validators.required)
+    });
+
+    this.bankFinancingService.getBankPartners().subscribe({
+      next: banks => this.banks.set(banks),
+      error: () => this.notificationService.showError('BANK_FINANCING.PARTNERS_LOAD_FAILED')
+    });
   }
 
-  onBankSelected(bank: BankPartner | null): void {
-    this.selectedBank = bank;
+  openVehicleDialog(): void {
+    const storeId = this.quotationForm.get('storeId')?.value;
+    const dialogRef = this.dialog.open(CarSelectionDialogComponent, {
+      width: '90vw',
+      maxWidth: '1200px',
+      height: '80vh',
+      data: { storeId }
+    });
+
+    dialogRef.afterClosed().subscribe(selectedCar => {
+      if (!selectedCar) {
+        return;
+      }
+      const car = this.cars().find((c: any) => c.id === selectedCar.carId);
+      this.selectedVehicle.set({
+        carId: selectedCar.carId,
+        carDescription: selectedCar.carDescription || selectedCar.carName,
+        vehiclePrice: car?.salePrice || 0
+      });
+    });
   }
 
-  onVinSelected(vin: VinLockCandidate | null): void {
-    this.selectedVin = vin;
-  }
+  vehicleLines = computed(() => {
+    const vehicle = this.selectedVehicle();
+    return vehicle ? [vehicle] : [];
+  });
+
+  vatAmount = computed(() => (this.selectedVehicle()?.vehiclePrice || 0) * VAT_RATE);
+  grandTotal = computed(() => (this.selectedVehicle()?.vehiclePrice || 0) + this.vatAmount());
 
   get isFormValid(): boolean {
-    return !!this.customer && !!this.selectedBank && !!this.selectedVin;
+    return this.quotationForm.valid && !!this.selectedVehicle();
   }
 
   onSubmit(): void {
-    if (!this.isFormValid || !this.customer || !this.selectedBank || !this.selectedVin) {
+    if (!this.isFormValid) {
+      if (!this.selectedVehicle()) {
+        this.notificationService.showError('BANK_FINANCING.SELECT_VEHICLE_REQUIRED');
+      }
       return;
     }
 
-    this.submitting = true;
+    const raw = this.quotationForm.getRawValue();
+    this.submitting.set(true);
+
     this.bankFinancingService
       .createQuotation({
-        quotationDate: new Date().toISOString().split('T')[0],
-        customer: this.customer,
-        bankId: this.selectedBank.id,
-        carId: this.selectedVin.carId,
-        vehiclePrice: this.selectedVin.salePrice
+        endUserName: raw.endUserName,
+        endUserMobile: raw.endUserMobile,
+        endUserNationalId: raw.endUserNationalId,
+        bankId: raw.bankId,
+        carId: this.selectedVehicle()!.carId,
+        userId: 1
       })
       .subscribe({
         next: quotation => {
-          this.submitting = false;
-          this.toast.showSuccess('BANK_FINANCING.QUOTATION_CREATED');
-          this.router.navigate(['/sales/bank-financing/approvals/new'], {
+          this.submitting.set(false);
+          this.notificationService.showSuccess('BANK_FINANCING.QUOTATION_CREATED');
+          this.router.navigate(['/sales/bank/approvals/new'], {
             queryParams: { quotationId: quotation.id }
           });
         },
         error: () => {
-          this.submitting = false;
-          this.toast.showError('BANK_FINANCING.QUOTATION_CREATE_FAILED');
+          this.submitting.set(false);
+          this.notificationService.showError('BANK_FINANCING.QUOTATION_CREATE_FAILED');
         }
       });
   }

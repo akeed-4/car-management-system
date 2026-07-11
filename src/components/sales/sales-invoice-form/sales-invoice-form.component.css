@@ -1,114 +1,143 @@
+/* ============================================================
+   Sales Invoice -- modern ERP document layout
+   Two-pane workspace: document (header + lines + notes) on the
+   left, an always-visible summary + actions rail on the right.
+   Mirrors the purchase-invoice document layout for visual and
+   interaction consistency across the app.
+   ============================================================ */
+
 .container {
-  max-width: 1400px;
-  margin: 2rem auto;
-  padding: 1rem;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: var(--space-3, 0.75rem) var(--space-6, 1.5rem) var(--space-4, 1rem);
+  font-family: var(--font-family-sans, 'Roboto', sans-serif);
+  color: var(--color-gray-800, #1f2937);
 }
 
+/* --- Page header: flat document title bar --- */
 .page-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1rem;
+  gap: var(--space-4, 1rem);
+  margin-bottom: var(--space-3, 0.75rem);
+  padding-bottom: var(--space-2, 0.5rem);
+  border-bottom: 1px solid var(--color-gray-200, #e5e7eb);
 }
 
 .page-header h2 {
   margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-gray-900, #111827);
+  letter-spacing: -0.01em;
 }
 
 .back-link {
   display: flex;
   align-items: center;
   text-decoration: none;
-  color: inherit;
+  color: var(--color-gray-600, #4b5563);
+  font-weight: 500;
+  font-size: 0.9rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--rounded-md, 6px);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.back-link:hover {
+  background: var(--color-gray-100, #f3f4f6);
+  color: var(--color-primary-700, #1d4ed8);
 }
 
 .back-link mat-icon {
-  margin-right: 0.25rem;
+  margin-right: 0.35rem;
+  font-size: 1.1rem;
+  width: 1.1rem;
+  height: 1.1rem;
 }
 
-/* --- Band 1: Action & Traceability Header Bar --- */
+/* --- Band 1: quotation/order traceability bar --- */
 .trace-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 1rem;
-  padding: 1rem 1.5rem;
-  margin-bottom: 1.5rem;
-  background: #fff;
-  border: 1px solid #e0e0e0;
-  border-left: 4px solid #1976d2;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  gap: var(--space-4, 1rem);
+  padding: 0.6rem var(--space-4, 1rem);
+  margin-bottom: var(--space-3, 0.75rem);
+  background: var(--color-white, #fff);
+  border: 1px solid var(--color-gray-200, #e5e7eb);
+  border-left: 4px solid var(--color-primary-500, #3b82f6);
+  border-radius: var(--rounded-lg, 8px);
+  box-shadow: var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.05));
 }
 
 .trace-bar-selector {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--space-3, 0.75rem);
   flex: 1;
-  min-width: 320px;
+  min-width: 300px;
 }
 
 .trace-bar-icon {
-  color: #1976d2;
+  color: var(--color-primary-500, #3b82f6);
 }
 
 .quotation-select {
   flex: 1;
-  max-width: 460px;
+  max-width: 440px;
   margin-bottom: -1.25em;
 }
 
 .lineage-trail {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  flex-wrap: wrap;
+  gap: var(--space-3, 0.75rem);
 }
 
 .trail-node {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.4rem 0.9rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--rounded-full, 9999px);
+  font-size: 0.82rem;
   font-weight: 600;
 }
 
 .trail-node.source {
-  background: #e8f4fd;
-  color: #0c5aa6;
+  background: var(--color-primary-50, #eff6ff);
+  color: var(--color-primary-700, #1d4ed8);
 }
 
 .trail-node.current {
-  background: #ede7f6;
-  color: #4527a0;
+  background: var(--color-secondary-500, #4f46e5);
+  color: var(--color-white, #fff);
+  opacity: 0.9;
 }
 
-.trail-node mat-icon {
-  font-size: 1.1rem;
-  width: 1.1rem;
-  height: 1.1rem;
+.trail-node mat-icon,
+.trail-arrow,
+.lineage-trail-empty mat-icon {
+  font-size: 1.05rem;
+  width: 1.05rem;
+  height: 1.05rem;
 }
 
 .trail-arrow {
-  color: #9e9e9e;
-  font-size: 1.1rem;
-  width: 1.1rem;
-  height: 1.1rem;
+  color: var(--color-gray-400, #9ca3af);
 }
 
 .lineage-trail-empty {
-  color: #9e9e9e;
-  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-gray-400, #9ca3af);
+  font-size: 0.82rem;
   font-style: italic;
-}
-
-.lineage-trail-empty mat-icon {
-  font-size: 1.1rem;
-  width: 1.1rem;
-  height: 1.1rem;
 }
 
 @media (max-width: 900px) {
@@ -118,380 +147,349 @@
   }
 }
 
-mat-card {
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+/* --- Two-pane workspace --- */
+.invoice-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: var(--space-4, 1rem);
+  align-items: start;
+}
+
+.workspace-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 1rem);
+  min-width: 0;
+}
+
+/* Line items grid + Notes share one row instead of stacking, so Notes doesn't push the page taller. */
+.lines-row {
+  display: flex;
+  gap: var(--space-4, 1rem);
+  align-items: stretch;
+}
+
+.lines-row .lines-card {
+  flex: 1;
+  min-width: 0;
+}
+
+.notes-card {
+  flex: 0 0 260px;
+  display: flex;
+}
+
+.notes-card .form-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.notes-card .full-width {
+  flex: 1;
+  display: flex;
+}
+
+.notes-card ::ng-deep .mat-mdc-form-field-flex,
+.notes-card ::ng-deep .mat-mdc-text-field-wrapper {
+  height: 100%;
+}
+
+.notes-card ::ng-deep textarea.mat-mdc-input-element {
+  height: 100% !important;
+  resize: none;
+}
+
+.workspace-sidebar {
+  position: sticky;
+  top: var(--space-4, 1rem);
+  align-self: start;
+}
+
+/* --- Document cards --- */
+.doc-card {
+  padding: var(--space-4, 1rem) !important;
+  border-radius: var(--rounded-lg, 8px) !important;
+  box-shadow: var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.05)) !important;
+  background: var(--color-white, #fff) !important;
+  border: 1px solid var(--color-gray-200, #e5e7eb) !important;
 }
 
 .form-section {
-  margin-bottom: 2rem;
-  padding: 1.5rem;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border-left: 4px solid #1976d2;
+  margin-bottom: 0;
+}
+
+.form-section + .form-section {
+  margin-top: var(--space-3, 0.75rem);
+  padding-top: var(--space-3, 0.75rem);
 }
 
 .form-section-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: #1976d2;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.form-field {
-  width: 100%;
-}
-
-.add-item-section {
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 1.5rem;
-  border: 1px solid #e9ecef;
-}
-
-.add-button {
-  height: 56px;
-  margin-top: 8px;
-}
-
-.full-width {
-  width: 100%;
-}
-
-.table-wrapper {
-  margin-top: 1rem;
-}
-
-.dx-datagrid {
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.summary-section {
-  margin-top: 2rem;
   display: flex;
-  gap: 2rem;
-  align-items: flex-start;
-}
-
-.notes-section {
-  flex: 1;
-  min-width: 300px;
-}
-
-.summary-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  min-width: 320px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
-
-.summary-title {
-  margin: 0 0 1rem 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  text-align: center;
-}
-
-.summary-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.summary-row {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin: 0 0 var(--space-2, 0.5rem);
+  color: var(--color-gray-500, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
-.amount {
-  font-weight: 500;
-  font-family: 'Courier New', monospace;
-}
-
-.summary-divider {
-  border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.3);
-  margin: 0.5rem 0;
-}
-
-.total-row {
-  font-size: 1.1rem;
+.line-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.3rem;
+  height: 1.3rem;
+  padding: 0 0.35rem;
+  border-radius: var(--rounded-full, 9999px);
+  background: var(--color-primary-100, #dbeafe);
+  color: var(--color-primary-700, #1d4ed8);
+  font-size: 0.7rem;
   font-weight: 700;
 }
 
-.total-label {
-  font-size: 1.2rem;
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2, 0.5rem);
 }
 
-.total-amount {
-  font-size: 1.4rem;
-  color: #ffd700;
+.section-header h3 {
+  margin: 0;
+}
+
+/* --- Header field grid --- */
+mat-grid-list {
+  margin-bottom: 0;
+}
+
+mat-grid-list + mat-grid-list {
+  margin-top: var(--space-3, 0.75rem);
+}
+
+mat-grid-tile {
+  padding: 0 !important;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+mat-form-field.mat-form-field {
+  font-size: 0.9rem;
+}
+
+.mat-mdc-form-field-label {
+  font-size: 0.88rem !important;
+  font-weight: 500;
+}
+
+.mat-mdc-text-field-wrapper {
+  font-size: 0.9rem !important;
+}
+
+/* --- Line items grid --- */
+.lines-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.table-container {
+  border-radius: var(--rounded-md, 6px);
+  overflow: hidden;
+  border: 1px solid var(--color-gray-200, #e5e7eb);
+}
+
+.dx-datagrid {
+  border-radius: var(--rounded-md, 6px);
+  font-size: 0.88rem;
+  border: none;
+}
+
+:host ::ng-deep .premium-table .dx-datagrid-headers {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+:host ::ng-deep .premium-table .dx-data-row {
+  font-size: 0.85rem;
+}
+
+:host ::ng-deep .premium-table .dx-data-row > td {
+  padding: 6px 10px;
+}
+
+:host ::ng-deep .premium-table .dx-datagrid-headers .dx-datagrid-text-content {
+  padding: 6px 4px;
+}
+
+/* --- Notes --- */
+.notes-section .full-width {
+  margin-bottom: -1.25em;
+}
+
+/* --- Sticky summary rail --- */
+.summary-card {
+  padding: var(--space-4, 1rem) !important;
+  border-radius: var(--rounded-lg, 8px) !important;
+  background: var(--color-white, #fff) !important;
+  border: 1px solid var(--color-gray-200, #e5e7eb) !important;
+  box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1)) !important;
+}
+
+.summary-card mat-card-content {
+  padding: 0 !important;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.3rem 0;
+  color: var(--color-gray-600, #4b5563);
+}
+
+.summary-item.total {
+  color: var(--color-gray-900, #111827);
+  font-weight: 700;
+  font-size: 1.15rem;
+  padding: 0.6rem 0.6rem;
+  margin-top: 0.3rem;
+  border-radius: var(--rounded-md, 6px);
+  background: var(--color-primary-50, #eff6ff);
+}
+
+.summary-item.total .font-mono {
+  color: var(--color-primary-700, #1d4ed8);
+}
+
+.summary-item p {
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+.summary-card hr {
+  border: none;
+  border-top: 1px solid var(--color-gray-200, #e5e7eb);
+  margin: 0.35rem 0;
+}
+
+.font-mono {
+  font-family: 'Courier New', monospace;
+  font-size: 0.92rem;
+  font-weight: 700;
 }
 
 .form-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #e0e0e0;
+  flex-direction: column;
+  gap: var(--space-2, 0.5rem);
+  margin-top: var(--space-3, 0.75rem);
+  padding-top: var(--space-3, 0.75rem);
+  border-top: 1px solid var(--color-gray-200, #e5e7eb);
 }
 
-.form-actions a {
-  text-decoration: none;
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 500;
-  text-decoration: none;
-  transition: all 0.2s ease;
-  border: none;
-  cursor: pointer;
+.form-actions .save-btn {
+  width: 100%;
   font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.55rem 1.5rem;
+  border-radius: var(--rounded-md, 6px);
 }
 
-.btn-primary {
-  background: #1976d2;
-  color: white;
+.form-actions .save-btn mat-icon {
+  margin-right: 0.35rem;
 }
 
-.btn-primary:hover {
-  background: #1565c0;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+.form-actions .cancel-btn {
+  width: 100%;
+  text-align: center;
+  color: var(--color-gray-600, #4b5563);
 }
 
-.btn-secondary {
-  background: #f5f5f5;
-  color: #333;
-  border: 1px solid #ddd;
-}
-
-.btn-secondary:hover {
-  background: #e8e8e8;
-}
-
-.btn-small {
-  padding: 0.5rem 1rem;
-  font-size: 0.85rem;
-}
-
-.icon {
-  width: 1rem;
-  height: 1rem;
-}
-
-/* --- Professional Invoice Branding --- */
-.company-info {
-  margin-bottom: 1rem;
-}
-
-.company-name {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1976d2;
-  margin: 0;
-  letter-spacing: 0.5px;
-}
-
-.company-address {
-  font-size: 0.9rem;
-  color: #666;
-  margin: 0.25rem 0 0 0;
-}
-
-.strong-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-
-
-.strong-title {
-  font-weight: 700;
-  font-size: 1.5rem;
-  letter-spacing: 1px;
-  margin: 0;
-  color: #333;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.header-actions {
-  display: flex;
-  gap: 1rem;
-}
-
-.invoice-card {
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
-  border-radius: 16px;
-  padding: 3rem;
-  background: #fff;
-  border: 1px solid #e8f4fd;
-}
-
-.premium-table {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-  padding: 1.5rem;
-  border: 1px solid #f0f0f0;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .container {
-    padding: 0.5rem;
-  }
-
-  .strong-header {
-    flex-direction: column;
-    text-align: center;
-    padding: 1.5rem;
-  }
-
-  .header-actions {
-    justify-content: center;
-  }
-
-  .form-grid {
+/* ============================================================
+   Responsive: tablet and below collapse to a single column,
+   the summary rail stops being sticky and flows with the page.
+   ============================================================ */
+@media (max-width: 1100px) {
+  .invoice-workspace {
     grid-template-columns: 1fr;
   }
 
-  .summary-section {
+  .workspace-sidebar {
+    position: static;
+  }
+}
+
+@media (max-width: 900px) {
+  .lines-row {
     flex-direction: column;
   }
 
+  .notes-card {
+    flex: none;
+    width: 100%;
+  }
+
+  .notes-card ::ng-deep textarea.mat-mdc-input-element {
+    height: auto !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: var(--space-3, 0.75rem);
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .doc-card,
   .summary-card {
-    min-width: auto;
-  }
-
-  .form-actions {
-    flex-direction: column;
-  }
-
-  .btn {
-    justify-content: center;
+    padding: var(--space-4, 1rem) !important;
   }
 }
 
-/* Payment Tracking Styles */
-.payment-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1rem;
+@media (max-width: 480px) {
+  .page-header h2 {
+    font-size: 1.15rem;
+  }
 }
 
-.payment-card {
-  transition: transform 0.2s, box-shadow 0.2s;
-}
+/* --- Dark mode: the app has no theme toggle today, but respect the OS preference gracefully --- */
+@media (prefers-color-scheme: dark) {
+  .container {
+    color: #e5e7eb;
+  }
 
-.payment-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
-}
+  .page-header,
+  .trace-bar,
+  .doc-card,
+  .summary-card {
+    border-color: #374151 !important;
+  }
 
-.exit-status {
-  display: flex;
-  justify-content: center;
-  margin-top: 1rem;
-}
+  .page-header {
+    border-bottom-color: #374151;
+  }
 
-.exit-status mat-chip {
-  font-size: 1.1rem;
-  font-weight: 500;
-}
+  .summary-card hr {
+    border-color: #374151;
+  }
 
-/* Car Cards Styles */
-.car-cards-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-top: 1rem;
-}
+  .summary-item.total {
+    background: rgba(59, 130, 246, 0.15);
+  }
 
-/* Angular Material Grid List Styles */
-mat-grid-list {
-  margin-top: 1rem;
+  .table-container {
+    border-color: #374151;
+  }
 }
-
-mat-grid-tile {
-  background: transparent;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-mat-grid-tile .car-card {
-  height: 100%;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  padding: 1rem;
-  background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-mat-grid-tile .car-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-}
-
-.car-image {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-}
-
-.car-card h4 {
-  margin: 0.5rem 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #333;
-}
-
-.car-card p {
-  margin: 0.25rem 0;
-  color: #666;
-  font-size: 0.9rem;
-}
-
-.car-card button {
-  margin-top: 1rem;
-  width: 100%;
-  padding: 0.75rem;
-  font-weight: 500;
-}
-
-/* --- End Professional Invoice Branding --- */

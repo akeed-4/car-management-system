@@ -1,47 +1,38 @@
 export interface BankPartner {
   id: number;
   name: string;
-  isVerified: boolean;
 }
 
-export interface VinLockCandidate {
-  carId: number;
-  vin: string;
-  make: string;
-  model: string;
-  year: number;
-  salePrice: number;
-  status: string; // 'Available' | 'Reserved' | ...
-}
-
-export type BankQuotationStatus = 'Draft' | 'Reserved_Bank_Pending' | 'BankApproved' | 'BankRejected' | 'Cancelled';
-
-export interface BankQuotationCustomerInfo {
-  name: string;
-  mobile: string;
-  nationalId: string;
-}
+export type BankQuotationStatus = 'Locked' | 'Bank_Approved' | 'Finalized' | 'Expired' | 'Cancelled';
 
 export interface BankQuotation {
-  id?: number;
-  quotationNumber?: string;
-  quotationDate: string;
-  customer: BankQuotationCustomerInfo;
+  id: number;
+  quotationNumber: string;
+  endUserName: string;
+  endUserMobile: string;
+  endUserNationalId: string;
   bankId: number;
-  bankName?: string;
+  bankName: string;
   carId: number;
-  vin?: string;
+  vin: string;
+  carDescription: string;
   vehiclePrice: number;
+  lockExpiresAt: string;
   status: BankQuotationStatus;
-  vinLockExpiresAt?: string; // 72-hour inventory hold expiry
-  notes?: string;
+  bankLpoReference?: string;
+  approvedFinancingAmount?: number;
+  downPayment?: number;
+  installmentCount?: number;
+  installmentTermMonths?: number;
+  approvalNotes?: string;
+  approvedAt?: string;
 }
 
 export interface CreateBankQuotationDto {
-  quotationDate: string;
-  customer: BankQuotationCustomerInfo;
+  endUserName: string;
+  endUserMobile: string;
+  endUserNationalId: string;
   bankId: number;
   carId: number;
-  vehiclePrice: number;
-  notes?: string;
+  userId: number;
 }

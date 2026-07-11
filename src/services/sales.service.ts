@@ -116,7 +116,12 @@ getOutstandingInvoicesByCustomerId(customerId: number): Observable<SalesInvoice[
 
   // إنشاء طلب عميل
   createCustomerOrder(order: CustomerOrder): Observable<CustomerOrder> {
-    return this.http.post<CustomerOrder>(`${environment.origin}api/CustomerOrders/Create`, order);
+    return this.http.post<CustomerOrder>(`${environment.origin}api/CustomerOrders`, order);
+  }
+
+  // جلب طلب عميل بواسطة المعرف (لربط أمر البيع بالفاتورة)
+  getCustomerOrderById(id: number): Observable<CustomerOrder> {
+    return this.http.get<CustomerOrder>(`${environment.origin}api/CustomerOrders/${id}`);
   }
 
   // حفظ رسوم التحضير

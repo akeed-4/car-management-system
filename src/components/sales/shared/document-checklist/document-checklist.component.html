@@ -1,0 +1,11 @@
+<div class="document-checklist">
+  <mat-checkbox
+    *ngFor="let item of currentItems(); let i = index"
+    [checked]="item.checked"
+    (change)="toggle(i)"
+    class="checklist-item"
+  >
+    {{ item.label | translate }}
+  </mat-checkbox>
+  <p class="no-items" *ngIf="currentItems().length === 0">{{ 'DOCUMENT.NO_CHECKLIST_ITEMS' | translate }}</p>
+</div>

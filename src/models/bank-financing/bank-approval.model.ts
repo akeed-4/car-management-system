@@ -1,16 +1,11 @@
-export interface BankApproval {
-  id?: number;
-  quotationId: number;
-  lpoReference: string;
-  approvedFinancingAmount: number;
-  approvalDate: string;
-  notes?: string;
-}
-
 export interface CreateBankApprovalDto {
-  quotationId: number;
-  lpoReference: string;
+  bankQuotationId: number;
+  bankLpoReference: string;
   approvedFinancingAmount: number;
-  approvalDate: string;
-  notes?: string;
+  downPayment?: number;
+  installmentCount?: number;
+  installmentTermMonths?: number;
+  approvalNotes?: string;
+  newLockExpiresAt: string;
+  userId: number;
 }

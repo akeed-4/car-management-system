@@ -1,10 +1,256 @@
-.retail-delivery-container {
-  max-width: 640px;
-  margin: 24px auto;
+/* ============================================================
+   Bank Vehicle Delivery -- same ERP document layout convention
+   as the other sales-lifecycle screens.
+   ============================================================ */
+
+.container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: var(--space-3, 0.75rem) var(--space-6, 1.5rem) var(--space-4, 1rem);
+  font-family: var(--font-family-sans, 'Roboto', sans-serif);
+  color: var(--color-gray-800, #1f2937);
 }
 
-.content {
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4, 1rem);
+  margin-bottom: var(--space-3, 0.75rem);
+  padding-bottom: var(--space-2, 0.5rem);
+  border-bottom: 1px solid var(--color-gray-200, #e5e7eb);
+}
+
+.page-header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-gray-900, #111827);
+}
+
+.back-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: var(--color-gray-600, #4b5563);
+  font-weight: 500;
+  font-size: 0.9rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--rounded-md, 6px);
+}
+
+.back-link:hover {
+  background: var(--color-gray-100, #f3f4f6);
+  color: var(--color-primary-700, #1d4ed8);
+}
+
+.back-link mat-icon {
+  margin-right: 0.35rem;
+  font-size: 1.1rem;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.empty-state {
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-gray-500, #6b7280);
+  background: var(--color-gray-50, #f9fafb);
+  border-radius: var(--rounded-lg, 8px);
+  border: 1px dashed var(--color-gray-300, #d1d5db);
+}
+
+.invoice-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: var(--space-4, 1rem);
+  align-items: start;
+}
+
+.workspace-main {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-4, 1rem);
+  min-width: 0;
+}
+
+.workspace-sidebar {
+  position: sticky;
+  top: var(--space-4, 1rem);
+  align-self: start;
+}
+
+.doc-card {
+  padding: var(--space-4, 1rem) !important;
+  border-radius: var(--rounded-lg, 8px) !important;
+  box-shadow: var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.05)) !important;
+  background: var(--color-white, #fff) !important;
+  border: 1px solid var(--color-gray-200, #e5e7eb) !important;
+}
+
+.form-section-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin: 0 0 var(--space-2, 0.5rem);
+  color: var(--color-gray-500, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.readonly-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.4rem 0;
+}
+
+.readonly-label {
+  font-size: 0.72rem;
+  color: var(--color-gray-500, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.readonly-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-gray-900, #111827);
+}
+
+mat-grid-tile {
+  padding: 0 !important;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.notes-field {
+  margin-top: var(--space-3, 0.75rem);
+}
+
+.checklist-signature-row {
+  display: flex;
+  gap: var(--space-4, 1rem);
+  flex-wrap: wrap;
+}
+
+.checklist-signature-row .doc-card {
+  flex: 1;
+  min-width: 260px;
+}
+
+.summary-card {
+  padding: var(--space-4, 1rem) !important;
+  border-radius: var(--rounded-lg, 8px) !important;
+  background: var(--color-white, #fff) !important;
+  border: 1px solid var(--color-gray-200, #e5e7eb) !important;
+  box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1)) !important;
+}
+
+.summary-card mat-card-content {
+  padding: 0 !important;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.3rem 0;
+}
+
+.summary-item.total {
+  color: var(--color-gray-900, #111827);
+  font-weight: 700;
+  font-size: 1.15rem;
+  padding: 0.6rem 0.6rem;
+  border-radius: var(--rounded-md, 6px);
+  background: var(--color-primary-50, #eff6ff);
+}
+
+.summary-item.total .font-mono {
+  color: var(--color-primary-700, #1d4ed8);
+}
+
+.summary-item p {
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+.font-mono {
+  font-family: 'Courier New', monospace;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 0.5rem);
+  margin-top: var(--space-3, 0.75rem);
+  padding-top: var(--space-3, 0.75rem);
+  border-top: 1px solid var(--color-gray-200, #e5e7eb);
+}
+
+.form-actions .save-btn {
+  width: 100%;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.55rem 1.5rem;
+  border-radius: var(--rounded-md, 6px);
+}
+
+.form-actions .save-btn mat-icon {
+  margin-right: 0.35rem;
+}
+
+.form-actions .cancel-btn {
+  width: 100%;
+  text-align: center;
+  color: var(--color-gray-600, #4b5563);
+}
+
+@media (max-width: 1100px) {
+  .invoice-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-sidebar {
+    position: static;
+  }
+}
+
+@media (max-width: 900px) {
+  .checklist-signature-row {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: var(--space-3, 0.75rem);
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .container {
+    color: #e5e7eb;
+  }
+
+  .page-header,
+  .doc-card,
+  .summary-card,
+  .empty-state {
+    border-color: #374151 !important;
+  }
+
+  .summary-item.total {
+    background: rgba(59, 130, 246, 0.15);
+  }
 }

@@ -1,0 +1,21 @@
+<div class="signature-pad">
+  <label class="signature-label" *ngIf="label">{{ label | translate }}</label>
+  <div class="canvas-wrapper">
+    <canvas
+      #canvas
+      class="signature-canvas"
+      (mousedown)="startDrawing($event)"
+      (mousemove)="draw($event)"
+      (mouseup)="stopDrawing()"
+      (mouseleave)="stopDrawing()"
+      (touchstart)="startDrawing($event)"
+      (touchmove)="draw($event)"
+      (touchend)="stopDrawing()"
+    ></canvas>
+    <span class="placeholder" *ngIf="!hasSignature">{{ 'DOCUMENT.SIGN_HERE' | translate }}</span>
+  </div>
+  <button mat-button type="button" class="clear-btn" (click)="clear()" [disabled]="!hasSignature">
+    <mat-icon>close</mat-icon>
+    {{ 'DOCUMENT.CLEAR_SIGNATURE' | translate }}
+  </button>
+</div>

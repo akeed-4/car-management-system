@@ -131,34 +131,37 @@ export const menuData = [
         name: 'البيع المباشر',
         englishName: 'Direct Sales',
         submenu: [
-          { id: 10041, name: 'عرض سعر التجزئة', englishName: 'Quotation', route: '/sales/direct/quotations/new' },
-          { id: 10044, name: 'أوامر البيع', englishName: 'Sales Orders', route: '/sales/direct/orders' },
-          { id: 10045, name: 'اعتماد أوامر البيع', englishName: 'Sales Order Approvals', route: '/sales/direct/orders-approvals' },
-          { id: 10042, name: 'فاتورة ودفع التجزئة', englishName: 'Invoice & Payment', route: '/sales/direct/invoices/new' },
-          { id: 10043, name: 'إذن تسليم التجزئة', englishName: 'Delivery Note', route: '/sales/direct/deliveries/new' }
+          { id: 10041, name: 'بيع نقدي', englishName: 'Cash Sale', route: '/sales/direct/cash-sale/new' },
+          { id: 10042, name: 'بيع آجل', englishName: 'Credit Sale', route: '/sales/direct/credit-sale/new' },
+          { id: 10043, name: 'بيع بالتقسيط', englishName: 'Installment Sale', route: '/sales/direct/installment-sale/new' },
+          { id: 10044, name: 'إدارة الأقساط', englishName: 'Installment Management', route: '/installments' }
         ]
       },
       {
         id: 1006,
-        name: 'الشركات',
-        englishName: 'Companies',
+        name: 'مبيعات الشركات',
+        englishName: 'Corporate Sales',
         submenu: [
-          { id: 10061, name: 'عرض سعر الأسطول', englishName: 'Fleet Quotation', route: '/sales/companies/quotations/new' },
-          { id: 10062, name: 'اعتماد الائتمان وأمر الشراء', englishName: 'Credit & PO Verification', route: '/sales/companies/orders/new' },
-          { id: 10063, name: 'الفوترة والتسليم الدفعي', englishName: 'Invoicing & Multi-Delivery', route: '/sales/companies/dispatch' }
+          { id: 10061, name: 'عرض سعر', englishName: 'Customer Quotation', route: '/sales/corporate/quotations/new' },
+          { id: 10062, name: 'أمر بيع', englishName: 'Sales Order', route: '/sales/corporate/orders/new' },
+          { id: 10063, name: 'إذن تسليم', englishName: 'Delivery Note', route: '/sales/corporate/deliveries/new' },
+          { id: 10064, name: 'فاتورة مبيعات', englishName: 'Sales Invoice', route: '/sales/corporate/invoices/new' },
+          { id: 10065, name: 'سند قبض', englishName: 'Receipt Voucher', route: '/sales/corporate/receipts/new' }
         ]
       },
       {
         id: 1005,
         name: 'مبيعات التمويل البنكي',
-        englishName: 'Bank Financing',
+        englishName: 'Bank Sales',
         submenu: [
-          { id: 10051, name: 'عرض السعر وحجز الشاصي', englishName: 'Finance Quotation & VIN Lock', route: '/sales/bank-financing/quotations/new' },
-          { id: 10052, name: 'اعتماد أمر الشراء البنكي', englishName: 'Bank LPO & Approval', route: '/sales/bank-financing/approvals/new' },
-          { id: 10053, name: 'الفاتورة المقسمة والتسليم', englishName: 'Split Invoice & Handover', route: '/sales/bank-financing/invoices/new' }
+          { id: 10051, name: 'عرض سعر', englishName: 'Customer Quotation', route: '/sales/bank/quotations/new' },
+          { id: 10052, name: 'اعتماد البنك', englishName: 'Bank Approval', route: '/sales/bank/approvals/new' },
+          { id: 10053, name: 'أمر بيع', englishName: 'Sales Order', route: '/sales/bank/orders/new' },
+          { id: 10054, name: 'تسليم المركبة', englishName: 'Vehicle Delivery', route: '/sales/bank/deliveries/new' },
+          { id: 10055, name: 'فاتورة مبيعات', englishName: 'Sales Invoice', route: '/sales/bank/invoices/new' },
+          { id: 10056, name: 'تحصيلات البنك', englishName: 'Bank Collections', route: '/sales/bank/collections/new' }
         ]
-      },
-      { id: 54, name: 'إدارة الأقساط', englishName: 'Installment Management', route: '/installments' }
+      }
     ]
 
   },

@@ -1,0 +1,35 @@
+<div class="attachment-uploader">
+  <div class="section-header">
+    <label class="uploader-label">{{ label | translate }}</label>
+    <button mat-button type="button" (click)="fileInput.click()" [disabled]="uploading()">
+      <mat-icon>attach_file</mat-icon>
+      {{ 'DOCUMENT.ADD_ATTACHMENT' | translate }}
+    </button>
+    <input #fileInput type="file" multiple hidden (change)="onFilesSelected($event)">
+  </div>
+
+  <mat-spinner *ngIf="uploading()" diameter="20" class="uploading-spinner"></mat-spinner>
+
+  <mat-list class="attachment-list" *ngIf="attachments().length > 0 || pendingFiles().length > 0">
+    <mat-list-item *ngFor="let file of attachments()">
+      <mat-icon matListItemIcon>description</mat-icon>
+      <a matListItemTitle [href]="file.fileUrl" target="_blank" rel="noopener">{{ file.fileName }}</a>
+      <span matListItemLine>{{ formatSize(file.fileSizeBytes) }}</span>
+      <button mat-icon-button (click)="removeAttachment(file)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </mat-list-item>
+    <mat-list-item *ngFor="let file of pendingFiles(); let i = index">
+      <mat-icon matListItemIcon>hourglass_empty</mat-icon>
+      <span matListItemTitle>{{ file.name }}</span>
+      <span matListItemLine>{{ 'DOCUMENT.PENDING_UPLOAD' | translate }}</span>
+      <button mat-icon-button (click)="removePending(i)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </mat-list-item>
+  </mat-list>
+
+  <p class="no-attachments" *ngIf="attachments().length === 0 && pendingFiles().length === 0">
+    {{ 'DOCUMENT.NO_ATTACHMENTS' | translate }}
+  </p>
+</div>

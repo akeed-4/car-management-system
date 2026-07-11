@@ -4,14 +4,14 @@ import { SalesChannel } from '@/src/models/enums/sales-channel.enum';
 import { SaleType } from '@/src/models/sales-enhancements.model';
 
 @Component({
-  selector: 'app-sales-invoice-credit',
+  selector: 'app-sales-invoice-installment',
   standalone: true,
   imports: [SalesInvoiceFormComponent],
-  templateUrl: './sales-invoice-credit.component.html',
-  styleUrls: ['./sales-invoice-credit.component.css'],
+  templateUrl: './sales-invoice-installment.component.html',
+  styleUrls: ['./sales-invoice-installment.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SalesInvoiceCreditComponent {
+export class SalesInvoiceInstallmentComponent {
   SalesChannel = SalesChannel;
   SaleType = SaleType;
 }

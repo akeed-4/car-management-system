@@ -1,30 +1,145 @@
-<mat-card class="corporate-order-manager">
-  <mat-card-header>
-    <mat-card-title>{{ 'CORPORATE.CREDIT_PO_VERIFICATION' | translate }}</mat-card-title>
-  </mat-card-header>
+<div class="container">
+  <div class="page-header">
+    <h2>{{ 'CORPORATE.ORDER_TITLE' | translate }}</h2>
+    <a routerLink="/sales" class="back-link">
+      <button mat-icon-button>
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <span>{{ 'INVOICE.BACK_TO_SALES' | translate }}</span>
+    </a>
+  </div>
 
-  <mat-card-content class="content">
-    <div *ngIf="loading">{{ 'RETAIL.LOADING' | translate }}</div>
+  <div *ngIf="!quotation() && !loading()" class="empty-state">
+    {{ 'CORPORATE.APPROVAL_REQUIRED' | translate }}
+  </div>
 
-    <ng-container *ngIf="quotation && client">
-      <div class="quotation-summary">
-        <div><span>{{ 'CORPORATE.CLIENT' | translate }}:</span> {{ client.companyName }}</div>
-        <div><span>{{ 'RETAIL.TOTAL_AMOUNT' | translate }}:</span> {{ quotation.totalAmount | number:'1.2-2' }}</div>
+  <form [formGroup]="orderForm" *ngIf="quotation() as q">
+    <div class="invoice-workspace">
+      <div class="workspace-main">
+
+        <mat-card class="doc-card">
+          <section class="form-section">
+            <h3 class="form-section-title">{{ 'CORPORATE.QUOTATION_DETAILS' | translate }}</h3>
+            <ng-container *ngIf="cardLayout3 | async as layout">
+              <mat-grid-list [cols]="layout.columns" rowHeight="76" gutterSize="16px">
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <div class="readonly-field">
+                    <span class="readonly-label">{{ 'CORPORATE.QUOTATION_NUMBER' | translate }}</span>
+                    <span class="readonly-value">{{ q.quotationNumber }}</span>
+                  </div>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <div class="readonly-field">
+                    <span class="readonly-label">{{ 'CORPORATE.CUSTOMER' | translate }}</span>
+                    <span class="readonly-value">{{ q.customerName }}</span>
+                  </div>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <div class="readonly-field">
+                    <span class="readonly-label">{{ 'INVOICE.TOTAL' | translate }}</span>
+                    <span class="readonly-value">{{ q.totalAmount | currency:'SAR':'symbol':'1.0-0' }}</span>
+                  </div>
+                </mat-grid-tile>
+              </mat-grid-list>
+            </ng-container>
+          </section>
+        </mat-card>
+
+        <app-credit-utilization-widget
+          *ngIf="creditSummary() as summary"
+          [approvedCreditLimit]="summary.creditLimit"
+          [currentOutstandingBalance]="summary.outstandingBalance"
+          [orderTotal]="q.totalAmount">
+        </app-credit-utilization-widget>
+
+        <mat-card class="doc-card">
+          <section class="form-section">
+            <h3 class="form-section-title">{{ 'CORPORATE.ORDER_DETAILS' | translate }}</h3>
+            <ng-container *ngIf="cardLayout3 | async as layout">
+              <mat-grid-list [cols]="layout.columns" rowHeight="88" gutterSize="16px">
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'CORPORATE.PO_REFERENCE' | translate }}</mat-label>
+                    <input matInput formControlName="customerPoReference" required>
+                  </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'CORPORATE.PAYMENT_TERMS' | translate }}</mat-label>
+                    <input matInput formControlName="paymentTerms" placeholder="Net 30" required>
+                  </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'CORPORATE.EXPECTED_DELIVERY_DATE' | translate }}</mat-label>
+                    <input matInput [matDatepicker]="deliveryPicker" formControlName="expectedDeliveryDate">
+                    <mat-datepicker-toggle matSuffix [for]="deliveryPicker"></mat-datepicker-toggle>
+                    <mat-datepicker #deliveryPicker></mat-datepicker>
+                  </mat-form-field>
+                </mat-grid-tile>
+              </mat-grid-list>
+            </ng-container>
+            <ng-container *ngIf="cardLayout3 | async as layout">
+              <mat-grid-list [cols]="layout.columns" rowHeight="88" gutterSize="16px">
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'CORPORATE.SALES_REPRESENTATIVE' | translate }}</mat-label>
+                    <input matInput formControlName="salesRepresentative">
+                  </mat-form-field>
+                </mat-grid-tile>
+              </mat-grid-list>
+            </ng-container>
+
+            <mat-form-field appearance="outline" class="full-width notes-field">
+              <mat-label>{{ 'INVOICE.NOTES' | translate }}</mat-label>
+              <textarea matInput rows="3" formControlName="notes"></textarea>
+            </mat-form-field>
+          </section>
+        </mat-card>
+
+        <mat-card class="doc-card lines-card">
+          <div class="section-header">
+            <h3 class="form-section-title">{{ 'CORPORATE.VEHICLE_LINES' | translate }}</h3>
+          </div>
+          <div class="table-container premium-table">
+            <dx-data-grid
+              [dataSource]="q.lines"
+              [showBorders]="true"
+              [columnAutoWidth]="true"
+              [rowAlternationEnabled]="true"
+              [rtlEnabled]="true"
+              [height]="260"
+              keyExpr="carId"
+            >
+              <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}" [allowEditing]="false"></dxi-column>
+              <dxi-column dataField="vin" caption="VIN" [allowEditing]="false"></dxi-column>
+              <dxi-column dataField="unitPrice" caption="{{ 'INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency" [allowEditing]="false" cssClass="readonly-col"></dxi-column>
+              <dxi-column dataField="discountedPrice" caption="{{ 'CORPORATE.DISCOUNTED_PRICE' | translate }}" dataType="number" format="currency" [allowEditing]="false" cssClass="readonly-col"></dxi-column>
+            </dx-data-grid>
+          </div>
+        </mat-card>
+
       </div>
 
-      <app-credit-utilization-widget
-        [approvedCreditLimit]="client.creditLimit"
-        [currentOutstandingBalance]="client.currentOutstandingBalance"
-        [orderTotal]="quotation.totalAmount">
-      </app-credit-utilization-widget>
+      <aside class="workspace-sidebar">
+        <mat-card class="summary-card">
+          <mat-card-title>{{ 'INVOICE.INVOICE_SUMMARY' | translate }}</mat-card-title>
+          <mat-card-content>
+            <div class="summary-item total">
+              <p>{{ 'INVOICE.TOTAL' | translate }}</p>
+              <p class="font-mono">{{ q.totalAmount | currency:'SAR':'symbol':'1.0-0' }}</p>
+            </div>
+          </mat-card-content>
 
-      <app-po-reference-form (poDataChange)="onPoDataChange($event)"></app-po-reference-form>
-    </ng-container>
-  </mat-card-content>
-
-  <mat-card-actions>
-    <button mat-raised-button color="primary" [disabled]="!isFormValid || submitting" (click)="onSubmit()">
-      {{ 'CORPORATE.CREATE_ORDER' | translate }}
-    </button>
-  </mat-card-actions>
-</mat-card>
+          <div class="form-actions">
+            <button mat-raised-button color="primary" class="save-btn" (click)="onSubmit()" [disabled]="!isFormValid || submitting() || exceedsCreditLimit">
+              <mat-icon>save</mat-icon>
+              {{ 'CORPORATE.CREATE_ORDER' | translate }}
+            </button>
+            <a routerLink="/sales" mat-button class="cancel-btn">{{ 'INVOICE.CANCEL' | translate }}</a>
+          </div>
+        </mat-card>
+      </aside>
+    </div>
+  </form>
+</div>

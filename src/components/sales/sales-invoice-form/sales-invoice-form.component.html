@@ -1,14 +1,12 @@
 <div class="container">
-  <div class="page-header strong-header">
-    <div class="header-info">
-      <h2 class="strong-title">{{ titleKey | translate }}</h2>
-    </div>
-    <div class="header-actions">
-      <a routerLink="/sales" class="btn btn-secondary btn-small">
+  <div class="page-header">
+    <h2>{{ titleKey | translate }}</h2>
+    <a routerLink="/sales" class="back-link">
+      <button mat-icon-button>
         <mat-icon>arrow_back</mat-icon>
-        <span>{{ 'INVOICE.BACK_TO_SALES' | translate }}</span>
-      </a>
-    </div>
+      </button>
+      <span>{{ 'INVOICE.BACK_TO_SALES' | translate }}</span>
+    </a>
   </div>
 
   <!-- BAND 1: ACTION & TRACEABILITY HEADER BAR -->
@@ -26,10 +24,14 @@
       </mat-form-field>
     </div>
 
-    <div class="lineage-trail" *ngIf="hasQuotationLineage(); else noLineage">
-      <div class="trail-node source">
+    <div class="lineage-trail" *ngIf="hasQuotationLineage() || hasOrderLineage(); else noLineage">
+      <div class="trail-node source" *ngIf="hasQuotationLineage()">
         <mat-icon>request_quote</mat-icon>
         <span>{{ linkedQuotation()?.quotationNumber }}</span>
+      </div>
+      <div class="trail-node source" *ngIf="hasOrderLineage()">
+        <mat-icon>assignment</mat-icon>
+        <span>{{ selectedCustomerOrder()?.orderNumber }}</span>
       </div>
       <mat-icon class="trail-arrow">arrow_back</mat-icon>
       <div class="trail-node current">
@@ -45,242 +47,247 @@
     </ng-template>
   </div>
 
-  <div class="card invoice-card">
-    <form [formGroup]="invoiceForm" >
-      <!-- BAND 2: INVOICE HEADER FORM -->
-      <section class="form-section">
-        <h3 class="form-section-title">{{ 'INVOICE.MAIN_DATA' | translate }}</h3>
-            <ng-container *ngIf="cardLayout3 | async as layout">
-          <mat-grid-list [cols]="layout.columns" rowHeight="90" >
-            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+  <form [formGroup]="invoiceForm">
+    <!-- ERP-style two-pane workspace: document (header + lines) on the left, an always-visible
+         summary + actions rail on the right so totals and Save/Cancel never require scrolling. -->
+    <div class="invoice-workspace">
+      <div class="workspace-main">
 
-
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'INVOICE.INVOICE_NUMBER' | translate }}</mat-label>
-            <input matInput [value]="invoiceNumber()" disabled readonly>
-          </mat-form-field>
-            </mat-grid-tile>
-             <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'INVOICE.INVOICE_DATE' | translate }}</mat-label>
-            <input matInput [matDatepicker]="invoiceDatePicker" formControlName="invoiceDate" required>
-            <mat-datepicker-toggle matSuffix [for]="invoiceDatePicker"></mat-datepicker-toggle>
-            <mat-datepicker #invoiceDatePicker></mat-datepicker>
-          </mat-form-field>
-            </mat-grid-tile>
-            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'INVOICE.CUSTOMER' | translate }}</mat-label>
-            <mat-select formControlName="customer" required>
-              <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_CUSTOMER_OPTION' | translate }}</mat-option>
-              <mat-option *ngFor="let customer of customers()" [value]="customer.id">
-                {{ customer.name }} ({{ customer.nationalId }})
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-            </mat-grid-tile>
-       
-          </mat-grid-list>
-          </ng-container>
+        <mat-card class="doc-card">
+          <!-- BAND 2: INVOICE HEADER FORM -->
+          <section class="form-section">
+            <h3 class="form-section-title">{{ 'INVOICE.MAIN_DATA' | translate }}</h3>
             <ng-container *ngIf="cardLayout3 | async as layout">
-          <mat-grid-list [cols]="layout.columns" rowHeight="90" >
+              <mat-grid-list [cols]="layout.columns" rowHeight="88" gutterSize="16px">
                 <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'INVOICE.STORE' | translate }}</mat-label>
-            <mat-select formControlName="storeId" required>
-              <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_STORE_OPTION' | translate }}</mat-option>
-              <mat-option *ngFor="let store of stores()" [value]="store.id">
-                {{ store.nameAr }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-              </mat-grid-tile>
-               <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'INVOICE.DEBIT_ACCOUNT' | translate }}</mat-label>
-            <mat-select formControlName="debitAccount" required>
-              <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_DEBIT_ACCOUNT' | translate }}</mat-option>
-              <mat-option *ngFor="let account of debitAccounts()" [value]="account.id">
-               {{ account.accountCode }} - {{ account.accountNameAr }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-              </mat-grid-tile>
-              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'INVOICE.CREDIT_ACCOUNT' | translate }}</mat-label>
-            <mat-select formControlName="creditAccount" required>
-              <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_CREDIT_ACCOUNT' | translate }}</mat-option>
-              <mat-option *ngFor="let account of creditAccounts()" [value]="account.id">
-               {{ account.accountCode }} - {{ account.accountNameAr }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-              </mat-grid-tile>
-           
-           
-          </mat-grid-list>
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'INVOICE.INVOICE_NUMBER' | translate }}</mat-label>
+                    <input matInput [value]="invoiceNumber()" disabled readonly>
+                  </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'INVOICE.INVOICE_DATE' | translate }}</mat-label>
+                    <input matInput [matDatepicker]="invoiceDatePicker" formControlName="invoiceDate" required>
+                    <mat-datepicker-toggle matSuffix [for]="invoiceDatePicker"></mat-datepicker-toggle>
+                    <mat-datepicker #invoiceDatePicker></mat-datepicker>
+                  </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'INVOICE.CUSTOMER' | translate }}</mat-label>
+                    <mat-select formControlName="customer" required>
+                      <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_CUSTOMER_OPTION' | translate }}</mat-option>
+                      <mat-option *ngFor="let customer of customers()" [value]="customer.id">
+                        {{ customer.name }} ({{ customer.nationalId }})
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </mat-grid-tile>
+              </mat-grid-list>
             </ng-container>
-              <ng-container *ngIf="cardLayout3 | async as layout">
-          <mat-grid-list [cols]="layout.columns" rowHeight="90" >
-         
-              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
 
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'INVOICE.PAYMENT_METHOD' | translate }}</mat-label>
-            <mat-select formControlName="paymentMethod">
-              <mat-option value="Cash">{{ 'INVOICE.PAYMENT_CASH' | translate }}</mat-option>
-              <mat-option *ngIf="selectedCustomer()?.isCreditCustomer" value="Bank Transfer">{{ 'INVOICE.PAYMENT_BANK_TRANSFER' | translate }}</mat-option>
-              <mat-option *ngIf="selectedCustomer()?.isCreditCustomer" value="Finance">{{ 'INVOICE.PAYMENT_FINANCE' | translate }}</mat-option>
-              <mat-option *ngIf="selectedCustomer()?.isCreditCustomer" value="Installments">{{ 'INVOICE.PAYMENT_INSTALLMENTS' | translate }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-            </mat-grid-tile>
-            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'INVOICE.PAYMENT_TYPE' | translate }}</mat-label>
-            <mat-select formControlName="paymentType">
-              <mat-option value="Bank Transfer">{{ 'INVOICE.PAYMENT_BANK_TRANSFER' | translate }}</mat-option>
-              <mat-option value="Cash">{{ 'INVOICE.PAYMENT_CASH' | translate }}</mat-option>
-              <mat-option value="Check">{{ 'INVOICE.PAYMENT_CHECK' | translate }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-            </mat-grid-tile>
+            <ng-container *ngIf="cardLayout3 | async as layout">
+              <mat-grid-list [cols]="layout.columns" rowHeight="88" gutterSize="16px">
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'INVOICE.STORE' | translate }}</mat-label>
+                    <mat-select formControlName="storeId" required>
+                      <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_STORE_OPTION' | translate }}</mat-option>
+                      <mat-option *ngFor="let store of stores()" [value]="store.id">
+                        {{ store.nameAr }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'INVOICE.DEBIT_ACCOUNT' | translate }}</mat-label>
+                    <mat-select formControlName="debitAccount" required>
+                      <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_DEBIT_ACCOUNT' | translate }}</mat-option>
+                      <mat-option *ngFor="let account of debitAccounts()" [value]="account.id">
+                        {{ account.accountCode }} - {{ account.accountNameAr }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'INVOICE.CREDIT_ACCOUNT' | translate }}</mat-label>
+                    <mat-select formControlName="creditAccount" required>
+                      <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_CREDIT_ACCOUNT' | translate }}</mat-option>
+                      <mat-option *ngFor="let account of creditAccounts()" [value]="account.id">
+                        {{ account.accountCode }} - {{ account.accountNameAr }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </mat-grid-tile>
+              </mat-grid-list>
+            </ng-container>
 
-               <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+            <ng-container *ngIf="cardLayout3 | async as layout">
+              <mat-grid-list [cols]="layout.columns" rowHeight="88" gutterSize="16px">
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows" *ngIf="channel !== SalesChannel.Bunuk">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'INVOICE.PAYMENT_METHOD' | translate }}</mat-label>
+                    <mat-select formControlName="paymentMethod">
+                      <mat-option value="Cash">{{ 'INVOICE.PAYMENT_CASH' | translate }}</mat-option>
+                      <mat-option *ngIf="selectedCustomer()?.isCreditCustomer" value="Bank Transfer">{{ 'INVOICE.PAYMENT_BANK_TRANSFER' | translate }}</mat-option>
+                      <mat-option *ngIf="selectedCustomer()?.isCreditCustomer" value="Finance">{{ 'INVOICE.PAYMENT_FINANCE' | translate }}</mat-option>
+                      <mat-option *ngIf="selectedCustomer()?.isCreditCustomer" value="Installments">{{ 'INVOICE.PAYMENT_INSTALLMENTS' | translate }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows" *ngIf="saleType !== SaleType.Cash">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'INVOICE.DOWN_PAYMENT' | translate }}</mat-label>
+                    <input matInput type="number" formControlName="downPayment" required>
+                  </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'INVOICE.PAYMENT_TYPE' | translate }}</mat-label>
+                    <mat-select formControlName="paymentType">
+                      <mat-option value="Bank Transfer">{{ 'INVOICE.PAYMENT_BANK_TRANSFER' | translate }}</mat-option>
+                      <mat-option value="Cash">{{ 'INVOICE.PAYMENT_CASH' | translate }}</mat-option>
+                      <mat-option value="Check">{{ 'INVOICE.PAYMENT_CHECK' | translate }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows" *ngIf="selectedCustomer()?.isCreditCustomer">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'INVOICE.DUE_DATE' | translate }}</mat-label>
+                    <input matInput [matDatepicker]="dueDatePicker" formControlName="dueDate">
+                    <mat-datepicker-toggle matSuffix [for]="dueDatePicker"></mat-datepicker-toggle>
+                    <mat-datepicker #dueDatePicker></mat-datepicker>
+                  </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'INVOICE.INVOICE_TYPE' | translate }}</mat-label>
+                    <mat-select formControlName="invoiceType">
+                      <mat-option [value]="InvoiceType.Taxable">{{ 'INVOICE.TYPE_TAXABLE' | translate }}</mat-option>
+                      <mat-option [value]="InvoiceType.ZeroRated">{{ 'INVOICE.TYPE_ZERO_RATED' | translate }}</mat-option>
+                      <mat-option [value]="InvoiceType.Exempt">{{ 'INVOICE.TYPE_EXEMPT' | translate }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'INVOICE.CLASSIFICATION' | translate }}</mat-label>
+                    <mat-select formControlName="ClassificationId">
+                      <mat-option *ngFor="let classification of invoiceClassifications()" [value]="classification.value">
+                        {{ classification.label }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'INVOICE.SALESPERSON' | translate }}</mat-label>
+                    <input matInput formControlName="salesperson">
+                  </mat-form-field>
+                </mat-grid-tile>
+              </mat-grid-list>
+            </ng-container>
+          </section>
+        </mat-card>
 
-          <mat-form-field *ngIf="selectedCustomer()?.isCreditCustomer" appearance="outline" class="form-field">
-            <mat-label>{{ 'INVOICE.DUE_DATE' | translate }}</mat-label>
-            <input matInput [matDatepicker]="dueDatePicker" formControlName="dueDate">
-            <mat-datepicker-toggle matSuffix [for]="dueDatePicker"></mat-datepicker-toggle>
-            <mat-datepicker #dueDatePicker></mat-datepicker>
-          </mat-form-field>
-              </mat-grid-tile>
-              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'INVOICE.INVOICE_TYPE' | translate }}</mat-label>
-            <mat-select formControlName="invoiceType">
-              <mat-option [value]="InvoiceType.Taxable">{{ 'INVOICE.TYPE_TAXABLE' | translate }}</mat-option>
-              <mat-option [value]="InvoiceType.ZeroRated">{{ 'INVOICE.TYPE_ZERO_RATED' | translate }}</mat-option>
-              <mat-option [value]="InvoiceType.Exempt">{{ 'INVOICE.TYPE_EXEMPT' | translate }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-              </mat-grid-tile>
-              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'INVOICE.CLASSIFICATION' | translate }}</mat-label>
-            <mat-select formControlName="ClassificationId">
-              <mat-option *ngFor="let classification of invoiceClassifications()" [value]="classification.value">
-                {{ classification.label }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-              </mat-grid-tile>
-          
-              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'INVOICE.SALESPERSON' | translate }}</mat-label>
-            <input matInput formControlName="salesperson">
-          </mat-form-field>
-            </mat-grid-tile>
-          </mat-grid-list>
-              </ng-container>
-      </section>
-
-
-      <section class="form-section">
-        <div class="section-header">
-          <h3 class="form-section-title">{{ 'PURCHASE_INVOICE.SELECT_CAR_CARD' | translate }}</h3>
-          <button mat-raised-button color="accent" (click)="toggleCarCards()">
-            <mat-icon>search</mat-icon>
-            {{ 'PURCHASE_INVOICE.SELECT_CAR' | translate }}
-          </button>
-        </div>
-      </section>
-
-
-      <!-- BAND 3: INVOICE LINE ITEMS GRID -->
-      <section class="form-section">
-        <div class="table-wrapper premium-table">
-
-          <dx-data-grid
-            [dataSource]="invoiceItems()"
-            [showBorders]="true"
-            [columnAutoWidth]="true"
-            [rowAlternationEnabled]="true"
-            [editing]="{ mode: 'cell', allowUpdating: true, allowDeleting: true }"
-            [rtlEnabled]="true"
-            [showBorders]="true"
-            (onRowRemoving)="removeItem($event.data.carId)"
-            (onCellValueChanged)="updateItemPrice($event.data.carId, $event.value)"
-            [noDataText]="'INVOICE.NO_ITEMS' | translate"
-            [height]="400"
-          >
-              <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}"></dxi-column>
-            <dxi-column dataField="quantity" caption="{{ 'PURCHASE_INVOICE.QUANTITY' | translate }}" dataType="number"></dxi-column>
-            <dxi-column dataField="salesPrice" caption="{{ 'SALES.COL_SALES_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
-            <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" dataType="number" format="currency"></dxi-column>
-            <dxi-column dataField="installmentDetails.numberOfInstallments" caption="{{ 'INVOICE.NUMBER_OF_INSTALLMENTS' | translate }}" [visible]="hasInstallments()"></dxi-column>
-            <dxi-column dataField="installmentDetails.installmentAmount" caption="{{ 'INVOICE.INSTALLMENT_AMOUNT' | translate }}" dataType="number" format="currency" [visible]="hasInstallments()"></dxi-column>
-            <dxi-column type="buttons">
-              <dxi-button name="delete"></dxi-button>
-            </dxi-column>
-            <dxo-filter-row [visible]="true"></dxo-filter-row>
-            <dxo-header-filter [visible]="true"></dxo-header-filter>
-            <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false"
-              [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
-            <dxo-selection mode="single"></dxo-selection>
-            <dxo-grouping [autoExpandAll]="false" [contextMenuEnabled]="true"></dxo-grouping>
-            <dxo-paging [pageSize]="10"></dxo-paging>
-            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
-          </dx-data-grid>
-        </div>
-      </section>
-
-      <section class="summary-section">
-        <div class="notes-section">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>{{ 'INVOICE.NOTES' | translate }}</mat-label>
-            <textarea matInput rows="4" formControlName="notes" placeholder="{{ 'INVOICE.NOTES_PLACEHOLDER' | translate }}"></textarea>
-          </mat-form-field>
-        </div>
-
-        <div class="summary-card">
-          <h4 class="summary-title">{{ 'INVOICE.INVOICE_SUMMARY' | translate }}</h4>
-          <div class="summary-content">
-            <div class="summary-row">
-              <span>{{ 'INVOICE.SUBTOTAL' | translate }}</span>
-              <span class="amount">{{ subtotal() | currency:'SAR':'symbol':'1.0-0' }}</span>
+        <!-- Grid + Notes share a row so Notes sits beside the line items instead of stacking under
+             them -- keeps the whole document on one screen instead of growing the page vertically. -->
+        <div class="lines-row">
+          <mat-card class="doc-card lines-card">
+            <div class="section-header">
+              <h3 class="form-section-title">
+                {{ 'PURCHASE_INVOICE.SELECT_CAR_CARD' | translate }}
+                <span class="line-count-badge" *ngIf="invoiceItems().length > 0">{{ invoiceItems().length }}</span>
+              </h3>
+              <button mat-raised-button color="accent" (click)="toggleCarCards()">
+                <mat-icon>search</mat-icon>
+                {{ 'PURCHASE_INVOICE.SELECT_CAR' | translate }}
+              </button>
             </div>
-            <div class="summary-row">
-              <span>{{ 'INVOICE.VAT' | translate }}</span>
-              <span class="amount">+ {{ vatAmount() | currency:'SAR':'symbol':'1.0-0' }}</span>
-            </div>
-            <div class="summary-row" *ngIf="depositAmount() > 0">
-              <span>{{ 'INVOICE.PAID_DEPOSIT' | translate }}</span>
-              <span class="amount">- {{ depositAmount() | currency:'SAR':'symbol':'1.0-0' }}</span>
-            </div>
-            <hr class="summary-divider">
-            <div class="summary-row total-row">
-              <span class="total-label">{{ 'INVOICE.TOTAL' | translate }}</span>
-              <span class="total-amount">{{ totalAmount() | currency:'SAR':'symbol':'1.0-0' }}</span>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      <div class="form-actions">
-        <a routerLink="/sales" class="btn btn-secondary">{{ 'INVOICE.CANCEL' | translate }}</a>
-        <button mat-raised-button color="primary" (click)="saveInvoice()" [disabled]="!invoiceForm.get('customer')?.valid || !invoiceForm.get('invoiceDate')?.valid || invoiceItems().length === 0" class="btn-primary">
-          {{ 'INVOICE.ISSUE' | translate }}
-        </button>
+            <!-- BAND 3: INVOICE LINE ITEMS GRID -->
+            <div class="table-container premium-table">
+              <dx-data-grid
+                [dataSource]="invoiceItems()"
+                [showBorders]="true"
+                [columnAutoWidth]="true"
+                [rowAlternationEnabled]="true"
+                [editing]="{ mode: 'cell', allowUpdating: true, allowDeleting: true }"
+                [rtlEnabled]="true"
+                (onRowRemoving)="removeItem($event.data.carId)"
+                (onCellValueChanged)="updateItemPrice($event.data.carId, $event.value)"
+                [noDataText]="'INVOICE.NO_ITEMS' | translate"
+                [height]="360"
+              >
+                <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}"></dxi-column>
+                <dxi-column dataField="quantity" caption="{{ 'PURCHASE_INVOICE.QUANTITY' | translate }}" dataType="number"></dxi-column>
+                <dxi-column dataField="salesPrice" caption="{{ 'SALES.COL_SALES_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
+                <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" dataType="number" format="currency"></dxi-column>
+                <dxi-column dataField="installmentDetails.numberOfInstallments" caption="{{ 'INVOICE.NUMBER_OF_INSTALLMENTS' | translate }}" [visible]="hasInstallments()"></dxi-column>
+                <dxi-column dataField="installmentDetails.installmentAmount" caption="{{ 'INVOICE.INSTALLMENT_AMOUNT' | translate }}" dataType="number" format="currency" [visible]="hasInstallments()"></dxi-column>
+                <dxi-column type="buttons">
+                  <dxi-button name="delete"></dxi-button>
+                </dxi-column>
+                <dxo-filter-row [visible]="true"></dxo-filter-row>
+                <dxo-header-filter [visible]="true"></dxo-header-filter>
+                <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false"
+                  [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
+                <dxo-selection mode="single"></dxo-selection>
+                <dxo-grouping [autoExpandAll]="false" [contextMenuEnabled]="true"></dxo-grouping>
+                <dxo-paging [pageSize]="10"></dxo-paging>
+                <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
+              </dx-data-grid>
+            </div>
+          </mat-card>
+
+          <mat-card class="doc-card notes-card">
+            <section class="form-section notes-section">
+              <h3 class="form-section-title">{{ 'INVOICE.NOTES' | translate }}</h3>
+              <mat-form-field appearance="outline" class="full-width">
+                <textarea matInput rows="12" formControlName="notes" placeholder="{{ 'INVOICE.NOTES_PLACEHOLDER' | translate }}"></textarea>
+              </mat-form-field>
+            </section>
+          </mat-card>
+        </div>
+
       </div>
-    </form>
-  </div>
+
+      <!-- Sticky summary rail: totals + primary actions stay visible without scrolling the page. -->
+      <aside class="workspace-sidebar">
+        <mat-card class="summary-card">
+          <mat-card-title>{{ 'INVOICE.INVOICE_SUMMARY' | translate }}</mat-card-title>
+          <mat-card-content>
+            <div class="summary-item">
+              <p>{{ 'INVOICE.SUBTOTAL' | translate }}</p>
+              <p class="font-mono">{{ subtotal() | currency:'SAR':'symbol':'1.0-0' }}</p>
+            </div>
+            <div class="summary-item">
+              <p>{{ 'INVOICE.VAT' | translate }}</p>
+              <p class="font-mono">+ {{ vatAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
+            </div>
+            <div class="summary-item" *ngIf="depositAmount() > 0">
+              <p>{{ 'INVOICE.PAID_DEPOSIT' | translate }}</p>
+              <p class="font-mono">- {{ depositAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
+            </div>
+            <hr>
+            <div class="summary-item total">
+              <p>{{ 'INVOICE.TOTAL' | translate }}</p>
+              <p class="font-mono">{{ totalAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
+            </div>
+          </mat-card-content>
+
+          <div class="form-actions">
+            <button mat-raised-button color="primary" class="save-btn" (click)="saveInvoice()" [disabled]="!invoiceForm.get('customer')?.valid || !invoiceForm.get('invoiceDate')?.valid || invoiceItems().length === 0">
+              <mat-icon>save</mat-icon>
+              {{ 'INVOICE.ISSUE' | translate }}
+            </button>
+            <a routerLink="/sales" mat-button class="cancel-btn">{{ 'INVOICE.CANCEL' | translate }}</a>
+          </div>
+        </mat-card>
+      </aside>
+    </div>
+  </form>
 </div>

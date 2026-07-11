@@ -1,45 +1,72 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { CommonModule, CurrencyPipe } from '@angular/common';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatIconModule } from '@angular/material/icon';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { provideNativeDateAdapter } from '@angular/material/core';
+import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
+import { CorporateFleetService, CreditSummary } from '../../../../services/corporate-fleet.service';
+import { CurrentSettingService } from '../../../../services/current-setting.service';
+import { NotificationService } from '@/src/services/notification.service';
+import { CorporateQuotation } from '../../../../models/corporate/corporate-quotation.model';
 import { CreditUtilizationWidgetComponent } from './credit-utilization-widget/credit-utilization-widget.component';
-import { PoReferenceFormComponent } from './po-reference-form/po-reference-form.component';
-import { CorporateFleetService } from '../../../../services/corporate-fleet.service';
-import { ToastService } from '../../../../services/toast.service';
-import { CorporateClient, CorporateQuotation } from '../../../../models/corporate/corporate-quotation.model';
-import { POReferenceData } from '../../../../models/corporate/corporate-order.model';
 
 @Component({
   selector: 'app-corporate-order-manager',
   standalone: true,
   imports: [
     CommonModule,
+    RouterLink,
+    ReactiveFormsModule,
+    CurrencyPipe,
     MatButtonModule,
     MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDatepickerModule,
+    MatIconModule,
+    MatGridListModule,
+    DxDataGridModule,
     TranslateModule,
-    CreditUtilizationWidgetComponent,
-    PoReferenceFormComponent
+    CreditUtilizationWidgetComponent
   ],
+  providers: [provideNativeDateAdapter()],
   templateUrl: './corporate-order-manager.component.html',
-  styleUrls: ['./corporate-order-manager.component.css']
+  styleUrls: ['./corporate-order-manager.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CorporateOrderManagerComponent implements OnInit {
-  quotation: CorporateQuotation | null = null;
-  client: CorporateClient | null = null;
-  loading = false;
-  poData: POReferenceData | null = null;
-  submitting = false;
+  private corporateFleetService = inject(CorporateFleetService);
+  private currentSettingService = inject(CurrentSettingService);
+  private notificationService = inject(NotificationService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
-  constructor(
-    private corporateFleetService: CorporateFleetService,
-    private toast: ToastService,
-    private router: Router,
-    private route: ActivatedRoute
-  ) {}
+  cardLayout3 = this.currentSettingService.getCardLayout(3);
+
+  quotation = signal<CorporateQuotation | null>(null);
+  creditSummary = signal<CreditSummary | null>(null);
+  loading = signal(false);
+  submitting = signal(false);
+
+  orderForm!: FormGroup;
 
   ngOnInit(): void {
+    this.orderForm = new FormGroup({
+      customerPoReference: new FormControl('', Validators.required),
+      paymentTerms: new FormControl('', Validators.required),
+      expectedDeliveryDate: new FormControl(null),
+      salesRepresentative: new FormControl(''),
+      notes: new FormControl('')
+    });
+
     const quotationId = Number(this.route.snapshot.queryParamMap.get('quotationId'));
     if (quotationId) {
       this.loadQuotation(quotationId);
@@ -47,70 +74,64 @@ export class CorporateOrderManagerComponent implements OnInit {
   }
 
   private loadQuotation(quotationId: number): void {
-    this.loading = true;
+    this.loading.set(true);
     this.corporateFleetService.getQuotationById(quotationId).subscribe({
       next: quotation => {
-        this.quotation = quotation;
-        this.loadClient(quotation.clientId);
+        this.quotation.set(quotation);
+        this.loading.set(false);
+        this.corporateFleetService.getCreditSummary(quotation.customerId).subscribe({
+          next: summary => this.creditSummary.set(summary),
+          error: () => {}
+        });
       },
       error: () => {
-        this.loading = false;
-        this.toast.showError('CORPORATE.QUOTATION_LOAD_FAILED');
+        this.loading.set(false);
+        this.notificationService.showError('CORPORATE.QUOTATION_LOAD_FAILED');
       }
     });
-  }
-
-  private loadClient(clientId: number): void {
-    this.corporateFleetService.getCorporateClientById(clientId).subscribe({
-      next: client => {
-        this.client = client;
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-        this.toast.showError('CORPORATE.CLIENT_LOAD_FAILED');
-      }
-    });
-  }
-
-  onPoDataChange(poData: POReferenceData | null): void {
-    this.poData = poData;
   }
 
   get exceedsCreditLimit(): boolean {
-    if (!this.quotation || !this.client) {
-      return false;
-    }
-    return this.client.currentOutstandingBalance + this.quotation.totalAmount > this.client.creditLimit;
+    return this.creditSummary() ? !this.creditSummary()!.isApproved : false;
   }
 
   get isFormValid(): boolean {
-    return !!this.quotation && !!this.poData && !this.exceedsCreditLimit;
+    return this.orderForm.valid && !!this.quotation();
   }
 
   onSubmit(): void {
-    if (!this.isFormValid || !this.quotation?.id || !this.poData) {
+    if (!this.isFormValid || !this.quotation()?.id) {
       return;
     }
 
-    this.submitting = true;
+    const raw = this.orderForm.getRawValue();
+    this.submitting.set(true);
+
     this.corporateFleetService
       .createOrder({
-        quotationId: this.quotation.id,
-        purchaseOrderReference: this.poData.purchaseOrderReference,
-        contractTerm: this.poData.contractTerm
+        corporateQuotationId: this.quotation()!.id!,
+        customerPoReference: raw.customerPoReference,
+        paymentTerms: raw.paymentTerms,
+        expectedDeliveryDate: raw.expectedDeliveryDate ? new Date(raw.expectedDeliveryDate).toISOString() : undefined,
+        salesRepresentative: raw.salesRepresentative || undefined,
+        notes: raw.notes || undefined,
+        userId: 1
       })
       .subscribe({
         next: order => {
-          this.submitting = false;
-          this.toast.showSuccess('CORPORATE.ORDER_CREATED');
-          this.router.navigate(['/sales/corporate/dispatch'], {
+          this.submitting.set(false);
+          this.notificationService.showSuccess('CORPORATE.ORDER_CREATED');
+          this.router.navigate(['/sales/corporate/deliveries/new'], {
             queryParams: { orderId: order.id }
           });
         },
-        error: () => {
-          this.submitting = false;
-          this.toast.showError('CORPORATE.ORDER_CREATE_FAILED');
+        error: (err) => {
+          this.submitting.set(false);
+          if (err?.status === 422) {
+            this.notificationService.showError('CORPORATE.CREDIT_LIMIT_EXCEEDED');
+          } else {
+            this.notificationService.showError('CORPORATE.ORDER_CREATE_FAILED');
+          }
         }
       });
   }

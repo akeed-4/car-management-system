@@ -1,0 +1,34 @@
+.attachment-uploader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.uploader-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-gray-500, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.attachment-list {
+  padding: 0 !important;
+}
+
+.no-attachments {
+  color: var(--color-gray-400, #9ca3af);
+  font-size: 0.82rem;
+  font-style: italic;
+  margin: 0.25rem 0;
+}
+
+.uploading-spinner {
+  margin: 0.5rem 0;
+}

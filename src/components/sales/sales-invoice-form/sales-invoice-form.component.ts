@@ -36,6 +36,8 @@ import { NotificationService } from '@/src/services/notification.service';
 import { AccountingService } from '../../accounting/accounting.service';
 import { SalesCycleService } from '../../../services/sales-cycle.service';
 import { Quotation } from '../../../models/quotation.model';
+import { SalesChannel } from '../../../models/enums/sales-channel.enum';
+import { SaleType } from '../../../models/sales-enhancements.model';
 
 const VAT_RATE_FULL = 0.15; // 15% for new cars on full sale price
 const VAT_RATE_MARGIN = 0.15; // 15% applied to profit margin for used cars
@@ -77,10 +79,19 @@ export class SalesInvoiceFormComponent implements OnInit {
     @Input() lockPaymentMethod: boolean = false;
     @Input() fixedPaymentMethod: any;
     @Input() customTitle:any;
-    @Input() isCash: boolean = false;
   @Input() titleKey = 'INVOICE.CREATE_TITLE';
-    // Expose enum to template
+    /** Sales distribution channel (Afrad/Sharikat/Bunuk) — drives which fields are shown. */
+    @Input() channel: SalesChannel = SalesChannel.Afrad;
+    /** Cash / Credit / Installments — drives down-payment and payment-method behavior. */
+    @Input() saleType: SaleType = SaleType.Cash;
+    // Expose enums to template
     InvoiceType = InvoiceType;
+    SalesChannel = SalesChannel;
+    SaleType = SaleType;
+    /** Derived from saleType for backward compatibility with the payload/edit-mode logic below. */
+    get isCash(): boolean {
+      return this.saleType === SaleType.Cash;
+    }
     // Utility to calculate total amount
     calculateTotalAmount(items: any[]): number {
       return items.reduce((sum, item) => sum + (item.amount || 0), 0);
@@ -133,6 +144,7 @@ export class SalesInvoiceFormComponent implements OnInit {
   selectedQuotationId = signal<number | null>(null);
   linkedQuotation = signal<Quotation | null>(null);
   hasQuotationLineage = computed(() => !!this.linkedQuotation());
+  hasOrderLineage = computed(() => !!this.selectedCustomerOrder());
 
   constructor(
     private inventoryService: InventoryService,
@@ -176,8 +188,16 @@ export class SalesInvoiceFormComponent implements OnInit {
         selectedCarId: new FormControl(null),
         selectedQuantity: new FormControl(1, [Validators.required, Validators.min(1)]),
         notes: new FormControl(''),
-        selectedCostPrice: new FormControl(0, [Validators.required, Validators.min(0)])
+        selectedCostPrice: new FormControl(0, [Validators.required, Validators.min(0)]),
+        downPayment: new FormControl(0)
       });
+      this.updateDownPaymentValidators();
+
+      // Deep-link from a preceding Sales Order step (Corporate/Bank workflows)
+      const orderId = this.route.snapshot.queryParamMap.get('orderId');
+      if (orderId) {
+        this.loadLinkedOrder(+orderId);
+      }
     }
 
     // Load invoice classifications from API
@@ -203,13 +223,48 @@ export class SalesInvoiceFormComponent implements OnInit {
     this.invoiceForm.get('customer')?.valueChanges.subscribe(customerId => {
       const customer = this.customers().find(c => c.id === customerId);
       this.selectedCustomer.set(customer || null);
-      // Set payment method based on isCash input
-      this.invoiceForm.get('paymentMethod')?.setValue(this.isCash ? 'Cash' : 'Credit');
+      // Set payment method based on channel/saleType
+      if (this.channel === SalesChannel.Bunuk) {
+        this.invoiceForm.get('paymentMethod')?.setValue('Finance');
+      } else {
+        this.invoiceForm.get('paymentMethod')?.setValue(this.isCash ? 'Cash' : 'Bank Transfer');
+      }
 
       // Check for pending orders
       if (customerId) {
         this.checkPendingOrders(customerId);
       }
+    });
+  }
+
+  /** Required/cleared to match SaleTypeSelectorComponent's validator behavior. */
+  private updateDownPaymentValidators(): void {
+    const control = this.invoiceForm.get('downPayment');
+    if (!control) {
+      return;
+    }
+    if (this.saleType === SaleType.Credit || this.saleType === SaleType.Installments) {
+      control.setValidators([Validators.required, Validators.min(0)]);
+    } else {
+      control.clearValidators();
+    }
+    control.updateValueAndValidity();
+  }
+
+  /** Prefills the invoice from a Sales Order created in a preceding workflow step (Corporate/Bank). */
+  loadLinkedOrder(orderId: number): void {
+    this.salesService.getCustomerOrderById(orderId).subscribe({
+      next: (order) => {
+        this.selectedCustomerOrder.set(order);
+        this.invoiceForm.patchValue({
+          customer: order.customerId,
+          storeId: order.storeId || null
+        });
+        if (order.vehicleId) {
+          this.addCarToInvoiceById(order.vehicleId);
+        }
+      },
+      error: (err) => console.error('Failed to load linked order', err)
     });
   }
 
@@ -257,12 +312,14 @@ export class SalesInvoiceFormComponent implements OnInit {
   loadInvoiceForEdit(invoiceId: number) {
     this.salesService.getInvoiceById(invoiceId).subscribe({
       next: (invoice) => {
-        // Set isCash based on invoice data (for backward compatibility, derive from paymentMethod if isCash not set)
-        if (invoice.isCash !== undefined) {
-          (this as any).isCash = invoice.isCash;
+        // Restore channel/saleType from the saved invoice (fall back to legacy isCash/paymentMethod)
+        if (invoice.salesChannel !== undefined) {
+          this.channel = invoice.salesChannel;
+        }
+        if (invoice.saleType) {
+          this.saleType = invoice.saleType;
         } else {
-          // Derive from payment method for existing invoices
-          (this as any).isCash = invoice.paymentMethod === 'Cash';
+          this.saleType = (invoice.isCash ?? invoice.paymentMethod === 'Cash') ? SaleType.Cash : SaleType.Credit;
         }
 
         // Initialize form group with existing invoice data
@@ -281,8 +338,10 @@ export class SalesInvoiceFormComponent implements OnInit {
           selectedCarId: new FormControl(null),
           selectedQuantity: new FormControl(1, [Validators.required, Validators.min(1)]),
           notes: new FormControl(invoice.notes || ''),
-          selectedCostPrice: new FormControl(0, [Validators.required, Validators.min(0)])
+          selectedCostPrice: new FormControl(0, [Validators.required, Validators.min(0)]),
+          downPayment: new FormControl(invoice.downPayment || 0)
         });
+        this.updateDownPaymentValidators();
 
         // Set invoice number and items
         this.invoiceNumber.set(invoice.invoiceNumber);
@@ -677,8 +736,12 @@ export class SalesInvoiceFormComponent implements OnInit {
       invoiceType: this.invoiceForm.get('invoiceType')?.value,
       salesperson: this.invoiceForm.get('salesperson')?.value,
       isCash: this.isCash,
+      salesChannel: this.channel,
+      saleType: this.saleType,
+      downPayment: this.invoiceForm.get('downPayment')?.value || 0,
       quotationId: this.linkedQuotation()?.id,
       quotationNumber: this.linkedQuotation()?.quotationNumber,
+      sourceOrderId: this.selectedCustomerOrder()?.id || null,
       items: items,
       subtotal: this.subtotal(),
       totalAmount: this.totalAmount(),
@@ -689,9 +752,13 @@ export class SalesInvoiceFormComponent implements OnInit {
       amountPaid: 0,
       amountDue: this.totalAmount(),
       ownershipTransferStatus: 'Not Started',
-      salesOrderId: this.selectedCustomerOrder()?.id || null,
       depositId: this.selectedDeposit()?.id || null,
     };
+
+    if (this.channel === SalesChannel.Bunuk) {
+      invoiceData.ownerCustomerId = customerId;
+      invoiceData.funderBankId = this.selectedCustomerOrder()?.bankId || null;
+    }
 
     if (this.isEditMode()) {
       this.salesService.updateInvoice(invoiceData).subscribe({
@@ -716,7 +783,12 @@ export class SalesInvoiceFormComponent implements OnInit {
           if (this.selectedDeposit()) {
             this.depositService.markDepositAsInvoiced(this.selectedDeposit().id).subscribe();
           }
-          this.router.navigate(['/sales']);
+          if (this.channel === SalesChannel.Bunuk) {
+            // Bank Sales workflow: continue to Vehicle Delivery
+            this.router.navigate(['/sales/bank/deliveries/new'], { queryParams: { invoiceId: savedInvoice.id } });
+          } else {
+            this.router.navigate(['/sales']);
+          }
         },
         error: () => {
           this.notificationService.showError('TOAST.SAVE_ERROR');
