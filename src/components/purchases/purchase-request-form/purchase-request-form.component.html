@@ -12,12 +12,6 @@
               {{ (isEditMode ? 'PURCHASE_REQUESTS.EDIT_TITLE' : 'PURCHASE_REQUESTS.CREATE_TITLE') | translate }}
             </h3>
           </div>
-          <div class="header-actions d-flex gap-2">
-            <button mat-stroked-button color="accent" type="button" (click)="toggleCarCards()">
-              <mat-icon>search</mat-icon>
-              {{ 'PURCHASE_INVOICE.SELECT_CAR' | translate }}
-            </button>
-          </div>
         </div>
 
         <div class="doc-section-title">
@@ -49,24 +43,29 @@
         <div class="form-row-flex">
           <div class="flex-1">
             <mat-form-field appearance="outline" class="w-100">
-              <mat-label>{{ 'PURCHASE_REQUESTS.SUPPLIER' | translate }}</mat-label>
-
-              <mat-select formControlName="supplierId">
-
-                <mat-option>
-                  <ngx-mat-select-search [formControl]="supplierFilterCtrl"
-                    [noEntriesFoundLabel]="'PURCHASE_OFFER.NO_RESULTS' | translate">
-                  </ngx-mat-select-search>
+              <mat-label>{{ 'PURCHASE_REQUESTS.SELECT_ORDER' | translate }}</mat-label>
+              <mat-select formControlName="purchaseOfferId" (selectionChange)="onOrderSelected($event.value)">
+                <mat-option *ngFor="let o of eligibleOrders()" [value]="o.id">
+                  {{ o.requisitionNumber }} — {{ o.departmentName }} — {{ o.requisitionDate | date:'mediumDate' }}
                 </mat-option>
+              </mat-select>
+              <mat-icon matSuffix>assignment</mat-icon>
+              <mat-hint>{{ 'PURCHASE_REQUESTS.SELECT_ORDER_HINT' | translate }}</mat-hint>
+              <mat-error *ngIf="requestForm.get('purchaseOfferId')?.hasError('required')">
+                {{ 'COMMON.REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
 
-                <mat-option *ngFor="let s of filteredSuppliers()" [value]="s.id">
+          <div class="flex-1">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'PURCHASE_REQUESTS.SUPPLIER' | translate }}</mat-label>
+              <mat-select formControlName="supplierId">
+                <mat-option *ngFor="let s of suppliers()" [value]="s.id">
                   {{ s.name }}
                 </mat-option>
-
               </mat-select>
-
               <mat-icon matSuffix>store</mat-icon>
-
               <mat-error *ngIf="requestForm.get('supplierId')?.hasError('required')">
                 {{ 'COMMON.REQUIRED' | translate }}
               </mat-error>

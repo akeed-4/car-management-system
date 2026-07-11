@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
@@ -32,7 +32,8 @@ export class PurchaseRequisitionListComponent implements OnInit {
     private purchaseRequisitionService: PurchaseRequisitionService,
     private notificationService: NotificationService,
     private translateService: TranslateService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -42,7 +43,8 @@ export class PurchaseRequisitionListComponent implements OnInit {
   loadRequisitions(): void {
     this.purchaseRequisitionService.getAll().subscribe({
       next: (requisitions: any) => {
-        this.requisitions = Array.isArray(requisitions) ? requisitions : (requisitions?.data ?? []);
+        this.requisitions = Array.isArray(requisitions.data) ? requisitions.data : (requisitions?.data ?? []);
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error loading purchase requisitions', err);

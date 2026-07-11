@@ -37,6 +37,7 @@ export interface PurchaseOfferDto {
   offerDate: string;
   supplierId: number;
   supplier?: Supplier;
+  supplierName?: string;
   notes?: string;
   paymentTerms?: string;
   deliveryTerms?: string;
@@ -49,4 +50,20 @@ export interface PurchaseOfferDto {
   convertedToRequestId?: number;
   createdAt?: string;
   updatedAt?: string;
+}
+
+/** Cascading dropdown row: approved offers with remaining un-ordered lines, for the Purchase Order screen. */
+export interface ApprovedOfferLookupDto {
+  id: number;
+  offerNumber: string;
+  offerDate: string;
+  totalAmount: number;
+}
+
+/** Row shape used to auto-populate the PO grid once a purchase offer is selected. */
+export interface OfferItemForPODto {
+  purchaseOfferItemId: number;
+  itemDescription: string;
+  remainingQuantity: number;
+  unitPrice: number;
 }

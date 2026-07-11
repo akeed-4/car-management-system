@@ -17,17 +17,19 @@
       <mat-icon class="trace-bar-icon">receipt_long</mat-icon>
       <mat-form-field appearance="outline" class="grn-select">
         <mat-label>{{ 'PURCHASE_INVOICE.PARENT_GRN' | translate }}</mat-label>
-        <mat-select [value]="selectedReceiptIds()" (selectionChange)="selectedReceiptIds.set($event.value)" multiple>
-          <mat-option *ngFor="let receipt of openCarReceipts()" [value]="receipt.id">
-            {{ receipt.receiptNumber }} — {{ receipt.receiptDate | date:'shortDate' }}
-          </mat-option>
+        <mat-select [value]="selectedDropdownKeys()" (selectionChange)="onReceiptDropdownChange($event.value)" multiple>
+          <mat-optgroup label="{{ 'PURCHASE_INVOICE.CAR_RECEIPTS' | translate }}" *ngIf="openCarReceipts().length > 0">
+            <mat-option *ngFor="let receipt of openCarReceipts()" [value]="'cr:' + receipt.id">
+              {{ receipt.receiptNumber }} — {{ receipt.receiptDate | date:'shortDate' }}
+            </mat-option>
+          </mat-optgroup>
+          <mat-optgroup label="{{ 'PURCHASE_INVOICE.RECEIPT_NOTES' | translate }}" *ngIf="openReceiptNotes().length > 0">
+            <mat-option *ngFor="let note of openReceiptNotes()" [value]="'note:' + note.id">
+              {{ note.grnNumber }} — {{ note.receiptDate | date:'shortDate' }}
+            </mat-option>
+          </mat-optgroup>
         </mat-select>
       </mat-form-field>
-      <button mat-flat-button color="primary" type="button" class="apply-grn-btn"
-        (click)="applySelectedReceipts()" [disabled]="selectedReceiptIds().length === 0">
-        <mat-icon>playlist_add</mat-icon>
-        {{ 'PURCHASE_INVOICE.ADD_SELECTED_RECEIPTS' | translate }}
-      </button>
     </div>
 
     <div class="lineage-trail" *ngIf="hasGrnLineage(); else noLineage">
@@ -49,183 +51,200 @@
     </ng-template>
   </div>
 
-  <mat-card>
+  <form [formGroup]="purchaseInvoiceForm">
+    <!-- ERP-style two-pane workspace: document (header + lines) on the left, an always-visible
+         summary + actions rail on the right so totals and Save/Cancel never require scrolling. -->
+    <div class="invoice-workspace">
+      <div class="workspace-main">
 
-    <form [formGroup]="purchaseInvoiceForm" >
+        <mat-card class="doc-card">
+          <!-- BAND 2: INVOICE HEADER FORM -->
+          <section class="form-section">
+            <h3 class="form-section-title">{{ 'PURCHASE_INVOICE.MAIN_DATA' | translate }}</h3>
+            <ng-container *ngIf="cardLayout2 | async as layout">
+              <mat-grid-list [cols]="layout.columns" rowHeight="88" gutterSize="16px">
 
-      <!-- BAND 2: INVOICE HEADER FORM -->
-      <section class="form-section">
-        <h3 class="form-section-title">{{ 'PURCHASE_INVOICE.MAIN_DATA' | translate }}</h3>
-        <ng-container *ngIf="cardLayout2 | async as layout">
-          <mat-grid-list [cols]="layout.columns" rowHeight="80" >
-         
-            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'PURCHASE_INVOICE.INVOICE_NUMBER' | translate }}</mat-label>
+                    <input matInput formControlName="invoiceNumber">
+                  </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'PURCHASE_INVOICE.SUPPLIER' | translate }}</mat-label>
+                    <mat-select formControlName="supplierId" required>
+                      <mat-option>
+                        <ngx-mat-select-search [formControl]="supplierFilterCtrl"
+                          placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
+                          noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
+                        </ngx-mat-select-search>
+                      </mat-option>
+                      <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_SUPPLIER' | translate }}</mat-option>
+                      <mat-option *ngFor="let supplier of filteredSuppliers()" [value]="supplier.id">{{ supplier.name }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </mat-grid-tile>
+
+              </mat-grid-list>
+            </ng-container>
+            <ng-container *ngIf="cardLayout3 | async as layout">
+              <mat-grid-list [cols]="layout.columns" rowHeight="88" gutterSize="16px">
+
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'PURCHASE_INVOICE.DEBIT_ACCOUNT' | translate }}</mat-label>
+                    <mat-select formControlName="debitAccountId" required>
+                      <mat-option>
+                        <ngx-mat-select-search [formControl]="debitAccountFilterCtrl"
+                          placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
+                          noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
+                        </ngx-mat-select-search>
+                      </mat-option>
+                      <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_DEBIT_ACCOUNT' | translate }}</mat-option>
+                      <mat-option *ngFor="let account of filteredDebitAccounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameAr }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'PURCHASE_INVOICE.CREDIT_ACCOUNT' | translate }}</mat-label>
+                    <mat-select formControlName="creditAccountId" required>
+                      <mat-option>
+                        <ngx-mat-select-search [formControl]="creditAccountFilterCtrl"
+                          placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
+                          noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
+                        </ngx-mat-select-search>
+                      </mat-option>
+                      <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_CREDIT_ACCOUNT' | translate }}</mat-option>
+                      <mat-option *ngFor="let account of filteredCreditAccounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameAr }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'PURCHASE_INVOICE.INVOICE_DATE' | translate }}</mat-label>
+                    <input matInput [matDatepicker]="invoiceDatePicker" formControlName="invoiceDate" required>
+                    <mat-datepicker-toggle matSuffix [for]="invoiceDatePicker"></mat-datepicker-toggle>
+                    <mat-datepicker #invoiceDatePicker></mat-datepicker>
+                  </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'PURCHASE_INVOICE.INVOICE_TYPE' | translate }}</mat-label>
+                    <mat-select formControlName="invoiceType" (selectionChange)="onInvoiceTypeChange($event)">
+                      <mat-option [value]="InvoiceType.Taxable">{{ 'PURCHASE_INVOICE.TAXABLE' | translate }}</mat-option>
+                      <mat-option [value]="InvoiceType.ZeroRated">{{ 'PURCHASE_INVOICE.ZERO_RATED' | translate }}</mat-option>
+                      <mat-option [value]="InvoiceType.Exempt">{{ 'PURCHASE_INVOICE.EXEMPT' | translate }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'PURCHASE_INVOICE.INVOICE_CLASSIFICATION' | translate }}</mat-label>
+                    <mat-select formControlName="ClassificationId" (selectionChange)="onInvoiceClassificationChange($event)">
+                      <mat-option *ngFor="let classification of invoiceClassifications()" [value]="classification.value">
+                        {{ classification.label }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows" *ngIf="purchaseInvoiceForm.get('paymentMethod')?.value === 'Credit (Deferred)'">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'PURCHASE_INVOICE.DUE_DATE' | translate }}</mat-label>
+                    <input matInput [matDatepicker]="dueDatePicker" formControlName="dueDate">
+                    <mat-datepicker-toggle matSuffix [for]="dueDatePicker"></mat-datepicker-toggle>
+                    <mat-datepicker #dueDatePicker></mat-datepicker>
+                  </mat-form-field>
+                </mat-grid-tile>
+              </mat-grid-list>
+            </ng-container>
+
+            <!-- Validation Errors -->
+            <div *ngIf="purchaseInvoiceForm.errors?.['sameAccount']" class="error-message">
+              <mat-error>{{ 'PURCHASE_INVOICE.ERROR_SAME_ACCOUNT' | translate }}</mat-error>
+            </div>
+            <div *ngIf="purchaseInvoiceForm.errors?.['dueDateRequired']" class="error-message">
+              <mat-error>{{ 'PURCHASE_INVOICE.DUE_DATE_REQUIRED' | translate }}</mat-error>
+            </div>
+          </section>
+
+          <section class="form-section linked-note-section" *ngIf="linkedReceiptIds().length > 0">
+            <div class="linked-receipts-note">
+              <mat-icon>link</mat-icon>
+              {{ 'PURCHASE_INVOICE.LINKED_RECEIPTS_NOTE' | translate: { count: linkedReceiptIds().length } }}
+            </div>
+          </section>
+        </mat-card>
+
+        <!-- Grid + Notes share a row so Notes sits beside the line items instead of stacking under
+             them -- keeps the whole document on one screen instead of growing the page vertically. -->
+        <div class="lines-row">
+          <mat-card class="doc-card lines-card">
+            <div class="section-header">
+              <h3 class="form-section-title">
+                {{ 'PURCHASE_INVOICE.SELECT_CAR_CARD' | translate }}
+                <span class="line-count-badge" *ngIf="invoiceItems().length > 0">{{ invoiceItems().length }}</span>
+              </h3>
+              <button mat-raised-button color="accent" (click)="toggleCarCards()">
+                <mat-icon>search</mat-icon>
+                {{ 'PURCHASE_INVOICE.SELECT_CAR' | translate }}
+              </button>
+            </div>
+
+            <div class="table-container premium-table">
+              <dx-data-grid
+                [dataSource]="invoiceItems()"
+                [showBorders]="true"
+                [columnAutoWidth]="true"
+                [rowAlternationEnabled]="true"
+                [rtlEnabled]="true"
+                [noDataText]="'PURCHASE_INVOICE.NO_ITEMS' | translate"
+                [editing]="{ mode: 'cell', allowUpdating: true }"
+                (onRowUpdated)="onInvoiceItemRowUpdated()"
+                [height]="360"
+                keyExpr="carId"
+              >
+                <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}" [allowEditing]="false"></dxi-column>
+                <dxi-column dataField="receivedQuantity" caption="{{ 'PURCHASE_INVOICE.RECEIVED_QTY' | translate }}" dataType="number" [allowEditing]="false" [visible]="hasGrnLineage()" cssClass="readonly-col"></dxi-column>
+                <dxi-column dataField="quantity" [setCellValue]="onQuantityCellValue" caption="{{ (hasGrnLineage() ? 'PURCHASE_INVOICE.BILLING_QTY' : 'PURCHASE_INVOICE.QUANTITY') | translate }}" dataType="number" [allowEditing]="true">
+                </dxi-column>
+                <dxi-column dataField="unitPrice" [setCellValue]="onUnitPriceCellValue" caption="{{ 'PURCHASE_INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency" [allowEditing]="true"></dxi-column>
+                <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" dataType="number" format="currency" [allowEditing]="false"></dxi-column>
+                <dxi-column type="buttons" caption="{{ 'PURCHASE_INVOICE.tools' | translate }}" width="120">
+                  <dxi-button
+                    icon="edit"
+                    hint="{{ 'PURCHASE_INVOICE.EDIT_ITEM' | translate }}"
+                    [onClick]="editQuantity">
+                  </dxi-button>
+                  <dxi-button
+                    icon="trash"
+                    hint="{{ 'PURCHASE_INVOICE.REMOVE_ITEM' | translate }}"
+                    [onClick]="removeItem">
+                  </dxi-button>
+                </dxi-column>
+
+                <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false"
+                  [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
+              </dx-data-grid>
+            </div>
+          </mat-card>
+
+          <mat-card class="doc-card notes-card">
+            <section class="form-section notes-section">
+              <h3 class="form-section-title">{{ 'PURCHASE_INVOICE.NOTES' | translate }}</h3>
               <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'PURCHASE_INVOICE.INVOICE_NUMBER' | translate }}</mat-label>
-                <input matInput formControlName="invoiceNumber" >
+                <textarea matInput formControlName="notes" rows="12" placeholder="{{ 'PURCHASE_INVOICE.NOTES_PLACEHOLDER' | translate }}"></textarea>
               </mat-form-field>
-            </mat-grid-tile>
-              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>{{ 'PURCHASE_INVOICE.SUPPLIER' | translate }}</mat-label>
-                  <mat-select formControlName="supplierId" required>
-                    <mat-option>
-                      <ngx-mat-select-search [formControl]="supplierFilterCtrl" 
-                        placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
-                        noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
-                      </ngx-mat-select-search>
-                    </mat-option>
-                    <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_SUPPLIER' | translate }}</mat-option>
-                    <mat-option *ngFor="let supplier of filteredSuppliers()" [value]="supplier.id">{{ supplier.name }}</mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </mat-grid-tile >
-            
-          </mat-grid-list>
-        </ng-container>
-                <ng-container *ngIf="cardLayout3 | async as layout">
-                  <mat-grid-list [cols]="layout.columns" rowHeight="80" gutterSize="8px">
-
-                      <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>{{ 'PURCHASE_INVOICE.DEBIT_ACCOUNT' | translate }}</mat-label>
-                  <mat-select formControlName="debitAccountId" required>
-                    <mat-option>
-                      <ngx-mat-select-search [formControl]="debitAccountFilterCtrl" 
-                        placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
-                        noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
-                      </ngx-mat-select-search>
-                    </mat-option>
-                    <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_DEBIT_ACCOUNT' | translate }}</mat-option>
-                    <mat-option *ngFor="let account of filteredDebitAccounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameAr }}</mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </mat-grid-tile>
-              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>{{ 'PURCHASE_INVOICE.CREDIT_ACCOUNT' | translate }}</mat-label>
-                  <mat-select formControlName="creditAccountId" required>
-                    <mat-option>
-                      <ngx-mat-select-search [formControl]="creditAccountFilterCtrl" 
-                        placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
-                        noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
-                      </ngx-mat-select-search>
-                    </mat-option>
-                    <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_CREDIT_ACCOUNT' | translate }}</mat-option>
-                    <mat-option *ngFor="let account of filteredCreditAccounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameAr }}</mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </mat-grid-tile>
-            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'PURCHASE_INVOICE.INVOICE_DATE' | translate }}</mat-label>
-                <input matInput [matDatepicker]="invoiceDatePicker" formControlName="invoiceDate" required>
-                <mat-datepicker-toggle matSuffix [for]="invoiceDatePicker"></mat-datepicker-toggle>
-                <mat-datepicker #invoiceDatePicker></mat-datepicker>
-              </mat-form-field>
-            </mat-grid-tile>
-            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'PURCHASE_INVOICE.INVOICE_TYPE' | translate }}</mat-label>
-                <mat-select formControlName="invoiceType" (selectionChange)="onInvoiceTypeChange($event)">
-                  <mat-option [value]="InvoiceType.Taxable">{{ 'PURCHASE_INVOICE.TAXABLE' | translate }}</mat-option>
-                  <mat-option [value]="InvoiceType.ZeroRated">{{ 'PURCHASE_INVOICE.ZERO_RATED' | translate }}</mat-option>
-                  <mat-option [value]="InvoiceType.Exempt">{{ 'PURCHASE_INVOICE.EXEMPT' | translate }}</mat-option>
-                </mat-select>
-              </mat-form-field>
-            </mat-grid-tile>
-                 <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'PURCHASE_INVOICE.INVOICE_CLASSIFICATION' | translate }}</mat-label>
-                <mat-select formControlName="ClassificationId" (selectionChange)="onInvoiceClassificationChange($event)">
-                  <mat-option *ngFor="let classification of invoiceClassifications()" [value]="classification.value">
-                    {{ classification.label }}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
-            </mat-grid-tile>
-            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows" *ngIf="purchaseInvoiceForm.get('paymentMethod')?.value === 'Credit (Deferred)'">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'PURCHASE_INVOICE.DUE_DATE' | translate }}</mat-label>
-                <input matInput [matDatepicker]="dueDatePicker" formControlName="dueDate">
-                <mat-datepicker-toggle matSuffix [for]="dueDatePicker"></mat-datepicker-toggle>
-                <mat-datepicker #dueDatePicker></mat-datepicker>
-              </mat-form-field>
-            </mat-grid-tile>
-          </mat-grid-list>
-        </ng-container>
-
-        <!-- Validation Errors -->
-        <div *ngIf="purchaseInvoiceForm.errors?.['sameAccount']" class="error-message">
-          <mat-error>{{ 'PURCHASE_INVOICE.ERROR_SAME_ACCOUNT' | translate }}</mat-error>
+            </section>
+          </mat-card>
         </div>
-        <div *ngIf="purchaseInvoiceForm.errors?.['dueDateRequired']" class="error-message">
-          <mat-error>{{ 'PURCHASE_INVOICE.DUE_DATE_REQUIRED' | translate }}</mat-error>
-        </div>
-      </section>
 
-      <section class="form-section" *ngIf="linkedReceiptIds().length > 0">
-        <div class="linked-receipts-note">
-          <mat-icon>link</mat-icon>
-          {{ 'PURCHASE_INVOICE.LINKED_RECEIPTS_NOTE' | translate: { count: linkedReceiptIds().length } }}
-        </div>
-      </section>
+      </div>
 
-      <section class="form-section">
-        <div class="section-header">
-          <h3 class="form-section-title">{{ 'PURCHASE_INVOICE.SELECT_CAR_CARD' | translate }}</h3>
-          <button mat-raised-button color="accent" (click)="toggleCarCards()">
-            <mat-icon>search</mat-icon>
-            {{ 'PURCHASE_INVOICE.SELECT_CAR' | translate }}
-          </button>
-        </div>
-      </section>
-
-      <section class="form-section">
-        <div class="table-container premium-table">
-          <dx-data-grid
-            [dataSource]="invoiceItems()"
-            [showBorders]="true"
-            [columnAutoWidth]="true"
-            [rowAlternationEnabled]="true"
-            [rtlEnabled]="true"
-            [noDataText]="'PURCHASE_INVOICE.NO_ITEMS' | translate"
-            [editing]="{ mode: 'cell', allowUpdating: true }"
-            (onCellValueChanged)="onBillingQuantityChanged($event)"
-            keyExpr="carId"
-          >
-            <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}" [allowEditing]="false"></dxi-column>
-            <dxi-column dataField="receivedQuantity" caption="{{ 'PURCHASE_INVOICE.RECEIVED_QTY' | translate }}" dataType="number" [allowEditing]="false" [visible]="hasGrnLineage()" cssClass="readonly-col"></dxi-column>
-            <dxi-column dataField="quantity" caption="{{ (hasGrnLineage() ? 'PURCHASE_INVOICE.BILLING_QTY' : 'PURCHASE_INVOICE.QUANTITY') | translate }}" dataType="number" [allowEditing]="true">
-            </dxi-column>
-            <dxi-column dataField="unitPrice" caption="{{ 'PURCHASE_INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency" [allowEditing]="false"></dxi-column>
-            <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" dataType="number" format="currency" [allowEditing]="false"></dxi-column>
-            <dxi-column type="buttons" caption="{{ 'PURCHASE_INVOICE.tools' | translate }}" width="120">
-              <dxi-button
-                icon="edit"
-                hint="{{ 'PURCHASE_INVOICE.EDIT_ITEM' | translate }}"
-                [onClick]="editQuantity">
-              </dxi-button>
-              <dxi-button
-                icon="trash"
-                hint="{{ 'PURCHASE_INVOICE.REMOVE_ITEM' | translate }}"
-                [onClick]="removeItem">
-              </dxi-button>
-            </dxi-column>
-
-            <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false"
-              [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
-          </dx-data-grid>
-        </div>
-      </section>
-
-      <section class="summary-section">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'PURCHASE_INVOICE.NOTES' | translate }}</mat-label>
-          <textarea matInput formControlName="notes" rows="4" placeholder="{{ 'PURCHASE_INVOICE.NOTES_PLACEHOLDER' | translate }}"></textarea>
-        </mat-form-field>
-
-        <mat-card>
+      <!-- Sticky summary rail: totals + primary actions stay visible without scrolling the page. -->
+      <aside class="workspace-sidebar">
+        <mat-card class="summary-card">
           <mat-card-title>{{ 'PURCHASE_INVOICE.INVOICE_SUMMARY' | translate }}</mat-card-title>
           <mat-card-content>
             <div class="summary-item">
@@ -242,16 +261,16 @@
               <p class="font-mono">{{ totalAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
             </div>
           </mat-card-content>
-        </mat-card>
-      </section>
 
-      <div class="form-actions">
-        <a [routerLink]="backRoute()" mat-button>{{ 'PURCHASE_INVOICE.CANCEL' | translate }}</a>
-        <button mat-raised-button color="primary" (click)="saveInvoice()" [disabled]="purchaseInvoiceForm.invalid || invoiceItems().length === 0">
-            <mat-icon>save</mat-icon>
-            {{ 'PURCHASE_INVOICE.SAVE' | translate }}
-        </button>
-      </div>
-    </form>
-  </mat-card>
+          <div class="form-actions">
+            <button mat-raised-button color="primary" class="save-btn" (click)="saveInvoice()" [disabled]="purchaseInvoiceForm.invalid || invoiceItems().length === 0">
+              <mat-icon>save</mat-icon>
+              {{ 'PURCHASE_INVOICE.SAVE' | translate }}
+            </button>
+            <a [routerLink]="backRoute()" mat-button class="cancel-btn">{{ 'PURCHASE_INVOICE.CANCEL' | translate }}</a>
+          </div>
+        </mat-card>
+      </aside>
+    </div>
+  </form>
 </div>

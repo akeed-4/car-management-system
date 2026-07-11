@@ -9,6 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog } from '@angular/material/dialog';
 import { DxDataGridModule, DxButtonModule, DxSelectBoxModule, DxPopupModule, DxDataGridComponent } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CreatePurchaseOfferDto } from '../../../models/purchase-offer.model';
@@ -16,6 +17,8 @@ import { PurchaseRequestDto } from '../../../models/purchase-request.model';
 import { PurchaseCycleService } from '../../../services/purchase-cycle.service';
 import { MatCardModule } from '@angular/material/card';
 import { NotificationService } from '@/src/services/notification.service';
+import { Car } from '../../../models/car.model';
+import { CarSelectionDialogComponent } from '../purchase-invoice/car-selection-dialog/car-selection-dialog.component';
 
 @Component({
   selector: 'app-purchase-offer-form',
@@ -46,6 +49,7 @@ export class PurchaseOfferFormComponent implements OnInit {
   offerId?: number;
   offerItems: any[] = [];
   documentDetails: any[] = [];
+  selectedCars: Car[] = [];
   grandTotal = 0;
 
   /** Purchase Requests (Supplier Price Requests) -- the only eligible dropdown source. */
@@ -62,7 +66,8 @@ export class PurchaseOfferFormComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private router: Router,
     private notificationService: NotificationService,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private dialog: MatDialog
 
   ) {
     this.initForm();
@@ -96,7 +101,7 @@ export class PurchaseOfferFormComponent implements OnInit {
 
   loadEligibleRequests(): void {
     this.purchaseCycleService.getPurchaseRequests().subscribe({
-      next: (requests) => this.eligibleRequests.set(requests || []),
+      next: (requests:any) => this.eligibleRequests.set(requests.data || []),
       error: (err) => {
         console.error('Error loading purchase requests', err);
         this.eligibleRequests.set([]);
@@ -107,6 +112,7 @@ export class PurchaseOfferFormComponent implements OnInit {
   /** Cascading onChange: selecting a Supplier Price Request auto-fills supplier and items. */
   onRequestSelected(requestId: number | null): void {
     this.offerItems = [];
+    this.selectedCars = [];
     this.selectedRequest = null;
     this.offerForm.patchValue({ supplierId: null }, { emitEvent: false });
 
@@ -127,6 +133,7 @@ export class PurchaseOfferFormComponent implements OnInit {
           unitPrice: item.unitPrice,
           lineTotal: item.lineTotal
         }));
+        this.selectedCars = (request.items || []).map(item => item.car).filter((c): c is Car => !!c);
         this.updateDocumentPreview();
         this.cdr.detectChanges();
       },
@@ -159,8 +166,44 @@ export class PurchaseOfferFormComponent implements OnInit {
         unitPrice: item.unitPrice,
         lineTotal: item.lineTotal
       }));
+      this.selectedCars = offer.items.map(item => item.car).filter((c): c is Car => !!c);
       this.updateDocumentPreview();
     });
+  }
+
+  toggleCarCards(): void {
+    const dialogRef = this.dialog.open(CarSelectionDialogComponent, {
+      width: '90vw',
+      maxWidth: '1200px',
+      height: '80vh',
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.selectCar(result);
+      }
+    });
+  }
+
+  selectCar(car: Car): void {
+    if (!car || this.offerItems.some(i => i.carId === car.id)) return;
+
+    const quantity = 1;
+    const unitPrice = car.purchasePrice ?? car.salePrice ?? 0;
+    this.offerItems = [...this.offerItems, {
+      carId: car.id,
+      carDescription: car.description || `${car.make} ${car.model} ${car.year}`,
+      make: car.make || '',
+      model: car.model || '',
+      year: car.year || new Date().getFullYear(),
+      quantity,
+      unitPrice,
+      lineTotal: quantity * unitPrice
+    }];
+    this.selectedCars = [...this.selectedCars, car];
+    this.updateDocumentPreview();
+    this.cdr.detectChanges();
   }
 
 onSubmit(): void {
@@ -204,6 +247,7 @@ onSubmit(): void {
   removeItem(e: any): void {
     const carId = e.row?.data?.carId;
     this.offerItems = this.offerItems.filter(i => i.carId !== carId);
+    this.selectedCars = this.selectedCars.filter(c => c.id !== carId);
     this.updateDocumentPreview();
   }
 

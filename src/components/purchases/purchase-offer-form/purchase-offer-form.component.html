@@ -41,7 +41,7 @@
               <mat-label>{{ 'PURCHASE_OFFER.SELECT_REQUEST' | translate }}</mat-label>
               <mat-select formControlName="purchaseRequestId" (selectionChange)="onRequestSelected($event.value)">
                 <mat-option *ngFor="let r of eligibleRequests()" [value]="r.id">
-                  {{ r.requestNumber }} — {{ r.supplier?.name }} — {{ r.totalAmount | currency }}
+                  {{ r.requestNumber }} — {{ r.supplierName || r.supplier?.name }} — {{ r.totalAmount | currency }}
                 </mat-option>
               </mat-select>
               <mat-icon matSuffix>assignment</mat-icon>
@@ -55,7 +55,7 @@
           <div class="flex-1">
             <mat-form-field appearance="outline" class="w-100">
               <mat-label>{{ 'PURCHASE_OFFER.SUPPLIER' | translate }}</mat-label>
-              <input matInput [value]="selectedRequest?.supplier?.name || ''" readonly disabled>
+              <input matInput [value]="selectedRequest?.supplierName || selectedRequest?.supplier?.name || ''" readonly disabled>
               <mat-icon matSuffix>lock</mat-icon>
               <mat-hint>{{ 'PURCHASE_OFFER.SUPPLIER_LOCKED_HINT' | translate }}</mat-hint>
             </mat-form-field>
@@ -95,6 +95,7 @@
               {{ (isEditMode ? 'PURCHASE_OFFER.EDIT_TITLE' : 'PURCHASE_OFFER.CREATE_TITLE') | translate }}
             </h3>
           </div>
+      
         </div>
         <div class="details-grid-wrapper mb-3">
           <dx-data-grid [dataSource]="offerItems" [showBorders]="true" [columnAutoWidth]="true"
@@ -103,7 +104,7 @@
               (onEditorPreparing)="onCellValueChanged($event)">
 
             <dxo-search-panel [visible]="false"></dxo-search-panel>
-            <dxo-editing mode="cell" [allowUpdating]="true">
+            <dxo-editing mode="cell" [allowUpdating]="true" [allowAdding]="false" [allowDeleting]="false">
             </dxo-editing>
             <dxi-column dataField="carDescription"
               caption="{{ 'PURCHASE_OFFER.DESCRIPTION' | translate }}"></dxi-column>
@@ -125,6 +126,7 @@
           </dx-data-grid>
         </div>
 
+        
         <!-- ══════════════════ SECTION 3: NOTES ══════════════════ -->
         <div class="row g-3 mb-4">
           <div class="col-12">

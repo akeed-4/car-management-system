@@ -1,6 +1,6 @@
-import { ChangeDetectorRef, Component, computed, OnInit, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -11,17 +11,16 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialog } from '@angular/material/dialog';
 import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { PurchaseCycleService } from '../../../services/purchase-cycle.service';
 import { NotificationService } from '../../../services/notification.service';
 import { CreatePurchaseRequestDto } from '../../../models/purchase-request.model';
+import { PurchaseRequisitionDto } from '../../../models/purchase-requisition.model';
+import { PurchaseRequisitionService } from '../../../services/purchase-requisition.service';
 import { SupplierService } from '@/src/services/supplier.service';
 import { Supplier } from '@/src/models/supplier.model';
-import { CarSelectionDialogComponent } from '../purchase-invoice/car-selection-dialog/car-selection-dialog.component';
+import { InventoryService } from '../../../services/inventory.service';
 
 interface RequestLineItem {
   carId: number;
@@ -51,8 +50,7 @@ interface RequestLineItem {
     MatCardModule,
     DxDataGridModule,
     DxButtonModule,
-    TranslateModule,
-    NgxMatSelectSearchModule
+    TranslateModule
   ],
   templateUrl: './purchase-request-form.component.html',
   styleUrls: ['./purchase-request-form.component.css']
@@ -66,21 +64,27 @@ export class PurchaseRequestFormComponent implements OnInit {
   documentDetails: RequestLineItem[] = [];
   grandTotal = 0;
 
+  /** Purchase Requisitions eligible to originate a new RFQ -- the dropdown source. */
+  eligibleOrders = signal<PurchaseRequisitionDto[]>([]);
+  suppliers = signal<Supplier[]>([]);
+
   constructor(
     private fb: FormBuilder,
     private purchaseCycleService: PurchaseCycleService,
+    private purchaseRequisitionService: PurchaseRequisitionService,
+    private supplierService: SupplierService,
+    private inventoryService: InventoryService,
     private notificationService: NotificationService,
     private translateService: TranslateService,
     private router: Router,
     private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef,
-    private dialog: MatDialog,
-    private supplierService: SupplierService
+    private cdr: ChangeDetectorRef
   ) {
     this.initForm();
   }
 
   ngOnInit(): void {
+    this.loadRequisitions();
     this.loadSuppliers();
     this.route.params.subscribe(params => {
       if (params['id']) {
@@ -95,31 +99,21 @@ export class PurchaseRequestFormComponent implements OnInit {
     this.requestForm = this.fb.group({
       requestNumber: ['', Validators.required],
       requestDate: [new Date(), Validators.required],
+      purchaseOfferId: [null, Validators.required],
       supplierId: [null, Validators.required],
       notes: ['']
     });
   }
 
-  supplierFilterCtrl = new FormControl('');
-
-  suppliers = signal<Supplier[]>([]);
-
-  supplierFilterSignal = toSignal(
-    this.supplierFilterCtrl.valueChanges,
-    { initialValue: '' }
-  );
-
-  filteredSuppliers = computed(() => {
-    const filter = (this.supplierFilterSignal() ?? '').toLowerCase().trim();
-
-    if (!filter) {
-      return this.suppliers();
-    }
-
-    return this.suppliers().filter(s =>
-      s.name.toLowerCase().includes(filter)
-    );
-  });
+  loadRequisitions(): void {
+    this.purchaseRequisitionService.getAll().subscribe({
+      next: (requisitions: any) => this.eligibleOrders.set(requisitions.data || []),
+      error: (err) => {
+        console.error('Error loading purchase requisitions', err);
+        this.eligibleOrders.set([]);
+      }
+    });
+  }
 
   loadSuppliers(): void {
     this.supplierService.getSuppliers().subscribe({
@@ -128,39 +122,38 @@ export class PurchaseRequestFormComponent implements OnInit {
     });
   }
 
-  toggleCarCards(): void {
-    const dialogRef = this.dialog.open(CarSelectionDialogComponent, {
-      width: '90vw',
-      maxWidth: '1200px',
-      height: '80vh',
-      data: {}
-    });
+  /** Cascading onChange: selecting a Purchase Order (Requisition) auto-fills cars. */
+  onOrderSelected(orderId: number | null): void {
+    this.requestItems = [];
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.selectCar(result);
+    if (!orderId) return;
+
+    this.purchaseRequisitionService.getById(orderId).subscribe({
+      next: (response: any) => {
+        const order = response?.data ?? response;
+        const cars = this.inventoryService.cars$();
+
+        this.requestItems = (order.items || []).map((item: any) => {
+          const car = cars.find(c => c.id === Number(item.itemCode));
+          return {
+            carId: car?.id ?? Number(item.itemCode) ?? 0,
+            carDescription: item.itemDescription,
+            make: car?.make || '',
+            model: car?.model || '',
+            year: car?.year || new Date().getFullYear(),
+            quantity: item.requestedQuantity,
+            unitPrice: item.standardBasePrice,
+            lineTotal: item.requestedQuantity * item.standardBasePrice
+          };
+        });
+        this.updateDocumentPreview();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error loading purchase order lines', err);
+        this.notificationService.showError(this.translateService.instant('PURCHASE_REQUESTS.LOAD_ORDER_ERROR'));
       }
     });
-  }
-
-  selectCar(car: any): void {
-    if (!car) return;
-    const quantity = 1;
-    const unitPrice = car.purchasePrice ?? car.salePrice ?? 0;
-    const lineTotal = quantity * unitPrice;
-    const newItem: RequestLineItem = {
-      carId: car.id,
-      carDescription: car.description || `${car.make} ${car.model} ${car.year}`,
-      make: car.make || '',
-      model: car.model || '',
-      year: car.year || new Date().getFullYear(),
-      quantity,
-      unitPrice,
-      lineTotal
-    };
-    this.requestItems = [...this.requestItems, newItem];
-    this.updateDocumentPreview();
-    this.cdr.detectChanges();
   }
 
   removeItem(e: any): void {
@@ -171,14 +164,16 @@ export class PurchaseRequestFormComponent implements OnInit {
 
   loadRequest(id: number): void {
     this.purchaseCycleService.getPurchaseRequest(id).subscribe({
-      next: (request) => {
+      next: (request: any) => {
+        request=request?.data ?? request;
         this.requestForm.patchValue({
           requestNumber: request.requestNumber,
           requestDate: request.requestDate,
+          purchaseOfferId: request.purchaseOfferId,
           supplierId: request.supplierId,
           notes: request.notes
-        });
-        this.requestItems = (request.items || []).map(item => ({
+        }, { emitEvent: false });
+        this.requestItems = (request.items || []).map((item: any) => ({
           carId: item.carId,
           carDescription: item.car?.description || `${item.car?.make ?? ''} ${item.car?.model ?? ''} ${item.car?.year ?? ''}`.trim(),
           make: item.car?.make || '',
@@ -226,7 +221,8 @@ export class PurchaseRequestFormComponent implements OnInit {
     const dto: CreatePurchaseRequestDto = {
       requestNumber: this.requestForm.value.requestNumber,
       requestDate: this.requestForm.value.requestDate,
-      supplierId: this.requestForm.value.supplierId,
+      purchaseOfferId: this.requestForm.value.purchaseOfferId,
+      supplierId: this.requestForm.getRawValue().supplierId,
       notes: this.requestForm.value.notes,
       items: this.requestItems.map(item => ({
         carId: item.carId,

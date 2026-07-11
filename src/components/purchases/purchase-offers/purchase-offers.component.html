@@ -30,7 +30,7 @@
     <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
 
     <dxi-column dataField="offerNumber" [caption]="'PURCHASE_OFFER.OFFER_NUMBER' | translate"></dxi-column>
-    <dxi-column dataField="supplier.name" [caption]="'PURCHASE_OFFER.SUPPLIER' | translate"></dxi-column>
+    <dxi-column dataField="supplierName" [caption]="'PURCHASE_OFFER.SUPPLIER' | translate"></dxi-column>
     <dxi-column dataField="offerDate" [caption]="'PURCHASE_OFFER.OFFER_DATE' | translate" dataType="date"></dxi-column>
     <dxi-column dataField="items" [caption]="'PURCHASE_OFFERS.ITEMS_COUNT' | translate" [calculateCellValue]="getItemsCount"></dxi-column>
     <dxi-column dataField="totalAmount" [caption]="'PURCHASE_OFFERS.TOTAL_AMOUNT' | translate" format="currency"></dxi-column>

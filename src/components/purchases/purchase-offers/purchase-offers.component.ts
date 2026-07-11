@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PurchaseCycleService } from '../../../services/purchase-cycle.service';
+import { PurchaseCycleRefreshService } from '../../../services/purchase-cycle-refresh.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { PurchaseOfferDto } from '@/src/models/purchase-offer.model';
@@ -30,9 +31,11 @@ export class PurchaseOffersComponent implements OnInit {
 
   constructor(
     private purchaseCycleService: PurchaseCycleService,
+    private purchaseCycleRefreshService: PurchaseCycleRefreshService,
     private router: Router,
     private notificationService: NotificationService,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -41,8 +44,10 @@ export class PurchaseOffersComponent implements OnInit {
 
   loadPurchaseOffers(): void {
     this.purchaseCycleService.getPurchaseOffers().subscribe({
-      next: (offers: any) => {
-        this.purchaseOffers = Array.isArray(offers) ? offers : (offers?.data ?? []);
+      next: (response: any) => {
+        const offers = response?.data ?? response;
+        this.purchaseOffers = Array.isArray(offers) ? offers : [];
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error loading purchase offers', err);
@@ -64,15 +69,16 @@ export class PurchaseOffersComponent implements OnInit {
   }
 
   isPending = (e: any): boolean => {
-    return e?.row?.data?.status === 'Pending';
+    return e?.row?.data?.status === 'Draft' || e?.row?.data?.status === 'PendingApproval';
   };
 
   onApprove(e: any): void {
     const offer: PurchaseOfferDto = e.row.data;
-    this.purchaseCycleService.updatePurchaseOfferStatus(offer.id, 'Accepted').subscribe({
+    this.purchaseCycleService.approvePurchaseOffer(offer.id).subscribe({
       next: () => {
         this.notificationService.showSuccess(this.translateService.instant('PURCHASE_OFFERS.APPROVE_SUCCESS'));
         this.loadPurchaseOffers();
+        this.purchaseCycleRefreshService.notifyOffersChanged();
       },
       error: (err) => {
         this.notificationService.showError(this.translateService.instant('PURCHASE_OFFERS.APPROVE_ERROR') + ': ' + (err?.message || 'Unknown error'));
@@ -88,10 +94,11 @@ export class PurchaseOffersComponent implements OnInit {
     );
     if (!result.isConfirmed) return;
 
-    this.purchaseCycleService.updatePurchaseOfferStatus(offer.id, 'Rejected').subscribe({
+    this.purchaseCycleService.rejectPurchaseOffer(offer.id).subscribe({
       next: () => {
         this.notificationService.showSuccess(this.translateService.instant('PURCHASE_OFFERS.REJECT_SUCCESS'));
         this.loadPurchaseOffers();
+        this.purchaseCycleRefreshService.notifyOffersChanged();
       },
       error: (err) => {
         this.notificationService.showError(this.translateService.instant('PURCHASE_OFFERS.REJECT_ERROR') + ': ' + (err?.message || 'Unknown error'));

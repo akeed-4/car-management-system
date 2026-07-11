@@ -2,7 +2,8 @@ import { Supplier } from './supplier.model';
 import { Car } from './car.model';
 import { PurchaseOfferDto } from './purchase-offer.model';
 
-export type PurchaseRequestStatus = 'Draft' | 'PendingApproval' | 'Approved' | 'Rejected';
+/** Backend returns 'Pending' -- 'PendingApproval' is kept for backward compatibility with any older records. */
+export type PurchaseRequestStatus = 'Draft' | 'Pending' | 'PendingApproval' | 'Approved' | 'Rejected';
 
 export interface CreatePurchaseRequestItemDto {
   carId: number;
@@ -35,6 +36,7 @@ export interface PurchaseRequestDto {
   requestDate: string;
   supplierId: number;
   supplier?: Supplier;
+  supplierName?: string;
   purchaseOfferId: number;
   purchaseOffer?: PurchaseOfferDto;
   status: PurchaseRequestStatus;

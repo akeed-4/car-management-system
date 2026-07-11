@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
@@ -29,7 +29,8 @@ export class CarsReceiptNoteListComponent implements OnInit {
 
   constructor(
     private carsReceiptNoteService: CarsReceiptNoteService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -40,6 +41,7 @@ export class CarsReceiptNoteListComponent implements OnInit {
     this.carsReceiptNoteService.getAll().subscribe({
       next: (notes: any) => {
         this.receiptNotes = Array.isArray(notes) ? notes : (notes?.data ?? []);
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error loading car receipt notes', err);

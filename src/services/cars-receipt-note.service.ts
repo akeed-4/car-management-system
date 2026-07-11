@@ -13,13 +13,18 @@ import {
   providedIn: 'root'
 })
 export class CarsReceiptNoteService {
-  private apiUrl = environment.origin + 'api/CarsReceiptNotes';
+  private apiUrl = environment.origin + 'api/CarReceipts';
   private purchaseOrdersApiUrl = environment.origin + 'api/PurchaseOrders';
 
   constructor(private http: HttpClient) { }
 
   getAll(): Observable<CarsReceiptNoteDto[]> {
     return this.http.get<CarsReceiptNoteDto[]>(`${this.apiUrl}/GetAll`);
+  }
+
+  /** Posted GRNs across all suppliers with at least one line not yet fully invoiced. */
+  getUninvoiced(): Observable<CarsReceiptNoteDto[]> {
+    return this.http.get<CarsReceiptNoteDto[]>(`${this.apiUrl}/GetUninvoiced`);
   }
 
   getById(id: number): Observable<CarsReceiptNoteDto> {

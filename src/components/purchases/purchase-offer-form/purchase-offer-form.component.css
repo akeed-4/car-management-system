@@ -215,6 +215,26 @@
   .meta-item { align-items: flex-start; }
 }
 
+/* Aesthetic / cosmetic details cards */
+.aesthetic-details-wrapper .aesthetic-card {
+  min-width: 220px;
+  flex: 1 1 220px;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.aesthetic-row {
+  font-size: 0.85rem;
+  color: #495057;
+  padding: 2px 0;
+}
+
+.aesthetic-row .label {
+  font-weight: 600;
+  color: #5c677d;
+  margin-inline-end: 4px;
+}
+
 /* Small layout helpers for inline form rows */
 .form-row-flex {
   display: flex;

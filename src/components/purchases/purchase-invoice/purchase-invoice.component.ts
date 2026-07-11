@@ -54,6 +54,8 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { AccountingService } from '../../accounting/accounting.service';
 import { NotificationService } from '../../../services/notification.service';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
+import { CarsReceiptNoteService } from '@/src/services/cars-receipt-note.service';
+import { CarsReceiptNoteDto } from '@/src/models/cars-receipt-note.model';
 
 @Component({
   selector: 'app-purchase-invoice',
@@ -113,6 +115,7 @@ export class PurchaseInvoiceComponent implements OnInit {
   private salesService = inject(SalesService);
   private accountingService = inject(AccountingService);
   private languageService = inject(LanguageService);
+  private carsReceiptNoteService = inject(CarsReceiptNoteService);
   private vinService = inject(VinService);
   private purchaseCycleService = inject(PurchaseCycleService);
   private router = inject(Router);
@@ -218,6 +221,12 @@ export class PurchaseInvoiceComponent implements OnInit {
   selectedReceiptIds = signal<number[]>([]);
   linkedReceiptIds = signal<number[]>([]);
 
+  // Cars Receipt Notes (formal PO->GRN cycle) linking state -- merged into the same dropdown as
+  // openCarReceipts above. Unlike CarReceipt, a note line has no CarId, so applying one prompts
+  // the user to pick a car per line via CarSelectionDialogComponent.
+  openReceiptNotes = signal<CarsReceiptNoteDto[]>([]);
+  selectedDropdownKeys = signal<string[]>([]);
+
   // Traceability: the currently linked GRNs, for the lineage trail in the action bar
   linkedReceipts = computed(() =>
     this.openCarReceiptsHistory().filter(r => this.linkedReceiptIds().includes(r.id))
@@ -322,16 +331,18 @@ export class PurchaseInvoiceComponent implements OnInit {
 
     // GRN dropdown is not gated behind supplier selection -- picking a GRN inherits and locks the supplier.
     this.loadUninvoicedReceipts();
+    this.loadUninvoicedReceiptNotes();
   }
 
   /** Un-invoiced GRNs across all suppliers -- the eligible dropdown source for this screen. */
   loadUninvoicedReceipts(): void {
     this.purchaseCycleService.getUninvoicedReceipts().subscribe({
-      next: (receipts) => {
-        this.openCarReceipts.set(receipts || []);
+      next: (receipts: any) => {
+        const list: CarReceipt[] = Array.isArray(receipts) ? receipts : (receipts?.data ?? []);
+        this.openCarReceipts.set(list);
         this.openCarReceiptsHistory.update(history => {
           const merged = [...history];
-          for (const receipt of receipts || []) {
+          for (const receipt of list) {
             if (!merged.some(r => r.id === receipt.id)) {
               merged.push(receipt);
             }
@@ -346,16 +357,99 @@ export class PurchaseInvoiceComponent implements OnInit {
     });
   }
 
+  /** Posted GRNs (formal PO->GRN cycle) with at least one un-invoiced line -- merged into the same dropdown as openCarReceipts. */
+  loadUninvoicedReceiptNotes(): void {
+    this.carsReceiptNoteService.getUninvoiced().subscribe({
+      next: (notes: any) => {
+        this.openReceiptNotes.set(Array.isArray(notes) ? notes : (notes?.data ?? []));
+      },
+      error: (err) => {
+        console.error('Error loading uninvoiced receipt notes', err);
+        this.openReceiptNotes.set([]);
+      }
+    });
+  }
+
   onReceiptSelectionChanged(e: any): void {
     this.selectedReceiptIds.set((e.selectedRowKeys || []) as number[]);
   }
 
+  /** Selecting a delivery note applies it to the invoice grid immediately -- no separate "apply" step.
+   * Dropdown values are composite keys ("cr:<id>" for CarReceipt, "note:<id>" for CarsReceiptNote) since
+   * the two sources have independent id spaces. */
+  onReceiptDropdownChange(keys: string[]): void {
+    this.selectedDropdownKeys.set(keys);
+
+    const receiptIds = keys.filter(k => k.startsWith('cr:')).map(k => +k.slice(3));
+    const noteIds = keys.filter(k => k.startsWith('note:')).map(k => +k.slice(5));
+
+    if (receiptIds.length > 0) {
+      this.selectedReceiptIds.set(receiptIds);
+      this.applySelectedReceipts();
+    }
+    if (noteIds.length > 0) {
+      this.applySelectedReceiptNotes(noteIds);
+    }
+  }
+
+  /** CarsReceiptNote lines carry their own carId (picked at GRN creation time), so this applies
+   * directly -- same shape as applySelectedReceipts(), just keyed by carsReceiptNoteItemId. */
+  applySelectedReceiptNotes(noteIds: number[]): void {
+    const notes = this.openReceiptNotes().filter(n => noteIds.includes(n.id));
+    if (notes.length === 0) return;
+
+    const items = [...this.invoiceItems()];
+    let skippedForMissingCar = false;
+
+    for (const note of notes) {
+      for (const line of note.items || []) {
+        const invoiceQty = line.remainingToInvoice;
+        if (invoiceQty <= 0) continue;
+
+        // Lines created before car-level tracking was added have no carId -- can't invoice these.
+        if (!line.carId) {
+          skippedForMissingCar = true;
+          continue;
+        }
+
+        const existingIndex = items.findIndex(i => i.carsReceiptNoteItemId === line.id);
+
+        if (existingIndex !== -1) {
+          items[existingIndex] = {
+            ...items[existingIndex],
+            quantity: invoiceQty,
+            unitPrice: line.unitPrice,
+            lineTotal: invoiceQty * line.unitPrice
+          };
+        } else {
+          items.push({
+            carId: line.carId,
+            carsReceiptNoteItemId: line.id,
+            carDescription: line.carDescription,
+            quantity: invoiceQty,
+            unitPrice: line.unitPrice,
+            lineTotal: invoiceQty * line.unitPrice
+          });
+        }
+      }
+    }
+
+    this.invoiceItems.set(items);
+    this.openReceiptNotes.update(list => list.filter(n => !noteIds.includes(n.id)));
+    this.selectedDropdownKeys.update(keys => keys.filter(k => !(k.startsWith('note:') && noteIds.includes(+k.slice(5)))));
+
+    if (skippedForMissingCar) {
+      this.notificationService.showWarning(this.translate.instant('PURCHASE_INVOICE.NOTE_LINE_MISSING_CAR'));
+    }
+    this.notificationService.showSuccess(this.translate.instant('PURCHASE_INVOICE.RECEIPTS_APPLIED'));
+  }
+
   getReceiptItemsCount(receipt: CarReceipt): number {
-    return receipt.carReceiptItems ? receipt.carReceiptItems.length : 0;
+    return receipt.items ? receipt.items.length : 0;
   }
 
   getReceiptTotal(receipt: CarReceipt): number {
-    return (receipt.carReceiptItems || []).reduce((sum, line) => sum + line.receivedQuantity * line.unitCost, 0);
+    return (receipt.items || []).reduce((sum, line) => sum + line.remainingToInvoice * line.unitPrice, 0);
   }
 
   applySelectedReceipts(): void {
@@ -378,19 +472,22 @@ export class PurchaseInvoiceComponent implements OnInit {
     const items = [...this.invoiceItems()];
 
     for (const receipt of receipts) {
-      for (const line of receipt.carReceiptItems || []) {
-        const carDescription = line.car?.description
-          || `${line.car?.make ?? ''} ${line.car?.model ?? ''} ${line.car?.year ?? ''}`.trim();
-        const existingIndex = items.findIndex(i => i.carId === line.carId);
+      for (const line of receipt.items || []) {
+        // Default to what's still eligible to invoice on this line -- supports invoicing the same
+        // receipt across multiple invoices without double-billing an already-invoiced quantity.
+        const invoiceQty = line.remainingToInvoice;
+        if (invoiceQty <= 0) continue;
+
+        // Keyed by the specific GRN line (not carId) so quantity edits always trace back to exactly
+        // one CarReceiptItem -- the backend advances that line's invoiced total from this id.
+        const existingIndex = items.findIndex(i => i.carReceiptItemId === line.id);
 
         if (existingIndex !== -1) {
           const existing = items[existingIndex];
-          const newQuantity = existing.quantity + line.receivedQuantity;
-          const newUnitPrice = ((existing.unitPrice ?? 0) * existing.quantity + line.unitCost * line.receivedQuantity) / newQuantity;
+          const newQuantity = existing.quantity + invoiceQty;
+          const newUnitPrice = ((existing.unitPrice ?? 0) * existing.quantity + line.unitPrice * invoiceQty) / newQuantity;
           items[existingIndex] = {
             ...existing,
-            carReceiptItemId: existing.carReceiptItemId ?? line.id,
-            receivedQuantity: (existing.receivedQuantity ?? 0) + line.receivedQuantity,
             quantity: newQuantity,
             unitPrice: newUnitPrice,
             lineTotal: newQuantity * newUnitPrice
@@ -399,11 +496,11 @@ export class PurchaseInvoiceComponent implements OnInit {
           items.push({
             carId: line.carId,
             carReceiptItemId: line.id,
-            carDescription,
-            receivedQuantity: line.receivedQuantity,
-            quantity: line.receivedQuantity,
-            unitPrice: line.unitCost,
-            lineTotal: line.receivedQuantity * line.unitCost
+            carDescription: line.carDescription,
+            receivedQuantity: line.quantity,
+            quantity: invoiceQty,
+            unitPrice: line.unitPrice,
+            lineTotal: invoiceQty * line.unitPrice
           });
         }
       }
@@ -412,6 +509,7 @@ export class PurchaseInvoiceComponent implements OnInit {
     this.invoiceItems.set(items);
     this.linkedReceiptIds.update(ids => Array.from(new Set([...ids, ...receipts.map(r => r.id)])));
     this.openCarReceipts.update(list => list.filter(r => !this.selectedReceiptIds().includes(r.id)));
+    this.selectedDropdownKeys.update(keys => keys.filter(k => !(k.startsWith('cr:') && this.selectedReceiptIds().includes(+k.slice(3)))));
     this.selectedReceiptIds.set([]);
 
     this.notificationService.showSuccess(this.translate.instant('PURCHASE_INVOICE.RECEIPTS_APPLIED'));
@@ -628,16 +726,25 @@ export class PurchaseInvoiceComponent implements OnInit {
     this.invoiceItems.update(items => items.filter(item => item.carId !== carId));
   };
 
-  /** Recompute lineTotal when the editable Billing Qty cell changes in the grid. */
-  onBillingQuantityChanged = (e: any): void => {
-    const carId = e.data.carId;
-    this.invoiceItems.update(items =>
-      items.map(item =>
-        item.carId === carId
-          ? { ...item, quantity: e.value, lineTotal: (item.unitPrice ?? 0) * e.value }
-          : item
-      )
-    );
+  /** DevExtreme's documented hook for deriving one column from an edit to another -- runs as part
+   * of the edit itself (not a real "onCellValueChanged" grid event, which doesn't exist). Each
+   * column keeps its own default assignment, then both recompute lineTotal the same way. */
+  onQuantityCellValue = (newData: any, value: any, currentRowData: any): void => {
+    newData.quantity = value;
+    newData.lineTotal = value * (currentRowData.unitPrice ?? 0);
+  };
+
+  onUnitPriceCellValue = (newData: any, value: any, currentRowData: any): void => {
+    newData.unitPrice = value;
+    newData.lineTotal = (currentRowData.quantity ?? 0) * value;
+  };
+
+  /** Fires once the grid has committed a cell edit (lineTotal already recalculated by the
+   * setCellValue hooks above). Just re-points invoiceItems at a new array reference so the
+   * existing subtotal()/vatAmount()/totalAmount() computed signals recompute -- no calculation
+   * is duplicated here. */
+  onInvoiceItemRowUpdated = (): void => {
+    this.invoiceItems.update(items => [...items]);
   };
 
   /**
@@ -774,7 +881,6 @@ export class PurchaseInvoiceComponent implements OnInit {
       this.procurementService.updateInvoice(invoiceId, newInvoice).subscribe({
         next: (savedInvoice) => {
           this.notificationService.showSuccess(this.translate.instant('TOAST.UPDATE_SUCCESS'));
-          this.markLinkedReceiptsInvoiced(invoiceId);
         },
         error: (error) => {
           console.error('Error updating purchase invoice:', error);
@@ -785,7 +891,6 @@ export class PurchaseInvoiceComponent implements OnInit {
       this.procurementService.addInvoice(newInvoice).subscribe({
         next: (savedInvoice) => {
             this.notificationService.showSuccess(this.translate.instant('TOAST.ADD_SUCCESS'));
-            this.markLinkedReceiptsInvoiced(savedInvoice.id);
         },
         error: (error) => {
           console.error('Error saving purchase invoice:', error);
@@ -793,18 +898,6 @@ export class PurchaseInvoiceComponent implements OnInit {
         }
       });
     }
-  }
-
-  private markLinkedReceiptsInvoiced(invoiceId: number): void {
-    const receiptIds = this.linkedReceiptIds();
-    if (receiptIds.length === 0) return;
-
-    this.purchaseCycleService.markCarReceiptsInvoiced(receiptIds, invoiceId).subscribe({
-      error: (error) => {
-        console.error('Error marking car receipts as invoiced:', error);
-        this.notificationService.showWarning(this.translate.instant('PURCHASE_INVOICE.RECEIPT_CLOSE_WARNING'));
-      }
-    });
   }
 
   editQuantity = (e: any): void => {

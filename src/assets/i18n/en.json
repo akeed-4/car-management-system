@@ -168,7 +168,10 @@
     "GRN_LINKED": "GRN(s) linked",
     "NO_GRN_LINKED": "No GRN linked — items added manually",
     "BILLING_QTY": "Billing Qty",
-    "RECEIVED_QTY": "Received Qty"
+    "RECEIVED_QTY": "Received Qty",
+    "CAR_RECEIPTS": "Car Receipts",
+    "RECEIPT_NOTES": "Receipt Notes (GRN)",
+    "NOTE_LINE_MISSING_CAR": "Some receipt note lines have no car on file and were skipped"
   },
   "COMMON": {
     "RESET": "Reset",
@@ -253,7 +256,14 @@
     "BACK_TO_OFFERS": "Back to Offers",
     "PAYMENT_TERMS": "Payment Terms",
     "DELIVERY_TERMS": "Delivery Terms",
-    "TAX_RATE": "Tax Rate"
+    "TAX_RATE": "Tax Rate",
+    "AESTHETIC_DETAILS": "Cosmetic Details",
+    "CONDITION": "Condition",
+    "EXTERIOR_COLOR": "Exterior Color",
+    "INTERIOR_COLOR": "Interior Color",
+    "MILEAGE": "Mileage",
+    "TRANSMISSION": "Transmission",
+    "ENGINE_SIZE": "Engine Size"
   },
   "PURCHASE_ORDER": {
     "LIST_TITLE": "Purchase Orders",
@@ -289,7 +299,14 @@
     "NO_ITEMS_WARNING": "Please select an approved quotation with at least one item",
     "SAVE_SUCCESS": "Purchase order saved successfully",
     "SAVE_ERROR": "Error saving purchase order",
-    "LOAD_ERROR": "Error loading purchase order"
+    "LOAD_ERROR": "Error loading purchase order",
+    "SUPPLIER_DETAILS": "Supplier Details",
+    "PHONE": "Phone",
+    "EMAIL": "Email",
+    "ADDRESS": "Address",
+    "CONTACT_PERSON": "Contact Person",
+    "PAYMENT_TERMS": "Payment Terms",
+    "CREDIT_LIMIT": "Credit Limit"
   },
   "CARS_RECEIPT_NOTE": {
     "LIST_TITLE": "Car Receipt Notes (GRN)",
@@ -319,7 +336,10 @@
     "SAVE_SUCCESS": "Car receipt note saved successfully",
     "SAVE_ERROR": "Error saving car receipt note",
     "LOAD_PO_ERROR": "Error loading purchase order lines",
-    "LOAD_ERROR": "Error loading car receipt note"
+    "LOAD_ERROR": "Error loading car receipt note",
+    "CAR": "Car",
+    "SELECT_CAR": "Select Car",
+    "CAR_REQUIRED_WARNING": "Select a car for every line before saving"
   },
   "RETAIL_SALES_ORDER": {
     "LIST_TITLE": "Sales Orders",
@@ -3006,6 +3026,10 @@
     "REQUEST_NUMBER": "Request Number",
     "REQUEST_DATE": "Request Date",
     "SUPPLIER": "Supplier",
+    "SUPPLIER_LOCKED_HINT": "Inherited from the selected Purchase Order -- cannot be changed here",
+    "SELECT_ORDER": "Purchase Order",
+    "SELECT_ORDER_HINT": "Select a purchase order to auto-fill supplier and cars",
+    "LOAD_ORDER_ERROR": "Error loading purchase order details",
     "CAR_DESCRIPTION": "Car Description",
     "REQUESTED_PRICE": "Requested Price",
     "ITEMS_COUNT": "Items Count",
@@ -3016,6 +3040,7 @@
     "NO_RESULTS": "No results found",
     "STATUS": "Status",
     "STATUS_DRAFT": "Draft",
+    "STATUS_PENDING": "Pending Approval",
     "STATUS_PENDINGAPPROVAL": "Pending Approval",
     "STATUS_APPROVED": "Approved",
     "STATUS_REJECTED": "Rejected",

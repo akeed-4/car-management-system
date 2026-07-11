@@ -171,7 +171,10 @@
     "GRN_LINKED": "إيصال استلام مرتبط",
     "NO_GRN_LINKED": "لا يوجد إيصال استلام مرتبط — تمت إضافة العناصر يدويًا",
     "BILLING_QTY": "كمية الفوترة",
-    "RECEIVED_QTY": "الكمية المستلمة"
+    "RECEIVED_QTY": "الكمية المستلمة",
+    "CAR_RECEIPTS": "إيصالات استلام السيارات",
+    "RECEIPT_NOTES": "إشعارات الاستلام (GRN)",
+    "NOTE_LINE_MISSING_CAR": "بعض بنود إشعار الاستلام ليس لها سيارة مسجلة وتم تخطيها"
   },
   "COMMON": {
     "RESET": "إعادة تعيين",
@@ -256,7 +259,14 @@
     "BACK_TO_OFFERS": "العودة إلى العروض",
     "PAYMENT_TERMS": "شروط الدفع",
     "DELIVERY_TERMS": "شروط التسليم",
-    "TAX_RATE": "نسبة الضريبة"
+    "TAX_RATE": "نسبة الضريبة",
+    "AESTHETIC_DETAILS": "تفاصيل الجماليات",
+    "CONDITION": "الحالة",
+    "EXTERIOR_COLOR": "اللون الخارجي",
+    "INTERIOR_COLOR": "اللون الداخلي",
+    "MILEAGE": "الممشى (كم)",
+    "TRANSMISSION": "ناقل الحركة",
+    "ENGINE_SIZE": "حجم المحرك"
   },
   "PURCHASE_ORDER": {
     "LIST_TITLE": "أوامر الشراء",
@@ -292,7 +302,14 @@
     "NO_ITEMS_WARNING": "الرجاء اختيار عرض سعر معتمد يحتوي على عنصر واحد على الأقل",
     "SAVE_SUCCESS": "تم حفظ أمر الشراء بنجاح",
     "SAVE_ERROR": "خطأ في حفظ أمر الشراء",
-    "LOAD_ERROR": "خطأ في تحميل أمر الشراء"
+    "LOAD_ERROR": "خطأ في تحميل أمر الشراء",
+    "SUPPLIER_DETAILS": "تفاصيل المورد",
+    "PHONE": "الهاتف",
+    "EMAIL": "البريد الإلكتروني",
+    "ADDRESS": "العنوان",
+    "CONTACT_PERSON": "مسؤول التواصل",
+    "PAYMENT_TERMS": "شروط الدفع",
+    "CREDIT_LIMIT": "الحد الائتماني"
   },
   "CARS_RECEIPT_NOTE": {
     "LIST_TITLE": "إيصالات استلام السيارات (GRN)",
@@ -322,7 +339,10 @@
     "SAVE_SUCCESS": "تم حفظ إيصال الاستلام بنجاح",
     "SAVE_ERROR": "خطأ في حفظ إيصال الاستلام",
     "LOAD_PO_ERROR": "خطأ في تحميل بنود أمر الشراء",
-    "LOAD_ERROR": "خطأ في تحميل إيصال الاستلام"
+    "LOAD_ERROR": "خطأ في تحميل إيصال الاستلام",
+    "CAR": "السيارة",
+    "SELECT_CAR": "اختر السيارة",
+    "CAR_REQUIRED_WARNING": "اختر سيارة لكل سطر قبل الحفظ"
   },
   "RETAIL_SALES_ORDER": {
     "LIST_TITLE": "أوامر البيع",
@@ -491,6 +511,10 @@
     "REQUEST_NUMBER": "رقم الطلب",
     "REQUEST_DATE": "تاريخ الطلب",
     "SUPPLIER": "المورد",
+    "SUPPLIER_LOCKED_HINT": "موروث من طلب الشراء المختار -- لا يمكن تغييره هنا",
+    "SELECT_ORDER": "طلب شراء",
+    "SELECT_ORDER_HINT": "اختر طلب شراء لتعبئة المورد والسيارات تلقائيًا",
+    "LOAD_ORDER_ERROR": "خطأ في تحميل تفاصيل طلب الشراء",
     "CAR_DESCRIPTION": "وصف السيارة",
     "REQUESTED_PRICE": "السعر المطلوب",
     "ITEMS_COUNT": "عدد العناصر",
@@ -501,6 +525,7 @@
     "NO_RESULTS": "لم يتم العثور على نتائج",
     "STATUS": "الحالة",
     "STATUS_DRAFT": "مسودة",
+    "STATUS_PENDING": "بانتظار الاعتماد",
     "STATUS_PENDINGAPPROVAL": "بانتظار الاعتماد",
     "STATUS_APPROVED": "معتمد",
     "STATUS_REJECTED": "مرفوض",

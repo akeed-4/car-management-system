@@ -4,6 +4,7 @@ export interface InvoiceItem {
   returnQuantity?: number;
   carId: number;
   carReceiptItemId?: number;
+  carsReceiptNoteItemId?: number;
   carDescription: string;
   quantity: number;
   /** Quantity originally received on the linked GRN (car receipt) line, read-only once set. */

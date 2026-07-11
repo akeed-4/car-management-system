@@ -10,11 +10,14 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
 import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PurchaseRequisitionService } from '../../../services/purchase-requisition.service';
 import { NotificationService } from '../../../services/notification.service';
 import { CreatePurchaseRequisitionDto } from '../../../models/purchase-requisition.model';
+import { Car } from '../../../models/car.model';
+import { CarSelectionDialogComponent } from '../purchase-invoice/car-selection-dialog/car-selection-dialog.component';
 
 interface RequisitionLineItem {
   itemCode?: string;
@@ -64,7 +67,8 @@ export class PurchaseRequisitionFormComponent implements OnInit {
     private translateService: TranslateService,
     private router: Router,
     private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog
   ) {
     this.initForm();
   }
@@ -88,14 +92,33 @@ export class PurchaseRequisitionFormComponent implements OnInit {
     });
   }
 
-  addLine(): void {
+  toggleCarCards(): void {
+    const dialogRef = this.dialog.open(CarSelectionDialogComponent, {
+      width: '90vw',
+      maxWidth: '1200px',
+      height: '80vh',
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.selectCar(result);
+      }
+    });
+  }
+
+  selectCar(car: Car): void {
+    if (!car || this.lineItems.some(i => i.itemCode === String(car.id))) return;
+
+    const requestedQuantity = 1;
+    const standardBasePrice = car.purchasePrice ?? car.salePrice ?? 0;
     this.lineItems.push({
-      itemCode: '',
-      itemDescription: '',
+      itemCode: String(car.id),
+      itemDescription: car.description || `${car.make} ${car.model} ${car.year}`,
       unitOfMeasure: 'EA',
-      requestedQuantity: 1,
-      standardBasePrice: 0,
-      lineTotal: 0,
+      requestedQuantity,
+      standardBasePrice,
+      lineTotal: requestedQuantity * standardBasePrice,
       notes: ''
     });
     this.updateDocumentPreview();

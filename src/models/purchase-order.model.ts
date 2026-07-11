@@ -5,6 +5,8 @@ export type PoStatus = 'Open' | 'PartiallyReceived' | 'FullyReceived' | 'Closed'
 export interface PoItemDto {
   id: number;
   supplierRfqItemId?: number;
+  purchaseOfferItemId?: number;
+  purchaseRequestItemId?: number;
   itemDescription: string;
   orderedQuantity: number;
   unitPrice: number;
@@ -22,6 +24,10 @@ export interface PoDto {
   supplier?: Supplier;
   supplierRfqId?: number;
   quotationNumber: string;
+  purchaseOfferId?: number;
+  offerNumber: string;
+  purchaseRequestId?: number;
+  requestNumber: string;
   status: PoStatus;
   totalAmount: number;
   expectedDeliveryDate?: string;
@@ -30,17 +36,23 @@ export interface PoDto {
   items: PoItemDto[];
 }
 
+/** Exactly one of supplierRfqItemId/purchaseOfferItemId/purchaseRequestItemId must be set, matching the parent's type. */
 export interface CreatePoItemDto {
-  supplierRfqItemId: number;
+  supplierRfqItemId?: number;
+  purchaseOfferItemId?: number;
+  purchaseRequestItemId?: number;
   orderedQuantity: number;
   unitPrice: number;
 }
 
+/** Exactly one of supplierRfqId/purchaseOfferId/purchaseRequestId must be set. */
 export interface CreatePoDto {
   poNumber: string;
   poDate: Date | string;
   vendorId: number;
-  supplierRfqId: number;
+  supplierRfqId?: number;
+  purchaseOfferId?: number;
+  purchaseRequestId?: number;
   expectedDeliveryDate?: Date | string;
   notes?: string;
   items: CreatePoItemDto[];

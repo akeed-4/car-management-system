@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
@@ -32,7 +32,8 @@ export class PurchaseRequestListComponent implements OnInit {
     private purchaseCycleService: PurchaseCycleService,
     private notificationService: NotificationService,
     private translateService: TranslateService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -42,7 +43,8 @@ export class PurchaseRequestListComponent implements OnInit {
   loadRequests(): void {
     this.purchaseCycleService.getPurchaseRequests().subscribe({
       next: (requests: any) => {
-        this.purchaseRequests = Array.isArray(requests) ? requests : (requests?.data ?? []);
+        this.purchaseRequests = Array.isArray(requests.data) ? requests.data : (requests?.data ?? []);
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error loading purchase requests', err);
@@ -64,7 +66,8 @@ export class PurchaseRequestListComponent implements OnInit {
   }
 
   isDraft = (e: any): boolean => {
-    return e?.row?.data?.status === 'Draft' || e?.row?.data?.status === 'PendingApproval';
+    const status = e?.row?.data?.status;
+    return status === 'Draft' || status === 'Pending' || status === 'PendingApproval';
   };
 
   onApprove(e: any): void {

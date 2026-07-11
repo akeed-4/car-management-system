@@ -59,8 +59,8 @@
 
         <div class="details-grid-wrapper mb-3">
           <dx-data-grid [dataSource]="lineItems" [showBorders]="true" [columnAutoWidth]="true"
-            [rowAlternationEnabled]="true" [hoverStateEnabled]="true"
-            noDataText="{{ 'CARS_RECEIPT_NOTE.NO_ITEMS' | translate }}">
+            [rowAlternationEnabled]="true" [hoverStateEnabled]="true" 
+            noDataText="{{ 'CARS_RECEIPT_NOTE.NO_ITEMS' | translate }}" rtlEnabled="true" height="200px" [showRowLines]="true" [allowColumnReordering]="true">
 
             <dxo-editing mode="cell" [allowUpdating]="!isViewMode"></dxo-editing>
             <dxi-column dataField="itemDescription" caption="{{ 'CARS_RECEIPT_NOTE.ITEM_DESCRIPTION' | translate }}" [allowEditing]="false"></dxi-column>
@@ -69,7 +69,11 @@
             <dxi-column *ngIf="!isViewMode" dataField="remainingQuantity" caption="{{ 'CARS_RECEIPT_NOTE.REMAINING_QTY' | translate }}" dataType="number" [allowEditing]="false" [width]="110"></dxi-column>
             <dxi-column dataField="receivedQuantity" caption="{{ 'CARS_RECEIPT_NOTE.RECEIVED_QTY' | translate }}" dataType="number"
               [allowEditing]="!isViewMode" [width]="110" [setCellValue]="receivedQuantitySetCellValue"></dxi-column>
+            <dxi-column caption="{{ 'CARS_RECEIPT_NOTE.CAR' | translate }}" [allowEditing]="false" [calculateCellValue]="carDisplay"></dxi-column>
             <dxi-column dataField="notes" caption="{{ 'CARS_RECEIPT_NOTE.NOTES' | translate }}" [allowEditing]="!isViewMode"></dxi-column>
+            <dxi-column *ngIf="!isViewMode" type="buttons" [width]="90">
+              <dxi-button icon="car" hint="{{ 'CARS_RECEIPT_NOTE.SELECT_CAR' | translate }}" [onClick]="pickCar.bind(this)"></dxi-button>
+            </dxi-column>
 
           </dx-data-grid>
         </div>

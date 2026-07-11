@@ -10,11 +10,13 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
 import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CarsReceiptNoteService } from '../../../services/cars-receipt-note.service';
 import { NotificationService } from '../../../services/notification.service';
 import { ActivePOLookupDto, CreateCarsReceiptNoteDto } from '../../../models/cars-receipt-note.model';
+import { CarSelectionDialogComponent } from '../purchase-invoice/car-selection-dialog/car-selection-dialog.component';
 
 interface GrnLineItem {
   purchaseOrderItemId: number;
@@ -24,6 +26,8 @@ interface GrnLineItem {
   remainingQuantity: number;
   receivedQuantity: number;
   notes?: string;
+  carId?: number; // Required to submit -- picked per line via pickCar()
+  carDescription?: string;
 }
 
 @Component({
@@ -65,7 +69,8 @@ export class CarsReceiptNoteFormComponent implements OnInit {
     private translateService: TranslateService,
     private router: Router,
     private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog
   ) {
     this.initForm();
   }
@@ -93,7 +98,7 @@ export class CarsReceiptNoteFormComponent implements OnInit {
 
   loadActivePOs(): void {
     this.carsReceiptNoteService.getActivePOs().subscribe({
-      next: (pos) => this.activePOs.set(pos || []),
+      next: (pos: any) => this.activePOs.set(pos.data || []),
       error: (err) => {
         console.error('Error loading active purchase orders', err);
         this.activePOs.set([]);
@@ -108,16 +113,25 @@ export class CarsReceiptNoteFormComponent implements OnInit {
     if (!purchaseOrderId) return;
 
     this.carsReceiptNoteService.getRemainingPOLines(purchaseOrderId).subscribe({
-      next: (lines) => {
-        this.lineItems = (lines || []).map(line => ({
-          purchaseOrderItemId: line.purchaseOrderItemId,
-          itemDescription: line.itemDescription,
-          orderedQuantity: line.orderedQuantity,
-          previouslyReceivedQuantity: line.previouslyReceivedQuantity,
-          remainingQuantity: line.remainingQuantity,
-          receivedQuantity: line.remainingQuantity,
-          notes: ''
-        }));
+      next: (response: any) => {
+        const lines = response?.data ?? [];
+        this.lineItems = lines.map((line: any) => {
+          const orderedQuantity = line.orderedQuantity ?? 0;
+          const previouslyReceivedQuantity = line.previouslyReceivedQuantity ?? 0;
+          const remainingQuantity = line.remainingQuantity ?? 0;
+          return {
+            purchaseOrderItemId: line.purchaseOrderItemId,
+            itemId: line.id,
+            itemDescription: line.itemDescription,
+            orderedQuantity,
+            previouslyReceivedQuantity,
+            remainingQuantity,
+            receivedQuantity: remainingQuantity, // Default to the remaining quantity
+            unitPrice: line.unitPrice,
+            notes: line.notes ?? ''
+          };
+        });
+
         this.updateDocumentPreview();
         this.cdr.detectChanges();
       },
@@ -141,6 +155,37 @@ export class CarsReceiptNoteFormComponent implements OnInit {
     this.documentDetails = [...this.lineItems];
   }
 
+  /** Opens the car picker for a single GRN line -- required before the line can be submitted. */
+  pickCar(e: any): void {
+    const rowData: GrnLineItem = e.row?.data ?? e;
+    const dialogRef = this.dialog.open(CarSelectionDialogComponent, {
+      width: '90vw',
+      maxWidth: '1200px',
+      height: '80vh',
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe(car => {
+      if (!car) return;
+
+      const index = this.lineItems.findIndex(i => i.purchaseOrderItemId === rowData.purchaseOrderItemId);
+      if (index === -1) return;
+
+      this.lineItems[index] = {
+        ...this.lineItems[index],
+        carId: car.id,
+        carDescription: `${car.make} ${car.model} (${car.year})`
+      };
+      this.lineItems = [...this.lineItems];
+      this.updateDocumentPreview();
+      this.cdr.detectChanges();
+    });
+  }
+
+  carDisplay = (rowData: GrnLineItem): string => {
+    return rowData.carDescription || this.translateService.instant('CARS_RECEIPT_NOTE.SELECT_CAR');
+  };
+
   loadGrn(id: number): void {
     this.carsReceiptNoteService.getById(id).subscribe({
       next: (grn) => {
@@ -152,6 +197,8 @@ export class CarsReceiptNoteFormComponent implements OnInit {
         });
         this.grnForm.disable();
         this.lineItems = (grn.items || []).map(item => ({
+          carId: item.carId,
+          carDescription: item.carDescription,
           purchaseOrderItemId: item.purchaseOrderItemId,
           itemDescription: item.itemDescription,
           orderedQuantity: item.orderedQuantity,
@@ -184,16 +231,31 @@ export class CarsReceiptNoteFormComponent implements OnInit {
       return;
     }
 
+    const missingCar = linesToReceive.find(i => !i.carId);
+    if (missingCar) {
+      this.notificationService.showWarning(this.translateService.instant('CARS_RECEIPT_NOTE.CAR_REQUIRED_WARNING'));
+      return;
+    }
+
     const raw = this.grnForm.getRawValue();
+    const selectedPo = this.activePOs().find(po => po.id === raw.purchaseOrderId);
+    if (!selectedPo) {
+      this.notificationService.showError(this.translateService.instant('CARS_RECEIPT_NOTE.LOAD_PO_ERROR'));
+      return;
+    }
     const dto: CreateCarsReceiptNoteDto = {
       grnNumber: raw.grnNumber,
       receiptDate: raw.receiptDate,
       purchaseOrderId: raw.purchaseOrderId,
       notes: raw.notes,
+      supplierId: selectedPo.vendorId,
       items: linesToReceive.map(item => ({
+        carId: item.carId!,
+        carDescription: item.carDescription!,
         purchaseOrderItemId: item.purchaseOrderItemId,
         receivedQuantity: item.receivedQuantity,
-        notes: item.notes
+        notes: item.notes,
+    
       }))
     };
 

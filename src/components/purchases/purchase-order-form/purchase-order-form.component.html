@@ -68,7 +68,7 @@
             <mat-form-field appearance="outline" class="w-100">
               <mat-label>{{ 'PURCHASE_ORDER.SELECT_QUOTATION' | translate }}</mat-label>
               <mat-select formControlName="supplierRfqId" (selectionChange)="onQuotationSelected($event.value)">
-                <mat-option *ngFor="let q of eligibleQuotations()" [value]="q.id">{{ q.quotationNumber }} — {{ q.totalAmount | currency }}</mat-option>
+                <mat-option *ngFor="let q of eligibleQuotations()" [value]="q.id">{{ q.offerNumber }} — {{ q.totalAmount | currency }}</mat-option>
               </mat-select>
               <mat-icon matSuffix>request_quote</mat-icon>
               <mat-hint>{{ 'PURCHASE_ORDER.SELECT_QUOTATION_HINT' | translate }}</mat-hint>
@@ -77,6 +77,23 @@
               </mat-error>
             </mat-form-field>
           </div>
+        </div>
+
+        <div class="details-grid-wrapper mb-3" *ngIf="supplierDetails.length > 0">
+          <div class="doc-section-title">
+            <mat-icon class="section-icon">store</mat-icon>
+            <span>{{ 'PURCHASE_ORDER.SUPPLIER_DETAILS' | translate }}</span>
+          </div>
+          <dx-data-grid [dataSource]="supplierDetails" [showBorders]="true" [columnAutoWidth]="true"
+            [rowAlternationEnabled]="true" [hoverStateEnabled]="true">
+            <dxi-column dataField="name" caption="{{ 'PURCHASE_ORDER.VENDOR' | translate }}"></dxi-column>
+            <dxi-column dataField="phone" caption="{{ 'PURCHASE_ORDER.PHONE' | translate }}"></dxi-column>
+            <dxi-column dataField="email" caption="{{ 'PURCHASE_ORDER.EMAIL' | translate }}"></dxi-column>
+            <dxi-column dataField="address" caption="{{ 'PURCHASE_ORDER.ADDRESS' | translate }}"></dxi-column>
+            <dxi-column dataField="contactPerson" caption="{{ 'PURCHASE_ORDER.CONTACT_PERSON' | translate }}"></dxi-column>
+            <dxi-column dataField="paymentTerms" caption="{{ 'PURCHASE_ORDER.PAYMENT_TERMS' | translate }}"></dxi-column>
+            <dxi-column dataField="creditLimit" caption="{{ 'PURCHASE_ORDER.CREDIT_LIMIT' | translate }}" dataType="number" format="currency"></dxi-column>
+          </dx-data-grid>
         </div>
 
         <div class="details-grid-wrapper mb-3">

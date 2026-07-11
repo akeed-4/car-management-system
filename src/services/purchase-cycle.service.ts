@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { CarReceipt, CreateCarReceiptDto } from '../models/car-receipt.model';
-import { CreatePurchaseOfferDto, PurchaseOfferDto, PurchaseOfferStatus } from '../models/purchase-offer.model';
+import { ApprovedOfferLookupDto, CreatePurchaseOfferDto, OfferItemForPODto, PurchaseOfferDto } from '../models/purchase-offer.model';
 import { CreatePurchaseRequestDto, PurchaseRequestDto, PurchaseRequestStatus } from '../models/purchase-request.model';
 import { PoDto } from '../models/purchase-order.model';
 import { environment } from '../environments/environment';
@@ -37,13 +38,23 @@ export class PurchaseCycleService {
     return this.http.put<PurchaseOfferDto>(`${this.purchaseOffersApiUrl}/Update/${id}`, offer);
   }
 
-  updatePurchaseOfferStatus(id: number, status: PurchaseOfferStatus): Observable<PurchaseOfferDto> {
-    return this.http.patch<PurchaseOfferDto>(`${this.purchaseOffersApiUrl}/UpdateStatus/${id}`, { status });
+  approvePurchaseOffer(id: number): Observable<any> {
+    return this.http.post<any>(`${this.purchaseOffersApiUrl}/${id}/approve`, {});
   }
 
-  /** Accepted offers not yet converted into a Purchase Request -- feeds the Purchase Request screen's dropdown. */
-  getEligibleOffersForRequest(): Observable<PurchaseOfferDto[]> {
-    return this.http.get<PurchaseOfferDto[]>(`${this.purchaseOffersApiUrl}/GetEligibleForRequest`);
+  rejectPurchaseOffer(id: number): Observable<any> {
+    return this.http.post<any>(`${this.purchaseOffersApiUrl}/${id}/reject`, {});
+  }
+
+  /** Approved offers with at least one unconverted line, optionally scoped to a supplier -- feeds the Purchase Order screen's dropdown. */
+  getEligibleOffersForPO(supplierId?: number): Observable<ApprovedOfferLookupDto[]> {
+    const url = supplierId ? `${this.purchaseOffersApiUrl}/GetEligibleParents?supplierId=${supplierId}` : `${this.purchaseOffersApiUrl}/GetEligibleParents`;
+    return this.http.get<any>(url).pipe(map(response => response?.data ?? response));
+  }
+
+  /** Auto-populates the PO grid once a purchase offer is selected. */
+  getItemsForOffer(offerId: number): Observable<OfferItemForPODto[]> {
+    return this.http.get<any>(`${this.purchaseOffersApiUrl}/PopulateFromParent/${offerId}`).pipe(map(response => response?.data ?? response));
   }
 
   // ===================================================================
@@ -54,7 +65,9 @@ export class PurchaseCycleService {
   }
 
   getPurchaseRequest(id: number): Observable<PurchaseRequestDto> {
-    return this.http.get<PurchaseRequestDto>(`${this.purchaseRequestsApiUrl}/GetById/${id}`);
+    return this.http.get<any>(`${this.purchaseRequestsApiUrl}/${id}`).pipe(
+      map(response => response?.data ?? response)
+    );
   }
 
   createPurchaseRequest(request: CreatePurchaseRequestDto): Observable<PurchaseRequestDto> {
@@ -109,9 +122,5 @@ export class PurchaseCycleService {
   /** Un-invoiced GRNs across all suppliers -- feeds the Purchase Invoice screen's dropdown. */
   getUninvoicedReceipts(): Observable<CarReceipt[]> {
     return this.http.get<CarReceipt[]>(`${this.carReceiptsApiUrl}/GetUninvoiced`);
-  }
-
-  markCarReceiptsInvoiced(receiptIds: number[], invoiceId: number): Observable<void> {
-    return this.http.patch<void>(`${this.carReceiptsApiUrl}/MarkInvoiced`, { receiptIds, invoiceId });
   }
 }

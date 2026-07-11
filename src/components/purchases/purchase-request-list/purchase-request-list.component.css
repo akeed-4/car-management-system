@@ -50,12 +50,17 @@ h2 {
   font-weight: 600;
 }
 
-.status-open {
+.status-pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-accepted {
   background-color: #d4edda;
   color: #155724;
 }
 
-.status-closed {
-  background-color: #e2e3e5;
-  color: #383d41;
+.status-rejected {
+  background-color: #f8d7da;
+  color: #721c24;
 }
