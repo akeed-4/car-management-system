@@ -16,6 +16,19 @@
   <div class="invoice-workspace" *ngIf="orderId">
     <div class="workspace-main">
 
+      <mat-card class="doc-card success-card" *ngIf="lastResult() as r">
+        <div class="success-row">
+          <mat-icon class="success-icon">check_circle</mat-icon>
+          <span>{{ 'CORPORATE.DELIVERY_COMPLETED' | translate }} — {{ 'INVOICE.INVOICE_SUMMARY' | translate }} {{ r.invoiceNumber }}</span>
+          <a *ngIf="r.deliveryNoteIds.length === 1" [routerLink]="['/sales/corporate/deliveries/view', r.deliveryNoteIds[0]]" mat-button color="primary">
+            {{ 'CORPORATE.VIEW_DELIVERY_NOTE' | translate }}
+          </a>
+          <a *ngIf="r.deliveryNoteIds.length > 1" routerLink="/sales/corporate/deliveries" mat-button color="primary">
+            {{ 'CORPORATE.VIEW_DELIVERIES' | translate }}
+          </a>
+        </div>
+      </mat-card>
+
       <mat-card class="doc-card" *ngIf="progress() as p">
         <section class="form-section">
           <h3 class="form-section-title">{{ 'CORPORATE.FULFILLMENT_PROGRESS' | translate }}</h3>

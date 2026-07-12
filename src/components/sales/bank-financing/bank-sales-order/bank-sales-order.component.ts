@@ -62,7 +62,7 @@ export class BankSalesOrderComponent implements OnInit {
   netFinanced = computed(() => Math.max(this.financedAmount() - this.downPayment(), 0));
 
   ngOnInit(): void {
-    const approvalId = Number(this.route.snapshot.queryParamMap.get('approvalId'));
+    const approvalId = Number(this.route.snapshot.paramMap.get('id')) || Number(this.route.snapshot.queryParamMap.get('approvalId'));
     if (approvalId) {
       this.loadApproval(approvalId);
     }

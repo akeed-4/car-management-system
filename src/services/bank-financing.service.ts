@@ -31,6 +31,10 @@ export class BankFinancingService {
     return this.http.get<BankQuotation[]>(`${this.baseUrl}/quotations`, { params: { status } });
   }
 
+  getAllBankQuotations(): Observable<BankQuotation[]> {
+    return this.http.get<BankQuotation[]>(`${this.baseUrl}/quotations`);
+  }
+
   // ==================== LPO & Approval ====================
 
   createApproval(dto: CreateBankApprovalDto): Observable<BankQuotation> {

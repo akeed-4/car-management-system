@@ -121,9 +121,7 @@ export class CorporateOrderManagerComponent implements OnInit {
         next: order => {
           this.submitting.set(false);
           this.notificationService.showSuccess('CORPORATE.ORDER_CREATED');
-          this.router.navigate(['/sales/corporate/deliveries/new'], {
-            queryParams: { orderId: order.id }
-          });
+          this.router.navigate(['/sales/corporate/orders/view', order.id]);
         },
         error: (err) => {
           this.submitting.set(false);

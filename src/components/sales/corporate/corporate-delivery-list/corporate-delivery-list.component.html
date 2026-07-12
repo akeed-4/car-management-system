@@ -1,0 +1,49 @@
+<div class="container-fluid p-4">
+  <div class="page-header strong-header header-row">
+    <div class="header-left">
+      <h2>{{ 'CORPORATE.DELIVERIES_LIST_TITLE' | translate }}</h2>
+    </div>
+    <div class="header-right">
+      <button mat-raised-button color="primary" (click)="onCreateNew()">
+        <mat-icon>add</mat-icon>
+        {{ 'CORPORATE.DISPATCH_VEHICLES' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <dx-data-grid
+    [dataSource]="deliveryNotes()"
+    [showBorders]="true"
+    [columnAutoWidth]="true"
+    [rowAlternationEnabled]="true"
+    [rtlEnabled]="true"
+    height="600px"
+    [showRowLines]="true"
+    [allowColumnReordering]="true"
+    [allowColumnResizing]="true"
+    [noDataText]="'CORPORATE.NO_DELIVERIES' | translate"
+    (onRowDblClick)="onView($event)"
+    keyExpr="id">
+
+    <dxo-search-panel [visible]="true"></dxo-search-panel>
+    <dxo-filter-row [visible]="true"></dxo-filter-row>
+    <dxo-header-filter [visible]="true"></dxo-header-filter>
+    <dxo-paging [pageSize]="10"></dxo-paging>
+    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
+
+    <dxi-column dataField="deliveryNoteNumber" [caption]="'CORPORATE.DELIVERY_NOTE_NUMBER' | translate"></dxi-column>
+    <dxi-column dataField="vin" caption="VIN"></dxi-column>
+    <dxi-column dataField="gatePassSerial" [caption]="'CORPORATE.GATE_PASS_SERIAL' | translate"></dxi-column>
+    <dxi-column dataField="deliveryDate" [caption]="'CORPORATE.DELIVERY_DATE' | translate" dataType="date"></dxi-column>
+    <dxi-column dataField="deliveredToName" [caption]="'CORPORATE.RECEIVER_NAME' | translate"></dxi-column>
+    <dxi-column dataField="driverName" [caption]="'CORPORATE.DRIVER_NAME' | translate"></dxi-column>
+
+    <dxi-column type="buttons" [width]="80">
+      <dxi-button
+        icon="find"
+        [hint]="'COMMON.VIEW' | translate"
+        [onClick]="onView">
+      </dxi-button>
+    </dxi-column>
+  </dx-data-grid>
+</div>

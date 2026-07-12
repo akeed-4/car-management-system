@@ -38,4 +38,15 @@ export class RetailService {
   createDelivery(dto: CreateRetailDeliveryDto): Observable<RetailDelivery> {
     return this.http.post<RetailDelivery>(`${this.baseUrl}/deliveries`, dto);
   }
+
+  getDeliveryById(id: number): Observable<RetailDelivery> {
+    return this.http.get<RetailDelivery>(`${this.baseUrl}/deliveries/${id}`);
+  }
+
+  /** salesChannel: 1=Afrad (retail, default), 3=Bunuk (bank financing) */
+  getDeliveries(salesChannel?: number): Observable<RetailDelivery[]> {
+    return this.http.get<RetailDelivery[]>(`${this.baseUrl}/deliveries`, {
+      params: salesChannel ? { salesChannel } : {}
+    });
+  }
 }

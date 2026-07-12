@@ -1,6 +1,6 @@
 /* ============================================================
-   Corporate Vehicle Delivery -- same ERP document layout
-   convention as the other sales-lifecycle screens.
+   Retail / Bank Vehicle Delivery (view) -- same ERP document
+   layout convention as Corporate Delivery Note.
    ============================================================ */
 
 .container {
@@ -26,28 +26,6 @@
   font-size: 1.4rem;
   font-weight: 700;
   color: var(--color-gray-900, #111827);
-}
-
-.success-card {
-  background: var(--color-primary-50, #eff6ff) !important;
-  border-color: var(--color-primary-200, #bfdbfe) !important;
-}
-
-.success-row {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-}
-
-.success-icon {
-  color: var(--color-primary-600, #16a34a);
-}
-
-.success-row span {
-  flex: 1;
-  font-weight: 600;
-  color: var(--color-gray-800, #1f2937);
 }
 
 .back-link {
@@ -111,6 +89,9 @@
 }
 
 .form-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 0.72rem;
   font-weight: 700;
   margin: 0 0 var(--space-2, 0.5rem);
@@ -119,63 +100,74 @@
   letter-spacing: 0.06em;
 }
 
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--space-2, 0.5rem);
+mat-grid-list {
+  margin-bottom: 0;
 }
 
-.progress-stats {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 0.5rem;
-  font-size: 0.82rem;
-  color: var(--color-gray-600, #4b5563);
+mat-grid-list + mat-grid-list {
+  margin-top: var(--space-3, 0.75rem);
 }
 
 mat-grid-tile {
   padding: 0 !important;
 }
 
-mat-form-field {
-  width: 100%;
-}
-
-.notes-field {
-  margin-top: var(--space-3, 0.75rem);
-}
-
-.lines-card {
+.readonly-field {
   display: flex;
   flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.4rem 0;
 }
 
-.table-container {
-  border-radius: var(--rounded-md, 6px);
-  overflow: hidden;
-  border: 1px solid var(--color-gray-200, #e5e7eb);
+.readonly-label {
+  font-size: 0.72rem;
+  color: var(--color-gray-500, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-:host ::ng-deep .premium-table .dx-datagrid-headers {
-  position: sticky;
-  top: 0;
-  z-index: 2;
+.readonly-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-gray-900, #111827);
 }
 
-:host ::ng-deep .premium-table .dx-data-row {
-  font-size: 0.85rem;
+.notes-text {
+  white-space: pre-line;
+  font-weight: 400;
 }
 
-.checklist-signature-row {
+.checklist-view {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: flex;
-  gap: var(--space-4, 1rem);
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.checklist-signature-row .doc-card {
-  flex: 1;
-  min-width: 260px;
+.checklist-view li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.check-yes {
+  color: var(--color-primary-600, #16a34a);
+}
+
+.check-no {
+  color: var(--color-gray-400, #9ca3af);
+}
+
+.signature-image {
+  max-width: 320px;
+  max-height: 160px;
+  border: 1px solid var(--color-gray-200, #e5e7eb);
+  border-radius: var(--rounded-md, 6px);
+  background: var(--color-gray-50, #f9fafb);
+  padding: 0.5rem;
 }
 
 .summary-card {
@@ -195,32 +187,11 @@ mat-form-field {
   justify-content: space-between;
   align-items: center;
   padding: 0.3rem 0;
-  color: var(--color-gray-600, #4b5563);
-}
-
-.summary-item.total {
-  color: var(--color-gray-900, #111827);
-  font-weight: 700;
-  font-size: 1.15rem;
-  padding: 0.6rem 0.6rem;
-  margin-top: 0.3rem;
-  border-radius: var(--rounded-md, 6px);
-  background: var(--color-primary-50, #eff6ff);
-}
-
-.summary-item.total .font-mono {
-  color: var(--color-primary-700, #1d4ed8);
 }
 
 .summary-item p {
   margin: 0;
   font-size: 0.88rem;
-}
-
-.summary-card hr {
-  border: none;
-  border-top: 1px solid var(--color-gray-200, #e5e7eb);
-  margin: 0.35rem 0;
 }
 
 .font-mono {
@@ -238,18 +209,6 @@ mat-form-field {
   border-top: 1px solid var(--color-gray-200, #e5e7eb);
 }
 
-.form-actions .save-btn {
-  width: 100%;
-  font-size: 0.9rem;
-  font-weight: 600;
-  padding: 0.55rem 1.5rem;
-  border-radius: var(--rounded-md, 6px);
-}
-
-.form-actions .save-btn mat-icon {
-  margin-right: 0.35rem;
-}
-
 .form-actions .cancel-btn {
   width: 100%;
   text-align: center;
@@ -263,12 +222,6 @@ mat-form-field {
 
   .workspace-sidebar {
     position: static;
-  }
-}
-
-@media (max-width: 900px) {
-  .checklist-signature-row {
-    flex-direction: column;
   }
 }
 
@@ -296,7 +249,7 @@ mat-form-field {
     border-color: #374151 !important;
   }
 
-  .summary-item.total {
-    background: rgba(59, 130, 246, 0.15);
+  .signature-image {
+    background: #1f2937;
   }
 }

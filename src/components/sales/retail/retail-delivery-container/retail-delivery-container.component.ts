@@ -162,7 +162,8 @@ export class RetailDeliveryContainerComponent implements OnInit {
           if (this.attachmentUploader) {
             this.attachmentUploader.uploadPending(delivery.id);
           }
-          this.router.navigate(['/dashboard']);
+          const isBankChannel = this.route.snapshot.data['channel'] === 'bank';
+          this.router.navigate([isBankChannel ? '/sales/bank/deliveries/view' : '/sales/retail/deliveries/view', delivery.id]);
         },
         error: () => {
           this.submitting.set(false);

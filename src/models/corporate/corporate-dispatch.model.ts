@@ -26,6 +26,9 @@ export interface DeliveryNoteResult {
   deliveredToNationalId?: string;
   deliveredToPhone?: string;
   driverName?: string;
+  signatureData?: string;
+  checklistJson?: string;
+  notes?: string;
 }
 
 export interface CorporateBatchResult {

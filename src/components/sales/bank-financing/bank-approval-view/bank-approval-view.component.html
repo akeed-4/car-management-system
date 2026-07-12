@@ -1,0 +1,152 @@
+<div class="container">
+  <div class="page-header">
+    <h2>{{ 'BANK_FINANCING.APPROVAL_TITLE' | translate }}</h2>
+    <a routerLink="/sales/bank/approvals" class="back-link">
+      <button mat-icon-button>
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <span>{{ 'BANK_FINANCING.BACK_TO_APPROVALS' | translate }}</span>
+    </a>
+  </div>
+
+  <div *ngIf="!quotation() && !loading()" class="empty-state">
+    {{ 'BANK_FINANCING.APPROVAL_NOT_FOUND' | translate }}
+  </div>
+
+  <div class="invoice-workspace" *ngIf="quotation() as q">
+    <div class="workspace-main">
+
+      <mat-card class="doc-card">
+        <div class="section-header">
+          <h3 class="form-section-title">{{ 'CORPORATE.QUOTATION_DETAILS' | translate }}</h3>
+          <span class="status-badge" [ngClass]="statusClass()">
+            {{ ('BANK_FINANCING.STATUS_' + (q.status || '').toUpperCase()) | translate }}
+          </span>
+        </div>
+        <ng-container *ngIf="cardLayout3 | async as layout">
+          <mat-grid-list [cols]="layout.columns" rowHeight="76" gutterSize="16px">
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'CORPORATE.QUOTATION_NUMBER' | translate }}</span>
+                <span class="readonly-value">{{ q.quotationNumber }}</span>
+              </div>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'BANK_FINANCING.END_USER_NAME' | translate }}</span>
+                <span class="readonly-value">{{ q.endUserName }}</span>
+              </div>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'BANK_FINANCING.BANK' | translate }}</span>
+                <span class="readonly-value">{{ q.bankName }}</span>
+              </div>
+            </mat-grid-tile>
+          </mat-grid-list>
+        </ng-container>
+        <ng-container *ngIf="cardLayout3 | async as layout">
+          <mat-grid-list [cols]="layout.columns" rowHeight="76" gutterSize="16px">
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">VIN</span>
+                <span class="readonly-value">{{ q.vin }}</span>
+              </div>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'PURCHASE_INVOICE.CAR' | translate }}</span>
+                <span class="readonly-value">{{ q.carDescription }}</span>
+              </div>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'INVOICE.TOTAL' | translate }}</span>
+                <span class="readonly-value">{{ q.vehiclePrice | currency:'SAR':'symbol':'1.0-0' }}</span>
+              </div>
+            </mat-grid-tile>
+          </mat-grid-list>
+        </ng-container>
+      </mat-card>
+
+      <mat-card class="doc-card" *ngIf="q.bankLpoReference">
+        <h3 class="form-section-title">{{ 'BANK_FINANCING.APPROVAL_DETAILS' | translate }}</h3>
+        <ng-container *ngIf="cardLayout3 | async as layout">
+          <mat-grid-list [cols]="layout.columns" rowHeight="76" gutterSize="16px">
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'BANK_FINANCING.LPO_REFERENCE' | translate }}</span>
+                <span class="readonly-value">{{ q.bankLpoReference }}</span>
+              </div>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'BANK_FINANCING.APPROVED_FINANCING_AMOUNT' | translate }}</span>
+                <span class="readonly-value">{{ q.approvedFinancingAmount | currency:'SAR':'symbol':'1.0-0' }}</span>
+              </div>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'BANK_FINANCING.DOWN_PAYMENT' | translate }}</span>
+                <span class="readonly-value">{{ (q.downPayment || 0) | currency:'SAR':'symbol':'1.0-0' }}</span>
+              </div>
+            </mat-grid-tile>
+          </mat-grid-list>
+        </ng-container>
+        <ng-container *ngIf="cardLayout3 | async as layout">
+          <mat-grid-list [cols]="layout.columns" rowHeight="76" gutterSize="16px">
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'BANK_FINANCING.INSTALLMENT_COUNT' | translate }}</span>
+                <span class="readonly-value">{{ q.installmentCount || '—' }}</span>
+              </div>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'BANK_FINANCING.INSTALLMENT_TERM_MONTHS' | translate }}</span>
+                <span class="readonly-value">{{ q.installmentTermMonths || '—' }}</span>
+              </div>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'BANK_FINANCING.APPROVED_AT' | translate }}</span>
+                <span class="readonly-value">{{ q.approvedAt ? (q.approvedAt | date:'medium') : '—' }}</span>
+              </div>
+            </mat-grid-tile>
+          </mat-grid-list>
+        </ng-container>
+      </mat-card>
+
+      <mat-card class="doc-card">
+        <h3 class="form-section-title">{{ 'INVOICE.NOTES' | translate }}</h3>
+        <p class="readonly-value notes-text">{{ q.approvalNotes || ('CORPORATE.NO_NOTES' | translate) }}</p>
+      </mat-card>
+
+      <mat-card class="doc-card">
+        <h3 class="form-section-title">{{ 'DOCUMENT.ATTACHMENTS' | translate }}</h3>
+        <app-attachment-uploader documentType="BankQuotation" [documentId]="q.id"></app-attachment-uploader>
+      </mat-card>
+
+    </div>
+
+    <aside class="workspace-sidebar">
+      <mat-card class="summary-card">
+        <mat-card-title>{{ 'INVOICE.INVOICE_SUMMARY' | translate }}</mat-card-title>
+        <mat-card-content>
+          <div class="summary-item total">
+            <p>{{ 'INVOICE.TOTAL' | translate }}</p>
+            <p class="font-mono">{{ q.vehiclePrice | currency:'SAR':'symbol':'1.0-0' }}</p>
+          </div>
+        </mat-card-content>
+
+        <div class="form-actions">
+          <a *ngIf="q.status === 'Bank_Approved'" [routerLink]="['/sales/bank/orders/view', q.id]" mat-raised-button color="primary" class="save-btn">
+            <mat-icon>arrow_forward</mat-icon>
+            {{ 'BANK_FINANCING.VIEW_SALES_ORDER' | translate }}
+          </a>
+          <a routerLink="/sales/bank/approvals" mat-button class="cancel-btn">{{ 'BANK_FINANCING.BACK_TO_APPROVALS' | translate }}</a>
+        </div>
+      </mat-card>
+    </aside>
+  </div>
+</div>

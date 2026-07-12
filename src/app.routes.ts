@@ -131,7 +131,16 @@ import { BankQuotationContainerComponent } from './components/sales/bank-financi
 import { BankApprovalManagerComponent } from './components/sales/bank-financing/bank-approval-manager/bank-approval-manager.component';
 import { CorporateQuotationContainerComponent } from './components/sales/corporate/corporate-quotation-container/corporate-quotation-container.component';
 import { CorporateOrderManagerComponent } from './components/sales/corporate/corporate-order-manager/corporate-order-manager.component';
+import { CorporateOrderListComponent } from './components/sales/corporate/corporate-order-list/corporate-order-list.component';
+import { CorporateOrderViewComponent } from './components/sales/corporate/corporate-order-view/corporate-order-view.component';
 import { CorporateFleetDispatcherComponent } from './components/sales/corporate/corporate-fleet-dispatcher/corporate-fleet-dispatcher.component';
+import { CorporateDeliveryListComponent } from './components/sales/corporate/corporate-delivery-list/corporate-delivery-list.component';
+import { CorporateDeliveryViewComponent } from './components/sales/corporate/corporate-delivery-view/corporate-delivery-view.component';
+import { BankApprovalListComponent } from './components/sales/bank-financing/bank-approval-list/bank-approval-list.component';
+import { BankApprovalViewComponent } from './components/sales/bank-financing/bank-approval-view/bank-approval-view.component';
+import { BankOrderListComponent } from './components/sales/bank-financing/bank-order-list/bank-order-list.component';
+import { RetailDeliveryListComponent } from './components/sales/retail/retail-delivery-list/retail-delivery-list.component';
+import { RetailDeliveryViewComponent } from './components/sales/retail/retail-delivery-view/retail-delivery-view.component';
 
 export const APP_ROUTES: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -203,16 +212,26 @@ export const APP_ROUTES: Routes = [
   { path: 'sales/direct/installment-sale/edit/:id', component: SalesInvoiceInstallmentComponent },
   // Corporate Sales — 5-step ERP workflow
   { path: 'sales/corporate/quotations/new', component: CorporateQuotationContainerComponent },
+  { path: 'sales/corporate/orders', component: CorporateOrderListComponent },
   { path: 'sales/corporate/orders/new', component: CorporateOrderManagerComponent },
+  { path: 'sales/corporate/orders/view/:id', component: CorporateOrderViewComponent },
+  { path: 'sales/corporate/deliveries', component: CorporateDeliveryListComponent },
   { path: 'sales/corporate/deliveries/new', component: CorporateFleetDispatcherComponent },
+  { path: 'sales/corporate/deliveries/view/:id', component: CorporateDeliveryViewComponent },
   { path: 'sales/corporate/invoices/new', component: CompaniesInvoiceFormComponent },
   { path: 'sales/corporate/invoices/edit/:id', component: CompaniesInvoiceFormComponent },
   { path: 'sales/corporate/receipts/new', component: ReceiptFormComponent },
   // Bank Sales — 6-step vehicle financing workflow
   { path: 'sales/bank/quotations/new', component: BankQuotationContainerComponent },
+  { path: 'sales/bank/approvals', component: BankApprovalListComponent },
   { path: 'sales/bank/approvals/new', component: BankApprovalManagerComponent },
+  { path: 'sales/bank/approvals/view/:id', component: BankApprovalViewComponent },
+  { path: 'sales/bank/orders', component: BankOrderListComponent },
   { path: 'sales/bank/orders/new', component: BankSalesOrderComponent },
-  { path: 'sales/bank/deliveries/new', component: RetailDeliveryContainerComponent },
+  { path: 'sales/bank/orders/view/:id', component: BankSalesOrderComponent },
+  { path: 'sales/bank/deliveries', component: RetailDeliveryListComponent, data: { channel: 'bank' } },
+  { path: 'sales/bank/deliveries/new', component: RetailDeliveryContainerComponent, data: { channel: 'bank' } },
+  { path: 'sales/bank/deliveries/view/:id', component: RetailDeliveryViewComponent, data: { channel: 'bank' } },
   { path: 'sales/bank/invoices/new', component: BankInvoiceFormComponent },
   { path: 'sales/bank/invoices/edit/:id', component: BankInvoiceFormComponent },
   { path: 'sales/bank/collections/new', component: ReceiptFormComponent },

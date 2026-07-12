@@ -1,0 +1,139 @@
+<div class="container">
+  <div class="page-header">
+    <h2>{{ 'CORPORATE.ORDER_TITLE' | translate }}</h2>
+    <a routerLink="/sales/corporate/orders" class="back-link">
+      <button mat-icon-button>
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <span>{{ 'CORPORATE.BACK_TO_ORDERS' | translate }}</span>
+    </a>
+  </div>
+
+  <div *ngIf="!order() && !loading()" class="empty-state">
+    {{ 'CORPORATE.ORDER_NOT_FOUND' | translate }}
+  </div>
+
+  <div class="invoice-workspace" *ngIf="order() as o">
+    <div class="workspace-main">
+
+      <mat-card class="doc-card">
+        <div class="section-header">
+          <h3 class="form-section-title">{{ 'CORPORATE.ORDER_DETAILS' | translate }}</h3>
+          <span class="status-badge" [ngClass]="statusClass()">
+            {{ ('CORPORATE.ORDER_STATUS_' + (o.status || '').toUpperCase()) | translate }}
+          </span>
+        </div>
+        <ng-container *ngIf="cardLayout3 | async as layout">
+          <mat-grid-list [cols]="layout.columns" rowHeight="76" gutterSize="16px">
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'CORPORATE.ORDER_NUMBER' | translate }}</span>
+                <span class="readonly-value">{{ o.id }}</span>
+              </div>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'CORPORATE.ORDER_DATE' | translate }}</span>
+                <span class="readonly-value">{{ o.orderDate | date:'mediumDate' }}</span>
+              </div>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'CORPORATE.CUSTOMER' | translate }}</span>
+                <span class="readonly-value">{{ o.customerName }}</span>
+              </div>
+            </mat-grid-tile>
+          </mat-grid-list>
+        </ng-container>
+        <ng-container *ngIf="cardLayout3 | async as layout">
+          <mat-grid-list [cols]="layout.columns" rowHeight="76" gutterSize="16px">
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'CORPORATE.PO_REFERENCE' | translate }}</span>
+                <span class="readonly-value">{{ o.customerPoReference }}</span>
+              </div>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'CORPORATE.PAYMENT_TERMS' | translate }}</span>
+                <span class="readonly-value">{{ o.paymentTerms }}</span>
+              </div>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'CORPORATE.EXPECTED_DELIVERY_DATE' | translate }}</span>
+                <span class="readonly-value">{{ o.expectedDeliveryDate ? (o.expectedDeliveryDate | date:'mediumDate') : '—' }}</span>
+              </div>
+            </mat-grid-tile>
+          </mat-grid-list>
+        </ng-container>
+        <ng-container *ngIf="cardLayout3 | async as layout">
+          <mat-grid-list [cols]="layout.columns" rowHeight="76" gutterSize="16px">
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'CORPORATE.SALES_REPRESENTATIVE' | translate }}</span>
+                <span class="readonly-value">{{ o.salesRepresentative || '—' }}</span>
+              </div>
+            </mat-grid-tile>
+          </mat-grid-list>
+        </ng-container>
+      </mat-card>
+
+      <mat-card class="doc-card lines-card">
+        <div class="section-header">
+          <h3 class="form-section-title">{{ 'CORPORATE.VEHICLE_LINES' | translate }}</h3>
+        </div>
+        <div class="table-container premium-table">
+          <dx-data-grid
+            [dataSource]="o.lines"
+            [showBorders]="true"
+            [columnAutoWidth]="true"
+            [rowAlternationEnabled]="true"
+            [rtlEnabled]="true"
+            [height]="260"
+            keyExpr="carId"
+          >
+            <dxi-column dataField="vin" caption="VIN" [allowEditing]="false"></dxi-column>
+            <dxi-column dataField="unitPrice" caption="{{ 'INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency" [allowEditing]="false" cssClass="readonly-col"></dxi-column>
+            <dxi-column dataField="totalPrice" caption="{{ 'INVOICE.TOTAL' | translate }}" dataType="number" format="currency" [allowEditing]="false" cssClass="readonly-col"></dxi-column>
+          </dx-data-grid>
+        </div>
+      </mat-card>
+
+      <mat-card class="doc-card">
+        <section class="form-section">
+          <h3 class="form-section-title">{{ 'INVOICE.NOTES' | translate }}</h3>
+          <p class="readonly-value notes-text">{{ o.notes || ('CORPORATE.NO_NOTES' | translate) }}</p>
+        </section>
+      </mat-card>
+
+      <mat-card class="doc-card">
+        <section class="form-section">
+          <h3 class="form-section-title">{{ 'DOCUMENT.ATTACHMENTS' | translate }}</h3>
+          <app-attachment-uploader documentType="CorporateOrder" [documentId]="o.id ?? null"></app-attachment-uploader>
+        </section>
+      </mat-card>
+
+    </div>
+
+    <aside class="workspace-sidebar">
+      <mat-card class="summary-card">
+        <mat-card-title>{{ 'INVOICE.INVOICE_SUMMARY' | translate }}</mat-card-title>
+        <mat-card-content>
+          <div class="summary-item total">
+            <p>{{ 'INVOICE.TOTAL' | translate }}</p>
+            <p class="font-mono">{{ o.totalAmount | currency:'SAR':'symbol':'1.0-0' }}</p>
+          </div>
+        </mat-card-content>
+
+        <div class="form-actions">
+          <a routerLink="/sales/corporate/deliveries/new" [queryParams]="{ orderId: o.id }" mat-raised-button color="primary" class="save-btn">
+            <mat-icon>local_shipping</mat-icon>
+            {{ 'CORPORATE.PROCEED_TO_DELIVERY' | translate }}
+          </a>
+          <a routerLink="/sales/corporate/orders" mat-button class="cancel-btn">{{ 'CORPORATE.BACK_TO_ORDERS' | translate }}</a>
+        </div>
+      </mat-card>
+    </aside>
+  </div>
+</div>
