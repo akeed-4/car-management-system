@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { TranslateModule } from '@ngx-translate/core';
+import { MatSelectModule } from '@angular/material/select';
 import { VehicleSpecsDisplayComponent } from './vehicle-specs-display/vehicle-specs-display.component';
 import { RetailService } from '../../../../services/retail.service';
 import { SalesService } from '../../../../services/sales.service';
@@ -17,6 +18,7 @@ import { CurrentSettingService } from '../../../../services/current-setting.serv
 import { NotificationService } from '@/src/services/notification.service';
 import { VehicleSpecs } from '../../../../models/retail/retail-delivery.model';
 import { SalesInvoice } from '../../../../models/sales-invoice.model';
+import { SalesChannel } from '../../../../models/enums/sales-channel.enum';
 import { DocumentChecklistComponent, ChecklistItem } from '../../shared/document-checklist/document-checklist.component';
 import { SignaturePadComponent } from '../../shared/signature-pad/signature-pad.component';
 import { AttachmentUploaderComponent } from '../../shared/attachment-uploader/attachment-uploader.component';
@@ -41,6 +43,7 @@ const DEFAULT_CHECKLIST: ChecklistItem[] = [
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
     MatIconModule,
     MatGridListModule,
     TranslateModule,
@@ -66,6 +69,7 @@ export class RetailDeliveryContainerComponent implements OnInit {
   cardLayout3 = this.currentSettingService.getCardLayout(3);
 
   invoiceId: number | null = null;
+  pendingInvoices = signal<SalesInvoice[]>([]);
   invoice = signal<SalesInvoice | null>(null);
   vehicleSpecs = signal<VehicleSpecs | null>(null);
   loading = signal(false);
@@ -86,6 +90,31 @@ export class RetailDeliveryContainerComponent implements OnInit {
     this.gatePassSerial = `GP-${Date.now()}`;
     if (this.invoiceId) {
       this.loadInvoice(this.invoiceId);
+    }
+    this.loadPendingInvoices();
+  }
+
+  private loadPendingInvoices(): void {
+    const isBankChannel = this.route.snapshot.data['channel'] === 'bank';
+    this.retailService.getDeliveries(isBankChannel ? SalesChannel.Bunuk : undefined).subscribe({
+      next: deliveries => {
+        const deliveredInvoiceIds = new Set(deliveries.map(d => d.salesInvoiceId));
+        const eligible = this.salesService.invoices$().filter(inv =>
+          (!isBankChannel || inv.salesChannel === SalesChannel.Bunuk) && !deliveredInvoiceIds.has(inv.id)
+        );
+        this.pendingInvoices.set(eligible);
+      },
+      error: () => this.notificationService.showError('RETAIL.DELIVERIES_LOAD_FAILED')
+    });
+  }
+
+  onInvoiceSelected(id: number | null): void {
+    this.invoiceId = id;
+    if (id) {
+      this.loadInvoice(id);
+    } else {
+      this.invoice.set(null);
+      this.vehicleSpecs.set(null);
     }
   }
 

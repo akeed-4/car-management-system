@@ -9,9 +9,21 @@
     </a>
   </div>
 
-  <div *ngIf="!invoiceId" class="empty-state">
-    {{ 'BANK_FINANCING.APPROVAL_REQUIRED' | translate }}
-  </div>
+  <mat-card class="doc-card">
+    <section class="form-section">
+      <h3 class="form-section-title">{{ 'BANK_FINANCING.PENDING_INVOICE' | translate }}</h3>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ 'BANK_FINANCING.SELECT_INVOICE' | translate }}</mat-label>
+        <mat-select [ngModel]="invoiceId" (ngModelChange)="onInvoiceSelected($event)" required>
+          <mat-option [value]="null" disabled>{{ 'BANK_FINANCING.SELECT_INVOICE' | translate }}</mat-option>
+          <mat-option *ngFor="let inv of pendingInvoices()" [value]="inv.id">
+            {{ inv.invoiceNumber }} — {{ inv.ownerCustomerName || inv.customerName }} — {{ inv.totalAmount | currency:'SAR':'symbol':'1.0-0' }}
+          </mat-option>
+        </mat-select>
+        <mat-hint *ngIf="pendingInvoices().length === 0">{{ 'BANK_FINANCING.NO_PENDING_INVOICES' | translate }}</mat-hint>
+      </mat-form-field>
+    </section>
+  </mat-card>
 
   <div class="invoice-workspace" *ngIf="invoice() as inv">
     <div class="workspace-main">

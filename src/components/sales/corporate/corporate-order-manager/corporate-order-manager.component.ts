@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { MatGridListModule } from '@angular/material/grid-list';
@@ -30,6 +31,7 @@ import { CreditUtilizationWidgetComponent } from './credit-utilization-widget/cr
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
     MatDatepickerModule,
     MatIconModule,
     MatGridListModule,
@@ -58,8 +60,11 @@ export class CorporateOrderManagerComponent implements OnInit {
 
   orderForm!: FormGroup;
 
+  pendingQuotations = signal<CorporateQuotation[]>([]);
+
   ngOnInit(): void {
     this.orderForm = new FormGroup({
+      quotationId: new FormControl<number | null>(null, Validators.required),
       customerPoReference: new FormControl('', Validators.required),
       paymentTerms: new FormControl('', Validators.required),
       expectedDeliveryDate: new FormControl(null),
@@ -67,19 +72,38 @@ export class CorporateOrderManagerComponent implements OnInit {
       notes: new FormControl('')
     });
 
+    this.orderForm.get('quotationId')?.valueChanges.subscribe(id => {
+      if (id) {
+        this.loadQuotation(id);
+      } else {
+        this.quotation.set(null);
+        this.creditSummary.set(null);
+      }
+    });
+    this.loadPendingQuotations();
+
     const quotationId = Number(this.route.snapshot.queryParamMap.get('quotationId'));
     if (quotationId) {
-      this.loadQuotation(quotationId);
+      this.orderForm.patchValue({ quotationId });
     }
   }
 
+  private loadPendingQuotations(): void {
+    this.corporateFleetService.getSubmittedQuotations().subscribe({
+      next: (quotations: any) => this.pendingQuotations.set(quotations.data),
+      error: () => this.notificationService.showError('CORPORATE.ORDERS_LOAD_FAILED')
+    });
+  }
+
   private loadQuotation(quotationId: number): void {
+    debugger
     this.loading.set(true);
     this.corporateFleetService.getQuotationById(quotationId).subscribe({
-      next: quotation => {
-        this.quotation.set(quotation);
+      next: (quotation: any) => {
+        this.quotation.set(quotation.data);
         this.loading.set(false);
-        this.corporateFleetService.getCreditSummary(quotation.customerId).subscribe({
+        debugger
+        this.corporateFleetService.getCreditSummary(quotation.data.customerId).subscribe({
           next: summary => this.creditSummary.set(summary),
           error: () => {}
         });

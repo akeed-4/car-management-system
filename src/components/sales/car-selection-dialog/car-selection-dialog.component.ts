@@ -51,13 +51,15 @@ export class CarSelectionDialogComponent implements OnInit {
   }
 
   loadCarsFromAPI(): void {
+    debugger
     this.isLoading.set(true);
     // Get current store from settings or data
-    const storeId = this.data?.storeId || this.currentSettingService.getStoreId();
+    const storeId = this.data?.storeId || this.currentSettingService.getStoreId() || 1;
     if (storeId) {
       this.salesService.getAvailableCarsByStore(storeId).subscribe({
-        next: (availableStocks) => {
-          this.cars.set(availableStocks.map(car => ({
+        next: (availableStocks:any) => {
+          const data =availableStocks.data;
+          this.cars.set(data.map((car: any) => ({
             ...car,
             imageUrl: '/assets/images/car.jpg' ,
             carName: car.carName,

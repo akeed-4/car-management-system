@@ -244,7 +244,6 @@
 @media (prefers-color-scheme: dark) {
   .page-toolbar,
   .grid-container {
-    background: #1e1e1e;
     border-color: #333;
   }
 }

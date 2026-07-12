@@ -658,7 +658,10 @@
     "ORDERS_LIST_TITLE": "أوامر بيع البنوك",
     "ORDERS_LOAD_FAILED": "فشل تحميل أوامر بيع البنوك",
     "NO_ORDERS": "لا توجد أوامر بيع بنكية بعد",
-    "DELIVERIES_LIST_TITLE": "تسليمات مركبات البنوك"
+    "DELIVERIES_LIST_TITLE": "تسليمات مركبات البنوك",
+    "PENDING_INVOICE": "فاتورة معلقة",
+    "SELECT_INVOICE": "اختر فاتورة جاهزة للتسليم",
+    "NO_PENDING_INVOICES": "لا توجد فواتير بانتظار التسليم"
   },
   "CORPORATE": {
     "QUOTATION_TITLE": "عرض سعر مبيعات الشركات",
@@ -693,6 +696,12 @@
     "ORDER_CREATE_FAILED": "فشل إنشاء أمر البيع",
     "CREDIT_LIMIT_EXCEEDED": "تم تجاوز حد ائتمان العميل",
     "APPROVAL_REQUIRED": "افتح هذه الشاشة من عرض سعر معتمد",
+    "PENDING_QUOTATION": "عرض سعر معلق",
+    "SELECT_QUOTATION": "اختر عرض سعر معتمد",
+    "NO_PENDING_QUOTATIONS": "لا توجد عروض أسعار معتمدة بانتظار إنشاء أمر",
+    "PENDING_ORDER": "أمر معلق",
+    "SELECT_ORDER": "اختر أمر بيع معتمد",
+    "NO_PENDING_ORDERS": "لا توجد أوامر بيع معتمدة بانتظار التسليم",
     "ORDERS_LIST_TITLE": "أوامر بيع الشركات",
     "ORDER_NUMBER": "رقم الأمر",
     "ORDER_DATE": "تاريخ الأمر",

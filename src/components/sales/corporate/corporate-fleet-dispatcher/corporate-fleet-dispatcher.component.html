@@ -9,9 +9,21 @@
     </a>
   </div>
 
-  <div *ngIf="!orderId" class="empty-state">
-    {{ 'CORPORATE.APPROVAL_REQUIRED' | translate }}
-  </div>
+  <mat-card class="doc-card">
+    <section class="form-section">
+      <h3 class="form-section-title">{{ 'CORPORATE.PENDING_ORDER' | translate }}</h3>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ 'CORPORATE.SELECT_ORDER' | translate }}</mat-label>
+        <mat-select [ngModel]="orderId" (ngModelChange)="onOrderSelected($event)" required>
+          <mat-option [value]="null" disabled>{{ 'CORPORATE.SELECT_ORDER' | translate }}</mat-option>
+          <mat-option *ngFor="let o of pendingOrders()" [value]="o.id">
+            {{ o.customerName }} — {{ o.orderDate | date:'yyyy-MM-dd' }} — {{ o.totalAmount | currency:'SAR':'symbol':'1.0-0' }}
+          </mat-option>
+        </mat-select>
+        <mat-hint *ngIf="pendingOrders().length === 0">{{ 'CORPORATE.NO_PENDING_ORDERS' | translate }}</mat-hint>
+      </mat-form-field>
+    </section>
+  </mat-card>
 
   <div class="invoice-workspace" *ngIf="orderId">
     <div class="workspace-main">

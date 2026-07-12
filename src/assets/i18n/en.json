@@ -616,7 +616,10 @@
     "ORDERS_LIST_TITLE": "Bank Sales Orders",
     "ORDERS_LOAD_FAILED": "Failed to load bank sales orders",
     "NO_ORDERS": "No bank sales orders yet",
-    "DELIVERIES_LIST_TITLE": "Bank Vehicle Deliveries"
+    "DELIVERIES_LIST_TITLE": "Bank Vehicle Deliveries",
+    "PENDING_INVOICE": "Pending Invoice",
+    "SELECT_INVOICE": "Select an invoice ready for delivery",
+    "NO_PENDING_INVOICES": "No invoices awaiting delivery"
   },
   "CORPORATE": {
     "QUOTATION_TITLE": "Corporate Sales Quotation",
@@ -651,6 +654,12 @@
     "ORDER_CREATE_FAILED": "Failed to create sales order",
     "CREDIT_LIMIT_EXCEEDED": "Customer credit limit exceeded",
     "APPROVAL_REQUIRED": "Open this screen from an approved quotation",
+    "PENDING_QUOTATION": "Pending Quotation",
+    "SELECT_QUOTATION": "Select an approved quotation",
+    "NO_PENDING_QUOTATIONS": "No approved quotations awaiting an order",
+    "PENDING_ORDER": "Pending Order",
+    "SELECT_ORDER": "Select an approved order",
+    "NO_PENDING_ORDERS": "No approved orders awaiting delivery",
     "ORDERS_LIST_TITLE": "Corporate Sales Orders",
     "ORDER_NUMBER": "Order Number",
     "ORDER_DATE": "Order Date",

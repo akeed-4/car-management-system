@@ -19,28 +19,29 @@ export interface CreditSummary {
   providedIn: 'root'
 })
 export class CorporateFleetService {
-  private readonly baseUrl = `${environment.origin}api/corporate`;
+  private readonly baseUrl = `${environment.origin}api/CorporateSales`;
 
   constructor(private http: HttpClient) {}
 
   // ==================== Quotations ====================
 
   createQuotation(dto: CreateCorporateQuotationDto): Observable<CorporateQuotation> {
-    return this.http.post<CorporateQuotation>(`${this.baseUrl}/quotations`, dto);
+    return this.http.post<CorporateQuotation>(`${this.baseUrl}/CreateQuotation`, dto);
   }
 
   getQuotationById(id: number): Observable<CorporateQuotation> {
-    return this.http.get<CorporateQuotation>(`${this.baseUrl}/quotations/${id}`);
+    return this.http.get<CorporateQuotation>(`${this.baseUrl}/GetQuotationById/${id}`);
   }
 
   getSubmittedQuotations(): Observable<CorporateQuotation[]> {
-    return this.http.get<CorporateQuotation[]>(`${this.baseUrl}/quotations`, {
+    return this.http.get<CorporateQuotation[]>(`${this.baseUrl}/GetSubmittedQuotations`, {
       params: { status: 'Approved' }
     });
   }
 
   getCreditSummary(customerId: number): Observable<CreditSummary> {
-    return this.http.get<CreditSummary>(`${this.baseUrl}/customers/${customerId}/credit-summary`);
+    debugger
+    return this.http.get<CreditSummary>(`${this.baseUrl}/customers/${customerId}/creditsSummary`);
   }
 
   // ==================== Orders ====================

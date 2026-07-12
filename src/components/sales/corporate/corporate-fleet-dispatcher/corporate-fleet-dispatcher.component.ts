@@ -17,6 +17,7 @@ import { AccountingService } from '../../../accounting/accounting.service';
 import { CurrentSettingService } from '../../../../services/current-setting.service';
 import { NotificationService } from '@/src/services/notification.service';
 import { OrderFulfillmentProgress, RemainingVinCandidate } from '../../../../models/corporate/corporate-dispatch.model';
+import { CorporateOrder } from '../../../../models/corporate/corporate-order.model';
 import { DocumentChecklistComponent, ChecklistItem } from '../../shared/document-checklist/document-checklist.component';
 import { SignaturePadComponent } from '../../shared/signature-pad/signature-pad.component';
 import { AttachmentUploaderComponent } from '../../shared/attachment-uploader/attachment-uploader.component';
@@ -70,6 +71,7 @@ export class CorporateFleetDispatcherComponent implements OnInit {
   cardLayout3 = this.currentSettingService.getCardLayout(3);
 
   orderId: number | null = null;
+  pendingOrders = signal<CorporateOrder[]>([]);
   progress = signal<OrderFulfillmentProgress | null>(null);
   remainingVins = signal<RemainingVinCandidate[]>([]);
   selectedCarIds = signal<number[]>([]);
@@ -96,9 +98,28 @@ export class CorporateFleetDispatcherComponent implements OnInit {
     if (this.orderId) {
       this.loadData(this.orderId);
     }
+    this.loadPendingOrders();
 
     this.accountingService.getAccountsByCategory('debit').subscribe(accounts => this.debitAccounts.set(accounts));
     this.accountingService.getAccountsByCategory('credit').subscribe(accounts => this.creditAccounts.set(accounts));
+  }
+
+  private loadPendingOrders(): void {
+    this.corporateFleetService.getApprovedOrders().subscribe({
+      next: orders => this.pendingOrders.set(orders),
+      error: () => this.notificationService.showError('CORPORATE.ORDERS_LOAD_FAILED')
+    });
+  }
+
+  onOrderSelected(id: number | null): void {
+    this.orderId = id;
+    if (id) {
+      this.loadData(id);
+    } else {
+      this.progress.set(null);
+      this.remainingVins.set([]);
+      this.selectedCarIds.set([]);
+    }
   }
 
   private loadData(orderId: number): void {
