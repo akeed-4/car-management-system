@@ -1,84 +1,57 @@
-import { Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
-import { DailyEntry, DailyEntryType } from '../models/daily-entry.model';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
+import {
+  DailyEntry,
+  CreateDailyEntryDto,
+  UpdateDailyEntryDto,
+} from '../models/daily-entry.model';
+
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
+
+export interface DxLoadResult<T> {
+  data: T[];
+  totalCount: number;
+  groupCount?: number;
+  summary?: unknown[];
+}
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DailyEntryService {
-  private apiUrl = `${environment.origin}/api/daily-entries`;
+  private http = inject(HttpClient);
+  private apiUrl = environment.origin + 'api/DailyEntries';
 
-  private dailyEntries = signal<DailyEntry[]>([]);
-
-  public dailyEntries$ = this.dailyEntries.asReadonly();
-
-  constructor(private http: HttpClient) {
-    this.loadDailyEntries();
+  loadDataGrid(loadOptions: Record<string, unknown>): Observable<DxLoadResult<DailyEntry>> {
+    let params = new HttpParams();
+    for (const key of Object.keys(loadOptions)) {
+      const value = loadOptions[key];
+      if (value !== undefined && value !== null) {
+        params = params.set(key, typeof value === 'object' ? JSON.stringify(value) : String(value));
+      }
+    }
+    return this.http.get<DxLoadResult<DailyEntry>>(`${this.apiUrl}/GetAll`, { params });
   }
 
-  loadDailyEntries(): void {
-    this.http.get<DailyEntry[]>(this.apiUrl).pipe(
-      tap(entries => {
-        console.log('Daily entries loaded:', entries);
-        this.dailyEntries.set(entries);
-      })
-    ).subscribe();
+  getById(id: number): Observable<ApiResponse<DailyEntry>> {
+    return this.http.get<ApiResponse<DailyEntry>>(`${this.apiUrl}/${id}`);
   }
 
-  getAll(): Observable<DailyEntry[]> {
-    return this.http.get<DailyEntry[]>(this.apiUrl);
+  create(dto: CreateDailyEntryDto): Observable<ApiResponse<DailyEntry>> {
+    return this.http.post<ApiResponse<DailyEntry>>(this.apiUrl, dto);
   }
 
-  getById(id: number): Observable<DailyEntry> {
-    return this.http.get<DailyEntry>(`${this.apiUrl}/${id}`);
+  update(id: number, dto: UpdateDailyEntryDto): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${id}`, dto);
   }
 
-  getByCarId(carId: number): Observable<DailyEntry[]> {
-    return this.http.get<DailyEntry[]>(`${this.apiUrl}/car/${carId}`);
-  }
-
-  getByType(entryType: DailyEntryType): Observable<DailyEntry[]> {
-    return this.http.get<DailyEntry[]>(`${this.apiUrl}/type/${entryType}`);
-  }
-
-  createEntry(entry: Omit<DailyEntry, 'id' | 'createdAt' | 'updatedAt'>): Observable<DailyEntry> {
-    return this.http.post<DailyEntry>(this.apiUrl, entry).pipe(
-      tap(newEntry => {
-        this.dailyEntries.update(entries => [...entries, newEntry]);
-      })
-    );
-  }
-
-  updateEntry(id: number, entry: Partial<DailyEntry>): Observable<DailyEntry> {
-    return this.http.put<DailyEntry>(`${this.apiUrl}/${id}`, entry).pipe(
-      tap(updatedEntry => {
-        this.dailyEntries.update(entries =>
-          entries.map(e => e.id === id ? updatedEntry : e)
-        );
-      })
-    );
-  }
-
-  deleteEntry(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
-      tap(() => {
-        this.dailyEntries.update(entries => entries.filter(e => e.id !== id));
-      })
-    );
-  }
-
-  // Helper methods for filtering
-  getEntriesByDateRange(startDate: string, endDate: string): Observable<DailyEntry[]> {
-    return this.http.get<DailyEntry[]>(`${this.apiUrl}/date-range`, {
-      params: { startDate, endDate }
-    });
-  }
-
-  getRecentEntries(days: number = 7): Observable<DailyEntry[]> {
-    const endDate = new Date().toISOString().split('T')[0];
-    const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-    return this.getEntriesByDateRange(startDate, endDate);
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

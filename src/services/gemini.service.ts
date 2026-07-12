@@ -57,6 +57,26 @@ export class GeminiService {
     }
   }
 
+  async askAssistant(contextSummary: string, question: string): Promise<string> {
+    const payload = {
+      model: 'gemini-2.5-flash',
+      prompt: `You are an assistant embedded in a car dealership ERP, helping staff with a vehicle request record.
+      Record context: ${contextSummary}
+      Staff question: ${question}
+      Answer concisely in the same language as the question.`,
+      temperature: 0.4,
+    };
+
+    try {
+      const obs$ = this.http.post<{ text: string }>(this.apiUrl, payload, { headers: this.getHeaders() });
+      const response = await lastValueFrom(obs$);
+      return response.text.trim();
+    } catch (error) {
+      console.error('Error contacting AI assistant:', error);
+      throw new Error('Failed to reach AI assistant');
+    }
+  }
+
   async extractVinFromImage(base64Image: string): Promise<string> {
     const payload = {
       model: 'gemini-2.5-flash',

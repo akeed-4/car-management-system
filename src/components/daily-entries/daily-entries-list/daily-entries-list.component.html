@@ -1,125 +1,193 @@
-<div class="daily-entries-container">
-  <div class="header-section">
-    <h2>{{ 'DAILY_ENTRIES.TITLE' | translate }}</h2>
-    <div class="header-actions">
-      <button mat-raised-button color="primary" routerLink="/daily-entries/new">
-        <mat-icon>add</mat-icon>
-        {{ 'DAILY_ENTRIES.ADD_NEW' | translate }}
-      </button>
+<div class="page-container">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="breadcrumb">
+      <span>{{ 'REQUESTED_CARS.BREADCRUMB_PARENT' | translate }}</span>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="current">{{ 'DAILY_ENTRIES.TITLE' | translate }}</span>
+    </div>
+    <div class="header-row">
+      <div>
+        <h1>{{ 'DAILY_ENTRIES.TITLE' | translate }}</h1>
+        <p class="subtitle">{{ 'DAILY_ENTRIES.SUBTITLE' | translate }}</p>
+      </div>
     </div>
   </div>
 
-  <!-- Filters -->
-  <mat-card class="filters-card">
-    <mat-card-content>
-      <div class="filters-grid">
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'DAILY_ENTRIES.FILTERS.ENTRY_TYPE' | translate }}</mat-label>
-          <mat-select [(ngModel)]="selectedEntryType" (selectionChange)="applyFilters()">
-            <mat-option value="">{{ 'DAILY_ENTRIES.FILTERS.ALL_TYPES' | translate }}</mat-option>
-            <mat-option value="maintenance">{{ 'DAILY_ENTRIES.TYPES.MAINTENANCE' | translate }}</mat-option>
-            <mat-option value="ownership_transfer">{{ 'DAILY_ENTRIES.TYPES.OWNERSHIP_TRANSFER' | translate }}</mat-option>
-            <mat-option value="insurance">{{ 'DAILY_ENTRIES.TYPES.INSURANCE' | translate }}</mat-option>
-            <mat-option value="periodic_inspection">{{ 'DAILY_ENTRIES.TYPES.PERIODIC_INSPECTION' | translate }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'DAILY_ENTRIES.FILTERS.DATE_FROM' | translate }}</mat-label>
-          <input matInput [matDatepicker]="fromPicker" [(ngModel)]="dateFrom" (dateChange)="applyFilters()">
-          <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
-          <mat-datepicker #fromPicker></mat-datepicker>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'DAILY_ENTRIES.FILTERS.DATE_TO' | translate }}</mat-label>
-          <input matInput [matDatepicker]="toPicker" [(ngModel)]="dateTo" (dateChange)="applyFilters()">
-          <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
-          <mat-datepicker #toPicker></mat-datepicker>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'DAILY_ENTRIES.FILTERS.SEARCH' | translate }}</mat-label>
-          <input matInput [(ngModel)]="searchTerm" (input)="applyFilters()" [placeholder]="'DAILY_ENTRIES.FILTERS.SEARCH_PLACEHOLDER' | translate">
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
+  <!-- Summary Cards -->
+  <div class="summary-cards">
+    <mat-card class="summary-card total">
+      <mat-icon>list_alt</mat-icon>
+      <div class="summary-info">
+        <div class="summary-value">{{ summary().total }}</div>
+        <div class="summary-label">{{ 'DAILY_ENTRIES.SUMMARY.TOTAL' | translate }}</div>
       </div>
-    </mat-card-content>
-  </mat-card>
+    </mat-card>
+    <mat-card class="summary-card today">
+      <mat-icon>today</mat-icon>
+      <div class="summary-info">
+        <div class="summary-value">{{ summary().today }}</div>
+        <div class="summary-label">{{ 'DAILY_ENTRIES.SUMMARY.TODAY' | translate }}</div>
+      </div>
+    </mat-card>
+    <mat-card class="summary-card pending">
+      <mat-icon>hourglass_empty</mat-icon>
+      <div class="summary-info">
+        <div class="summary-value">{{ summary().pending }}</div>
+        <div class="summary-label">{{ 'DAILY_ENTRIES.SUMMARY.PENDING' | translate }}</div>
+      </div>
+    </mat-card>
+    <mat-card class="summary-card completed">
+      <mat-icon>check_circle</mat-icon>
+      <div class="summary-info">
+        <div class="summary-value">{{ summary().completed }}</div>
+        <div class="summary-label">{{ 'DAILY_ENTRIES.SUMMARY.COMPLETED' | translate }}</div>
+      </div>
+    </mat-card>
+  </div>
 
-  <!-- Entries Table -->
-  <mat-card class="entries-card">
-    <mat-card-content>
-      <div class="table-container" *ngIf="filteredEntries().length > 0; else noEntries">
-        <table mat-table [dataSource]="filteredEntries()" class="entries-table">
+  <!-- Toolbar -->
+  <mat-toolbar class="page-toolbar">
+    <button mat-flat-button color="primary" (click)="newEntry()" *appHasPermission="'dailyEntry.create'">
+      <mat-icon>add</mat-icon>
+      {{ 'COMMON.NEW' | translate }}
+    </button>
 
-          <!-- Entry Date Column -->
-          <ng-container matColumnDef="entryDate">
-            <th mat-header-cell *matHeaderCellDef>{{ 'DAILY_ENTRIES.COLUMNS.DATE' | translate }}</th>
-            <td mat-cell *matCellDef="let entry">{{ entry.entryDate | date:'short' }}</td>
-          </ng-container>
+    <button mat-stroked-button (click)="refresh()">
+      <mat-icon>refresh</mat-icon>
+      {{ 'COMMON.REFRESH' | translate }}
+    </button>
 
-          <!-- Entry Type Column -->
-          <ng-container matColumnDef="entryType">
-            <th mat-header-cell *matHeaderCellDef>{{ 'DAILY_ENTRIES.COLUMNS.TYPE' | translate }}</th>
-            <td mat-cell *matCellDef="let entry">
-              <span class="entry-type-chip" [ngClass]="entry.entryType">
-                {{ 'DAILY_ENTRIES.TYPES.' + entry.entryType.toUpperCase() | translate }}
-              </span>
-            </td>
-          </ng-container>
+    <span class="toolbar-spacer"></span>
 
-          <!-- Car Info Column -->
-          <ng-container matColumnDef="carInfo">
-            <th mat-header-cell *matHeaderCellDef>{{ 'DAILY_ENTRIES.COLUMNS.CAR' | translate }}</th>
-            <td mat-cell *matCellDef="let entry">{{ getCarInfo(entry.carId) }}</td>
-          </ng-container>
+    <mat-form-field appearance="outline" class="filter-select">
+      <mat-label>{{ 'DAILY_ENTRIES.ENTRY_TYPE' | translate }}</mat-label>
+      <mat-select [(ngModel)]="typeFilter" (selectionChange)="onFilterChange()">
+        <mat-option value="">{{ 'COMMON.ALL' | translate }}</mat-option>
+        @for (t of typeOptions; track t) {
+          <mat-option [value]="t">{{ ('DAILY_ENTRIES.TYPE_' + t.toUpperCase()) | translate }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
 
-          <!-- Details Column -->
-          <ng-container matColumnDef="details">
-            <th mat-header-cell *matHeaderCellDef>{{ 'DAILY_ENTRIES.COLUMNS.DETAILS' | translate }}</th>
-            <td mat-cell *matCellDef="let entry">{{ getEntrySummary(entry) }}</td>
-          </ng-container>
+    <mat-form-field appearance="outline" class="filter-select">
+      <mat-label>{{ 'DAILY_ENTRIES.STATUS' | translate }}</mat-label>
+      <mat-select [(ngModel)]="statusFilter" (selectionChange)="onFilterChange()">
+        <mat-option value="">{{ 'COMMON.ALL' | translate }}</mat-option>
+        @for (s of statusOptions; track s) {
+          <mat-option [value]="s">{{ ('DAILY_ENTRIES.STATUS_' + s.toUpperCase()) | translate }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
 
-          <!-- Actions Column -->
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>{{ 'DAILY_ENTRIES.COLUMNS.ACTIONS' | translate }}</th>
-            <td mat-cell *matCellDef="let entry">
-              <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Entry actions">
-                <mat-icon>more_vert</mat-icon>
-              </button>
-              <mat-menu #menu="matMenu">
-                <button mat-menu-item (click)="viewEntry(entry)">
-                  <mat-icon>visibility</mat-icon>
-                  <span>{{ 'DAILY_ENTRIES.ACTIONS.VIEW' | translate }}</span>
-                </button>
-                <button mat-menu-item (click)="editEntry(entry)">
-                  <mat-icon>edit</mat-icon>
-                  <span>{{ 'DAILY_ENTRIES.ACTIONS.EDIT' | translate }}</span>
-                </button>
-                <button mat-menu-item (click)="deleteEntry(entry)" class="delete-action">
-                  <mat-icon>delete</mat-icon>
-                  <span>{{ 'DAILY_ENTRIES.ACTIONS.DELETE' | translate }}</span>
-                </button>
-              </mat-menu>
-            </td>
-          </ng-container>
+    <button mat-icon-button (click)="resetFilters()" [matTooltip]="'COMMON.RESET_FILTER' | translate">
+      <mat-icon>filter_alt_off</mat-icon>
+    </button>
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
+    <button mat-icon-button [matMenuTriggerFor]="exportMenu" [matTooltip]="'COMMON.EXPORT' | translate" *appHasPermission="'dailyEntry.export'">
+      <mat-icon>file_download</mat-icon>
+    </button>
+    <mat-menu #exportMenu="matMenu">
+      <button mat-menu-item (click)="exportExcel()">
+        <mat-icon>description</mat-icon>
+        {{ 'COMMON.EXPORT_EXCEL' | translate }}
+      </button>
+      <button mat-menu-item (click)="exportPdf()">
+        <mat-icon>picture_as_pdf</mat-icon>
+        {{ 'COMMON.EXPORT_PDF' | translate }}
+      </button>
+    </mat-menu>
+
+    <button mat-icon-button (click)="printGrid()" [matTooltip]="'COMMON.PRINT' | translate" *appHasPermission="'dailyEntry.print'">
+      <mat-icon>print</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <!-- DataGrid -->
+  <div class="grid-container">
+    <dx-data-grid
+      #dataGrid
+      id="dailyEntriesGrid"
+      [dataSource]="dataSource"
+      [remoteOperations]="true"
+      keyExpr="id"
+      [showBorders]="true"
+      [showRowLines]="true"
+      [showColumnLines]="true"
+      [rtlEnabled]="true"
+      [columnAutoWidth]="true"
+      [allowColumnReordering]="true"
+      [allowColumnResizing]="true"
+      [wordWrapEnabled]="false"
+      [hoverStateEnabled]="true"
+      (onRowDblClick)="openDetails($event)">
+
+      <dxo-load-panel [enabled]="true"></dxo-load-panel>
+      <dxo-search-panel [visible]="true" [width]="280"></dxo-search-panel>
+      <dxo-header-filter [visible]="true"></dxo-header-filter>
+      <dxo-filter-row [visible]="true"></dxo-filter-row>
+      <dxo-grouping [autoExpandAll]="false" [contextMenuEnabled]="true"></dxo-grouping>
+      <dxo-group-panel [visible]="true"></dxo-group-panel>
+      <dxo-column-chooser [enabled]="true" mode="select"></dxo-column-chooser>
+      <dxo-column-fixing [enabled]="true"></dxo-column-fixing>
+      <dxo-state-storing [enabled]="true" type="localStorage" [storageKey]="gridStateKey"></dxo-state-storing>
+      <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
+      <dxo-paging [pageSize]="20"></dxo-paging>
+      <dxo-pager [visible]="true" [allowedPageSizes]="[10, 20, 50, 100]" [showPageSizeSelector]="true" [showInfo]="true" [showNavigationButtons]="true" displayMode="full"></dxo-pager>
+      <dxo-selection mode="multiple" showCheckBoxesMode="onClick"></dxo-selection>
+      <dxo-export [enabled]="false"></dxo-export>
+
+      <dxi-column dataField="referenceNumber" [caption]="'DAILY_ENTRIES.REFERENCE_NUMBER' | translate" [width]="130" [fixed]="true"></dxi-column>
+
+      <dxi-column dataField="entryType" [caption]="'DAILY_ENTRIES.ENTRY_TYPE' | translate" [width]="130" cellTemplate="typeTemplate"></dxi-column>
+      <div *dxTemplate="let cell of 'typeTemplate'">
+        <span class="chip" [ngClass]="getDailyEntryTypeClass(cell.value)">
+          {{ ('DAILY_ENTRIES.TYPE_' + cell.value?.toUpperCase()) | translate }}
+        </span>
       </div>
 
-      <ng-template #noEntries>
-        <div class="no-entries">
-          <mat-icon class="no-entries-icon">assignment</mat-icon>
-          <h3>{{ 'DAILY_ENTRIES.NO_ENTRIES' | translate }}</h3>
-          <p>{{ 'DAILY_ENTRIES.NO_ENTRIES_DESC' | translate }}</p>
-          <button mat-raised-button color="primary" routerLink="/daily-entries/new">
-            {{ 'DAILY_ENTRIES.ADD_FIRST_ENTRY' | translate }}
-          </button>
-        </div>
-      </ng-template>
-    </mat-card-content>
-  </mat-card>
+      <dxi-column dataField="carDescription" [caption]="'DAILY_ENTRIES.VEHICLE' | translate"></dxi-column>
+      <dxi-column dataField="carVin" [caption]="'CONSIGNMENT.VIN' | translate" [width]="150"></dxi-column>
+      <dxi-column dataField="storeName" [caption]="'DAILY_ENTRIES.WAREHOUSE' | translate"></dxi-column>
+      <dxi-column dataField="employeeName" [caption]="'DAILY_ENTRIES.EMPLOYEE' | translate"></dxi-column>
+      <dxi-column dataField="entryDate" dataType="date" format="yyyy-MM-dd" [caption]="'DAILY_ENTRIES.ENTRY_DATE' | translate" [width]="120"></dxi-column>
+
+      <dxi-column dataField="status" [caption]="'DAILY_ENTRIES.STATUS' | translate" [width]="130" cellTemplate="statusTemplate"></dxi-column>
+      <div *dxTemplate="let cell of 'statusTemplate'">
+        <span class="chip" [ngClass]="getDailyEntryStatusClass(cell.value)">
+          {{ ('DAILY_ENTRIES.STATUS_' + cell.value?.toUpperCase()) | translate }}
+        </span>
+      </div>
+
+      <dxi-column dataField="remarks" [caption]="'DAILY_ENTRIES.REMARKS' | translate" [visible]="false"></dxi-column>
+      <dxi-column dataField="createdAt" dataType="datetime" [caption]="'REQUESTED_CARS.CREATED_DATE' | translate" [visible]="false"></dxi-column>
+
+      <dxi-column type="buttons" [caption]="'COMMON.ACTIONS' | translate" [width]="120" [fixed]="true" fixedPosition="right" cellTemplate="actionsTemplate"></dxi-column>
+      <div *dxTemplate="let cell of 'actionsTemplate'">
+        <button mat-icon-button [matTooltip]="'COMMON.EDIT' | translate" (click)="editEntry(cell.data.id)" *appHasPermission="'dailyEntry.edit'">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button [matTooltip]="'AUDIT_HISTORY.TITLE' | translate" (click)="openHistory(cell.data.id)" *appHasPermission="'dailyEntry.history'">
+          <mat-icon>history</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" [matTooltip]="'COMMON.DELETE' | translate" (click)="requestDelete(cell.data.id)" *appHasPermission="'dailyEntry.delete'">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+
+      <dxo-summary>
+        <dxi-total-item column="referenceNumber" summaryType="count" [displayFormat]="'{0}'"></dxi-total-item>
+      </dxo-summary>
+    </dx-data-grid>
+  </div>
+
+  <app-modal
+    [isOpen]="isDeleteModalOpen()"
+    [title]="'DAILY_ENTRIES.DELETE_CONFIRM_TITLE' | translate"
+    [message]="'DAILY_ENTRIES.DELETE_CONFIRM_MESSAGE' | translate"
+    (confirm)="confirmDelete()"
+    (cancel)="closeDeleteModal()">
+  </app-modal>
+
 </div>

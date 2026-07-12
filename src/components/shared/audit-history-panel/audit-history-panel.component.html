@@ -1,0 +1,55 @@
+<mat-dialog-content class="audit-history-panel">
+  <h2 class="modal-title">
+    <mat-icon>history</mat-icon>
+    {{ 'AUDIT_HISTORY.TITLE' | translate }}
+  </h2>
+
+  @if (loading()) {
+    <div class="state-message">
+      <mat-spinner diameter="36"></mat-spinner>
+    </div>
+  } @else if (error()) {
+    <div class="state-message error">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ 'AUDIT_HISTORY.LOAD_ERROR' | translate }}</p>
+    </div>
+  } @else if (entries().length === 0) {
+    <div class="state-message">
+      <mat-icon>inbox</mat-icon>
+      <p>{{ 'AUDIT_HISTORY.NO_HISTORY' | translate }}</p>
+    </div>
+  } @else {
+    <div class="timeline">
+      @for (entry of entries(); track entry.id) {
+        <div class="timeline-item" [class]="'action-' + entry.action.toLowerCase()">
+          <div class="timeline-icon">
+            <mat-icon>{{ actionIcon(entry.action) }}</mat-icon>
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-header">
+              <span class="action-label">{{ ('AUDIT_HISTORY.ACTION_' + entry.action.toUpperCase()) | translate }}</span>
+              <span class="timeline-date">{{ entry.changedAt | date:'medium' }}</span>
+            </div>
+            @if (entry.fieldName) {
+              <div class="field-change">
+                <span class="field-name">{{ entry.fieldName }}</span>:
+                <span class="old-value">{{ entry.oldValue || '—' }}</span>
+                <mat-icon class="arrow-icon">arrow_forward</mat-icon>
+                <span class="new-value">{{ entry.newValue || '—' }}</span>
+              </div>
+            }
+            <div class="changed-by">
+              {{ 'AUDIT_HISTORY.BY' | translate }} {{ entry.changedByName || ('AUDIT_HISTORY.UNKNOWN_USER' | translate) }}
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-stroked-button (click)="close()">
+    {{ 'COMMON.CLOSE' | translate }}
+  </button>
+</mat-dialog-actions>

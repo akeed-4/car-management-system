@@ -1,0 +1,148 @@
+.ai-panel {
+  min-width: 520px;
+  max-width: 640px;
+  max-height: 75vh;
+
+  .modal-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px 0;
+    font-size: 20px;
+    font-weight: 500;
+    color: #7b1fa2;
+  }
+
+  h3 {
+    margin: 0 0 10px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  .matches-section {
+    margin-bottom: 20px;
+  }
+
+  .state-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 24px 0;
+    color: #999;
+
+    mat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: #ccc;
+    }
+
+    &.error mat-icon {
+      color: #d32f2f;
+    }
+
+    p {
+      margin: 0;
+      font-size: 13px;
+    }
+  }
+
+  .match-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .match-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: #f3e5f5;
+    border-radius: 6px;
+
+    mat-icon {
+      color: #7b1fa2;
+    }
+
+    .match-info {
+      .match-title {
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .match-sub {
+        font-size: 12px;
+        color: #777;
+      }
+    }
+  }
+
+  .chat-section {
+    border-top: 1px solid #eee;
+    padding-top: 16px;
+  }
+
+  .chat-messages {
+    max-height: 220px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding: 4px;
+  }
+
+  .chat-empty {
+    color: #999;
+    font-size: 13px;
+    text-align: center;
+    padding: 16px 0;
+  }
+
+  .chat-bubble {
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    max-width: 85%;
+    line-height: 1.4;
+
+    &.role-user {
+      align-self: flex-end;
+      background: #e3f2fd;
+      color: #0d47a1;
+    }
+
+    &.role-assistant {
+      align-self: flex-start;
+      background: #f3e5f5;
+      color: #4a148c;
+    }
+
+    &.role-error {
+      align-self: flex-start;
+      background: #ffebee;
+      color: #c62828;
+    }
+  }
+
+  .chat-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+
+    .chat-input {
+      flex: 1;
+    }
+  }
+}
+
+.dialog-actions {
+  padding: 16px 0 0 0;
+  border-top: 1px solid #e0e0e0;
+}

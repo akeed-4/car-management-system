@@ -1,13 +1,21 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { RequestedCar } from '../../../models/requested-car.model';
+import { MatDialog } from '@angular/material/dialog';
 import { RequestedCarService } from '../../../services/requested-car.service';
 import { ManufacturerService } from '../../../services/manufacturer.service';
 import { CarModelService } from '../../../services/car-model.service';
 import { ManufactureYearService } from '../../../services/manufacture-year.service';
-import { CustomerService } from '../../../services/customer.service';
+import { UserService } from '../../../services/user.service';
+import { AttachmentService } from '../../../services/attachment.service';
+import { Attachment } from '../../../models/attachment.model';
+import { Customer } from '../../../models/customer.model';
+import { CustomerLookupModalComponent } from '../../shared/customer-lookup-modal/customer-lookup-modal.component';
+import { AuditHistoryPanelComponent } from '../../shared/audit-history-panel/audit-history-panel.component';
+import { RequestedCarAiPanelComponent } from '../requested-car-ai-panel/requested-car-ai-panel.component';
+import { RequestedCar } from '../../../models/requested-car.model';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -24,6 +32,7 @@ import { TranslateModule } from '@ngx-translate/core';
   selector: 'app-requested-car-form',
   standalone: true,
   imports: [
+    CommonModule,
     ReactiveFormsModule,
     RouterLink,
     MatButtonModule,
@@ -36,7 +45,7 @@ import { TranslateModule } from '@ngx-translate/core';
     MatDatepickerModule,
     MatNativeDateModule,
     TranslateModule,
-    MatTooltipModule
+    MatTooltipModule,
   ],
   templateUrl: './requested-car-form.component.html',
   styleUrl: './requested-car-form.component.css',
@@ -49,19 +58,29 @@ export class RequestedCarFormComponent implements OnInit {
   private manufacturerService = inject(ManufacturerService);
   private carModelService = inject(CarModelService);
   private yearService = inject(ManufactureYearService);
-  private customerService = inject(CustomerService);
+  private userService = inject(UserService);
+  private attachmentService = inject(AttachmentService);
+  private dialog = inject(MatDialog);
 
   requestForm!: FormGroup;
   editMode = signal(false);
-  pageTitle = signal('إضافة طلب سيارة جديدة');
-  
-  // Data for dropdowns
+  currentId = signal<number | null>(null);
+  saving = signal(false);
+
+  selectedCustomer = signal<Customer | null>(null);
+
   manufacturers = this.manufacturerService.manufacturers$;
   allModels = toSignal(this.carModelService.getCarModels(), { initialValue: [] });
   years = this.yearService.years$;
-  customers = this.customerService.customers$;
+  salespeople = this.userService.activeUsers$;
 
-  // Computed signal for filtered models
+  attachments = signal<Attachment[]>([]);
+  uploading = signal(false);
+
+  statusOptions = ['New', 'Contacted', 'Sourced', 'Closed'];
+  priorityOptions = ['Low', 'Medium', 'High', 'Urgent'];
+  reservationOptions = ['NotReserved', 'Reserved', 'Confirmed'];
+
   filteredModels = computed(() => {
     const carMake = this.requestForm?.get('make')?.value;
     const selectedManufacturer = this.manufacturers().find(m => m.name === carMake);
@@ -73,82 +92,155 @@ export class RequestedCarFormComponent implements OnInit {
 
   ngOnInit() {
     this.initForm();
-    
-    // Handle route params for editing
+
     const idParam = this.route.snapshot.params['id'];
     if (idParam) {
       const id = Number(idParam);
+      this.currentId.set(id);
       this.editMode.set(true);
-      this.pageTitle.set('تعديل طلب سيارة');
-      this.requestedCarService.getRequestById(id).subscribe({
-        next: (existingRequest) => {
-          // Find customer by name to set customerId
-          const customer = this.customers().find(c => c.name === existingRequest.customerName);
-          this.requestForm.patchValue({
-            ...existingRequest,
-            customerId: customer?.id || null
-          });
+      this.requestedCarService.getById(id).subscribe({
+        next: (response) => {
+          const rc = response.data;
+          this.requestForm.patchValue(rc);
+          this.selectedCustomer.set({
+            id: rc.customerId,
+            name: rc.customerName,
+            phone: rc.customerPhone,
+          } as Customer);
         },
         error: () => {
           this.router.navigate(['/requested-cars']);
-        }
+        },
       });
+      this.loadAttachments(id);
     }
   }
 
   private initForm() {
     this.requestForm = new FormGroup({
-      customerId: new FormControl(null, Validators.required),
-      customerName: new FormControl('', Validators.required),
-      customerPhone: new FormControl('', Validators.required),
+      customerId: new FormControl<number | null>(null, Validators.required),
+      salespersonId: new FormControl<number | null>(null),
       make: new FormControl('', Validators.required),
       model: new FormControl('', Validators.required),
-      year: new FormControl(null),
+      year: new FormControl<number | null>(null),
       color: new FormControl(''),
+      preferredSpecifications: new FormControl(''),
+      priority: new FormControl('Medium', Validators.required),
+      expectedArrival: new FormControl<string | null>(null),
+      reservationStatus: new FormControl('NotReserved', Validators.required),
       status: new FormControl('New', Validators.required),
       notes: new FormControl(''),
-      requestDate: new FormControl(new Date().toISOString().split('T')[0])
+      requestDate: new FormControl(new Date().toISOString().split('T')[0]),
     });
   }
-  
-  updateRequestField<K extends keyof RequestedCar>(field: K, value: RequestedCar[K]) {
-    this.requestForm.patchValue({ [field]: value });
-    // When make changes, reset model
-    if (field === 'make') {
-      this.requestForm.patchValue({ model: undefined });
-    }
+
+  openCustomerLookup(): void {
+    const ref = this.dialog.open(CustomerLookupModalComponent, { width: '900px' });
+    ref.afterClosed().subscribe((customer: Customer | null) => {
+      if (customer) {
+        this.selectedCustomer.set(customer);
+        this.requestForm.patchValue({ customerId: customer.id });
+      }
+    });
   }
 
   saveRequest() {
-    if (this.requestForm.invalid) {
+    if (this.requestForm.invalid || this.saving()) {
       return;
     }
+    this.saving.set(true);
 
-    const requestData = this.requestForm.value;
-    if (this.editMode()) {
-        this.requestedCarService.updateRequest(requestData as RequestedCar);
+    const formValue = this.requestForm.value;
+
+    if (this.editMode() && this.currentId()) {
+      this.requestedCarService.update(this.currentId()!, formValue).subscribe({
+        next: () => {
+          this.saving.set(false);
+          this.router.navigate(['/requested-cars']);
+        },
+        error: () => this.saving.set(false),
+      });
     } else {
-        const { id, ...newRequest } = requestData;
-        this.requestedCarService.addRequest(newRequest as Omit<RequestedCar, 'id'>);
-    }
-    this.router.navigate(['/requested-cars']);
-  }
-
-  onCustomerChange(customerId: number) {
-    const selectedCustomer = this.customers().find(c => c.id === customerId);
-    if (selectedCustomer) {
-      this.requestForm.patchValue({
-        customerName: selectedCustomer.name,
-        customerPhone: selectedCustomer.phone || ''
+      const createDto = { ...formValue, createdBy: 1 };
+      this.requestedCarService.create(createDto).subscribe({
+        next: () => {
+          this.saving.set(false);
+          this.router.navigate(['/requested-cars']);
+        },
+        error: () => this.saving.set(false),
       });
     }
   }
 
-  trackByManufacturer(index: number, manufacturer: any): any {
+  private loadAttachments(id: number): void {
+    this.attachmentService.getForDocument('RequestedCar', id).subscribe({
+      next: (list) => this.attachments.set(list),
+      error: () => this.attachments.set([]),
+    });
+  }
+
+  onFileSelected(event: Event): void {
+    const id = this.currentId();
+    if (!id) return;
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    this.uploading.set(true);
+    this.attachmentService.upload(file, 'RequestedCar', id, 1).subscribe({
+      next: () => {
+        this.uploading.set(false);
+        this.loadAttachments(id);
+      },
+      error: () => this.uploading.set(false),
+    });
+    input.value = '';
+  }
+
+  deleteAttachment(attachmentId: number): void {
+    const id = this.currentId();
+    if (!id) return;
+    this.attachmentService.delete(attachmentId).subscribe(() => {
+      this.loadAttachments(id);
+    });
+  }
+
+  fileUrl(attachment: Attachment): string {
+    return this.attachmentService.fileUrl(attachment);
+  }
+
+  openHistory(): void {
+    const id = this.currentId();
+    if (!id) return;
+    this.dialog.open(AuditHistoryPanelComponent, {
+      data: { entityName: 'RequestedCar', entityId: id },
+      width: '600px',
+    });
+  }
+
+  openAiPanel(): void {
+    const id = this.currentId();
+    if (!id) return;
+    const rc: RequestedCar = {
+      ...this.requestForm.value,
+      id,
+      requestNumber: '',
+      customerName: this.selectedCustomer()?.name ?? '',
+      customerPhone: this.selectedCustomer()?.phone ?? '',
+      createdBy: 0,
+      createdAt: '',
+    };
+    this.dialog.open(RequestedCarAiPanelComponent, {
+      data: { requestedCar: rc },
+      width: '600px',
+    });
+  }
+
+  trackByManufacturer(index: number, manufacturer: { id: number }): number {
     return manufacturer.id;
   }
 
-  trackByModel(index: number, model: any): any {
+  trackByModel(index: number, model: { id: number }): number {
     return model.id;
   }
 
@@ -156,7 +248,7 @@ export class RequestedCarFormComponent implements OnInit {
     return year;
   }
 
-  trackByCustomer(index: number, customer: any): any {
-    return customer.id;
+  trackByUser(index: number, user: { id: number }): number {
+    return user.id;
   }
 }

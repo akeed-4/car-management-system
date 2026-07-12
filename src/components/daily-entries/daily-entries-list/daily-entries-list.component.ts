@@ -1,137 +1,201 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { MatTableModule } from '@angular/material/table';
-import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
+import CustomStore from 'devextreme/data/custom_store';
+import {
+  DxDataGridModule,
+  DxDataGridComponent,
+} from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
-
-import { DailyEntry, DailyEntryType } from '../../../models/daily-entry.model';
 import { DailyEntryService } from '../../../services/daily-entry.service';
-import { InventoryService } from '../../../services/inventory.service';
+import { HasPermissionDirective } from '../../shared/permission.directive';
+import { ModalComponent } from '../../shared/modal/modal.component';
+import { AuditHistoryPanelComponent } from '../../shared/audit-history-panel/audit-history-panel.component';
+import { DailyEntry } from '../../../models/daily-entry.model';
+import { getDailyEntryStatusClass, getDailyEntryTypeClass } from '../daily-entry-status.util';
 
 @Component({
   selector: 'app-daily-entries-list',
   standalone: true,
   imports: [
     CommonModule,
-    MatTableModule,
-    MatCardModule,
+    FormsModule,
+    ModalComponent,
+    HasPermissionDirective,
     MatButtonModule,
     MatIconModule,
+    MatCardModule,
+    MatToolbarModule,
     MatMenuModule,
+    MatTooltipModule,
     MatFormFieldModule,
     MatSelectModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    FormsModule,
-    TranslateModule
+    DxDataGridModule,
+    TranslateModule,
   ],
   templateUrl: './daily-entries-list.component.html',
-  styleUrls: ['./daily-entries-list.component.css']
+  styleUrl: './daily-entries-list.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DailyEntriesListComponent implements OnInit {
-  private router = inject(Router);
+export class DailyEntriesListComponent {
+  @ViewChild(DxDataGridComponent, { static: false }) grid!: DxDataGridComponent;
+
   private dailyEntryService = inject(DailyEntryService);
-  private inventoryService = inject(InventoryService);
+  private router = inject(Router);
+  private dialog = inject(MatDialog);
 
-  displayedColumns: string[] = ['entryDate', 'entryType', 'carInfo', 'details', 'actions'];
+  typeFilter = signal<string>('');
+  statusFilter = signal<string>('');
 
-  dailyEntries = signal<DailyEntry[]>([]);
-  filteredEntries = signal<DailyEntry[]>([]);
+  isDeleteModalOpen = signal(false);
+  itemToDeleteId = signal<number | null>(null);
 
-  // Filter properties
-  selectedEntryType: string = '';
-  dateFrom: Date | null = null;
-  dateTo: Date | null = null;
-  searchTerm: string = '';
+  lastLoadedRows = signal<DailyEntry[]>([]);
 
-  ngOnInit() {
-    this.loadDailyEntries();
+  readonly gridStateKey = 'dailyEntriesGridState';
+
+  typeOptions = ['Receiving', 'Delivery', 'Transfer', 'Return', 'Inspection', 'Maintenance'];
+  statusOptions = ['Pending', 'Completed', 'Cancelled'];
+
+  dataSource = new CustomStore<DailyEntry>({
+    key: 'id',
+    load: (loadOptions) => {
+      const options: Record<string, unknown> = { ...loadOptions };
+
+      const filters: unknown[] = [];
+      if (this.typeFilter()) filters.push(['entryType', '=', this.typeFilter()]);
+      if (this.statusFilter()) filters.push(['status', '=', this.statusFilter()]);
+      if (filters.length > 0) {
+        const existing = options['filter'];
+        const combined = filters.length === 1 ? filters[0] : filters.flatMap((f, i) => i === 0 ? [f] : ['and', f]);
+        options['filter'] = existing ? [existing, 'and', combined] : combined;
+      }
+
+      return this.dailyEntryService.loadDataGrid(options).toPromise()
+        .then(result => {
+          this.lastLoadedRows.set(result?.data ?? []);
+          return {
+            data: result?.data ?? [],
+            totalCount: result?.totalCount ?? 0,
+          };
+        });
+    },
+  });
+
+  summary = computed(() => {
+    const rows = this.lastLoadedRows();
+    const today = new Date().toISOString().split('T')[0];
+    return {
+      total: rows.length,
+      today: rows.filter(r => r.entryDate?.startsWith(today)).length,
+      pending: rows.filter(r => r.status === 'Pending').length,
+      completed: rows.filter(r => r.status === 'Completed').length,
+    };
+  });
+
+  getDailyEntryStatusClass = getDailyEntryStatusClass;
+  getDailyEntryTypeClass = getDailyEntryTypeClass;
+
+  newEntry(): void {
+    this.router.navigate(['/daily-entries/new']);
   }
 
-  loadDailyEntries() {
-    this.dailyEntryService.getAll().subscribe(entries => {
-      this.dailyEntries.set(entries);
-      this.applyFilters();
+  editEntry(id: number): void {
+    this.router.navigate(['/daily-entries', id, 'edit']);
+  }
+
+  openDetails(e: { data?: DailyEntry }): void {
+    if (e.data) {
+      this.editEntry(e.data.id);
+    }
+  }
+
+  requestDelete(id: number): void {
+    this.itemToDeleteId.set(id);
+    this.isDeleteModalOpen.set(true);
+  }
+
+  confirmDelete(): void {
+    const id = this.itemToDeleteId();
+    if (id) {
+      this.dailyEntryService.delete(id).subscribe(() => {
+        this.refresh();
+      });
+    }
+    this.closeDeleteModal();
+  }
+
+  closeDeleteModal(): void {
+    this.isDeleteModalOpen.set(false);
+    this.itemToDeleteId.set(null);
+  }
+
+  refresh(): void {
+    this.grid?.instance?.refresh();
+  }
+
+  onFilterChange(): void {
+    this.refresh();
+  }
+
+  resetFilters(): void {
+    this.typeFilter.set('');
+    this.statusFilter.set('');
+    this.grid?.instance?.clearFilter();
+    this.refresh();
+  }
+
+  exportExcel(): void {
+    import('devextreme/excel_exporter').then(({ exportDataGrid }) => {
+      import('exceljs').then(async (ExcelJS) => {
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('DailyEntries');
+        exportDataGrid({
+          component: this.grid.instance,
+          worksheet,
+        }).then(() => {
+          workbook.xlsx.writeBuffer().then((buffer: BlobPart) => {
+            import('file-saver').then(({ saveAs }) => {
+              saveAs(new Blob([buffer], { type: 'application/octet-stream' }), 'DailyEntries.xlsx');
+            });
+          });
+        });
+      });
     });
   }
 
-  applyFilters() {
-    let filtered = [...this.dailyEntries()];
-
-    // Filter by entry type
-    if (this.selectedEntryType) {
-      filtered = filtered.filter(entry => entry.entryType === this.selectedEntryType);
-    }
-
-    // Filter by date range
-    if (this.dateFrom) {
-      const fromDate = new Date(this.dateFrom);
-      fromDate.setHours(0, 0, 0, 0);
-      filtered = filtered.filter(entry => new Date(entry.entryDate) >= fromDate);
-    }
-
-    if (this.dateTo) {
-      const toDate = new Date(this.dateTo);
-      toDate.setHours(23, 59, 59, 999);
-      filtered = filtered.filter(entry => new Date(entry.entryDate) <= toDate);
-    }
-
-    // Filter by search term
-    if (this.searchTerm) {
-      const term = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(entry =>
-        this.getEntrySummary(entry).toLowerCase().includes(term) ||
-        this.getCarInfo(entry.carId).toLowerCase().includes(term)
-      );
-    }
-
-    this.filteredEntries.set(filtered);
-  }
-
-  getCarInfo(carId: number): string {
-    // This would ideally come from a car service, but for now return a placeholder
-    return `Car #${carId}`;
-  }
-
-  getEntrySummary(entry: DailyEntry): string {
-    switch (entry.entryType) {
-      case 'maintenance':
-        return `Maintenance: ${(entry as any).maintenanceType} - $${(entry as any).cost}`;
-      case 'ownership_transfer':
-        return `Transfer to ${(entry as any).newOwnerName}`;
-      case 'insurance':
-        return `Insurance: ${(entry as any).insuranceCompany} - Policy ${(entry as any).policyNumber}`;
-      case 'periodic_inspection':
-        return `Inspection: ${(entry as any).inspectionResult} at ${(entry as any).inspectionCenter}`;
-      default:
-        return 'Unknown entry type';
-    }
-  }
-
-  viewEntry(entry: DailyEntry) {
-    this.router.navigate(['/daily-entries', entry.id]);
-  }
-
-  editEntry(entry: DailyEntry) {
-    this.router.navigate(['/daily-entries', entry.id, 'edit']);
-  }
-
-  deleteEntry(entry: DailyEntry) {
-    if (confirm('Are you sure you want to delete this entry?')) {
-      this.dailyEntryService.deleteEntry(entry.id).subscribe(() => {
-        this.loadDailyEntries();
+  exportPdf(): void {
+    Promise.all([import('jspdf'), import('devextreme/pdf_exporter')]).then(([jsPDFModule, { exportDataGrid }]) => {
+      const doc = new jsPDFModule.jsPDF();
+      exportDataGrid({
+        jsPDFDocument: doc,
+        component: this.grid.instance,
+      }).then(() => {
+        doc.save('DailyEntries.pdf');
       });
-    }
+    });
+  }
+
+  printGrid(): void {
+    window.print();
+  }
+
+  openHistory(id: number): void {
+    this.dialog.open(AuditHistoryPanelComponent, {
+      data: { entityName: 'DailyEntry', entityId: id },
+      width: '600px',
+    });
   }
 }

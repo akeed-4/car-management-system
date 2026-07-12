@@ -93,12 +93,12 @@ export class FinancialReportsComponent {
 
     // Process consignment car sales
     for (const consignmentCar of this.allConsignmentCars()) {
-      if (consignmentCar.status === 'Sold' && consignmentCar.salePrice && consignmentCar.commissionAmount) {
+      if (consignmentCar.status === 'Sold' && consignmentCar.actualSalePrice && consignmentCar.commissionAmount) {
         report.push({
           invoiceNumber: `CON-${consignmentCar.id}`, // Unique identifier for consignment sale
           carDescription: `${consignmentCar.make} ${consignmentCar.model} (عهدة)`,
           quantity: 1,
-          salePrice: consignmentCar.salePrice,
+          salePrice: consignmentCar.actualSalePrice,
           costOfGoods: 0, // Consignment cars don't have a direct "cost of goods" for the dealership
           profit: consignmentCar.commissionAmount, // Profit is the commission
           isConsignment: true,

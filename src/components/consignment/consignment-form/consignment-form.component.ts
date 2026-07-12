@@ -1,10 +1,14 @@
-
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { DatePipe } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
 import { ConsignmentService } from '../../../services/consignment.service';
-import { ConsignmentCar } from '../../../models/consignment-car.model';
+import { AttachmentService } from '../../../services/attachment.service';
+import { Attachment } from '../../../models/attachment.model';
+import { Supplier } from '../../../models/supplier.model';
+import { SupplierLookupModalComponent } from '../../shared/supplier-lookup-modal/supplier-lookup-modal.component';
+import { AuditHistoryPanelComponent } from '../../shared/audit-history-panel/audit-history-panel.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -14,13 +18,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { matTooltipAnimations, MatTooltipModule } from '@angular/material/tooltip';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-consignment-form',
   standalone: true,
   imports: [
+    CommonModule,
     ReactiveFormsModule,
     RouterLink,
     MatButtonModule,
@@ -33,7 +38,7 @@ import { TranslateModule } from '@ngx-translate/core';
     MatDatepickerModule,
     MatNativeDateModule,
     TranslateModule,
-    MatTooltipModule
+    MatTooltipModule,
   ],
   templateUrl: './consignment-form.component.html',
   styleUrl: './consignment-form.component.css',
@@ -43,194 +48,149 @@ export class ConsignmentFormComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private consignmentService = inject(ConsignmentService);
+  private attachmentService = inject(AttachmentService);
+  private dialog = inject(MatDialog);
 
-  consignmentForm!: FormGroup;
+  carForm!: FormGroup;
   editMode = signal(false);
-  pageTitle = signal('إضافة سيارة للعهدة');
-  uploadedImages: string[] = [];
+  currentId = signal<number | null>(null);
+  saving = signal(false);
 
-  // Sale options costs (can be configured)
-  insuranceCost = 1500; // SAR
-  inspectionCost = 500; // SAR
-  deliveryCost = 300; // SAR
-  followUpCost = 200; // SAR
+  selectedSupplier = signal<Supplier | null>(null);
+
+  attachments = signal<Attachment[]>([]);
+  uploading = signal(false);
+
+  statusOptions = ['Available', 'Reserved', 'Sold', 'Returned'];
 
   ngOnInit() {
     this.initForm();
-    
-    // Handle route params for editing
+
     const idParam = this.route.snapshot.params['id'];
     if (idParam) {
       const id = Number(idParam);
+      this.currentId.set(id);
       this.editMode.set(true);
-      this.pageTitle.set('تعديل بيانات سيارة العهدة');
-      this.consignmentService.getById(id).subscribe(existingCar => {
-        this.consignmentForm.patchValue(existingCar);
-        // Load existing images
-        if (existingCar.documentImages) {
-          this.uploadedImages = [...existingCar.documentImages];
-        }
-      }, error => {
-        console.error('Error loading consignment car:', error);
-        this.router.navigate(['/consignment-cars']);
+      this.consignmentService.getById(id).subscribe({
+        next: (response) => {
+          const car = response.data;
+          this.carForm.patchValue(car);
+          this.selectedSupplier.set({
+            id: car.supplierId,
+            name: car.supplierName,
+            phone: car.supplierPhone,
+          } as Supplier);
+        },
+        error: () => {
+          this.router.navigate(['/consignment-cars']);
+        },
+      });
+      this.loadAttachments(id);
+    }
+  }
+
+  private initForm() {
+    this.carForm = new FormGroup({
+      supplierId: new FormControl<number | null>(null, Validators.required),
+      make: new FormControl('', Validators.required),
+      model: new FormControl('', Validators.required),
+      year: new FormControl<number | null>(null),
+      exteriorColor: new FormControl(''),
+      vin: new FormControl('', Validators.required),
+      engineNumber: new FormControl(''),
+      plateNumber: new FormControl(''),
+      mileage: new FormControl<number | null>(null),
+      arrivalDate: new FormControl(new Date().toISOString().split('T')[0], Validators.required),
+      expectedSalePrice: new FormControl<number | null>(null, Validators.required),
+      currentCost: new FormControl<number | null>(0, Validators.required),
+      commissionRate: new FormControl<number | null>(5, Validators.required),
+      status: new FormControl('Available'),
+      location: new FormControl(''),
+      notes: new FormControl(''),
+    });
+  }
+
+  openSupplierLookup(): void {
+    const ref = this.dialog.open(SupplierLookupModalComponent, { width: '900px' });
+    ref.afterClosed().subscribe((supplier: Supplier | null) => {
+      if (supplier) {
+        this.selectedSupplier.set(supplier);
+        this.carForm.patchValue({ supplierId: supplier.id });
+      }
+    });
+  }
+
+  saveCar() {
+    if (this.carForm.invalid || this.saving()) {
+      return;
+    }
+    this.saving.set(true);
+
+    const formValue = this.carForm.value;
+
+    if (this.editMode() && this.currentId()) {
+      this.consignmentService.update(this.currentId()!, formValue).subscribe({
+        next: () => {
+          this.saving.set(false);
+          this.router.navigate(['/consignment-cars']);
+        },
+        error: () => this.saving.set(false),
+      });
+    } else {
+      const createDto = { ...formValue, createdBy: 1 };
+      this.consignmentService.create(createDto).subscribe({
+        next: () => {
+          this.saving.set(false);
+          this.router.navigate(['/consignment-cars']);
+        },
+        error: () => this.saving.set(false),
       });
     }
   }
 
-  private calculateTotalPrice() {
-    const saleOptions = this.consignmentForm.get('saleOptions')?.value;
-    const basePrice = this.consignmentForm.get('agreedSalePrice')?.value || 0;
-
-    let totalPrice = basePrice;
-
-    if (saleOptions?.withInsurance) {
-      totalPrice += this.insuranceCost;
-    }
-    if (saleOptions?.withInspection) {
-      totalPrice += this.inspectionCost;
-    }
-    if (saleOptions?.withDelivery) {
-      totalPrice += this.deliveryCost;
-    }
-    if (saleOptions?.withFollowUp) {
-      totalPrice += this.followUpCost;
-    }
-
-    this.consignmentForm.patchValue({
-      totalSalePrice: totalPrice
-    }, { emitEvent: false });
-  }
-
-  private initForm() {
-    this.consignmentForm = new FormGroup({
-      // Basic Info
-      isForSale: new FormControl(false),
-
-      // Owner Details
-      ownerName: new FormControl('', Validators.required),
-      ownerIdNumber: new FormControl(''),
-      ownerPhone: new FormControl('', Validators.required),
-
-      // Authorized Seller Details
-      authorizedSellerName: new FormControl(''),
-      authorizedSellerIdNumber: new FormControl(''),
-
-      // Authorization Documents
-      authorizationDocumentNumber: new FormControl(''),
-      authorizationDocumentDate: new FormControl(''),
-      authorizationDocumentAttachment: new FormControl(''),
-
-      // Car Details
-      make: new FormControl('', Validators.required),
-      model: new FormControl('', Validators.required),
-      year: new FormControl(null, Validators.required),
-      carType: new FormControl(''),
-      transmissionType: new FormControl(''),
-      chassisNumber: new FormControl(''),
-      exteriorColor: new FormControl(''),
-      mileage: new FormControl(null),
-      plateNumber: new FormControl(''),
-      vin: new FormControl(''),
-
-      // Document Images
-      documentImages: new FormControl([]),
-
-      // Financial Details
-      agreedSalePrice: new FormControl(null, Validators.required),
-      commissionRate: new FormControl(0.05, Validators.required),
-      exhibitionFee: new FormControl(0),
-      dateReceived: new FormControl(new Date().toISOString().split('T')[0], Validators.required),
-
-      // Buyer Details (for sales)
-      buyerName: new FormControl(''),
-      buyerIdNumber: new FormControl(''),
-      buyerPhone: new FormControl(''),
-
-      // Sale Options
-      saleOptions: new FormGroup({
-        net: new FormControl(true),
-        withInsurance: new FormControl(false),
-        withInspection: new FormControl(false),
-        withDelivery: new FormControl(false),
-        withFollowUp: new FormControl(false)
-      }),
-
-      // Calculated costs
-      insuranceCost: new FormControl(this.insuranceCost),
-      inspectionCost: new FormControl(this.inspectionCost),
-      deliveryCost: new FormControl(this.deliveryCost),
-      followUpCost: new FormControl(this.followUpCost),
-      totalSalePrice: new FormControl(0),
-
-      // Payment Details
-      carPricePaid: new FormControl(false),
-      exhibitionFeePaid: new FormControl(false),
-      paymentDate: new FormControl(''),
-      paymentMethod: new FormControl(''),
-      paymentReference: new FormControl(''),
-
-      notes: new FormControl('')
-    });
-
-    // Watch for changes in sale options to recalculate total price
-    this.consignmentForm.get('saleOptions')?.valueChanges.subscribe(() => {
-      this.calculateTotalPrice();
-    });
-
-    // Watch for changes in base sale price
-    this.consignmentForm.get('agreedSalePrice')?.valueChanges.subscribe(() => {
-      this.calculateTotalPrice();
+  private loadAttachments(id: number): void {
+    this.attachmentService.getForDocument('ConsignmentCar', id).subscribe({
+      next: (list) => this.attachments.set(list),
+      error: () => this.attachments.set([]),
     });
   }
 
-  saveConsignmentCar() {
-    if (this.consignmentForm.invalid) {
-      return;
-    }
+  onFileSelected(event: Event): void {
+    const id = this.currentId();
+    if (!id) return;
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
 
-    const formValue = this.consignmentForm.value;
-    const carToSave = {
-      ...formValue,
-      documentImages: this.uploadedImages,
-      status: 'Available' as const
-    };
-
-    if (this.editMode()) {
-      this.consignmentService.updateConsignmentCar(carToSave as ConsignmentCar);
-    } else {
-      const { id, ...newCar } = carToSave;
-      this.consignmentService.addConsignmentCar(newCar as Omit<ConsignmentCar, 'id'>);
-    }
-    alert('تم حفظ بيانات سيارة العهدة بنجاح.');
-    this.router.navigate(['/consignment-cars']);
+    this.uploading.set(true);
+    this.attachmentService.upload(file, 'ConsignmentCar', id, 1).subscribe({
+      next: () => {
+        this.uploading.set(false);
+        this.loadAttachments(id);
+      },
+      error: () => this.uploading.set(false),
+    });
+    input.value = '';
   }
 
-  onFileSelected(event: any) {
-    const files = event.target.files;
-    if (files) {
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        if (file.type.startsWith('image/')) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            if (e.target?.result) {
-              this.uploadedImages.push(e.target.result as string);
-              // Update form control
-              this.consignmentForm.patchValue({
-                documentImages: [...this.uploadedImages]
-              });
-            }
-          };
-          reader.readAsDataURL(file);
-        }
-      }
-    }
+  deleteAttachment(attachmentId: number): void {
+    const id = this.currentId();
+    if (!id) return;
+    this.attachmentService.delete(attachmentId).subscribe(() => {
+      this.loadAttachments(id);
+    });
   }
 
-  removeImage(index: number) {
-    this.uploadedImages.splice(index, 1);
-    this.consignmentForm.patchValue({
-      documentImages: [...this.uploadedImages]
+  fileUrl(attachment: Attachment): string {
+    return this.attachmentService.fileUrl(attachment);
+  }
+
+  openHistory(): void {
+    const id = this.currentId();
+    if (!id) return;
+    this.dialog.open(AuditHistoryPanelComponent, {
+      data: { entityName: 'ConsignmentCar', entityId: id },
+      width: '600px',
     });
   }
 }

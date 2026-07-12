@@ -1,149 +1,180 @@
-
-
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { DatePipe, JsonPipe, CommonModule } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
 import { DeliveryService } from '../../../services/delivery.service';
-import { SalesService } from '../../../services/sales.service';
-import { CustomerService } from '../../../services/customer.service';
 import { UserService } from '../../../services/user.service';
-import { Delivery } from '../../../models/delivery.model';
-import { SalesInvoice } from '../../../models/sales-invoice.model';
+import { BranchService } from '../../../services/branch.service';
+import { Customer } from '../../../models/customer.model';
+import { Car } from '../../../models/car.model';
+import { CustomerLookupModalComponent } from '../../shared/customer-lookup-modal/customer-lookup-modal.component';
+import { VehicleLookupModalComponent } from '../../shared/vehicle-lookup-modal/vehicle-lookup-modal.component';
+import { AuditHistoryPanelComponent } from '../../shared/audit-history-panel/audit-history-panel.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatGridListModule } from '@angular/material/grid-list';
-import { CurrentSettingService } from '../../../services/current-setting.service';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-delivery-form',
   standalone: true,
   imports: [
+    CommonModule,
     ReactiveFormsModule,
     RouterLink,
-    DatePipe,
-    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+    MatToolbarModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatButtonModule,
-    MatIconModule,
-    MatGridListModule,
-    TranslateModule
+    MatCheckboxModule,
+    TranslateModule,
+    MatTooltipModule,
   ],
   templateUrl: './delivery-form.component.html',
   styleUrl: './delivery-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DeliveryFormComponent {
+export class DeliveryFormComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private deliveryService = inject(DeliveryService);
-  private salesService = inject(SalesService);
-  private customerService = inject(CustomerService);
   private userService = inject(UserService);
-  private fb = inject(FormBuilder);
-  private currentSettingService = inject(CurrentSettingService);
+  private branchService = inject(BranchService);
+  private dialog = inject(MatDialog);
 
-  deliveryForm: FormGroup;
+  deliveryForm!: FormGroup;
+  editMode = signal(false);
+  currentId = signal<number | null>(null);
+  saving = signal(false);
 
-  layout$ = this.currentSettingService.getCardLayout(3);
+  selectedCustomer = signal<Customer | null>(null);
+  selectedCar = signal<Car | null>(null);
 
-  delivery = signal<Partial<Delivery>>({
-    scheduledDate: new Date().toISOString().split('T')[0],
-    scheduledTime: '10:00', // Default time
-    checklist: [
-      { id: 1, description: 'تم تنظيف السيارة وتجهيزها', completed: false },
-      { id: 2, description: 'تم فحص جميع السوائل والإطارات', completed: false },
-      { id: 3, description: 'تم توقيع أوراق الاستلام النهائية', completed: false },
-      { id: 4, description: 'تم شرح مميزات السيارة للعميل', completed: false },
-      { id: 5, description: 'تم تسليم المفتاح الإضافي', completed: false },
-    ]
-  });
+  drivers = this.userService.activeUsers$;
+  branches = this.branchService.branches$;
 
-  editMode = signal(false); // Delivery schedules are typically created, not edited as a whole form
-  pageTitle = signal('جدولة تسليم مركبة');
+  statusOptions = ['Scheduled', 'InProgress', 'Completed', 'Cancelled'];
 
-  salespeople = computed(() => this.userService.users$().filter(u => u.roleName === 'مندوب مبيعات'));
+  ngOnInit() {
+    this.initForm();
 
-  // Data for pre-filling from invoice
-  private allInvoices = this.salesService.invoices$;
-  selectedInvoice = signal<SalesInvoice | null>(null);
-
-  constructor() {
-    this.deliveryForm = this.fb.group({
-      scheduledDate: [new Date().toISOString().split('T')[0], Validators.required],
-      scheduledTime: ['10:00', Validators.required],
-      deliveryAgentId: [null, Validators.required],
-      notes: ['']
-    });
-
-    effect(() => {
-      const invoiceIdParam = this.route.snapshot.params['invoiceId'];
-      if (invoiceIdParam) {
-        const invoiceId = Number(invoiceIdParam);
-        const invoice = this.allInvoices().find(inv => inv.id === invoiceId);
-        if (invoice) {
-          this.selectedInvoice.set(invoice);
-          this.customerService.getCustomerById(invoice.customerId).then(customer => {
-            this.delivery.update(d => ({
-              ...d,
-              salesInvoiceId: invoice.id,
-              salesInvoiceNumber: invoice.invoiceNumber,
-              carId: invoice.items[0]?.carId, // Assuming one car per delivery for simplicity
-              carDescription: invoice.items[0]?.carDescription,
-              customerId: customer?.id,
-              customerName: customer?.name,
-            }));
-
-            // Update form with pre-filled data
-            this.deliveryForm.patchValue({
-              scheduledDate: this.delivery().scheduledDate,
-              scheduledTime: this.delivery().scheduledTime
-            });
-          }).catch(error => {
-            console.error('Error loading customer:', error);
-          });
-        } else {
-          // If invoice not found, navigate back or to a generic new delivery form
+    const idParam = this.route.snapshot.params['id'];
+    if (idParam) {
+      const id = Number(idParam);
+      this.currentId.set(id);
+      this.editMode.set(true);
+      this.deliveryService.getById(id).subscribe({
+        next: (response) => {
+          const delivery = response.data;
+          this.deliveryForm.patchValue(delivery);
+          this.selectedCustomer.set({
+            id: delivery.customerId,
+            name: delivery.customerName,
+            phone: delivery.customerPhone,
+          } as Customer);
+          this.selectedCar.set({
+            id: delivery.carId,
+            make: delivery.carDescription?.split(' ')[0] ?? '',
+            model: delivery.carDescription?.split(' ').slice(1).join(' ') ?? '',
+            vin: delivery.carVin ?? '',
+          } as Car);
+        },
+        error: () => {
           this.router.navigate(['/deliveries']);
-        }
-      }
-    }, { allowSignalWrites: true });
+        },
+      });
+    }
   }
 
-  saveDelivery(): void {
-    if (this.deliveryForm.invalid) {
+  private initForm() {
+    this.deliveryForm = new FormGroup({
+      customerId: new FormControl<number | null>(null, Validators.required),
+      carId: new FormControl<number | null>(null, Validators.required),
+      driverId: new FormControl<number | null>(null),
+      deliveryDate: new FormControl(new Date().toISOString().split('T')[0], Validators.required),
+      deliveryTime: new FormControl('10:00', Validators.required),
+      branchId: new FormControl<number | null>(null),
+      status: new FormControl('Scheduled'),
+      documentsReady: new FormControl(false),
+      insuranceReady: new FormControl(false),
+      registrationReady: new FormControl(false),
+      customerConfirmed: new FormControl(false),
+      notes: new FormControl(''),
+    });
+  }
+
+  openCustomerLookup(): void {
+    const ref = this.dialog.open(CustomerLookupModalComponent, { width: '900px' });
+    ref.afterClosed().subscribe((customer: Customer | null) => {
+      if (customer) {
+        this.selectedCustomer.set(customer);
+        this.deliveryForm.patchValue({ customerId: customer.id });
+      }
+    });
+  }
+
+  openVehicleLookup(): void {
+    const ref = this.dialog.open(VehicleLookupModalComponent, { width: '1000px' });
+    ref.afterClosed().subscribe((car: Car | null) => {
+      if (car) {
+        this.selectedCar.set(car);
+        this.deliveryForm.patchValue({ carId: car.id });
+      }
+    });
+  }
+
+  saveDelivery() {
+    if (this.deliveryForm.invalid || this.saving()) {
       return;
     }
+    this.saving.set(true);
 
     const formValue = this.deliveryForm.value;
-    const deliveryData = this.delivery();
-    const invoice = this.selectedInvoice();
 
-    if (!deliveryData.salesInvoiceId || !invoice || !deliveryData.carId || !deliveryData.customerId) {
-      alert('الرجاء تعبئة جميع الحقول المطلوبة لجدولة التسليم.');
-      return;
+    if (this.editMode() && this.currentId()) {
+      this.deliveryService.update(this.currentId()!, formValue).subscribe({
+        next: () => {
+          this.saving.set(false);
+          this.router.navigate(['/deliveries']);
+        },
+        error: () => this.saving.set(false),
+      });
+    } else {
+      const createDto = { ...formValue, createdBy: 1 };
+      this.deliveryService.create(createDto).subscribe({
+        next: () => {
+          this.saving.set(false);
+          this.router.navigate(['/deliveries']);
+        },
+        error: () => this.saving.set(false),
+      });
     }
-    
-    // Ensure car and customer descriptions are present from the invoice
-    deliveryData.carDescription = invoice.items[0]?.carDescription;
-    deliveryData.customerName = invoice.customerName;
-    deliveryData.salesInvoiceNumber = invoice.invoiceNumber;
-    deliveryData.deliveryAgentName = this.salespeople().find(p => p.id === formValue.deliveryAgentId)?.name;
-    deliveryData.scheduledDate = formValue.scheduledDate;
-    deliveryData.scheduledTime = formValue.scheduledTime;
-    deliveryData.notes = formValue.notes;
-
-    // For simplicity, delivery schedules are always new, not edited via this form
-    const { id, ...newDelivery } = deliveryData;
-    this.deliveryService.addDelivery(newDelivery as Omit<Delivery, 'id'>);
-    
-    alert('تمت جدولة التسليم بنجاح.');
-    this.router.navigate(['/deliveries']);
   }
-}    
+
+  openHistory(): void {
+    const id = this.currentId();
+    if (!id) return;
+    this.dialog.open(AuditHistoryPanelComponent, {
+      data: { entityName: 'DeliverySchedule', entityId: id },
+      width: '600px',
+    });
+  }
+
+  trackByUser(index: number, user: { id: number }): number {
+    return user.id;
+  }
+
+  trackByBranch(index: number, branch: { id: number }): number {
+    return branch.id;
+  }
+}

@@ -1,154 +1,215 @@
-<mat-toolbar color="primary" class="toolbar">
-  <mat-toolbar-row>
-    <span>{{ 'REQUESTED_CARS.LIST_TITLE' | translate }}</span>
-    <span class="spacer"></span>
-    <button mat-raised-button color="accent" routerLink="/requested-cars/new">
-      <mat-icon>add</mat-icon>
-      <span>{{ 'REQUESTED_CARS.ADD_NEW_REQUEST' | translate }}</span>
-    </button>
-  </mat-toolbar-row>
-</mat-toolbar>
+<div class="page-container">
 
-<div class="container">
-  <mat-card class="list-card">
-    <mat-card-content>
-      <div class="controls-section">
-        <mat-slide-toggle
-          [checked]="showArchived()"
-          (change)="showArchived.set($event.checked)">
-          {{ 'REQUESTED_CARS.SHOW_ARCHIVED' | translate }}
-        </mat-slide-toggle>
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="breadcrumb">
+      <span>{{ 'REQUESTED_CARS.BREADCRUMB_PARENT' | translate }}</span>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="current">{{ 'REQUESTED_CARS.TITLE' | translate }}</span>
+    </div>
+    <div class="header-row">
+      <div>
+        <h1>{{ 'REQUESTED_CARS.TITLE' | translate }}</h1>
+        <p class="subtitle">{{ 'REQUESTED_CARS.SUBTITLE' | translate }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-cards">
+    <mat-card class="summary-card total">
+      <mat-icon>list_alt</mat-icon>
+      <div class="summary-info">
+        <div class="summary-value">{{ summary().total }}</div>
+        <div class="summary-label">{{ 'REQUESTED_CARS.SUMMARY.TOTAL' | translate }}</div>
+      </div>
+    </mat-card>
+    <mat-card class="summary-card new">
+      <mat-icon>fiber_new</mat-icon>
+      <div class="summary-info">
+        <div class="summary-value">{{ summary().newCount }}</div>
+        <div class="summary-label">{{ 'REQUESTED_CARS.SUMMARY.NEW' | translate }}</div>
+      </div>
+    </mat-card>
+    <mat-card class="summary-card in-progress">
+      <mat-icon>sync</mat-icon>
+      <div class="summary-info">
+        <div class="summary-value">{{ summary().inProgress }}</div>
+        <div class="summary-label">{{ 'REQUESTED_CARS.SUMMARY.IN_PROGRESS' | translate }}</div>
+      </div>
+    </mat-card>
+    <mat-card class="summary-card urgent">
+      <mat-icon>priority_high</mat-icon>
+      <div class="summary-info">
+        <div class="summary-value">{{ summary().urgent }}</div>
+        <div class="summary-label">{{ 'REQUESTED_CARS.SUMMARY.URGENT' | translate }}</div>
+      </div>
+    </mat-card>
+    <mat-card class="summary-card expected">
+      <mat-icon>event_available</mat-icon>
+      <div class="summary-info">
+        <div class="summary-value">{{ summary().expectedThisWeek }}</div>
+        <div class="summary-label">{{ 'REQUESTED_CARS.SUMMARY.EXPECTED_THIS_WEEK' | translate }}</div>
+      </div>
+    </mat-card>
+  </div>
+
+  <!-- Toolbar -->
+  <mat-toolbar class="page-toolbar">
+    <button mat-flat-button color="primary" (click)="newRequest()" *appHasPermission="'requestedCar.create'">
+      <mat-icon>add</mat-icon>
+      {{ 'COMMON.NEW' | translate }}
+    </button>
+
+    <button mat-stroked-button (click)="refresh()">
+      <mat-icon>refresh</mat-icon>
+      {{ 'COMMON.REFRESH' | translate }}
+    </button>
+
+    <span class="toolbar-spacer"></span>
+
+    <mat-form-field appearance="outline" class="filter-select">
+      <mat-label>{{ 'REQUESTED_CARS.STATUS' | translate }}</mat-label>
+      <mat-select [(ngModel)]="statusFilter" (selectionChange)="onStatusFilterChange()">
+        <mat-option value="">{{ 'COMMON.ALL' | translate }}</mat-option>
+        @for (s of statusOptions; track s) {
+          <mat-option [value]="s">{{ ('REQUESTED_CARS.STATUS_' + s.toUpperCase()) | translate }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-select">
+      <mat-label>{{ 'REQUESTED_CARS.PRIORITY' | translate }}</mat-label>
+      <mat-select [(ngModel)]="priorityFilter" (selectionChange)="onPriorityFilterChange()">
+        <mat-option value="">{{ 'COMMON.ALL' | translate }}</mat-option>
+        @for (p of priorityOptions; track p) {
+          <mat-option [value]="p">{{ ('REQUESTED_CARS.PRIORITY_' + p.toUpperCase()) | translate }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-icon-button (click)="resetFilters()" [matTooltip]="'COMMON.RESET_FILTER' | translate">
+      <mat-icon>filter_alt_off</mat-icon>
+    </button>
+
+    <button mat-icon-button [matMenuTriggerFor]="exportMenu" [matTooltip]="'COMMON.EXPORT' | translate" *appHasPermission="'requestedCar.export'">
+      <mat-icon>file_download</mat-icon>
+    </button>
+    <mat-menu #exportMenu="matMenu">
+      <button mat-menu-item (click)="exportExcel()">
+        <mat-icon>description</mat-icon>
+        {{ 'COMMON.EXPORT_EXCEL' | translate }}
+      </button>
+      <button mat-menu-item (click)="exportPdf()">
+        <mat-icon>picture_as_pdf</mat-icon>
+        {{ 'COMMON.EXPORT_PDF' | translate }}
+      </button>
+    </mat-menu>
+
+    <button mat-icon-button (click)="printGrid()" [matTooltip]="'COMMON.PRINT' | translate" *appHasPermission="'requestedCar.print'">
+      <mat-icon>print</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <!-- DataGrid -->
+  <div class="grid-container">
+    <dx-data-grid
+      #dataGrid
+      id="requestedCarsGrid"
+      [dataSource]="dataSource"
+      [remoteOperations]="true"
+      keyExpr="id"
+      [showBorders]="true"
+      [showRowLines]="true"
+      [showColumnLines]="true"
+      [rtlEnabled]="true"
+      [columnAutoWidth]="true"
+      [allowColumnReordering]="true"
+      [allowColumnResizing]="true"
+      [wordWrapEnabled]="false"
+      [hoverStateEnabled]="true"
+      (onRowDblClick)="openDetails($event)">
+
+      <dxo-load-panel [enabled]="true"></dxo-load-panel>
+      <dxo-search-panel [visible]="true" [width]="280"></dxo-search-panel>
+      <dxo-header-filter [visible]="true"></dxo-header-filter>
+      <dxo-filter-row [visible]="true"></dxo-filter-row>
+      <dxo-grouping [autoExpandAll]="false" [contextMenuEnabled]="true"></dxo-grouping>
+      <dxo-group-panel [visible]="true"></dxo-group-panel>
+      <dxo-column-chooser [enabled]="true" mode="select"></dxo-column-chooser>
+      <dxo-column-fixing [enabled]="true"></dxo-column-fixing>
+      <dxo-state-storing [enabled]="true" type="localStorage" [storageKey]="gridStateKey"></dxo-state-storing>
+      <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
+      <dxo-paging [pageSize]="20"></dxo-paging>
+      <dxo-pager [visible]="true" [allowedPageSizes]="[10, 20, 50, 100]" [showPageSizeSelector]="true" [showInfo]="true" [showNavigationButtons]="true" displayMode="full"></dxo-pager>
+      <dxo-selection mode="multiple" showCheckBoxesMode="onClick"></dxo-selection>
+      <dxo-export [enabled]="false"></dxo-export>
+
+      <dxi-column dataField="requestNumber" [caption]="'REQUESTED_CARS.REQUEST_NUMBER' | translate" [width]="130" [fixed]="true"></dxi-column>
+      <dxi-column dataField="requestDate" dataType="date" format="yyyy-MM-dd" [caption]="'REQUESTED_CARS.REQUEST_DATE' | translate" [width]="120"></dxi-column>
+      <dxi-column dataField="customerName" [caption]="'REQUESTED_CARS.CUSTOMER' | translate"></dxi-column>
+      <dxi-column dataField="customerPhone" [caption]="'REQUESTED_CARS.CUSTOMER_PHONE' | translate" [width]="130"></dxi-column>
+      <dxi-column dataField="salespersonName" [caption]="'REQUESTED_CARS.SALESPERSON' | translate"></dxi-column>
+      <dxi-column dataField="make" [caption]="'REQUESTED_CARS.BRAND' | translate"></dxi-column>
+      <dxi-column dataField="model" [caption]="'REQUESTED_CARS.MODEL' | translate"></dxi-column>
+      <dxi-column dataField="year" dataType="number" [caption]="'REQUESTED_CARS.YEAR' | translate" [width]="90" alignment="center"></dxi-column>
+      <dxi-column dataField="color" [caption]="'REQUESTED_CARS.COLOR' | translate" [width]="110"></dxi-column>
+      <dxi-column dataField="preferredSpecifications" [caption]="'REQUESTED_CARS.PREFERRED_SPECS' | translate" [visible]="false"></dxi-column>
+
+      <dxi-column dataField="priority" [caption]="'REQUESTED_CARS.PRIORITY' | translate" [width]="120" cellTemplate="priorityTemplate"></dxi-column>
+      <div *dxTemplate="let cell of 'priorityTemplate'">
+        <span class="chip" [ngClass]="getPriorityClass(cell.value)">
+          {{ ('REQUESTED_CARS.PRIORITY_' + cell.value?.toUpperCase()) | translate }}
+        </span>
       </div>
 
-      <dx-data-grid
-        [dataSource]="filteredRequests()"
-        [showBorders]="true"
-        [showRowLines]="true"
-        [showColumnLines]="true"
-        [rowAlternationEnabled]="true"
-        [allowColumnReordering]="true"
-        [allowColumnResizing]="true"
-        [columnAutoWidth]="true"
-        [rtlEnabled]="true"
-        keyExpr="id">
+      <dxi-column dataField="expectedArrival" dataType="date" format="yyyy-MM-dd" [caption]="'REQUESTED_CARS.EXPECTED_ARRIVAL' | translate" [width]="130"></dxi-column>
 
-        <dxo-paging [pageSize]="10"></dxo-paging>
-        <dxo-pager
-          [showPageSizeSelector]="true"
-          [allowedPageSizes]="[5, 10, 20]"
-          [showInfo]="true">
-        </dxo-pager>
+      <dxi-column dataField="status" [caption]="'REQUESTED_CARS.STATUS' | translate" [width]="130" cellTemplate="statusTemplate"></dxi-column>
+      <div *dxTemplate="let cell of 'statusTemplate'">
+        <span class="chip" [ngClass]="getStatusClass(cell.value)">
+          {{ ('REQUESTED_CARS.STATUS_' + cell.value?.toUpperCase()) | translate }}
+        </span>
+      </div>
 
-        <dxo-filter-row [visible]="true"></dxo-filter-row>
-        <dxo-header-filter [visible]="true"></dxo-header-filter>
-        <dxo-search-panel
-          [visible]="true"
-          placeholder="{{ 'REQUESTED_CARS.SEARCH_PLACEHOLDER' | translate }}">
-        </dxo-search-panel>
+      <dxi-column dataField="reservationStatus" [caption]="'REQUESTED_CARS.RESERVATION_STATUS' | translate" [width]="140" cellTemplate="reservationTemplate"></dxi-column>
+      <div *dxTemplate="let cell of 'reservationTemplate'">
+        <span class="chip" [ngClass]="getReservationStatusClass(cell.value)">
+          {{ ('REQUESTED_CARS.RESERVATION_' + cell.value?.toUpperCase()) | translate }}
+        </span>
+      </div>
 
-        <dxi-column
-          dataField="requestDate"
-          caption="{{ 'REQUESTED_CARS.COLUMNS.REQUEST_DATE' | translate }}"
-          dataType="date"
-          format="yyyy-MM-dd"
-        >
-        </dxi-column>
+      <dxi-column dataField="notes" [caption]="'REQUESTED_CARS.NOTES' | translate" [visible]="false"></dxi-column>
+      <dxi-column dataField="createdAt" dataType="datetime" [caption]="'REQUESTED_CARS.CREATED_DATE' | translate" [visible]="false"></dxi-column>
 
-        <dxi-column
-          caption="{{ 'REQUESTED_CARS.COLUMNS.CUSTOMER_INFO' | translate }}"
-          cellTemplate="customerTemplate">
-        </dxi-column>
+      <dxi-column type="buttons" [caption]="'COMMON.ACTIONS' | translate" [width]="160" [fixed]="true" fixedPosition="right" cellTemplate="actionsTemplate"></dxi-column>
+      <div *dxTemplate="let cell of 'actionsTemplate'">
+        <button mat-icon-button [matTooltip]="'COMMON.EDIT' | translate" (click)="editRequest(cell.data.id)" *appHasPermission="'requestedCar.edit'">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button [matTooltip]="'AUDIT_HISTORY.TITLE' | translate" (click)="openHistory(cell.data.id)" *appHasPermission="'requestedCar.history'">
+          <mat-icon>history</mat-icon>
+        </button>
+        <button mat-icon-button [matTooltip]="'REQUESTED_CARS.AI_PANEL.TITLE' | translate" (click)="openAiPanel(cell.data)" *appHasPermission="'requestedCar.ai'">
+          <mat-icon>auto_awesome</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" [matTooltip]="'COMMON.DELETE' | translate" (click)="requestDelete(cell.data.id)" *appHasPermission="'requestedCar.delete'">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
 
-        <dxi-column
-          caption="{{ 'REQUESTED_CARS.COLUMNS.REQUESTED_CAR' | translate }}"
-          cellTemplate="carTemplate">
-        </dxi-column>
+      <dxo-summary>
+        <dxi-total-item column="requestNumber" summaryType="count" [displayFormat]="'{0}'"></dxi-total-item>
+      </dxo-summary>
+    </dx-data-grid>
+  </div>
 
-        <dxi-column
-          dataField="status"
-          caption="{{ 'REQUESTED_CARS.COLUMNS.STATUS' | translate }}"
-          cellTemplate="statusTemplate">
-        </dxi-column>
+  <app-modal
+    [isOpen]="isDeleteModalOpen()"
+    [title]="'REQUESTED_CARS.DELETE_CONFIRM_TITLE' | translate"
+    [message]="'REQUESTED_CARS.DELETE_CONFIRM_MESSAGE' | translate"
+    (confirm)="confirmDelete()"
+    (cancel)="closeDeleteModal()">
+  </app-modal>
 
-        <dxi-column
-          caption="{{ 'REQUESTED_CARS.COLUMNS.ACTIONS' | translate }}"
-          [allowFiltering]="false"
-          [allowSorting]="false"
-          cellTemplate="actionsTemplate">
-        </dxi-column>
-
-        <!-- Templates -->
-        <div *dxTemplate="let data of 'customerTemplate'">
-          <div class="customer-info">
-            <div class="customer-name">{{ data.customerName }}</div>
-            <div class="customer-phone">{{ data.customerPhone }}</div>
-          </div>
-        </div>
-
-        <div *dxTemplate="let data of 'carTemplate'">
-          <div class="car-info">
-            <div class="car-model">{{ data.make }} {{ data.model }}</div>
-            <div class="car-details">{{ data.year }} - {{ data.color }}</div>
-          </div>
-        </div>
-
-        <div *dxTemplate="let data of 'statusTemplate'">
-          <mat-chip
-            [class]="getStatusClass(data.status)"
-            selected>
-            {{ getStatusText(data.status) }}
-          </mat-chip>
-        </div>
-
-        <div *dxTemplate="let data of 'actionsTemplate'">
-          <div class="actions-cell">
-            <button
-              *ngIf="!showArchived()"
-              mat-icon-button
-              (click)="editRequest(data.id)"
-              matTooltip="{{ 'REQUESTED_CARS.ACTIONS.EDIT' | translate }}"
-              color="primary">
-              <mat-icon>edit</mat-icon>
-            </button>
-
-            <button
-              *ngIf="!showArchived()"
-              mat-icon-button
-              (click)="deleteRequest(data.id)"
-              matTooltip="{{ 'REQUESTED_CARS.ACTIONS.DELETE' | translate }}"
-              color="warn">
-              <mat-icon>delete</mat-icon>
-            </button>
-
-            <button
-              *ngIf="!showArchived()"
-              mat-icon-button
-              (click)="archiveRequest(data.id)"
-              matTooltip="{{ 'REQUESTED_CARS.ACTIONS.ARCHIVE' | translate }}"
-              color="accent">
-              <mat-icon>archive</mat-icon>
-            </button>
-
-            <button
-              *ngIf="showArchived()"
-              mat-icon-button
-              (click)="unarchiveRequest(data.id)"
-              matTooltip="{{ 'REQUESTED_CARS.ACTIONS.UNARCHIVE' | translate }}"
-              color="accent">
-              <mat-icon>unarchive</mat-icon>
-            </button>
-          </div>
-        </div>
-      </dx-data-grid>
-
-    </mat-card-content>
-  </mat-card>
 </div>
-
-<app-modal
-  [isOpen]="isDeleteModalOpen()"
-  title="{{ 'REQUESTED_CARS.MODAL.DELETE_TITLE' | translate }}"
-  message="{{ 'REQUESTED_CARS.MODAL.DELETE_MESSAGE' | translate }}"
-  (confirm)="confirmDelete()"
-  (cancel)="closeDeleteModal()">
-</app-modal>

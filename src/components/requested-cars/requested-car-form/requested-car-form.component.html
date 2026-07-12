@@ -1,8 +1,16 @@
 <mat-toolbar color="primary" class="toolbar">
   <mat-toolbar-row>
-    <span>{{ pageTitle() }}</span>
+    <span>{{ editMode() ? ('REQUESTED_CARS.FORM.EDIT_TITLE' | translate) : ('REQUESTED_CARS.FORM.NEW_TITLE' | translate) }}</span>
     <span class="spacer"></span>
-    <button mat-icon-button routerLink="/requested-cars" matTooltip="{{ 'REQUESTED_CARS.FORM.BACK_TO_LIST' | translate }}">
+    @if (editMode()) {
+      <button mat-icon-button (click)="openHistory()" [matTooltip]="'AUDIT_HISTORY.TITLE' | translate">
+        <mat-icon>history</mat-icon>
+      </button>
+      <button mat-icon-button (click)="openAiPanel()" [matTooltip]="'REQUESTED_CARS.AI_PANEL.TITLE' | translate">
+        <mat-icon>auto_awesome</mat-icon>
+      </button>
+    }
+    <button mat-icon-button routerLink="/requested-cars" [matTooltip]="'REQUESTED_CARS.FORM.BACK_TO_LIST' | translate">
       <mat-icon>arrow_back</mat-icon>
     </button>
   </mat-toolbar-row>
@@ -16,25 +24,35 @@
         <div class="form-section">
           <h3 class="section-title">{{ 'REQUESTED_CARS.FORM.CUSTOMER_DETAILS' | translate }}</h3>
           <div class="form-grid cols-2">
+            <div class="lookup-field">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'REQUESTED_CARS.FORM.CUSTOMER_NAME' | translate }}</mat-label>
+                <input matInput [value]="selectedCustomer()?.name || ''" readonly>
+              </mat-form-field>
+              <button mat-stroked-button type="button" color="primary" (click)="openCustomerLookup()">
+                <mat-icon>search</mat-icon>
+                {{ 'CUSTOMER_LOOKUP.TITLE' | translate }}
+              </button>
+            </div>
+
             <mat-form-field appearance="outline">
-              <mat-label>{{ 'REQUESTED_CARS.FORM.CUSTOMER_NAME' | translate }}</mat-label>
-              <mat-select
-                formControlName="customerId"
-                (selectionChange)="onCustomerChange($event.value)">
-                <mat-option [value]="null" disabled>{{ 'REQUESTED_CARS.FORM.SELECT_CUSTOMER' | translate }}</mat-option>
-                <mat-option *ngFor="let customer of customers(); trackBy: trackByCustomer" [value]="customer.id">
-                  {{ customer.name }}
+              <mat-label>{{ 'REQUESTED_CARS.FORM.CUSTOMER_PHONE' | translate }}</mat-label>
+              <input matInput type="tel" [value]="selectedCustomer()?.phone || ''" readonly>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'REQUESTED_CARS.SALESPERSON' | translate }}</mat-label>
+              <mat-select formControlName="salespersonId">
+                <mat-option [value]="null">{{ 'COMMON.NONE' | translate }}</mat-option>
+                <mat-option *ngFor="let u of salespeople(); trackBy: trackByUser" [value]="u.id">
+                  {{ u.name }}
                 </mat-option>
               </mat-select>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>{{ 'REQUESTED_CARS.FORM.CUSTOMER_PHONE' | translate }}</mat-label>
-              <input
-                matInput
-                type="tel"
-                formControlName="customerPhone"
-                readonly>
+              <mat-label>{{ 'REQUESTED_CARS.REQUEST_DATE' | translate }}</mat-label>
+              <input matInput type="date" formControlName="requestDate">
             </mat-form-field>
           </div>
         </div>
@@ -44,21 +62,16 @@
           <div class="form-grid cols-3">
             <mat-form-field appearance="outline">
               <mat-label>{{ 'REQUESTED_CARS.FORM.MANUFACTURER' | translate }}</mat-label>
-              <mat-select
-                formControlName="make">
-                <mat-option value="" disabled>{{ 'REQUESTED_CARS.FORM.SELECT_MANUFACTURER' | translate }}</mat-option>
+              <mat-select formControlName="make">
                 <mat-option *ngFor="let m of manufacturers(); trackBy: trackByManufacturer" [value]="m.name">
-                  {{m.name}}
+                  {{ m.name }}
                 </mat-option>
               </mat-select>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
               <mat-label>{{ 'REQUESTED_CARS.FORM.MODEL' | translate }}</mat-label>
-              <mat-select
-                formControlName="model"
-                [disabled]="!requestForm.get('make')?.value">
-                <mat-option [value]="undefined" disabled>{{ 'REQUESTED_CARS.FORM.SELECT_MODEL' | translate }}</mat-option>
+              <mat-select formControlName="model" [disabled]="!requestForm.get('make')?.value">
                 <mat-option *ngFor="let carModel of filteredModels(); trackBy: trackByModel" [value]="carModel.name">
                   {{ carModel.name }}
                 </mat-option>
@@ -67,9 +80,7 @@
 
             <mat-form-field appearance="outline">
               <mat-label>{{ 'REQUESTED_CARS.FORM.YEAR_OPTIONAL' | translate }}</mat-label>
-              <mat-select
-                formControlName="year">
-                <mat-option [value]="undefined">{{ 'REQUESTED_CARS.FORM.SELECT_YEAR' | translate }}</mat-option>
+              <mat-select formControlName="year">
                 <mat-option *ngFor="let y of years(); trackBy: trackByYear" [value]="y">
                   {{ y }}
                 </mat-option>
@@ -78,42 +89,82 @@
 
             <mat-form-field appearance="outline">
               <mat-label>{{ 'REQUESTED_CARS.FORM.COLOR_OPTIONAL' | translate }}</mat-label>
-              <input
-                matInput
-                type="text"
-                formControlName="color">
+              <input matInput type="text" formControlName="color">
             </mat-form-field>
 
-            <mat-form-field appearance="outline" class="col-span-2">
-              <mat-label>{{ 'REQUESTED_CARS.FORM.STATUS' | translate }}</mat-label>
-              <mat-select
-                formControlName="status">
-                <mat-option value="New">{{ 'REQUESTED_CARS.STATUS.NEW' | translate }}</mat-option>
-                <mat-option value="Contacted">{{ 'REQUESTED_CARS.STATUS.CONTACTED' | translate }}</mat-option>
-                <mat-option value="Sourced">{{ 'REQUESTED_CARS.STATUS.SOURCED' | translate }}</mat-option>
-                <mat-option value="Closed">{{ 'REQUESTED_CARS.STATUS.CLOSED' | translate }}</mat-option>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'REQUESTED_CARS.PRIORITY' | translate }}</mat-label>
+              <mat-select formControlName="priority">
+                <mat-option *ngFor="let p of priorityOptions" [value]="p">
+                  {{ ('REQUESTED_CARS.PRIORITY_' + p.toUpperCase()) | translate }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'REQUESTED_CARS.EXPECTED_ARRIVAL' | translate }}</mat-label>
+              <input matInput type="date" formControlName="expectedArrival">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'REQUESTED_CARS.RESERVATION_STATUS' | translate }}</mat-label>
+              <mat-select formControlName="reservationStatus">
+                <mat-option *ngFor="let r of reservationOptions" [value]="r">
+                  {{ ('REQUESTED_CARS.RESERVATION_' + r.toUpperCase()) | translate }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'REQUESTED_CARS.STATUS' | translate }}</mat-label>
+              <mat-select formControlName="status">
+                <mat-option *ngFor="let s of statusOptions" [value]="s">
+                  {{ ('REQUESTED_CARS.STATUS_' + s.toUpperCase()) | translate }}
+                </mat-option>
               </mat-select>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="col-span-3">
+              <mat-label>{{ 'REQUESTED_CARS.PREFERRED_SPECS' | translate }}</mat-label>
+              <textarea matInput formControlName="preferredSpecifications" rows="2"></textarea>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="col-span-3">
               <mat-label>{{ 'REQUESTED_CARS.FORM.ADDITIONAL_NOTES' | translate }}</mat-label>
-              <textarea
-                matInput
-                formControlName="notes"
-                rows="3"></textarea>
+              <textarea matInput formControlName="notes" rows="3"></textarea>
             </mat-form-field>
           </div>
         </div>
+
+        @if (editMode()) {
+          <div class="form-section">
+            <h3 class="section-title">{{ 'REQUESTED_CARS.FORM.ATTACHMENTS' | translate }}</h3>
+            <div class="attachments-list">
+              @for (att of attachments(); track att.id) {
+                <div class="attachment-item">
+                  <mat-icon>attach_file</mat-icon>
+                  <a [href]="fileUrl(att)" target="_blank" class="attachment-name">{{ att.fileName }}</a>
+                  <button mat-icon-button color="warn" type="button" (click)="deleteAttachment(att.id)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              } @empty {
+                <p class="no-attachments">{{ 'REQUESTED_CARS.FORM.NO_ATTACHMENTS' | translate }}</p>
+              }
+            </div>
+            <input type="file" (change)="onFileSelected($event)" [disabled]="uploading()" #fileInput hidden>
+            <button mat-stroked-button type="button" (click)="fileInput.click()" [disabled]="uploading()">
+              <mat-icon>upload_file</mat-icon>
+              {{ 'REQUESTED_CARS.FORM.UPLOAD_ATTACHMENT' | translate }}
+            </button>
+          </div>
+        }
 
         <div class="form-actions">
           <button mat-button routerLink="/requested-cars" type="button">
             {{ 'REQUESTED_CARS.FORM.CANCEL' | translate }}
           </button>
-          <button
-            mat-raised-button
-            color="primary"
-            type="submit"
-            [disabled]="requestForm.invalid">
+          <button mat-raised-button color="primary" type="submit" [disabled]="requestForm.invalid || saving()">
             {{ editMode() ? ('REQUESTED_CARS.FORM.SAVE_CHANGES' | translate) : ('REQUESTED_CARS.FORM.SAVE_REQUEST' | translate) }}
           </button>
         </div>

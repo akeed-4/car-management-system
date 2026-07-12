@@ -1,14 +1,33 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { RequestedCar } from '../models/requested-car.model';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { environment } from '../environments/environment';
+import {
+  RequestedCar,
+  CreateRequestedCarDto,
+  UpdateRequestedCarDto,
+} from '../models/requested-car.model';
+
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
+
+export interface DxLoadResult<T> {
+  data: T[];
+  totalCount: number;
+  groupCount?: number;
+  summary?: unknown[];
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class RequestedCarService {
   private http = inject(HttpClient);
-  private apiUrl = 'https://api.example.com/requested-cars'; // ضع رابط API الحقيقي هنا
+  private apiUrl = environment.origin + 'api/RequestedCars';
+
   private requestedCars = signal<RequestedCar[]>([]);
   public requestedCars$ = this.requestedCars.asReadonly();
 
@@ -16,42 +35,50 @@ export class RequestedCarService {
     this.loadRequestedCars();
   }
 
-  loadRequestedCars() {
-    this.getRequestedCars().subscribe(requestedCars => this.requestedCars.set(requestedCars));
+  /** Loads the full unpaged list into the requestedCars$ signal, for dashboard/summary consumers. */
+  loadRequestedCars(): void {
+    this.loadDataGrid({ take: 10000 }).subscribe({
+      next: (result) => this.requestedCars.set(result.data),
+      error: () => this.requestedCars.set([]),
+    });
   }
 
-  // جلب كل الطلبات
-  getRequestedCars(): Observable<RequestedCar[]> {
-    return this.http.get<RequestedCar[]>(this.apiUrl);
+  loadDataGrid(loadOptions: Record<string, unknown>): Observable<DxLoadResult<RequestedCar>> {
+    let params = new HttpParams();
+    for (const key of Object.keys(loadOptions)) {
+      const value = loadOptions[key];
+      if (value !== undefined && value !== null) {
+        params = params.set(key, typeof value === 'object' ? JSON.stringify(value) : String(value));
+      }
+    }
+    return this.http.get<DxLoadResult<RequestedCar>>(`${this.apiUrl}/GetAll`, { params });
   }
 
-  // جلب طلب محدد حسب ID
-  getRequestById(id: number): Observable<RequestedCar> {
-    return this.http.get<RequestedCar>(`${this.apiUrl}/${id}`);
+  getById(id: number): Observable<ApiResponse<RequestedCar>> {
+    return this.http.get<ApiResponse<RequestedCar>>(`${this.apiUrl}/${id}`);
   }
 
-  // إضافة طلب جديد
-  addRequest(request: Omit<RequestedCar, 'id'>): Observable<RequestedCar> {
-    return this.http.post<RequestedCar>(this.apiUrl, request);
+  create(dto: CreateRequestedCarDto): Observable<ApiResponse<RequestedCar>> {
+    return this.http.post<ApiResponse<RequestedCar>>(this.apiUrl, dto).pipe(
+      tap(() => this.loadRequestedCars())
+    );
   }
 
-  // تحديث طلب موجود
-  updateRequest(updatedRequest: RequestedCar): Observable<RequestedCar> {
-    return this.http.put<RequestedCar>(`${this.apiUrl}/${updatedRequest.id}`, updatedRequest);
+  update(id: number, dto: UpdateRequestedCarDto): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${id}`, dto).pipe(
+      tap(() => this.loadRequestedCars())
+    );
   }
 
-  // حذف طلب
-  deleteRequest(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+      tap(() => this.loadRequestedCars())
+    );
   }
 
-  // أرشفة الطلب
-  archiveRequest(id: number): Observable<RequestedCar> {
-    return this.http.patch<RequestedCar>(`${this.apiUrl}/${id}`, { isArchived: true });
-  }
-
-  // إلغاء أرشفة الطلب
-  unarchiveRequest(id: number): Observable<RequestedCar> {
-    return this.http.patch<RequestedCar>(`${this.apiUrl}/${id}`, { isArchived: false });
+  search(searchTerm: string): Observable<ApiResponse<RequestedCar[]>> {
+    return this.http.get<ApiResponse<RequestedCar[]>>(`${this.apiUrl}/search`, {
+      params: { searchTerm },
+    });
   }
 }

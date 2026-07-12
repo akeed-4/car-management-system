@@ -8,7 +8,16 @@ export class PermissionService {
   private userPermissions: string[] = [
     'branch.view', 'branch.create', 'branch.edit', 'branch.delete',
     'company.view', 'company.create', 'company.edit', 'company.delete',
-    'store.view', 'store.create', 'store.edit', 'store.delete'
+    'store.view', 'store.create', 'store.edit', 'store.delete',
+    'requestedCar.view', 'requestedCar.create', 'requestedCar.edit', 'requestedCar.delete',
+    'requestedCar.export', 'requestedCar.print', 'requestedCar.attachments',
+    'requestedCar.history', 'requestedCar.ai',
+    'consignmentCar.view', 'consignmentCar.create', 'consignmentCar.edit', 'consignmentCar.delete',
+    'consignmentCar.export', 'consignmentCar.print', 'consignmentCar.attachments', 'consignmentCar.history',
+    'dailyEntry.view', 'dailyEntry.create', 'dailyEntry.edit', 'dailyEntry.delete',
+    'dailyEntry.export', 'dailyEntry.print', 'dailyEntry.history',
+    'deliverySchedule.view', 'deliverySchedule.create', 'deliverySchedule.edit', 'deliverySchedule.delete',
+    'deliverySchedule.export', 'deliverySchedule.print', 'deliverySchedule.history'
   ];
 
   // Check if user has a specific permission

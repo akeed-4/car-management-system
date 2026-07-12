@@ -1,92 +1,223 @@
+<div class="page-container">
 
-
-<mat-toolbar color="primary">
-  <span>{{ 'DELIVERY_SCHEDULE.TITLE' | translate }}</span>
-  <span class="spacer"></span>
-  <button mat-raised-button color="accent" routerLink="/deliveries/schedule/new">
-    <mat-icon>add</mat-icon>
-    {{ 'DELIVERY_SCHEDULE.CREATE_NEW' | translate }}
-  </button>
-</mat-toolbar>
-
-<div class="schedule-container">
-  <div class="schedule-grid">
-    @for (day of schedule(); track day.date) {
-      <mat-card class="day-card">
-        <mat-card-header>
-          <mat-card-title>{{ day.date | date:'fullDate':'':'ar' }}</mat-card-title>
-        </mat-card-header>
-
-        <mat-card-content>
-          @if (day.deliveries.length > 0) {
-            <div class="delivery-list">
-              @for (delivery of day.deliveries; track delivery.id) {
-                <mat-card class="delivery-card"
-                         [class.status-scheduled]="delivery.status === 'Scheduled'"
-                         [class.status-in-progress]="delivery.status === 'In Progress'"
-                         [class.status-completed]="delivery.status === 'Completed'"
-                         [class.status-canceled]="delivery.status === 'Canceled'">
-                  <mat-card-content>
-                    <div class="delivery-header">
-                      <h4 class="delivery-title">{{ delivery.carDescription }}</h4>
-                      <mat-chip
-                        [class]="getStatusClass(delivery.status)"
-                        selected>
-                        {{ getStatusText(delivery.status) }}
-                      </mat-chip>
-                    </div>
-
-                    <div class="delivery-details">
-                      <p class="delivery-time">
-                        <mat-icon>schedule</mat-icon>
-                        <span>{{ delivery.scheduledTime }}</span>
-                      </p>
-                      <p class="delivery-info">
-                        <mat-icon>person</mat-icon>
-                        <span>{{ delivery.customerName }}</span>
-                      </p>
-                      <p class="delivery-info">
-                        <mat-icon>receipt</mat-icon>
-                        <span>{{ delivery.salesInvoiceNumber }}</span>
-                      </p>
-                      <p class="delivery-info">
-                        <mat-icon>engineering</mat-icon>
-                        <span>{{ delivery.deliveryAgentName }}</span>
-                      </p>
-                    </div>
-
-                    @if (delivery.status === 'Scheduled' || delivery.status === 'In Progress') {
-                      <div class="delivery-actions">
-                        <button mat-stroked-button (click)="openChecklist(delivery)">
-                          <mat-icon>checklist</mat-icon>
-                          {{ 'DELIVERY_SCHEDULE.CHECKLIST' | translate }}
-                        </button>
-                        <button mat-stroked-button color="warn" (click)="updateDeliveryStatus(delivery, 'Canceled')">
-                          <mat-icon>cancel</mat-icon>
-                          {{ 'DELIVERY_SCHEDULE.CANCEL' | translate }}
-                        </button>
-                      </div>
-                    }
-                  </mat-card-content>
-                </mat-card>
-              }
-            </div>
-          } @else {
-            <div class="empty-day-state">
-              <mat-icon>event_busy</mat-icon>
-              <p>{{ 'DELIVERY_SCHEDULE.NO_DELIVERIES' | translate }}</p>
-            </div>
-          }
-        </mat-card-content>
-      </mat-card>
-    }
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="breadcrumb">
+      <span>{{ 'REQUESTED_CARS.BREADCRUMB_PARENT' | translate }}</span>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="current">{{ 'DELIVERY_SCHEDULE.TITLE' | translate }}</span>
+    </div>
+    <div class="header-row">
+      <div>
+        <h1>{{ 'DELIVERY_SCHEDULE.TITLE' | translate }}</h1>
+        <p class="subtitle">{{ 'DELIVERY_SCHEDULE.SUBTITLE' | translate }}</p>
+      </div>
+    </div>
   </div>
-</div>
 
-<app-delivery-checklist-modal
-  [isOpen]="isChecklistModalOpen()"
-  [delivery]="selectedDeliveryForChecklist()"
-  (completed)="onChecklistCompleted($event)"
-  (canceled)="onChecklistCanceled()">
-</app-delivery-checklist-modal>
-    
+  <!-- Summary Cards -->
+  <div class="summary-cards">
+    <mat-card class="summary-card today">
+      <mat-icon>today</mat-icon>
+      <div class="summary-info">
+        <div class="summary-value">{{ summary().today }}</div>
+        <div class="summary-label">{{ 'DELIVERY_SCHEDULE.SUMMARY.TODAY' | translate }}</div>
+      </div>
+    </mat-card>
+    <mat-card class="summary-card late">
+      <mat-icon>warning</mat-icon>
+      <div class="summary-info">
+        <div class="summary-value">{{ summary().late }}</div>
+        <div class="summary-label">{{ 'DELIVERY_SCHEDULE.SUMMARY.LATE' | translate }}</div>
+      </div>
+    </mat-card>
+    <mat-card class="summary-card upcoming">
+      <mat-icon>schedule</mat-icon>
+      <div class="summary-info">
+        <div class="summary-value">{{ summary().upcoming }}</div>
+        <div class="summary-label">{{ 'DELIVERY_SCHEDULE.SUMMARY.UPCOMING' | translate }}</div>
+      </div>
+    </mat-card>
+    <mat-card class="summary-card completed">
+      <mat-icon>check_circle</mat-icon>
+      <div class="summary-info">
+        <div class="summary-value">{{ summary().completed }}</div>
+        <div class="summary-label">{{ 'DELIVERY_SCHEDULE.SUMMARY.COMPLETED' | translate }}</div>
+      </div>
+    </mat-card>
+  </div>
+
+  <!-- Toolbar -->
+  <mat-toolbar class="page-toolbar">
+    <button mat-flat-button color="primary" (click)="newDelivery()" *appHasPermission="'deliverySchedule.create'">
+      <mat-icon>add</mat-icon>
+      {{ 'COMMON.NEW' | translate }}
+    </button>
+
+    <button mat-stroked-button (click)="refresh()">
+      <mat-icon>refresh</mat-icon>
+      {{ 'COMMON.REFRESH' | translate }}
+    </button>
+
+    <mat-button-toggle-group [(ngModel)]="viewMode" class="view-toggle">
+      <mat-button-toggle value="grid">
+        <mat-icon>table_rows</mat-icon>
+        {{ 'DELIVERY_SCHEDULE.GRID_VIEW' | translate }}
+      </mat-button-toggle>
+      <mat-button-toggle value="calendar">
+        <mat-icon>calendar_view_week</mat-icon>
+        {{ 'DELIVERY_SCHEDULE.CALENDAR_VIEW' | translate }}
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <span class="toolbar-spacer"></span>
+
+    <mat-form-field appearance="outline" class="filter-select">
+      <mat-label>{{ 'DELIVERY_SCHEDULE.STATUS' | translate }}</mat-label>
+      <mat-select [(ngModel)]="statusFilter" (selectionChange)="onStatusFilterChange()">
+        <mat-option value="">{{ 'COMMON.ALL' | translate }}</mat-option>
+        @for (s of statusOptions; track s) {
+          <mat-option [value]="s">{{ ('DELIVERY_SCHEDULE.STATUS_' + s.toUpperCase()) | translate }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-icon-button (click)="resetFilters()" [matTooltip]="'COMMON.RESET_FILTER' | translate">
+      <mat-icon>filter_alt_off</mat-icon>
+    </button>
+
+    <button mat-icon-button [matMenuTriggerFor]="exportMenu" [matTooltip]="'COMMON.EXPORT' | translate" *appHasPermission="'deliverySchedule.export'">
+      <mat-icon>file_download</mat-icon>
+    </button>
+    <mat-menu #exportMenu="matMenu">
+      <button mat-menu-item (click)="exportExcel()">
+        <mat-icon>description</mat-icon>
+        {{ 'COMMON.EXPORT_EXCEL' | translate }}
+      </button>
+      <button mat-menu-item (click)="exportPdf()">
+        <mat-icon>picture_as_pdf</mat-icon>
+        {{ 'COMMON.EXPORT_PDF' | translate }}
+      </button>
+    </mat-menu>
+
+    <button mat-icon-button (click)="printGrid()" [matTooltip]="'COMMON.PRINT' | translate" *appHasPermission="'deliverySchedule.print'">
+      <mat-icon>print</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <!-- Grid View -->
+  @if (viewMode() === 'grid') {
+    <div class="grid-container">
+      <dx-data-grid
+        #dataGrid
+        id="deliveryScheduleGrid"
+        [dataSource]="dataSource"
+        [remoteOperations]="true"
+        keyExpr="id"
+        [showBorders]="true"
+        [showRowLines]="true"
+        [showColumnLines]="true"
+        [rtlEnabled]="true"
+        [columnAutoWidth]="true"
+        [allowColumnReordering]="true"
+        [allowColumnResizing]="true"
+        [wordWrapEnabled]="false"
+        [hoverStateEnabled]="true"
+        (onRowDblClick)="openDetails($event)">
+
+        <dxo-load-panel [enabled]="true"></dxo-load-panel>
+        <dxo-search-panel [visible]="true" [width]="280"></dxo-search-panel>
+        <dxo-header-filter [visible]="true"></dxo-header-filter>
+        <dxo-filter-row [visible]="true"></dxo-filter-row>
+        <dxo-grouping [autoExpandAll]="false" [contextMenuEnabled]="true"></dxo-grouping>
+        <dxo-group-panel [visible]="true"></dxo-group-panel>
+        <dxo-column-chooser [enabled]="true" mode="select"></dxo-column-chooser>
+        <dxo-column-fixing [enabled]="true"></dxo-column-fixing>
+        <dxo-state-storing [enabled]="true" type="localStorage" [storageKey]="gridStateKey"></dxo-state-storing>
+        <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
+        <dxo-paging [pageSize]="20"></dxo-paging>
+        <dxo-pager [visible]="true" [allowedPageSizes]="[10, 20, 50, 100]" [showPageSizeSelector]="true" [showInfo]="true" [showNavigationButtons]="true" displayMode="full"></dxo-pager>
+        <dxo-selection mode="multiple" showCheckBoxesMode="onClick"></dxo-selection>
+        <dxo-export [enabled]="false"></dxo-export>
+
+        <dxi-column dataField="deliveryNumber" [caption]="'DELIVERY_SCHEDULE.DELIVERY_NUMBER' | translate" [width]="130" [fixed]="true"></dxi-column>
+        <dxi-column dataField="customerName" [caption]="'REQUESTED_CARS.CUSTOMER' | translate"></dxi-column>
+        <dxi-column dataField="carDescription" [caption]="'DAILY_ENTRIES.VEHICLE' | translate"></dxi-column>
+        <dxi-column dataField="carVin" [caption]="'CONSIGNMENT.VIN' | translate" [width]="150"></dxi-column>
+        <dxi-column dataField="driverName" [caption]="'DELIVERY_SCHEDULE.DRIVER' | translate"></dxi-column>
+        <dxi-column dataField="deliveryDate" dataType="date" format="yyyy-MM-dd" [caption]="'DELIVERY_SCHEDULE.DELIVERY_DATE' | translate" [width]="120"></dxi-column>
+        <dxi-column dataField="deliveryTime" [caption]="'DELIVERY_SCHEDULE.DELIVERY_TIME' | translate" [width]="100"></dxi-column>
+        <dxi-column dataField="branchName" [caption]="'DELIVERY_SCHEDULE.BRANCH' | translate"></dxi-column>
+
+        <dxi-column dataField="status" [caption]="'DELIVERY_SCHEDULE.STATUS' | translate" [width]="130" cellTemplate="statusTemplate"></dxi-column>
+        <div *dxTemplate="let cell of 'statusTemplate'">
+          <span class="chip" [ngClass]="getDeliveryStatusClass(cell.value)">
+            {{ ('DELIVERY_SCHEDULE.STATUS_' + cell.value?.toUpperCase()) | translate }}
+          </span>
+          @if (isLateDelivery(cell.data)) {
+            <span class="chip status-chip-late">{{ 'DELIVERY_SCHEDULE.LATE' | translate }}</span>
+          }
+        </div>
+
+        <dxi-column dataField="deliveryProgress" [caption]="'DELIVERY_SCHEDULE.PROGRESS' | translate" [width]="110" cellTemplate="progressTemplate"></dxi-column>
+        <div *dxTemplate="let cell of 'progressTemplate'">
+          {{ cell.value }}%
+        </div>
+
+        <dxi-column dataField="documentsReady" dataType="boolean" [caption]="'DELIVERY_SCHEDULE.DOCUMENTS_READY' | translate" [width]="110"></dxi-column>
+        <dxi-column dataField="insuranceReady" dataType="boolean" [caption]="'DELIVERY_SCHEDULE.INSURANCE_READY' | translate" [width]="110"></dxi-column>
+        <dxi-column dataField="registrationReady" dataType="boolean" [caption]="'DELIVERY_SCHEDULE.REGISTRATION_READY' | translate" [width]="120"></dxi-column>
+        <dxi-column dataField="customerConfirmed" dataType="boolean" [caption]="'DELIVERY_SCHEDULE.CUSTOMER_CONFIRMED' | translate" [width]="130"></dxi-column>
+
+        <dxi-column dataField="notes" [caption]="'REQUESTED_CARS.NOTES' | translate" [visible]="false"></dxi-column>
+
+        <dxi-column type="buttons" [caption]="'COMMON.ACTIONS' | translate" [width]="120" [fixed]="true" fixedPosition="right" cellTemplate="actionsTemplate"></dxi-column>
+        <div *dxTemplate="let cell of 'actionsTemplate'">
+          <button mat-icon-button [matTooltip]="'COMMON.EDIT' | translate" (click)="editDelivery(cell.data.id)" *appHasPermission="'deliverySchedule.edit'">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button [matTooltip]="'AUDIT_HISTORY.TITLE' | translate" (click)="openHistory(cell.data.id)" *appHasPermission="'deliverySchedule.history'">
+            <mat-icon>history</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" [matTooltip]="'COMMON.DELETE' | translate" (click)="requestDelete(cell.data.id)" *appHasPermission="'deliverySchedule.delete'">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </dx-data-grid>
+    </div>
+  }
+
+  <!-- Calendar View -->
+  @if (viewMode() === 'calendar') {
+    <div class="calendar-view">
+      @for (day of calendarDays(); track day.date) {
+        <mat-card class="day-column">
+          <div class="day-header">{{ day.date | date:'EEE, MMM d' }}</div>
+          <div class="day-body">
+            @for (delivery of day.deliveries; track delivery.id) {
+              <div class="delivery-card" [ngClass]="getDeliveryStatusClass(delivery.status)" (click)="editDelivery(delivery.id)">
+                <div class="delivery-time">{{ delivery.deliveryTime }}</div>
+                <div class="delivery-customer">{{ delivery.customerName }}</div>
+                <div class="delivery-car">{{ delivery.carDescription }}</div>
+                <span class="chip" [ngClass]="getDeliveryStatusClass(delivery.status)">
+                  {{ ('DELIVERY_SCHEDULE.STATUS_' + delivery.status.toUpperCase()) | translate }}
+                </span>
+              </div>
+            } @empty {
+              <div class="no-deliveries">{{ 'DELIVERY_SCHEDULE.NO_DELIVERIES' | translate }}</div>
+            }
+          </div>
+        </mat-card>
+      }
+    </div>
+  }
+
+  <app-modal
+    [isOpen]="isDeleteModalOpen()"
+    [title]="'DELIVERY_SCHEDULE.DELETE_CONFIRM_TITLE' | translate"
+    [message]="'DELIVERY_SCHEDULE.DELETE_CONFIRM_MESSAGE' | translate"
+    (confirm)="confirmDelete()"
+    (cancel)="closeDeleteModal()">
+  </app-modal>
+
+</div>

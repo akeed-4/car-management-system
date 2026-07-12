@@ -1,121 +1,132 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
-import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
-import { ConsignmentService } from '../../../services/consignment.service';
-import { ConsignmentCar, ConsignmentCarStatus } from '../../../models/consignment-car.model';
-import { ModalComponent } from '../../shared/modal/modal.component';
+import { MatDialog } from '@angular/material/dialog';
+import { FormsModule } from '@angular/forms';
+import CustomStore from 'devextreme/data/custom_store';
+import {
+  DxDataGridModule,
+  DxDataGridComponent,
+} from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
-
-type SortColumn = keyof ConsignmentCar | '';
-type SortDirection = 'asc' | 'desc' | '';
+import { ConsignmentService } from '../../../services/consignment.service';
+import { HasPermissionDirective } from '../../shared/permission.directive';
+import { ModalComponent } from '../../shared/modal/modal.component';
+import { AuditHistoryPanelComponent } from '../../shared/audit-history-panel/audit-history-panel.component';
+import { ConsignmentCar } from '../../../models/consignment-car.model';
+import { getConsignmentStatusClass } from '../consignment-status.util';
 
 @Component({
   selector: 'app-consignment-list',
   standalone: true,
   imports: [
-    RouterLink,
+    CommonModule,
     FormsModule,
+    ModalComponent,
+    HasPermissionDirective,
     MatButtonModule,
     MatIconModule,
     MatCardModule,
     MatToolbarModule,
+    MatMenuModule,
+    MatTooltipModule,
     MatFormFieldModule,
+    MatSelectModule,
     MatInputModule,
-    MatSlideToggleModule,
     DxDataGridModule,
-    DxButtonModule,
-    ModalComponent,
-    TranslateModule
+    TranslateModule,
   ],
   templateUrl: './consignment-list.component.html',
   styleUrl: './consignment-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConsignmentListComponent {
+  @ViewChild(DxDataGridComponent, { static: false }) grid!: DxDataGridComponent;
+
   private consignmentService = inject(ConsignmentService);
   private router = inject(Router);
+  private dialog = inject(MatDialog);
 
-  consignmentCars = this.consignmentService.consignmentCars$;
-  filter = signal('');
-  showArchived = signal(false);
-  
-  // Modal state for selling consignment car
-  isSellModalOpen = signal(false);
-  carToSell = signal<ConsignmentCar | null>(null);
-  salePriceInput = signal<number>(0);
+  statusFilter = signal<string>('');
 
-  // Modal state for deleting consignment car
   isDeleteModalOpen = signal(false);
   itemToDeleteId = signal<number | null>(null);
 
-  filteredCars = computed(() => {
-    const showArchived = this.showArchived();
-    return this.consignmentCars().filter(car => !!car.isArchived === showArchived);
+  lastLoadedRows = signal<ConsignmentCar[]>([]);
+
+  readonly gridStateKey = 'consignmentCarsGridState';
+
+  statusOptions = ['Available', 'Reserved', 'Sold', 'Returned'];
+
+  dataSource = new CustomStore<ConsignmentCar>({
+    key: 'id',
+    load: (loadOptions) => {
+      const options: Record<string, unknown> = { ...loadOptions };
+
+      if (this.statusFilter()) {
+        const statusFilterExpr = ['status', '=', this.statusFilter()];
+        const existing = options['filter'];
+        options['filter'] = existing ? [existing, 'and', statusFilterExpr] : statusFilterExpr;
+      }
+
+      return this.consignmentService.loadDataGrid(options).toPromise()
+        .then(result => {
+          this.lastLoadedRows.set(result?.data ?? []);
+          return {
+            data: result?.data ?? [],
+            totalCount: result?.totalCount ?? 0,
+          };
+        });
+    },
   });
 
-  statusOptions = [
-    { value: 'Available', display: 'متاحة للبيع' },
-    { value: 'Sold', display: 'مباعة' },
-    { value: 'Returned to Owner', display: 'تم إعادتها' }
-  ];
+  summary = computed(() => {
+    const rows = this.lastLoadedRows();
+    return {
+      total: rows.length,
+      available: rows.filter(r => r.status === 'Available').length,
+      reserved: rows.filter(r => r.status === 'Reserved').length,
+      sold: rows.filter(r => r.status === 'Sold').length,
+      totalValue: rows.reduce((sum, r) => sum + (r.expectedSalePrice ?? 0), 0),
+    };
+  });
 
-  getCarDisplayValue = (rowData: ConsignmentCar) => `${rowData.make} ${rowData.model} (${rowData.year})`;
+  getConsignmentStatusClass = getConsignmentStatusClass;
 
-  getOwnerDisplayValue = (rowData: ConsignmentCar) => `${rowData.ownerName}\n${rowData.ownerPhone}`;
-
-  getStatusDisplayValue = (rowData: ConsignmentCar) => {
-    switch (rowData.status) {
-      case 'Available': return 'متاحة للبيع';
-      case 'Sold': return 'مباعة';
-      case 'Returned to Owner': return 'تم إعادتها';
-      default: return rowData.status;
-    }
-  };
-
-  editCar = (rowData: ConsignmentCar) => {
-    this.router.navigate(['/consignment-cars/edit', rowData.id]);
-  };
-
-  requestSell = (rowData: ConsignmentCar) => {
-    this.carToSell.set(rowData);
-    this.salePriceInput.set(rowData.agreedSalePrice ?? 0);
-    this.isSellModalOpen.set(true);
-  };
-
-  confirmSell(): void {
-    const car = this.carToSell();
-    const salePrice = this.salePriceInput();
-    if (car && salePrice > 0) {
-      this.consignmentService.sellConsignmentCar(car.id, salePrice);
-    }
-    this.closeSellModal();
+  newCar(): void {
+    this.router.navigate(['/consignment-cars/new']);
   }
 
-  closeSellModal(): void {
-    this.isSellModalOpen.set(false);
-    this.carToSell.set(null);
-    this.salePriceInput.set(0);
+  editCar(id: number): void {
+    this.router.navigate(['/consignment-cars/edit', id]);
   }
 
-  requestDelete = (rowData: ConsignmentCar) => {
-    this.itemToDeleteId.set(rowData.id);
+  openDetails(e: { data?: ConsignmentCar }): void {
+    if (e.data) {
+      this.editCar(e.data.id);
+    }
+  }
+
+  requestDelete(id: number): void {
+    this.itemToDeleteId.set(id);
     this.isDeleteModalOpen.set(true);
-  };
+  }
 
   confirmDelete(): void {
     const id = this.itemToDeleteId();
     if (id) {
-      // Fix: The deleteConsignmentCar method now exists in ConsignmentService.
-      this.consignmentService.deleteConsignmentCar(id);
+      this.consignmentService.delete(id).subscribe(() => {
+        this.refresh();
+      });
     }
     this.closeDeleteModal();
   }
@@ -125,32 +136,59 @@ export class ConsignmentListComponent {
     this.itemToDeleteId.set(null);
   }
 
-  archiveCar = (rowData: ConsignmentCar) => {
-    this.consignmentService.archiveConsignmentCar(rowData.id);
-  };
+  refresh(): void {
+    this.grid?.instance?.refresh();
+  }
 
-  unarchiveCar = (rowData: ConsignmentCar) => {
-    this.consignmentService.unarchiveConsignmentCar(rowData.id);
-  };
+  onStatusFilterChange(): void {
+    this.refresh();
+  }
 
-  // Button visibility functions for DevExtreme DataGrid
-  getSellButtonVisible = (rowData: ConsignmentCar) => {
-    return !this.showArchived() && rowData.status === 'Available';
-  };
+  resetFilters(): void {
+    this.statusFilter.set('');
+    this.grid?.instance?.clearFilter();
+    this.refresh();
+  }
 
-  getEditButtonVisible = (rowData: ConsignmentCar) => {
-    return !this.showArchived() && rowData.status === 'Available';
-  };
+  exportExcel(): void {
+    import('devextreme/excel_exporter').then(({ exportDataGrid }) => {
+      import('exceljs').then(async (ExcelJS) => {
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('ConsignmentCars');
+        exportDataGrid({
+          component: this.grid.instance,
+          worksheet,
+        }).then(() => {
+          workbook.xlsx.writeBuffer().then((buffer: BlobPart) => {
+            import('file-saver').then(({ saveAs }) => {
+              saveAs(new Blob([buffer], { type: 'application/octet-stream' }), 'ConsignmentCars.xlsx');
+            });
+          });
+        });
+      });
+    });
+  }
 
-  getDeleteButtonVisible = (rowData: ConsignmentCar) => {
-    return !this.showArchived() && rowData.status === 'Available';
-  };
+  exportPdf(): void {
+    Promise.all([import('jspdf'), import('devextreme/pdf_exporter')]).then(([jsPDFModule, { exportDataGrid }]) => {
+      const doc = new jsPDFModule.jsPDF();
+      exportDataGrid({
+        jsPDFDocument: doc,
+        component: this.grid.instance,
+      }).then(() => {
+        doc.save('ConsignmentCars.pdf');
+      });
+    });
+  }
 
-  getArchiveButtonVisible = (rowData: ConsignmentCar) => {
-    return !this.showArchived() && rowData.status !== 'Available';
-  };
+  printGrid(): void {
+    window.print();
+  }
 
-  getUnarchiveButtonVisible = (rowData: ConsignmentCar) => {
-    return this.showArchived();
-  };
+  openHistory(id: number): void {
+    this.dialog.open(AuditHistoryPanelComponent, {
+      data: { entityName: 'ConsignmentCar', entityId: id },
+      width: '600px',
+    });
+  }
 }

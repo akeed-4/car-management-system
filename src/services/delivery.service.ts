@@ -1,110 +1,57 @@
-import { Injectable, signal, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Delivery, ChecklistItem } from '../models/delivery.model';
-import { tap } from 'rxjs';
-import { InventoryService } from './inventory.service';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../environments/environment';
+import {
+  DeliverySchedule,
+  CreateDeliveryScheduleDto,
+  UpdateDeliveryScheduleDto,
+} from '../models/delivery.model';
+
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
+
+export interface DxLoadResult<T> {
+  data: T[];
+  totalCount: number;
+  groupCount?: number;
+  summary?: unknown[];
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class DeliveryService {
-  private apiUrl = 'http://localhost:5294/api/deliveries';
+  private http = inject(HttpClient);
+  private apiUrl = environment.origin + 'api/DeliverySchedules';
 
-  private inventoryService = inject(InventoryService);
-  private deliveries = signal<Delivery[]>([]);
-  public deliveries$ = this.deliveries.asReadonly();
-
-  constructor(private http: HttpClient) {
-    this.loadDeliveries();
+  loadDataGrid(loadOptions: Record<string, unknown>): Observable<DxLoadResult<DeliverySchedule>> {
+    let params = new HttpParams();
+    for (const key of Object.keys(loadOptions)) {
+      const value = loadOptions[key];
+      if (value !== undefined && value !== null) {
+        params = params.set(key, typeof value === 'object' ? JSON.stringify(value) : String(value));
+      }
+    }
+    return this.http.get<DxLoadResult<DeliverySchedule>>(`${this.apiUrl}/GetAll`, { params });
   }
 
-  /** Load all deliveries */
-  loadDeliveries() {
-    this.http.get<Delivery[]>(this.apiUrl)
-      .pipe(tap(data => this.deliveries.set(data)))
-      .subscribe();
+  getById(id: number): Observable<ApiResponse<DeliverySchedule>> {
+    return this.http.get<ApiResponse<DeliverySchedule>>(`${this.apiUrl}/${id}`);
   }
 
-  /** Get one delivery by ID (from local signal) */
-  getDeliveryById(id: number): Delivery | undefined {
-    return this.deliveries().find(d => d.id === id);
+  create(dto: CreateDeliveryScheduleDto): Observable<ApiResponse<DeliverySchedule>> {
+    return this.http.post<ApiResponse<DeliverySchedule>>(this.apiUrl, dto);
   }
 
-  /** Add new delivery */
-  addDelivery(delivery: Omit<Delivery, 'id'>) {
-    this.http.post<Delivery>(this.apiUrl, delivery)
-      .pipe(
-        tap(newDelivery => {
-          this.deliveries.update(list => [...list, newDelivery]);
-
-          // Update car location
-          this.inventoryService.updateCarLocation(newDelivery.carId, 'Out for Delivery Prep');
-        })
-      )
-      .subscribe();
+  update(id: number, dto: UpdateDeliveryScheduleDto): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${id}`, dto);
   }
 
-  /** Update existing delivery */
-  updateDelivery(delivery: Delivery) {
-    this.http.put<Delivery>(`${this.apiUrl}/${delivery.id}`, delivery)
-      .pipe(
-        tap(updated => {
-          this.deliveries.update(list =>
-            list.map(d => (d.id === updated.id ? updated : d))
-          );
-
-          // Update inventory based on status
-          if (updated.status === 'Completed' || updated.status === 'Canceled') {
-            this.inventoryService.updateCarLocation(updated.carId, 'In Showroom');
-          } else if (updated.status === 'In Progress') {
-            this.inventoryService.updateCarLocation(updated.carId, 'Out for Delivery');
-          }
-        })
-      )
-      .subscribe();
-  }
-
-  /** Update delivery checklist */
-  updateDeliveryChecklist(deliveryId: number, updatedChecklist: ChecklistItem[]) {
-    const url = `${this.apiUrl}/${deliveryId}/checklist`;
-
-    this.http.put<Delivery>(url, updatedChecklist)
-      .pipe(
-        tap(updated => {
-          this.deliveries.update(list =>
-            list.map(d => (d.id === updated.id ? updated : d))
-          );
-        })
-      )
-      .subscribe();
-  }
-
-  /** Mark delivery as completed */
-  completeDelivery(deliveryId: number) {
-    const url = `${this.apiUrl}/${deliveryId}/complete`;
-
-    this.http.post<Delivery>(url, {})
-      .pipe(
-        tap(updated => {
-          this.deliveries.update(list =>
-            list.map(d => (d.id === updated.id ? updated : d))
-          );
-
-          // Update car inventory
-          this.inventoryService.updateCarLocation(updated.carId, 'Sold');
-        })
-      )
-      .subscribe();
-  }
-
-  /** Delete delivery */
-  deleteDelivery(id: number) {
-    this.http.delete(`${this.apiUrl}/${id}`)
-      .pipe(
-        tap(() => {
-          this.deliveries.update(list => list.filter(d => d.id !== id));
-        })
-      )
-      .subscribe();
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

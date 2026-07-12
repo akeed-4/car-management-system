@@ -1,0 +1,73 @@
+<mat-dialog-content class="ai-panel">
+  <h2 class="modal-title">
+    <mat-icon>auto_awesome</mat-icon>
+    {{ 'REQUESTED_CARS.AI_PANEL.TITLE' | translate }}
+  </h2>
+
+  <section class="matches-section">
+    <h3>{{ 'REQUESTED_CARS.AI_PANEL.MATCHING_INVENTORY' | translate }}</h3>
+
+    @if (loadingMatches()) {
+      <div class="state-message">
+        <mat-spinner diameter="28"></mat-spinner>
+      </div>
+    } @else if (matchError()) {
+      <div class="state-message error">
+        <mat-icon>error_outline</mat-icon>
+        <p>{{ 'REQUESTED_CARS.AI_PANEL.MATCH_ERROR' | translate }}</p>
+      </div>
+    } @else if (matches().length === 0) {
+      <div class="state-message">
+        <mat-icon>search_off</mat-icon>
+        <p>{{ 'REQUESTED_CARS.AI_PANEL.NO_MATCHES' | translate }}</p>
+      </div>
+    } @else {
+      <div class="match-list">
+        @for (car of matches(); track car.id) {
+          <div class="match-card">
+            <mat-icon>directions_car</mat-icon>
+            <div class="match-info">
+              <div class="match-title">{{ car.make }} {{ car.model }} ({{ car.year }})</div>
+              <div class="match-sub">{{ car.exteriorColor }} · {{ car.vin }}</div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <section class="chat-section">
+    <h3>{{ 'REQUESTED_CARS.AI_PANEL.ASK_ASSISTANT' | translate }}</h3>
+
+    <div class="chat-messages">
+      @for (msg of messages(); track $index) {
+        <div class="chat-bubble" [class]="'role-' + msg.role">
+          {{ msg.text }}
+        </div>
+      }
+      @if (messages().length === 0) {
+        <div class="chat-empty">{{ 'REQUESTED_CARS.AI_PANEL.CHAT_EMPTY' | translate }}</div>
+      }
+    </div>
+
+    <div class="chat-input-row">
+      <mat-form-field appearance="outline" class="chat-input">
+        <input matInput [(ngModel)]="question" [placeholder]="'REQUESTED_CARS.AI_PANEL.QUESTION_PLACEHOLDER' | translate"
+               (keyup.enter)="askQuestion()" [disabled]="asking()">
+      </mat-form-field>
+      <button mat-mini-fab color="primary" (click)="askQuestion()" [disabled]="asking() || !question().trim()">
+        @if (asking()) {
+          <mat-spinner diameter="20" color="accent"></mat-spinner>
+        } @else {
+          <mat-icon>send</mat-icon>
+        }
+      </button>
+    </div>
+  </section>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-stroked-button (click)="close()">
+    {{ 'COMMON.CLOSE' | translate }}
+  </button>
+</mat-dialog-actions>

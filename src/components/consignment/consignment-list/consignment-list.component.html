@@ -1,104 +1,190 @@
-<mat-card>
-  <mat-toolbar color="primary">
-    <span>{{ 'CONSIGNMENT.LIST_TITLE' | translate }}</span>
-    <span class="spacer"></span>
-    <button mat-raised-button color="accent" routerLink="/consignment-cars/new">
+<div class="page-container">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="breadcrumb">
+      <span>{{ 'REQUESTED_CARS.BREADCRUMB_PARENT' | translate }}</span>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="current">{{ 'CONSIGNMENT.TITLE' | translate }}</span>
+    </div>
+    <div class="header-row">
+      <div>
+        <h1>{{ 'CONSIGNMENT.TITLE' | translate }}</h1>
+        <p class="subtitle">{{ 'CONSIGNMENT.SUBTITLE' | translate }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-cards">
+    <mat-card class="summary-card total">
+      <mat-icon>list_alt</mat-icon>
+      <div class="summary-info">
+        <div class="summary-value">{{ summary().total }}</div>
+        <div class="summary-label">{{ 'CONSIGNMENT.SUMMARY.TOTAL' | translate }}</div>
+      </div>
+    </mat-card>
+    <mat-card class="summary-card available">
+      <mat-icon>check_circle</mat-icon>
+      <div class="summary-info">
+        <div class="summary-value">{{ summary().available }}</div>
+        <div class="summary-label">{{ 'CONSIGNMENT.SUMMARY.AVAILABLE' | translate }}</div>
+      </div>
+    </mat-card>
+    <mat-card class="summary-card reserved">
+      <mat-icon>bookmark</mat-icon>
+      <div class="summary-info">
+        <div class="summary-value">{{ summary().reserved }}</div>
+        <div class="summary-label">{{ 'CONSIGNMENT.SUMMARY.RESERVED' | translate }}</div>
+      </div>
+    </mat-card>
+    <mat-card class="summary-card sold">
+      <mat-icon>sell</mat-icon>
+      <div class="summary-info">
+        <div class="summary-value">{{ summary().sold }}</div>
+        <div class="summary-label">{{ 'CONSIGNMENT.SUMMARY.SOLD' | translate }}</div>
+      </div>
+    </mat-card>
+    <mat-card class="summary-card value">
+      <mat-icon>payments</mat-icon>
+      <div class="summary-info">
+        <div class="summary-value">{{ summary().totalValue | number:'1.0-0' }}</div>
+        <div class="summary-label">{{ 'CONSIGNMENT.SUMMARY.TOTAL_VALUE' | translate }}</div>
+      </div>
+    </mat-card>
+  </div>
+
+  <!-- Toolbar -->
+  <mat-toolbar class="page-toolbar">
+    <button mat-flat-button color="primary" (click)="newCar()" *appHasPermission="'consignmentCar.create'">
       <mat-icon>add</mat-icon>
-      {{ 'CONSIGNMENT.ADD_NEW' | translate }}
+      {{ 'COMMON.NEW' | translate }}
+    </button>
+
+    <button mat-stroked-button (click)="refresh()">
+      <mat-icon>refresh</mat-icon>
+      {{ 'COMMON.REFRESH' | translate }}
+    </button>
+
+    <span class="toolbar-spacer"></span>
+
+    <mat-form-field appearance="outline" class="filter-select">
+      <mat-label>{{ 'CONSIGNMENT.STATUS' | translate }}</mat-label>
+      <mat-select [(ngModel)]="statusFilter" (selectionChange)="onStatusFilterChange()">
+        <mat-option value="">{{ 'COMMON.ALL' | translate }}</mat-option>
+        @for (s of statusOptions; track s) {
+          <mat-option [value]="s">{{ ('CONSIGNMENT.STATUS_' + s.toUpperCase()) | translate }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-icon-button (click)="resetFilters()" [matTooltip]="'COMMON.RESET_FILTER' | translate">
+      <mat-icon>filter_alt_off</mat-icon>
+    </button>
+
+    <button mat-icon-button [matMenuTriggerFor]="exportMenu" [matTooltip]="'COMMON.EXPORT' | translate" *appHasPermission="'consignmentCar.export'">
+      <mat-icon>file_download</mat-icon>
+    </button>
+    <mat-menu #exportMenu="matMenu">
+      <button mat-menu-item (click)="exportExcel()">
+        <mat-icon>description</mat-icon>
+        {{ 'COMMON.EXPORT_EXCEL' | translate }}
+      </button>
+      <button mat-menu-item (click)="exportPdf()">
+        <mat-icon>picture_as_pdf</mat-icon>
+        {{ 'COMMON.EXPORT_PDF' | translate }}
+      </button>
+    </mat-menu>
+
+    <button mat-icon-button (click)="printGrid()" [matTooltip]="'COMMON.PRINT' | translate" *appHasPermission="'consignmentCar.print'">
+      <mat-icon>print</mat-icon>
     </button>
   </mat-toolbar>
 
-  <mat-card-content>
-    <div class="controls">
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'CONSIGNMENT.SHOW_ARCHIVED' | translate }}</mat-label>
-        <mat-slide-toggle [(ngModel)]="showArchived"></mat-slide-toggle>
-      </mat-form-field>
-    </div>
-
+  <!-- DataGrid -->
+  <div class="grid-container">
     <dx-data-grid
-      [dataSource]="filteredCars()"
+      #dataGrid
+      id="consignmentCarsGrid"
+      [dataSource]="dataSource"
+      [remoteOperations]="true"
+      keyExpr="id"
       [showBorders]="true"
       [showRowLines]="true"
       [showColumnLines]="true"
       [rtlEnabled]="true"
+      [columnAutoWidth]="true"
       [allowColumnReordering]="true"
       [allowColumnResizing]="true"
-      [columnAutoWidth]="true"
-      [wordWrapEnabled]="true">
+      [wordWrapEnabled]="false"
+      [hoverStateEnabled]="true"
+      (onRowDblClick)="openDetails($event)">
 
-      <dxo-search-panel [visible]="true" placeholder="{{ 'CONSIGNMENT.SEARCH_PLACEHOLDER' | translate }}"></dxo-search-panel>
-      <dxo-paging [pageSize]="10"></dxo-paging>
-      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
-      <dxo-filter-row [visible]="true"></dxo-filter-row>
+      <dxo-load-panel [enabled]="true"></dxo-load-panel>
+      <dxo-search-panel [visible]="true" [width]="280"></dxo-search-panel>
       <dxo-header-filter [visible]="true"></dxo-header-filter>
+      <dxo-filter-row [visible]="true"></dxo-filter-row>
+      <dxo-grouping [autoExpandAll]="false" [contextMenuEnabled]="true"></dxo-grouping>
+      <dxo-group-panel [visible]="true"></dxo-group-panel>
+      <dxo-column-chooser [enabled]="true" mode="select"></dxo-column-chooser>
+      <dxo-column-fixing [enabled]="true"></dxo-column-fixing>
+      <dxo-state-storing [enabled]="true" type="localStorage" [storageKey]="gridStateKey"></dxo-state-storing>
+      <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
+      <dxo-paging [pageSize]="20"></dxo-paging>
+      <dxo-pager [visible]="true" [allowedPageSizes]="[10, 20, 50, 100]" [showPageSizeSelector]="true" [showInfo]="true" [showNavigationButtons]="true" displayMode="full"></dxo-pager>
+      <dxo-selection mode="multiple" showCheckBoxesMode="onClick"></dxo-selection>
+      <dxo-export [enabled]="false"></dxo-export>
 
-      <dxi-column dataField="make" caption="{{ 'CONSIGNMENT.COLUMNS.CAR' | translate }}" [calculateDisplayValue]="getCarDisplayValue"></dxi-column>
-      <dxi-column dataField="ownerName" caption="{{ 'CONSIGNMENT.COLUMNS.OWNER' | translate }}" [calculateDisplayValue]="getOwnerDisplayValue"></dxi-column>
-      <dxi-column dataField="agreedSalePrice" caption="{{ 'CONSIGNMENT.COLUMNS.AGREED_SALE_PRICE' | translate }}" dataType="number" format="'$#,##0'"></dxi-column>
-      <dxi-column dataField="commissionRate" caption="{{ 'CONSIGNMENT.COLUMNS.COMMISSION_RATE' | translate }}" dataType="number" format="'#,##0.00%'"></dxi-column>
-      <dxi-column dataField="status" caption="{{ 'CONSIGNMENT.COLUMNS.STATUS' | translate }}" [calculateDisplayValue]="getStatusDisplayValue">
-        <dxo-lookup [dataSource]="statusOptions"></dxo-lookup>
-      </dxi-column>
-      <dxi-column type="buttons" caption="{{ 'CONSIGNMENT.COLUMNS.ACTIONS' | translate }}" [width]="200">
-        <dxi-button
-          text="{{ 'CONSIGNMENT.ACTIONS.SELL' | translate }}"
-          [onClick]="requestSell"
-          icon="check"
-          hint="{{ 'CONSIGNMENT.ACTIONS.SELL' | translate }}"
-          [visible]="getSellButtonVisible">
-        </dxi-button>
-        <dxi-button
-          text="{{ 'CONSIGNMENT.ACTIONS.EDIT' | translate }}"
-          [onClick]="editCar"
-          icon="edit"
-          hint="{{ 'CONSIGNMENT.ACTIONS.EDIT' | translate }}"
-          [visible]="getEditButtonVisible">
-        </dxi-button>
-        <dxi-button
-          text="{{ 'CONSIGNMENT.ACTIONS.DELETE' | translate }}"
-          [onClick]="requestDelete"
-          icon="trash"
-          hint="{{ 'CONSIGNMENT.ACTIONS.DELETE' | translate }}"
-          [visible]="getDeleteButtonVisible">
-        </dxi-button>
-        <dxi-button
-          text="{{ 'CONSIGNMENT.ACTIONS.ARCHIVE' | translate }}"
-          [onClick]="archiveCar"
-          icon="archive"
-          hint="{{ 'CONSIGNMENT.ACTIONS.ARCHIVE' | translate }}"
-          [visible]="getArchiveButtonVisible">
-        </dxi-button>
-        <dxi-button
-          text="{{ 'CONSIGNMENT.ACTIONS.UNARCHIVE' | translate }}"
-          [onClick]="unarchiveCar"
-          icon="unarchive"
-          hint="{{ 'CONSIGNMENT.ACTIONS.UNARCHIVE' | translate }}"
-          [visible]="getUnarchiveButtonVisible">
-        </dxi-button>
-      </dxi-column>
+      <dxi-column dataField="consignmentNumber" [caption]="'CONSIGNMENT.CONSIGNMENT_NUMBER' | translate" [width]="130" [fixed]="true"></dxi-column>
+      <dxi-column dataField="supplierName" [caption]="'CONSIGNMENT.SUPPLIER' | translate"></dxi-column>
+      <dxi-column dataField="make" [caption]="'REQUESTED_CARS.BRAND' | translate"></dxi-column>
+      <dxi-column dataField="model" [caption]="'REQUESTED_CARS.MODEL' | translate"></dxi-column>
+      <dxi-column dataField="year" dataType="number" [caption]="'REQUESTED_CARS.YEAR' | translate" [width]="90" alignment="center"></dxi-column>
+      <dxi-column dataField="vin" [caption]="'CONSIGNMENT.VIN' | translate" [width]="150"></dxi-column>
+      <dxi-column dataField="engineNumber" [caption]="'CONSIGNMENT.ENGINE_NUMBER' | translate" [width]="140"></dxi-column>
+      <dxi-column dataField="arrivalDate" dataType="date" format="yyyy-MM-dd" [caption]="'CONSIGNMENT.ARRIVAL_DATE' | translate" [width]="120"></dxi-column>
+      <dxi-column dataField="expectedSalePrice" dataType="number" format="#,##0" [caption]="'CONSIGNMENT.EXPECTED_SALE_PRICE' | translate" [width]="140"></dxi-column>
+      <dxi-column dataField="currentCost" dataType="number" format="#,##0" [caption]="'CONSIGNMENT.CURRENT_COST' | translate" [width]="130"></dxi-column>
+      <dxi-column dataField="commissionRate" dataType="number" format="#,##0.##'%'" [caption]="'CONSIGNMENT.COMMISSION_RATE' | translate" [width]="120"></dxi-column>
+      <dxi-column dataField="location" [caption]="'CONSIGNMENT.LOCATION' | translate" [width]="120"></dxi-column>
+      <dxi-column dataField="daysInStock" dataType="number" [caption]="'CONSIGNMENT.DAYS_IN_STOCK' | translate" [width]="120" alignment="center"></dxi-column>
+
+      <dxi-column dataField="status" [caption]="'CONSIGNMENT.STATUS' | translate" [width]="130" cellTemplate="statusTemplate"></dxi-column>
+      <div *dxTemplate="let cell of 'statusTemplate'">
+        <span class="chip" [ngClass]="getConsignmentStatusClass(cell.value)">
+          {{ ('CONSIGNMENT.STATUS_' + cell.value?.toUpperCase()) | translate }}
+        </span>
+      </div>
+
+      <dxi-column dataField="notes" [caption]="'REQUESTED_CARS.NOTES' | translate" [visible]="false"></dxi-column>
+      <dxi-column dataField="createdAt" dataType="datetime" [caption]="'REQUESTED_CARS.CREATED_DATE' | translate" [visible]="false"></dxi-column>
+
+      <dxi-column type="buttons" [caption]="'COMMON.ACTIONS' | translate" [width]="120" [fixed]="true" fixedPosition="right" cellTemplate="actionsTemplate"></dxi-column>
+      <div *dxTemplate="let cell of 'actionsTemplate'">
+        <button mat-icon-button [matTooltip]="'COMMON.EDIT' | translate" (click)="editCar(cell.data.id)" *appHasPermission="'consignmentCar.edit'">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button [matTooltip]="'AUDIT_HISTORY.TITLE' | translate" (click)="openHistory(cell.data.id)" *appHasPermission="'consignmentCar.history'">
+          <mat-icon>history</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" [matTooltip]="'COMMON.DELETE' | translate" (click)="requestDelete(cell.data.id)" *appHasPermission="'consignmentCar.delete'">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+
+      <dxo-summary>
+        <dxi-total-item column="consignmentNumber" summaryType="count" [displayFormat]="'{0}'"></dxi-total-item>
+        <dxi-total-item column="expectedSalePrice" summaryType="sum" [valueFormat]="'#,##0'" displayFormat="{0}"></dxi-total-item>
+      </dxo-summary>
     </dx-data-grid>
-  </mat-card-content>
-</mat-card>
-
-<app-modal 
-  [isOpen]="isSellModalOpen()" 
-  title="{{ 'CONSIGNMENT.SELL_MODAL_TITLE' | translate }}"
-  message="{{ 'CONSIGNMENT.SELL_MODAL_MESSAGE' | translate }}"
-  (confirm)="confirmSell()"
-  (cancel)="closeSellModal()">
-  <div modal-body-content>
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'CONSIGNMENT.SELL_MODAL_PRICE_LABEL' | translate }}</mat-label>
-      <input matInput type="number" [(ngModel)]="salePriceInput" required min="0">
-    </mat-form-field>
   </div>
-</app-modal>
 
-<app-modal 
-  [isOpen]="isDeleteModalOpen()" 
-  title="{{ 'CONSIGNMENT.DELETE_MODAL_TITLE' | translate }}" 
-  message="{{ 'CONSIGNMENT.DELETE_MODAL_MESSAGE' | translate }}"
-  (confirm)="confirmDelete()" 
-  (cancel)="closeDeleteModal()">
-</app-modal>
+  <app-modal
+    [isOpen]="isDeleteModalOpen()"
+    [title]="'CONSIGNMENT.DELETE_CONFIRM_TITLE' | translate"
+    [message]="'CONSIGNMENT.DELETE_CONFIRM_MESSAGE' | translate"
+    (confirm)="confirmDelete()"
+    (cancel)="closeDeleteModal()">
+  </app-modal>
+
+</div>

@@ -341,6 +341,8 @@ export const APP_ROUTES: Routes = [
   { path: 'maintenance/new', component: ServiceOrderFormComponent },
   { path: 'maintenance/edit/:id', component: ServiceOrderFormComponent },
   { path: 'deliveries', component: DeliveryScheduleComponent },
+  { path: 'deliveries/new', component: DeliveryFormComponent },
+  { path: 'deliveries/edit/:id', component: DeliveryFormComponent },
   { path: 'deliveries/schedule/:invoiceId', component: DeliveryFormComponent },
   { path: 'approvals/workflows', component: ApprovalWorkflowListComponent },
   { path: 'approvals/workflows/new', component: ApprovalWorkflowFormComponent },

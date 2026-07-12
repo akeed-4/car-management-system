@@ -1,66 +1,86 @@
-
-export type ConsignmentCarStatus = 'Available' | 'Sold' | 'Returned to Owner';
+export type ConsignmentCarStatus = 'Available' | 'Reserved' | 'Sold' | 'Returned';
 
 export interface ConsignmentCar {
   id: number;
-  vin: string;
-  plateNumber: string;
+  consignmentNumber: string;
+
+  supplierId: number;
+  supplierName: string;
+  supplierPhone: string;
+
   make: string;
   model: string;
-  year: number;
-  carType?: string;
-  transmissionType?: 'Private' | 'Public' | 'Taxi';
-  chassisNumber?: string;
-  exteriorColor: string;
-  mileage: number;
-  ownerName: string;
-  ownerIdNumber?: string;
-  ownerPhone: string;
-  authorizedSellerName?: string;
-  authorizedSellerIdNumber?: string;
-  authorizationDocumentNumber?: string;
-  authorizationDocumentDate?: string;
-  authorizationDocumentAttachment?: string;
-  documentImages?: string[];
-  agreedSalePrice: number; // Price agreed with owner
-  commissionRate: number; // e.g., 0.05 for 5%
-  status: ConsignmentCarStatus;
-  dateReceived: string; // YYYY-MM-DD
-  dateSold?: string; // YYYY-MM-DD
-  salePrice?: number; // Actual sale price
+  year?: number;
+  exteriorColor?: string;
+  vin: string;
+  engineNumber?: string;
+  plateNumber?: string;
+  mileage?: number;
+
+  arrivalDate: string;
+  expectedSalePrice: number;
+  currentCost: number;
+  commissionRate: number;
   commissionAmount?: number;
-  ownerPayout?: number;
 
-  // Sales features
-  isForSale?: boolean; // Flag to indicate if this is for sale (not just consignment)
-  exhibitionFee?: number; // Fee for displaying the car
-  buyerName?: string;
-  buyerIdNumber?: string;
-  buyerPhone?: string;
+  status: ConsignmentCarStatus;
+  location?: string;
 
-  // Sale Options
-  saleOptions?: {
-    net: boolean;
-    withInsurance: boolean;
-    withInspection: boolean;
-    withDelivery: boolean;
-    withFollowUp: boolean;
-  };
-
-  // Calculated prices based on options
-  insuranceCost?: number;
-  inspectionCost?: number;
-  deliveryCost?: number;
-  followUpCost?: number;
-  totalSalePrice?: number; // Final price including all options
-
-  // Payment details
-  carPricePaid?: boolean;
-  exhibitionFeePaid?: boolean;
-  paymentDate?: string;
-  paymentMethod?: string;
-  paymentReference?: string;
+  soldDate?: string | null;
+  actualSalePrice?: number | null;
 
   notes?: string;
-  isArchived?: boolean;
+
+  companyId?: number | null;
+  branchId?: number | null;
+
+  daysInStock: number;
+
+  createdBy: number;
+  createdAt: string;
+  updatedAt?: string | null;
+}
+
+export interface CreateConsignmentCarDto {
+  supplierId: number;
+  make: string;
+  model: string;
+  year?: number;
+  exteriorColor?: string;
+  vin: string;
+  engineNumber?: string;
+  plateNumber?: string;
+  mileage?: number;
+  arrivalDate: string;
+  expectedSalePrice: number;
+  currentCost: number;
+  commissionRate: number;
+  location?: string;
+  notes?: string;
+  companyId?: number | null;
+  branchId?: number | null;
+  createdBy: number;
+}
+
+export interface UpdateConsignmentCarDto {
+  supplierId?: number;
+  make?: string;
+  model?: string;
+  year?: number;
+  exteriorColor?: string;
+  vin?: string;
+  engineNumber?: string;
+  plateNumber?: string;
+  mileage?: number;
+  arrivalDate?: string;
+  expectedSalePrice?: number;
+  currentCost?: number;
+  commissionRate?: number;
+  status?: ConsignmentCarStatus;
+  location?: string;
+  soldDate?: string | null;
+  actualSalePrice?: number | null;
+  notes?: string;
+  companyId?: number | null;
+  branchId?: number | null;
 }

@@ -1,0 +1,78 @@
+<mat-dialog-content class="customer-lookup-modal">
+  <h2 class="modal-title">{{ 'CUSTOMER_LOOKUP.TITLE' | translate }}</h2>
+
+  <div class="filter-section" [formGroup]="filterForm">
+    <div class="filter-grid">
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>{{ 'CUSTOMER_LOOKUP.SEARCH_NAME' | translate }}</mat-label>
+        <input matInput formControlName="nameSearch" [placeholder]="'CUSTOMER_LOOKUP.NAME_PLACEHOLDER' | translate">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>{{ 'CUSTOMER_LOOKUP.SEARCH_PHONE' | translate }}</mat-label>
+        <input matInput formControlName="phoneSearch" [placeholder]="'CUSTOMER_LOOKUP.PHONE_PLACEHOLDER' | translate">
+      </mat-form-field>
+
+      <button mat-stroked-button color="primary" type="button" (click)="resetFilters()" class="reset-btn">
+        <mat-icon>clear</mat-icon>
+        {{ 'COMMON.RESET' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <div class="grid-section">
+    @if (filteredCustomers().length > 0) {
+      <dx-data-grid
+        [dataSource]="filteredCustomers()"
+        [showBorders]="true"
+        [showRowLines]="true"
+        [showColumnLines]="true"
+        [rtlEnabled]="true"
+        [allowColumnReordering]="true"
+        [allowColumnResizing]="true"
+        [columnAutoWidth]="true"
+        [wordWrapEnabled]="true"
+        [selection]="{ mode: 'single' }"
+        (onSelectionChanged)="onCustomerSelect($event.selectedRowsData?.[0])">
+
+        <dxi-column dataField="name" caption="{{ 'CUSTOMER_LOOKUP.NAME' | translate }}"></dxi-column>
+        <dxi-column dataField="phone" caption="{{ 'CUSTOMER_LOOKUP.PHONE' | translate }}" width="140"></dxi-column>
+        <dxi-column dataField="nationalId" caption="{{ 'CUSTOMER_LOOKUP.NATIONAL_ID' | translate }}" width="140"></dxi-column>
+        <dxi-column dataField="city" caption="{{ 'CUSTOMER_LOOKUP.CITY' | translate }}"></dxi-column>
+        <dxi-column dataField="email" caption="{{ 'CUSTOMER_LOOKUP.EMAIL' | translate }}"></dxi-column>
+
+      </dx-data-grid>
+    } @else {
+      <div class="no-customers-message">
+        <mat-icon class="empty-icon">person_search</mat-icon>
+        <p>{{ 'CUSTOMER_LOOKUP.NO_CUSTOMERS' | translate }}</p>
+      </div>
+    }
+  </div>
+
+  @if (selectedCustomer(); as customer) {
+    <div class="selected-customer-summary">
+      <h3>{{ 'CUSTOMER_LOOKUP.SELECTED_CUSTOMER' | translate }}</h3>
+      <div class="customer-details">
+        <div class="detail-row">
+          <span class="label">{{ 'CUSTOMER_LOOKUP.NAME' | translate }}:</span>
+          <span class="value">{{ customer.name }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">{{ 'CUSTOMER_LOOKUP.PHONE' | translate }}:</span>
+          <span class="value">{{ customer.phone }}</span>
+        </div>
+      </div>
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-stroked-button (click)="cancel()">
+    {{ 'COMMON.CANCEL' | translate }}
+  </button>
+  <button mat-raised-button color="primary" (click)="confirmSelection()" [disabled]="!selectedCustomer()">
+    <mat-icon>check</mat-icon>
+    {{ 'CUSTOMER_LOOKUP.SELECT_CUSTOMER' | translate }}
+  </button>
+</mat-dialog-actions>

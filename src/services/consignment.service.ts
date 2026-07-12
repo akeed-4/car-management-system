@@ -1,101 +1,78 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../environments/environment';
-import { ConsignmentCar } from '../models/consignment-car.model';
-import { HttpClient } from '@angular/common/http';
-import { catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
+import {
+  ConsignmentCar,
+  CreateConsignmentCarDto,
+  UpdateConsignmentCarDto,
+} from '../models/consignment-car.model';
+
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
+
+export interface DxLoadResult<T> {
+  data: T[];
+  totalCount: number;
+  groupCount?: number;
+  summary?: unknown[];
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class ConsignmentService {
-  private apiUrl = `${environment.origin}/api/consignments`;
-
-  constructor(private http: HttpClient) {}
+  private http = inject(HttpClient);
+  private apiUrl = environment.origin + 'api/ConsignmentCars';
 
   private consignmentCars = signal<ConsignmentCar[]>([]);
   public consignmentCars$ = this.consignmentCars.asReadonly();
 
-  // ------- Get All --------------------------------------------------------
-  loadAll() {
-    this.http.get<ConsignmentCar[]>(this.apiUrl).pipe(
-      catchError(() => of([]))
-    ).subscribe(result => {
-      this.consignmentCars.set(result);
+  constructor() {
+    this.loadAll();
+  }
+
+  /** Loads the full unpaged list into the consignmentCars$ signal, for dashboard/report consumers. */
+  loadAll(): void {
+    this.loadDataGrid({ take: 10000 }).subscribe({
+      next: (result) => this.consignmentCars.set(result.data),
+      error: () => this.consignmentCars.set([]),
     });
   }
 
-  // ------- Get By ID ------------------------------------------------------
-  getById(id: number) {
-    return this.http.get<ConsignmentCar>(`${this.apiUrl}/${id}`);
-  }
-
-  // ------- Create ---------------------------------------------------------
-  addConsignmentCar(car: Omit<ConsignmentCar, 'id'>) {
-    this.http.post<ConsignmentCar>(this.apiUrl, car).pipe(
-      catchError(() => of(null))
-    ).subscribe(result => {
-      if (result) {
-        this.consignmentCars.update(list => [...list, result]);
+  loadDataGrid(loadOptions: Record<string, unknown>): Observable<DxLoadResult<ConsignmentCar>> {
+    let params = new HttpParams();
+    for (const key of Object.keys(loadOptions)) {
+      const value = loadOptions[key];
+      if (value !== undefined && value !== null) {
+        params = params.set(key, typeof value === 'object' ? JSON.stringify(value) : String(value));
       }
-    });
+    }
+    return this.http.get<DxLoadResult<ConsignmentCar>>(`${this.apiUrl}/GetAll`, { params });
   }
 
-  // ------- Update ---------------------------------------------------------
-  updateConsignmentCar(updatedCar: ConsignmentCar) {
-    const url = `${this.apiUrl}/${updatedCar.id}`;
-    this.http.put<ConsignmentCar>(url, updatedCar).pipe(
-      catchError(() => of(null))
-    ).subscribe(result => {
-      if (result) {
-        this.consignmentCars.update(list =>
-          list.map(c => (c.id === result.id ? result : c))
-        );
-      }
-    });
+  getById(id: number): Observable<ApiResponse<ConsignmentCar>> {
+    return this.http.get<ApiResponse<ConsignmentCar>>(`${this.apiUrl}/${id}`);
   }
 
-  // ------- Sell Car -------------------------------------------------------
-  sellConsignmentCar(carId: number, salePrice: number) {
-    const url = `${this.apiUrl}/${carId}/sell`;
-    this.http.post<ConsignmentCar>(url, { salePrice }).pipe(
-      catchError(() => of(null))
-    ).subscribe(result => {
-      if (result) {
-        this.consignmentCars.update(list =>
-          list.map(c => (c.id === result.id ? result : c))
-        );
-      }
-    });
+  create(dto: CreateConsignmentCarDto): Observable<ApiResponse<ConsignmentCar>> {
+    return this.http.post<ApiResponse<ConsignmentCar>>(this.apiUrl, dto).pipe(
+      tap(() => this.loadAll())
+    );
   }
 
-  // ------- Delete ---------------------------------------------------------
-  deleteConsignmentCar(id: number) {
-    this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
-      catchError(() => of(null))
-    ).subscribe(() => {
-      this.consignmentCars.update(list => list.filter(c => c.id !== id));
-    });
+  update(id: number, dto: UpdateConsignmentCarDto): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${id}`, dto).pipe(
+      tap(() => this.loadAll())
+    );
   }
 
-  // ------- Archive --------------------------------------------------------
-  archiveConsignmentCar(id: number) {
-    this.http.post(`${this.apiUrl}/${id}/archive`, {}).pipe(
-      catchError(() => of(null))
-    ).subscribe(() => {
-      this.consignmentCars.update(list =>
-        list.map(c => c.id === id ? { ...c, isArchived: true } : c)
-      );
-    });
-  }
-
-  unarchiveConsignmentCar(id: number) {
-    this.http.post(`${this.apiUrl}/${id}/unarchive`, {}).pipe(
-      catchError(() => of(null))
-    ).subscribe(() => {
-      this.consignmentCars.update(list =>
-        list.map(c => c.id === id ? { ...c, isArchived: false } : c)
-      );
-    });
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+      tap(() => this.loadAll())
+    );
   }
 }

@@ -1,56 +1,47 @@
-export type DailyEntryType = 'maintenance' | 'ownership_transfer' | 'insurance' | 'periodic_inspection';
+export type DailyEntryType = 'Receiving' | 'Delivery' | 'Transfer' | 'Return' | 'Inspection' | 'Maintenance';
+export type DailyEntryStatus = 'Pending' | 'Completed' | 'Cancelled';
 
-export interface BaseDailyEntry {
+export interface DailyEntry {
   id: number;
-  carId: number;
+  referenceNumber: string;
   entryType: DailyEntryType;
+
+  carId: number;
+  carDescription: string;
+  carVin?: string;
+
+  storeId?: number | null;
+  storeName?: string | null;
+
+  employeeId: number;
+  employeeName: string;
+
   entryDate: string;
+  status: DailyEntryStatus;
+  remarks?: string;
+
+  createdBy: number;
   createdAt: string;
-  updatedAt: string;
-  notes?: string;
+  updatedAt?: string | null;
 }
 
-export interface MaintenanceEntry extends BaseDailyEntry {
-  entryType: 'maintenance';
-  maintenanceType: string;
-  cost: number;
-  performedBy: string;
-  nextMaintenanceDate?: string;
-  partsReplaced?: string[];
-  mileage?: number;
+export interface CreateDailyEntryDto {
+  entryType: DailyEntryType;
+  carId: number;
+  storeId?: number | null;
+  employeeId: number;
+  entryDate: string;
+  status: DailyEntryStatus;
+  remarks?: string;
+  createdBy: number;
 }
 
-export interface OwnershipTransferEntry extends BaseDailyEntry {
-  entryType: 'ownership_transfer';
-  previousOwnerName: string;
-  previousOwnerId: string;
-  newOwnerName: string;
-  newOwnerId: string;
-  transferAmount: number;
-  transferDocumentNumber: string;
-  transferDate: string;
+export interface UpdateDailyEntryDto {
+  entryType?: DailyEntryType;
+  carId?: number;
+  storeId?: number | null;
+  employeeId?: number;
+  entryDate?: string;
+  status?: DailyEntryStatus;
+  remarks?: string;
 }
-
-export interface InsuranceEntry extends BaseDailyEntry {
-  entryType: 'insurance';
-  insuranceCompany: string;
-  policyNumber: string;
-  coverageAmount: number;
-  premiumAmount: number;
-  startDate: string;
-  endDate: string;
-  insuranceType: 'comprehensive' | 'third_party' | 'personal_accident';
-}
-
-export interface PeriodicInspectionEntry extends BaseDailyEntry {
-  entryType: 'periodic_inspection';
-  inspectionCenter: string;
-  inspectionResult: 'passed' | 'failed' | 'conditional';
-  inspectionDate: string;
-  expiryDate: string;
-  inspectorName: string;
-  violations?: string[];
-  recommendations?: string[];
-}
-
-export type DailyEntry = MaintenanceEntry | OwnershipTransferEntry | InsuranceEntry | PeriodicInspectionEntry;

@@ -1,91 +1,132 @@
-
+<mat-toolbar color="primary" class="toolbar">
+  <mat-toolbar-row>
+    <span>{{ editMode() ? ('DELIVERY_SCHEDULE.FORM.EDIT_TITLE' | translate) : ('DELIVERY_SCHEDULE.FORM.NEW_TITLE' | translate) }}</span>
+    <span class="spacer"></span>
+    @if (editMode()) {
+      <button mat-icon-button (click)="openHistory()" [matTooltip]="'AUDIT_HISTORY.TITLE' | translate">
+        <mat-icon>history</mat-icon>
+      </button>
+    }
+    <button mat-icon-button routerLink="/deliveries" [matTooltip]="'REQUESTED_CARS.FORM.BACK_TO_LIST' | translate">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+  </mat-toolbar-row>
+</mat-toolbar>
 
 <div class="container">
-  <div class="page-header">
-    <h2>{{ pageTitle() }}</h2>
-    <a routerLink="/deliveries" class="back-link">
-      <mat-icon>arrow_back</mat-icon>
-      <span>{{ 'DELIVERY.BACK_TO_DELIVERIES' | translate }}</span>
-    </a>
-  </div>
+  <mat-card class="form-card">
+    <mat-card-content>
+      <form [formGroup]="deliveryForm" (ngSubmit)="saveDelivery()">
 
-  <div class="card">
-    <form [formGroup]="deliveryForm" (ngSubmit)="saveDelivery()">
-      
-      <!-- Invoice & Customer Summary -->
-      @if (selectedInvoice(); as inv) {
-        <section class="form-section summary-box">
-            <h3 class="form-section-title">{{ 'DELIVERY.INVOICE_CUSTOMER_DETAILS' | translate }}</h3>
-            <div class="summary-grid">
-                <div>
-                    <p class="summary-label">{{ 'DELIVERY.INVOICE_NUMBER' | translate }}</p>
-                    <p class="summary-value font-mono">{{ inv.invoiceNumber }}</p>
-                </div>
-                <div>
-                    <p class="summary-label">{{ 'DELIVERY.CUSTOMER' | translate }}</p>
-                    <p class="summary-value">{{ inv.customerName }}</p>
-                </div>
-                <div>
-                    <p class="summary-label">{{ 'DELIVERY.CAR' | translate }}</p>
-                    <p class="summary-value">{{ inv.items[0]?.carDescription || ('COMMON.UNDEFINED' | translate) }}</p>
-                </div>
-                <div>
-                    <p class="summary-label">{{ 'DELIVERY.SALE_DATE' | translate }}</p>
-                    <p class="summary-value">{{ inv.invoiceDate | date:'yyyy-MM-dd' }}</p>
-                </div>
+        <div class="form-section">
+          <h3 class="section-title">{{ 'DELIVERY_SCHEDULE.FORM.CUSTOMER_AND_VEHICLE' | translate }}</h3>
+          <div class="form-grid cols-2">
+            <div class="lookup-field">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'REQUESTED_CARS.CUSTOMER' | translate }}</mat-label>
+                <input matInput [value]="selectedCustomer()?.name || ''" readonly>
+              </mat-form-field>
+              <button mat-stroked-button type="button" color="primary" (click)="openCustomerLookup()">
+                <mat-icon>search</mat-icon>
+                {{ 'CUSTOMER_LOOKUP.TITLE' | translate }}
+              </button>
             </div>
-        </section>
-      }
 
-      <!-- Scheduling Details -->
-      <section class="form-section">
-        <h3 class="form-section-title">{{ 'DELIVERY.SCHEDULING_DETAILS' | translate }}</h3>
-        <ng-container *ngIf="layout$ | async as layout">
-          <mat-grid-list [cols]="layout.columns" rowHeight="100px" gutterSize="16px">
-            <mat-grid-tile [colspan]="1" [rowspan]="1">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'DELIVERY.DELIVERY_DATE' | translate }}</mat-label>
-                <input matInput type="date" formControlName="scheduledDate" required>
-              </mat-form-field>
-            </mat-grid-tile>
-            <mat-grid-tile [colspan]="1" [rowspan]="1">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'DELIVERY.DELIVERY_TIME' | translate }}</mat-label>
-                <input matInput type="time" formControlName="scheduledTime" required>
-              </mat-form-field>
-            </mat-grid-tile>
-            <mat-grid-tile [colspan]="1" [rowspan]="1">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'DELIVERY.RESPONSIBLE_EMPLOYEE' | translate }}</mat-label>
-                <mat-select formControlName="deliveryAgentId" required>
-                  <mat-option [value]="null" disabled>{{ 'DELIVERY.SELECT_EMPLOYEE' | translate }}</mat-option>
-                  @for(salesperson of salespeople(); track salesperson.id) {
-                    <mat-option [value]="salesperson.id">{{ salesperson.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-            </mat-grid-tile>
-          </mat-grid-list>
-        </ng-container>
-      </section>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'REQUESTED_CARS.CUSTOMER_PHONE' | translate }}</mat-label>
+              <input matInput type="tel" [value]="selectedCustomer()?.phone || ''" readonly>
+            </mat-form-field>
 
-      <!-- Notes -->
-      <section class="form-section">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'DELIVERY.NOTES_OPTIONAL' | translate }}</mat-label>
-          <textarea matInput formControlName="notes" rows="3" [placeholder]="'DELIVERY.NOTES_PLACEHOLDER' | translate"></textarea>
-        </mat-form-field>
-      </section>
+            <div class="lookup-field">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'DAILY_ENTRIES.VEHICLE' | translate }}</mat-label>
+                <input matInput [value]="(selectedCar()?.make || '') + ' ' + (selectedCar()?.model || '')" readonly>
+              </mat-form-field>
+              <button mat-stroked-button type="button" color="primary" (click)="openVehicleLookup()">
+                <mat-icon>search</mat-icon>
+                {{ 'DAILY_ENTRIES.FORM.SELECT_VEHICLE' | translate }}
+              </button>
+            </div>
 
-      <!-- Form Actions -->
-      <div class="form-actions">
-        <a routerLink="/deliveries" mat-button>{{ 'COMMON.CANCEL' | translate }}</a>
-        <button mat-raised-button color="primary" type="submit" [disabled]="deliveryForm.invalid">
-          <mat-icon>schedule</mat-icon>
-          {{ 'DELIVERY.SCHEDULE_DELIVERY' | translate }}
-        </button>
-      </div>
-    </form>
-  </div>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'CONSIGNMENT.VIN' | translate }}</mat-label>
+              <input matInput [value]="selectedCar()?.vin || ''" readonly>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3 class="section-title">{{ 'DELIVERY_SCHEDULE.FORM.SCHEDULE_DETAILS' | translate }}</h3>
+          <div class="form-grid cols-3">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'DELIVERY_SCHEDULE.DELIVERY_DATE' | translate }}</mat-label>
+              <input matInput type="date" formControlName="deliveryDate">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'DELIVERY_SCHEDULE.DELIVERY_TIME' | translate }}</mat-label>
+              <input matInput type="time" formControlName="deliveryTime">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'DELIVERY_SCHEDULE.STATUS' | translate }}</mat-label>
+              <mat-select formControlName="status">
+                <mat-option *ngFor="let s of statusOptions" [value]="s">
+                  {{ ('DELIVERY_SCHEDULE.STATUS_' + s.toUpperCase()) | translate }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'DELIVERY_SCHEDULE.DRIVER' | translate }}</mat-label>
+              <mat-select formControlName="driverId">
+                <mat-option [value]="null">{{ 'COMMON.NONE' | translate }}</mat-option>
+                <mat-option *ngFor="let u of drivers(); trackBy: trackByUser" [value]="u.id">
+                  {{ u.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'DELIVERY_SCHEDULE.BRANCH' | translate }}</mat-label>
+              <mat-select formControlName="branchId">
+                <mat-option [value]="null">{{ 'COMMON.NONE' | translate }}</mat-option>
+                <mat-option *ngFor="let b of branches(); trackBy: trackByBranch" [value]="b.id">
+                  {{ b.nameEn }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3 class="section-title">{{ 'DELIVERY_SCHEDULE.FORM.READINESS_CHECKLIST' | translate }}</h3>
+          <div class="checklist-grid">
+            <mat-checkbox formControlName="documentsReady">{{ 'DELIVERY_SCHEDULE.DOCUMENTS_READY' | translate }}</mat-checkbox>
+            <mat-checkbox formControlName="insuranceReady">{{ 'DELIVERY_SCHEDULE.INSURANCE_READY' | translate }}</mat-checkbox>
+            <mat-checkbox formControlName="registrationReady">{{ 'DELIVERY_SCHEDULE.REGISTRATION_READY' | translate }}</mat-checkbox>
+            <mat-checkbox formControlName="customerConfirmed">{{ 'DELIVERY_SCHEDULE.CUSTOMER_CONFIRMED' | translate }}</mat-checkbox>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-grid cols-1">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'REQUESTED_CARS.NOTES' | translate }}</mat-label>
+              <textarea matInput formControlName="notes" rows="3"></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button mat-button routerLink="/deliveries" type="button">
+            {{ 'REQUESTED_CARS.FORM.CANCEL' | translate }}
+          </button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="deliveryForm.invalid || saving()">
+            {{ editMode() ? ('REQUESTED_CARS.FORM.SAVE_CHANGES' | translate) : ('DELIVERY_SCHEDULE.FORM.SAVE_DELIVERY' | translate) }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
 </div>
-    
