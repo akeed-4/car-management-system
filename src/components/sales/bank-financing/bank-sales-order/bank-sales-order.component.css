@@ -60,6 +60,14 @@
   border: 1px dashed var(--color-gray-300, #d1d5db);
 }
 
+.approval-lookup-card {
+  margin-bottom: var(--space-4, 1rem);
+}
+
+.full-width {
+  width: 100%;
+}
+
 .invoice-workspace {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 300px;

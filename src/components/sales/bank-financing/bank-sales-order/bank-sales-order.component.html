@@ -9,8 +9,37 @@
     </a>
   </div>
 
+  <mat-card class="doc-card approval-lookup-card">
+    <section class="form-section">
+      <h3 class="form-section-title">{{ 'BANK_FINANCING.OPEN_EXISTING_APPROVAL' | translate }}</h3>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ 'BANK_FINANCING.SEARCH_APPROVALS' | translate }}</mat-label>
+        <mat-select [formControl]="approvalLookupControl">
+          <mat-option>
+            <ngx-mat-select-search [formControl]="approvalLookupFilterCtrl"
+              placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
+              noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
+            </ngx-mat-select-search>
+          </mat-option>
+          <mat-option [value]="null">{{ 'BANK_FINANCING.START_NEW_APPROVAL' | translate }}</mat-option>
+          <mat-option *ngFor="let a of filteredApprovalOptions()" [value]="a.id">
+            {{ a.quotationNumber }} — {{ a.endUserName }} — {{ a.bankName }}
+            <ng-container *ngIf="a.approvedAt">— {{ a.approvedAt | date:'mediumDate' }}</ng-container>
+            — {{ ('BANK_FINANCING.STATUS_' + (a.status || '').toUpperCase()) | translate }}
+          </mat-option>
+        </mat-select>
+        <mat-hint *ngIf="!approvalOptionsLoading() && approvalOptions().length === 0">{{ 'BANK_FINANCING.NO_APPROVALS' | translate }}</mat-hint>
+        <mat-spinner *ngIf="approvalOptionsLoading()" matSuffix diameter="18"></mat-spinner>
+      </mat-form-field>
+    </section>
+  </mat-card>
+
   <div *ngIf="!approval() && !loading()" class="empty-state">
     {{ 'BANK_FINANCING.APPROVAL_REQUIRED' | translate }}
+  </div>
+
+  <div *ngIf="loading()" class="empty-state">
+    {{ 'BANK_FINANCING.LOADING_APPROVAL' | translate }}
   </div>
 
   <div class="invoice-workspace" *ngIf="approval() as a">

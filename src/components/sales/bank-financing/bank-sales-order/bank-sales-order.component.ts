@@ -1,11 +1,17 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { BankFinancingService } from '../../../../services/bank-financing.service';
@@ -27,12 +33,17 @@ import { BankQuotation } from '../../../../models/bank-financing/bank-quotation.
   imports: [
     CommonModule,
     RouterLink,
+    ReactiveFormsModule,
     CurrencyPipe,
     MatButtonModule,
     MatCardModule,
     MatIconModule,
     MatGridListModule,
     MatChipsModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatProgressSpinnerModule,
+    NgxMatSelectSearchModule,
     DxDataGridModule,
     TranslateModule
   ],
@@ -52,6 +63,26 @@ export class BankSalesOrderComponent implements OnInit {
   approval = signal<BankQuotation | null>(null);
   loading = signal(false);
 
+  // ==================== Approval lookup ====================
+  approvalOptions = signal<BankQuotation[]>([]);
+  approvalOptionsLoading = signal(false);
+  approvalLookupControl = new FormControl<number | null>(null);
+  approvalLookupFilterCtrl = new FormControl('');
+  private approvalLookupFilterSignal = toSignal(this.approvalLookupFilterCtrl.valueChanges, { initialValue: '' });
+
+  filteredApprovalOptions = computed(() => {
+    const filter = (this.approvalLookupFilterSignal() || '').toLowerCase().trim();
+    const options = this.approvalOptions();
+    if (!filter) {
+      return options;
+    }
+    return options.filter(a =>
+      a.quotationNumber?.toLowerCase().includes(filter) ||
+      a.endUserName?.toLowerCase().includes(filter) ||
+      a.bankName?.toLowerCase().includes(filter)
+    );
+  });
+
   vehicleLines = computed(() => {
     const approval = this.approval();
     return approval ? [{ carDescription: approval.carDescription, vin: approval.vin, vehiclePrice: approval.vehiclePrice }] : [];
@@ -62,10 +93,35 @@ export class BankSalesOrderComponent implements OnInit {
   netFinanced = computed(() => Math.max(this.financedAmount() - this.downPayment(), 0));
 
   ngOnInit(): void {
+    this.loadApprovalOptions();
+
+    this.approvalLookupControl.valueChanges.subscribe(id => {
+      if (id) {
+        this.loadApproval(id);
+      } else {
+        this.approval.set(null);
+      }
+    });
+
     const approvalId = Number(this.route.snapshot.paramMap.get('id')) || Number(this.route.snapshot.queryParamMap.get('approvalId'));
     if (approvalId) {
+      this.approvalLookupControl.setValue(approvalId, { emitEvent: false });
       this.loadApproval(approvalId);
     }
+  }
+
+  private loadApprovalOptions(): void {
+    this.approvalOptionsLoading.set(true);
+    this.bankFinancingService.getAllBankQuotations().subscribe({
+      next: approvals => {
+        this.approvalOptions.set(approvals);
+        this.approvalOptionsLoading.set(false);
+      },
+      error: () => {
+        this.approvalOptionsLoading.set(false);
+        this.notificationService.showError('BANK_FINANCING.APPROVALS_LOAD_FAILED');
+      }
+    });
   }
 
   private loadApproval(id: number): void {
@@ -77,9 +133,14 @@ export class BankSalesOrderComponent implements OnInit {
       },
       error: () => {
         this.loading.set(false);
+        this.approval.set(null);
         this.notificationService.showError('BANK_FINANCING.APPROVAL_LOAD_FAILED');
       }
     });
+  }
+
+  clearApprovalLookup(): void {
+    this.approvalLookupControl.setValue(null);
   }
 
   get isApproved(): boolean {
