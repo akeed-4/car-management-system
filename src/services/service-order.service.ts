@@ -1,59 +1,67 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { tap } from 'rxjs';
 import { ServiceOrder } from '../models/service-order.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ServiceOrderService {
-  private http = inject(HttpClient);
-  private apiUrl = 'https://api.example.com/service-orders'; // ضع رابط API الحقيقي هنا
+  private apiUrl = 'http://localhost:5294/api/serviceorders';
 
-  constructor() {}
+  private serviceOrders = signal<ServiceOrder[]>([]);
+  public serviceOrders$ = this.serviceOrders.asReadonly();
 
-  // جلب جميع أوامر الخدمة
-  getServiceOrders(): Observable<ServiceOrder[]> {
-    return this.http.get<ServiceOrder[]>(this.apiUrl);
+  constructor(private http: HttpClient) {
+    this.loadServiceOrders();
   }
 
-  // جلب أمر خدمة حسب ID
-  getServiceOrderById(id: number): Observable<ServiceOrder> {
-    return this.http.get<ServiceOrder>(`${this.apiUrl}/${id}`);
+  /** Load all service orders */
+  loadServiceOrders() {
+    this.http.get<ServiceOrder[]>(this.apiUrl)
+      .pipe(tap(data => this.serviceOrders.set(data)))
+      .subscribe();
   }
 
-  // إضافة أمر خدمة جديد
-  addServiceOrder(order: Omit<ServiceOrder, 'id'>): Observable<ServiceOrder> {
-    const newOrder = {
-      ...order,
-      status: order.status || 'Pending', // قيمة افتراضية للحالة
-    };
-    return this.http.post<ServiceOrder>(this.apiUrl, newOrder);
+  /** Get single service order by ID */
+  getServiceOrderById(id: number): ServiceOrder | undefined {
+    return this.serviceOrders().find(o => o.id === id);
   }
 
-  // تحديث أمر خدمة موجود
-  updateServiceOrder(order: ServiceOrder): Observable<ServiceOrder> {
-    return this.http.put<ServiceOrder>(`${this.apiUrl}/${order.id}`, order);
+  /** Add new service order */
+  addServiceOrder(order: Omit<ServiceOrder, 'id'>) {
+    this.http.post<ServiceOrder>(this.apiUrl, order)
+      .pipe(
+        tap(newOrder => {
+          this.serviceOrders.update(list => [...list, newOrder]);
+        })
+      )
+      .subscribe();
   }
 
-  // أرشفة أمر الخدمة
-  archiveServiceOrder(id: number): Observable<ServiceOrder> {
-    return this.http.post<ServiceOrder>(`${this.apiUrl}/${id}/archive`, {});
+  /** Update existing service order */
+  updateServiceOrder(order: ServiceOrder) {
+    const url = `${this.apiUrl}/${order.id}`;
+    this.http.put<ServiceOrder>(url, order)
+      .pipe(
+        tap(() => {
+          this.serviceOrders.update(list =>
+            list.map(o => (o.id === order.id ? order : o))
+          );
+        })
+      )
+      .subscribe();
   }
 
-  // إلغاء أرشفة أمر الخدمة
-  unarchiveServiceOrder(id: number): Observable<ServiceOrder> {
-    return this.http.post<ServiceOrder>(`${this.apiUrl}/${id}/unarchive`, {});
-  }
-
-  // تحديث حالة السيارة في المخزون مرتبط بأمر الخدمة
-  updateCarStatus(carId: number, status: string): Observable<any> {
-    const url = `https://api.example.com/inventory/cars/${carId}/status`;
-    return this.http.patch(url, { status });
-  }
-
-  // إنشاء مصروف مرتبط بأمر الخدمة (اختياري)
-  addExpense(expense: any): Observable<any> {
-    return this.http.post('https://api.example.com/expenses', expense);
+  /** Delete service order */
+  deleteServiceOrder(id: number) {
+    const url = `${this.apiUrl}/${id}`;
+    this.http.delete(url)
+      .pipe(
+        tap(() => {
+          this.serviceOrders.update(list => list.filter(o => o.id !== id));
+        })
+      )
+      .subscribe();
   }
 }

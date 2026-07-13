@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { BankFinancingService } from '../../../../services/bank-financing.service';
 import { NotificationService } from '@/src/services/notification.service';
 import { BankQuotation } from '../../../../models/bank-financing/bank-quotation.model';
+import { HasPermissionDirective } from '../../../shared/permission.directive';
 
 @Component({
   selector: 'app-bank-order-list',
@@ -18,7 +19,8 @@ import { BankQuotation } from '../../../../models/bank-financing/bank-quotation.
     DxDataGridModule,
     TranslateModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    HasPermissionDirective
   ],
   templateUrl: './bank-order-list.component.html',
   styleUrls: ['./bank-order-list.component.css'],
@@ -48,6 +50,10 @@ export class BankOrderListComponent implements OnInit {
         this.notificationService.showError('BANK_FINANCING.ORDERS_LOAD_FAILED');
       }
     });
+  }
+
+  onCreateNew(): void {
+    this.router.navigate(['/sales/bank/orders/new']);
   }
 
   onView = (e: any): void => {

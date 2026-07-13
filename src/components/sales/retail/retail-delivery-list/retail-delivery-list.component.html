@@ -3,6 +3,14 @@
     <div class="header-left">
       <h2>{{ (isBankChannel ? 'BANK_FINANCING.DELIVERIES_LIST_TITLE' : 'RETAIL.DELIVERIES_LIST_TITLE') | translate }}</h2>
     </div>
+    @if (isBankChannel) {
+      <div class="header-right">
+        <button mat-raised-button color="primary" (click)="onCreateNew()" >
+          <mat-icon>add</mat-icon>
+          {{ 'BANK_FINANCING.NEW_DELIVERY_ACTION' | translate }}
+        </button>
+      </div>
+    }
   </div>
 
   <dx-data-grid

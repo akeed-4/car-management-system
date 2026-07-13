@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { RetailService } from '../../../../services/retail.service';
 import { NotificationService } from '@/src/services/notification.service';
 import { RetailDelivery } from '../../../../models/retail/retail-delivery.model';
+import { HasPermissionDirective } from '../../../shared/permission.directive';
 
 const SALES_CHANNEL_BUNUK = 3;
 
@@ -27,7 +28,8 @@ const SALES_CHANNEL_BUNUK = 3;
     DxDataGridModule,
     TranslateModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    HasPermissionDirective
   ],
   templateUrl: './retail-delivery-list.component.html',
   styleUrls: ['./retail-delivery-list.component.css'],
@@ -60,6 +62,10 @@ export class RetailDeliveryListComponent implements OnInit {
         this.notificationService.showError('RETAIL.DELIVERIES_LOAD_FAILED');
       }
     });
+  }
+
+  onCreateNew(): void {
+    this.router.navigate(['/sales/bank/deliveries/new']);
   }
 
   onView = (e: any): void => {

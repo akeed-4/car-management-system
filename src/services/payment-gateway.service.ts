@@ -53,8 +53,8 @@ export class PaymentGatewayService {
           salesInvoiceId: invoice.id,
           amount: invoice.amountDue,
           paymentMethod: 2,
-          accountId: defaultAccount.id,
-        });
+          creditAccountId: defaultAccount.id,
+        }).subscribe();
       }
 
       return finalStatus;

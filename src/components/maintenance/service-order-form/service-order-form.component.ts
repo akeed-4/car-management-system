@@ -58,13 +58,12 @@ export class ServiceOrderFormComponent implements OnInit {
       const id = Number(idParam);
       this.editMode.set(true);
       this.pageTitle.set('تعديل أمر العمل');
-      this.serviceOrderService.getServiceOrderById(id).subscribe(existingOrder => {
-        console.log('Existing order:', existingOrder);
-        this.serviceOrder.set({ ...existingOrder });
-      }, error => {
-        console.error('Error loading service order:', error);
+      const existing = this.serviceOrderService.getServiceOrderById(id);
+      if (existing) {
+        this.serviceOrder.set({ ...existing });
+      } else {
         this.router.navigate(['/maintenance']);
-      });
+      }
     } else {
       console.log('Creating new order');
       this.serviceOrder.update(order => ({

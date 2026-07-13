@@ -56,9 +56,9 @@
 
   <!-- Toolbar -->
   <mat-toolbar class="page-toolbar">
-    <button mat-flat-button color="primary" (click)="newRequest()" *appHasPermission="'requestedCar.create'">
+    <button mat-flat-button color="primary" (click)="newRequest()" >
       <mat-icon>add</mat-icon>
-      {{ 'COMMON.NEW' | translate }}
+      {{ 'REQUESTED_CARS.NEW_REQUEST' | translate }}
     </button>
 
     <button mat-stroked-button (click)="refresh()">

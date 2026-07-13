@@ -70,7 +70,7 @@
             <div id="application-menu" class="application-menu" [attr.dir]="textDir">
                 <input *ngIf="!isMobile" mat-input type="search"
                     [ngClass]="{'search-input': !isMobile,'search-input-mob': isMobile }"
-                    [placeholder]="(isMobile ? 'selectSearch.placeholderMenuMobile' : 'selectSearch.placeholderMenu') | translate"
+                  
                     [dir]="textDir" (click)="openMenuGrid()" />
                 <dx-menu #menu [dataSource]="menus" displayExpr="name" itemsExpr="submenu" orientation="vertical"
                     showFirstSubmenuMode="onHover" (onItemClick)="itemClick($event)" [rtlEnabled]="menuRtlEnabled"
