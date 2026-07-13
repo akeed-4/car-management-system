@@ -16,14 +16,16 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ApprovalService } from '../../../services/approval.service';
-import { 
-  ApprovalWorkflow, 
+import {
+  ApprovalWorkflow,
   ApprovalLevel,
+  CreateApprovalWorkflowDto,
+  CreateApprovalLevelDto,
+  UpdateApprovalWorkflowDto,
   DOCUMENT_TYPES,
   APPROVER_TYPES,
   CONDITION_OPERATORS
 } from '../../../models/approval-workflow.model';
-import { ToastService } from '../../../services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
 
 @Component({
@@ -55,7 +57,7 @@ export class ApprovalWorkflowFormComponent implements OnInit {
   private approvalService = inject(ApprovalService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private toastService = inject(NotificationService);
+  private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
 
   workflowForm!: FormGroup;
@@ -93,10 +95,12 @@ export class ApprovalWorkflowFormComponent implements OnInit {
 
   private initForm(): void {
     this.workflowForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
+      workflowName: ['', [Validators.required, Validators.minLength(3)]],
       documentType: ['', Validators.required],
       description: [''],
       isActive: [true],
+      isDefault: [false],
+      priority: [0],
       levels: this.fb.array([])
     });
   }
@@ -117,20 +121,22 @@ export class ApprovalWorkflowFormComponent implements OnInit {
     this.approvalService.getWorkflowById(id).subscribe({
       next: (workflow) => {
         this.workflowForm.patchValue({
-          name: workflow.name,
+          workflowName: workflow.workflowName,
           documentType: workflow.documentType,
           description: workflow.description,
-          isActive: workflow.isActive
+          isActive: workflow.isActive,
+          isDefault: workflow.isDefault,
+          priority: workflow.priority
         });
 
         // Load levels
-        workflow.levels.forEach(level => {
+        (workflow.approvalLevels || []).forEach(level => {
           this.addLevel(level);
         });
       },
       error: (error) => {
         console.error('Error loading workflow:', error);
-       this.toastService.showError(this.translate.instant('APPROVALS.ERROR_LOADING_WORKFLOW'));
+        this.notificationService.showError(this.translate.instant('APPROVALS.ERROR_LOADING_WORKFLOW'));
         this.router.navigate(['/approvals/workflows']);
       }
     });
@@ -141,15 +147,23 @@ export class ApprovalWorkflowFormComponent implements OnInit {
   }
 
   addLevel(level?: ApprovalLevel): void {
+    const approverType: 'User' | 'Role' = level?.roleId ? 'Role' : 'User';
+    const approverId = level?.roleId ?? level?.levelUsers?.[0]?.userId ?? null;
+
     const levelForm = this.fb.group({
       id: [level?.id || null],
       levelNumber: [level?.levelNumber || this.getLevelsArray().length + 1],
       levelName: [level?.levelName || '', Validators.required],
-      approverType: [level?.approverType || 'User', Validators.required],
-      approverId: [level?.approverId || null, Validators.required],
-      isParallel: [level?.isParallel || false],
-      minimumApprovals: [level?.minimumApprovals || 1],
-      conditions: this.fb.array(level?.conditions || [])
+      approverType: [approverType, Validators.required],
+      approverId: [approverId, Validators.required],
+      // isParallel maps to backend ApprovalMode: 'Any' approver can act vs 'All' must act.
+      isParallel: [level?.approvalMode === 'All'],
+      isRequired: [level?.isRequired ?? true],
+      canSkip: [level?.canSkip ?? false],
+      sendNotification: [level?.sendNotification ?? true],
+      sendReminder: [level?.sendReminder ?? true],
+      escalationHours: [level?.escalationHours ?? null],
+      reminderHours: [level?.reminderHours ?? null]
     });
 
     this.getLevelsArray().push(levelForm);
@@ -200,9 +214,27 @@ export class ApprovalWorkflowFormComponent implements OnInit {
     return approverType === 'User' ? this.availableUsers() : this.availableRoles();
   }
 
+  private buildLevelDto(levelValue: any): CreateApprovalLevelDto {
+    const isRoleApprover = levelValue.approverType === 'Role';
+    return {
+      levelNumber: levelValue.levelNumber,
+      levelName: levelValue.levelName,
+      approvalType: 'Single',
+      approvalMode: levelValue.isParallel ? 'All' : 'Any',
+      roleId: isRoleApprover ? levelValue.approverId : undefined,
+      isRequired: levelValue.isRequired,
+      canSkip: levelValue.canSkip,
+      escalationHours: levelValue.escalationHours || undefined,
+      sendNotification: levelValue.sendNotification,
+      sendReminder: levelValue.sendReminder,
+      reminderHours: levelValue.reminderHours || undefined,
+      userIds: isRoleApprover ? [] : (levelValue.approverId ? [levelValue.approverId] : [])
+    };
+  }
+
   saveWorkflow(): void {
     if (this.workflowForm.invalid) {
-      this.toastService.showWarning('APPROVALS.FORM_INVALID');
+      this.notificationService.showWarning(this.translate.instant('APPROVALS.FORM_INVALID'));
       return;
     }
 
@@ -210,26 +242,43 @@ export class ApprovalWorkflowFormComponent implements OnInit {
     const formValue = this.workflowForm.value;
 
     if (this.editMode()) {
-      this.approvalService.updateWorkflow(this.workflowId()!, formValue).subscribe({
+      const dto: UpdateApprovalWorkflowDto = {
+        workflowName: formValue.workflowName,
+        description: formValue.description,
+        isActive: formValue.isActive,
+        isDefault: formValue.isDefault,
+        priority: formValue.priority
+      };
+      this.approvalService.updateWorkflow(this.workflowId()!, dto).subscribe({
         next: () => {
-          this.toastService.showSuccess('APPROVALS.WORKFLOW_UPDATED');
+          this.notificationService.showSuccess(this.translate.instant('APPROVALS.WORKFLOW_UPDATED'));
           this.router.navigate(['/approvals/workflows']);
         },
         error: (error) => {
           console.error('Error updating workflow:', error);
-         this.toastService.showError(this.translate.instant('APPROVALS.ERROR_UPDATE_WORKFLOW'));
+          this.notificationService.showError(this.translate.instant('APPROVALS.ERROR_UPDATE_WORKFLOW'));
           this.isSubmitting.set(false);
         }
       });
     } else {
-      this.approvalService.createWorkflow(formValue).subscribe({
+      const dto: CreateApprovalWorkflowDto = {
+        documentType: formValue.documentType,
+        workflowName: formValue.workflowName,
+        description: formValue.description,
+        isActive: formValue.isActive,
+        isDefault: formValue.isDefault,
+        priority: formValue.priority,
+        approvalLevels: (formValue.levels || []).map((l: any) => this.buildLevelDto(l)),
+        approvalConditions: []
+      };
+      this.approvalService.createWorkflow(dto).subscribe({
         next: () => {
-          this.toastService.showSuccess('APPROVALS.WORKFLOW_CREATED');
+          this.notificationService.showSuccess(this.translate.instant('APPROVALS.WORKFLOW_CREATED'));
           this.router.navigate(['/approvals/workflows']);
         },
         error: (error) => {
           console.error('Error creating workflow:', error);
-         this.toastService.showError(this.translate.instant('APPROVALS.ERROR_CREATE_WORKFLOW'));
+          this.notificationService.showError(this.translate.instant('APPROVALS.ERROR_CREATE_WORKFLOW'));
           this.isSubmitting.set(false);
         }
       });

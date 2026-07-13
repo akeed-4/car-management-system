@@ -39,6 +39,10 @@ export class CorporateFleetService {
     });
   }
 
+  getAllQuotations(): Observable<CorporateQuotation[]> {
+    return this.http.get<CorporateQuotation[]>(`${this.baseUrl}/GetSubmittedQuotations`);
+  }
+
   getCreditSummary(customerId: number): Observable<CreditSummary> {
     debugger
     return this.http.get<CreditSummary>(`${this.baseUrl}/customers/${customerId}/creditsSummary`);

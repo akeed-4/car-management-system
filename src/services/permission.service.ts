@@ -1,36 +1,31 @@
-import { Injectable } from '@angular/core';
+import { Injectable, computed, inject } from '@angular/core';
+import { AuthService } from './AuthService.service';
+import { RoleService } from './role.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PermissionService {
-  // Mock user permissions - in real app, get from auth service or API
-  private userPermissions: string[] = [
-    'branch.view', 'branch.create', 'branch.edit', 'branch.delete',
-    'company.view', 'company.create', 'company.edit', 'company.delete',
-    'store.view', 'store.create', 'store.edit', 'store.delete',
-    'requestedCar.view', 'requestedCar.create', 'requestedCar.edit', 'requestedCar.delete',
-    'requestedCar.export', 'requestedCar.print', 'requestedCar.attachments',
-    'requestedCar.history', 'requestedCar.ai',
-    'consignmentCar.view', 'consignmentCar.create', 'consignmentCar.edit', 'consignmentCar.delete',
-    'consignmentCar.export', 'consignmentCar.print', 'consignmentCar.attachments', 'consignmentCar.history',
-    'dailyEntry.view', 'dailyEntry.create', 'dailyEntry.edit', 'dailyEntry.delete',
-    'dailyEntry.export', 'dailyEntry.print', 'dailyEntry.history',
-    'deliverySchedule.view', 'deliverySchedule.create', 'deliverySchedule.edit', 'deliverySchedule.delete',
-    'deliverySchedule.export', 'deliverySchedule.print', 'deliverySchedule.history'
-  ];
+  private authService = inject(AuthService);
+  private roleService = inject(RoleService);
 
-  // Check if user has a specific permission
+  private currentRolePermissions = computed(() => {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser?.roleName) {
+      return {} as { [key: string]: boolean };
+    }
+    const role = this.roleService.roles$().find(r => r.name === currentUser.roleName);
+    return role?.permissions || {};
+  });
+
   hasPermission(permission: string): boolean {
-    return this.userPermissions.includes(permission);
+    return !!this.currentRolePermissions()[permission];
   }
 
-  // Check if user has any of the permissions
   hasAnyPermission(permissions: string[]): boolean {
     return permissions.some(p => this.hasPermission(p));
   }
 
-  // Check if user has all permissions
   hasAllPermissions(permissions: string[]): boolean {
     return permissions.every(p => this.hasPermission(p));
   }

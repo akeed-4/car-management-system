@@ -1,0 +1,24 @@
+<h2 mat-dialog-title>{{ 'USERS.ASSIGN_ROLE.TITLE' | translate }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-dialog-content>
+    <p class="dialog-subtitle">{{ 'USERS.ASSIGN_ROLE.SUBTITLE' | translate: { name: data.userName } }}</p>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'USERS.FORM.ROLE' | translate }}</mat-label>
+      <mat-select formControlName="roleId" required>
+        <mat-option *ngFor="let role of roles()" [value]="role.id">{{ role.name }}</mat-option>
+      </mat-select>
+      <mat-error *ngIf="form.get('roleId')?.invalid && form.get('roleId')?.touched">
+        {{ 'USERS.VALIDATION.ROLE_REQUIRED' | translate }}
+      </mat-error>
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-stroked-button type="button" (click)="cancel()">{{ 'USERS.FORM.CANCEL' | translate }}</button>
+    <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || saving()">
+      {{ 'USERS.ASSIGN_ROLE.SUBMIT' | translate }}
+    </button>
+  </mat-dialog-actions>
+</form>

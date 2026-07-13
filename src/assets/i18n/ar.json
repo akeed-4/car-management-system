@@ -1,5 +1,4 @@
 {
-   
   "INVOICE": {
     "CREATE_TITLE": "إنشاء فاتورة مبيعات",
     "INSTALLMENT_INVOICE_TITLE": "إنشاء فاتورة مبيعات بالتقسيط",
@@ -17,6 +16,12 @@
     "INVOICE_NUMBER": "رقم الفاتورة",
     "INVOICE_DATE": "تاريخ الفاتورة",
     "DUE_DATE": "تاريخ الاستحقاق",
+    "STATUS": "الحالة",
+    "STATUS_PAID": "مدفوعة",
+    "STATUS_PENDING": "معلقة",
+    "STATUS_OVERDUE": "متأخرة",
+    "AMOUNT_PAID": "المبلغ المدفوع",
+    "AMOUNT_DUE": "المبلغ المستحق",
     "PAYMENT_METHOD": "طريقة الدفع",
     "PAYMENT_TYPE": "نوع الدفع",
     "INVOICE_TYPE": "نوع الفاتورة",
@@ -210,7 +215,10 @@
     "RESET_FILTER": "إعادة تعيين الفلتر",
     "ACTIONS": "إجراءات",
     "NONE": "بدون",
-    "ALL": "الكل"
+    "ALL": "الكل",
+    "SEARCH": "بحث",
+    "COLUMN_CHOOSER": "اختيار الأعمدة",
+    "RECORD_COUNT": "عدد السجلات"
   },
   "VALIDATION": {
     "REQUIRED": "هذا الحقل مطلوب"
@@ -605,6 +613,19 @@
   },
   "BANK_FINANCING": {
     "QUOTATION_TITLE": "عرض سعر التمويل البنكي",
+    "QUOTATIONS_LIST_TITLE": "عروض أسعار التمويل البنكي",
+    "QUOTATIONS_LIST_SUBTITLE": "إدارة عروض أسعار المركبات لمبيعات التمويل البنكي",
+    "QUOTATIONS_LOAD_FAILED": "فشل تحميل عروض أسعار التمويل البنكي",
+    "INVOICES_LIST_TITLE": "فواتير مبيعات التمويل البنكي",
+    "INVOICES_LIST_SUBTITLE": "إدارة فواتير المبيعات لعملاء التمويل البنكي",
+    "INVOICES_LOAD_FAILED": "فشل تحميل فواتير مبيعات التمويل البنكي",
+    "CREATE_INVOICE": "إنشاء فاتورة",
+    "NO_INVOICES": "لا توجد فواتير مبيعات بنكية بعد",
+    "COLLECTIONS_LIST_TITLE": "تحصيلات البنك",
+    "COLLECTIONS_LIST_SUBTITLE": "إدارة سندات القبض المحصلة من بنوك التمويل",
+    "COLLECTIONS_LOAD_FAILED": "فشل تحميل تحصيلات البنك",
+    "CREATE_COLLECTION": "إنشاء تحصيل",
+    "NO_COLLECTIONS": "لا توجد تحصيلات بنكية",
     "APPROVAL_TITLE": "اعتماد البنك",
     "OPEN_EXISTING_APPROVAL": "فتح اعتماد التمويل البنكي",
     "SEARCH_APPROVALS": "ابحث برقم الاعتماد أو اسم العميل أو البنك",
@@ -693,6 +714,18 @@
     "QUOTATION_CREATED": "تم إنشاء عرض السعر بنجاح",
     "QUOTATION_CREATE_FAILED": "فشل إنشاء عرض السعر",
     "QUOTATION_LOAD_FAILED": "فشل تحميل عرض السعر",
+    "QUOTATIONS_LIST_TITLE": "عروض أسعار الشركات",
+    "QUOTATIONS_LIST_SUBTITLE": "إدارة عروض أسعار العملاء لمبيعات الشركات",
+    "QUOTATIONS_LOAD_FAILED": "فشل تحميل عروض الأسعار",
+    "CREATE_QUOTATION": "إنشاء عرض سعر",
+    "QUOTATION_STATUS": "الحالة",
+    "QUOTATION_STATUS_DRAFT": "مسودة",
+    "QUOTATION_STATUS_APPROVED": "معتمد",
+    "QUOTATION_STATUS_CONVERTED": "تم التحويل لأمر بيع",
+    "QUOTATION_STATUS_REJECTED": "مرفوض",
+    "QUOTATION_STATUS_EXPIRED": "منتهي الصلاحية",
+    "NO_QUOTATIONS": "لا توجد عروض أسعار بعد",
+    "ACTIONS": "إجراءات",
     "ORDER_TITLE": "أمر بيع الشركات",
     "ORDER_DETAILS": "تفاصيل الأمر",
     "PO_REFERENCE": "مرجع أمر الشراء للعميل",
@@ -721,6 +754,16 @@
     "ORDERS_LOAD_FAILED": "فشل تحميل أوامر البيع",
     "ORDER_LOAD_FAILED": "فشل تحميل أمر البيع",
     "ORDER_NOT_FOUND": "أمر البيع غير موجود",
+    "INVOICES_LIST_TITLE": "فواتير مبيعات الشركات",
+    "INVOICES_LIST_SUBTITLE": "إدارة فواتير المبيعات لعملاء الشركات",
+    "INVOICES_LOAD_FAILED": "فشل تحميل فواتير المبيعات",
+    "CREATE_INVOICE": "إنشاء فاتورة",
+    "NO_INVOICES": "لا توجد فواتير مبيعات بعد",
+    "RECEIPTS_LIST_TITLE": "سندات قبض الشركات",
+    "RECEIPTS_LIST_SUBTITLE": "إدارة سندات القبض المرتبطة بفواتير مبيعات الشركات",
+    "RECEIPTS_LOAD_FAILED": "فشل تحميل سندات القبض",
+    "CREATE_RECEIPT": "إنشاء سند قبض",
+    "NO_RECEIPTS": "لا توجد سندات قبض للشركات",
     "BACK_TO_ORDERS": "العودة إلى الأوامر",
     "PROCEED_TO_DELIVERY": "المتابعة إلى التسليم",
     "NO_NOTES": "لا توجد ملاحظات",
@@ -791,7 +834,6 @@
   "CAR": {
     "SELECT": "اختر السيارة"
   },
-
   "TOAST": {
     "SUCCESS": "نجح",
     "WARNING": "تحذير",
@@ -825,7 +867,6 @@
     "TITLE": "نظام إدارة معرض السيارات",
     "SIDEBAR_TITLE": "معرض سيارات"
   },
-  
   "SAMPLE_DATA": {
     "CUSTOMER_NAME": "عبدالله محمد",
     "DELIVERY_AGENT": "أحمد مندوب مبيعات",
@@ -1051,8 +1092,7 @@
       "CANNOT_DELETE_APPROVED": "لا يمكن حذف جرد معتمد",
       "DELETE_CONFIRM_TITLE": "تأكيد حذف مستند الجرد",
       "DELETE_CONFIRM_MESSAGE": "هل أنت متأكد من حذف مستند الجرد هذا؟ لا يمكن التراجع عن هذا الإجراء."
-    }
-    ,
+    },
     "FORM": {
       "PAGE_TITLE_NEW": "إضافة سيارة جديدة",
       "PAGE_TITLE_EDIT": "تعديل السيارة",
@@ -1115,8 +1155,7 @@
       "ADD_CAR": "إضافة السيارة",
       "TRACK_BY_BATCH": "تتبع بالدفعات",
       "TRACK_BY_BATCH_HINT": "تفعيل تتبع الدفعات لهذا الصنف لإدارة المخزون حسب دفعات الإنتاج"
-    }
-    ,
+    },
     "STOCK_TAKING_FORM": {
       "PAGE_TITLE": "جرد",
       "BACK_TO_LIST": "← العودة إلى قائمة الجرد",
@@ -1200,10 +1239,7 @@
     "UNARCHIVE": "إلغاء الأرشفة",
     "NO_ARCHIVED_INVOICES": "لا توجد فواتير في الأرشيف.",
     "NO_PURCHASE_INVOICES": "لا توجد فواتير شراء حتى الآن."
-
   },
-  
-
   "PURCHASE_RETURN": {
     "CREATE_TITLE": "إنشاء مرتجع مشتريات",
     "BACK_TO_LIST": "العودة إلى قائمة المرتجعات",
@@ -1243,11 +1279,11 @@
     "EDIT": "تعديل",
     "DELETE": "حذف",
     "DELETE_CONFIRM": "هل أنت متأكد من حذف فاتورة المرتجع هذه؟",
-     "CASH_RETURN_TITLE": "مرتجع مشتريات نقدي جديد",
-      "CREDIT_RETURN_TITLE": "مرتجع مشتريات آجل جديد",
-      "ERROR_INVALID_FORM": "يرجى ملء جميع الحقول المطلوبة",
-      "SUCCESS_RETURN_SAVED": "تم حفظ مرتجع الشراء بنجاح",
-      "ERROR_SAVING_RETURN": "خطأ في حفظ مرتجع الشراء"
+    "CASH_RETURN_TITLE": "مرتجع مشتريات نقدي جديد",
+    "CREDIT_RETURN_TITLE": "مرتجع مشتريات آجل جديد",
+    "ERROR_INVALID_FORM": "يرجى ملء جميع الحقول المطلوبة",
+    "SUCCESS_RETURN_SAVED": "تم حفظ مرتجع الشراء بنجاح",
+    "ERROR_SAVING_RETURN": "خطأ في حفظ مرتجع الشراء"
   },
   "CASH_PURCHASE_RETURN": {
     "LIST_TITLE": "مرتجعات المشتريات النقدية",
@@ -1278,14 +1314,12 @@
     "PAYMENT": "الدفع",
     "DOCUMENTS": "المستندات",
     "NO_INVOICES": "لا توجد فواتير مبيعات حتى الآن.",
-
     "TRANSFER": {
       "START": "بدء نقل الملكية",
       "IN_PROGRESS": "قيد التنفيذ...",
       "COMPLETED": "مكتملة",
       "RETRY": "إعادة المحاولة"
     },
-
     "POS_PAYMENT": "الدفع بالشبكة",
     "PRINT_INVOICE": "طباعة الفاتورة",
     "EDIT_INVOICE": "تعديل الفاتورة",
@@ -1300,7 +1334,6 @@
     "CREDIT_LIST_TITLE": "فواتير مبيعات آجلة",
     "CASH_TITLE": "فواتير مبيعات نقدية",
     "CREDIT_TITLE": "فواتير مبيعات آجلة",
-
     "RETURN": {
       "LIST_TITLE": "قائمة مرتجعات المبيعات",
       "NEW_RETURN": "إنشاء مرتجع مبيعات جديد",
@@ -1361,7 +1394,6 @@
       "TOTAL_SUMMARY": "الإجمالي: {0}",
       "COUNT_SUMMARY": "إجمالي المرتجعات: {0}"
     },
-
     "PRINTABLE": {
       "INVOICE": "فاتورة",
       "INVOICE_TO": "فاتورة إلى:",
@@ -1402,21 +1434,18 @@
       "FOOTER_DISCLAIMER": "هذه فاتورة ضريبية مبسطة",
       "NO_INVOICE": "لم يتم العثور على الفاتورة."
     },
-
     "TYPE": {
       "LABEL": "نوع البيع",
       "CASH": "نقدي",
       "CREDIT": "ائتماني",
       "INSTALLMENTS": "تقسيط"
     },
-
     "DOWN_PAYMENT": {
       "LABEL": "الدفعة المقدمة",
       "PLACEHOLDER": "أدخل مبلغ الدفعة المقدمة",
       "REQUIRED": "الدفعة المقدمة مطلوبة للمبيعات الائتمانية والتقسيط",
       "MIN": "يجب أن تكون الدفعة المقدمة أكبر من 0"
     },
-
     "CAR_LINK": {
       "TITLE": "ربط السيارة بالعميل",
       "CHASSIS_NUMBER": "رقم الشاسيه",
@@ -1425,7 +1454,6 @@
       "PLATE_PLACEHOLDER": "أدخل رقم اللوحة",
       "BUTTON": "ربط السيارة"
     },
-
     "CONTRACT": {
       "TITLE": "عقد البيع",
       "CONTENT": "محتوى العقد",
@@ -1434,7 +1462,6 @@
       "EDITABLE_BEFORE_APPROVAL": "قابل للتعديل قبل الاعتماد",
       "READONLY_AFTER_APPROVAL": "للقراءة فقط بعد الاعتماد"
     },
-
     "CREDIT_LIST": {
       "TITLE": "فواتير المبيعات الائتمانية",
       "BACK_TO_SALES": "العودة للمبيعات",
@@ -1448,7 +1475,6 @@
       "NO_DATA": "لا توجد فواتير ائتمانية."
     }
   },
-
   "MANAGER_APPROVAL": {
     "TITLE": "موافقة المدير - المرتجعات",
     "SALES_RETURNS": "مرتجعات المبيعات",
@@ -1474,12 +1500,10 @@
     "APPROVAL_SUCCESS": "تمت الموافقة على المرتجع بنجاح",
     "REJECTION_SUCCESS": "تم رفض المرتجع بنجاح"
   },
-
   "INSTALLMENT": {
     "DASHBOARD": {
       "TITLE": "إدارة الأقساط"
     },
-
     "PREVIEW": {
       "TITLE": "معاينة جدول الأقساط",
       "TOTAL_AMOUNT": "المبلغ الإجمالي",
@@ -1491,7 +1515,6 @@
       "TOTAL_INSTALLMENTS": "إجمالي الأقساط",
       "REMAINING_AMOUNT": "المبلغ المتبقي"
     },
-
     "GRID": {
       "ID": "الرقم",
       "TOTAL_AMOUNT": "المبلغ الإجمالي",
@@ -1508,7 +1531,6 @@
       "RESCHEDULE": "إعادة جدولة",
       "REGISTER_PAYMENT": "تسجيل الدفع"
     },
-
     "STATUS": {
       "PAID": "مدفوع",
       "UNPAID": "غير مدفوع",
@@ -1516,7 +1538,6 @@
       "ACTIVE": "نشط",
       "CLOSED": "مغلق"
     },
-
     "RESCHEDULE": {
       "TITLE": "إعادة جدولة القسط",
       "REASON": "سبب إعادة الجدولة",
@@ -1531,7 +1552,6 @@
       "SUBMIT": "إعادة الجدولة"
     }
   },
-
   "ACCOUNTS": {
     "RECEIPTS": {
       "LIST_TITLE": "قائمة سندات القبض",
@@ -1573,47 +1593,51 @@
     },
     "FORM": {
       "TITLE": "إنشاء سند صرف",
+      "RECEIPT_TITLE": "إنشاء سند قبض",
       "BACK": "العودة إلى سندات الصرف",
+      "RECEIPT_BACK": "العودة إلى سندات القبض",
+      "PAYMENT_DETAILS": "تفاصيل الدفع",
+      "RECEIPT_DETAILS": "تفاصيل القبض",
       "VOUCHER_NUMBER": "رقم السند",
       "DATE": "التاريخ",
-      "SUPPLIER": "المورد",
-      "SELECT_SUPPLIER": "-- اختر المورد --",
+      "RECEIPT_METHOD": "طريقة القبض",
+      "TOTAL_AMOUNT_RECEIVED": "إجمالي المبلغ المستلم",
+      "DEBIT_ACCOUNT": "الحساب المدين",
+      "SELECT_ACCOUNT": "-- اختر الحساب --",
+      "CREDIT_ACCOUNT": "الحساب الدائن",
+      "INVOICE_SELECTION": "اختيار الفاتورة",
+      "CUSTOMER_SELECTION": "اختيار العميل",
       "INVOICE": "الفاتورة المستحقة",
+      "CUSTOMER": "العميل",
       "SELECT_INVOICE": "-- اختر الفاتورة --",
+      "SELECT_CUSTOMER": "-- اختر العميل --",
       "SELECTED_INVOICE_DETAILS": "تفاصيل الفاتورة المحددة",
       "TOTAL": "الإجمالي",
       "PAID": "المدفوع",
       "DUE": "المستحق",
-      "AMOUNT": "المبلغ المدفوع",
-      "PAYMENT_METHOD": "طريقة الدفع",
-      "ACCOUNT": "حساب الإيداع",
-      "SELECT_ACCOUNT": "-- اختر الحساب --",
-      "CANCEL": "إلغاء",
-      "SAVE": "حفظ سند الصرف",
-      "FILL_REQUIRED": "الرجاء تعبئة جميع الحقول المطلوبة بشكل صحيح.",
-      "AMOUNT_EXCEEDS": "المبلغ المدفوع أكبر من المبلغ المستحق.",
-      "SAVED": "تم حفظ سند الصرف وتحديث الفاتورة بنجاح.",
-        "INVOICE_NUMBER": "رقم الفاتورة",
-        "INVOICE_DATE": "تاريخ الفاتورة",
-        "UPDATE": "تحديث",
-      "SOURCE_ACCOUNT": "الحساب المصدر",
+      "AMOUNT": "المبلغ",
       "TOTAL_VOUCHER_AMOUNT": "إجمالي مبلغ السند",
       "AUTO_DISTRIBUTE": "توزيع تلقائي",
+      "DISTRIBUTE": "توزيع",
       "CAR_DISTRIBUTION": "توزيع السيارات",
+      "ALLOCATION_TABLE": "جدول التوزيع",
       "CHASSIS_NUMBER": "رقم الهيكل",
       "MODEL": "الموديل",
+      "REFERENCE": "المرجع",
+      "ORIGINAL_BALANCE": "الرصيد الأصلي",
+      "AMOUNT_TO_PAY": "المبلغ المراد دفعه",
       "ACCOUNTING_PREVIEW": "المعاينة المحاسبية",
       "DEBIT": "مدين",
       "CREDIT": "دائن",
-      "CAR_PAYMENTS": "مدفوعات السيارات",
-      "BANK_CASH": "البنك/الصندوق",
       "DIFFERENCE": "الفرق",
-      "ERROR_LOADING": "خطأ في تحميل الدفعة",
-      "ERROR_UPDATING": "خطأ في تحديث الدفعة",
-      "ERROR_SAVING": "خطأ في حفظ الدفعة"
-
+      "UNALLOCATED_BALANCE": "الرصيد غير الموزع",
+      "NOTES": "ملاحظات",
+      "CANCEL": "إلغاء",
+      "SAVE": "حفظ سند الصرف",
+      "SAVE_RECEIPT": "حفظ سند القبض",
+      "UPDATE": "تحديث",
+      "AUTO_DISTRIBUTE_TOOLTIP": "توزيع الإجمالي تلقائيًا بين صفوف السيارات"
     },
-  
     "DEPOSITS": {
       "LIST_TITLE": "قائمة سندات العربون",
       "NEW": "إصدار سند عربون جديد",
@@ -1683,8 +1707,8 @@
         "SAVE": "حفظ العربون",
         "FILL_REQUIRED": "الرجاء تعبئة جميع الحقول المطلوبة بشكل صحيح.",
         "SAVED": "تم إصدار سند العربون بنجاح.",
-        "ERROR_SAVING": "تعذر حفظ سند العربون."
-        ,"SAVED_OFFLINE": "تم حفظ العربون محلياً (وضع عدم الاتصال)."
+        "ERROR_SAVING": "تعذر حفظ سند العربون.",
+        "SAVED_OFFLINE": "تم حفظ العربون محلياً (وضع عدم الاتصال)."
       }
     },
     "RECEIPT_FORM": {
@@ -1729,53 +1753,6 @@
       "ERROR_UPDATING": "خطأ في تحديث السند",
       "ERROR_SAVING": "خطأ في حفظ السند"
     },
-    "FORM": {
-      "TITLE": "إنشاء سند صرف",
-      "RECEIPT_TITLE": "إنشاء سند قبض",
-      "BACK": "العودة إلى سندات الصرف",
-      "RECEIPT_BACK": "العودة إلى سندات القبض",
-      "PAYMENT_DETAILS": "تفاصيل الدفع",
-      "RECEIPT_DETAILS": "تفاصيل القبض",
-      "VOUCHER_NUMBER": "رقم السند",
-      "DATE": "التاريخ",
-      "RECEIPT_METHOD": "طريقة القبض",
-      "TOTAL_AMOUNT_RECEIVED": "إجمالي المبلغ المستلم",
-      "DEBIT_ACCOUNT": "الحساب المدين",
-      "SELECT_ACCOUNT": "-- اختر الحساب --",
-      "CREDIT_ACCOUNT": "الحساب الدائن",
-      "INVOICE_SELECTION": "اختيار الفاتورة",
-      "CUSTOMER_SELECTION": "اختيار العميل",
-      "INVOICE": "الفاتورة المستحقة",
-      "CUSTOMER": "العميل",
-      "SELECT_INVOICE": "-- اختر الفاتورة --",
-      "SELECT_CUSTOMER": "-- اختر العميل --",
-      "SELECTED_INVOICE_DETAILS": "تفاصيل الفاتورة المحددة",
-      "TOTAL": "الإجمالي",
-      "PAID": "المدفوع",
-      "DUE": "المستحق",
-      "AMOUNT": "المبلغ",
-      "TOTAL_VOUCHER_AMOUNT": "إجمالي مبلغ السند",
-      "AUTO_DISTRIBUTE": "توزيع تلقائي",
-      "DISTRIBUTE": "توزيع",
-      "CAR_DISTRIBUTION": "توزيع السيارات",
-      "ALLOCATION_TABLE": "جدول التوزيع",
-      "CHASSIS_NUMBER": "رقم الهيكل",
-      "MODEL": "الموديل",
-      "REFERENCE": "المرجع",
-      "ORIGINAL_BALANCE": "الرصيد الأصلي",
-      "AMOUNT_TO_PAY": "المبلغ المراد دفعه",
-      "ACCOUNTING_PREVIEW": "المعاينة المحاسبية",
-      "DEBIT": "مدين",
-      "CREDIT": "دائن",
-      "DIFFERENCE": "الفرق",
-      "UNALLOCATED_BALANCE": "الرصيد غير الموزع",
-      "NOTES": "ملاحظات",
-      "CANCEL": "إلغاء",
-      "SAVE": "حفظ سند الصرف",
-      "SAVE_RECEIPT": "حفظ سند القبض",
-      "UPDATE": "تحديث",
-      "AUTO_DISTRIBUTE_TOOLTIP": "توزيع الإجمالي تلقائيًا بين صفوف السيارات"
-    },
     "ADD_NEW": "إضافة مصنع جديد",
     "EDIT_TITLE": "تعديل المصنع",
     "NAME_LABEL": "اسم المصنع",
@@ -1791,7 +1768,7 @@
     "DELETE_CONFIRM_TITLE": "تأكيد الحذف",
     "DELETE_CONFIRM_MESSAGE": "هل أنت متأكد من رغبتك في حذف هذا المصنع؟ لا يمكن التراجع عن هذا الإجراء."
   },
-    "MANUFACTURERS": {
+  "MANUFACTURERS": {
     "TITLE": "إدارة المصنعين",
     "ADD_NEW": "إضافة مصنع جديد",
     "EDIT_TITLE": "تعديل المصنع",
@@ -2269,7 +2246,6 @@
     "REJECT": "رفض",
     "SUBMIT": "تقديم"
   },
-
   "CHART_OF_ACCOUNTS": {
     "TREE_TITLE": "الشجرة المحاسبية",
     "ADD_ACCOUNT": "إضافة حساب",
@@ -2293,7 +2269,6 @@
     "ERROR_DELETE": "خطأ في حذف الحساب",
     "CANNOT_DELETE": "لا يمكن حذف حساب يحتوي على حسابات فرعية"
   },
-
   "ACCOUNTING": {
     "CHART_OF_ACCOUNTS": "شجرة الحسابات",
     "JOURNAL_ENTRIES": "قيود اليومية",
@@ -2318,9 +2293,9 @@
     "EDIT_ENTRY": "تعديل قيد يومي",
     "DELETE_ENTRY": "حذف قيد يومي",
     "levels": "المستويات",
-    "ITEM_NAME":"اسم الصنف",
-    "IS_ACTIVE":"نشط",
-    "STORE":"المعرض",
+    "ITEM_NAME": "اسم الصنف",
+    "IS_ACTIVE": "نشط",
+    "STORE": "المعرض",
     "ACCOUNT_CODE": "رمز الحساب",
     "ACCOUNT_NAME": "اسم الحساب",
     "ACCOUNT_NAME_EN": "اسم الحساب (إنجليزي)",
@@ -2484,7 +2459,6 @@
     "ERROR_CREATING_ENTRY": "خطأ في إنشاء القيد اليومي",
     "ERROR_UPDATING_ENTRY": "خطأ في تحديث القيد اليومي"
   },
-
   "COST_CENTER": {
     "LIST_TITLE": "مراكز التكلفة",
     "LIST_SUBTITLE": "إدارة وتتبع مراكز التكلفة للمركبات والعمليات",
@@ -2544,7 +2518,6 @@
     "COST_TYPE_STORAGE": "رسوم التخزين",
     "COST_TYPE_OTHER": "أخرى"
   },
-
   "SALES_INVOICE": {
     "VEHICLE_LOOKUP_TITLE": "اختر المركبة",
     "SEARCH_VIN": "البحث برقم الشاصي",
@@ -2863,6 +2836,7 @@
     "WORKFLOW_NAME_PLACEHOLDER": "مثال: سير عمل اعتماد المشتريات",
     "OVERALL_STATUS": "الحالة العامة",
     "TOTAL_LEVELS": "إجمالي المستويات",
+    "HISTORY_ENTRIES": "عدد سجلات الاعتماد",
     "PROCESSING": "جاري معالجة طلبك...",
     "NO_WORKFLOWS": "لم يتم العثور على سير عمل",
     "CREATE_FIRST_WORKFLOW": "أنشئ سير عمل اعتماد أول للبدء",
@@ -3217,6 +3191,303 @@
       "SCHEDULE_DETAILS": "تفاصيل الموعد",
       "READINESS_CHECKLIST": "قائمة الجاهزية",
       "SAVE_DELIVERY": "حفظ التسليم"
+    }
+  },
+  "USERS": {
+    "LIST": {
+      "TITLE": "المستخدمون",
+      "SUBTITLE": "إدارة مستخدمي النظام والأدوار وأمان الحسابات",
+      "ADD_NEW": "إضافة مستخدم جديد",
+      "SEARCH_PLACEHOLDER": "ابحث بالاسم أو الدور أو الحالة",
+      "NO_USERS": "لا يوجد مستخدمون",
+      "ACTIONS": "إجراءات",
+      "EDIT": "تعديل",
+      "DELETE": "حذف",
+      "ASSIGN_ROLE": "تعيين دور",
+      "RESET_PASSWORD": "إعادة تعيين كلمة المرور",
+      "ACTIVATE": "تفعيل",
+      "DEACTIVATE": "إلغاء التفعيل",
+      "LOCK": "قفل الحساب",
+      "UNLOCK": "إلغاء قفل الحساب",
+      "LOCK_STATUS": "حالة القفل"
+    },
+    "FORM": {
+      "ADD_TITLE": "إضافة مستخدم جديد",
+      "EDIT_TITLE": "تعديل المستخدم",
+      "USERNAME": "اسم المستخدم",
+      "PASSWORD": "كلمة المرور",
+      "PASSWORD_PLACEHOLDER": "اتركها فارغة للاحتفاظ بكلمة المرور الحالية",
+      "ROLE": "الدور",
+      "SELECT_ROLE": "اختر دورًا",
+      "STATUS": "الحالة",
+      "CANCEL": "إلغاء",
+      "ADD_USER": "إضافة مستخدم",
+      "EDIT_USER": "حفظ التغييرات",
+      "BACK_TO_USERS": "العودة إلى المستخدمين"
+    },
+    "STATUS": {
+      "ACTIVE": "نشط",
+      "INACTIVE": "غير نشط",
+      "LOCKED": "مقفل",
+      "UNLOCKED": "غير مقفل"
+    },
+    "VALIDATION": {
+      "USERNAME_REQUIRED": "اسم المستخدم مطلوب",
+      "PASSWORD_REQUIRED": "كلمة المرور مطلوبة",
+      "PASSWORD_MIN_LENGTH": "يجب ألا تقل كلمة المرور عن 6 أحرف",
+      "ROLE_REQUIRED": "الرجاء اختيار دور صحيح",
+      "STATUS_REQUIRED": "الحالة مطلوبة"
+    },
+    "CONFIRM": {
+      "DELETE_TITLE": "حذف المستخدم",
+      "DELETE_MESSAGE": "هل أنت متأكد من حذف \"{{name}}\"؟ لا يمكن التراجع عن هذا الإجراء.",
+      "ACTIVATE_TITLE": "تفعيل المستخدم",
+      "ACTIVATE_MESSAGE": "تفعيل \"{{name}}\"؟ سيتمكن من تسجيل الدخول مرة أخرى.",
+      "DEACTIVATE_TITLE": "إلغاء تفعيل المستخدم",
+      "DEACTIVATE_MESSAGE": "إلغاء تفعيل \"{{name}}\"؟ لن يتمكن من تسجيل الدخول بعد الآن.",
+      "LOCK_TITLE": "قفل الحساب",
+      "LOCK_MESSAGE": "قفل حساب \"{{name}}\"؟ سيتم منعه فورًا من تسجيل الدخول.",
+      "UNLOCK_TITLE": "إلغاء قفل الحساب",
+      "UNLOCK_MESSAGE": "إلغاء قفل حساب \"{{name}}\"؟"
+    },
+    "RESET_PASSWORD": {
+      "TITLE": "إعادة تعيين كلمة المرور",
+      "SUBTITLE": "تعيين كلمة مرور جديدة لـ {{name}}",
+      "NEW_PASSWORD": "كلمة المرور الجديدة",
+      "SUBMIT": "إعادة تعيين كلمة المرور"
+    },
+    "ASSIGN_ROLE": {
+      "TITLE": "تعيين دور",
+      "SUBTITLE": "اختر دورًا لـ {{name}}",
+      "SUBMIT": "تعيين الدور"
+    },
+    "SUCCESS": {
+      "CREATED": "تم إنشاء المستخدم بنجاح",
+      "UPDATED": "تم تحديث المستخدم بنجاح",
+      "DELETED": "تم حذف المستخدم بنجاح",
+      "ACTIVATED": "تم تفعيل المستخدم بنجاح",
+      "DEACTIVATED": "تم إلغاء تفعيل المستخدم بنجاح",
+      "LOCKED": "تم قفل حساب المستخدم بنجاح",
+      "UNLOCKED": "تم إلغاء قفل حساب المستخدم بنجاح",
+      "PASSWORD_RESET": "تمت إعادة تعيين كلمة المرور بنجاح",
+      "ROLE_ASSIGNED": "تم تعيين الدور بنجاح"
+    },
+    "ERRORS": {
+      "LOAD_FAILED": "فشل تحميل بيانات المستخدم",
+      "SAVE_FAILED": "فشل حفظ المستخدم",
+      "DELETE_FAILED": "فشل حذف المستخدم",
+      "ACTION_FAILED": "فشل تنفيذ الإجراء. حاول مرة أخرى.",
+      "PASSWORD_RESET_FAILED": "فشلت إعادة تعيين كلمة المرور",
+      "ROLE_ASSIGN_FAILED": "فشل تعيين الدور"
+    }
+  },
+  "ROLES": {
+    "SUCCESS": {
+      "CREATED": "تم إنشاء الدور بنجاح",
+      "PERMISSIONS_UPDATED": "تم تحديث الصلاحيات بنجاح"
+    },
+    "ERRORS": {
+      "CREATE_FAILED": "فشل إنشاء الدور",
+      "UPDATE_FAILED": "فشل تحديث الصلاحيات"
+    }
+  },
+  "DIRECT_SALES": {
+    "CASH": {
+      "TITLE": "المبيعات النقدية",
+      "SUBTITLE": "إدارة فواتير البيع النقدي المباشر",
+      "ADD_NEW": "بيع نقدي جديد",
+      "NO_RECORDS": "لا توجد فواتير بيع نقدي",
+      "LOAD_FAILED": "فشل تحميل فواتير البيع النقدي"
+    },
+    "CREDIT": {
+      "TITLE": "المبيعات الآجلة",
+      "SUBTITLE": "إدارة فواتير البيع الآجل المباشر",
+      "ADD_NEW": "بيع آجل جديد",
+      "NO_RECORDS": "لا توجد فواتير بيع آجل",
+      "LOAD_FAILED": "فشل تحميل فواتير البيع الآجل"
+    },
+    "INSTALLMENT": {
+      "TITLE": "المبيعات بالتقسيط",
+      "SUBTITLE": "إدارة فواتير البيع بالتقسيط المباشر",
+      "ADD_NEW": "بيع بالتقسيط جديد",
+      "NO_RECORDS": "لا توجد فواتير بيع بالتقسيط",
+      "LOAD_FAILED": "فشل تحميل فواتير البيع بالتقسيط"
+    }
+  },
+  "CAR_REPORTS": {
+    "MODULE_TITLE": "تقارير إدارة السيارات",
+    "BACK_TO_REPORTS": "إدارة السيارات",
+    "NO_DATA": "لا توجد سجلات",
+    "LOAD_FAILED": "فشل تحميل بيانات التقرير",
+    "FILTER": {
+      "COMPANY": "الشركة",
+      "BRANCH": "الفرع",
+      "WAREHOUSE": "المخزن",
+      "BRAND": "الماركة",
+      "MODEL": "الموديل",
+      "CATEGORY": "الفئة",
+      "SUPPLIER": "المورد",
+      "COLOR": "اللون",
+      "STATUS": "الحالة",
+      "VIN": "رقم الهيكل",
+      "ENGINE_NUMBER": "رقم المحرك",
+      "DATE_FROM": "من تاريخ",
+      "DATE_TO": "إلى تاريخ",
+      "YEAR": "سنة الصنع",
+      "SALES_STATUS": "حالة البيع"
+    },
+    "COL": {
+      "VIN": "رقم الهيكل",
+      "BRAND": "الماركة",
+      "MODEL": "الموديل",
+      "YEAR": "سنة الصنع",
+      "COLOR": "اللون",
+      "CONDITION": "الحالة",
+      "STATUS": "الحالة",
+      "LOCATION": "الموقع",
+      "MILEAGE": "الممشى",
+      "PURCHASE_PRICE": "سعر الشراء",
+      "SALE_PRICE": "سعر البيع",
+      "TOTAL_COST": "إجمالي التكلفة",
+      "CONSIGNMENT_NUMBER": "رقم سيارة الغير",
+      "SUPPLIER": "المورد",
+      "ENGINE_NUMBER": "رقم المحرك",
+      "ARRIVAL_DATE": "تاريخ الوصول",
+      "CURRENT_COST": "التكلفة الحالية",
+      "EXPECTED_SALE_PRICE": "سعر البيع المتوقع",
+      "DAYS_IN_STOCK": "أيام في المخزون",
+      "REQUEST_NUMBER": "رقم الطلب",
+      "REQUEST_DATE": "تاريخ الطلب",
+      "CUSTOMER": "العميل",
+      "PRIORITY": "الأولوية",
+      "RESERVATION_STATUS": "حالة الحجز",
+      "REFERENCE_NUMBER": "الرقم المرجعي",
+      "ENTRY_TYPE": "نوع الإدخال",
+      "CAR": "السيارة",
+      "WAREHOUSE": "المخزن",
+      "EMPLOYEE": "الموظف",
+      "ENTRY_DATE": "تاريخ الإدخال",
+      "DELIVERY_NUMBER": "رقم التسليم",
+      "BRANCH": "الفرع",
+      "DELIVERY_DATE": "تاريخ التسليم",
+      "PROGRESS": "نسبة الإنجاز %",
+      "ADDITIONAL_COSTS": "تكاليف إضافية",
+      "ASSOCIATED_EXPENSES": "مصروفات مرتبطة",
+      "LANDED_COST": "التكلفة الإجمالية",
+      "PURCHASE_DATE": "تاريخ الشراء",
+      "PROFIT": "الربح",
+      "PURCHASE_INVOICE_NUMBER": "رقم فاتورة الشراء",
+      "UNIT_COST": "تكلفة الوحدة"
+    },
+    "CAVEAT": {
+      "SOLD_UNION": "يجمع هذا التقرير بين المخزون العادي وسيارات لدى الغير المباعة.",
+      "MOVEMENT_FROM_ENTRIES": "يتم استخراج حركة السيارات من الإدخالات اليومية (نقل/استلام/إرجاع)، وليس من سجل حركة مخصص.",
+      "NO_BRANCH_FIELD": "السيارات غير مرتبطة حالياً بفرع في النظام؛ يعرض هذا التقرير جميع السيارات حتى تتم إضافة هذا الربط.",
+      "NO_WAREHOUSE_FIELD": "السيارات غير مرتبطة حالياً بمخزن في النظام؛ يعرض هذا التقرير جميع السيارات حتى تتم إضافة هذا الربط.",
+      "SUPPLIER_CONSIGNMENT_ONLY": "بيانات المورد متوفرة فقط لسيارات لدى الغير؛ لا يظهر المخزون المشترى العادي هنا.",
+      "ENGINE_CONSIGNMENT_ONLY": "رقم المحرك مسجل فقط لسيارات لدى الغير؛ لا يتوفر هذا الحقل في المخزون العادي.",
+      "VALUATION_METHOD_NOT_APPLIED": "هذا التقييم عبارة عن مجموع بسيط للتكلفة المسجلة ولا يطبق حالياً طريقة التكلفة المعتمدة (FIFO/LIFO/متوسط/معياري).",
+      "PROFITABILITY_SIMPLIFIED": "يتم حساب الربحية كسعر البيع ناقص التكلفة الإجمالية ولا يأخذ بعين الاعتبار عمولة سيارات الغير أو الدفعات الجزئية."
+    },
+    "CARS": {
+      "TITLE": "تقرير السيارات",
+      "SUBTITLE": "استعراض وتصفية وتصدير بيانات السيارات."
+    },
+    "CURRENT_INVENTORY": {
+      "TITLE": "تقرير المخزون الحالي للسيارات",
+      "SUBTITLE": "استعراض وتصفية وتصدير بيانات المخزون الحالي للسيارات."
+    },
+    "AVAILABLE": {
+      "TITLE": "تقرير السيارات المتاحة",
+      "SUBTITLE": "استعراض وتصفية وتصدير بيانات السيارات المتاحة."
+    },
+    "RESERVED": {
+      "TITLE": "تقرير السيارات المحجوزة",
+      "SUBTITLE": "استعراض وتصفية وتصدير بيانات السيارات المحجوزة."
+    },
+    "SOLD": {
+      "TITLE": "تقرير السيارات المباعة",
+      "SUBTITLE": "استعراض وتصفية وتصدير بيانات السيارات المباعة."
+    },
+    "DELIVERED": {
+      "TITLE": "تقرير السيارات المسلمة",
+      "SUBTITLE": "استعراض وتصفية وتصدير بيانات السيارات المسلمة."
+    },
+    "REQUESTED": {
+      "TITLE": "تقرير السيارات المطلوبة",
+      "SUBTITLE": "استعراض وتصفية وتصدير بيانات السيارات المطلوبة."
+    },
+    "CONSIGNMENT": {
+      "TITLE": "تقرير سيارات لدى الغير",
+      "SUBTITLE": "استعراض وتصفية وتصدير بيانات سيارات لدى الغير."
+    },
+    "DAILY_ENTRIES": {
+      "TITLE": "تقرير الإدخالات اليومية",
+      "SUBTITLE": "استعراض وتصفية وتصدير بيانات الإدخالات اليومية."
+    },
+    "DELIVERY_SCHEDULE": {
+      "TITLE": "تقرير جدول التسليم",
+      "SUBTITLE": "استعراض وتصفية وتصدير بيانات جدول التسليم."
+    },
+    "MOVEMENT": {
+      "TITLE": "تقرير حركة السيارات",
+      "SUBTITLE": "استعراض وتصفية وتصدير بيانات حركة السيارات."
+    },
+    "STATUS": {
+      "TITLE": "تقرير حالة السيارات",
+      "SUBTITLE": "استعراض وتصفية وتصدير بيانات حالة السيارات."
+    },
+    "BY_BRANCH": {
+      "TITLE": "تقرير السيارات حسب الفرع",
+      "SUBTITLE": "استعراض وتصفية وتصدير بيانات السيارات حسب الفرع."
+    },
+    "BY_WAREHOUSE": {
+      "TITLE": "تقرير السيارات حسب المخزن",
+      "SUBTITLE": "استعراض وتصفية وتصدير بيانات السيارات حسب المخزن."
+    },
+    "BY_SUPPLIER": {
+      "TITLE": "تقرير السيارات حسب المورد",
+      "SUBTITLE": "استعراض وتصفية وتصدير بيانات السيارات حسب المورد."
+    },
+    "BY_BRAND": {
+      "TITLE": "تقرير السيارات حسب الماركة",
+      "SUBTITLE": "استعراض وتصفية وتصدير بيانات السيارات حسب الماركة."
+    },
+    "BY_MODEL": {
+      "TITLE": "تقرير السيارات حسب الموديل",
+      "SUBTITLE": "استعراض وتصفية وتصدير بيانات السيارات حسب الموديل."
+    },
+    "BY_YEAR": {
+      "TITLE": "تقرير السيارات حسب سنة الصنع",
+      "SUBTITLE": "استعراض وتصفية وتصدير بيانات السيارات حسب سنة الصنع."
+    },
+    "BY_COLOR": {
+      "TITLE": "تقرير السيارات حسب اللون",
+      "SUBTITLE": "استعراض وتصفية وتصدير بيانات السيارات حسب اللون."
+    },
+    "BY_VIN": {
+      "TITLE": "تقرير السيارات حسب رقم الهيكل",
+      "SUBTITLE": "استعراض وتصفية وتصدير بيانات السيارات حسب رقم الهيكل."
+    },
+    "BY_ENGINE": {
+      "TITLE": "تقرير السيارات حسب رقم المحرك",
+      "SUBTITLE": "استعراض وتصفية وتصدير بيانات السيارات حسب رقم المحرك."
+    },
+    "INVENTORY_AGING": {
+      "TITLE": "تقرير تقادم المخزون",
+      "SUBTITLE": "استعراض وتصفية وتصدير بيانات تقادم المخزون."
+    },
+    "INVENTORY_VALUATION": {
+      "TITLE": "تقرير تقييم المخزون",
+      "SUBTITLE": "استعراض وتصفية وتصدير بيانات تقييم المخزون."
+    },
+    "CAR_COST": {
+      "TITLE": "تقرير تكلفة السيارة",
+      "SUBTITLE": "استعراض وتصفية وتصدير بيانات تكلفة السيارة."
+    },
+    "CAR_PROFITABILITY": {
+      "TITLE": "تقرير ربحية السيارة",
+      "SUBTITLE": "استعراض وتصفية وتصدير بيانات ربحية السيارة."
     }
   }
 }

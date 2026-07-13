@@ -18,6 +18,7 @@ import { Subject, Subscription, filter, map, finalize, catchError, of, debounceT
 import { MatDialog } from '@angular/material/dialog';
 import { Direction } from '@angular/cdk/bidi';
 import { LoginResponse, OidcSecurityService } from 'angular-auth-oidc-client';
+import { AuthService } from '../../../services/AuthService.service';
 import { environment } from '../../../environments/environment.development';
 import { CurrentSettingService } from '../../../services/current-setting.service';
 import { CurrentUserService } from '../../../services/current-user.service';
@@ -139,6 +140,7 @@ export class LayoutComponent {
     @Inject(DOCUMENT) private document: Document,
     private titleService: Title,
     public dialog: MatDialog,
+    private authService: AuthService,
   ) {
     this.itemClick = this.itemClick.bind(this);
     this.currentLanguage = this.languageService.getCurrentLanguage();
@@ -330,10 +332,8 @@ export class LayoutComponent {
   // }
 
   logOut() {
-    // this.oidcSecurityService
-    //   .logoff()
-    //   .subscribe((result) => console.log(result));
-    console.log('Logout clicked');
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 
   changePassword() {

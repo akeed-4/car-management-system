@@ -90,7 +90,39 @@ export const menuData = [
       { id: 41, name: 'السيارات المطلوبة', englishName: 'Requested Cars', route: '/requested-cars' },
       { id: 42, name: 'سيارات لدى الغير', englishName: 'Consignment Cars', route: '/consignment-cars' },
       { id: 43, name: 'الإدخالات اليومية', englishName: 'Daily Entries', route: '/daily-entries' },
-      { id: 44, name: 'جدول التسليم', englishName: 'Delivery Schedule', route: '/deliveries' }
+      { id: 44, name: 'جدول التسليم', englishName: 'Delivery Schedule', route: '/deliveries' },
+      {
+        id: 45,
+        name: 'تقارير إدارة السيارات',
+        englishName: 'Car Management Reports',
+        submenu: [
+          { id: 4501, name: 'تقرير السيارات', englishName: 'Cars Report', route: '/car-management/reports/cars' },
+          { id: 4502, name: 'تقرير المخزون الحالي', englishName: 'Current Car Inventory Report', route: '/car-management/reports/current-inventory' },
+          { id: 4503, name: 'تقرير السيارات المتاحة', englishName: 'Available Cars Report', route: '/car-management/reports/available' },
+          { id: 4504, name: 'تقرير السيارات المحجوزة', englishName: 'Reserved Cars Report', route: '/car-management/reports/reserved' },
+          { id: 4505, name: 'تقرير السيارات المباعة', englishName: 'Sold Cars Report', route: '/car-management/reports/sold' },
+          { id: 4506, name: 'تقرير السيارات المسلمة', englishName: 'Delivered Cars Report', route: '/car-management/reports/delivered' },
+          { id: 4507, name: 'تقرير السيارات المطلوبة', englishName: 'Requested Cars Report', route: '/car-management/reports/requested' },
+          { id: 4508, name: 'تقرير سيارات لدى الغير', englishName: 'Consignment Cars Report', route: '/car-management/reports/consignment' },
+          { id: 4509, name: 'تقرير الإدخالات اليومية', englishName: 'Daily Entries Report', route: '/car-management/reports/daily-entries' },
+          { id: 4510, name: 'تقرير جدول التسليم', englishName: 'Delivery Schedule Report', route: '/car-management/reports/delivery-schedule' },
+          { id: 4511, name: 'تقرير حركة السيارات', englishName: 'Car Movement Report', route: '/car-management/reports/movement' },
+          { id: 4512, name: 'تقرير حالة السيارات', englishName: 'Car Status Report', route: '/car-management/reports/status' },
+          { id: 4513, name: 'تقرير السيارات حسب الفرع', englishName: 'Cars by Branch Report', route: '/car-management/reports/by-branch' },
+          { id: 4514, name: 'تقرير السيارات حسب المخزن', englishName: 'Cars by Warehouse Report', route: '/car-management/reports/by-warehouse' },
+          { id: 4515, name: 'تقرير السيارات حسب المورد', englishName: 'Cars by Supplier Report', route: '/car-management/reports/by-supplier' },
+          { id: 4516, name: 'تقرير السيارات حسب الماركة', englishName: 'Cars by Brand Report', route: '/car-management/reports/by-brand' },
+          { id: 4517, name: 'تقرير السيارات حسب الموديل', englishName: 'Cars by Model Report', route: '/car-management/reports/by-model' },
+          { id: 4518, name: 'تقرير السيارات حسب سنة الصنع', englishName: 'Cars by Year Report', route: '/car-management/reports/by-year' },
+          { id: 4519, name: 'تقرير السيارات حسب اللون', englishName: 'Cars by Color Report', route: '/car-management/reports/by-color' },
+          { id: 4520, name: 'تقرير السيارات حسب رقم الهيكل', englishName: 'Cars by VIN Report', route: '/car-management/reports/by-vin' },
+          { id: 4521, name: 'تقرير السيارات حسب رقم المحرك', englishName: 'Cars by Engine Number Report', route: '/car-management/reports/by-engine' },
+          { id: 4522, name: 'تقرير تقادم المخزون', englishName: 'Inventory Aging Report', route: '/car-management/reports/inventory-aging' },
+          { id: 4523, name: 'تقرير تقييم المخزون', englishName: 'Inventory Valuation Report', route: '/car-management/reports/inventory-valuation' },
+          { id: 4524, name: 'تقرير تكلفة السيارة', englishName: 'Car Cost Report', route: '/car-management/reports/car-cost' },
+          { id: 4525, name: 'تقرير ربحية السيارة', englishName: 'Car Profitability Report', route: '/car-management/reports/car-profitability' }
+        ]
+      }
     ]
   },
   {
@@ -131,9 +163,9 @@ export const menuData = [
         name: 'البيع المباشر',
         englishName: 'Direct Sales',
         submenu: [
-          { id: 10041, name: 'بيع نقدي', englishName: 'Cash Sale', route: '/sales/direct/cash-sale/new' },
-          { id: 10042, name: 'بيع آجل', englishName: 'Credit Sale', route: '/sales/direct/credit-sale/new' },
-          { id: 10043, name: 'بيع بالتقسيط', englishName: 'Installment Sale', route: '/sales/direct/installment-sale/new' },
+          { id: 10041, name: 'بيع نقدي', englishName: 'Cash Sale', route: '/sales/direct/cash-sale' },
+          { id: 10042, name: 'بيع آجل', englishName: 'Credit Sale', route: '/sales/direct/credit-sale' },
+          { id: 10043, name: 'بيع بالتقسيط', englishName: 'Installment Sale', route: '/sales/direct/installment-sale' },
           { id: 10044, name: 'إدارة الأقساط', englishName: 'Installment Management', route: '/installments' }
         ]
       },
@@ -142,11 +174,11 @@ export const menuData = [
         name: 'مبيعات الشركات',
         englishName: 'Corporate Sales',
         submenu: [
-          { id: 10061, name: 'عرض سعر', englishName: 'Customer Quotation', route: '/sales/corporate/quotations/new' },
-          { id: 10062, name: 'أمر بيع', englishName: 'Sales Order', route: '/sales/corporate/orders/new' },
-          { id: 10063, name: 'إذن تسليم', englishName: 'Delivery Note', route: '/sales/corporate/deliveries/new' },
-          { id: 10064, name: 'فاتورة مبيعات', englishName: 'Sales Invoice', route: '/sales/corporate/invoices/new' },
-          { id: 10065, name: 'سند قبض', englishName: 'Receipt Voucher', route: '/sales/corporate/receipts/new' }
+          { id: 10061, name: 'عرض سعر', englishName: 'Customer Quotation', route: '/sales/corporate/quotations' },
+          { id: 10062, name: 'أمر بيع', englishName: 'Sales Order', route: '/sales/corporate/orders' },
+          { id: 10063, name: 'إذن تسليم', englishName: 'Delivery Note', route: '/sales/corporate/deliveries' },
+          { id: 10064, name: 'فاتورة مبيعات', englishName: 'Sales Invoice', route: '/sales/corporate/invoices' },
+          { id: 10065, name: 'سند قبض', englishName: 'Receipt Voucher', route: '/sales/corporate/receipts' }
         ]
       },
       {
@@ -154,12 +186,12 @@ export const menuData = [
         name: 'مبيعات التمويل البنكي',
         englishName: 'Bank Sales',
         submenu: [
-          { id: 10051, name: 'عرض سعر', englishName: 'Customer Quotation', route: '/sales/bank/quotations/new' },
-          { id: 10052, name: 'اعتماد البنك', englishName: 'Bank Approval', route: '/sales/bank/approvals/new' },
-          { id: 10053, name: 'أمر بيع', englishName: 'Sales Order', route: '/sales/bank/orders/new' },
-          { id: 10054, name: 'تسليم المركبة', englishName: 'Vehicle Delivery', route: '/sales/bank/deliveries/new' },
-          { id: 10055, name: 'فاتورة مبيعات', englishName: 'Sales Invoice', route: '/sales/bank/invoices/new' },
-          { id: 10056, name: 'تحصيلات البنك', englishName: 'Bank Collections', route: '/sales/bank/collections/new' }
+          { id: 10051, name: 'عرض سعر', englishName: 'Customer Quotation', route: '/sales/bank/quotations' },
+          { id: 10052, name: 'اعتماد البنك', englishName: 'Bank Approval', route: '/sales/bank/approvals' },
+          { id: 10053, name: 'أمر بيع', englishName: 'Sales Order', route: '/sales/bank/orders' },
+          { id: 10054, name: 'تسليم المركبة', englishName: 'Vehicle Delivery', route: '/sales/bank/deliveries' },
+          { id: 10055, name: 'فاتورة مبيعات', englishName: 'Sales Invoice', route: '/sales/bank/invoices' },
+          { id: 10056, name: 'تحصيلات البنك', englishName: 'Bank Collections', route: '/sales/bank/collections' }
         ]
       }
     ]
@@ -211,9 +243,7 @@ export const menuData = [
     name: 'الاعدادات النظام',
     englishName: 'System Settings',
     submenu: [
-      { id: 121, name: 'اعدادات حساب التكلفة', englishName: 'Cost Price Settings', route: '/setup/cost-price-settings' },
-      { id: 30, name: 'إعدادات حساب التكلفة', englishName: 'Cost Price Settings', route: '/setup/cost-price-settings' },
-
+      { id: 121, name: 'اعدادات حساب التكلفة', englishName: 'Cost Price Settings', route: '/setup/cost-price-settings' }
     ]
   }
 ];

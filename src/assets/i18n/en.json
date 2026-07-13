@@ -16,6 +16,12 @@
     "INVOICE_NUMBER": "Invoice Number",
     "INVOICE_DATE": "Invoice Date",
     "DUE_DATE": "Due Date",
+    "STATUS": "Status",
+    "STATUS_PAID": "Paid",
+    "STATUS_PENDING": "Pending",
+    "STATUS_OVERDUE": "Overdue",
+    "AMOUNT_PAID": "Amount Paid",
+    "AMOUNT_DUE": "Amount Due",
     "PAYMENT_METHOD": "Payment Method",
     "PAYMENT_TYPE": "Payment Type",
     "INVOICE_TYPE": "Invoice Type",
@@ -207,7 +213,10 @@
     "RESET_FILTER": "Reset Filter",
     "ACTIONS": "Actions",
     "NONE": "None",
-    "ALL": "All"
+    "ALL": "All",
+    "SEARCH": "Search",
+    "COLUMN_CHOOSER": "Column Chooser",
+    "RECORD_COUNT": "Record Count"
   },
   "VALIDATION": {
     "REQUIRED": "This field is required"
@@ -563,6 +572,19 @@
   },
   "BANK_FINANCING": {
     "QUOTATION_TITLE": "Bank Sales Quotation",
+    "QUOTATIONS_LIST_TITLE": "Bank Sales Quotations",
+    "QUOTATIONS_LIST_SUBTITLE": "Manage vehicle quotations for bank-financed sales",
+    "QUOTATIONS_LOAD_FAILED": "Failed to load bank sales quotations",
+    "INVOICES_LIST_TITLE": "Bank Sales Invoices",
+    "INVOICES_LIST_SUBTITLE": "Manage sales invoices for bank-financed customers",
+    "INVOICES_LOAD_FAILED": "Failed to load bank sales invoices",
+    "CREATE_INVOICE": "Create Invoice",
+    "NO_INVOICES": "No bank sales invoices yet",
+    "COLLECTIONS_LIST_TITLE": "Bank Collections",
+    "COLLECTIONS_LIST_SUBTITLE": "Manage receipt vouchers collected from financing banks",
+    "COLLECTIONS_LOAD_FAILED": "Failed to load bank collections",
+    "CREATE_COLLECTION": "Create Collection",
+    "NO_COLLECTIONS": "No bank collections found",
     "APPROVAL_TITLE": "Bank Approval",
     "OPEN_EXISTING_APPROVAL": "Open Bank Financing Approval",
     "SEARCH_APPROVALS": "Search Approval Number, Customer, or Bank",
@@ -651,6 +673,18 @@
     "QUOTATION_CREATED": "Quotation created successfully",
     "QUOTATION_CREATE_FAILED": "Failed to create quotation",
     "QUOTATION_LOAD_FAILED": "Failed to load quotation",
+    "QUOTATIONS_LIST_TITLE": "Corporate Quotations",
+    "QUOTATIONS_LIST_SUBTITLE": "Manage customer quotations for corporate sales",
+    "QUOTATIONS_LOAD_FAILED": "Failed to load quotations",
+    "CREATE_QUOTATION": "Create Quotation",
+    "QUOTATION_STATUS": "Status",
+    "QUOTATION_STATUS_DRAFT": "Draft",
+    "QUOTATION_STATUS_APPROVED": "Approved",
+    "QUOTATION_STATUS_CONVERTED": "Converted",
+    "QUOTATION_STATUS_REJECTED": "Rejected",
+    "QUOTATION_STATUS_EXPIRED": "Expired",
+    "NO_QUOTATIONS": "No quotations yet",
+    "ACTIONS": "Actions",
     "ORDER_TITLE": "Corporate Sales Order",
     "ORDER_DETAILS": "Order Details",
     "PO_REFERENCE": "Customer PO Reference",
@@ -679,6 +713,16 @@
     "ORDERS_LOAD_FAILED": "Failed to load sales orders",
     "ORDER_LOAD_FAILED": "Failed to load sales order",
     "ORDER_NOT_FOUND": "Sales order not found",
+    "INVOICES_LIST_TITLE": "Corporate Sales Invoices",
+    "INVOICES_LIST_SUBTITLE": "Manage sales invoices for corporate customers",
+    "INVOICES_LOAD_FAILED": "Failed to load sales invoices",
+    "CREATE_INVOICE": "Create Invoice",
+    "NO_INVOICES": "No sales invoices yet",
+    "RECEIPTS_LIST_TITLE": "Corporate Receipt Vouchers",
+    "RECEIPTS_LIST_SUBTITLE": "Manage receipt vouchers linked to corporate sales invoices",
+    "RECEIPTS_LOAD_FAILED": "Failed to load receipt vouchers",
+    "CREATE_RECEIPT": "Create Receipt",
+    "NO_RECEIPTS": "No corporate receipt vouchers found",
     "BACK_TO_ORDERS": "Back to Orders",
     "PROCEED_TO_DELIVERY": "Proceed to Delivery",
     "NO_NOTES": "No notes recorded",
@@ -749,7 +793,6 @@
   "CAR": {
     "SELECT": "Select Car"
   },
-
   "TOAST": {
     "SUCCESS": "Success",
     "WARNING": "Warning",
@@ -1003,110 +1046,108 @@
     "CLIENT": "Client",
     "SALESPERSON": "Salesperson"
   },
-    "FORM": {
-      "PAGE_TITLE_NEW": "Add New Car",
-      "PAGE_TITLE_EDIT": "Edit Car",
-      "BACK_TO_INVENTORY": "← Back to Inventory",
-      "MAIN_DETAILS": "Main Details",
-      "MANUFACTURER": "Manufacturer",
-      "SELECT_MANUFACTURER": "Select Manufacturer",
-      "MODEL": "Model",
-      "SELECT_MODEL": "Select Model",
-      "CATEGORY": "Category",
-      "SELECT_CATEGORY": "Select Category",
-      "YEAR": "Manufacture Year",
-      "SELECT_YEAR": "Select Year",
-      "CURRENT_LOCATION": "Current Location",
-      "CONDITION": "Condition",
-      "USED": "Used",
-      "NEW": "New",
-      "SAUDI_DETAILS": "Saudi Specific Details",
-      "VIN": "Vehicle Identification Number (VIN)",
-      "SCAN": "Scan",
-      "PLATE_NUMBER": "Plate Number",
-      "ISTIMARA_EXPIRY": "Istimara Expiry Date",
-      "FAHAS_STATUS": "Fahas Status",
-      "FAHAS_VALID": "Valid",
-      "FAHAS_EXPIRED": "Expired",
-      "FAHAS_NOT_REQUIRED": "Not Required",
-      "TECHNICAL": "Technical & Visual Details",
-      "MILEAGE": "Mileage (km)",
-      "EXTERIOR_COLOR": "Exterior Color",
-      "INTERIOR_COLOR": "Interior Color",
-      "TRANSMISSION": "Transmission",
-      "AUTOMATIC": "Automatic",
-      "MANUAL": "Manual",
-      "ENGINE_SIZE": "Engine Size",
-      "FINANCIALS": "Financials",
-      "PURCHASE_PRICE": "Purchase Price",
-      "ADDITIONAL_COSTS": "Additional Costs",
-      "TRUE_TOTAL_COST": "True Total Cost",
-      "SALE_PRICE": "Sale Price",
-      "SUGGEST_PRICE_AI": "Suggest price using AI",
-      "SUGGESTION_LOW": "Low",
-      "SUGGESTION_AVG": "Average",
-      "SUGGESTION_HIGH": "High",
-      "PURCHASE_DATE": "Purchase Date",
-      "FLOOR_PLAN": "Floor Plan (optional)",
-      "NO_FINANCE": "-- No financing --",
-      "RELATED_COSTS": "Associated Costs",
-      "DESCRIPTION_PHOTOS": "Description & Photos",
-      "MARKETING_DESCRIPTION": "Marketing Description",
-      "PHOTOS": "Photos",
-      "UPLOAD_FILE": "Upload a file",
-      "BROWSE_IMAGE": "Browse Image",
-      "REMOVE": "Remove",
-      "NO_IMAGE": "No Image",
-      "CHOOSE_FILE": "Choose file",
-      "CANCEL": "Cancel",
-      "PUBLISH": "Publish to platforms",
-      "DEPOSIT_VOUCHER": "Deposit Voucher",
-      "SAVE_CHANGES": "Save changes",
-      "ADD_CAR": "Add Car"
-    },
-    "STOCK_TAKING_FORM": {
-      "PAGE_TITLE": "Stock Take",
-      "BACK_TO_LIST": "← Back to stock take list",
-      "HEADER_TITLE": "Stock Take Header",
-      "NAME": "Stock Name",
-      "DATE": "Date",
-      "CONDUCTED_BY": "Conducted By",
-      "ITEMS_TITLE": "Stock Take Details",
-      "ADD_CAR": "Add car to stock take",
-      "CAR": "Car",
-      "SYSTEM_QUANTITY": "System Quantity",
-      "ACTUAL_QUANTITY": "Actual Quantity",
-      "REMOVE": "Remove",
-      "NO_ITEMS_PROMPT": "Please click \"Add car\" to start the stock take.",
-      "CANCEL": "Cancel",
-      "SAVE_CHANGES": "Save changes",
-      "SAVE_TAKE": "Save Stock Take",
-      "ERROR_NAME_USER": "Please enter stock take name and responsible user.",
-      "ERROR_NO_ITEMS": "Please add at least one car to the stock take.",
-      "ERROR_SELECT_CAR": "Please select a car for every row in the table."
-    },
-    "TITLE": "Inventory",
-    "SCAN_VIN": "Scan VIN",
-    "ADD_NEW_CAR": "Add New Car",
-    "CONDITION_FILTER": "Condition Filter",
-    "ALL": "All",
-    "NEW_CARS": "New Cars",
-    "USED_CARS": "Used Cars",
-    "SHOW_ARCHIVED": "Show Archived",
-    "VIN": "VIN",
-    "SALE_PRICE": "Sale Price",
-    "STATUS": "Status",
+  "FORM": {
+    "PAGE_TITLE_NEW": "Add New Car",
+    "PAGE_TITLE_EDIT": "Edit Car",
+    "BACK_TO_INVENTORY": "← Back to Inventory",
+    "MAIN_DETAILS": "Main Details",
+    "MANUFACTURER": "Manufacturer",
+    "SELECT_MANUFACTURER": "Select Manufacturer",
+    "MODEL": "Model",
+    "SELECT_MODEL": "Select Model",
+    "CATEGORY": "Category",
+    "SELECT_CATEGORY": "Select Category",
+    "YEAR": "Manufacture Year",
+    "SELECT_YEAR": "Select Year",
     "CURRENT_LOCATION": "Current Location",
-    "ACTIONS": "Actions",
-    "EDIT": "Edit",
-    "DELETE": "Delete",
-    "ARCHIVE": "Archive",
-    "UNARCHIVE": "Unarchive",
+    "CONDITION": "Condition",
+    "USED": "Used",
+    "NEW": "New",
+    "SAUDI_DETAILS": "Saudi Specific Details",
+    "VIN": "Vehicle Identification Number (VIN)",
+    "SCAN": "Scan",
+    "PLATE_NUMBER": "Plate Number",
+    "ISTIMARA_EXPIRY": "Istimara Expiry Date",
+    "FAHAS_STATUS": "Fahas Status",
+    "FAHAS_VALID": "Valid",
+    "FAHAS_EXPIRED": "Expired",
+    "FAHAS_NOT_REQUIRED": "Not Required",
+    "TECHNICAL": "Technical & Visual Details",
+    "MILEAGE": "Mileage (km)",
+    "EXTERIOR_COLOR": "Exterior Color",
+    "INTERIOR_COLOR": "Interior Color",
+    "TRANSMISSION": "Transmission",
+    "AUTOMATIC": "Automatic",
+    "MANUAL": "Manual",
+    "ENGINE_SIZE": "Engine Size",
+    "FINANCIALS": "Financials",
+    "PURCHASE_PRICE": "Purchase Price",
+    "ADDITIONAL_COSTS": "Additional Costs",
+    "TRUE_TOTAL_COST": "True Total Cost",
+    "SALE_PRICE": "Sale Price",
+    "SUGGEST_PRICE_AI": "Suggest price using AI",
+    "SUGGESTION_LOW": "Low",
+    "SUGGESTION_AVG": "Average",
+    "SUGGESTION_HIGH": "High",
+    "PURCHASE_DATE": "Purchase Date",
+    "FLOOR_PLAN": "Floor Plan (optional)",
+    "NO_FINANCE": "-- No financing --",
+    "RELATED_COSTS": "Associated Costs",
+    "DESCRIPTION_PHOTOS": "Description & Photos",
+    "MARKETING_DESCRIPTION": "Marketing Description",
+    "PHOTOS": "Photos",
+    "UPLOAD_FILE": "Upload a file",
+    "BROWSE_IMAGE": "Browse Image",
+    "REMOVE": "Remove",
+    "NO_IMAGE": "No Image",
+    "CHOOSE_FILE": "Choose file",
+    "CANCEL": "Cancel",
+    "PUBLISH": "Publish to platforms",
     "DEPOSIT_VOUCHER": "Deposit Voucher",
-    "DELETE_CONFIRM_TITLE": "Delete Car",
-    "DELETE_CONFIRM_MESSAGE": "Are you sure you want to delete this car?",
-  
-
+    "SAVE_CHANGES": "Save changes",
+    "ADD_CAR": "Add Car"
+  },
+  "STOCK_TAKING_FORM": {
+    "PAGE_TITLE": "Stock Take",
+    "BACK_TO_LIST": "← Back to stock take list",
+    "HEADER_TITLE": "Stock Take Header",
+    "NAME": "Stock Name",
+    "DATE": "Date",
+    "CONDUCTED_BY": "Conducted By",
+    "ITEMS_TITLE": "Stock Take Details",
+    "ADD_CAR": "Add car to stock take",
+    "CAR": "Car",
+    "SYSTEM_QUANTITY": "System Quantity",
+    "ACTUAL_QUANTITY": "Actual Quantity",
+    "REMOVE": "Remove",
+    "NO_ITEMS_PROMPT": "Please click \"Add car\" to start the stock take.",
+    "CANCEL": "Cancel",
+    "SAVE_CHANGES": "Save changes",
+    "SAVE_TAKE": "Save Stock Take",
+    "ERROR_NAME_USER": "Please enter stock take name and responsible user.",
+    "ERROR_NO_ITEMS": "Please add at least one car to the stock take.",
+    "ERROR_SELECT_CAR": "Please select a car for every row in the table."
+  },
+  "TITLE": "Inventory",
+  "SCAN_VIN": "Scan VIN",
+  "ADD_NEW_CAR": "Add New Car",
+  "CONDITION_FILTER": "Condition Filter",
+  "ALL": "All",
+  "NEW_CARS": "New Cars",
+  "USED_CARS": "Used Cars",
+  "SHOW_ARCHIVED": "Show Archived",
+  "VIN": "VIN",
+  "SALE_PRICE": "Sale Price",
+  "STATUS": "Status",
+  "CURRENT_LOCATION": "Current Location",
+  "ACTIONS": "Actions",
+  "EDIT": "Edit",
+  "DELETE": "Delete",
+  "ARCHIVE": "Archive",
+  "UNARCHIVE": "Unarchive",
+  "DEPOSIT_VOUCHER": "Deposit Voucher",
+  "DELETE_CONFIRM_TITLE": "Delete Car",
+  "DELETE_CONFIRM_MESSAGE": "Are you sure you want to delete this car?",
   "PURCHASES": {
     "TITLE": "Purchase Invoices",
     "NEW_PURCHASE_INVOICE": "New Purchase Invoice",
@@ -1131,9 +1172,7 @@
     "UNARCHIVE": "Unarchive",
     "NO_ARCHIVED_INVOICES": "No invoices in archive.",
     "NO_PURCHASE_INVOICES": "No purchase invoices yet."
-  
   },
-
   "PROCUREMENT.PURCHASE_RETURN": {
     "CREATE_TITLE": "Create Purchase Return",
     "BACK_TO_LIST": "Back to Returns",
@@ -1161,12 +1200,12 @@
     "COL_SUPPLIER": "Supplier",
     "COL_TOTAL": "Return Total",
     "NO_RETURNS": "No purchase return invoices yet.",
-     "CASH_RETURN_TITLE": "New Cash Purchase Return",
-      "CREDIT_RETURN_TITLE": "New Credit Purchase Return",
-      "ERROR_NO_ITEMS": "Please add at least one item to return",
-      "ERROR_INVALID_FORM": "Please fill all required fields",
-      "SUCCESS_RETURN_SAVED": "Purchase return saved successfully",
-      "ERROR_SAVING_RETURN": "Error saving purchase return"
+    "CASH_RETURN_TITLE": "New Cash Purchase Return",
+    "CREDIT_RETURN_TITLE": "New Credit Purchase Return",
+    "ERROR_NO_ITEMS": "Please add at least one item to return",
+    "ERROR_INVALID_FORM": "Please fill all required fields",
+    "SUCCESS_RETURN_SAVED": "Purchase return saved successfully",
+    "ERROR_SAVING_RETURN": "Error saving purchase return"
   },
   "PURCHASE_RETURN": {
     "CREATE_TITLE": "Create Purchase Return",
@@ -1241,14 +1280,12 @@
     "PAYMENT": "Payment",
     "DOCUMENTS": "Documents",
     "NO_INVOICES": "No sales invoices yet.",
-
     "TRANSFER": {
       "START": "Start Transfer",
       "IN_PROGRESS": "In Progress...",
       "COMPLETED": "Completed",
       "RETRY": "Retry"
     },
-
     "POS_PAYMENT": "Pay with POS",
     "PRINT_INVOICE": "Print Invoice",
     "EDIT_INVOICE": "Edit Invoice",
@@ -1263,7 +1300,6 @@
     "CREDIT_LIST_TITLE": "Credit Sales Invoices",
     "CASH_TITLE": "Cash Sales Invoices",
     "CREDIT_TITLE": "Credit Sales Invoices",
-
     "RETURN": {
       "LIST_TITLE": "Sales Returns",
       "NEW_RETURN": "Create New Sales Return",
@@ -1303,7 +1339,7 @@
       "DEPOSIT_REFUND": "Deposit Refund",
       "NET_REFUND": "Net Refund Amount",
       "SAVE_AND_SEND_APPROVAL": "Save & Send for Approval",
-       "CASH_RETURN_TITLE": "Cash Sales Return",
+      "CASH_RETURN_TITLE": "Cash Sales Return",
       "CREDIT_RETURN_TITLE": "Credit Sales Return",
       "ERROR_INVALID_FORM": "Please fill in all required fields",
       "UPDATED_SUCCESS": "Sales return updated successfully",
@@ -1324,7 +1360,6 @@
       "TOTAL_SUMMARY": "Total: {0}",
       "COUNT_SUMMARY": "Total Returns: {0}"
     },
-
     "PRINTABLE": {
       "INVOICE": "Invoice",
       "INVOICE_TO": "Invoice To:",
@@ -1365,21 +1400,18 @@
       "FOOTER_DISCLAIMER": "This is a simplified tax invoice",
       "NO_INVOICE": "Invoice not found."
     },
-
     "TYPE": {
       "LABEL": "Sale Type",
       "CASH": "Cash",
       "CREDIT": "Credit",
       "INSTALLMENTS": "Installments"
     },
-
     "DOWN_PAYMENT": {
       "LABEL": "Down Payment",
       "PLACEHOLDER": "Enter down payment amount",
       "REQUIRED": "Down payment is required for Credit and Installment sales",
       "MIN": "Down payment must be greater than 0"
     },
-
     "CAR_LINK": {
       "TITLE": "Link Car to Customer",
       "CHASSIS_NUMBER": "Chassis Number",
@@ -1388,7 +1420,6 @@
       "PLATE_PLACEHOLDER": "Enter plate number",
       "BUTTON": "Link Car"
     },
-
     "CONTRACT": {
       "TITLE": "Sales Contract",
       "CONTENT": "Contract Content",
@@ -1397,7 +1428,6 @@
       "EDITABLE_BEFORE_APPROVAL": "Editable before approval",
       "READONLY_AFTER_APPROVAL": "Read-only after approval"
     },
-
     "CREDIT_LIST": {
       "TITLE": "Credit Sales Invoices",
       "BACK_TO_SALES": "Back to Sales",
@@ -1411,7 +1441,6 @@
       "NO_DATA": "No credit invoices found."
     }
   },
-
   "MANAGER_APPROVAL": {
     "TITLE": "Manager Approval - Returns",
     "SALES_RETURNS": "Sales Returns",
@@ -1436,14 +1465,11 @@
     "CONFIRM_REJECTION": "Confirm Rejection",
     "APPROVAL_SUCCESS": "Return approved successfully",
     "REJECTION_SUCCESS": "Return rejected successfully"
-  }
-
-  ,
+  },
   "INSTALLMENT": {
     "DASHBOARD": {
       "TITLE": "Installment Management"
     },
-
     "PREVIEW": {
       "TITLE": "Installment Schedule Preview",
       "TOTAL_AMOUNT": "Total Amount",
@@ -1455,7 +1481,6 @@
       "TOTAL_INSTALLMENTS": "Total Installments",
       "REMAINING_AMOUNT": "Remaining Amount"
     },
-
     "GRID": {
       "ID": "ID",
       "TOTAL_AMOUNT": "Total Amount",
@@ -1472,7 +1497,6 @@
       "RESCHEDULE": "Reschedule",
       "REGISTER_PAYMENT": "Register Payment"
     },
-
     "STATUS": {
       "PAID": "Paid",
       "UNPAID": "Unpaid",
@@ -1480,7 +1504,6 @@
       "ACTIVE": "Active",
       "CLOSED": "Closed"
     },
-
     "RESCHEDULE": {
       "TITLE": "Reschedule Installment",
       "REASON": "Reason for Rescheduling",
@@ -1495,7 +1518,6 @@
       "SUBMIT": "Reschedule"
     }
   },
-
   "ACCOUNTS": {
     "RECEIPTS": {
       "LIST_TITLE": "Receipt Vouchers",
@@ -1509,18 +1531,18 @@
       "NO_RECEIPTS": "No receipt vouchers registered."
     },
     "FLOOR_PLAN_REPORT": {
-     "TITLE": "Financed Cars Report",
+      "TITLE": "Financed Cars Report",
       "TOTAL_FINANCED": "Total Financed",
-       "TOTAL_ACCRUED_COST": "Total Accrued Cost",
+      "TOTAL_ACCRUED_COST": "Total Accrued Cost",
       "DETAILS_TITLE": "Financing Details",
       "CAR": "Car",
-     "PURCHASE_PRICE": "Purchase Price",
+      "PURCHASE_PRICE": "Purchase Price",
       "PURCHASE_DATE": "Purchase Date",
-     "PLAN": "Plan",
-     "DAYS_IN_STOCK": "Days in Stock",
-     "ACCRUED_COST": "Accrued Cost",
-     "NO_FINANCED_CARS": "No Financed Cars"
-           },
+      "PLAN": "Plan",
+      "DAYS_IN_STOCK": "Days in Stock",
+      "ACCRUED_COST": "Accrued Cost",
+      "NO_FINANCED_CARS": "No Financed Cars"
+    },
     "PAYMENTS": {
       "LIST_TITLE": "Payment Vouchers",
       "NEW": "New Payment Voucher",
@@ -1560,21 +1582,20 @@
         "INVOICE_DATE": "Invoice Date",
         "UPDATE": "Update",
         "SOURCE_ACCOUNT": "Source Account",
-      "TOTAL_VOUCHER_AMOUNT": "Total Voucher Amount",
-      "AUTO_DISTRIBUTE": "Auto Distribute",
-      "CAR_DISTRIBUTION": "Car Distribution",
-      "CHASSIS_NUMBER": "Chassis Number",
-      "MODEL": "Model",
-      "ACCOUNTING_PREVIEW": "Accounting Preview",
-      "DEBIT": "Debit",
-      "CREDIT": "Credit",
-      "CAR_PAYMENTS": "Car Payments",
-      "BANK_CASH": "Bank/Cash",
-      "DIFFERENCE": "Difference",
-      "ERROR_LOADING": "Error loading payment",
-      "ERROR_UPDATING": "Error updating payment",
-      "ERROR_SAVING": "Error saving payment"
-
+        "TOTAL_VOUCHER_AMOUNT": "Total Voucher Amount",
+        "AUTO_DISTRIBUTE": "Auto Distribute",
+        "CAR_DISTRIBUTION": "Car Distribution",
+        "CHASSIS_NUMBER": "Chassis Number",
+        "MODEL": "Model",
+        "ACCOUNTING_PREVIEW": "Accounting Preview",
+        "DEBIT": "Debit",
+        "CREDIT": "Credit",
+        "CAR_PAYMENTS": "Car Payments",
+        "BANK_CASH": "Bank/Cash",
+        "DIFFERENCE": "Difference",
+        "ERROR_LOADING": "Error loading payment",
+        "ERROR_UPDATING": "Error updating payment",
+        "ERROR_SAVING": "Error saving payment"
       }
     },
     "FORM": {
@@ -1624,7 +1645,6 @@
       "UPDATE": "Update",
       "AUTO_DISTRIBUTE_TOOLTIP": "Automatically distribute the total among car rows"
     },
-   
     "DEPOSITS": {
       "LIST_TITLE": "Deposit Vouchers",
       "NEW": "Create Deposit Voucher",
@@ -1694,8 +1714,8 @@
         "SAVE": "Save Advance",
         "FILL_REQUIRED": "Please fill all required fields correctly.",
         "SAVED": "Deposit voucher issued successfully.",
-        "ERROR_SAVING": "Unable to save the deposit voucher."
-        ,"SAVED_OFFLINE": "Deposit saved locally (offline mode)."
+        "ERROR_SAVING": "Unable to save the deposit voucher.",
+        "SAVED_OFFLINE": "Deposit saved locally (offline mode)."
       }
     },
     "RECEIPT_FORM": {
@@ -2300,7 +2320,6 @@
     "REJECT": "Reject",
     "SUBMIT": "Submit"
   },
-
   "CHART_OF_ACCOUNTS": {
     "TREE_TITLE": "Chart of Accounts",
     "ADD_ACCOUNT": "Add Account",
@@ -2324,7 +2343,6 @@
     "ERROR_DELETE": "Error deleting account",
     "CANNOT_DELETE": "Cannot delete account with child accounts"
   },
-
   "ACCOUNTING": {
     "CHART_OF_ACCOUNTS": "Chart of Accounts",
     "JOURNAL_ENTRIES": "Journal Entries",
@@ -2350,7 +2368,7 @@
     "DELETE_ENTRY": "Delete Journal Entry",
     "levels": "Levels",
     "IS_ACTIVE": "Is Active",
-    "ITEM_NAME":"Item Name",
+    "ITEM_NAME": "Item Name",
     "STORE": "Store",
     "ACCOUNT_CODE": "Account Code",
     "ACCOUNT_NAME": "Account Name",
@@ -2516,7 +2534,6 @@
     "ERROR_CREATING_ENTRY": "Error creating journal entry",
     "ERROR_UPDATING_ENTRY": "Error updating journal entry"
   },
-
   "COST_CENTER": {
     "LIST_TITLE": "Cost Centers",
     "LIST_SUBTITLE": "Manage and track cost centers for vehicles and operations",
@@ -2576,7 +2593,6 @@
     "COST_TYPE_STORAGE": "Storage Fees",
     "COST_TYPE_OTHER": "Other"
   },
-
   "SALES_INVOICE": {
     "VEHICLE_LOOKUP_TITLE": "Select Vehicle",
     "SEARCH_VIN": "Search by VIN",
@@ -2895,6 +2911,7 @@
     "WORKFLOW_NAME_PLACEHOLDER": "e.g., Purchase Approval Workflow",
     "OVERALL_STATUS": "Overall Status",
     "TOTAL_LEVELS": "Total Levels",
+    "HISTORY_ENTRIES": "History Entries",
     "PROCESSING": "Processing your request...",
     "NO_WORKFLOWS": "No workflows found",
     "CREATE_FIRST_WORKFLOW": "Create your first approval workflow to get started",
@@ -3303,6 +3320,303 @@
       "SCHEDULE_DETAILS": "Schedule Details",
       "READINESS_CHECKLIST": "Readiness Checklist",
       "SAVE_DELIVERY": "Save Delivery"
+    }
+  },
+  "USERS": {
+    "LIST": {
+      "TITLE": "Users",
+      "SUBTITLE": "Manage system users, roles, and account security",
+      "ADD_NEW": "Add New User",
+      "SEARCH_PLACEHOLDER": "Search by name, role, or status",
+      "NO_USERS": "No users found",
+      "ACTIONS": "Actions",
+      "EDIT": "Edit",
+      "DELETE": "Delete",
+      "ASSIGN_ROLE": "Assign Role",
+      "RESET_PASSWORD": "Reset Password",
+      "ACTIVATE": "Activate",
+      "DEACTIVATE": "Deactivate",
+      "LOCK": "Lock Account",
+      "UNLOCK": "Unlock Account",
+      "LOCK_STATUS": "Lock Status"
+    },
+    "FORM": {
+      "ADD_TITLE": "Add New User",
+      "EDIT_TITLE": "Edit User",
+      "USERNAME": "Username",
+      "PASSWORD": "Password",
+      "PASSWORD_PLACEHOLDER": "Leave blank to keep current password",
+      "ROLE": "Role",
+      "SELECT_ROLE": "Select a role",
+      "STATUS": "Status",
+      "CANCEL": "Cancel",
+      "ADD_USER": "Add User",
+      "EDIT_USER": "Save Changes",
+      "BACK_TO_USERS": "Back to Users"
+    },
+    "STATUS": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive",
+      "LOCKED": "Locked",
+      "UNLOCKED": "Unlocked"
+    },
+    "VALIDATION": {
+      "USERNAME_REQUIRED": "Username is required",
+      "PASSWORD_REQUIRED": "Password is required",
+      "PASSWORD_MIN_LENGTH": "Password must be at least 6 characters",
+      "ROLE_REQUIRED": "Please select a valid role",
+      "STATUS_REQUIRED": "Status is required"
+    },
+    "CONFIRM": {
+      "DELETE_TITLE": "Delete User",
+      "DELETE_MESSAGE": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+      "ACTIVATE_TITLE": "Activate User",
+      "ACTIVATE_MESSAGE": "Activate \"{{name}}\"? They will be able to log in again.",
+      "DEACTIVATE_TITLE": "Deactivate User",
+      "DEACTIVATE_MESSAGE": "Deactivate \"{{name}}\"? They will no longer be able to log in.",
+      "LOCK_TITLE": "Lock Account",
+      "LOCK_MESSAGE": "Lock the account for \"{{name}}\"? They will be immediately blocked from logging in.",
+      "UNLOCK_TITLE": "Unlock Account",
+      "UNLOCK_MESSAGE": "Unlock the account for \"{{name}}\"?"
+    },
+    "RESET_PASSWORD": {
+      "TITLE": "Reset Password",
+      "SUBTITLE": "Set a new password for {{name}}",
+      "NEW_PASSWORD": "New Password",
+      "SUBMIT": "Reset Password"
+    },
+    "ASSIGN_ROLE": {
+      "TITLE": "Assign Role",
+      "SUBTITLE": "Choose a role for {{name}}",
+      "SUBMIT": "Assign Role"
+    },
+    "SUCCESS": {
+      "CREATED": "User created successfully",
+      "UPDATED": "User updated successfully",
+      "DELETED": "User deleted successfully",
+      "ACTIVATED": "User activated successfully",
+      "DEACTIVATED": "User deactivated successfully",
+      "LOCKED": "User account locked successfully",
+      "UNLOCKED": "User account unlocked successfully",
+      "PASSWORD_RESET": "Password reset successfully",
+      "ROLE_ASSIGNED": "Role assigned successfully"
+    },
+    "ERRORS": {
+      "LOAD_FAILED": "Failed to load user",
+      "SAVE_FAILED": "Failed to save user",
+      "DELETE_FAILED": "Failed to delete user",
+      "ACTION_FAILED": "Action failed. Please try again.",
+      "PASSWORD_RESET_FAILED": "Failed to reset password",
+      "ROLE_ASSIGN_FAILED": "Failed to assign role"
+    }
+  },
+  "ROLES": {
+    "SUCCESS": {
+      "CREATED": "Role created successfully",
+      "PERMISSIONS_UPDATED": "Permissions updated successfully"
+    },
+    "ERRORS": {
+      "CREATE_FAILED": "Failed to create role",
+      "UPDATE_FAILED": "Failed to update permissions"
+    }
+  },
+  "DIRECT_SALES": {
+    "CASH": {
+      "TITLE": "Cash Sales",
+      "SUBTITLE": "Manage direct cash sale invoices",
+      "ADD_NEW": "New Cash Sale",
+      "NO_RECORDS": "No cash sale invoices found",
+      "LOAD_FAILED": "Failed to load cash sale invoices"
+    },
+    "CREDIT": {
+      "TITLE": "Credit Sales",
+      "SUBTITLE": "Manage direct credit sale invoices",
+      "ADD_NEW": "New Credit Sale",
+      "NO_RECORDS": "No credit sale invoices found",
+      "LOAD_FAILED": "Failed to load credit sale invoices"
+    },
+    "INSTALLMENT": {
+      "TITLE": "Installment Sales",
+      "SUBTITLE": "Manage direct installment sale invoices",
+      "ADD_NEW": "New Installment Sale",
+      "NO_RECORDS": "No installment sale invoices found",
+      "LOAD_FAILED": "Failed to load installment sale invoices"
+    }
+  },
+  "CAR_REPORTS": {
+    "MODULE_TITLE": "Car Management Reports",
+    "BACK_TO_REPORTS": "Car Management",
+    "NO_DATA": "No records found",
+    "LOAD_FAILED": "Failed to load report data",
+    "FILTER": {
+      "COMPANY": "Company",
+      "BRANCH": "Branch",
+      "WAREHOUSE": "Warehouse",
+      "BRAND": "Brand",
+      "MODEL": "Model",
+      "CATEGORY": "Category",
+      "SUPPLIER": "Supplier",
+      "COLOR": "Color",
+      "STATUS": "Status",
+      "VIN": "VIN",
+      "ENGINE_NUMBER": "Engine Number",
+      "DATE_FROM": "Date From",
+      "DATE_TO": "Date To",
+      "YEAR": "Year",
+      "SALES_STATUS": "Sales Status"
+    },
+    "COL": {
+      "VIN": "VIN",
+      "BRAND": "Brand",
+      "MODEL": "Model",
+      "YEAR": "Year",
+      "COLOR": "Color",
+      "CONDITION": "Condition",
+      "STATUS": "Status",
+      "LOCATION": "Location",
+      "MILEAGE": "Mileage",
+      "PURCHASE_PRICE": "Purchase Price",
+      "SALE_PRICE": "Sale Price",
+      "TOTAL_COST": "Total Cost",
+      "CONSIGNMENT_NUMBER": "Consignment No.",
+      "SUPPLIER": "Supplier",
+      "ENGINE_NUMBER": "Engine Number",
+      "ARRIVAL_DATE": "Arrival Date",
+      "CURRENT_COST": "Current Cost",
+      "EXPECTED_SALE_PRICE": "Expected Sale Price",
+      "DAYS_IN_STOCK": "Days in Stock",
+      "REQUEST_NUMBER": "Request No.",
+      "REQUEST_DATE": "Request Date",
+      "CUSTOMER": "Customer",
+      "PRIORITY": "Priority",
+      "RESERVATION_STATUS": "Reservation Status",
+      "REFERENCE_NUMBER": "Reference No.",
+      "ENTRY_TYPE": "Entry Type",
+      "CAR": "Car",
+      "WAREHOUSE": "Warehouse",
+      "EMPLOYEE": "Employee",
+      "ENTRY_DATE": "Entry Date",
+      "DELIVERY_NUMBER": "Delivery No.",
+      "BRANCH": "Branch",
+      "DELIVERY_DATE": "Delivery Date",
+      "PROGRESS": "Progress %",
+      "ADDITIONAL_COSTS": "Additional Costs",
+      "ASSOCIATED_EXPENSES": "Associated Expenses",
+      "LANDED_COST": "Landed Cost",
+      "PURCHASE_DATE": "Purchase Date",
+      "PROFIT": "Profit",
+      "PURCHASE_INVOICE_NUMBER": "Purchase Invoice No.",
+      "UNIT_COST": "Unit Cost"
+    },
+    "CAVEAT": {
+      "SOLD_UNION": "This report combines ordinary inventory and consignment cars marked as Sold.",
+      "MOVEMENT_FROM_ENTRIES": "Car movement is derived from Daily Entries (Transfer/Receiving/Return records), not a dedicated movement log.",
+      "NO_BRANCH_FIELD": "Cars are not currently linked to a Branch in the system; this report shows all cars until that link is added.",
+      "NO_WAREHOUSE_FIELD": "Cars are not currently linked to a Warehouse in the system; this report shows all cars until that link is added.",
+      "SUPPLIER_CONSIGNMENT_ONLY": "Supplier data is only available for Consignment cars; ordinary purchased inventory is not shown here.",
+      "ENGINE_CONSIGNMENT_ONLY": "Engine Number is only recorded for Consignment cars; ordinary inventory does not have this field.",
+      "VALUATION_METHOD_NOT_APPLIED": "This valuation is a simple sum of recorded cost and does not yet apply the configured costing method (FIFO/LIFO/Average/Standard).",
+      "PROFITABILITY_SIMPLIFIED": "Profitability is calculated as Sale Price minus Landed Cost and does not account for consignment commission or partial payments."
+    },
+    "CARS": {
+      "TITLE": "Cars Report",
+      "SUBTITLE": "Browse, filter, and export cars data."
+    },
+    "CURRENT_INVENTORY": {
+      "TITLE": "Current Car Inventory Report",
+      "SUBTITLE": "Browse, filter, and export current car inventory data."
+    },
+    "AVAILABLE": {
+      "TITLE": "Available Cars Report",
+      "SUBTITLE": "Browse, filter, and export available cars data."
+    },
+    "RESERVED": {
+      "TITLE": "Reserved Cars Report",
+      "SUBTITLE": "Browse, filter, and export reserved cars data."
+    },
+    "SOLD": {
+      "TITLE": "Sold Cars Report",
+      "SUBTITLE": "Browse, filter, and export sold cars data."
+    },
+    "DELIVERED": {
+      "TITLE": "Delivered Cars Report",
+      "SUBTITLE": "Browse, filter, and export delivered cars data."
+    },
+    "REQUESTED": {
+      "TITLE": "Requested Cars Report",
+      "SUBTITLE": "Browse, filter, and export requested cars data."
+    },
+    "CONSIGNMENT": {
+      "TITLE": "Consignment Cars Report",
+      "SUBTITLE": "Browse, filter, and export consignment cars data."
+    },
+    "DAILY_ENTRIES": {
+      "TITLE": "Daily Entries Report",
+      "SUBTITLE": "Browse, filter, and export daily entries data."
+    },
+    "DELIVERY_SCHEDULE": {
+      "TITLE": "Delivery Schedule Report",
+      "SUBTITLE": "Browse, filter, and export delivery schedule data."
+    },
+    "MOVEMENT": {
+      "TITLE": "Car Movement Report",
+      "SUBTITLE": "Browse, filter, and export car movement data."
+    },
+    "STATUS": {
+      "TITLE": "Car Status Report",
+      "SUBTITLE": "Browse, filter, and export car status data."
+    },
+    "BY_BRANCH": {
+      "TITLE": "Cars by Branch Report",
+      "SUBTITLE": "Browse, filter, and export cars by branch data."
+    },
+    "BY_WAREHOUSE": {
+      "TITLE": "Cars by Warehouse Report",
+      "SUBTITLE": "Browse, filter, and export cars by warehouse data."
+    },
+    "BY_SUPPLIER": {
+      "TITLE": "Cars by Supplier Report",
+      "SUBTITLE": "Browse, filter, and export cars by supplier data."
+    },
+    "BY_BRAND": {
+      "TITLE": "Cars by Brand Report",
+      "SUBTITLE": "Browse, filter, and export cars by brand data."
+    },
+    "BY_MODEL": {
+      "TITLE": "Cars by Model Report",
+      "SUBTITLE": "Browse, filter, and export cars by model data."
+    },
+    "BY_YEAR": {
+      "TITLE": "Cars by Year Report",
+      "SUBTITLE": "Browse, filter, and export cars by year data."
+    },
+    "BY_COLOR": {
+      "TITLE": "Cars by Color Report",
+      "SUBTITLE": "Browse, filter, and export cars by color data."
+    },
+    "BY_VIN": {
+      "TITLE": "Cars by VIN Report",
+      "SUBTITLE": "Browse, filter, and export cars by vin data."
+    },
+    "BY_ENGINE": {
+      "TITLE": "Cars by Engine Number Report",
+      "SUBTITLE": "Browse, filter, and export cars by engine number data."
+    },
+    "INVENTORY_AGING": {
+      "TITLE": "Inventory Aging Report",
+      "SUBTITLE": "Browse, filter, and export inventory aging data."
+    },
+    "INVENTORY_VALUATION": {
+      "TITLE": "Inventory Valuation Report",
+      "SUBTITLE": "Browse, filter, and export inventory valuation data."
+    },
+    "CAR_COST": {
+      "TITLE": "Car Cost Report",
+      "SUBTITLE": "Browse, filter, and export car cost data."
+    },
+    "CAR_PROFITABILITY": {
+      "TITLE": "Car Profitability Report",
+      "SUBTITLE": "Browse, filter, and export car profitability data."
     }
   }
 }

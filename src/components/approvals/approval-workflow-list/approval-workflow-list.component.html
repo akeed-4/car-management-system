@@ -22,8 +22,8 @@
         keyExpr="id">
 
         <!-- Workflow Name -->
-        <dxi-column 
-          dataField="name" 
+        <dxi-column
+          dataField="workflowName"
           caption="{{ 'APPROVALS.WORKFLOW_NAME' | translate }}"
           [width]="250">
         </dxi-column>
@@ -68,17 +68,17 @@
           <dxi-button
             icon="edit"
             hint="{{ 'APPROVALS.EDIT_WORKFLOW' | translate }}"
-            [onClick]="editWorkflow">
+            [onClick]="editWorkflowClick">
           </dxi-button>
           <dxi-button
-            [icon]="getStatusIcon"
-            [hint]="getStatusHint"
-            [onClick]="toggleStatus">
+            [icon]="statusIcon"
+            [hint]="statusHint"
+            [onClick]="toggleStatusClick">
           </dxi-button>
           <dxi-button
             icon="trash"
             hint="{{ 'APPROVALS.DELETE_WORKFLOW' | translate }}"
-            [onClick]="deleteWorkflow">
+            [onClick]="deleteWorkflowClick">
           </dxi-button>
         </dxi-column>
 
@@ -93,7 +93,7 @@
         <div *dxTemplate="let data of 'levelsTemplate'">
           <span class="level-badge">
             <mat-icon>layers</mat-icon>
-            {{ data.data.levels.length }}
+            {{ data.data.approvalLevels?.length || 0 }}
           </span>
         </div>
 

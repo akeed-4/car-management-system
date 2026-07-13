@@ -38,28 +38,36 @@ import { NotificationService } from '@/src/services/notification.service';
 export class PendingApprovalsComponent implements OnInit {
   private approvalService = inject(ApprovalService);
   private dialog = inject(MatDialog);
-  private toastService = inject(NotificationService);
-private translate = inject(TranslateService);
+  private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
   pendingApprovals = signal<ApprovalRequest[]>([]);
   summary = signal<PendingApprovalSummary | null>(null);
   isLoading = signal(false);
   selectedTab = signal(0);
+
+  constructor() {
+    this.reviewClick = this.reviewClick.bind(this);
+  }
 
   ngOnInit(): void {
     this.loadPendingApprovals();
     this.loadSummary();
   }
 
+  reviewClick(e: any): void {
+    this.openApprovalDialog(e.row.data);
+  }
+
   loadPendingApprovals(): void {
     this.isLoading.set(true);
-    this.approvalService.getPendingApprovals(1, 100).subscribe({
-      next: (response) => {
-        this.pendingApprovals.set(response.items);
+    this.approvalService.getPendingApprovals().subscribe({
+      next: (approvals) => {
+        this.pendingApprovals.set(approvals);
         this.isLoading.set(false);
       },
       error: (error) => {
         console.error('Error loading pending approvals:', error);
-       this.toastService.showError(this.translate.instant('APPROVALS.ERROR_LOADING_PENDING'));
+        this.notificationService.showError(this.translate.instant('APPROVALS.ERROR_LOADING_PENDING'));
         this.isLoading.set(false);
       }
     });
@@ -83,32 +91,19 @@ private translate = inject(TranslateService);
       if (result) {
         this.loadPendingApprovals();
         this.loadSummary();
-        this.approvalService.refreshPendingCount();
+        this.approvalService.refreshCount();
       }
     });
   }
 
   getPriorityColor(priority?: string): string {
     switch (priority) {
+      case 'Urgent': return 'warn';
       case 'High': return 'warn';
-      case 'Medium': return 'accent';
-      case 'Low': return 'primary';
+      case 'Normal': return 'primary';
+      case 'Low': return 'accent';
       default: return '';
     }
-  }
-
-  getStatusColor(status: string): string {
-    switch (status) {
-      case 'Approved': return 'primary';
-      case 'Rejected': return 'warn';
-      case 'Pending': return 'accent';
-      default: return '';
-    }
-  }
-
-  isOverdue(approval: ApprovalRequest): boolean {
-    if (!approval.dueDate) return false;
-    return new Date(approval.dueDate) < new Date();
   }
 
   formatDate(date: string): string {
@@ -116,6 +111,9 @@ private translate = inject(TranslateService);
   }
 
   getProgressPercentage(approval: ApprovalRequest): number {
+    if (!approval.totalLevels) {
+      return 0;
+    }
     return (approval.currentLevel / approval.totalLevels) * 100;
   }
 }

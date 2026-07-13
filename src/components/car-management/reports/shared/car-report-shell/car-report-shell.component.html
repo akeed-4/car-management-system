@@ -1,0 +1,78 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="breadcrumb">
+      <span>{{ 'CAR_REPORTS.BACK_TO_REPORTS' | translate }}</span>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="current">{{ breadcrumbKey | translate }}</span>
+    </div>
+    <div class="header-row">
+      <div>
+        <h1>{{ titleKey | translate }}</h1>
+        <p class="subtitle">{{ subtitleKey | translate }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="data-caveat" *ngIf="dataCaveatKey">
+    <mat-icon>info</mat-icon>
+    <span>{{ dataCaveatKey | translate }}</span>
+  </div>
+
+  <app-report-filter-panel
+    [fields]="filterFields"
+    [filters]="filters"
+    (filtersChange)="onFiltersChange($event)">
+  </app-report-filter-panel>
+
+  <app-report-toolbar
+    [recordCount]="rows.length"
+    [canPrint]="canPrint"
+    [canExportExcel]="canExportExcel"
+    [canExportPdf]="canExportPdf"
+    (refresh)="onRefresh()"
+    (exportExcel)="exportExcelHandler()"
+    (exportPdf)="exportPdfHandler()"
+    (print)="printGrid()"
+    (columnChooser)="openColumnChooser()">
+  </app-report-toolbar>
+
+  <div class="grid-container">
+    <div class="loading-overlay" *ngIf="loading">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <dx-data-grid
+      *ngIf="!loading"
+      [dataSource]="rows"
+      [showBorders]="true"
+      [columnAutoWidth]="true"
+      [rowAlternationEnabled]="true"
+      [rtlEnabled]="true"
+      [allowColumnReordering]="true"
+      [allowColumnResizing]="true"
+      [columnChooser]="{ enabled: true }"
+      [wordWrapEnabled]="true"
+      height="600px"
+      [showRowLines]="true"
+      [noDataText]="'CAR_REPORTS.NO_DATA' | translate">
+
+      <dxo-search-panel [visible]="true" [width]="260"></dxo-search-panel>
+      <dxo-filter-row [visible]="true"></dxo-filter-row>
+      <dxo-header-filter [visible]="true"></dxo-header-filter>
+      <dxo-grouping [autoExpandAll]="false"></dxo-grouping>
+      <dxo-group-panel [visible]="true"></dxo-group-panel>
+      <dxo-paging [pageSize]="20"></dxo-paging>
+      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50, 100]" [showInfo]="true"></dxo-pager>
+
+      <dxi-column
+        *ngFor="let col of columns"
+        [dataField]="col.dataField"
+        [caption]="col.captionKey | translate"
+        [dataType]="col.dataType === 'currency' ? 'number' : (col.dataType || 'string')"
+        [format]="col.dataType === 'currency' ? { type: 'fixedPoint', precision: 2 } : undefined"
+        [width]="col.width"
+        [visible]="col.visible !== false">
+      </dxi-column>
+    </dx-data-grid>
+  </div>
+</div>

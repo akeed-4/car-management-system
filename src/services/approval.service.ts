@@ -1,18 +1,21 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { Observable, BehaviorSubject, map, tap } from 'rxjs';
 import { environment } from '../environments/environment';
-import { 
-  ApprovalWorkflow, 
-  DocumentType 
+import {
+  ApprovalWorkflow,
+  CreateApprovalWorkflowDto,
+  UpdateApprovalWorkflowDto,
+  DocumentType
 } from '../models/approval-workflow.model';
-import { 
-  ApprovalRequest, 
-  ApprovalAction, 
+import {
+  ApprovalRequest,
+  ApprovalAction,
+  ReturnApprovalAction,
   ApprovalHistory,
-  PendingApprovalSummary,
-  ApprovalStatus
+  ApprovalQuery,
+  StartApprovalRequest,
+  PendingApprovalSummary
 } from '../models/approval-request.model';
 
 @Injectable({
@@ -20,251 +23,187 @@ import {
 })
 export class ApprovalService {
   private apiUrl = environment.origin + 'api';
-  
+
   // Real-time updates for pending approvals count
   private pendingCountSubject = new BehaviorSubject<number>(0);
   public pendingCount$ = this.pendingCountSubject.asObservable();
 
   constructor(private http: HttpClient) {
-    this.loadPendingCount();
+    this.refreshPendingCount();
   }
 
   // ==================== WORKFLOW MANAGEMENT ====================
-  
-  /**
-   * Get all approval workflows
-   */
+
   getWorkflows(): Observable<ApprovalWorkflow[]> {
     return this.http.get<ApprovalWorkflow[]>(`${this.apiUrl}/ApprovalWorkflows`);
   }
 
-  /**
-   * Get workflow by ID
-   */
   getWorkflowById(id: number): Observable<ApprovalWorkflow> {
     return this.http.get<ApprovalWorkflow>(`${this.apiUrl}/ApprovalWorkflows/${id}`);
   }
 
-  /**
-   * Get workflows by document type
-   */
   getWorkflowsByDocumentType(documentType: DocumentType): Observable<ApprovalWorkflow[]> {
-    return this.http.get<ApprovalWorkflow[]>(`${this.apiUrl}/ApprovalWorkflows/ByType/${documentType}`);
+    return this.http.get<ApprovalWorkflow[]>(`${this.apiUrl}/ApprovalWorkflows/by-document-type/${documentType}`);
   }
 
-  /**
-   * Create new workflow
-   */
-  createWorkflow(workflow: Omit<ApprovalWorkflow, 'id'>): Observable<ApprovalWorkflow> {
-    return this.http.post<ApprovalWorkflow>(`${this.apiUrl}/ApprovalWorkflows`, workflow);
+  createWorkflow(workflow: CreateApprovalWorkflowDto): Observable<ApprovalWorkflow> {
+    return this.http.post<ApprovalWorkflow>(`${this.apiUrl}/ApprovalWorkflows/Create`, workflow);
   }
 
-  /**
-   * Update workflow
-   */
-  updateWorkflow(id: number, workflow: Partial<ApprovalWorkflow>): Observable<ApprovalWorkflow> {
-    return this.http.put<ApprovalWorkflow>(`${this.apiUrl}/ApprovalWorkflows/${id}`, workflow);
+  updateWorkflow(id: number, workflow: UpdateApprovalWorkflowDto): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/ApprovalWorkflows/${id}`, workflow);
   }
 
-  /**
-   * Delete workflow
-   */
   deleteWorkflow(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/ApprovalWorkflows/${id}`);
   }
 
-  /**
-   * Activate/Deactivate workflow
-   */
   toggleWorkflowStatus(id: number, isActive: boolean): Observable<void> {
-    return this.http.patch<void>(`${this.apiUrl}/ApprovalWorkflows/${id}/Status`, { isActive });
+    const action = isActive ? 'activate' : 'deactivate';
+    return this.http.post<void>(`${this.apiUrl}/ApprovalWorkflows/${id}/${action}`, {});
   }
 
-  // ==================== APPROVAL REQUESTS ====================
+  // ==================== APPROVAL PROCESSES ====================
 
-  /**
-   * Submit document for approval
-   */
-  submitForApproval(
-    documentType: DocumentType,
-    documentId: number,
-    documentNumber: string,
-    amount?: number
-  ): Observable<ApprovalRequest> {
-    return this.http.post<ApprovalRequest>(`${this.apiUrl}/ApprovalRequests/Submit`, {
-      documentType,
-      documentId,
-      documentNumber,
-      amount
-    }).pipe(
-      tap(() => this.loadPendingCount())
+  submitForApproval(request: StartApprovalRequest): Observable<ApprovalRequest> {
+    return this.http.post<ApprovalRequest>(`${this.apiUrl}/ApprovalProcesses/start`, request).pipe(
+      tap(() => this.refreshPendingCount())
     );
   }
 
-  /**
-   * Get approval request by document
-   */
-  getApprovalRequestByDocument(
-    documentType: DocumentType,
-    documentId: number
-  ): Observable<ApprovalRequest> {
-    return this.http.get<ApprovalRequest>(
-      `${this.apiUrl}/ApprovalRequests/ByDocument/${documentType}/${documentId}`
-    );
+  getApprovalRequestByDocument(documentType: DocumentType, documentId: number): Observable<ApprovalRequest> {
+    return this.http.get<ApprovalRequest>(`${this.apiUrl}/ApprovalProcesses/by-document/${documentType}/${documentId}`);
   }
 
-  /**
-   * Get pending approvals for current user
-   */
-  getPendingApprovals(
-    page: number = 1,
-    pageSize: number = 20,
-    documentType?: DocumentType,
-    priority?: string
-  ): Observable<{ items: ApprovalRequest[]; total: number }> {
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('pageSize', pageSize.toString());
-    
+  getPendingApprovals(documentType?: DocumentType): Observable<ApprovalRequest[]> {
+    let params = new HttpParams();
     if (documentType) {
       params = params.set('documentType', documentType);
     }
-    if (priority) {
-      params = params.set('priority', priority);
-    }
+    return this.http.get<ApprovalRequest[]>(`${this.apiUrl}/ApprovalProcesses/pending`, { params });
+  }
 
-    return this.http.get<{ items: ApprovalRequest[]; total: number }>(
-      `${this.apiUrl}/ApprovalRequests/Pending`,
-      { params }
-    );
+  queryApprovals(query: ApprovalQuery): Observable<ApprovalRequest[]> {
+    return this.http.post<ApprovalRequest[]>(`${this.apiUrl}/ApprovalProcesses/query`, query);
   }
 
   /**
-   * Get approval requests by status
-   */
-  getApprovalsByStatus(
-    status: ApprovalStatus,
-    page: number = 1,
-    pageSize: number = 20
-  ): Observable<{ items: ApprovalRequest[]; total: number }> {
-    const params = new HttpParams()
-      .set('page', page.toString())
-      .set('pageSize', pageSize.toString())
-      .set('status', status);
-
-    return this.http.get<{ items: ApprovalRequest[]; total: number }>(
-      `${this.apiUrl}/ApprovalRequests/ByStatus`,
-      { params }
-    );
-  }
-
-  /**
-   * Get approval summary for current user
+   * There is no dedicated summary endpoint on the backend — derive summary stats
+   * client-side from the current user's pending approvals.
    */
   getApprovalSummary(): Observable<PendingApprovalSummary> {
-    return this.http.get<PendingApprovalSummary>(`${this.apiUrl}/ApprovalRequests/Summary`);
+    return this.getPendingApprovals().pipe(
+      map(approvals => {
+        const byDocumentType: { [key: string]: number } = {};
+        let highPriority = 0;
+        let overdue = 0;
+        const now = new Date();
+
+        for (const approval of approvals) {
+          byDocumentType[approval.documentType] = (byDocumentType[approval.documentType] || 0) + 1;
+          if (approval.priority === 'High' || approval.priority === 'Urgent') {
+            highPriority++;
+          }
+          if (approval.completedAt == null && approval.updatedAt && new Date(approval.updatedAt) < now) {
+            overdue++;
+          }
+        }
+
+        return {
+          totalPending: approvals.length,
+          highPriority,
+          overdue,
+          byDocumentType
+        };
+      })
+    );
   }
 
-  /**
-   * Process approval action (Approve/Reject)
-   */
-  processApproval(action: ApprovalAction): Observable<ApprovalRequest> {
-    return this.http.post<ApprovalRequest>(`${this.apiUrl}/ApprovalRequests/Process`, action)
-      .pipe(
-        tap(() => this.loadPendingCount())
-      );
+  approve(action: ApprovalAction): Observable<ApprovalRequest> {
+    return this.http.post<ApprovalRequest>(`${this.apiUrl}/ApprovalProcesses/approve`, {
+      approvalProcessId: action.approvalRequestId,
+      comments: action.comment,
+      attachments: action.attachments
+    }).pipe(
+      tap(() => this.refreshPendingCount())
+    );
   }
 
-  /**
-   * Cancel approval request
-   */
-  cancelApproval(approvalRequestId: number, reason: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/ApprovalRequests/${approvalRequestId}/Cancel`, { reason })
-      .pipe(
-        tap(() => this.loadPendingCount())
-      );
-  }
-
-  /**
-   * Get approval history for document
-   */
-  getApprovalHistory(
-    documentType: DocumentType,
-    documentId: number
-  ): Observable<ApprovalHistory[]> {
-    return this.http.get<ApprovalHistory[]>(
-      `${this.apiUrl}/ApprovalRequests/History/${documentType}/${documentId}`
+  reject(action: ApprovalAction): Observable<ApprovalRequest> {
+    return this.http.post<ApprovalRequest>(`${this.apiUrl}/ApprovalProcesses/reject`, {
+      approvalProcessId: action.approvalRequestId,
+      comments: action.comment,
+      attachments: action.attachments
+    }).pipe(
+      tap(() => this.refreshPendingCount())
     );
   }
 
   /**
-   * Get my approval history (documents I approved)
+   * Process an approve/reject action. Kept for backward compatibility with callers
+   * that build an ApprovalAction with action: 'Approve' | 'Reject'.
    */
-  getMyApprovalHistory(
-    page: number = 1,
-    pageSize: number = 20,
-    fromDate?: string,
-    toDate?: string
-  ): Observable<{ items: ApprovalHistory[]; total: number }> {
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('pageSize', pageSize.toString());
-    
-    if (fromDate) {
-      params = params.set('fromDate', fromDate);
-    }
-    if (toDate) {
-      params = params.set('toDate', toDate);
-    }
+  processApproval(action: ApprovalAction): Observable<ApprovalRequest> {
+    return action.action === 'Approve' ? this.approve(action) : this.reject(action);
+  }
 
-    return this.http.get<{ items: ApprovalHistory[]; total: number }>(
-      `${this.apiUrl}/ApprovalRequests/MyHistory`,
-      { params }
+  returnApproval(action: ReturnApprovalAction): Observable<ApprovalRequest> {
+    return this.http.post<ApprovalRequest>(`${this.apiUrl}/ApprovalProcesses/return`, {
+      approvalProcessId: action.approvalRequestId,
+      returnToLevel: action.returnToLevel,
+      comments: action.comment
+    }).pipe(
+      tap(() => this.refreshPendingCount())
+    );
+  }
+
+  cancelApproval(approvalRequestId: number, reason: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/ApprovalProcesses/${approvalRequestId}/cancel`, JSON.stringify(reason), {
+      headers: { 'Content-Type': 'application/json' }
+    }).pipe(
+      tap(() => this.refreshPendingCount())
+    );
+  }
+
+  getApprovalHistory(documentType: DocumentType, documentId: number): Observable<ApprovalHistory[]> {
+    return this.getApprovalRequestByDocument(documentType, documentId).pipe(
+      map(request => request.approvalHistory || [])
+    );
+  }
+
+  getMyApprovalHistory(): Observable<ApprovalRequest[]> {
+    return this.http.get<ApprovalRequest[]>(`${this.apiUrl}/ApprovalProcesses/my-history`);
+  }
+
+  canUserApprove(approvalProcessId: number): Observable<boolean> {
+    return this.http.get<{ canApprove: boolean }>(`${this.apiUrl}/ApprovalProcesses/${approvalProcessId}/can-approve`).pipe(
+      map(res => res.canApprove)
     );
   }
 
   // ==================== HELPER METHODS ====================
 
-  /**
-   * Load pending approval count for current user
-   */
-  private loadPendingCount(): void {
-    this.http.get<number>(`${this.apiUrl}/ApprovalRequests/PendingCount`)
-      .subscribe({
-        next: (count) => this.pendingCountSubject.next(count),
-        error: (error) => console.error('Error loading pending count:', error)
-      });
+  private refreshPendingCount(): void {
+    this.getPendingApprovals().subscribe({
+      next: approvals => this.pendingCountSubject.next(approvals.length),
+      error: error => console.error('Error loading pending approvals count:', error)
+    });
   }
 
   /**
-   * Refresh pending count manually
+   * Public alias — some callers refresh the count after completing an action.
    */
-  refreshPendingCount(): void {
-    this.loadPendingCount();
+  refreshCount(): void {
+    this.refreshPendingCount();
   }
 
-  /**
-   * Check if document requires approval
-   */
-  requiresApproval(documentType: DocumentType, amount?: number): Observable<boolean> {
-    let params = new HttpParams().set('documentType', documentType);
-    if (amount !== undefined) {
-      params = params.set('amount', amount.toString());
-    }
-    return this.http.get<boolean>(`${this.apiUrl}/ApprovalRequests/RequiresApproval`, { params });
-  }
-
-  /**
-   * Get available users for approval assignment
-   */
   getAvailableUsers(): Observable<{ id: number; name: string }[]> {
-    return this.http.get<{ id: number; name: string }[]>(`${this.apiUrl}/Users/ForApproval`);
+    return this.http.get<{ id: number; name: string; roleName: string; status: string }[]>(`${this.apiUrl}/Users`).pipe(
+      map(users => users.map(u => ({ id: u.id, name: u.name })))
+    );
   }
 
-  /**
-   * Get available roles for approval assignment
-   */
   getAvailableRoles(): Observable<{ id: number; name: string }[]> {
-    return this.http.get<{ id: number; name: string }[]>(`${this.apiUrl}/Roles/ForApproval`);
+    return this.http.get<{ id: number; name: string }[]>(`${this.apiUrl}/Roles`);
   }
 }

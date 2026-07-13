@@ -1,0 +1,112 @@
+<div class="filter-panel" *ngIf="fields.length">
+  <div class="filter-grid">
+    <mat-form-field appearance="outline" class="filter-field" *ngIf="hasField('branchId')">
+      <mat-label>{{ 'CAR_REPORTS.FILTER.BRANCH' | translate }}</mat-label>
+      <mat-select [(ngModel)]="model.branchId">
+        <mat-option [value]="null">{{ 'COMMON.ALL' | translate }}</mat-option>
+        <mat-option *ngFor="let b of branches" [value]="b.id">{{ b.nameEn }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field" *ngIf="hasField('warehouseId')">
+      <mat-label>{{ 'CAR_REPORTS.FILTER.WAREHOUSE' | translate }}</mat-label>
+      <mat-select [(ngModel)]="model.warehouseId">
+        <mat-option [value]="null">{{ 'COMMON.ALL' | translate }}</mat-option>
+        <mat-option *ngFor="let w of warehouses" [value]="w.id">{{ w.nameEn }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field" *ngIf="hasField('supplierId')">
+      <mat-label>{{ 'CAR_REPORTS.FILTER.SUPPLIER' | translate }}</mat-label>
+      <mat-select [(ngModel)]="model.supplierId">
+        <mat-option [value]="null">{{ 'COMMON.ALL' | translate }}</mat-option>
+        <mat-option *ngFor="let s of suppliers" [value]="s.id">{{ s.name }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field" *ngIf="hasField('brandId')">
+      <mat-label>{{ 'CAR_REPORTS.FILTER.BRAND' | translate }}</mat-label>
+      <mat-select [(ngModel)]="model.brandId">
+        <mat-option [value]="null">{{ 'COMMON.ALL' | translate }}</mat-option>
+        <mat-option *ngFor="let m of brands" [value]="m.id">{{ m.name }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field" *ngIf="hasField('modelId')">
+      <mat-label>{{ 'CAR_REPORTS.FILTER.MODEL' | translate }}</mat-label>
+      <mat-select [(ngModel)]="model.modelId">
+        <mat-option [value]="null">{{ 'COMMON.ALL' | translate }}</mat-option>
+        <mat-option *ngFor="let m of carModels" [value]="m.id">{{ m.name }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field" *ngIf="hasField('categoryId')">
+      <mat-label>{{ 'CAR_REPORTS.FILTER.CATEGORY' | translate }}</mat-label>
+      <mat-select [(ngModel)]="model.categoryId">
+        <mat-option [value]="null">{{ 'COMMON.ALL' | translate }}</mat-option>
+        <mat-option *ngFor="let c of categories" [value]="c.id">{{ c.name }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field" *ngIf="hasField('color')">
+      <mat-label>{{ 'CAR_REPORTS.FILTER.COLOR' | translate }}</mat-label>
+      <input matInput [(ngModel)]="model.color" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field" *ngIf="hasField('status')">
+      <mat-label>{{ 'CAR_REPORTS.FILTER.STATUS' | translate }}</mat-label>
+      <mat-select [(ngModel)]="model.status">
+        <mat-option [value]="null">{{ 'COMMON.ALL' | translate }}</mat-option>
+        <mat-option *ngFor="let s of carStatusOptions" [value]="s">{{ s }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field" *ngIf="hasField('salesStatus')">
+      <mat-label>{{ 'CAR_REPORTS.FILTER.SALES_STATUS' | translate }}</mat-label>
+      <mat-select [(ngModel)]="model.salesStatus">
+        <mat-option [value]="null">{{ 'COMMON.ALL' | translate }}</mat-option>
+        <mat-option *ngFor="let s of salesStatusOptions" [value]="s">{{ s }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field" *ngIf="hasField('vin')">
+      <mat-label>{{ 'CAR_REPORTS.FILTER.VIN' | translate }}</mat-label>
+      <input matInput [(ngModel)]="model.vin" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field" *ngIf="hasField('engineNumber')">
+      <mat-label>{{ 'CAR_REPORTS.FILTER.ENGINE_NUMBER' | translate }}</mat-label>
+      <input matInput [(ngModel)]="model.engineNumber" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field" *ngIf="hasField('year')">
+      <mat-label>{{ 'CAR_REPORTS.FILTER.YEAR' | translate }}</mat-label>
+      <input matInput type="number" [(ngModel)]="model.year" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field" *ngIf="hasField('dateFrom')">
+      <mat-label>{{ 'CAR_REPORTS.FILTER.DATE_FROM' | translate }}</mat-label>
+      <input matInput [matDatepicker]="fromPicker" [(ngModel)]="model.dateFrom" />
+      <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
+      <mat-datepicker #fromPicker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field" *ngIf="hasField('dateTo')">
+      <mat-label>{{ 'CAR_REPORTS.FILTER.DATE_TO' | translate }}</mat-label>
+      <input matInput [matDatepicker]="toPicker" [(ngModel)]="model.dateTo" />
+      <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
+      <mat-datepicker #toPicker></mat-datepicker>
+    </mat-form-field>
+  </div>
+
+  <div class="filter-actions">
+    <button mat-flat-button color="primary" (click)="onSearch()">
+      <mat-icon>search</mat-icon>
+      {{ 'COMMON.SEARCH' | translate }}
+    </button>
+    <button mat-stroked-button (click)="onClear()">
+      <mat-icon>filter_alt_off</mat-icon>
+      {{ 'COMMON.RESET_FILTER' | translate }}
+    </button>
+  </div>
+</div>

@@ -5,4 +5,6 @@ export interface User {
   roleId: number;
   roleName: string;
   status: 'Active' | 'Inactive';
+  isLocked: boolean;
+  lockoutEnd: string | null;
 }

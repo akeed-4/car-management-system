@@ -66,8 +66,8 @@
           cellTemplate="documentTypeTemplate">
         </dxi-column>
 
-        <dxi-column 
-          dataField="documentAmount" 
+        <dxi-column
+          dataField="amount"
           caption="{{ 'APPROVALS.AMOUNT' | translate }}"
           dataType="number"
           format="currency"
@@ -75,14 +75,14 @@
         </dxi-column>
 
         <!-- Requester -->
-        <dxi-column 
-          dataField="requestedBy" 
+        <dxi-column
+          dataField="initiatedByName"
           caption="{{ 'APPROVALS.REQUESTED_BY' | translate }}"
           [width]="150">
         </dxi-column>
 
-        <dxi-column 
-          dataField="requestedAt" 
+        <dxi-column
+          dataField="initiatedAt"
           caption="{{ 'APPROVALS.REQUESTED_DATE' | translate }}"
           dataType="date"
           format="shortDate"
@@ -105,25 +105,15 @@
           cellTemplate="priorityTemplate">
         </dxi-column>
 
-        <!-- Due Date -->
-        <dxi-column 
-          dataField="dueDate" 
-          caption="{{ 'APPROVALS.DUE_DATE' | translate }}"
-          dataType="date"
-          format="shortDate"
-          [width]="120"
-          cellTemplate="dueDateTemplate">
-        </dxi-column>
-
         <!-- Actions -->
-        <dxi-column 
+        <dxi-column
           type="buttons"
           caption="{{ 'APPROVALS.ACTIONS' | translate }}"
           [width]="100">
           <dxi-button
             icon="check"
             hint="{{ 'APPROVALS.REVIEW' | translate }}"
-            [onClick]="openApprovalDialog">
+            [onClick]="reviewClick">
           </dxi-button>
         </dxi-column>
 
@@ -146,23 +136,11 @@
 
         <!-- Priority Template -->
         <div *dxTemplate="let data of 'priorityTemplate'">
-          <mat-chip 
-            [color]="getPriorityColor(data.value)" 
+          <mat-chip
+            [color]="getPriorityColor(data.value)"
             selected>
             {{ data.value || 'Normal' }}
           </mat-chip>
-        </div>
-
-        <!-- Due Date Template -->
-        <div *dxTemplate="let data of 'dueDateTemplate'">
-          @if (data.value) {
-            <span [class.overdue]="isOverdue(data.data)">
-              {{ formatDate(data.value) }}
-              @if (isOverdue(data.data)) {
-                <mat-icon class="overdue-icon">warning</mat-icon>
-              }
-            </span>
-          }
         </div>
 
         <dxo-paging [pageSize]="20"></dxo-paging>

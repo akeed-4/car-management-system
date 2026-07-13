@@ -73,9 +73,9 @@ export class SettingService {
 
   saveCostPriceCalculationSettings(settings: CostPriceCalculationSetting): Observable<CostPriceCalculationSetting> {
     if (settings.id) {
-      return this.http.put<CostPriceCalculationSetting>(`${this.costPriceApiURL}/Create/${settings.id}`, settings);
+      return this.http.put<CostPriceCalculationSetting>(`${this.costPriceApiURL}/Update/${settings.id}`, settings);
     } else {
-      return this.http.post<CostPriceCalculationSetting>(`${this.costPriceApiURL}/Update`, settings);
+      return this.http.post<CostPriceCalculationSetting>(`${this.costPriceApiURL}/Create`, settings);
     }
   }
 

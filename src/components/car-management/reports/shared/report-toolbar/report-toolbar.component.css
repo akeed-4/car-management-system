@@ -1,0 +1,47 @@
+.report-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 8px 12px !important;
+  margin-bottom: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: auto !important;
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.record-count {
+  font-size: 13px;
+  color: #666;
+  margin-inline-end: 8px;
+}
+
+@media (max-width: 768px) {
+  .report-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .toolbar-spacer {
+    display: none;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .report-toolbar {
+    background: #1e1e1e;
+    border-color: #333;
+  }
+
+  .record-count {
+    color: #aaa;
+  }
+}

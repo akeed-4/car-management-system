@@ -1,120 +1,226 @@
-
-
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { Router, RouterLink } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { DxDataGridModule } from 'devextreme-angular';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { UserService } from '../../../services/user.service';
 import { RoleService } from '../../../services/role.service';
+import { NotificationService } from '@/src/services/notification.service';
+import { PermissionService } from '../../../services/permission.service';
+import { HasPermissionDirective } from '../../shared/permission.directive';
 import { ModalComponent } from '../../shared/modal/modal.component';
+import { ResetPasswordDialogComponent } from '../reset-password-dialog/reset-password-dialog.component';
+import { AssignRoleDialogComponent } from '../assign-role-dialog/assign-role-dialog.component';
 import { User } from '../../../models/user.model';
-import { FormsModule } from '@angular/forms';
-import { MatIconModule } from '@angular/material/icon';
 
-type SortColumn = keyof User | '';
-type SortDirection = 'asc' | 'desc' | '';
+type ConfirmActionType = 'delete' | 'activate' | 'deactivate' | 'lock' | 'unlock';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [RouterLink, FormsModule,MatIconModule],
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatChipsModule,
+    MatDialogModule,
+    DxDataGridModule,
+    TranslateModule,
+    ModalComponent,
+    HasPermissionDirective
+  ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UsersComponent {
+export class UsersComponent implements OnInit {
   private userService = inject(UserService);
   private roleService = inject(RoleService);
+  private notificationService = inject(NotificationService);
+  private permissionService = inject(PermissionService);
+  private dialog = inject(MatDialog);
   private router = inject(Router);
+  public translate = inject(TranslateService);
 
-  users = toSignal(this.userService.getUsers(), { initialValue: [] });
-  filter = signal('');
-  sortColumn = signal<SortColumn>('');
-  sortDirection = signal<SortDirection>('');
-  
-  // Modal state
-  isDeleteModalOpen = signal(false);
-  itemToDeleteId = signal<number | null>(null);
-  
-  filteredAndSortedUsers = computed(() => {
-    const searchTerm = this.filter().toLowerCase();
-    const column = this.sortColumn();
-    const direction = this.sortDirection();
+  users = this.userService.users$;
 
-    let users = this.users();
+  // Confirmation modal state
+  isConfirmModalOpen = signal(false);
+  confirmModalTitle = signal('');
+  confirmModalMessage = signal('');
+  private pendingAction: ConfirmActionType | null = null;
+  private pendingUser: User | null = null;
 
-    // Filter
-    if (searchTerm) {
-      users = users.filter(user => 
-        user.name.toLowerCase().includes(searchTerm) ||
-        user.roleName.toLowerCase().includes(searchTerm) ||
-        user.status.toLowerCase().includes(searchTerm)
-      );
-    }
-
-    // Sort
-    if (column && direction) {
-      users = [...users].sort((a, b) => {
-        const aValue = a[column];
-        const bValue = b[column];
-
-        let comparison = 0;
-        if (typeof aValue === 'string' && typeof bValue === 'string') {
-          comparison = aValue.localeCompare(bValue);
-        } else if (typeof aValue === 'number' && typeof bValue === 'number') {
-          comparison = aValue - bValue;
-        }
-
-        return direction === 'asc' ? comparison : -comparison;
-      });
-    }
-
-    return users;
-  });
-
-  onFilter(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.filter.set(input.value);
+  constructor() {
+    this.editClick = this.editClick.bind(this);
+    this.deleteClick = this.deleteClick.bind(this);
+    this.activateClick = this.activateClick.bind(this);
+    this.deactivateClick = this.deactivateClick.bind(this);
+    this.lockClick = this.lockClick.bind(this);
+    this.unlockClick = this.unlockClick.bind(this);
+    this.resetPasswordClick = this.resetPasswordClick.bind(this);
+    this.assignRoleClick = this.assignRoleClick.bind(this);
+    this.canShowEdit = this.canShowEdit.bind(this);
+    this.canShowAssignRole = this.canShowAssignRole.bind(this);
+    this.canShowResetPassword = this.canShowResetPassword.bind(this);
+    this.canShowDeactivate = this.canShowDeactivate.bind(this);
+    this.canShowActivate = this.canShowActivate.bind(this);
+    this.canShowLock = this.canShowLock.bind(this);
+    this.canShowUnlock = this.canShowUnlock.bind(this);
+    this.canShowDelete = this.canShowDelete.bind(this);
   }
 
-  onSort(column: SortColumn) {
-    if (this.sortColumn() === column) {
-      this.sortDirection.update(currentDir => {
-        if (currentDir === 'asc') return 'desc';
-        if (currentDir === 'desc') return '';
-        return 'asc';
-      });
-    } else {
-      this.sortColumn.set(column);
-      this.sortDirection.set('asc');
-    }
+  canShowEdit(): boolean {
+    return this.permissionService.hasPermission('users.edit');
   }
 
-  getSortIcon(column: SortColumn) {
-    if (this.sortColumn() !== column) return '';
-    if (this.sortDirection() === 'asc') return '▲';
-    if (this.sortDirection() === 'desc') return '▼';
-    return '';
+  canShowAssignRole(): boolean {
+    return this.permissionService.hasPermission('users.assignrole');
+  }
+
+  canShowResetPassword(): boolean {
+    return this.permissionService.hasPermission('users.resetpassword');
+  }
+
+  canShowDeactivate(e: any): boolean {
+    return e.row?.data?.status === 'Active' && this.permissionService.hasPermission('users.activate');
+  }
+
+  canShowActivate(e: any): boolean {
+    return e.row?.data?.status !== 'Active' && this.permissionService.hasPermission('users.activate');
+  }
+
+  canShowLock(e: any): boolean {
+    return !e.row?.data?.isLocked && this.permissionService.hasPermission('users.lock');
+  }
+
+  canShowUnlock(e: any): boolean {
+    return !!e.row?.data?.isLocked && this.permissionService.hasPermission('users.lock');
+  }
+
+  canShowDelete(): boolean {
+    return this.permissionService.hasPermission('users.delete');
+  }
+
+  ngOnInit(): void {
+    this.userService.loadUsers();
+  }
+
+  createUser(): void {
+    this.router.navigate(['/users/new']);
   }
 
   editUser(id: number): void {
     this.router.navigate(['/users/edit', id]);
   }
 
-  requestDelete(id: number): void {
-    this.itemToDeleteId.set(id);
-    this.isDeleteModalOpen.set(true);
+  editClick(e: any): void {
+    this.editUser(e.row.data.id);
   }
 
-  confirmDelete(): void {
-    const id = this.itemToDeleteId();
-    if (id) {
-      this.userService.deleteUser(id);
+  deleteClick(e: any): void {
+    this.requestConfirmation('delete', e.row.data);
+  }
+
+  activateClick(e: any): void {
+    this.requestConfirmation('activate', e.row.data);
+  }
+
+  deactivateClick(e: any): void {
+    this.requestConfirmation('deactivate', e.row.data);
+  }
+
+  lockClick(e: any): void {
+    this.requestConfirmation('lock', e.row.data);
+  }
+
+  unlockClick(e: any): void {
+    this.requestConfirmation('unlock', e.row.data);
+  }
+
+  resetPasswordClick(e: any): void {
+    const user: User = e.row.data;
+    this.dialog.open(ResetPasswordDialogComponent, {
+      width: '420px',
+      data: { userId: user.id, userName: user.name }
+    });
+  }
+
+  assignRoleClick(e: any): void {
+    const user: User = e.row.data;
+    this.dialog.open(AssignRoleDialogComponent, {
+      width: '420px',
+      data: { userId: user.id, userName: user.name, currentRoleId: user.roleId || null }
+    });
+  }
+
+  private requestConfirmation(action: ConfirmActionType, user: User): void {
+    this.pendingAction = action;
+    this.pendingUser = user;
+
+    const titleKey = `USERS.CONFIRM.${action.toUpperCase()}_TITLE`;
+    const messageKey = `USERS.CONFIRM.${action.toUpperCase()}_MESSAGE`;
+    this.confirmModalTitle.set(this.translate.instant(titleKey));
+    this.confirmModalMessage.set(this.translate.instant(messageKey, { name: user.name }));
+    this.isConfirmModalOpen.set(true);
+  }
+
+  onConfirmAction(): void {
+    const action = this.pendingAction;
+    const user = this.pendingUser;
+    this.closeConfirmModal();
+
+    if (!action || !user) {
+      return;
     }
-    this.closeDeleteModal();
+
+    switch (action) {
+      case 'delete':
+        this.userService.deleteUser(user.id).subscribe({
+          next: () => this.notificationService.showSuccess(this.translate.instant('USERS.SUCCESS.DELETED')),
+          error: err => this.notificationService.showError(err?.error?.message || this.translate.instant('USERS.ERRORS.DELETE_FAILED'))
+        });
+        break;
+      case 'activate':
+        this.userService.activateUser(user.id).subscribe({
+          next: () => this.notificationService.showSuccess(this.translate.instant('USERS.SUCCESS.ACTIVATED')),
+          error: err => this.notificationService.showError(err?.error?.message || this.translate.instant('USERS.ERRORS.ACTION_FAILED'))
+        });
+        break;
+      case 'deactivate':
+        this.userService.deactivateUser(user.id).subscribe({
+          next: () => this.notificationService.showSuccess(this.translate.instant('USERS.SUCCESS.DEACTIVATED')),
+          error: err => this.notificationService.showError(err?.error?.message || this.translate.instant('USERS.ERRORS.ACTION_FAILED'))
+        });
+        break;
+      case 'lock':
+        this.userService.lockUser(user.id).subscribe({
+          next: () => this.notificationService.showSuccess(this.translate.instant('USERS.SUCCESS.LOCKED')),
+          error: err => this.notificationService.showError(err?.error?.message || this.translate.instant('USERS.ERRORS.ACTION_FAILED'))
+        });
+        break;
+      case 'unlock':
+        this.userService.unlockUser(user.id).subscribe({
+          next: () => this.notificationService.showSuccess(this.translate.instant('USERS.SUCCESS.UNLOCKED')),
+          error: err => this.notificationService.showError(err?.error?.message || this.translate.instant('USERS.ERRORS.ACTION_FAILED'))
+        });
+        break;
+    }
   }
 
-  closeDeleteModal(): void {
-    this.isDeleteModalOpen.set(false);
-    this.itemToDeleteId.set(null);
+  closeConfirmModal(): void {
+    this.isConfirmModalOpen.set(false);
+    this.pendingAction = null;
+    this.pendingUser = null;
+  }
+
+  getStatusColor(status: string): string {
+    return status === 'Active' ? 'success' : 'default';
   }
 }

@@ -85,8 +85,14 @@ export class ApprovalHistoryComponent implements OnInit {
         return 'check_circle';
       case 'Rejected':
         return 'cancel';
-      case 'Pending':
-        return 'schedule';
+      case 'Returned':
+        return 'undo';
+      case 'Cancelled':
+        return 'block';
+      case 'Submitted':
+        return 'send';
+      case 'Delegated':
+        return 'forward';
       default:
         return 'help';
     }
@@ -100,6 +106,7 @@ export class ApprovalHistoryComponent implements OnInit {
       case 'Approved':
         return 'primary';
       case 'Rejected':
+      case 'Cancelled':
         return 'warn';
       default:
         return 'accent';

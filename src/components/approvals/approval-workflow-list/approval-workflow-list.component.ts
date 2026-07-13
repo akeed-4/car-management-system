@@ -41,6 +41,14 @@ export class ApprovalWorkflowListComponent implements OnInit {
 
   documentTypes = DOCUMENT_TYPES;
 
+  constructor() {
+    this.editWorkflowClick = this.editWorkflowClick.bind(this);
+    this.toggleStatusClick = this.toggleStatusClick.bind(this);
+    this.deleteWorkflowClick = this.deleteWorkflowClick.bind(this);
+    this.statusIcon = this.statusIcon.bind(this);
+    this.statusHint = this.statusHint.bind(this);
+  }
+
   ngOnInit(): void {
     this.loadWorkflows();
   }
@@ -70,6 +78,26 @@ export class ApprovalWorkflowListComponent implements OnInit {
 
   viewWorkflow(id: number): void {
     this.router.navigate(['/approvals/workflows/view', id]);
+  }
+
+  editWorkflowClick(e: any): void {
+    this.editWorkflow(e.row.data.id);
+  }
+
+  toggleStatusClick(e: any): void {
+    this.toggleStatus(e.row.data);
+  }
+
+  deleteWorkflowClick(e: any): void {
+    this.deleteWorkflow(e.row.data);
+  }
+
+  statusIcon(e: any): string {
+    return this.getStatusIcon(e.row.data);
+  }
+
+  statusHint(e: any): string {
+    return this.translate.instant(this.getStatusHint(e.row.data));
   }
 
   async toggleStatus(workflow: ApprovalWorkflow): Promise<void> {
@@ -130,6 +158,7 @@ export class ApprovalWorkflowListComponent implements OnInit {
   }
 
   getLevelSummary(workflow: ApprovalWorkflow): string {
-    return `${workflow.levels.length} Level${workflow.levels.length !== 1 ? 's' : ''}`;
+    const count = workflow.approvalLevels?.length || 0;
+    return `${count} Level${count !== 1 ? 's' : ''}`;
   }
 }

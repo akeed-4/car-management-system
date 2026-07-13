@@ -1,36 +1,111 @@
-export type DocumentType = 'PurchaseInvoice' | 'SalesInvoice' | 'Expense' | 'Payment' | 'Receipt' | 'StockTake' | 'Transfer';
+// DocumentType is a free-form string on the backend (Application.Services.ApprovalWorkflowService
+// keys workflows by this string). DOCUMENT_TYPES below is a curated list for dropdowns only —
+// it is not an exhaustive union, since new document types can be added on the backend without a
+// matching frontend release.
+export type DocumentType = string;
 export type ApproverType = 'User' | 'Role';
 export type ConditionOperator = 'GreaterThan' | 'LessThan' | 'Equal' | 'Between' | 'In';
 
 export interface ApprovalCondition {
-  field: string; // e.g., 'amount', 'branchId', 'supplierId'
+  id?: number;
+  workflowId?: number;
+  conditionType: string; // e.g., 'amount', 'branchId', 'supplierId' — maps to backend ConditionType
   operator: ConditionOperator;
-  value: any;
-  value2?: any; // For 'Between' operator
+  value1?: string;
+  value2?: string; // For 'Between' operator
+  logicalOperator?: 'AND' | 'OR';
+}
+
+export interface ApprovalLevelUser {
+  id?: number;
+  approvalLevelId?: number;
+  userId: number;
+  userName?: string;
+  userEmail?: string;
+  approvalOrder?: number;
+  isActive?: boolean;
 }
 
 export interface ApprovalLevel {
   id?: number;
+  workflowId?: number;
   levelNumber: number;
   levelName: string;
-  approverType: ApproverType;
-  approverId?: number; // User ID or Role ID
-  approverName?: string;
-  isParallel: boolean; // If true, all approvers at this level can approve simultaneously
-  minimumApprovals?: number; // For parallel approvals, minimum number required
-  conditions?: ApprovalCondition[];
+  approvalType?: string; // 'Single' | 'Multiple' etc — backend ApprovalType
+  approvalMode?: string; // 'Any' | 'All' — backend ApprovalMode
+  roleId?: number;
+  roleName?: string;
+  isRequired?: boolean;
+  canSkip?: boolean;
+  escalationHours?: number;
+  sendNotification?: boolean;
+  sendReminder?: boolean;
+  reminderHours?: number;
+  levelUsers?: ApprovalLevelUser[];
 }
 
 export interface ApprovalWorkflow {
   id: number;
-  name: string;
   documentType: DocumentType;
+  workflowName: string;
   description?: string;
   isActive: boolean;
-  levels: ApprovalLevel[];
-  createdAt?: string;
+  isDefault: boolean;
+  companyId?: number;
+  branchId?: number;
+  priority: number;
+  companyName?: string;
+  branchName?: string;
+  createdAt: string;
   updatedAt?: string;
   createdBy?: string;
+  updatedBy?: string;
+  approvalLevels: ApprovalLevel[];
+  approvalConditions: ApprovalCondition[];
+}
+
+export interface CreateApprovalWorkflowDto {
+  documentType: DocumentType;
+  workflowName: string;
+  description?: string;
+  isActive: boolean;
+  isDefault: boolean;
+  companyId?: number;
+  branchId?: number;
+  priority: number;
+  approvalLevels: CreateApprovalLevelDto[];
+  approvalConditions: CreateApprovalConditionDto[];
+}
+
+export interface CreateApprovalLevelDto {
+  levelNumber: number;
+  levelName: string;
+  approvalType: string;
+  approvalMode: string;
+  roleId?: number;
+  isRequired: boolean;
+  canSkip: boolean;
+  escalationHours?: number;
+  sendNotification: boolean;
+  sendReminder: boolean;
+  reminderHours?: number;
+  userIds: number[];
+}
+
+export interface CreateApprovalConditionDto {
+  conditionType: string;
+  operator: ConditionOperator;
+  value1?: string;
+  value2?: string;
+  logicalOperator: 'AND' | 'OR';
+}
+
+export interface UpdateApprovalWorkflowDto {
+  workflowName?: string;
+  description?: string;
+  isActive?: boolean;
+  isDefault?: boolean;
+  priority?: number;
 }
 
 export const DOCUMENT_TYPES: { value: DocumentType; label: string }[] = [

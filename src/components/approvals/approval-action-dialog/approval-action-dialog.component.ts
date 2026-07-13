@@ -63,6 +63,9 @@ export class ApprovalActionDialogComponent {
   }
 
   getProgressPercentage(): number {
+    if (!this.approval.totalLevels) {
+      return 0;
+    }
     return (this.approval.currentLevel / this.approval.totalLevels) * 100;
   }
 

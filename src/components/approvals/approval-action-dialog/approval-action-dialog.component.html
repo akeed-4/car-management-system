@@ -17,26 +17,20 @@
           <span class="info-label">{{ 'APPROVALS.DOCUMENT_NUMBER' | translate }}:</span>
           <span class="info-value">{{ approval.documentNumber }}</span>
         </div>
-        @if (approval.documentAmount) {
+        @if (approval.amount) {
           <div class="info-item">
             <span class="info-label">{{ 'APPROVALS.AMOUNT' | translate }}:</span>
-            <span class="info-value amount">{{ approval.documentAmount | currency:'SAR':'symbol':'1.0-0' }}</span>
+            <span class="info-value amount">{{ approval.amount | currency:'SAR':'symbol':'1.0-0' }}</span>
           </div>
         }
         <div class="info-item">
           <span class="info-label">{{ 'APPROVALS.REQUESTED_BY' | translate }}:</span>
-          <span class="info-value">{{ approval.requestedBy }}</span>
+          <span class="info-value">{{ approval.initiatedByName }}</span>
         </div>
         <div class="info-item">
           <span class="info-label">{{ 'APPROVALS.REQUESTED_DATE' | translate }}:</span>
-          <span class="info-value">{{ formatDate(approval.requestedAt) }}</span>
+          <span class="info-value">{{ formatDate(approval.initiatedAt) }}</span>
         </div>
-        @if (approval.dueDate) {
-          <div class="info-item">
-            <span class="info-label">{{ 'APPROVALS.DUE_DATE' | translate }}:</span>
-            <span class="info-value">{{ formatDate(approval.dueDate) }}</span>
-          </div>
-        }
       </div>
     </section>
 

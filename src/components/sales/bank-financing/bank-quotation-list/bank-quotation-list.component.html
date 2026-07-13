@@ -1,0 +1,94 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="breadcrumb">
+      <span>{{ 'INVOICE.BACK_TO_SALES' | translate }}</span>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="current">{{ 'BANK_FINANCING.QUOTATIONS_LIST_TITLE' | translate }}</span>
+    </div>
+    <div class="header-row">
+      <div>
+        <h1>{{ 'BANK_FINANCING.QUOTATIONS_LIST_TITLE' | translate }}</h1>
+        <p class="subtitle">{{ 'BANK_FINANCING.QUOTATIONS_LIST_SUBTITLE' | translate }}</p>
+      </div>
+    </div>
+  </div>
+
+  <mat-toolbar class="page-toolbar">
+    <button mat-flat-button color="primary" (click)="onCreateNew()">
+      <mat-icon>add</mat-icon>
+      {{ 'BANK_FINANCING.CREATE_QUOTATION_AND_LOCK' | translate }}
+    </button>
+
+    <button mat-stroked-button (click)="refresh()">
+      <mat-icon>refresh</mat-icon>
+      {{ 'COMMON.REFRESH' | translate }}
+    </button>
+
+    <span class="toolbar-spacer"></span>
+
+    <button mat-icon-button [matMenuTriggerFor]="exportMenu" [matTooltip]="'COMMON.EXPORT' | translate">
+      <mat-icon>file_download</mat-icon>
+    </button>
+    <mat-menu #exportMenu="matMenu">
+      <button mat-menu-item (click)="exportExcel()">
+        <mat-icon>description</mat-icon>
+        {{ 'COMMON.EXPORT_EXCEL' | translate }}
+      </button>
+      <button mat-menu-item (click)="exportPdf()">
+        <mat-icon>picture_as_pdf</mat-icon>
+        {{ 'COMMON.EXPORT_PDF' | translate }}
+      </button>
+    </mat-menu>
+
+    <button mat-icon-button (click)="printGrid()" [matTooltip]="'COMMON.PRINT' | translate">
+      <mat-icon>print</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <div class="grid-container">
+    <dx-data-grid
+      [dataSource]="quotations()"
+      [showBorders]="true"
+      [columnAutoWidth]="true"
+      [rowAlternationEnabled]="true"
+      [rtlEnabled]="true"
+      height="600px"
+      [showRowLines]="true"
+      [allowColumnReordering]="true"
+      [allowColumnResizing]="true"
+      [noDataText]="'BANK_FINANCING.NO_APPROVALS' | translate"
+      keyExpr="id">
+
+      <dxo-search-panel [visible]="true"></dxo-search-panel>
+      <dxo-filter-row [visible]="true"></dxo-filter-row>
+      <dxo-header-filter [visible]="true"></dxo-header-filter>
+      <dxo-paging [pageSize]="10"></dxo-paging>
+      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
+
+      <dxi-column dataField="quotationNumber" [caption]="'CORPORATE.QUOTATION_NUMBER' | translate" [width]="140"></dxi-column>
+      <dxi-column dataField="endUserName" [caption]="'BANK_FINANCING.END_USER_NAME' | translate"></dxi-column>
+      <dxi-column dataField="bankName" [caption]="'BANK_FINANCING.BANK' | translate"></dxi-column>
+      <dxi-column dataField="carDescription" [caption]="'PURCHASE_INVOICE.CAR' | translate"></dxi-column>
+      <dxi-column dataField="vehiclePrice" [caption]="'BANK_FINANCING.VEHICLE_PRICE' | translate" dataType="number" format="currency"></dxi-column>
+      <dxi-column dataField="status" [caption]="'BANK_FINANCING.STATUS' | translate" cellTemplate="statusCellTemplate"></dxi-column>
+      <div *dxTemplate="let cell of 'statusCellTemplate'">
+        <span class="status-badge" [ngClass]="{
+          'status-pending': cell.value === 'Locked',
+          'status-accepted': cell.value === 'Bank_Approved' || cell.value === 'Finalized',
+          'status-rejected': cell.value === 'Expired' || cell.value === 'Cancelled'
+        }">
+          {{ ('BANK_FINANCING.STATUS_' + cell.value?.toUpperCase()) | translate }}
+        </span>
+      </div>
+
+      <dxi-column type="buttons" [width]="140" [caption]="'CORPORATE.ACTIONS' | translate">
+        <dxi-button
+          icon="add"
+          [hint]="'BANK_FINANCING.RECORD_APPROVAL' | translate"
+          [onClick]="onCreateApproval"
+          [visible]="isLocked">
+        </dxi-button>
+      </dxi-column>
+    </dx-data-grid>
+  </div>
+</div>

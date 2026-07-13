@@ -29,33 +29,82 @@ export class UserService {
     this.getActiveUsers().subscribe(users => this.activeUsers.set(users));
   }
 
-  // جلب جميع المستخدمين
   getUsers(): Observable<User[]> {
     return this.http.get<User[]>(this.apiUrl);
   }
 
-  // جلب المستخدمين النشطين فقط
   getActiveUsers(): Observable<User[]> {
     return this.http.get<User[]>(`${this.apiUrl}/active`);
   }
 
-  // جلب مستخدم واحد حسب ID
   getUserById(id: number): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/${id}`);
   }
 
-  // إضافة مستخدم جديد
-  addUser(user: Omit<User, 'id'>): Observable<User> {
-    return this.http.post<User>(this.apiUrl, user);
+  addUser(user: Omit<User, 'id' | 'isLocked' | 'lockoutEnd'>): Observable<User> {
+    return this.http.post<User>(this.apiUrl, user).pipe(
+      tap(() => {
+        this.loadUsers();
+        this.loadActiveUsers();
+      })
+    );
   }
 
-  // تحديث مستخدم موجود
-  updateUser(user: User): Observable<User> {
-    return this.http.put<User>(`${this.apiUrl}/${user.id}`, user);
+  updateUser(user: User): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${user.id}`, user).pipe(
+      tap(() => {
+        this.loadUsers();
+        this.loadActiveUsers();
+      })
+    );
   }
 
-  // حذف مستخدم
-  deleteUser(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+  deleteUser(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+      tap(() => {
+        this.loadUsers();
+        this.loadActiveUsers();
+      })
+    );
+  }
+
+  activateUser(id: number): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/activate`, {}).pipe(
+      tap(() => {
+        this.loadUsers();
+        this.loadActiveUsers();
+      })
+    );
+  }
+
+  deactivateUser(id: number): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/deactivate`, {}).pipe(
+      tap(() => {
+        this.loadUsers();
+        this.loadActiveUsers();
+      })
+    );
+  }
+
+  lockUser(id: number, durationMinutes?: number): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/lock`, { durationMinutes: durationMinutes ?? null }).pipe(
+      tap(() => this.loadUsers())
+    );
+  }
+
+  unlockUser(id: number): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/unlock`, {}).pipe(
+      tap(() => this.loadUsers())
+    );
+  }
+
+  resetPassword(id: number, newPassword: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/reset-password`, { newPassword });
+  }
+
+  assignRole(id: number, roleId: number): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/roles`, { roleId }).pipe(
+      tap(() => this.loadUsers())
+    );
   }
 }

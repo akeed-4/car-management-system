@@ -1,0 +1,95 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="breadcrumb">
+      <span>{{ 'INVOICE.BACK_TO_SALES' | translate }}</span>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="current">{{ 'DIRECT_SALES.INSTALLMENT.TITLE' | translate }}</span>
+    </div>
+    <div class="header-row">
+      <div>
+        <h1>{{ 'DIRECT_SALES.INSTALLMENT.TITLE' | translate }}</h1>
+        <p class="subtitle">{{ 'DIRECT_SALES.INSTALLMENT.SUBTITLE' | translate }}</p>
+      </div>
+    </div>
+  </div>
+
+  <mat-toolbar class="page-toolbar">
+    <button mat-flat-button color="primary" (click)="onCreateNew()">
+      <mat-icon>add</mat-icon>
+      {{ 'DIRECT_SALES.INSTALLMENT.ADD_NEW' | translate }}
+    </button>
+
+    <button mat-stroked-button (click)="refresh()">
+      <mat-icon>refresh</mat-icon>
+      {{ 'COMMON.REFRESH' | translate }}
+    </button>
+
+    <span class="toolbar-spacer"></span>
+
+    <button mat-icon-button [matMenuTriggerFor]="exportMenu" [matTooltip]="'COMMON.EXPORT' | translate">
+      <mat-icon>file_download</mat-icon>
+    </button>
+    <mat-menu #exportMenu="matMenu">
+      <button mat-menu-item (click)="exportExcel()">
+        <mat-icon>description</mat-icon>
+        {{ 'COMMON.EXPORT_EXCEL' | translate }}
+      </button>
+      <button mat-menu-item (click)="exportPdf()">
+        <mat-icon>picture_as_pdf</mat-icon>
+        {{ 'COMMON.EXPORT_PDF' | translate }}
+      </button>
+    </mat-menu>
+
+    <button mat-icon-button (click)="printGrid()" [matTooltip]="'COMMON.PRINT' | translate">
+      <mat-icon>print</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <div class="grid-container">
+    <dx-data-grid
+      [dataSource]="invoices()"
+      [showBorders]="true"
+      [columnAutoWidth]="true"
+      [rowAlternationEnabled]="true"
+      [rtlEnabled]="true"
+      height="600px"
+      [showRowLines]="true"
+      [allowColumnReordering]="true"
+      [allowColumnResizing]="true"
+      [noDataText]="'DIRECT_SALES.INSTALLMENT.NO_RECORDS' | translate"
+      (onRowDblClick)="onEdit($event)"
+      keyExpr="id">
+
+      <dxo-search-panel [visible]="true"></dxo-search-panel>
+      <dxo-filter-row [visible]="true"></dxo-filter-row>
+      <dxo-header-filter [visible]="true"></dxo-header-filter>
+      <dxo-paging [pageSize]="10"></dxo-paging>
+      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
+
+      <dxi-column dataField="invoiceNumber" [caption]="'INVOICE.INVOICE_NUMBER' | translate" [width]="140"></dxi-column>
+      <dxi-column dataField="customerName" [caption]="'INVOICE.CUSTOMER' | translate"></dxi-column>
+      <dxi-column dataField="invoiceDate" [caption]="'INVOICE.INVOICE_DATE' | translate" dataType="date"></dxi-column>
+      <dxi-column dataField="downPayment" [caption]="'INVOICE.DOWN_PAYMENT' | translate" dataType="number" format="currency"></dxi-column>
+      <dxi-column dataField="totalAmount" [caption]="'INVOICE.TOTAL' | translate" dataType="number" format="currency"></dxi-column>
+      <dxi-column dataField="amountDue" [caption]="'INVOICE.AMOUNT_DUE' | translate" dataType="number" format="currency"></dxi-column>
+      <dxi-column dataField="status" [caption]="'INVOICE.STATUS' | translate" cellTemplate="statusCellTemplate"></dxi-column>
+      <div *dxTemplate="let cell of 'statusCellTemplate'">
+        <span class="status-badge" [ngClass]="{
+          'status-paid': cell.value === 'Paid',
+          'status-pending': cell.value === 'Pending',
+          'status-overdue': cell.value === 'Overdue'
+        }">
+          {{ ('INVOICE.STATUS_' + cell.value?.toUpperCase()) | translate }}
+        </span>
+      </div>
+
+      <dxi-column type="buttons" [width]="80">
+        <dxi-button
+          icon="edit"
+          [hint]="'COMMON.EDIT' | translate"
+          [onClick]="onEdit">
+        </dxi-button>
+      </dxi-column>
+    </dx-data-grid>
+  </div>
+</div>

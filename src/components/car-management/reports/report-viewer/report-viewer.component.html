@@ -1,0 +1,17 @@
+<app-car-report-shell
+  *ngIf="report() as cfg"
+  [titleKey]="cfg.titleKey"
+  [subtitleKey]="cfg.subtitleKey"
+  [breadcrumbKey]="cfg.breadcrumbKey"
+  [columns]="cfg.columns"
+  [filterFields]="cfg.filters"
+  [rows]="rows()"
+  [loading]="loading()"
+  [exportFileName]="cfg.exportFileName"
+  [dataCaveatKey]="cfg.dataCaveatKey"
+  [canExportExcel]="canExportExcel"
+  [canExportPdf]="canExportPdf"
+  [canPrint]="canPrint"
+  (filtersChange)="onFiltersChange($event)"
+  (refresh)="load()">
+</app-car-report-shell>

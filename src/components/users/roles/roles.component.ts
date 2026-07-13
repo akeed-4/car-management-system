@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RoleService } from '../../../services/role.service';
+import { NotificationService } from '@/src/services/notification.service';
+import { TranslateService } from '@ngx-translate/core';
 import { Role } from '../../../models/role.model';
 import { KeyValuePipe } from '@angular/common';
 
@@ -14,17 +16,19 @@ import { KeyValuePipe } from '@angular/common';
 })
 export class RolesComponent {
   private roleService = inject(RoleService);
+  private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   roles = this.roleService.roles$;
   permissionsList = this.roleService.permissionsList$;
-  
+
   selectedRoleId = signal<number | null>(null);
   currentPermissions = signal<{ [key: string]: boolean }>({});
   newRoleName = signal('');
-  
-  // Convert object to array for @for loop
+  saving = signal(false);
+
   permissionGroups = computed(() => Object.entries(this.permissionsList()));
-  
+
   onRoleSelect(roleId: number | null): void {
     this.selectedRoleId.set(roleId);
     if (roleId) {
@@ -41,23 +45,53 @@ export class RolesComponent {
 
   savePermissions(): void {
     const roleId = this.selectedRoleId();
-    if (roleId) {
-      const role = this.roles().find(r => r.id === roleId);
-      if (role) {
-        const updatedRole: Role = { ...role, permissions: this.currentPermissions() };
-        this.roleService.updateRole(updatedRole);
-        alert(`تم تحديث صلاحيات دور "${role.name}" بنجاح.`);
-      }
+    if (!roleId || this.saving()) {
+      return;
     }
+
+    const role = this.roles().find(r => r.id === roleId);
+    if (!role) {
+      return;
+    }
+
+    const permissionKeys = Object.entries(this.currentPermissions())
+      .filter(([, enabled]) => enabled)
+      .map(([key]) => key);
+
+    this.saving.set(true);
+    this.roleService.updateRolePermissions(roleId, null, permissionKeys).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.notificationService.showSuccess(this.translate.instant('ROLES.SUCCESS.PERMISSIONS_UPDATED'));
+      },
+      error: err => {
+        this.saving.set(false);
+        this.notificationService.showError(err?.error?.message || this.translate.instant('ROLES.ERRORS.UPDATE_FAILED'));
+      }
+    });
   }
-  
+
   addNewRole(): void {
     const name = this.newRoleName().trim();
-    if (name) {
-      const newRole = this.roleService.addRole(name);
-      this.onRoleSelect(newRole.id); // Select the new role for immediate editing
-      this.newRoleName.set('');
+    if (!name || this.saving()) {
+      return;
     }
+
+    this.saving.set(true);
+    this.roleService.createRole(name, []).subscribe({
+      next: newRole => {
+        this.saving.set(false);
+        this.newRoleName.set('');
+        this.notificationService.showSuccess(this.translate.instant('ROLES.SUCCESS.CREATED'));
+        if (newRole?.id) {
+          this.onRoleSelect(newRole.id);
+        }
+      },
+      error: err => {
+        this.saving.set(false);
+        this.notificationService.showError(err?.error?.message || this.translate.instant('ROLES.ERRORS.CREATE_FAILED'));
+      }
+    });
   }
 
   getSelectedRoleName(): string {

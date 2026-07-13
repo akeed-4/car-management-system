@@ -91,6 +91,9 @@ import { OpeningBalancesFinancialFormComponent } from './components/accounting/o
 import { SalesInvoiceCashComponent } from './components/sales/sales-invoice-form/sales-invoice-cash/sales-invoice-cash.component';
 import { SalesInvoiceCreditComponent } from './components/sales/sales-invoice-form/sales-invoice-credit/sales-invoice-credit.component';
 import { SalesInvoiceInstallmentComponent } from './components/sales/sales-invoice-form/sales-invoice-installment/sales-invoice-installment.component';
+import { CashSaleListComponent } from './components/sales/sales-invoice-form/cash-sale-list/cash-sale-list.component';
+import { CreditSaleListComponent } from './components/sales/sales-invoice-form/credit-sale-list/credit-sale-list.component';
+import { InstallmentSaleListComponent } from './components/sales/sales-invoice-form/installment-sale-list/installment-sale-list.component';
 import { CashInvoiceListComponent } from './components/sales/sales-invoice-list/cash-invoice-list/cash-invoice-list.component';
 import { CreditInvoiceListComponent } from './components/sales/sales-invoice-list/credit-invoice-list/credit-invoice-list.component';
 import { AccountBalanceComponent } from './components/reports/account-balance/account-balance.component';
@@ -136,9 +139,15 @@ import { CorporateOrderViewComponent } from './components/sales/corporate/corpor
 import { CorporateFleetDispatcherComponent } from './components/sales/corporate/corporate-fleet-dispatcher/corporate-fleet-dispatcher.component';
 import { CorporateDeliveryListComponent } from './components/sales/corporate/corporate-delivery-list/corporate-delivery-list.component';
 import { CorporateDeliveryViewComponent } from './components/sales/corporate/corporate-delivery-view/corporate-delivery-view.component';
+import { CorporateQuotationListComponent } from './components/sales/corporate/corporate-quotation-list/corporate-quotation-list.component';
+import { CorporateInvoiceListComponent } from './components/sales/corporate/corporate-invoice-list/corporate-invoice-list.component';
+import { CorporateReceiptListComponent } from './components/sales/corporate/corporate-receipt-list/corporate-receipt-list.component';
 import { BankApprovalListComponent } from './components/sales/bank-financing/bank-approval-list/bank-approval-list.component';
 import { BankApprovalViewComponent } from './components/sales/bank-financing/bank-approval-view/bank-approval-view.component';
 import { BankOrderListComponent } from './components/sales/bank-financing/bank-order-list/bank-order-list.component';
+import { BankQuotationListComponent } from './components/sales/bank-financing/bank-quotation-list/bank-quotation-list.component';
+import { BankInvoiceListComponent } from './components/sales/bank-financing/bank-invoice-list/bank-invoice-list.component';
+import { BankCollectionListComponent } from './components/sales/bank-financing/bank-collection-list/bank-collection-list.component';
 import { RetailDeliveryListComponent } from './components/sales/retail/retail-delivery-list/retail-delivery-list.component';
 import { RetailDeliveryViewComponent } from './components/sales/retail/retail-delivery-view/retail-delivery-view.component';
 
@@ -204,13 +213,17 @@ export const APP_ROUTES: Routes = [
   { path: 'sales/quotations/edit/:id', component: QuotationFormComponent },
   { path: 'sales/customer-orders/new', component: CustomerOrderFormComponent },
   // Direct Sales — single-step invoice entry points, parametrized on SalesInvoiceFormComponent
+  { path: 'sales/direct/cash-sale', component: CashSaleListComponent },
   { path: 'sales/direct/cash-sale/new', component: SalesInvoiceCashComponent },
   { path: 'sales/direct/cash-sale/edit/:id', component: SalesInvoiceCashComponent },
+  { path: 'sales/direct/credit-sale', component: CreditSaleListComponent },
   { path: 'sales/direct/credit-sale/new', component: SalesInvoiceCreditComponent },
   { path: 'sales/direct/credit-sale/edit/:id', component: SalesInvoiceCreditComponent },
+  { path: 'sales/direct/installment-sale', component: InstallmentSaleListComponent },
   { path: 'sales/direct/installment-sale/new', component: SalesInvoiceInstallmentComponent },
   { path: 'sales/direct/installment-sale/edit/:id', component: SalesInvoiceInstallmentComponent },
   // Corporate Sales — 5-step ERP workflow
+  { path: 'sales/corporate/quotations', component: CorporateQuotationListComponent },
   { path: 'sales/corporate/quotations/new', component: CorporateQuotationContainerComponent },
   { path: 'sales/corporate/orders', component: CorporateOrderListComponent },
   { path: 'sales/corporate/orders/new', component: CorporateOrderManagerComponent },
@@ -218,10 +231,13 @@ export const APP_ROUTES: Routes = [
   { path: 'sales/corporate/deliveries', component: CorporateDeliveryListComponent },
   { path: 'sales/corporate/deliveries/new', component: CorporateFleetDispatcherComponent },
   { path: 'sales/corporate/deliveries/view/:id', component: CorporateDeliveryViewComponent },
+  { path: 'sales/corporate/invoices', component: CorporateInvoiceListComponent },
   { path: 'sales/corporate/invoices/new', component: CompaniesInvoiceFormComponent },
   { path: 'sales/corporate/invoices/edit/:id', component: CompaniesInvoiceFormComponent },
+  { path: 'sales/corporate/receipts', component: CorporateReceiptListComponent },
   { path: 'sales/corporate/receipts/new', component: ReceiptFormComponent },
   // Bank Sales — 6-step vehicle financing workflow
+  { path: 'sales/bank/quotations', component: BankQuotationListComponent },
   { path: 'sales/bank/quotations/new', component: BankQuotationContainerComponent },
   { path: 'sales/bank/approvals', component: BankApprovalListComponent },
   { path: 'sales/bank/approvals/new', component: BankApprovalManagerComponent },
@@ -232,8 +248,10 @@ export const APP_ROUTES: Routes = [
   { path: 'sales/bank/deliveries', component: RetailDeliveryListComponent, data: { channel: 'bank' } },
   { path: 'sales/bank/deliveries/new', component: RetailDeliveryContainerComponent, data: { channel: 'bank' } },
   { path: 'sales/bank/deliveries/view/:id', component: RetailDeliveryViewComponent, data: { channel: 'bank' } },
+  { path: 'sales/bank/invoices', component: BankInvoiceListComponent },
   { path: 'sales/bank/invoices/new', component: BankInvoiceFormComponent },
   { path: 'sales/bank/invoices/edit/:id', component: BankInvoiceFormComponent },
+  { path: 'sales/bank/collections', component: BankCollectionListComponent },
   { path: 'sales/bank/collections/new', component: ReceiptFormComponent },
   { path: 'sales/preparation/:vehicleId', component: PreparationManagementComponent },
   { path: 'sales/invoice/cash/new', component: SalesInvoiceCashComponent },
@@ -352,6 +370,10 @@ export const APP_ROUTES: Routes = [
   {
     path: 'installments',
     loadChildren: () => import('./components/installment/installment.module').then(m => m.InstallmentModule)
+  },
+  {
+    path: 'car-management/reports',
+    loadChildren: () => import('./components/car-management/reports/car-reports.routes').then(m => m.CAR_REPORTS_ROUTES)
   },
       { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
       { path: '**', redirectTo: '/dashboard' }
