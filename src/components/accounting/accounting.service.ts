@@ -5,7 +5,7 @@ import { map, catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { Account, JournalEntry, CreateAccountDto, UpdateAccountDto, CreateJournalEntryDto, UpdateJournalEntryDto, OpeningBalanceFinancial, OpeningBalanceInventory } from './models';
-import { environment } from '@/src/environments/environment.development';
+import { environment } from '@/src/environments/environment';
 import { AccountNode } from '@/src/models/account-node.model';
 import { PurchaseReturnJournalEntry } from '@/src/models/sales-return.model';
 

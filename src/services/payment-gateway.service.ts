@@ -5,7 +5,7 @@ import { PosPaymentStatus } from '../models/pos-payment-status.model';
 import { SalesService } from './sales.service';
 import { ReceiptService } from './receipt.service';
 import { TreasuryService } from './treasury.service';
-import { environment } from '../environments/environment.development';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root',

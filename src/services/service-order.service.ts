@@ -2,12 +2,13 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs';
 import { ServiceOrder } from '../models/service-order.model';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ServiceOrderService {
-  private apiUrl = 'http://localhost:5294/api/serviceorders';
+  private apiUrl = environment.origin + 'api/serviceorders';
 
   private serviceOrders = signal<ServiceOrder[]>([]);
   public serviceOrders$ = this.serviceOrders.asReadonly();

@@ -2,12 +2,13 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs';
 import { Expense } from '../models/expense.model';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ExpenseService {
-  private apiUrl = 'http://localhost:5294/api/expenses';
+  private apiUrl = environment.origin + 'api/expenses';
 
   private expenses = signal<Expense[]>([]);
   public expenses$ = this.expenses.asReadonly();
