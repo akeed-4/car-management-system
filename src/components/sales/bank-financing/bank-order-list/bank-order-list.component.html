@@ -3,6 +3,12 @@
     <div class="header-left">
       <h2>{{ 'BANK_FINANCING.ORDERS_LIST_TITLE' | translate }}</h2>
     </div>
+    <div class="header-right">
+      <button mat-raised-button color="primary" (click)="onCreateNew()">
+        <mat-icon>add</mat-icon>
+        {{ 'BANK_FINANCING.NEW_ORDER_ACTION' | translate }}
+      </button>
+    </div>
   </div>
 
   <dx-data-grid

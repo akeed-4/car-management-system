@@ -49,9 +49,9 @@
 
   <!-- Toolbar -->
   <mat-toolbar class="page-toolbar">
-    <button mat-flat-button color="primary" (click)="newEntry()" *appHasPermission="'dailyEntry.create'">
+    <button mat-flat-button color="primary" (click)="newEntry()" >
       <mat-icon>add</mat-icon>
-      {{ 'COMMON.NEW' | translate }}
+      {{ 'DAILY_ENTRIES.NEW_ENTRY' | translate }}
     </button>
 
     <button mat-stroked-button (click)="refresh()">

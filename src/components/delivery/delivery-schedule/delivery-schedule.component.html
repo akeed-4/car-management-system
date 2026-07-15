@@ -49,9 +49,9 @@
 
   <!-- Toolbar -->
   <mat-toolbar class="page-toolbar">
-    <button mat-flat-button color="primary" (click)="newDelivery()" *appHasPermission="'deliverySchedule.create'">
+    <button mat-flat-button color="primary" (click)="newDelivery()" >
       <mat-icon>add</mat-icon>
-      {{ 'COMMON.NEW' | translate }}
+      {{ 'DELIVERY_SCHEDULE.NEW_DELIVERY' | translate }}
     </button>
 
     <button mat-stroked-button (click)="refresh()">

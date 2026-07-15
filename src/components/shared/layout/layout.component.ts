@@ -19,7 +19,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Direction } from '@angular/cdk/bidi';
 import { LoginResponse, OidcSecurityService } from 'angular-auth-oidc-client';
 import { AuthService } from '../../../services/AuthService.service';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { CurrentSettingService } from '../../../services/current-setting.service';
 import { CurrentUserService } from '../../../services/current-user.service';
 import { LanguageService } from '../../../services/language.service';

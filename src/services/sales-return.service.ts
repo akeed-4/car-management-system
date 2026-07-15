@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { SalesReturnInvoice } from '../models/sales-return-invoice.model';
 import { SalesReturn, JournalEntry } from '../models/sales-return.model';
 import { Observable } from 'rxjs';
-import { environment } from '../environments/environment.development';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root',

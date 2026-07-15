@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import { environment } from '../environments/environment.development';
+import { environment } from '../environments/environment';
 import { CurrentSettingService } from './current-setting.service';
 
 // Removed duplicate MenuService class

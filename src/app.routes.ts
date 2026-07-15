@@ -1,5 +1,6 @@
 
 import { Routes } from '@angular/router';
+import { permissionGuard } from './guards/permission.guard';
 import { DashboardComponent } from './components/dashboard/dashboard-main/dashboard.component';
 import { InventoryListComponent } from './components/inventory/inventory-list/inventory-list.component';
 import { InventoryFormComponent } from './components/inventory/inventory-form/inventory-form.component';
@@ -306,9 +307,9 @@ export const APP_ROUTES: Routes = [
   { path: 'purchases/return/credit/new', component: CreditPurchaseReturnComponent },
   { path: 'purchases/return/cash', component: CashReturnInvoiceListComponent },
   { path: 'purchases/return/credit', component: CreditReturnInvoiceListComponent },
-  { path: 'expenses', component: ExpensesComponent },
-  { path: 'expenses/new', component: ExpenseFormComponent },
-  { path: 'expenses/edit/:id', component: ExpenseFormComponent },
+  { path: 'expenses', component: ExpensesComponent, canActivate: [permissionGuard('expenses.view')] },
+  { path: 'expenses/new', component: ExpenseFormComponent, canActivate: [permissionGuard('expenses.view')] },
+  { path: 'expenses/edit/:id', component: ExpenseFormComponent, canActivate: [permissionGuard('expenses.view')] },
   { path: 'accounts/receipts', component: ReceiptsComponent },
   { path: 'accounts/receipts/new', component: ReceiptFormComponent },
    { path: 'accounts/receipts/edit/:id', component: ReceiptFormComponent },
@@ -355,9 +356,9 @@ export const APP_ROUTES: Routes = [
   { path: 'test-drives', component: TestDrivesComponent },
   { path: 'test-drives/new', component: TestDriveFormComponent },
   { path: 'test-drives/edit/:id', component: TestDriveFormComponent },
-  { path: 'maintenance', component: MaintenanceDashboardComponent },
-  { path: 'maintenance/new', component: ServiceOrderFormComponent },
-  { path: 'maintenance/edit/:id', component: ServiceOrderFormComponent },
+  { path: 'maintenance', component: MaintenanceDashboardComponent, canActivate: [permissionGuard('maintenance.view')] },
+  { path: 'maintenance/new', component: ServiceOrderFormComponent, canActivate: [permissionGuard('maintenance.view')] },
+  { path: 'maintenance/edit/:id', component: ServiceOrderFormComponent, canActivate: [permissionGuard('maintenance.view')] },
   { path: 'deliveries', component: DeliveryScheduleComponent },
   { path: 'deliveries/new', component: DeliveryFormComponent },
   { path: 'deliveries/edit/:id', component: DeliveryFormComponent },
