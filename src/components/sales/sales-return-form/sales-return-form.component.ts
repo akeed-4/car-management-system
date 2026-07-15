@@ -352,7 +352,7 @@ getTitle(): string {
       this.salesReturnService.updateSalesReturn(this.invoiceId, salesReturn).subscribe({
         next: (response) => {
           this.isSubmitting.set(false);
-          this.toastService.showSuccess('Sales return updated successfully');
+          this.toastService.showSuccess('SALES.RETURN.UPDATED_SUCCESS');
           // Navigate back to list or show success message
         },
         error: (error) => {
@@ -367,7 +367,7 @@ getTitle(): string {
          
           this.isSubmitting.set(false);
           // Navigate back to list or show success message
-          this.toastService.showSuccess('Sales return updated successfully');
+          this.toastService.showSuccess('SALES.RETURN.UPDATED_SUCCESS');
         },
         error: (error) => {
           console.error('Error saving return:', error);

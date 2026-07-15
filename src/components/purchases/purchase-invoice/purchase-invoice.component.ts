@@ -831,7 +831,7 @@ export class PurchaseInvoiceComponent implements OnInit {
 
   saveInvoice(): void {
     if (this.purchaseInvoiceForm.invalid) {
-      this.notificationService.showError('Please fill all required fields correctly');
+      this.notificationService.showError('PURCHASE_INVOICE.ERROR_INVALID_FORM');
       return;
     }
 
@@ -875,7 +875,7 @@ export class PurchaseInvoiceComponent implements OnInit {
     if (this.isEditMode()) {
       const invoiceId = this.currentInvoiceId();
       if (!invoiceId) {
-        this.notificationService.showError('Invalid invoice ID for update');
+        this.notificationService.showError('PURCHASE_INVOICE.ERROR_INVALID_ID');
         return;
       }
       this.procurementService.updateInvoice(invoiceId, newInvoice).subscribe({

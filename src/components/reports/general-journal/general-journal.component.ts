@@ -105,7 +105,7 @@ export class GeneralJournalComponent implements OnInit {
                 this.loading = false;
             },
             error: (error) => {
-                this.notificationService.showError('Failed to load general journal report');
+                this.notificationService.showError('REPORTS.GENERAL_JOURNAL.LOAD_ERROR');
                 this.loading = false;
             }
         });
@@ -133,7 +133,7 @@ export class GeneralJournalComponent implements OnInit {
                 window.URL.revokeObjectURL(url);
             },
             error: () => {
-                this.notificationService.showError('Failed to export report');
+                this.notificationService.showError('REPORTS.EXPORT_ERROR');
             }
         });
     }
@@ -152,7 +152,7 @@ export class GeneralJournalComponent implements OnInit {
                 window.URL.revokeObjectURL(url);
             },
             error: () => {
-                this.notificationService.showError('Failed to export report');
+                this.notificationService.showError('REPORTS.EXPORT_ERROR');
             }
         });
     }

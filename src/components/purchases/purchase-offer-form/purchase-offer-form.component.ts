@@ -236,8 +236,8 @@ onSubmit(): void {
     : this.purchaseCycleService.createPurchaseOffer(dto);
 
   request.subscribe({
-    next: () => this.notificationService.showSuccess('Purchase offer saved successfully'),
-    error: err => this.notificationService.showError('Error saving purchase offer: ' + (err?.message || 'Unknown error'))
+    next: () => this.notificationService.showSuccess('PURCHASE_OFFER.SAVE_SUCCESS'),
+    error: err => this.notificationService.showError(this.translateService.instant('PURCHASE_OFFER.SAVE_ERROR_DETAIL', { error: err?.message || 'Unknown error' }))
   });
 }
   onCancel(): void {

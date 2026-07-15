@@ -140,7 +140,7 @@ export class CostPriceCalculationSettingsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading settings:', error);
-        this.notificationService.showError('فشل في تحميل الإعدادات', 'Failed to load settings');
+        this.notificationService.showError('COST_PRICE_SETTINGS.LOAD_ERROR');
         this.isLoading = false;
       }
     });
@@ -165,7 +165,7 @@ export class CostPriceCalculationSettingsComponent implements OnInit {
 
   onSave(): void {
     if (this.settingsForm.invalid) {
-      this.notificationService.showError('يرجى ملء جميع الحقول المطلوبة', 'Please fill all required fields');
+      this.notificationService.showError('COST_PRICE_SETTINGS.VALIDATION_ERROR');
       return;
     }
 
@@ -191,12 +191,12 @@ export class CostPriceCalculationSettingsComponent implements OnInit {
     this.settingService.saveCostPriceCalculationSettings(settings).subscribe({
       next: (savedSettings) => {
         this.currentSettings = savedSettings;
-        this.notificationService.showSuccess('تم حفظ الإعدادات بنجاح', 'Settings saved successfully');
+        this.notificationService.showSuccess('COST_PRICE_SETTINGS.SAVE_SUCCESS');
         this.isLoading = false;
       },
       error: (error) => {
         console.error('Error saving settings:', error);
-        this.notificationService.showError('فشل في حفظ الإعدادات', 'Failed to save settings');
+        this.notificationService.showError('COST_PRICE_SETTINGS.SAVE_ERROR');
         this.isLoading = false;
       }
     });

@@ -151,6 +151,8 @@
     "ERROR_SAME_ACCOUNT": "Debit and credit accounts cannot be the same",
     "ERROR_NO_ITEMS": "Please add at least one item to the invoice",
     "ERROR_ALREADY_ADDED": "This car is already added to the invoice",
+    "ERROR_INVALID_FORM": "Please fill all required fields correctly",
+    "ERROR_INVALID_ID": "Invalid invoice ID for update",
     "SEARCH": "Search...",
     "NO_RESULTS": "No results found",
     "CANCEL": "Cancel",
@@ -283,7 +285,9 @@
     "INTERIOR_COLOR": "Interior Color",
     "MILEAGE": "Mileage",
     "TRANSMISSION": "Transmission",
-    "ENGINE_SIZE": "Engine Size"
+    "ENGINE_SIZE": "Engine Size",
+    "SAVE_SUCCESS": "Purchase offer saved successfully",
+    "SAVE_ERROR_DETAIL": "Error saving purchase offer: {{error}}"
   },
   "PURCHASE_ORDER": {
     "LIST_TITLE": "Purchase Orders",
@@ -2664,7 +2668,11 @@
     "NOTE_2": "Existing invoices will not be affected by settings changes",
     "NOTE_3": "You can change settings anytime based on your business requirements",
     "SAVE_SETTINGS": "Save Settings",
-    "RESET": "Reset"
+    "RESET": "Reset",
+    "LOAD_ERROR": "Failed to load settings",
+    "VALIDATION_ERROR": "Please fill all required fields",
+    "SAVE_SUCCESS": "Settings saved successfully",
+    "SAVE_ERROR": "Failed to save settings"
   },
   "REPORTS": {
     "START_DATE": "Start Date",
@@ -2683,6 +2691,8 @@
     "EXPORT_EXCEL": "Export Excel",
     "PRINT": "Print",
     "LOADING": "Loading report data...",
+    "EXPORT_ERROR": "Failed to export report",
+    "SELECT_ACCOUNT_WARNING": "Please select an account",
     "COLUMNS": {
       "ACCOUNT_CODE": "Account Code",
       "ACCOUNT_NAME": "Account Name",
@@ -2710,27 +2720,33 @@
     },
     "ACCOUNT_BALANCE": {
       "TITLE": "Account Balance Report",
-      "SUBTITLE": "View account balances and transactions"
+      "SUBTITLE": "View account balances and transactions",
+      "LOAD_ERROR": "Failed to load account balance report"
     },
     "BALANCE_SHEET": {
       "TITLE": "Balance Sheet",
-      "SUBTITLE": "Financial position statement with assets, liabilities, and equity"
+      "SUBTITLE": "Financial position statement with assets, liabilities, and equity",
+      "LOAD_ERROR": "Failed to load balance sheet report"
     },
     "TRIAL_BALANCE": {
       "TITLE": "Trial Balance",
-      "SUBTITLE": "Opening, period, and closing balances for all accounts"
+      "SUBTITLE": "Opening, period, and closing balances for all accounts",
+      "LOAD_ERROR": "Failed to load trial balance report"
     },
     "GENERAL_JOURNAL": {
       "TITLE": "General Journal",
-      "SUBTITLE": "Complete journal entries with debit and credit details"
+      "SUBTITLE": "Complete journal entries with debit and credit details",
+      "LOAD_ERROR": "Failed to load general journal report"
     },
     "ACCOUNT_STATEMENT": {
       "TITLE": "Account Statement",
-      "SUBTITLE": "Detailed transaction history for a specific account"
+      "SUBTITLE": "Detailed transaction history for a specific account",
+      "LOAD_ERROR": "Failed to load account statement report"
     },
     "BUSINESS_ACTIVITY": {
       "TITLE": "Business Activity Report",
-      "SUBTITLE": "Cash flow from operating, investing, and financing activities"
+      "SUBTITLE": "Cash flow from operating, investing, and financing activities",
+      "LOAD_ERROR": "Failed to load business activity report"
     }
   },
   "VIN_MANAGEMENT": {

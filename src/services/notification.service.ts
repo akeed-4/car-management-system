@@ -13,6 +13,7 @@ export class NotificationService {
     if(title == null){
       title = this.translateService.instant('TOAST.SUCCESS')
     }
+    message = this.translateService.instant(message);
     this.toastr.success(message, title, {
       positionClass: this.translateService.currentLang == 'ar' ? 'toast-bottom-right' : 'toast-bottom-left',
       closeButton: true,
@@ -30,6 +31,7 @@ export class NotificationService {
     if(title == null){
       title = this.translateService.instant('TOAST.ERROR')
     }
+    message = this.translateService.instant(message);
     this.toastr.error(message, title, {
       positionClass: this.translateService.currentLang == 'ar' ? 'toast-bottom-right' : 'toast-bottom-left',
       closeButton: true,
@@ -44,6 +46,7 @@ export class NotificationService {
   }
 
   showInfo(message: string,title?: string) {
+    message = this.translateService.instant(message);
     this.toastr.info(message, title, {
       positionClass: this.translateService.currentLang == 'ar' ? 'toast-bottom-right' : 'toast-bottom-left',
       closeButton: true,
@@ -56,6 +59,7 @@ export class NotificationService {
     if(title == null){
       title = this.translateService.instant('TOAST.WARNING')
     }
+    message = this.translateService.instant(message);
     this.toastr.warning(message, title, {
       positionClass: this.translateService.currentLang == 'ar' ? 'toast-bottom-right' : 'toast-bottom-left',
       closeButton: true,
