@@ -87,7 +87,7 @@ private translate = inject(TranslateService);
 
   // Component state
   editMode = signal(false);
-  pageTitle = signal('إضافة سيارة جديدة');
+  pageTitle = signal('INVENTORY.FORM.PAGE_TITLE_NEW');
   selectedManufacturerId = signal<number | null>(null);
   selectedCategoryId = signal<number | null>(null);
   categoryModelIds = signal<number[]>([]);
@@ -171,7 +171,7 @@ private translate = inject(TranslateService);
     if (idParam) {
       const id = Number(idParam);
       this.editMode.set(true);
-      this.pageTitle.set('تعديل بيانات السيارة');
+      this.pageTitle.set('INVENTORY.FORM.PAGE_TITLE_EDIT');
       this.loadCarForEdit(id);
     }
   }
@@ -352,11 +352,11 @@ backToCard(): void {
               .map(([field, messages]) => `${field}: ${Array.isArray(messages) ? messages.join(', ') : messages}`)
               .join('\n');
             console.error('Validation errors:', validationErrors);
-            this.notificationService.showError(`Validation failed:\n${validationErrors}`);
+            this.notificationService.showError(`${this.translate.instant('INVENTORY.FORM.VALIDATION_FAILED_PREFIX')}\n${validationErrors}`);
           } else if (error.error?.title) {
             this.notificationService.showError(error.error.title);
           } else {
-            this.notificationService.showError(`Error: ${error.status} - ${error.statusText}`);
+            this.notificationService.showError(this.translate.instant('INVENTORY.FORM.GENERIC_HTTP_ERROR', { status: error.status, statusText: error.statusText }));
           }
         } else {
           this.notificationService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
@@ -381,7 +381,7 @@ backToCard(): void {
       // Automatically apply the average price
       this.carForm.patchValue({ salePrice: suggestion.average });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+      const errorMessage = error instanceof Error ? error.message : this.translate.instant('INVENTORY.FORM.UNKNOWN_ERROR_OCCURRED');
       this.priceSuggestionError.set(errorMessage);
     } finally {
       this.isSuggestingPrice.set(false);
@@ -406,13 +406,13 @@ backToCard(): void {
 
       // Validate file type
       if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
+        this.notificationService.showError('INVENTORY.FORM.SELECT_IMAGE_FILE_ERROR');
         return;
       }
 
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert('File size must be less than 5MB');
+        this.notificationService.showError('INVENTORY.FORM.IMAGE_TOO_LARGE_ERROR');
         return;
       }
 

@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { CarsReceiptNoteService } from '../../../services/cars-receipt-note.service';
 import { CarsReceiptNoteDto } from '../../../models/cars-receipt-note.model';
+import { DocumentStatusBadgeComponent } from '../../shared/document-status-badge/document-status-badge.component';
 
 @Component({
   selector: 'app-cars-receipt-note-list',
@@ -19,7 +20,8 @@ import { CarsReceiptNoteDto } from '../../../models/cars-receipt-note.model';
     DxTemplateModule,
     TranslateModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    DocumentStatusBadgeComponent
   ],
   templateUrl: './cars-receipt-note-list.component.html',
   styleUrls: ['./cars-receipt-note-list.component.css']

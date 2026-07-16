@@ -7,7 +7,8 @@
     "dev": "ng serve",
     "build": "ng build",
     "preview": "ng serve --configuration=production",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "deploy:pages": "wrangler pages deploy dist"
   },
   "dependencies": {
     "@angular/animations": "^17.3.12",
@@ -22,6 +23,7 @@
     "@google/genai": "^1.30.0",
     "@ngx-translate/core": "^15.0.0",
     "@ngx-translate/http-loader": "^8.0.0",
+    "@types/qrcode": "^1.5.6",
     "angular-auth-oidc-client": "^17.1.0",
     "devextreme": "^23.2.6",
     "devextreme-angular": "^23.2.15",
@@ -32,6 +34,7 @@
     "ngx-mat-select-search": "^8.0.4",
     "ngx-toastr": "^18.0.0",
     "numeral": "^2.0.6",
+    "qrcode": "^1.5.4",
     "rxjs": "^7.8.2",
     "sweetalert2": "^11.26.17",
     "tailwindcss": "^3.4.0",
@@ -49,6 +52,7 @@
     "eslint": "^9.39.1",
     "typescript": "~5.2.2",
     "typescript-eslint": "8.46.4",
-    "vite": "^4.5.0"
+    "vite": "^4.5.0",
+    "wrangler": "^3.114.17"
   }
 }

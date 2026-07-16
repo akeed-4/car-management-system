@@ -165,6 +165,7 @@ export class InventoryFormComponent implements OnInit {
       additionalCosts: new FormControl(0, Validators.min(0)),
       purchaseDate: new FormControl(new Date().toISOString().split('T')[0], Validators.required),
       salePrice: new FormControl(0, Validators.min(0)),
+      calculateVATFromProfitMargin: new FormControl(false),
       trackByBatch: new FormControl(false),
       description: new FormControl(''),
       photos: new FormControl(['https://picsum.photos/800/600?random=10']),

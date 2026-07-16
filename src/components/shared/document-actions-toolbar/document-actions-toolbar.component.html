@@ -1,0 +1,31 @@
+<div class="document-actions-toolbar">
+  <button mat-raised-button color="primary" *ngIf="canApprove" [appHasPermission]="perm('approve')" (click)="action.emit('approve')">
+    <mat-icon>check_circle</mat-icon>
+    {{ 'DOCUMENT_LIFECYCLE.ACTION_APPROVE' | translate }}
+  </button>
+
+  <button mat-stroked-button color="warn" *ngIf="canReject" [appHasPermission]="perm('reject')" (click)="action.emit('reject')">
+    <mat-icon>cancel</mat-icon>
+    {{ 'DOCUMENT_LIFECYCLE.ACTION_REJECT' | translate }}
+  </button>
+
+  <button mat-stroked-button color="warn" *ngIf="canCancel" [appHasPermission]="perm('cancel')" (click)="action.emit('cancel')">
+    <mat-icon>block</mat-icon>
+    {{ 'DOCUMENT_LIFECYCLE.ACTION_CANCEL' | translate }}
+  </button>
+
+  <button mat-stroked-button *ngIf="canReopen" [appHasPermission]="perm('reopen')" (click)="action.emit('reopen')">
+    <mat-icon>restart_alt</mat-icon>
+    {{ 'DOCUMENT_LIFECYCLE.ACTION_REOPEN' | translate }}
+  </button>
+
+  <button mat-stroked-button color="warn" *ngIf="canDelete" [appHasPermission]="perm('deleteDraft')" (click)="deleteRequested.emit()">
+    <mat-icon>delete</mat-icon>
+    {{ 'COMMON.DELETE' | translate }}
+  </button>
+
+  <button mat-button (click)="auditTrailRequested.emit()">
+    <mat-icon>history</mat-icon>
+    {{ 'DOCUMENT_LIFECYCLE.AUDIT_TRAIL_TITLE' | translate }}
+  </button>
+</div>

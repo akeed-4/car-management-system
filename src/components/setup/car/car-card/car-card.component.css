@@ -54,7 +54,7 @@
   padding: 1.5rem;
   background: #f8f9fa;
   border-radius: 8px;
-  border-left: 4px solid #1976d2;
+  border-inline-start: 4px solid #1976d2;
 }
 
 .form-section-title {
@@ -210,7 +210,7 @@ mat-form-field.mat-form-field {
 }
 
 .upload-btn-main mat-icon {
-  margin-right: 0.5rem;
+  margin-inline-end: 0.5rem;
 }
 
 .photo-display-wrapper {
@@ -251,7 +251,7 @@ mat-form-field.mat-form-field {
 
 .browse-photo-btn mat-icon,
 .delete-photo-btn mat-icon {
-  margin-right: 0.35rem;
+  margin-inline-end: 0.35rem;
   font-size: 1.1rem;
 }
 
@@ -283,7 +283,7 @@ mat-form-field.mat-form-field {
 .photo-actions {
   position: absolute;
   top: 8px;
-  right: 8px;
+  inset-inline-end: 8px;
   display: flex;
   gap: 0.5rem;
   opacity: 0;

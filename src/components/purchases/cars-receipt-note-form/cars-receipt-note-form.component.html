@@ -14,23 +14,24 @@
           </div>
         </div>
 
+        <app-document-header *ngIf="loadedGrn" [document]="loadedGrn"></app-document-header>
+
+        <div class="lifecycle-toolbar-row" *ngIf="loadedGrn">
+          <app-document-actions-toolbar
+            [status]="loadedGrn.status"
+            permissionPrefix="grn"
+            [showDelete]="false"
+            (action)="onLifecycleAction($event)"
+            (auditTrailRequested)="openAuditTrail()">
+          </app-document-actions-toolbar>
+        </div>
+
         <div class="doc-section-title">
           <mat-icon class="section-icon">info</mat-icon>
           <span>{{ 'CARS_RECEIPT_NOTE.SEC_CORE_INFO' | translate }}</span>
         </div>
 
         <div class="form-row-flex">
-          <div class="flex-1">
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-label>{{ 'CARS_RECEIPT_NOTE.GRN_NUMBER' | translate }}</mat-label>
-              <input matInput formControlName="grnNumber" placeholder="GRN-0000">
-              <mat-icon matSuffix>tag</mat-icon>
-              <mat-error *ngIf="grnForm.get('grnNumber')?.hasError('required')">
-                {{ 'COMMON.REQUIRED' | translate }}
-              </mat-error>
-            </mat-form-field>
-          </div>
-
           <div class="flex-1">
             <mat-form-field appearance="outline" class="w-100">
               <mat-label>{{ 'CARS_RECEIPT_NOTE.RECEIPT_DATE' | translate }}</mat-label>

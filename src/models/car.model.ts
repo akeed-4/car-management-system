@@ -26,6 +26,7 @@ export interface Car {
   additionalCosts: number;
   totalCost: number; // This will now represent the true total cost including linked expenses
   salePrice: number;
+  calculateVATFromProfitMargin?: boolean;
   description: string;
   purchaseDate?: string; // e.g., '2024-05-20'
   floorPlanId?: number;

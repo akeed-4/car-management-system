@@ -1,0 +1,25 @@
+<div class="container-fluid p-4">
+  <div class="page-header strong-header">
+    <h2>{{ 'DOCUMENT_LIFECYCLE_SETTINGS.TITLE' | translate }}</h2>
+    <p class="page-subtitle">{{ 'DOCUMENT_LIFECYCLE_SETTINGS.SUBTITLE' | translate }}</p>
+  </div>
+
+  <div class="state-message" *ngIf="isLoading()">
+    <mat-spinner diameter="36"></mat-spinner>
+  </div>
+
+  <mat-card class="settings-list" *ngIf="!isLoading()">
+    <div class="setting-row" *ngFor="let row of rows()">
+      <div class="row-info">
+        <mat-icon>description</mat-icon>
+        <span>{{ row.labelKey | translate }}</span>
+      </div>
+      <mat-slide-toggle
+        [checked]="row.autoApproveOnSave"
+        [disabled]="row.saving"
+        (change)="toggle(row, $event.checked)">
+        {{ 'DOCUMENT_LIFECYCLE_SETTINGS.AUTO_APPROVE_ON_SAVE' | translate }}
+      </mat-slide-toggle>
+    </div>
+  </mat-card>
+</div>

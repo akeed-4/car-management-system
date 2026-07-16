@@ -42,8 +42,15 @@ export class CarReportShellComponent {
 
   @Output() filtersChange = new EventEmitter<ReportFilters>();
   @Output() refresh = new EventEmitter<void>();
+  @Output() rowDblClick = new EventEmitter<any>();
 
   filters: ReportFilters = {};
+
+  onRowDblClick(e: { data?: any }): void {
+    if (e.data) {
+      this.rowDblClick.emit(e.data);
+    }
+  }
 
   onFiltersChange(filters: ReportFilters): void {
     this.filters = filters;

@@ -129,6 +129,8 @@
     "SELECT_CREDIT_ACCOUNT": "يرجى اختيار الحساب الدائن",
     "SELECT_STORE": "يرجى اختيار مخزن",
     "SELECT_CAR_OPTION": "يرجى اختيار سيارة",
+    "ERROR_INVALID_FORM": "يرجى تعبئة جميع الحقول المطلوبة بشكل صحيح",
+    "ERROR_INVALID_ID": "معرّف الفاتورة غير صالح للتحديث",
     "PAYMENT_CREDIT": "آجل (مؤجل)",
     "PAYMENT_CASH": "نقدي",
     "PAYMENT_BANK_TRANSFER": "تحويل بنكي",
@@ -138,6 +140,7 @@
     "INVOICE_SUMMARY": "ملخص الفاتورة",
     "SUBTOTAL": "المجموع الفرعي",
     "VAT": "ضريبة القيمة المضافة (15%)",
+    "MARGIN_VAT_NOTE": "يتضمن هذا العنصر أو أكثر ضريبة هامش الربح. سيتم احتساب المبلغ الدقيق عند الحفظ وقد يختلف عن التقدير أعلاه.",
     "NO_ITEMS": "لم يتم إضافة عناصر بعد",
     "AVAILABLE_QUANTITY": "الكمية المتاحة",
     "SELECT_CAR_CARD": "اختيار بطاقة السيارة",
@@ -218,7 +221,8 @@
     "ALL": "الكل",
     "SEARCH": "بحث",
     "COLUMN_CHOOSER": "اختيار الأعمدة",
-    "RECORD_COUNT": "عدد السجلات"
+    "RECORD_COUNT": "عدد السجلات",
+    "ACTIVE": "نشط"
   },
   "VALIDATION": {
     "REQUIRED": "هذا الحقل مطلوب"
@@ -285,7 +289,9 @@
     "INTERIOR_COLOR": "اللون الداخلي",
     "MILEAGE": "الممشى (كم)",
     "TRANSMISSION": "ناقل الحركة",
-    "ENGINE_SIZE": "حجم المحرك"
+    "ENGINE_SIZE": "حجم المحرك",
+    "SAVE_SUCCESS": "تم حفظ عرض الشراء بنجاح",
+    "SAVE_ERROR_DETAIL": "خطأ في حفظ عرض الشراء: {{error}}"
   },
   "PURCHASE_ORDER": {
     "LIST_TITLE": "أوامر الشراء",
@@ -348,9 +354,11 @@
     "RECEIVED_QTY": "المستلم الآن",
     "ITEMS_COUNT": "عدد العناصر",
     "STATUS": "الحالة",
-    "STATUS_POSTED": "مرحّل",
     "STATUS_DRAFT": "مسودة",
+    "STATUS_APPROVED": "معتمد",
+    "STATUS_REJECTED": "مرفوض",
     "STATUS_CANCELLED": "ملغى",
+    "STATUS_CLOSED": "مغلق",
     "NOTES": "ملاحظات",
     "NO_ITEMS": "لم يتم إضافة عناصر بعد",
     "MAX_QTY_WARNING": "لا يمكن أن تتجاوز الكمية المستلمة الكمية المتبقية من الطلب",
@@ -362,6 +370,129 @@
     "CAR": "السيارة",
     "SELECT_CAR": "اختر السيارة",
     "CAR_REQUIRED_WARNING": "اختر سيارة لكل سطر قبل الحفظ"
+  },
+  "DOCUMENT_LIFECYCLE": {
+    "STATUS_DRAFT": "مسودة",
+    "STATUS_APPROVED": "معتمد",
+    "STATUS_REJECTED": "مرفوض",
+    "STATUS_CANCELLED": "ملغى",
+    "STATUS_CLOSED": "مغلق",
+    "NUMBER_PENDING": "الرقم قيد الإصدار",
+    "CREATED_BY": "أنشئ بواسطة",
+    "APPROVED_BY": "اعتمد بواسطة",
+    "REJECTED_BY": "رفض بواسطة",
+    "CANCELLED_BY": "ألغي بواسطة",
+    "MODIFIED_BY": "آخر تعديل بواسطة",
+    "ACTION_APPROVE": "اعتماد",
+    "ACTION_REJECT": "رفض",
+    "ACTION_CANCEL": "إلغاء",
+    "ACTION_REOPEN": "إعادة فتح",
+    "ACTION_APPROVE_TITLE": "اعتماد المستند",
+    "ACTION_REJECT_TITLE": "رفض المستند",
+    "ACTION_CANCEL_TITLE": "إلغاء المستند",
+    "ACTION_REOPEN_TITLE": "إعادة فتح المستند",
+    "ACTION_SUCCESS": "تم تنفيذ الإجراء بنجاح",
+    "ACTION_ERROR": "حدث خطأ أثناء تنفيذ هذا الإجراء",
+    "REASON": "السبب",
+    "REASON_REQUIRED": "السبب مطلوب",
+    "REASON_TOO_SHORT": "يجب ألا يقل السبب عن 3 أحرف",
+    "AUDIT_TRAIL_TITLE": "سجل التدقيق",
+    "AUDIT_TRAIL_EMPTY": "لا توجد سجلات تدقيق بعد",
+    "AUDIT_TRAIL_LOAD_ERROR": "خطأ في تحميل سجل التدقيق",
+    "AUDIT_BY": "بواسطة",
+    "AUDIT_UNKNOWN_USER": "مستخدم غير معروف",
+    "AUDIT_ACTION_CREATE": "تم الإنشاء",
+    "AUDIT_ACTION_APPROVE": "تم الاعتماد",
+    "AUDIT_ACTION_REJECT": "تم الرفض",
+    "AUDIT_ACTION_CANCEL": "تم الإلغاء",
+    "AUDIT_ACTION_REOPEN": "تمت إعادة الفتح",
+    "AUDIT_ACTION_EDIT": "تم التعديل",
+    "AUDIT_ACTION_DELETE": "تم الحذف"
+  },
+  "DOCUMENT_TYPES": {
+    "GRN": "إيصال استلام البضائع (GRN)"
+  },
+  "DOCUMENT_NUMBERING": {
+    "TITLE": "إعدادات ترقيم المستندات",
+    "CREATE_TITLE": "إعداد ترقيم جديد",
+    "EDIT_TITLE": "تعديل إعداد الترقيم",
+    "DOCUMENT_TYPE": "نوع المستند",
+    "FORMAT": "صيغة الترقيم",
+    "RESET_CADENCE": "وضع إعادة التعيين",
+    "PREFIX": "البادئة",
+    "SUFFIX": "اللاحقة",
+    "DIGIT_PADDING": "طول الرقم (عدد الخانات)",
+    "AUTO_ENABLED": "تفعيل الترقيم التلقائي",
+    "USE_DATE_BASED_MAX_NUMBER": "المتابعة من أعلى رقم حسب التاريخ",
+    "USE_DATE_BASED_MAX": "المتابعة من أعلى رقم حسب التاريخ",
+    "USE_DATE_BASED_MAX_HINT": "عند التفعيل، يتم متابعة الترقيم من أعلى رقم موجود للفترة الحالية بدلاً من البدء من 1",
+    "FISCAL_YEAR_START_MONTH": "شهر بداية السنة المالية",
+    "PREVIEW": "معاينة",
+    "FORMAT_SequentialOnly": "تسلسلي فقط",
+    "FORMAT_DatePlusSequence": "التاريخ + تسلسل",
+    "FORMAT_YearMonthSequence": "السنة-الشهر + تسلسل",
+    "FORMAT_BranchDateSequence": "الفرع + التاريخ + تسلسل",
+    "FORMAT_StoreDateSequence": "المعرض + التاريخ + تسلسل",
+    "FORMAT_FiscalYearSequence": "السنة المالية + تسلسل",
+    "CADENCE_Never": "أبداً",
+    "CADENCE_Daily": "يوميًا",
+    "CADENCE_Monthly": "شهريًا",
+    "CADENCE_Yearly": "سنويًا",
+    "CADENCE_FiscalYear": "السنة المالية",
+    "LOAD_ERROR": "خطأ في تحميل إعدادات الترقيم",
+    "SAVE_SUCCESS": "تم حفظ إعداد الترقيم بنجاح",
+    "SAVE_ERROR": "خطأ في حفظ إعداد الترقيم",
+    "DELETE_SUCCESS": "تم حذف إعداد الترقيم بنجاح",
+    "DELETE_ERROR": "خطأ في حذف إعداد الترقيم",
+    "VALIDATION_ERROR": "يرجى تصحيح الحقول المحددة"
+  },
+  "DOCUMENT_LIFECYCLE_SETTINGS": {
+    "TITLE": "إعدادات دورة حياة المستندات",
+    "SUBTITLE": "تحديد ما إذا كان كل نوع مستند يُعتمد تلقائيًا عند الحفظ",
+    "AUTO_APPROVE_ON_SAVE": "اعتماد تلقائي عند الحفظ",
+    "LOAD_ERROR": "خطأ في تحميل إعدادات دورة الحياة",
+    "SAVE_SUCCESS": "تم حفظ إعداد دورة الحياة بنجاح",
+    "SAVE_ERROR": "خطأ في حفظ إعداد دورة الحياة"
+  },
+  "QR_CODE": {
+    "FIELD_COMPANY_NAME": "اسم الشركة",
+    "FIELD_VAT_NUMBER": "الرقم الضريبي",
+    "FIELD_CR_NUMBER": "رقم السجل التجاري",
+    "FIELD_DOCUMENT_NUMBER": "رقم المستند",
+    "FIELD_DOCUMENT_DATE": "تاريخ المستند",
+    "FIELD_CUSTOMER_NAME": "اسم العميل",
+    "FIELD_CUSTOMER_VAT_NUMBER": "الرقم الضريبي للعميل",
+    "FIELD_CURRENCY": "العملة",
+    "FIELD_TOTAL_BEFORE_VAT": "الإجمالي قبل الضريبة",
+    "FIELD_VAT_AMOUNT": "مبلغ الضريبة",
+    "FIELD_GRAND_TOTAL": "الإجمالي الكلي",
+    "FIELD_BRANCH_NAME": "اسم الفرع",
+    "POSITION_TOP_RIGHT": "أعلى اليمين",
+    "POSITION_TOP_LEFT": "أعلى اليسار",
+    "POSITION_BOTTOM_RIGHT": "أسفل اليمين",
+    "POSITION_BOTTOM_LEFT": "أسفل اليسار",
+    "POSITION_HEADER": "الترويسة",
+    "POSITION_FOOTER": "التذييل"
+  },
+  "QR_CODE_SETTINGS": {
+    "TITLE": "إعدادات رمز الاستجابة السريعة",
+    "SUBTITLE": "تكوين رمز الاستجابة السريعة الظاهر على المستندات القابلة للطباعة (فاتورة المبيعات، فاتورة المشتريات)",
+    "ENABLE_QR": "تفعيل رمز الاستجابة السريعة",
+    "POSITION": "الموضع",
+    "SIZE": "الحجم (بكسل)",
+    "MARGIN": "الهامش (بكسل)",
+    "CAPTION": "التسمية التوضيحية",
+    "FOREGROUND_COLOR": "لون الرمز",
+    "BORDER_COLOR": "لون الإطار",
+    "SHOW_BORDER": "إظهار الإطار",
+    "ZATCA_MODE": "وضع متوافق مع فاتورة (ZATCA)",
+    "ZATCA_MODE_HINT": "عند التفعيل، يتم ترميز رمز الاستجابة السريعة ببيانات TLV المطلوبة من فاتورة (اسم البائع، الرقم الضريبي، الطابع الزمني، الإجمالي، إجمالي الضريبة). عند التعطيل، اختر الحقول المطلوب تضمينها أدناه.",
+    "CONTENT_FIELDS": "حقول المحتوى",
+    "PREVIEW": "معاينة",
+    "PREVIEW_DISABLED": "رمز الاستجابة السريعة معطل",
+    "VALIDATION_ERROR": "يرجى تصحيح الحقول المحددة",
+    "SAVE_SUCCESS": "تم حفظ إعدادات رمز الاستجابة السريعة بنجاح",
+    "SAVE_ERROR": "خطأ في حفظ إعدادات رمز الاستجابة السريعة"
   },
   "RETAIL_SALES_ORDER": {
     "LIST_TITLE": "أوامر البيع",
@@ -1109,6 +1240,7 @@
       "YEAR": "سنة الصنع",
       "SELECT_YEAR": "اختر السنة",
       "CURRENT_LOCATION": "الموقع الحالي",
+      "CURRENT_LOCATION_PLACEHOLDER": "مثال: صالة العرض أ، موقف 3",
       "CONDITION": "حالة السيارة",
       "USED": "مستعملة",
       "NEW": "جديدة",
@@ -1142,9 +1274,13 @@
       "FLOOR_PLAN": "خطة التمويل (اختياري)",
       "NO_FINANCE": "-- بدون تمويل --",
       "RELATED_COSTS": "التكاليف المرتبطة",
+      "RELATED_COSTS_DATE": "التاريخ",
+      "RELATED_COSTS_DESCRIPTION": "الوصف",
+      "RELATED_COSTS_AMOUNT": "المبلغ",
       "DESCRIPTION_PHOTOS": "الوصف والصور",
       "MARKETING_DESCRIPTION": "الوصف التسويقي",
       "PHOTOS": "الصور",
+      "CAR_IMAGE_ALT": "صورة السيارة",
       "UPLOAD_FILE": "ارفع ملفاً",
       "BROWSE_IMAGE": "تصفح الصورة",
       "REMOVE": "حذف",
@@ -1156,7 +1292,13 @@
       "SAVE_CHANGES": "حفظ التغييرات",
       "ADD_CAR": "إضافة السيارة",
       "TRACK_BY_BATCH": "تتبع بالدفعات",
-      "TRACK_BY_BATCH_HINT": "تفعيل تتبع الدفعات لهذا الصنف لإدارة المخزون حسب دفعات الإنتاج"
+      "TRACK_BY_BATCH_HINT": "تفعيل تتبع الدفعات لهذا الصنف لإدارة المخزون حسب دفعات الإنتاج",
+      "CALCULATE_VAT_FROM_PROFIT_MARGIN": "احتساب الضريبة من هامش الربح",
+      "SELECT_IMAGE_FILE_ERROR": "الرجاء اختيار ملف صورة",
+      "IMAGE_TOO_LARGE_ERROR": "يجب ألا يتجاوز حجم الملف 5 ميجابايت",
+      "VALIDATION_FAILED_PREFIX": "فشل التحقق من صحة البيانات:",
+      "GENERIC_HTTP_ERROR": "خطأ: {{status}} - {{statusText}}",
+      "UNKNOWN_ERROR_OCCURRED": "حدث خطأ غير معروف."
     },
     "STOCK_TAKING_FORM": {
       "PAGE_TITLE": "جرد",
@@ -1945,6 +2087,10 @@
       "BRANCH": "الفرع",
       "BRANCH_REQUIRED": "الفرع مطلوب",
       "STATUS": "الحالة",
+      "VAT_REGISTRATION_NUMBER": "الرقم الضريبي",
+      "VAT_REGISTRATION_NUMBER_PLACEHOLDER": "أدخل الرقم الضريبي",
+      "CR_NUMBER": "رقم السجل التجاري",
+      "CR_NUMBER_PLACEHOLDER": "أدخل رقم السجل التجاري",
       "LATITUDE": "خط العرض",
       "LATITUDE_PLACEHOLDER": "أدخل خط العرض",
       "LONGITUDE": "خط الطول",
@@ -2340,6 +2486,16 @@
     "SUPPLIER_NAME": "اسم المورد",
     "BANK_ID": "رقم البنك",
     "BANK_NAME": "اسم البنك",
+    "NEW_CUSTOMER_PHONE": "رقم هاتف العميل الجديد",
+    "NEW_CUSTOMER_PHONE_REQUIRED": "رقم الهاتف مطلوب لإنشاء عميل جديد",
+    "NEW_SUPPLIER_PHONE": "رقم هاتف المورد الجديد",
+    "NEW_SUPPLIER_PHONE_REQUIRED": "رقم الهاتف مطلوب لإنشاء مورد جديد",
+    "LINK_EXISTING_CUSTOMER": "ربط عميل موجود",
+    "LINK_EXISTING_SUPPLIER": "ربط مورد موجود",
+    "SYNC_ENTITY_NAME": "مزامنة الاسم مع الكيان المرتبط",
+    "ACCOUNT_ALREADY_LINKED": "هذا الحساب مرتبط بالفعل بكيان آخر",
+    "ENTITY_ALREADY_LINKED": "هذا الكيان مرتبط بالفعل بحساب آخر",
+    "ACCOUNT_LINKED_TO_ENTITY": "لا يمكن حذف حساب مرتبط بعميل أو مورد أو بنك",
     "DATE": "التاريخ",
     "REFERENCE": "المرجع",
     "DEBIT": "مدين",
@@ -2388,6 +2544,10 @@
     "LINK_EXISTING_ENTITY": "ربط البنك/العميل/المورد الموجود بحساب",
     "LINK_ENTITY_TO_ACCOUNT": "ربط الكيان بالحساب",
     "ENTITY_TYPE": "نوع الكيان",
+    "ENTITY_TYPE_NONE": "بدون",
+    "ENTITY_TYPE_CUSTOMER": "عميل",
+    "ENTITY_TYPE_SUPPLIER": "مورد",
+    "ENTITY_TYPE_BANK": "بنك",
     "SEARCH_ENTITY": "البحث عن الكيان",
     "SEARCH_ENTITY_PLACEHOLDER": "اكتب للبحث عن الكيانات...",
     "LINK_ACCOUNT": "ربط الحساب",
@@ -2591,7 +2751,11 @@
     "NOTE_2": "الفواتير الموجودة لن تتأثر بتغيير الإعدادات",
     "NOTE_3": "يمكنك تغيير الإعدادات في أي وقت حسب متطلبات عملك",
     "SAVE_SETTINGS": "حفظ الإعدادات",
-    "RESET": "إعادة تعيين"
+    "RESET": "إعادة تعيين",
+    "LOAD_ERROR": "فشل في تحميل الإعدادات",
+    "VALIDATION_ERROR": "يرجى ملء جميع الحقول المطلوبة",
+    "SAVE_SUCCESS": "تم حفظ الإعدادات بنجاح",
+    "SAVE_ERROR": "فشل في حفظ الإعدادات"
   },
   "REPORTS": {
     "START_DATE": "تاريخ البداية",
@@ -2610,6 +2774,8 @@
     "EXPORT_EXCEL": "تصدير Excel",
     "PRINT": "طباعة",
     "LOADING": "جاري تحميل بيانات التقرير...",
+    "EXPORT_ERROR": "فشل تصدير التقرير",
+    "SELECT_ACCOUNT_WARNING": "يرجى اختيار حساب",
     "COLUMNS": {
       "ACCOUNT_CODE": "رمز الحساب",
       "ACCOUNT_NAME": "اسم الحساب",
@@ -2637,27 +2803,33 @@
     },
     "ACCOUNT_BALANCE": {
       "TITLE": "تقرير أرصدة الحسابات",
-      "SUBTITLE": "عرض أرصدة الحسابات والمعاملات"
+      "SUBTITLE": "عرض أرصدة الحسابات والمعاملات",
+      "LOAD_ERROR": "فشل تحميل تقرير أرصدة الحسابات"
     },
     "BALANCE_SHEET": {
       "TITLE": "الميزانية العمومية",
-      "SUBTITLE": "بيان المركز المالي مع الأصول والخصوم وحقوق الملكية"
+      "SUBTITLE": "بيان المركز المالي مع الأصول والخصوم وحقوق الملكية",
+      "LOAD_ERROR": "فشل تحميل تقرير الميزانية العمومية"
     },
     "TRIAL_BALANCE": {
       "TITLE": "ميزان المراجعة",
-      "SUBTITLE": "الأرصدة الافتتاحية والفترة والختامية لجميع الحسابات"
+      "SUBTITLE": "الأرصدة الافتتاحية والفترة والختامية لجميع الحسابات",
+      "LOAD_ERROR": "فشل تحميل تقرير ميزان المراجعة"
     },
     "GENERAL_JOURNAL": {
       "TITLE": "دفتر اليومية العام",
-      "SUBTITLE": "قيود اليومية الكاملة مع تفاصيل المدين والدائن"
+      "SUBTITLE": "قيود اليومية الكاملة مع تفاصيل المدين والدائن",
+      "LOAD_ERROR": "فشل تحميل تقرير دفتر اليومية العام"
     },
     "ACCOUNT_STATEMENT": {
       "TITLE": "كشف حساب",
-      "SUBTITLE": "سجل المعاملات التفصيلي لحساب معين"
+      "SUBTITLE": "سجل المعاملات التفصيلي لحساب معين",
+      "LOAD_ERROR": "فشل تحميل تقرير كشف الحساب"
     },
     "BUSINESS_ACTIVITY": {
       "TITLE": "تقرير نشاط الأعمال",
-      "SUBTITLE": "التدفقات النقدية من أنشطة التشغيل والاستثمار والتمويل"
+      "SUBTITLE": "التدفقات النقدية من أنشطة التشغيل والاستثمار والتمويل",
+      "LOAD_ERROR": "فشل تحميل تقرير نشاط الأعمال"
     }
   },
   "VIN_MANAGEMENT": {

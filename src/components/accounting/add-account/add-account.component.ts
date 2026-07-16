@@ -19,6 +19,8 @@ import { CostCenterService } from '../../../services/cost-center.service';
 import { CostCenter } from '../../../models/cost-center.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NotificationService } from '@/src/services/notification.service';
+import { CustomerService } from '../../../services/customer.service';
+import { SupplierService } from '../../../services/supplier.service';
 
 @Component({
   selector: 'app-add-account',
@@ -79,6 +81,9 @@ export class AddAccountComponent implements OnChanges, OnInit {
   costCenters: CostCenter[] = [];
   isSaving = false;
 
+  customers = this.customerService.customers$;
+  suppliers = this.supplierService.suppliers$;
+
   constructor(
     private fb: FormBuilder,
     private accountingService: AccountingService,
@@ -86,7 +91,9 @@ export class AddAccountComponent implements OnChanges, OnInit {
     private translate: TranslateService,
     private route: ActivatedRoute,
     private toastService: NotificationService,
-    private router: Router
+    private router: Router,
+    private customerService: CustomerService,
+    private supplierService: SupplierService
   ) {
     this.accountForm = this.fb.group({
       accountTypeSelection: ['main'], // Default to main account
@@ -115,6 +122,9 @@ export class AddAccountComponent implements OnChanges, OnInit {
       remarksEn: [''],
       notesAr: [''],
       notesEn: [''],
+      // UI-only selector driving createNewClient/createNewSupplier/createNewBank below --
+      // never sent to the API (stripped in onSave, mirrors accountTypeSelection).
+      entityType: ['none'],
       createNewClient: [this.createNewClient],
       createNewSupplier: [this.createNewSupplier],
       createNewBank: [this.createNewBank],
@@ -124,12 +134,21 @@ export class AddAccountComponent implements OnChanges, OnInit {
       supplierName: [''],
       bankId: [null],
       bankName: [''],
+      newCustomerPhone: [''],
+      newSupplierPhone: [''],
+      syncEntityName: [false],
     });
 
     // Watch for account type selection changes to update validation
     this.accountForm.get('accountTypeSelection')?.valueChanges.subscribe(value => {
       this.syncAccountTypeSelection(value);
       this.updateValidationBasedOnAccountType(value);
+    });
+
+    // Entity Type drives the three create-flags and clears whichever fields no longer apply,
+    // and toggles the required-phone validator for the "create new" path.
+    this.accountForm.get('entityType')?.valueChanges.subscribe(value => {
+      this.syncEntityType(value);
     });
 
     // Watch for isMainAccount changes to update mainAccountCode validation
@@ -289,6 +308,54 @@ export class AddAccountComponent implements OnChanges, OnInit {
     mainAccountCodeControl?.updateValueAndValidity();
   }
 
+  /** Keeps createNewClient/createNewSupplier/createNewBank and the phone-required validators in
+   *  sync with the single Entity Type dropdown, and clears fields for whichever entity types are
+   *  no longer selected so a stale customerId/supplierId/bankId can't be submitted by accident. */
+  private syncEntityType(entityType: 'none' | 'customer' | 'supplier' | 'bank') {
+    const newCustomerPhoneControl = this.accountForm.get('newCustomerPhone');
+    const newSupplierPhoneControl = this.accountForm.get('newSupplierPhone');
+
+    this.accountForm.patchValue({
+      createNewClient: false,
+      createNewSupplier: false,
+      createNewBank: false,
+    }, { emitEvent: false });
+
+    if (entityType !== 'customer') {
+      this.accountForm.patchValue({ customerId: null, customerName: '', newCustomerPhone: '' }, { emitEvent: false });
+    }
+    if (entityType !== 'supplier') {
+      this.accountForm.patchValue({ supplierId: null, supplierName: '', newSupplierPhone: '' }, { emitEvent: false });
+    }
+    if (entityType !== 'bank') {
+      this.accountForm.patchValue({ bankId: null, bankName: '' }, { emitEvent: false });
+    }
+
+    newCustomerPhoneControl?.clearValidators();
+    newSupplierPhoneControl?.clearValidators();
+    newCustomerPhoneControl?.updateValueAndValidity({ emitEvent: false });
+    newSupplierPhoneControl?.updateValueAndValidity({ emitEvent: false });
+  }
+
+  /** Re-applies the phone-required validator whenever "Create Automatically" is toggled for the
+   *  currently-selected entity type -- called from the template on each checkbox's (change). */
+  onCreateAutomaticallyChange(checked: boolean) {
+    const entityType = this.accountForm.get('entityType')?.value;
+    const control = entityType === 'customer'
+      ? this.accountForm.get('newCustomerPhone')
+      : entityType === 'supplier'
+        ? this.accountForm.get('newSupplierPhone')
+        : null;
+
+    if (!control) return;
+    if (checked) {
+      control.setValidators([Validators.required]);
+    } else {
+      control.clearValidators();
+    }
+    control.updateValueAndValidity();
+  }
+
   private syncAccountTypeSelection(accountType: string) {
     const isMainAccount = accountType === 'main';
 
@@ -320,8 +387,8 @@ export class AddAccountComponent implements OnChanges, OnInit {
       this.isSaving = true;
       const formValue = this.accountForm.value;
 
-      // Remove the accountTypeSelection field as it's not part of the DTO
-      const { accountTypeSelection, ...dtoData } = formValue;
+      // Remove UI-only fields that aren't part of the DTO
+      const { accountTypeSelection, entityType, ...dtoData } = formValue;
 
       const processedData = { ...dtoData };
 
@@ -426,6 +493,13 @@ export class AddAccountComponent implements OnChanges, OnInit {
         bankId: this.editingAccount.bankId,
         bankName: this.editingAccount.bankName
       });
+      // Set separately with emitEvent:false -- entityType's valueChanges handler clears
+      // customerId/supplierId/bankId for non-matching types, which would wipe the values just
+      // patched above if it fired here.
+      this.accountForm.patchValue({
+        entityType: this.editingAccount.entityType ?? 'none',
+        syncEntityName: false
+      }, { emitEvent: false });
       this.syncAccountTypeSelection(accountTypeSelection);
       this.updateValidationBasedOnAccountType(accountTypeSelection);
       // If this is a partial account, ensure the main account fields are populated
@@ -504,7 +578,11 @@ export class AddAccountComponent implements OnChanges, OnInit {
         supplierId: null,
         supplierName: '',
         bankId: null,
-        bankName: ''
+        bankName: '',
+        entityType: 'none',
+        newCustomerPhone: '',
+        newSupplierPhone: '',
+        syncEntityName: false
       });
       this.updateValidationBasedOnAccountType('main');
     }

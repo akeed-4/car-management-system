@@ -92,7 +92,7 @@ export class AccountBalanceComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        this.notificationService.showError('Failed to load account balance report');
+        this.notificationService.showError('REPORTS.ACCOUNT_BALANCE.LOAD_ERROR');
         this.loading = false;
       }
     });
@@ -120,7 +120,7 @@ export class AccountBalanceComponent implements OnInit {
         window.URL.revokeObjectURL(url);
       },
       error: () => {
-        this.notificationService.showError('Failed to export report');
+        this.notificationService.showError('REPORTS.EXPORT_ERROR');
       }
     });
   }
@@ -139,7 +139,7 @@ export class AccountBalanceComponent implements OnInit {
         window.URL.revokeObjectURL(url);
       },
       error: () => {
-        this.notificationService.showError('Failed to export report');
+        this.notificationService.showError('REPORTS.EXPORT_ERROR');
       }
     });
   }

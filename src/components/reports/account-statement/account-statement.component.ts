@@ -100,7 +100,7 @@ export class AccountStatementComponent implements OnInit {
    */
   loadReport(): void {
     if (!this.currentFilters.accountId) {
-      this.notificationService.showWarning('Please select an account');
+      this.notificationService.showWarning('REPORTS.SELECT_ACCOUNT_WARNING');
       return;
     }
 
@@ -111,7 +111,7 @@ export class AccountStatementComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        this.notificationService.showError('Failed to load account statement report');
+        this.notificationService.showError('REPORTS.ACCOUNT_STATEMENT.LOAD_ERROR');
         this.loading = false;
       }
     });
@@ -132,7 +132,7 @@ export class AccountStatementComponent implements OnInit {
    */
   onExportPdf(): void {
     if (!this.currentFilters.accountId) {
-      this.notificationService.showWarning('Please select an account');
+      this.notificationService.showWarning('REPORTS.SELECT_ACCOUNT_WARNING');
       return;
     }
 
@@ -146,7 +146,7 @@ export class AccountStatementComponent implements OnInit {
         window.URL.revokeObjectURL(url);
       },
       error: () => {
-        this.notificationService.showError('Failed to export report');
+        this.notificationService.showError('REPORTS.EXPORT_ERROR');
       }
     });
   }
@@ -156,7 +156,7 @@ export class AccountStatementComponent implements OnInit {
    */
   onExportExcel(): void {
     if (!this.currentFilters.accountId) {
-      this.notificationService.showWarning('Please select an account');
+      this.notificationService.showWarning('REPORTS.SELECT_ACCOUNT_WARNING');
       return;
     }
 
@@ -170,7 +170,7 @@ export class AccountStatementComponent implements OnInit {
         window.URL.revokeObjectURL(url);
       },
       error: () => {
-        this.notificationService.showError('Failed to export report');
+        this.notificationService.showError('REPORTS.EXPORT_ERROR');
       }
     });
   }

@@ -1,0 +1,38 @@
+<mat-card class="document-header-card" *ngIf="document">
+  <div class="header-row">
+    <div class="doc-number">
+      <mat-icon>description</mat-icon>
+      <span class="doc-number-text">{{ document.documentNumber || ('DOCUMENT_LIFECYCLE.NUMBER_PENDING' | translate) }}</span>
+    </div>
+    <app-document-status-badge [status]="document.status"></app-document-status-badge>
+  </div>
+
+  <div class="meta-grid">
+    <div class="meta-item">
+      <span class="meta-label">{{ 'DOCUMENT_LIFECYCLE.CREATED_BY' | translate }}</span>
+      <span class="meta-value">{{ nameFor(document.createdBy) }} &middot; {{ document.createdAt | date:'short' }}</span>
+    </div>
+
+    <div class="meta-item" *ngIf="document.approvedAt">
+      <span class="meta-label">{{ 'DOCUMENT_LIFECYCLE.APPROVED_BY' | translate }}</span>
+      <span class="meta-value">{{ nameFor(document.approvedBy) }} &middot; {{ document.approvedAt | date:'short' }}</span>
+    </div>
+
+    <div class="meta-item" *ngIf="document.rejectedAt">
+      <span class="meta-label">{{ 'DOCUMENT_LIFECYCLE.REJECTED_BY' | translate }}</span>
+      <span class="meta-value">{{ nameFor(document.rejectedBy) }} &middot; {{ document.rejectedAt | date:'short' }}</span>
+      <span class="meta-reason" *ngIf="document.rejectionReason">{{ document.rejectionReason }}</span>
+    </div>
+
+    <div class="meta-item" *ngIf="document.cancelledAt">
+      <span class="meta-label">{{ 'DOCUMENT_LIFECYCLE.CANCELLED_BY' | translate }}</span>
+      <span class="meta-value">{{ nameFor(document.cancelledBy) }} &middot; {{ document.cancelledAt | date:'short' }}</span>
+      <span class="meta-reason" *ngIf="document.cancellationReason">{{ document.cancellationReason }}</span>
+    </div>
+
+    <div class="meta-item" *ngIf="document.modifiedAt">
+      <span class="meta-label">{{ 'DOCUMENT_LIFECYCLE.MODIFIED_BY' | translate }}</span>
+      <span class="meta-value">{{ nameFor(document.modifiedBy) }} &middot; {{ document.modifiedAt | date:'short' }}</span>
+    </div>
+  </div>
+</mat-card>

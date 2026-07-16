@@ -138,6 +138,7 @@
     "INVOICE_SUMMARY": "Invoice Summary",
     "SUBTOTAL": "Subtotal",
     "VAT": "VAT (15%)",
+    "MARGIN_VAT_NOTE": "One or more items use profit-margin VAT. The exact VAT amount is calculated on save and may differ from the estimate above.",
     "NO_ITEMS": "No items added yet",
     "AVAILABLE_QUANTITY": "Available Quantity",
     "SELECT_CAR_CARD": "Select Car Card",
@@ -151,6 +152,8 @@
     "ERROR_SAME_ACCOUNT": "Debit and credit accounts cannot be the same",
     "ERROR_NO_ITEMS": "Please add at least one item to the invoice",
     "ERROR_ALREADY_ADDED": "This car is already added to the invoice",
+    "ERROR_INVALID_FORM": "Please fill all required fields correctly",
+    "ERROR_INVALID_ID": "Invalid invoice ID for update",
     "SEARCH": "Search...",
     "NO_RESULTS": "No results found",
     "CANCEL": "Cancel",
@@ -216,7 +219,8 @@
     "ALL": "All",
     "SEARCH": "Search",
     "COLUMN_CHOOSER": "Column Chooser",
-    "RECORD_COUNT": "Record Count"
+    "RECORD_COUNT": "Record Count",
+    "ACTIVE": "Active"
   },
   "VALIDATION": {
     "REQUIRED": "This field is required"
@@ -283,7 +287,9 @@
     "INTERIOR_COLOR": "Interior Color",
     "MILEAGE": "Mileage",
     "TRANSMISSION": "Transmission",
-    "ENGINE_SIZE": "Engine Size"
+    "ENGINE_SIZE": "Engine Size",
+    "SAVE_SUCCESS": "Purchase offer saved successfully",
+    "SAVE_ERROR_DETAIL": "Error saving purchase offer: {{error}}"
   },
   "PURCHASE_ORDER": {
     "LIST_TITLE": "Purchase Orders",
@@ -346,9 +352,11 @@
     "RECEIVED_QTY": "Received Now",
     "ITEMS_COUNT": "Items Count",
     "STATUS": "Status",
-    "STATUS_POSTED": "Posted",
     "STATUS_DRAFT": "Draft",
+    "STATUS_APPROVED": "Approved",
+    "STATUS_REJECTED": "Rejected",
     "STATUS_CANCELLED": "Cancelled",
+    "STATUS_CLOSED": "Closed",
     "NOTES": "Notes",
     "NO_ITEMS": "No items added yet",
     "MAX_QTY_WARNING": "Received quantity cannot exceed the remaining ordered quantity",
@@ -360,6 +368,129 @@
     "CAR": "Car",
     "SELECT_CAR": "Select Car",
     "CAR_REQUIRED_WARNING": "Select a car for every line before saving"
+  },
+  "DOCUMENT_LIFECYCLE": {
+    "STATUS_DRAFT": "Draft",
+    "STATUS_APPROVED": "Approved",
+    "STATUS_REJECTED": "Rejected",
+    "STATUS_CANCELLED": "Cancelled",
+    "STATUS_CLOSED": "Closed",
+    "NUMBER_PENDING": "Number pending",
+    "CREATED_BY": "Created by",
+    "APPROVED_BY": "Approved by",
+    "REJECTED_BY": "Rejected by",
+    "CANCELLED_BY": "Cancelled by",
+    "MODIFIED_BY": "Last modified by",
+    "ACTION_APPROVE": "Approve",
+    "ACTION_REJECT": "Reject",
+    "ACTION_CANCEL": "Cancel",
+    "ACTION_REOPEN": "Reopen",
+    "ACTION_APPROVE_TITLE": "Approve Document",
+    "ACTION_REJECT_TITLE": "Reject Document",
+    "ACTION_CANCEL_TITLE": "Cancel Document",
+    "ACTION_REOPEN_TITLE": "Reopen Document",
+    "ACTION_SUCCESS": "Action completed successfully",
+    "ACTION_ERROR": "Error performing this action",
+    "REASON": "Reason",
+    "REASON_REQUIRED": "A reason is required",
+    "REASON_TOO_SHORT": "Reason must be at least 3 characters",
+    "AUDIT_TRAIL_TITLE": "Audit Trail",
+    "AUDIT_TRAIL_EMPTY": "No audit trail entries yet",
+    "AUDIT_TRAIL_LOAD_ERROR": "Error loading audit trail",
+    "AUDIT_BY": "By",
+    "AUDIT_UNKNOWN_USER": "Unknown user",
+    "AUDIT_ACTION_CREATE": "Created",
+    "AUDIT_ACTION_APPROVE": "Approved",
+    "AUDIT_ACTION_REJECT": "Rejected",
+    "AUDIT_ACTION_CANCEL": "Cancelled",
+    "AUDIT_ACTION_REOPEN": "Reopened",
+    "AUDIT_ACTION_EDIT": "Edited",
+    "AUDIT_ACTION_DELETE": "Deleted"
+  },
+  "DOCUMENT_TYPES": {
+    "GRN": "Goods Receipt Note (GRN)"
+  },
+  "DOCUMENT_NUMBERING": {
+    "TITLE": "Document Numbering Settings",
+    "CREATE_TITLE": "New Numbering Setting",
+    "EDIT_TITLE": "Edit Numbering Setting",
+    "DOCUMENT_TYPE": "Document Type",
+    "FORMAT": "Number Format",
+    "RESET_CADENCE": "Reset Mode",
+    "PREFIX": "Prefix",
+    "SUFFIX": "Suffix",
+    "DIGIT_PADDING": "Number Length (Digits)",
+    "AUTO_ENABLED": "Automatic Numbering Enabled",
+    "USE_DATE_BASED_MAX_NUMBER": "Continue Max Number From Date",
+    "USE_DATE_BASED_MAX": "Continue Max Number From Date",
+    "USE_DATE_BASED_MAX_HINT": "When enabled, numbering continues from the highest existing number for the current period instead of restarting at 1",
+    "FISCAL_YEAR_START_MONTH": "Fiscal Year Start Month",
+    "PREVIEW": "Preview",
+    "FORMAT_SequentialOnly": "Sequential Only",
+    "FORMAT_DatePlusSequence": "Date + Sequence",
+    "FORMAT_YearMonthSequence": "Year-Month + Sequence",
+    "FORMAT_BranchDateSequence": "Branch + Date + Sequence",
+    "FORMAT_StoreDateSequence": "Store + Date + Sequence",
+    "FORMAT_FiscalYearSequence": "Fiscal Year + Sequence",
+    "CADENCE_Never": "Never",
+    "CADENCE_Daily": "Daily",
+    "CADENCE_Monthly": "Monthly",
+    "CADENCE_Yearly": "Yearly",
+    "CADENCE_FiscalYear": "Fiscal Year",
+    "LOAD_ERROR": "Error loading numbering settings",
+    "SAVE_SUCCESS": "Numbering setting saved successfully",
+    "SAVE_ERROR": "Error saving numbering setting",
+    "DELETE_SUCCESS": "Numbering setting deleted successfully",
+    "DELETE_ERROR": "Error deleting numbering setting",
+    "VALIDATION_ERROR": "Please correct the highlighted fields"
+  },
+  "DOCUMENT_LIFECYCLE_SETTINGS": {
+    "TITLE": "Document Lifecycle Settings",
+    "SUBTITLE": "Configure whether each document type is automatically approved when saved",
+    "AUTO_APPROVE_ON_SAVE": "Auto Approve On Save",
+    "LOAD_ERROR": "Error loading lifecycle settings",
+    "SAVE_SUCCESS": "Lifecycle setting saved successfully",
+    "SAVE_ERROR": "Error saving lifecycle setting"
+  },
+  "QR_CODE": {
+    "FIELD_COMPANY_NAME": "Company Name",
+    "FIELD_VAT_NUMBER": "VAT Number",
+    "FIELD_CR_NUMBER": "CR Number",
+    "FIELD_DOCUMENT_NUMBER": "Document Number",
+    "FIELD_DOCUMENT_DATE": "Document Date",
+    "FIELD_CUSTOMER_NAME": "Customer Name",
+    "FIELD_CUSTOMER_VAT_NUMBER": "Customer VAT Number",
+    "FIELD_CURRENCY": "Currency",
+    "FIELD_TOTAL_BEFORE_VAT": "Total Before VAT",
+    "FIELD_VAT_AMOUNT": "VAT Amount",
+    "FIELD_GRAND_TOTAL": "Grand Total",
+    "FIELD_BRANCH_NAME": "Branch Name",
+    "POSITION_TOP_RIGHT": "Top Right",
+    "POSITION_TOP_LEFT": "Top Left",
+    "POSITION_BOTTOM_RIGHT": "Bottom Right",
+    "POSITION_BOTTOM_LEFT": "Bottom Left",
+    "POSITION_HEADER": "Header",
+    "POSITION_FOOTER": "Footer"
+  },
+  "QR_CODE_SETTINGS": {
+    "TITLE": "QR Code Settings",
+    "SUBTITLE": "Configure the QR code shown on printable documents (Sales Invoice, Purchase Invoice)",
+    "ENABLE_QR": "Enable QR Code",
+    "POSITION": "Position",
+    "SIZE": "Size (px)",
+    "MARGIN": "Margin (px)",
+    "CAPTION": "Caption",
+    "FOREGROUND_COLOR": "Foreground Color",
+    "BORDER_COLOR": "Border Color",
+    "SHOW_BORDER": "Show Border",
+    "ZATCA_MODE": "ZATCA Compliant Mode",
+    "ZATCA_MODE_HINT": "When enabled, the QR encodes ZATCA TLV data (Seller Name, VAT Number, Timestamp, Total, VAT Total). When disabled, choose which fields to include below.",
+    "CONTENT_FIELDS": "Content Fields",
+    "PREVIEW": "Preview",
+    "PREVIEW_DISABLED": "QR code is disabled",
+    "VALIDATION_ERROR": "Please correct the highlighted fields",
+    "SAVE_SUCCESS": "QR code settings saved successfully",
+    "SAVE_ERROR": "Error saving QR code settings"
   },
   "RETAIL_SALES_ORDER": {
     "LIST_TITLE": "Sales Orders",
@@ -1062,6 +1193,7 @@
     "YEAR": "Manufacture Year",
     "SELECT_YEAR": "Select Year",
     "CURRENT_LOCATION": "Current Location",
+    "CURRENT_LOCATION_PLACEHOLDER": "e.g., Showroom A, Lot 3",
     "CONDITION": "Condition",
     "USED": "Used",
     "NEW": "New",
@@ -1095,9 +1227,13 @@
     "FLOOR_PLAN": "Floor Plan (optional)",
     "NO_FINANCE": "-- No financing --",
     "RELATED_COSTS": "Associated Costs",
+    "RELATED_COSTS_DATE": "Date",
+    "RELATED_COSTS_DESCRIPTION": "Description",
+    "RELATED_COSTS_AMOUNT": "Amount",
     "DESCRIPTION_PHOTOS": "Description & Photos",
     "MARKETING_DESCRIPTION": "Marketing Description",
     "PHOTOS": "Photos",
+    "CAR_IMAGE_ALT": "Car image",
     "UPLOAD_FILE": "Upload a file",
     "BROWSE_IMAGE": "Browse Image",
     "REMOVE": "Remove",
@@ -1107,7 +1243,12 @@
     "PUBLISH": "Publish to platforms",
     "DEPOSIT_VOUCHER": "Deposit Voucher",
     "SAVE_CHANGES": "Save changes",
-    "ADD_CAR": "Add Car"
+    "ADD_CAR": "Add Car",
+    "SELECT_IMAGE_FILE_ERROR": "Please select an image file",
+    "IMAGE_TOO_LARGE_ERROR": "File size must be less than 5MB",
+    "VALIDATION_FAILED_PREFIX": "Validation failed:",
+    "GENERIC_HTTP_ERROR": "Error: {{status}} - {{statusText}}",
+    "UNKNOWN_ERROR_OCCURRED": "An unknown error occurred."
   },
   "STOCK_TAKING_FORM": {
     "PAGE_TITLE": "Stock Take",
@@ -1938,6 +2079,10 @@
       "BRANCH": "Branch",
       "BRANCH_REQUIRED": "Branch is required",
       "STATUS": "Status",
+      "VAT_REGISTRATION_NUMBER": "VAT Registration Number",
+      "VAT_REGISTRATION_NUMBER_PLACEHOLDER": "Enter VAT registration number",
+      "CR_NUMBER": "Commercial Registration Number",
+      "CR_NUMBER_PLACEHOLDER": "Enter CR number",
       "LATITUDE": "Latitude",
       "LATITUDE_PLACEHOLDER": "Enter latitude",
       "LONGITUDE": "Longitude",
@@ -2279,7 +2424,8 @@
     "DELETE_CONFIRM_MESSAGE": "Are you sure you want to delete this car?",
     "FORM": {
       "TRACK_BY_BATCH": "Track by Batch",
-      "TRACK_BY_BATCH_HINT": "Enable batch tracking for this item to manage inventory by production batches"
+      "TRACK_BY_BATCH_HINT": "Enable batch tracking for this item to manage inventory by production batches",
+      "CALCULATE_VAT_FROM_PROFIT_MARGIN": "Calculate VAT From Profit Margin"
     }
   },
   "STOCK_TAKING_APPROVAL": {
@@ -2416,6 +2562,16 @@
     "SUPPLIER_NAME": "Supplier Name",
     "BANK_ID": "Bank ID",
     "BANK_NAME": "Bank Name",
+    "NEW_CUSTOMER_PHONE": "New Customer Phone",
+    "NEW_CUSTOMER_PHONE_REQUIRED": "Phone number is required to create a new customer",
+    "NEW_SUPPLIER_PHONE": "New Supplier Phone",
+    "NEW_SUPPLIER_PHONE_REQUIRED": "Phone number is required to create a new supplier",
+    "LINK_EXISTING_CUSTOMER": "Link Existing Customer",
+    "LINK_EXISTING_SUPPLIER": "Link Existing Supplier",
+    "SYNC_ENTITY_NAME": "Sync name to linked entity",
+    "ACCOUNT_ALREADY_LINKED": "This account is already linked to another entity",
+    "ENTITY_ALREADY_LINKED": "This entity is already linked to another account",
+    "ACCOUNT_LINKED_TO_ENTITY": "Cannot delete an account linked to a Customer, Supplier, or Bank",
     "DATE": "Date",
     "REFERENCE": "Reference",
     "DEBIT": "Debit",
@@ -2463,6 +2619,10 @@
     "LINK_EXISTING_ENTITY": "Link existing Bank/Customer/Supplier to account",
     "LINK_ENTITY_TO_ACCOUNT": "Link Entity to Account",
     "ENTITY_TYPE": "Entity Type",
+    "ENTITY_TYPE_NONE": "None",
+    "ENTITY_TYPE_CUSTOMER": "Customer",
+    "ENTITY_TYPE_SUPPLIER": "Supplier",
+    "ENTITY_TYPE_BANK": "Bank",
     "SEARCH_ENTITY": "Search Entity",
     "SEARCH_ENTITY_PLACEHOLDER": "Type to search for entities...",
     "LINK_ACCOUNT": "Link Account",
@@ -2666,7 +2826,11 @@
     "NOTE_2": "Existing invoices will not be affected by settings changes",
     "NOTE_3": "You can change settings anytime based on your business requirements",
     "SAVE_SETTINGS": "Save Settings",
-    "RESET": "Reset"
+    "RESET": "Reset",
+    "LOAD_ERROR": "Failed to load settings",
+    "VALIDATION_ERROR": "Please fill all required fields",
+    "SAVE_SUCCESS": "Settings saved successfully",
+    "SAVE_ERROR": "Failed to save settings"
   },
   "REPORTS": {
     "START_DATE": "Start Date",
@@ -2685,6 +2849,8 @@
     "EXPORT_EXCEL": "Export Excel",
     "PRINT": "Print",
     "LOADING": "Loading report data...",
+    "EXPORT_ERROR": "Failed to export report",
+    "SELECT_ACCOUNT_WARNING": "Please select an account",
     "COLUMNS": {
       "ACCOUNT_CODE": "Account Code",
       "ACCOUNT_NAME": "Account Name",
@@ -2712,27 +2878,33 @@
     },
     "ACCOUNT_BALANCE": {
       "TITLE": "Account Balance Report",
-      "SUBTITLE": "View account balances and transactions"
+      "SUBTITLE": "View account balances and transactions",
+      "LOAD_ERROR": "Failed to load account balance report"
     },
     "BALANCE_SHEET": {
       "TITLE": "Balance Sheet",
-      "SUBTITLE": "Financial position statement with assets, liabilities, and equity"
+      "SUBTITLE": "Financial position statement with assets, liabilities, and equity",
+      "LOAD_ERROR": "Failed to load balance sheet report"
     },
     "TRIAL_BALANCE": {
       "TITLE": "Trial Balance",
-      "SUBTITLE": "Opening, period, and closing balances for all accounts"
+      "SUBTITLE": "Opening, period, and closing balances for all accounts",
+      "LOAD_ERROR": "Failed to load trial balance report"
     },
     "GENERAL_JOURNAL": {
       "TITLE": "General Journal",
-      "SUBTITLE": "Complete journal entries with debit and credit details"
+      "SUBTITLE": "Complete journal entries with debit and credit details",
+      "LOAD_ERROR": "Failed to load general journal report"
     },
     "ACCOUNT_STATEMENT": {
       "TITLE": "Account Statement",
-      "SUBTITLE": "Detailed transaction history for a specific account"
+      "SUBTITLE": "Detailed transaction history for a specific account",
+      "LOAD_ERROR": "Failed to load account statement report"
     },
     "BUSINESS_ACTIVITY": {
       "TITLE": "Business Activity Report",
-      "SUBTITLE": "Cash flow from operating, investing, and financing activities"
+      "SUBTITLE": "Cash flow from operating, investing, and financing activities",
+      "LOAD_ERROR": "Failed to load business activity report"
     }
   },
   "VIN_MANAGEMENT": {

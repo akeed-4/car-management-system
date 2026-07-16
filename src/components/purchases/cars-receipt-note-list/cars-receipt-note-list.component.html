@@ -35,13 +35,7 @@
     <dxi-column dataField="items" [caption]="'CARS_RECEIPT_NOTE.ITEMS_COUNT' | translate" [calculateCellValue]="getItemsCount"></dxi-column>
     <dxi-column dataField="status" [caption]="'CARS_RECEIPT_NOTE.STATUS' | translate" cellTemplate="statusCellTemplate"></dxi-column>
     <div *dxTemplate="let cell of 'statusCellTemplate'">
-      <span class="status-badge" [ngClass]="{
-        'status-posted': cell.value === 'Posted',
-        'status-draft': cell.value === 'Draft',
-        'status-cancelled': cell.value === 'Cancelled'
-      }">
-        {{ ('CARS_RECEIPT_NOTE.STATUS_' + cell.value?.toUpperCase()) | translate }}
-      </span>
+      <app-document-status-badge [status]="cell.value"></app-document-status-badge>
     </div>
 
     <dxi-column type="buttons" [width]="90">

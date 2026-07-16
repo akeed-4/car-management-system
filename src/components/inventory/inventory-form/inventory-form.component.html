@@ -328,6 +328,12 @@
           <mat-hint>{{ 'INVENTORY.FORM.TRACK_BY_BATCH_HINT' | translate }}</mat-hint>
         </div>
 
+        <div class="form-row">
+          <mat-checkbox formControlName="calculateVATFromProfitMargin" color="primary">
+            {{ 'INVENTORY.FORM.CALCULATE_VAT_FROM_PROFIT_MARGIN' | translate }}
+          </mat-checkbox>
+        </div>
+
         <div *ngIf="priceSuggestion() as suggestion" class="price-suggestions">
           <button mat-stroked-button color="primary" (click)="applySuggestedPrice(suggestion.low)">
             {{ 'INVENTORY.FORM.SUGGESTION_LOW' | translate }}: {{ suggestion.low | currency:'SAR':'symbol':'1.0-0' }}

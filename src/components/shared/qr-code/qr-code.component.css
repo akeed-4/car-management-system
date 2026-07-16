@@ -1,0 +1,24 @@
+.qr-code-container {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: #fff;
+}
+
+.qr-code-image {
+  display: block;
+}
+
+.qr-code-caption {
+  font-size: 0.75rem;
+  text-align: center;
+  color: #333;
+}
+
+/* Position classes are placement hints for the host print template to key off of --
+   this component renders in-place; the caller's layout decides where that place is. */
+.qr-position-topright { justify-self: end; }
+.qr-position-topleft { justify-self: start; }
+.qr-position-bottomright { justify-self: end; }
+.qr-position-bottomleft { justify-self: start; }

@@ -1,0 +1,56 @@
+<mat-dialog-content class="document-audit-trail-viewer">
+  <h2 class="modal-title">
+    <mat-icon>history</mat-icon>
+    {{ 'DOCUMENT_LIFECYCLE.AUDIT_TRAIL_TITLE' | translate }}
+  </h2>
+
+  @if (loading()) {
+    <div class="state-message">
+      <mat-spinner diameter="36"></mat-spinner>
+    </div>
+  } @else if (error()) {
+    <div class="state-message error">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ 'DOCUMENT_LIFECYCLE.AUDIT_TRAIL_LOAD_ERROR' | translate }}</p>
+    </div>
+  } @else if (entries().length === 0) {
+    <div class="state-message">
+      <mat-icon>inbox</mat-icon>
+      <p>{{ 'DOCUMENT_LIFECYCLE.AUDIT_TRAIL_EMPTY' | translate }}</p>
+    </div>
+  } @else {
+    <div class="timeline">
+      @for (entry of entries(); track entry.id) {
+        <div class="timeline-item" [class]="'action-' + entry.action.toLowerCase()">
+          <div class="timeline-icon">
+            <mat-icon>{{ actionIcon(entry.action) }}</mat-icon>
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-header">
+              <span class="action-label">{{ ('DOCUMENT_LIFECYCLE.AUDIT_ACTION_' + entry.action.toUpperCase()) | translate }}</span>
+              <span class="timeline-date">{{ entry.performedAt | date:'medium' }}</span>
+            </div>
+            @if (entry.reason) {
+              <div class="reason-line">{{ entry.reason }}</div>
+            }
+            <div class="performed-by">
+              {{ 'DOCUMENT_LIFECYCLE.AUDIT_BY' | translate }} {{ entry.performedByName || ('DOCUMENT_LIFECYCLE.AUDIT_UNKNOWN_USER' | translate) }}
+            </div>
+            @if (entry.ipAddress || entry.userAgent) {
+              <div class="tech-line">
+                <span *ngIf="entry.ipAddress">{{ entry.ipAddress }}</span>
+                <span *ngIf="entry.userAgent" class="user-agent" [title]="entry.userAgent">{{ entry.userAgent }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-stroked-button (click)="close()">
+    {{ 'COMMON.CLOSE' | translate }}
+  </button>
+</mat-dialog-actions>

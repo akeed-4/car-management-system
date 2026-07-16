@@ -1,0 +1,11 @@
+<div
+  *ngIf="!loading() && dataUrl() && resolvedConfig() as cfg"
+  class="qr-code-container"
+  [ngClass]="'qr-position-' + cfg.position.toLowerCase()"
+  [style.borderColor]="cfg.showBorder ? cfg.borderColor : 'transparent'"
+  [style.borderWidth.px]="cfg.showBorder ? 1 : 0"
+  [style.borderStyle]="'solid'"
+  [style.padding.px]="cfg.marginPx">
+  <img [src]="dataUrl()" [width]="cfg.sizePx" [height]="cfg.sizePx" alt="QR Code" class="qr-code-image">
+  <div class="qr-code-caption" *ngIf="cfg.caption">{{ cfg.caption }}</div>
+</div>

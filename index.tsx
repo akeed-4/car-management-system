@@ -3,7 +3,7 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, withHashLocation } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { registerLocaleData } from '@angular/common';
 import localeAr from '@angular/common/locales/ar';
 import { AppComponent } from './src/app.component';
@@ -16,6 +16,7 @@ import { provideAuth } from 'angular-auth-oidc-client';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { ToastrModule } from 'ngx-toastr';
 import { provideToastr } from 'ngx-toastr';
+import { JwtInterceptor } from './src/interceptors/jwt.interceptor';
 
 
 
@@ -25,7 +26,8 @@ registerLocaleData(localeAr);
 bootstrapApplication(AppComponent, {
   providers: [
     provideRouter(APP_ROUTES, withHashLocation()),
-    provideHttpClient(),
+    provideHttpClient(withInterceptorsFromDi()),
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     provideAnimations(),
     provideNativeDateAdapter(),
     provideAuth({

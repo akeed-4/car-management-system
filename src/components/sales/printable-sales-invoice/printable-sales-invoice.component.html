@@ -10,10 +10,10 @@
           <img src="/assets/logo.png" alt="Company Logo" class="logo">
         </div>
         <div class="company-details">
-          <h1 class="company-name">{{ companyInfo.name }}</h1>
-          <p class="company-address">{{ companyInfo.address }}</p>
-          <p class="company-tax">{{ 'SALES.PRINTABLE.VAT_REGISTRATION' | translate }}: {{ companyInfo.taxNumber }}</p>
-          <p class="company-phone">{{ 'SALES.PRINTABLE.CUSTOMER_PHONE' | translate }}: {{ companyInfo.phone }}</p>
+          <h1 class="company-name">{{ companyInfo().name }}</h1>
+          <p class="company-address">{{ companyInfo().address }}</p>
+          <p class="company-tax">{{ 'SALES.PRINTABLE.VAT_REGISTRATION' | translate }}: {{ companyInfo().taxNumber }}</p>
+          <p class="company-phone">{{ 'SALES.PRINTABLE.CUSTOMER_PHONE' | translate }}: {{ companyInfo().phone }}</p>
         </div>
       </div>
     </div>
@@ -35,7 +35,7 @@
       </div>
       <div class="info-row">
         <span class="info-label">{{ 'SALES.PRINTABLE.VAT_REGISTRATION' | translate }}:</span>
-        <span class="info-value">{{ companyInfo.taxNumber }}</span>
+        <span class="info-value">{{ companyInfo().taxNumber }}</span>
         <span class="info-label" style="margin-right: 40px;">{{ 'SALES.PRINTABLE.LOCATION' | translate }}</span>
         <span class="info-value">-</span>
       </div>
@@ -106,9 +106,11 @@
     </div>
 
     <!-- QR Code Section -->
-    <div class="qr-code-section">
-      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect width='150' height='150' fill='white'/%3E%3C/svg%3E" alt="QR Code" class="qr-code">
-    </div>
+    @if (qrContext(); as ctx) {
+      <div class="qr-code-section">
+        <app-qr-code [context]="ctx"></app-qr-code>
+      </div>
+    }
 
     <!-- Footer -->
     <div class="invoice-footer">

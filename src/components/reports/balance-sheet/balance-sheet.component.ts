@@ -75,7 +75,7 @@ export class BalanceSheetComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        this.notificationService.showError('Failed to load balance sheet report');
+        this.notificationService.showError('REPORTS.BALANCE_SHEET.LOAD_ERROR');
         this.loading = false;
       }
     });
@@ -103,7 +103,7 @@ export class BalanceSheetComponent implements OnInit {
         window.URL.revokeObjectURL(url);
       },
       error: () => {
-        this.notificationService.showError('Failed to export report');
+        this.notificationService.showError('REPORTS.EXPORT_ERROR');
       }
     });
   }
@@ -122,7 +122,7 @@ export class BalanceSheetComponent implements OnInit {
         window.URL.revokeObjectURL(url);
       },
       error: () => {
-        this.notificationService.showError('Failed to export report');
+        this.notificationService.showError('REPORTS.EXPORT_ERROR');
       }
     });
   }
