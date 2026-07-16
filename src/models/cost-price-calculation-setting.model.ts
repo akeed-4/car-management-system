@@ -34,47 +34,19 @@ export interface CostPriceCalculationMethodOption {
   description: string;
 }
 
+// Only these two methods are offered in the settings UI. The remaining enum values are kept
+// (not deleted) so existing CostPriceCalculationSetting rows using them keep working.
 export const COST_PRICE_CALCULATION_METHODS: CostPriceCalculationMethodOption[] = [
   {
-    value: CostPriceCalculationMethod.PurchasePrice,
-    labelEn: 'Purchase Price Only',
-    labelAr: 'سعر الشراء فقط',
-    description: 'Calculate cost based on purchase price only'
-  },
-  {
-    value: CostPriceCalculationMethod.PurchasePlusShipping,
-    labelEn: 'Purchase Price + Shipping',
-    labelAr: 'سعر الشراء + الشحن',
-    description: 'Include shipping costs with purchase price'
-  },
-  {
     value: CostPriceCalculationMethod.FullCost,
-    labelEn: 'Full Cost',
-    labelAr: 'التكلفة الكاملة',
+    labelEn: 'Total Purchase Cost',
+    labelAr: 'إجمالي تكلفة الشراء',
     description: 'Include all expenses (shipping, customs, insurance, handling, etc.)'
   },
   {
     value: CostPriceCalculationMethod.AverageCost,
-    labelEn: 'Average Cost',
-    labelAr: 'متوسط التكلفة',
+    labelEn: 'Weighted Average Cost',
+    labelAr: 'المتوسط المرجح',
     description: 'Calculate weighted average cost of inventory'
-  },
-  {
-    value: CostPriceCalculationMethod.FIFO,
-    labelEn: 'FIFO (First In, First Out)',
-    labelAr: 'الوارد أولا صادر أولا',
-    description: 'Cost of oldest inventory items first'
-  },
-  {
-    value: CostPriceCalculationMethod.LIFO,
-    labelEn: 'LIFO (Last In, First Out)',
-    labelAr: 'الوارد أخيرا صادر أولا',
-    description: 'Cost of newest inventory items first'
-  },
-  {
-    value: CostPriceCalculationMethod.StandardCost,
-    labelEn: 'Standard Cost',
-    labelAr: 'التكلفة المعيارية',
-    description: 'Use predetermined standard costs'
   }
 ];

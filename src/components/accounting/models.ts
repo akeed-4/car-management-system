@@ -34,6 +34,7 @@ export interface Account {
   supplierName: string;
   bankId: number | null;
   bankName: string;
+  isSystemGenerated: boolean;
   balance: number;
   createdDate: Date;
   updatedDate: Date;

@@ -269,6 +269,17 @@ export class PurchaseInvoiceComponent implements OnInit {
   
   totalAmount = computed(() => Math.round(this.subtotal() + this.vatAmount()));
 
+  /** True when any line's car uses the ZATCA profit-margin VAT scheme -- the server computes the
+   *  authoritative Subtotal/VATAmount for those lines from (unit price - prior car cost), which
+   *  can differ from the standard rate-on-price estimate shown above before saving. */
+  hasMarginVatItems = computed(() => {
+    const carsList = this.cars() ?? [];
+    return this.invoiceItems().some(item => {
+      const car = carsList.find((c: any) => c.id === item.carId);
+      return !!car?.calculateVATFromProfitMargin;
+    });
+  });
+
   // Back route computed property
   backRoute = computed(() => {
     const method = this.paymentMethodSignal();

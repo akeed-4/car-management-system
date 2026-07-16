@@ -127,7 +127,7 @@
 
             <ng-container *ngIf="cardLayout3 | async as layout">
               <mat-grid-list [cols]="layout.columns" rowHeight="88" gutterSize="16px">
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows" *ngIf="channel !== SalesChannel.Bunuk">
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows" *ngIf="channel !== SalesChannel.Bunuk && saleType !== SaleType.Credit">
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'INVOICE.PAYMENT_METHOD' | translate }}</mat-label>
                     <mat-select formControlName="paymentMethod">

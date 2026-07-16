@@ -13,5 +13,6 @@
   [canExportPdf]="canExportPdf"
   [canPrint]="canPrint"
   (filtersChange)="onFiltersChange($event)"
-  (refresh)="load()">
+  (refresh)="load()"
+  (rowDblClick)="onRowDblClick($event)">
 </app-car-report-shell>

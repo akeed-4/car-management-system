@@ -138,6 +138,7 @@
     "INVOICE_SUMMARY": "Invoice Summary",
     "SUBTOTAL": "Subtotal",
     "VAT": "VAT (15%)",
+    "MARGIN_VAT_NOTE": "One or more items use profit-margin VAT. The exact VAT amount is calculated on save and may differ from the estimate above.",
     "NO_ITEMS": "No items added yet",
     "AVAILABLE_QUANTITY": "Available Quantity",
     "SELECT_CAR_CARD": "Select Car Card",
@@ -1066,6 +1067,7 @@
     "YEAR": "Manufacture Year",
     "SELECT_YEAR": "Select Year",
     "CURRENT_LOCATION": "Current Location",
+    "CURRENT_LOCATION_PLACEHOLDER": "e.g., Showroom A, Lot 3",
     "CONDITION": "Condition",
     "USED": "Used",
     "NEW": "New",
@@ -1099,9 +1101,13 @@
     "FLOOR_PLAN": "Floor Plan (optional)",
     "NO_FINANCE": "-- No financing --",
     "RELATED_COSTS": "Associated Costs",
+    "RELATED_COSTS_DATE": "Date",
+    "RELATED_COSTS_DESCRIPTION": "Description",
+    "RELATED_COSTS_AMOUNT": "Amount",
     "DESCRIPTION_PHOTOS": "Description & Photos",
     "MARKETING_DESCRIPTION": "Marketing Description",
     "PHOTOS": "Photos",
+    "CAR_IMAGE_ALT": "Car image",
     "UPLOAD_FILE": "Upload a file",
     "BROWSE_IMAGE": "Browse Image",
     "REMOVE": "Remove",
@@ -1111,7 +1117,12 @@
     "PUBLISH": "Publish to platforms",
     "DEPOSIT_VOUCHER": "Deposit Voucher",
     "SAVE_CHANGES": "Save changes",
-    "ADD_CAR": "Add Car"
+    "ADD_CAR": "Add Car",
+    "SELECT_IMAGE_FILE_ERROR": "Please select an image file",
+    "IMAGE_TOO_LARGE_ERROR": "File size must be less than 5MB",
+    "VALIDATION_FAILED_PREFIX": "Validation failed:",
+    "GENERIC_HTTP_ERROR": "Error: {{status}} - {{statusText}}",
+    "UNKNOWN_ERROR_OCCURRED": "An unknown error occurred."
   },
   "STOCK_TAKING_FORM": {
     "PAGE_TITLE": "Stock Take",
@@ -2283,7 +2294,8 @@
     "DELETE_CONFIRM_MESSAGE": "Are you sure you want to delete this car?",
     "FORM": {
       "TRACK_BY_BATCH": "Track by Batch",
-      "TRACK_BY_BATCH_HINT": "Enable batch tracking for this item to manage inventory by production batches"
+      "TRACK_BY_BATCH_HINT": "Enable batch tracking for this item to manage inventory by production batches",
+      "CALCULATE_VAT_FROM_PROFIT_MARGIN": "Calculate VAT From Profit Margin"
     }
   },
   "STOCK_TAKING_APPROVAL": {

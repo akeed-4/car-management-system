@@ -260,6 +260,9 @@
               <p>{{ 'PURCHASE_INVOICE.TOTAL' | translate }}</p>
               <p class="font-mono">{{ totalAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
             </div>
+            <p class="margin-vat-note" *ngIf="hasMarginVatItems()">
+              {{ 'PURCHASE_INVOICE.MARGIN_VAT_NOTE' | translate }}
+            </p>
           </mat-card-content>
 
           <div class="form-actions">

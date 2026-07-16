@@ -54,7 +54,8 @@
       [wordWrapEnabled]="true"
       height="600px"
       [showRowLines]="true"
-      [noDataText]="'CAR_REPORTS.NO_DATA' | translate">
+      [noDataText]="'CAR_REPORTS.NO_DATA' | translate"
+      (onRowDblClick)="onRowDblClick($event)">
 
       <dxo-search-panel [visible]="true" [width]="260"></dxo-search-panel>
       <dxo-filter-row [visible]="true"></dxo-filter-row>
