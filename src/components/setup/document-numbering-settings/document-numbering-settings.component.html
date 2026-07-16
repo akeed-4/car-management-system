@@ -1,0 +1,125 @@
+<div class="container-fluid p-4">
+  <div class="page-header strong-header header-row">
+    <div class="header-left">
+      <h2>{{ 'DOCUMENT_NUMBERING.TITLE' | translate }}</h2>
+    </div>
+    <div class="header-right">
+      <button mat-raised-button color="primary" (click)="openCreate()">
+        <mat-icon>add</mat-icon>
+        {{ 'DOCUMENT_NUMBERING.CREATE_TITLE' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <dx-data-grid
+    [dataSource]="settings()"
+    [showBorders]="true"
+    [columnAutoWidth]="true"
+    [rowAlternationEnabled]="true"
+    [rtlEnabled]="true"
+    height="500px"
+    [showRowLines]="true"
+    keyExpr="id">
+
+    <dxo-search-panel [visible]="true"></dxo-search-panel>
+    <dxo-paging [pageSize]="10"></dxo-paging>
+
+    <dxi-column dataField="documentType" [caption]="'DOCUMENT_NUMBERING.DOCUMENT_TYPE' | translate"></dxi-column>
+    <dxi-column dataField="format" [caption]="'DOCUMENT_NUMBERING.FORMAT' | translate"></dxi-column>
+    <dxi-column dataField="resetCadence" [caption]="'DOCUMENT_NUMBERING.RESET_CADENCE' | translate"></dxi-column>
+    <dxi-column dataField="prefix" [caption]="'DOCUMENT_NUMBERING.PREFIX' | translate"></dxi-column>
+    <dxi-column dataField="suffix" [caption]="'DOCUMENT_NUMBERING.SUFFIX' | translate"></dxi-column>
+    <dxi-column dataField="digitPadding" [caption]="'DOCUMENT_NUMBERING.DIGIT_PADDING' | translate" [width]="100"></dxi-column>
+    <dxi-column dataField="autoNumberingEnabled" dataType="boolean" [caption]="'DOCUMENT_NUMBERING.AUTO_ENABLED' | translate" [width]="110"></dxi-column>
+    <dxi-column dataField="isActive" dataType="boolean" [caption]="'COMMON.ACTIVE' | translate" [width]="90"></dxi-column>
+
+    <dxi-column type="buttons" [width]="90">
+      <dxi-button icon="edit" [hint]="'COMMON.EDIT' | translate" [onClick]="openEdit.bind(this)"></dxi-button>
+      <dxi-button icon="trash" [hint]="'COMMON.DELETE' | translate" [onClick]="delete.bind(this)"></dxi-button>
+    </dxi-column>
+  </dx-data-grid>
+
+  <div class="form-overlay" *ngIf="showForm">
+    <mat-card class="form-card">
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <h3>{{ (editingId ? 'DOCUMENT_NUMBERING.EDIT_TITLE' : 'DOCUMENT_NUMBERING.CREATE_TITLE') | translate }}</h3>
+
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DOCUMENT_NUMBERING.DOCUMENT_TYPE' | translate }}</mat-label>
+            <mat-select formControlName="documentType">
+              <mat-option *ngFor="let t of documentTypes" [value]="t.value">{{ t.labelKey | translate }}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('documentType')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DOCUMENT_NUMBERING.FORMAT' | translate }}</mat-label>
+            <mat-select formControlName="format">
+              <mat-option *ngFor="let f of formats" [value]="f">{{ ('DOCUMENT_NUMBERING.FORMAT_' + f) | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DOCUMENT_NUMBERING.RESET_CADENCE' | translate }}</mat-label>
+            <mat-select formControlName="resetCadence">
+              <mat-option *ngFor="let c of cadences" [value]="c">{{ ('DOCUMENT_NUMBERING.CADENCE_' + c) | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DOCUMENT_NUMBERING.FISCAL_YEAR_START_MONTH' | translate }}</mat-label>
+            <mat-select formControlName="fiscalYearStartMonth">
+              <mat-option *ngFor="let m of months" [value]="m">{{ m }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DOCUMENT_NUMBERING.PREFIX' | translate }}</mat-label>
+            <input matInput formControlName="prefix" placeholder="GRN-">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DOCUMENT_NUMBERING.SUFFIX' | translate }}</mat-label>
+            <input matInput formControlName="suffix">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DOCUMENT_NUMBERING.DIGIT_PADDING' | translate }}</mat-label>
+            <input matInput type="number" formControlName="digitPadding" min="1" max="10">
+          </mat-form-field>
+        </div>
+
+        <div class="toggle-row">
+          <mat-slide-toggle formControlName="autoNumberingEnabled">
+            {{ 'DOCUMENT_NUMBERING.AUTO_ENABLED' | translate }}
+          </mat-slide-toggle>
+
+          <mat-slide-toggle formControlName="useDateBasedMaxNumber"
+            [matTooltip]="'DOCUMENT_NUMBERING.USE_DATE_BASED_MAX_HINT' | translate">
+            {{ 'DOCUMENT_NUMBERING.USE_DATE_BASED_MAX' | translate }}
+          </mat-slide-toggle>
+
+          <mat-slide-toggle formControlName="isActive">
+            {{ 'COMMON.ACTIVE' | translate }}
+          </mat-slide-toggle>
+        </div>
+
+        <div class="preview-box">
+          <span class="preview-label">{{ 'DOCUMENT_NUMBERING.PREVIEW' | translate }}</span>
+          <span class="preview-value">{{ preview }}</span>
+        </div>
+
+        <div class="form-actions">
+          <button mat-raised-button color="primary" type="submit">
+            <mat-icon>save</mat-icon>
+            {{ 'COMMON.SAVE' | translate }}
+          </button>
+          <button mat-stroked-button type="button" (click)="closeForm()">
+            {{ 'COMMON.CANCEL' | translate }}
+          </button>
+        </div>
+      </form>
+    </mat-card>
+  </div>
+</div>

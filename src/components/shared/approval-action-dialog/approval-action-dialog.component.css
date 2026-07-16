@@ -1,0 +1,14 @@
+.dialog-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.doc-ref {
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.full-width {
+  width: 100%;
+}

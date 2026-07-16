@@ -8,12 +8,14 @@ import {
   ActivePOLookupDto,
   POLineForGRNDto
 } from '../models/cars-receipt-note.model';
+import { DocumentActionReasonDto } from '../models/document-lifecycle.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CarsReceiptNoteService {
-  private apiUrl = environment.origin + 'api/CarReceipts';
+  /** api/CarsReceiptNotes -- NOT api/CarReceipts, a different, older controller/entity. */
+  private apiUrl = environment.origin + 'api/CarsReceiptNotes';
   private purchaseOrdersApiUrl = environment.origin + 'api/PurchaseOrders';
 
   constructor(private http: HttpClient) { }
@@ -22,7 +24,7 @@ export class CarsReceiptNoteService {
     return this.http.get<CarsReceiptNoteDto[]>(`${this.apiUrl}/GetAll`);
   }
 
-  /** Posted GRNs across all suppliers with at least one line not yet fully invoiced. */
+  /** Approved GRNs across all suppliers with at least one line not yet fully invoiced. */
   getUninvoiced(): Observable<CarsReceiptNoteDto[]> {
     return this.http.get<CarsReceiptNoteDto[]>(`${this.apiUrl}/GetUninvoiced`);
   }
@@ -37,6 +39,22 @@ export class CarsReceiptNoteService {
 
   delete(id: number): Observable<boolean> {
     return this.http.delete<boolean>(`${this.apiUrl}/${id}`);
+  }
+
+  approve(id: number): Observable<CarsReceiptNoteDto> {
+    return this.http.post<CarsReceiptNoteDto>(`${this.apiUrl}/${id}/approve`, {});
+  }
+
+  reject(id: number, body: DocumentActionReasonDto): Observable<CarsReceiptNoteDto> {
+    return this.http.post<CarsReceiptNoteDto>(`${this.apiUrl}/${id}/reject`, body);
+  }
+
+  cancel(id: number, body: DocumentActionReasonDto): Observable<CarsReceiptNoteDto> {
+    return this.http.post<CarsReceiptNoteDto>(`${this.apiUrl}/${id}/cancel`, body);
+  }
+
+  reopen(id: number): Observable<CarsReceiptNoteDto> {
+    return this.http.post<CarsReceiptNoteDto>(`${this.apiUrl}/${id}/reopen`, {});
   }
 
   /** Open/PartiallyReceived POs -- feeds the GRN screen's dropdown. */

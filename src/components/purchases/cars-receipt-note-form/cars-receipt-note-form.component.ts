@@ -15,8 +15,13 @@ import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CarsReceiptNoteService } from '../../../services/cars-receipt-note.service';
 import { NotificationService } from '../../../services/notification.service';
-import { ActivePOLookupDto, CreateCarsReceiptNoteDto } from '../../../models/cars-receipt-note.model';
+import { ActivePOLookupDto, CarsReceiptNoteDto, CreateCarsReceiptNoteDto } from '../../../models/cars-receipt-note.model';
 import { CarSelectionDialogComponent } from '../purchase-invoice/car-selection-dialog/car-selection-dialog.component';
+import { DocumentHeaderComponent } from '../../shared/document-header/document-header.component';
+import { DocumentActionsToolbarComponent } from '../../shared/document-actions-toolbar/document-actions-toolbar.component';
+import { ApprovalActionDialogComponent, ApprovalActionDialogResult } from '../../shared/approval-action-dialog/approval-action-dialog.component';
+import { DocumentAuditTrailViewerComponent } from '../../shared/document-audit-trail-viewer/document-audit-trail-viewer.component';
+import { DocumentLifecycleAction } from '../../../models/document-lifecycle.model';
 
 interface GrnLineItem {
   purchaseOrderItemId: number;
@@ -46,7 +51,9 @@ interface GrnLineItem {
     MatCardModule,
     DxDataGridModule,
     DxButtonModule,
-    TranslateModule
+    TranslateModule,
+    DocumentHeaderComponent,
+    DocumentActionsToolbarComponent
   ],
   templateUrl: './cars-receipt-note-form.component.html',
   styleUrls: ['./cars-receipt-note-form.component.css']
@@ -61,6 +68,9 @@ export class CarsReceiptNoteFormComponent implements OnInit {
 
   /** Open or PartiallyReceived POs -- the only eligible dropdown source. */
   activePOs = signal<ActivePOLookupDto[]>([]);
+
+  /** Set once an existing GRN is loaded -- drives the document header + actions toolbar. */
+  loadedGrn: CarsReceiptNoteDto | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -89,7 +99,6 @@ export class CarsReceiptNoteFormComponent implements OnInit {
 
   initForm(): void {
     this.grnForm = this.fb.group({
-      grnNumber: ['', Validators.required],
       receiptDate: [new Date(), Validators.required],
       purchaseOrderId: [null, Validators.required],
       notes: ['']
@@ -189,8 +198,8 @@ export class CarsReceiptNoteFormComponent implements OnInit {
   loadGrn(id: number): void {
     this.carsReceiptNoteService.getById(id).subscribe({
       next: (grn) => {
+        this.loadedGrn = grn;
         this.grnForm.patchValue({
-          grnNumber: grn.grnNumber,
           receiptDate: grn.receiptDate,
           purchaseOrderId: grn.purchaseOrderId,
           notes: grn.notes
@@ -208,10 +217,55 @@ export class CarsReceiptNoteFormComponent implements OnInit {
           notes: item.notes
         }));
         this.updateDocumentPreview();
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error loading car receipt note', err);
         this.notificationService.showError(this.translateService.instant('CARS_RECEIPT_NOTE.LOAD_ERROR'));
+      }
+    });
+  }
+
+  openAuditTrail(): void {
+    if (!this.grnId) return;
+    this.dialog.open(DocumentAuditTrailViewerComponent, {
+      width: '600px',
+      data: { entityName: 'CarsReceiptNote', entityId: this.grnId }
+    });
+  }
+
+  onLifecycleAction(action: DocumentLifecycleAction): void {
+    if (!this.grnId || !this.loadedGrn) return;
+
+    const requireReason = action === 'reject' || action === 'cancel';
+    const dialogRef = this.dialog.open(ApprovalActionDialogComponent, {
+      width: '480px',
+      data: { action, documentNumber: this.loadedGrn.documentNumber, requireReason }
+    });
+
+    dialogRef.afterClosed().subscribe((result?: ApprovalActionDialogResult) => {
+      if (!result?.confirmed) return;
+      this.runLifecycleAction(action, result.reason);
+    });
+  }
+
+  private runLifecycleAction(action: DocumentLifecycleAction, reason?: string): void {
+    const id = this.grnId!;
+    const call$ =
+      action === 'approve' ? this.carsReceiptNoteService.approve(id) :
+      action === 'reopen' ? this.carsReceiptNoteService.reopen(id) :
+      action === 'reject' ? this.carsReceiptNoteService.reject(id, { reason: reason! }) :
+      this.carsReceiptNoteService.cancel(id, { reason: reason! });
+
+    call$.subscribe({
+      next: (grn) => {
+        this.loadedGrn = grn;
+        this.notificationService.showSuccess(this.translateService.instant('DOCUMENT_LIFECYCLE.ACTION_SUCCESS'));
+        this.loadGrn(id);
+      },
+      error: (err) => {
+        console.error(`Error performing ${action} on GRN`, err);
+        this.notificationService.showError(this.translateService.instant('DOCUMENT_LIFECYCLE.ACTION_ERROR'));
       }
     });
   }
@@ -244,7 +298,6 @@ export class CarsReceiptNoteFormComponent implements OnInit {
       return;
     }
     const dto: CreateCarsReceiptNoteDto = {
-      grnNumber: raw.grnNumber,
       receiptDate: raw.receiptDate,
       purchaseOrderId: raw.purchaseOrderId,
       notes: raw.notes,

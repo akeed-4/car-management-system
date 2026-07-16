@@ -1,4 +1,7 @@
-export type CarsReceiptNoteStatus = 'Draft' | 'Posted' | 'Cancelled';
+import { BaseDocumentDto } from './document-lifecycle.model';
+
+/** @deprecated Use DocumentStatus from document-lifecycle.model instead -- kept only for the status-badge class map below. */
+export type CarsReceiptNoteStatus = 'Draft' | 'Approved' | 'Rejected' | 'Cancelled' | 'Closed';
 
 export interface CarsReceiptNoteItemDto {
   id: number;
@@ -17,17 +20,15 @@ export interface CarsReceiptNoteItemDto {
   remainingToInvoice: number;
 }
 
-export interface CarsReceiptNoteDto {
-  id: number;
-  grnNumber: string;
+export interface CarsReceiptNoteDto extends BaseDocumentDto {
   receiptDate: string;
   purchaseOrderId: number;
   poNumber: string;
   receivedByUserId?: number;
-  status: CarsReceiptNoteStatus;
   notes?: string;
-  createdAt: string;
   items: CarsReceiptNoteItemDto[];
+  /** Alias for documentNumber -- backend exposes both; kept so existing bindings (grnNumber) don't break. */
+  grnNumber: string;
 }
 
 export interface CreateCarsReceiptNoteItemDto {
@@ -39,7 +40,8 @@ export interface CreateCarsReceiptNoteItemDto {
 }
 
 export interface CreateCarsReceiptNoteDto {
-  grnNumber: string;
+  /** Only sent when auto-numbering is disabled for GRN -- server generates it otherwise. */
+  grnNumber?: string;
   receiptDate: Date | string;
   supplierId: number;
   purchaseOrderId: number;

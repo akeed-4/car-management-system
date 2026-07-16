@@ -1,0 +1,36 @@
+.page-subtitle {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 0.9rem;
+  margin-top: -8px;
+}
+
+.state-message {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.settings-list {
+  padding: 8px 16px;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 4px;
+  border-bottom: 1px solid #eee;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.setting-row:last-child {
+  border-bottom: none;
+}
+
+.row-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+}
