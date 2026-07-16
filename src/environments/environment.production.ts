@@ -1,6 +1,7 @@
 export const environment = {
   production: true,
   rootName: "web",
-  // TODO: replace with the real production API base URL before deploying (e.g. 'https://api.yourdomain.com/')
-  origin: 'https://api.yourdomain.com/',
+  // TODO: replace with your real SmarterASP.NET site URL (or custom domain) once the
+  // hosting account is provisioned, e.g. 'https://yoursite.smarterasp.net/'
+  origin: 'https://yoursite.smarterasp.net/',
 };
