@@ -9,11 +9,18 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Location } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { PrintService } from '../../../services/print.service';
+import { CompanyService } from '../../../services/company.service';
+import { CurrentSettingService } from '../../../services/current-setting.service';
+import { QrCodeService } from '../../../services/qr-code.service';
+import { QrCodeConfigurationService } from '../../../services/qr-code-configuration.service';
+import { QrCodeComponent } from '../../shared/qr-code/qr-code.component';
+import { QrCodeContext } from '../../../models/qr-code.model';
+import { Company } from '../../../models/branch.model';
 
 @Component({
   selector: 'app-printable-sales-invoice',
   standalone: true,
-  imports: [CurrencyPipe, TranslateModule,MatIconModule],
+  imports: [CurrencyPipe, TranslateModule, MatIconModule, QrCodeComponent],
   templateUrl: './printable-sales-invoice.component.html',
   styleUrl: './printable-sales-invoice.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -24,17 +31,44 @@ export class PrintableSalesInvoiceComponent {
   private salesService = inject(SalesService);
   private customerService = inject(CustomerService);
   private printService = inject(PrintService);
+  private companyService = inject(CompanyService);
+  private currentSettingService = inject(CurrentSettingService);
+  private qrCodeService = inject(QrCodeService);
+  private qrCodeConfigurationService = inject(QrCodeConfigurationService);
 
   invoice = signal<SalesInvoice | null>(null);
   customer = signal<Customer | null>(null);
-  
-  // Centralized company info
-  companyInfo = {
-    name: 'معرض سيارات',
-    address: 'الرياض, المملكة العربية السعودية',
-    taxNumber: '310123456789013',
-    phone: '920012345',
-  };
+  company = signal<Company | null>(null);
+
+  // Sourced from the real Company record (CompanyService) -- no longer hardcoded.
+  companyInfo = computed(() => {
+    const c = this.company();
+    return {
+      name: c ? (c.nameAr || c.nameEn) : '',
+      address: c?.address ? `${c.address.city ?? ''} ${c.address.country ?? ''}`.trim() : '',
+      taxNumber: c?.vatRegistrationNumber ?? '',
+      phone: '',
+    };
+  });
+
+  qrContext = computed<QrCodeContext | null>(() => {
+    const inv = this.invoice();
+    const cust = this.customer();
+    const c = this.company();
+    if (!inv || !c) return null;
+    return {
+      companyName: c.nameAr || c.nameEn,
+      vatNumber: c.vatRegistrationNumber ?? '',
+      crNumber: c.crNumber,
+      documentNumber: inv.invoiceNumber,
+      documentDate: new Date(inv.invoiceDate),
+      customerName: cust?.name,
+      currency: 'SAR',
+      totalBeforeVat: inv.subtotal,
+      vatAmount: inv.vatAmount,
+      grandTotal: inv.totalAmount
+    };
+  });
 
   isPaid = computed(() => this.invoice()?.status === 'Paid');
 
@@ -67,18 +101,51 @@ export class PrintableSalesInvoiceComponent {
         });
       }
     }, { allowSignalWrites: true });
+
+    this.companyService.getById(this.currentSettingService.getCompanyId()).subscribe({
+      next: (c) => this.company.set(c),
+      error: (error) => console.error('Error loading company info:', error)
+    });
   }
 
-  printInvoice(): void {
+  async printInvoice(): Promise<void> {
     const inv = this.invoice();
     const customer = this.customer();
     if (!inv || !customer) return;
 
-    const htmlContent = this.generateInvoiceHtml(inv, customer);
+    const qrImageHtml = await this.buildQrImageHtml();
+    const htmlContent = this.generateInvoiceHtml(inv, customer, qrImageHtml);
     this.printService.print(htmlContent);
   }
 
-  private generateInvoiceHtml(inv: SalesInvoice, customer: Customer): string {
+  /** Pre-generates the QR as a data-URL <img> string for the print-string HTML path --
+   * generateInvoiceHtml() builds a raw string (not a live Angular render), so the same
+   * QrCodeService logic used by <app-qr-code> in the live view is invoked directly here rather
+   * than duplicated. Falls back to no QR section if disabled or context isn't ready yet. */
+  private async buildQrImageHtml(): Promise<string> {
+    const context = this.qrContext();
+    if (!context) return '';
+
+    try {
+      const config = await this.qrCodeConfigurationService.getByCompany(this.currentSettingService.getCompanyId()).toPromise();
+      if (!config || !config.isEnabled) return '';
+
+      const dataUrl = await this.qrCodeService.generateQrDataUrl(context, config);
+      const borderStyle = config.showBorder ? `border: 1px solid ${config.borderColor};` : '';
+      const captionHtml = config.caption ? `<div style="font-size:11px;text-align:center;margin-top:4px;">${config.caption}</div>` : '';
+      return `
+        <div class="qr-code-section">
+          <img src="${dataUrl}" alt="QR Code" class="qr-code" style="width:${config.sizePx}px;height:${config.sizePx}px;padding:${config.marginPx}px;${borderStyle}">
+          ${captionHtml}
+        </div>
+      `;
+    } catch (error) {
+      console.error('Error generating QR code for print:', error);
+      return '';
+    }
+  }
+
+  private generateInvoiceHtml(inv: SalesInvoice, customer: Customer, qrImageHtml: string): string {
     const isPaid = inv.status === 'Paid';
     const transferStatusText = this.transferStatusText();
 
@@ -294,10 +361,10 @@ export class PrintableSalesInvoiceComponent {
                 <img src="/assets/logo.png" alt="Company Logo" class="logo">
               </div>
               <div class="company-details">
-                <h1 class="company-name">${this.companyInfo.name}</h1>
-                <p class="company-address">${this.companyInfo.address}</p>
-                <p class="company-tax">الرقم الضريبي: ${this.companyInfo.taxNumber}</p>
-                <p class="company-phone">الهاتف: ${this.companyInfo.phone}</p>
+                <h1 class="company-name">${this.companyInfo().name}</h1>
+                <p class="company-address">${this.companyInfo().address}</p>
+                <p class="company-tax">الرقم الضريبي: ${this.companyInfo().taxNumber}</p>
+                <p class="company-phone">الهاتف: ${this.companyInfo().phone}</p>
               </div>
             </div>
           </div>
@@ -319,7 +386,7 @@ export class PrintableSalesInvoiceComponent {
             </div>
             <div class="info-row">
               <span class="info-label">الرقم الضريبي:</span>
-              <span class="info-value">${this.companyInfo.taxNumber}</span>
+              <span class="info-value">${this.companyInfo().taxNumber}</span>
               <span class="info-label" style="margin-right: 40px;">الموقع:</span>
               <span class="info-value">-</span>
             </div>
@@ -380,9 +447,7 @@ export class PrintableSalesInvoiceComponent {
           </div>
 
           <!-- QR Code Section -->
-          <div class="qr-code-section">
-            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect width='150' height='150' fill='white'/%3E%3C/svg%3E" alt="QR Code" class="qr-code">
-          </div>
+          ${qrImageHtml}
 
           <!-- Footer -->
           <div class="invoice-footer">

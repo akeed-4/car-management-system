@@ -85,6 +85,7 @@ import { CostCenterFormComponent } from './components/setup/cost-center/cost-cen
 import { CostPriceCalculationSettingsComponent } from './components/setup/cost-price-calculation/cost-price-calculation-settings.component';
 import { DocumentNumberingSettingsComponent } from './components/setup/document-numbering-settings/document-numbering-settings.component';
 import { DocumentLifecycleSettingsComponent } from './components/setup/document-lifecycle-settings/document-lifecycle-settings.component';
+import { QrCodeSettingsComponent } from './components/setup/qr-code-settings/qr-code-settings.component';
 import { BankListComponent } from './components/bank/bank-list/bank-list.component';
 import { BankFormComponent } from './components/bank/bank-form/bank-form.component';
 import { OpeningBalancesInventoryListComponent } from './components/inventory/opening-balances-inventory-list/opening-balances-inventory-list.component';
@@ -187,6 +188,7 @@ export const APP_ROUTES: Routes = [
       { path: 'setup/cost-price-settings', component: CostPriceCalculationSettingsComponent },
       { path: 'setup/document-numbering-settings', component: DocumentNumberingSettingsComponent },
       { path: 'setup/document-lifecycle-settings', component: DocumentLifecycleSettingsComponent },
+      { path: 'setup/qr-code-settings', component: QrCodeSettingsComponent },
       { path: 'bank/list', component: BankListComponent },
       { path: 'bank/form', component: BankFormComponent },
       { path: 'bank/form/:id', component: BankFormComponent },

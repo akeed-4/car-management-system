@@ -1,0 +1,20 @@
+<div class="print-company-header">
+  <div class="company-logo" *ngIf="company.logoUrl">
+    <img [src]="company.logoUrl" alt="Company Logo">
+  </div>
+  <div class="company-details">
+    <h1 class="company-name">{{ company.name }}</h1>
+    <p class="company-line" *ngIf="branch || store">
+      <span *ngIf="branch">{{ 'PRINT_DOCUMENT.BRANCH' | translate }}: {{ branch }}</span>
+      <span *ngIf="store"> &middot; {{ 'PRINT_DOCUMENT.STORE' | translate }}: {{ store }}</span>
+    </p>
+    <p class="company-line" *ngIf="company.address">{{ company.address }}</p>
+    <p class="company-line" *ngIf="company.vatNumber">{{ 'PRINT_DOCUMENT.VAT_NUMBER' | translate }}: {{ company.vatNumber }}</p>
+    <p class="company-line" *ngIf="company.crNumber">{{ 'PRINT_DOCUMENT.CR_NUMBER' | translate }}: {{ company.crNumber }}</p>
+    <p class="company-line contact-line">
+      <span *ngIf="company.phone">{{ 'PRINT_DOCUMENT.PHONE' | translate }}: {{ company.phone }}</span>
+      <span *ngIf="company.email"> &middot; {{ company.email }}</span>
+      <span *ngIf="company.website"> &middot; {{ company.website }}</span>
+    </p>
+  </div>
+</div>

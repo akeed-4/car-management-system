@@ -7,13 +7,13 @@
           <div class="flex items-center space-x-4 rtl:space-x-reverse">
             <!-- Company Logo Placeholder -->
             <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg">
-              <span class="text-blue-600 font-bold text-xl">{{ companyInfo.name?.charAt(0) || 'C' }}</span>
+              <span class="text-blue-600 font-bold text-xl">{{ companyInfo().name?.charAt(0) || 'C' }}</span>
             </div>
             <div class="text-right">
-              <h1 class="text-2xl font-bold">{{ companyInfo.name }}</h1>
-              <p class="text-sm opacity-90">{{ companyInfo.address }}</p>
-              <p class="text-sm opacity-90">رقم السجل التجاري: {{ companyInfo.crNumber }}</p>
-              <p class="text-sm opacity-90">الهاتف: {{ companyInfo.phone || 'N/A' }}</p>
+              <h1 class="text-2xl font-bold">{{ companyInfo().name }}</h1>
+              <p class="text-sm opacity-90">{{ companyInfo().address }}</p>
+              <p class="text-sm opacity-90">رقم السجل التجاري: {{ companyInfo().crNumber }}</p>
+              <p class="text-sm opacity-90">الهاتف: {{ companyInfo().phone || 'N/A' }}</p>
             </div>
           </div>
           <div class="text-left">
@@ -73,11 +73,11 @@
           <div>
             <h3 class="text-lg font-bold text-gray-800 mb-4 border-b-2 border-blue-600 pb-1">إلى الشركة</h3>
             <div class="space-y-1">
-              <p class="font-bold text-lg text-gray-900">{{ companyInfo.name }}</p>
-              <p class="text-gray-600">{{ companyInfo.address }}</p>
-              <p class="text-gray-600">الهاتف: {{ companyInfo.phone || 'غير محدد' }}</p>
-              <p class="text-gray-600">البريد الإلكتروني: {{ companyInfo.email || 'غير محدد' }}</p>
-              <p class="text-gray-600">رقم السجل التجاري: {{ companyInfo.crNumber }}</p>
+              <p class="font-bold text-lg text-gray-900">{{ companyInfo().name }}</p>
+              <p class="text-gray-600">{{ companyInfo().address }}</p>
+              <p class="text-gray-600">الهاتف: {{ companyInfo().phone || 'غير محدد' }}</p>
+              <p class="text-gray-600">البريد الإلكتروني: {{ companyInfo().email || 'غير محدد' }}</p>
+              <p class="text-gray-600">رقم السجل التجاري: {{ companyInfo().crNumber }}</p>
             </div>
           </div>
         </div>
@@ -167,12 +167,19 @@
         </div>
       </div>
 
+      <!-- QR Code Section -->
+      @if (qrContext(); as ctx) {
+        <div class="p-6 border-t border-gray-300 flex justify-center">
+          <app-qr-code [context]="ctx"></app-qr-code>
+        </div>
+      }
+
       <!-- Footer -->
       <footer class="bg-gray-100 border-t-2 border-gray-300 p-6 text-center">
         <div class="text-xs text-gray-500 space-y-2">
           <p class="font-semibold">شكراً لتعاملكم معنا</p>
           <p>هذه الفاتورة صادرة عن نظام إدارة السيارات - جميع الحقوق محفوظة © {{ currentYear }}</p>
-          <p>للاستفسارات يرجى الاتصال بنا على: {{ companyInfo.phone || 'رقم الهاتف غير محدد' }}</p>
+          <p>للاستفسارات يرجى الاتصال بنا على: {{ companyInfo().phone || 'رقم الهاتف غير محدد' }}</p>
         </div>
         <div class="mt-4 pt-4 border-t border-gray-300">
           <p class="text-xs text-gray-400">

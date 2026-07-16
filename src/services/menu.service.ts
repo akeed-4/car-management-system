@@ -245,7 +245,8 @@ export const menuData = [
     submenu: [
       { id: 121, name: 'اعدادات حساب التكلفة', englishName: 'Cost Price Settings', route: '/setup/cost-price-settings' },
       { id: 122, name: 'اعدادات ترقيم المستندات', englishName: 'Document Numbering Settings', route: '/setup/document-numbering-settings' },
-      { id: 123, name: 'اعدادات دورة حياة المستندات', englishName: 'Document Lifecycle Settings', route: '/setup/document-lifecycle-settings' }
+      { id: 123, name: 'اعدادات دورة حياة المستندات', englishName: 'Document Lifecycle Settings', route: '/setup/document-lifecycle-settings' },
+      { id: 124, name: 'اعدادات رمز الاستجابة السريعة', englishName: 'QR Code Settings', route: '/setup/qr-code-settings' }
     ]
   }
 ];

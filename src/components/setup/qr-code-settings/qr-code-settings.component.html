@@ -1,0 +1,97 @@
+<div class="container-fluid p-4">
+  <div class="page-header strong-header">
+    <h2>{{ 'QR_CODE_SETTINGS.TITLE' | translate }}</h2>
+    <p class="page-subtitle">{{ 'QR_CODE_SETTINGS.SUBTITLE' | translate }}</p>
+  </div>
+
+  <div class="state-message" *ngIf="isLoading()">
+    <mat-spinner diameter="36"></mat-spinner>
+  </div>
+
+  <div class="settings-layout" *ngIf="!isLoading()">
+    <mat-card class="form-card">
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <mat-slide-toggle formControlName="isEnabled" class="mb-3">
+          {{ 'QR_CODE_SETTINGS.ENABLE_QR' | translate }}
+        </mat-slide-toggle>
+
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'QR_CODE_SETTINGS.POSITION' | translate }}</mat-label>
+            <mat-select formControlName="position">
+              <mat-option *ngFor="let p of positions" [value]="p.value">{{ p.labelKey | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'QR_CODE_SETTINGS.SIZE' | translate }}</mat-label>
+            <input matInput type="number" formControlName="sizePx" min="50" max="400">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'QR_CODE_SETTINGS.MARGIN' | translate }}</mat-label>
+            <input matInput type="number" formControlName="marginPx" min="0" max="40">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'QR_CODE_SETTINGS.CAPTION' | translate }}</mat-label>
+            <input matInput formControlName="caption">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'QR_CODE_SETTINGS.FOREGROUND_COLOR' | translate }}</mat-label>
+            <input matInput type="color" formControlName="foregroundColor">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'QR_CODE_SETTINGS.BORDER_COLOR' | translate }}</mat-label>
+            <input matInput type="color" formControlName="borderColor">
+          </mat-form-field>
+        </div>
+
+        <mat-checkbox formControlName="showBorder" class="mb-3">
+          {{ 'QR_CODE_SETTINGS.SHOW_BORDER' | translate }}
+        </mat-checkbox>
+
+        <div class="zatca-toggle">
+          <mat-slide-toggle formControlName="zatcaModeEnabled">
+            {{ 'QR_CODE_SETTINGS.ZATCA_MODE' | translate }}
+          </mat-slide-toggle>
+          <p class="zatca-hint">{{ 'QR_CODE_SETTINGS.ZATCA_MODE_HINT' | translate }}</p>
+        </div>
+
+        <div class="content-fields" *ngIf="!form.value.zatcaModeEnabled">
+          <h4>{{ 'QR_CODE_SETTINGS.CONTENT_FIELDS' | translate }}</h4>
+          <div class="content-fields-grid">
+            <mat-checkbox
+              *ngFor="let field of plainContentFields"
+              [checked]="isContentFieldChecked(field.value)"
+              (change)="toggleContentField(field.value, $event.checked)">
+              {{ field.labelKey | translate }}
+            </mat-checkbox>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button mat-raised-button color="primary" type="submit">
+            <mat-icon>save</mat-icon>
+            {{ 'COMMON.SAVE' | translate }}
+          </button>
+        </div>
+      </form>
+    </mat-card>
+
+    <mat-card class="preview-card">
+      <h3>{{ 'QR_CODE_SETTINGS.PREVIEW' | translate }}</h3>
+      <div class="preview-box" *ngIf="previewDataUrl(); else noPreview">
+        <img [src]="previewDataUrl()" [width]="form.value.sizePx" [height]="form.value.sizePx"
+          [style.border]="form.value.showBorder ? ('1px solid ' + form.value.borderColor) : 'none'"
+          [style.padding.px]="form.value.marginPx" alt="QR Preview">
+        <p class="preview-caption" *ngIf="form.value.caption">{{ form.value.caption }}</p>
+      </div>
+      <ng-template #noPreview>
+        <p class="preview-disabled">{{ 'QR_CODE_SETTINGS.PREVIEW_DISABLED' | translate }}</p>
+      </ng-template>
+    </mat-card>
+  </div>
+</div>

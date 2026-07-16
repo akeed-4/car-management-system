@@ -45,6 +45,16 @@
       </mat-select>
     </mat-form-field>
 
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'COMPANIES.FORM.VAT_REGISTRATION_NUMBER' | translate }}</mat-label>
+      <input matInput formControlName="vatRegistrationNumber" [placeholder]="'COMPANIES.FORM.VAT_REGISTRATION_NUMBER_PLACEHOLDER' | translate">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'COMPANIES.FORM.CR_NUMBER' | translate }}</mat-label>
+      <input matInput formControlName="crNumber" [placeholder]="'COMPANIES.FORM.CR_NUMBER_PLACEHOLDER' | translate">
+    </mat-form-field>
+
     <!-- Geographic Information -->
     <mat-form-field appearance="outline">
       <mat-label>{{ 'COMPANIES.FORM.LATITUDE' | translate }}</mat-label>

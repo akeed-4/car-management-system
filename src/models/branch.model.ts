@@ -28,6 +28,8 @@ export interface Company {
   nameEn:string;
   description: string;
   status: 'active' | 'inactive';
+  vatRegistrationNumber?: string;
+  crNumber?: string;
   createdBy: string;
   createdAt: Date;
   updatedAt: Date;
