@@ -35,6 +35,14 @@ export interface Account {
   bankId: number | null;
   bankName: string;
   isSystemGenerated: boolean;
+  /** Read-only, derived server-side from customerId/supplierId/bankId. */
+  entityType?: 'none' | 'customer' | 'supplier' | 'bank';
+  /** Required only when createNewClient is true and no existing customer is being linked. */
+  newCustomerPhone?: string;
+  /** Required only when createNewSupplier is true and no existing supplier is being linked. */
+  newSupplierPhone?: string;
+  /** Update only: when true and the account is already linked, propagate the new name to the linked entity. */
+  syncEntityName?: boolean;
   balance: number;
   createdDate: Date;
   updatedDate: Date;
@@ -124,6 +132,8 @@ export interface CreateAccountDto {
   supplierName: string;
   bankId: number | null;
   bankName: string;
+  newCustomerPhone?: string;
+  newSupplierPhone?: string;
 }
 
 export interface UpdateAccountDto {
@@ -162,6 +172,9 @@ export interface UpdateAccountDto {
   supplierName: string;
   bankId: number | null;
   bankName: string;
+  newCustomerPhone?: string;
+  newSupplierPhone?: string;
+  syncEntityName?: boolean;
 }
 
 export interface CreateJournalEntryLineDto {
