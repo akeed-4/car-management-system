@@ -36,3 +36,14 @@ export interface CreateBankQuotationDto {
   carId: number;
   userId: number;
 }
+
+/** Invoices a Bank_Approved quotation directly -- the "Quotation" invoice source. */
+export interface FinalizeBankInvoiceDto {
+  bankQuotationId: number;
+  /** The bank's billing Customer record (Bill-to / Debtor). */
+  bankBillingCustomerId: number;
+  issuedPlateNumber: string;
+  debitAccountId: number;
+  creditAccountId: number;
+  userId: number;
+}

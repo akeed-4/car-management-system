@@ -132,7 +132,7 @@ export const menuData = [
     submenu: [
       { id: 91, name: 'العملاء', englishName: 'Customers', route: '/entities/customers' },
       { id: 92, name: 'الموردين', englishName: 'Suppliers', route: '/entities/suppliers' },
-      { id: 93, name: ' البنوك', englishName: 'Bank', route: '/bank/list' }
+      { id: 93, name: ' البنوك', englishName: 'Bank', route: '/entities/banks' }
 
     ]
   },

@@ -17,6 +17,11 @@
 .form-card {
   position: relative;
   padding: 24px;
+  margin-bottom: 16px;
+}
+
+.form-card mat-card-header {
+  margin-bottom: 8px;
 }
 
 .loading-overlay {

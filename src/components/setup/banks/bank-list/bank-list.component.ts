@@ -11,7 +11,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BankService } from '../../../../services/bank.service';
 import { NotificationService } from '../../../../services/notification.service';
 import { Bank } from '../../../../models/bank.model';
-import { HasPermissionDirective } from '../../../shared/permission.directive';
 
 @Component({
   selector: 'app-bank-management-list',
@@ -26,8 +25,7 @@ import { HasPermissionDirective } from '../../../shared/permission.directive';
     MatTooltipModule,
     DxDataGridModule,
     DxTemplateModule,
-    TranslateModule,
-    HasPermissionDirective
+    TranslateModule
   ],
   templateUrl: './bank-list.component.html',
   styleUrls: ['./bank-list.component.css'],
@@ -67,15 +65,15 @@ export class BankManagementListComponent implements OnInit {
   }
 
   onCreate(): void {
-    this.router.navigate(['/setup/banks/new']);
+    this.router.navigate(['/entities/banks/new']);
   }
 
   onView = (e: any): void => {
-    this.router.navigate(['/setup/banks/view', e.row.data.id]);
+    this.router.navigate(['/entities/banks/view', e.row.data.id]);
   };
 
   onEdit = (e: any): void => {
-    this.router.navigate(['/setup/banks/edit', e.row.data.id]);
+    this.router.navigate(['/entities/banks/edit', e.row.data.id]);
   };
 
   onDelete = (e: any): void => {

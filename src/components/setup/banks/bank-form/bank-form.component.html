@@ -5,95 +5,109 @@
     </h1>
   </div>
 
-  <mat-card class="form-card">
-    <div class="loading-overlay" *ngIf="isLoading()">
-      <mat-spinner diameter="40"></mat-spinner>
+  <div class="loading-overlay" *ngIf="isLoading()">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="save()" *ngIf="!isLoading()">
+    <mat-card class="form-card">
+      <mat-card-header>
+        <mat-card-title>{{ 'BANK.SECTION_IDENTIFICATION' | translate }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'BANK.BANK_CODE' | translate }}</mat-label>
+            <input matInput formControlName="bankCode" maxlength="20" required>
+            <mat-error *ngIf="form.get('bankCode')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'BANK.SWIFT_CODE' | translate }}</mat-label>
+            <input matInput formControlName="swiftCode" maxlength="20">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'BANK.NAME_ENGLISH' | translate }}</mat-label>
+            <input matInput formControlName="bankNameEnglish" maxlength="150" required>
+            <mat-error *ngIf="form.get('bankNameEnglish')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'BANK.NAME_ARABIC' | translate }}</mat-label>
+            <input matInput formControlName="bankNameArabic" maxlength="150" dir="rtl" required>
+            <mat-error *ngIf="form.get('bankNameArabic')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'BANK.IBAN_PREFIX' | translate }}</mat-label>
+            <input matInput formControlName="ibanPrefix" maxlength="10">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'BANK.COUNTRY' | translate }}</mat-label>
+            <input matInput formControlName="country" maxlength="100">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'BANK.CURRENCY' | translate }}</mat-label>
+            <input matInput formControlName="currency" maxlength="10">
+          </mat-form-field>
+        </div>
+
+        <div class="toggle-row">
+          <mat-checkbox formControlName="isActive">{{ 'COMMON.ACTIVE' | translate }}</mat-checkbox>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="form-card">
+      <mat-card-header>
+        <mat-card-title>{{ 'BANK.SECTION_CONTACT' | translate }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'BANK.PHONE' | translate }}</mat-label>
+            <input matInput formControlName="phone">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'BANK.EMAIL' | translate }}</mat-label>
+            <input matInput formControlName="email" type="email">
+            <mat-error *ngIf="form.get('email')?.hasError('email')">{{ 'BANK.INVALID_EMAIL' | translate }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'BANK.WEBSITE' | translate }}</mat-label>
+            <input matInput formControlName="website">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'BANK.ADDRESS' | translate }}</mat-label>
+            <input matInput formControlName="address">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'BANK.NOTES' | translate }}</mat-label>
+            <textarea matInput formControlName="notes" rows="3" maxlength="1000"></textarea>
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <div class="form-actions">
+      <button mat-raised-button color="primary" type="submit" *ngIf="!isView" [disabled]="isSaving()">
+        <mat-icon>save</mat-icon>
+        {{ 'COMMON.SAVE' | translate }}
+      </button>
+      <button mat-raised-button color="accent" type="button" *ngIf="isView" (click)="editFromView()">
+        <mat-icon>edit</mat-icon>
+        {{ 'COMMON.EDIT' | translate }}
+      </button>
+      <button mat-stroked-button type="button" (click)="cancel()">
+        {{ (isView ? 'COMMON.BACK' : 'COMMON.CANCEL') | translate }}
+      </button>
     </div>
-
-    <form [formGroup]="form" (ngSubmit)="save()" *ngIf="!isLoading()">
-      <div class="form-grid">
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'BANK.BANK_CODE' | translate }}</mat-label>
-          <input matInput formControlName="bankCode" maxlength="20">
-          <mat-error *ngIf="form.get('bankCode')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'BANK.SWIFT_CODE' | translate }}</mat-label>
-          <input matInput formControlName="swiftCode" maxlength="20">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'BANK.NAME_ENGLISH' | translate }}</mat-label>
-          <input matInput formControlName="bankNameEnglish" maxlength="150">
-          <mat-error *ngIf="form.get('bankNameEnglish')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'BANK.NAME_ARABIC' | translate }}</mat-label>
-          <input matInput formControlName="bankNameArabic" maxlength="150" dir="rtl">
-          <mat-error *ngIf="form.get('bankNameArabic')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'BANK.IBAN_PREFIX' | translate }}</mat-label>
-          <input matInput formControlName="ibanPrefix" maxlength="10">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'BANK.COUNTRY' | translate }}</mat-label>
-          <input matInput formControlName="country" maxlength="100">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'BANK.CURRENCY' | translate }}</mat-label>
-          <input matInput formControlName="currency" maxlength="10">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'BANK.PHONE' | translate }}</mat-label>
-          <input matInput formControlName="phone">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'BANK.EMAIL' | translate }}</mat-label>
-          <input matInput formControlName="email" type="email">
-          <mat-error *ngIf="form.get('email')?.hasError('email')">{{ 'BANK.INVALID_EMAIL' | translate }}</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'BANK.WEBSITE' | translate }}</mat-label>
-          <input matInput formControlName="website">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'BANK.ADDRESS' | translate }}</mat-label>
-          <input matInput formControlName="address">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ 'BANK.NOTES' | translate }}</mat-label>
-          <textarea matInput formControlName="notes" rows="3" maxlength="1000"></textarea>
-        </mat-form-field>
-      </div>
-
-      <div class="toggle-row">
-        <mat-checkbox formControlName="isActive">{{ 'COMMON.ACTIVE' | translate }}</mat-checkbox>
-      </div>
-
-      <div class="form-actions">
-        <button mat-raised-button color="primary" type="submit" *ngIf="!isView" [disabled]="isSaving()">
-          <mat-icon>save</mat-icon>
-          {{ 'COMMON.SAVE' | translate }}
-        </button>
-        <button mat-raised-button color="accent" type="button" *ngIf="isView" (click)="editFromView()">
-          <mat-icon>edit</mat-icon>
-          {{ 'COMMON.EDIT' | translate }}
-        </button>
-        <button mat-stroked-button type="button" (click)="cancel()">
-          {{ (isView ? 'COMMON.BACK' : 'COMMON.CANCEL') | translate }}
-        </button>
-      </div>
-    </form>
-  </mat-card>
+  </form>
 </div>

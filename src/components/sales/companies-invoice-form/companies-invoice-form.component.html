@@ -1,1 +1,132 @@
-<app-sales-invoice-form [channel]="SalesChannel.Sharikat" [saleType]="SaleType.Credit" [titleKey]="'SALES_LIFECYCLE.COMPANIES.CREATE_ORDER'"></app-sales-invoice-form>
+<app-sales-invoice-form
+  *ngIf="editId"
+  [channel]="SalesChannel.Sharikat"
+  [saleType]="SaleType.Credit"
+  [titleKey]="'SALES_LIFECYCLE.COMPANIES.CREATE_ORDER'">
+</app-sales-invoice-form>
+
+<div class="container" *ngIf="!editId">
+  <div class="page-header">
+    <h2>{{ 'CORPORATE.INVOICE_TITLE' | translate }}</h2>
+    <a routerLink="/sales/corporate/invoices" class="back-link">
+      <button mat-icon-button>
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <span>{{ 'INVOICE.BACK_TO_SALES' | translate }}</span>
+    </a>
+  </div>
+
+  <mat-card class="doc-card">
+    <section class="form-section">
+      <h3 class="form-section-title">{{ 'INVOICE.SOURCE_TITLE' | translate }}</h3>
+      <mat-button-toggle-group [(ngModel)]="source" (change)="onSourceChange($event.value)" class="source-toggle">
+        <mat-button-toggle value="quotation">{{ 'INVOICE.SOURCE_QUOTATION' | translate }}</mat-button-toggle>
+        <mat-button-toggle value="delivery">{{ 'INVOICE.SOURCE_DELIVERY' | translate }}</mat-button-toggle>
+      </mat-button-toggle-group>
+    </section>
+  </mat-card>
+
+  <mat-card class="doc-card" *ngIf="source === 'quotation'">
+    <section class="form-section">
+      <h3 class="form-section-title">{{ 'CORPORATE.PENDING_QUOTATION' | translate }}</h3>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ 'CORPORATE.SELECT_QUOTATION' | translate }}</mat-label>
+        <mat-select [ngModel]="selectedQuotationId" (ngModelChange)="onQuotationSelected($event)">
+          <mat-option *ngFor="let q of approvedQuotations()" [value]="q.id">
+            {{ q.quotationNumber }} — {{ q.customerName }} — {{ q.totalAmount | currency:'SAR':'symbol':'1.0-0' }}
+          </mat-option>
+        </mat-select>
+        <mat-hint *ngIf="!quotationsLoading() && approvedQuotations().length === 0">{{ 'CORPORATE.NO_PENDING_QUOTATIONS' | translate }}</mat-hint>
+        <mat-spinner *ngIf="quotationsLoading()" matSuffix diameter="18"></mat-spinner>
+      </mat-form-field>
+    </section>
+  </mat-card>
+
+  <mat-card class="doc-card lines-card" *ngIf="source === 'quotation' && selectedQuotation() as q">
+    <div class="section-header">
+      <h3 class="form-section-title">{{ 'CORPORATE.VEHICLE_LINES' | translate }}</h3>
+    </div>
+    <div class="table-container">
+      <dx-data-grid [dataSource]="q.lines" [showBorders]="true" [columnAutoWidth]="true" [rtlEnabled]="true" [height]="180">
+        <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}"></dxi-column>
+        <dxi-column dataField="vin" caption="VIN"></dxi-column>
+        <dxi-column dataField="discountedPrice" caption="{{ 'INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
+      </dx-data-grid>
+    </div>
+  </mat-card>
+
+  <mat-card class="doc-card" *ngIf="source === 'delivery'">
+    <section class="form-section">
+      <h3 class="form-section-title">{{ 'INVOICE.SOURCE_DELIVERY' | translate }}</h3>
+      <mat-hint *ngIf="!deliveriesLoading() && uninvoicedDeliveries().length === 0" class="no-data-hint">{{ 'CORPORATE.NO_UNINVOICED_DELIVERIES' | translate }}</mat-hint>
+      <div class="table-container">
+        <dx-data-grid
+          [dataSource]="selectableDeliveries()"
+          [showBorders]="true"
+          [columnAutoWidth]="true"
+          [rowAlternationEnabled]="true"
+          [rtlEnabled]="true"
+          [noDataText]="'CORPORATE.NO_UNINVOICED_DELIVERIES' | translate"
+          [height]="240"
+          keyExpr="id"
+          (onSelectionChanged)="onDeliverySelectionChanged($event)"
+        >
+          <dxo-selection mode="multiple" showCheckBoxesMode="always"></dxo-selection>
+          <dxi-column dataField="deliveryNoteNumber" caption="{{ 'CORPORATE.DELIVERY_NOTE_NUMBER' | translate }}"></dxi-column>
+          <dxi-column dataField="orderNumber" caption="{{ 'CORPORATE.ORDER_NUMBER' | translate }}"></dxi-column>
+          <dxi-column dataField="customerName" caption="{{ 'CORPORATE.CUSTOMER' | translate }}"></dxi-column>
+          <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}"></dxi-column>
+          <dxi-column dataField="vin" caption="VIN"></dxi-column>
+          <dxi-column dataField="unitPrice" caption="{{ 'INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
+          <dxi-column dataField="deliveryDate" caption="{{ 'CORPORATE.DELIVERY_DATE' | translate }}" dataType="date"></dxi-column>
+        </dx-data-grid>
+      </div>
+    </section>
+  </mat-card>
+
+  <mat-card class="doc-card">
+    <section class="form-section">
+      <h3 class="form-section-title">{{ 'INVOICE.DEBIT_ACCOUNT' | translate }} / {{ 'INVOICE.CREDIT_ACCOUNT' | translate }}</h3>
+      <ng-container *ngIf="cardLayout3 | async as layout">
+        <mat-grid-list [cols]="layout.columns" rowHeight="76" gutterSize="16px">
+          <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'INVOICE.DEBIT_ACCOUNT' | translate }}</mat-label>
+              <mat-select [(ngModel)]="debitAccountId" required>
+                <mat-option *ngFor="let account of debitAccounts()" [value]="account.id">
+                  {{ account.accountCode }} - {{ account.accountNameAr }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </mat-grid-tile>
+          <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'INVOICE.CREDIT_ACCOUNT' | translate }}</mat-label>
+              <mat-select [(ngModel)]="creditAccountId" required>
+                <mat-option *ngFor="let account of creditAccounts()" [value]="account.id">
+                  {{ account.accountCode }} - {{ account.accountNameAr }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </mat-grid-tile>
+        </mat-grid-list>
+      </ng-container>
+    </section>
+  </mat-card>
+
+  <div class="form-actions-bar">
+    <div class="total-preview" *ngIf="source === 'quotation' && selectedQuotation()">
+      <span>{{ 'INVOICE.TOTAL' | translate }}</span>
+      <span class="font-mono">{{ quotationTotal() | currency:'SAR':'symbol':'1.0-0' }}</span>
+    </div>
+    <div class="total-preview" *ngIf="source === 'delivery' && selectedDeliveryLines().length > 0">
+      <span>{{ 'INVOICE.TOTAL' | translate }}</span>
+      <span class="font-mono">{{ deliveryTotal() | currency:'SAR':'symbol':'1.0-0' }}</span>
+    </div>
+    <button mat-raised-button color="primary" class="save-btn" (click)="onSubmit()" [disabled]="!isFormValid || submitting()">
+      <mat-icon>receipt_long</mat-icon>
+      {{ 'INVOICE.CREATE_TITLE' | translate }}
+    </button>
+    <a routerLink="/sales/corporate/invoices" mat-button class="cancel-btn">{{ 'INVOICE.CANCEL' | translate }}</a>
+  </div>
+</div>

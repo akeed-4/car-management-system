@@ -1,6 +1,6 @@
 /* ============================================================
-   Corporate Vehicle Delivery -- same ERP document layout
-   convention as the other sales-lifecycle screens.
+   Bank Vehicle Delivery -- same ERP document layout convention
+   as the other sales-lifecycle screens.
    ============================================================ */
 
 .container {
@@ -26,28 +26,6 @@
   font-size: 1.4rem;
   font-weight: 700;
   color: var(--color-gray-900, #111827);
-}
-
-.success-card {
-  background: var(--color-primary-50, #eff6ff) !important;
-  border-color: var(--color-primary-200, #bfdbfe) !important;
-}
-
-.success-row {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-}
-
-.success-icon {
-  color: var(--color-primary-600, #16a34a);
-}
-
-.success-row span {
-  flex: 1;
-  font-weight: 600;
-  color: var(--color-gray-800, #1f2937);
 }
 
 .back-link {
@@ -80,6 +58,10 @@
   background: var(--color-gray-50, #f9fafb);
   border-radius: var(--rounded-lg, 8px);
   border: 1px dashed var(--color-gray-300, #d1d5db);
+}
+
+.full-width {
+  width: 100%;
 }
 
 .invoice-workspace {
@@ -126,14 +108,6 @@
   margin-bottom: var(--space-2, 0.5rem);
 }
 
-.progress-stats {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 0.5rem;
-  font-size: 0.82rem;
-  color: var(--color-gray-600, #4b5563);
-}
-
 mat-grid-tile {
   padding: 0 !important;
 }
@@ -144,6 +118,31 @@ mat-form-field {
 
 .notes-field {
   margin-top: var(--space-3, 0.75rem);
+}
+
+.readonly-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.4rem 0;
+}
+
+.readonly-label {
+  font-size: 0.72rem;
+  color: var(--color-gray-500, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.readonly-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-gray-900, #111827);
+}
+
+.status-approved {
+  background: var(--color-primary-100, #dbeafe) !important;
+  color: var(--color-primary-700, #1d4ed8) !important;
 }
 
 .lines-card {
@@ -215,12 +214,6 @@ mat-form-field {
 .summary-item p {
   margin: 0;
   font-size: 0.88rem;
-}
-
-.dispatch-hint {
-  margin: 0.5rem 0 0;
-  font-size: 0.78rem;
-  color: var(--color-gray-500, #6b7280);
 }
 
 .summary-card hr {

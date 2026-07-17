@@ -14,7 +14,7 @@
       <h3 class="form-section-title">{{ 'BANK_FINANCING.OPEN_EXISTING_APPROVAL' | translate }}</h3>
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>{{ 'BANK_FINANCING.SEARCH_APPROVALS' | translate }}</mat-label>
-        <mat-select [formControl]="approvalLookupControl">
+        <mat-select [formControl]="approvalLookupControl"  required>
           <mat-option>
             <ngx-mat-select-search [formControl]="approvalLookupFilterCtrl"
               placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"

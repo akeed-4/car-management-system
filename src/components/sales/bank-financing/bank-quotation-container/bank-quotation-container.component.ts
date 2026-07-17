@@ -78,7 +78,7 @@ export class BankQuotationContainerComponent implements OnInit {
     });
 
     this.bankFinancingService.getBankPartners().subscribe({
-      next: banks => this.banks.set(banks),
+      next: (banks) => this.banks.set(banks || []),
       error: () => this.notificationService.showError('BANK_FINANCING.PARTNERS_LOAD_FAILED')
     });
   }

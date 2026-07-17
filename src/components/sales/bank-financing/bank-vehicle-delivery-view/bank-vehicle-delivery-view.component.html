@@ -1,0 +1,145 @@
+<div class="container">
+  <div class="page-header">
+    <h2>{{ 'BANK_FINANCING.DELIVERY_DETAILS' | translate }}</h2>
+    <a routerLink="/sales/bank/deliveries" class="back-link">
+      <button mat-icon-button>
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <span>{{ 'BANK_FINANCING.BACK_TO_DELIVERIES' | translate }}</span>
+    </a>
+  </div>
+
+  <div *ngIf="!delivery() && !loading()" class="empty-state">
+    {{ 'BANK_FINANCING.DELIVERY_NOT_FOUND' | translate }}
+  </div>
+
+  <div class="invoice-workspace" *ngIf="delivery() as d">
+    <div class="workspace-main">
+
+      <mat-card class="doc-card">
+        <h3 class="form-section-title">{{ 'BANK_FINANCING.DELIVERY_DETAILS' | translate }}</h3>
+        <ng-container *ngIf="cardLayout3 | async as layout">
+          <mat-grid-list [cols]="layout.columns" rowHeight="76" gutterSize="16px">
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'BANK_FINANCING.DELIVERY_NUMBER' | translate }}</span>
+                <span class="readonly-value">{{ d.deliveryNumber }}</span>
+              </div>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'CORPORATE.DELIVERY_DATE' | translate }}</span>
+                <span class="readonly-value">{{ d.deliveryDate | date:'medium' }}</span>
+              </div>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'BANK_FINANCING.RELATED_ORDER' | translate }}</span>
+                <span class="readonly-value">{{ d.quotationNumber }}</span>
+              </div>
+            </mat-grid-tile>
+          </mat-grid-list>
+        </ng-container>
+        <ng-container *ngIf="cardLayout3 | async as layout">
+          <mat-grid-list [cols]="layout.columns" rowHeight="76" gutterSize="16px">
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'BANK_FINANCING.END_USER_NAME' | translate }}</span>
+                <span class="readonly-value">{{ d.endUserName }}</span>
+              </div>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'BANK_FINANCING.BANK' | translate }}</span>
+                <span class="readonly-value">{{ d.bankName }}</span>
+              </div>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'PURCHASE_INVOICE.CAR' | translate }}</span>
+                <span class="readonly-value">{{ d.carDescription }} — {{ d.vin }}</span>
+              </div>
+            </mat-grid-tile>
+          </mat-grid-list>
+        </ng-container>
+      </mat-card>
+
+      <mat-card class="doc-card">
+        <h3 class="form-section-title">{{ 'CORPORATE.RECEIVER_DETAILS' | translate }}</h3>
+        <ng-container *ngIf="cardLayout3 | async as layout">
+          <mat-grid-list [cols]="layout.columns" rowHeight="76" gutterSize="16px">
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'CORPORATE.RECEIVER_NAME' | translate }}</span>
+                <span class="readonly-value">{{ d.receiverName || '—' }}</span>
+              </div>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'CORPORATE.RECEIVER_NATIONAL_ID' | translate }}</span>
+                <span class="readonly-value">{{ d.receiverNationalId || '—' }}</span>
+              </div>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'CORPORATE.RECEIVER_PHONE' | translate }}</span>
+                <span class="readonly-value">{{ d.receiverPhone || '—' }}</span>
+              </div>
+            </mat-grid-tile>
+          </mat-grid-list>
+        </ng-container>
+        <ng-container *ngIf="cardLayout3 | async as layout">
+          <mat-grid-list [cols]="layout.columns" rowHeight="76" gutterSize="16px">
+            <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <div class="readonly-field">
+                <span class="readonly-label">{{ 'CORPORATE.DRIVER_NAME' | translate }}</span>
+                <span class="readonly-value">{{ d.driverName || '—' }}</span>
+              </div>
+            </mat-grid-tile>
+          </mat-grid-list>
+        </ng-container>
+      </mat-card>
+
+      <mat-card class="doc-card" *ngIf="checklist().length > 0">
+        <h3 class="form-section-title">{{ 'CORPORATE.DELIVERY_CHECKLIST' | translate }}</h3>
+        <ul class="checklist-view">
+          <li *ngFor="let item of checklist()">
+            <mat-icon [ngClass]="item.checked ? 'check-yes' : 'check-no'">{{ item.checked ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+            <span>{{ item.label | translate }}</span>
+          </li>
+        </ul>
+      </mat-card>
+
+      <mat-card class="doc-card" *ngIf="d.signatureData">
+        <h3 class="form-section-title">{{ 'CORPORATE.RECEIVER_SIGNATURE' | translate }}</h3>
+        <img class="signature-image" [src]="d.signatureData" alt="Receiver signature" />
+      </mat-card>
+
+      <mat-card class="doc-card">
+        <h3 class="form-section-title">{{ 'INVOICE.NOTES' | translate }}</h3>
+        <p class="readonly-value notes-text">{{ d.notes || ('CORPORATE.NO_NOTES' | translate) }}</p>
+      </mat-card>
+
+      <mat-card class="doc-card">
+        <h3 class="form-section-title">{{ 'DOCUMENT.ATTACHMENTS' | translate }}</h3>
+        <app-attachment-uploader documentType="BankVehicleDelivery" [documentId]="d.id"></app-attachment-uploader>
+      </mat-card>
+
+    </div>
+
+    <aside class="workspace-sidebar">
+      <mat-card class="summary-card">
+        <mat-card-title>{{ 'BANK_FINANCING.DELIVERY_TITLE' | translate }}</mat-card-title>
+        <mat-card-content>
+          <div class="summary-item">
+            <p>{{ 'BANK_FINANCING.DELIVERY_NUMBER' | translate }}</p>
+            <p class="font-mono">{{ d.deliveryNumber }}</p>
+          </div>
+        </mat-card-content>
+        <div class="form-actions">
+          <a routerLink="/sales/bank/deliveries" mat-button class="cancel-btn">{{ 'BANK_FINANCING.BACK_TO_DELIVERIES' | translate }}</a>
+        </div>
+      </mat-card>
+    </aside>
+  </div>
+</div>

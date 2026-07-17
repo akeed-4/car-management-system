@@ -4,7 +4,16 @@ import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
 import { CorporateQuotation, CreateCorporateQuotationDto } from '../models/corporate/corporate-quotation.model';
 import { CorporateOrder, CreateCorporateOrderDto } from '../models/corporate/corporate-order.model';
-import { CorporateBatchResult, DeliveryNoteResult, OrderFulfillmentProgress, ProcessBatchDto, RemainingVinCandidate } from '../models/corporate/corporate-dispatch.model';
+import {
+  CreateCorporateInvoiceFromDeliveryDto,
+  CreateCorporateInvoiceFromQuotationDto,
+  DeliveryNoteResult,
+  DispatchBatchDto,
+  OrderFulfillmentProgress,
+  RemainingVinCandidate
+} from '../models/corporate/corporate-dispatch.model';
+import { UninvoicedDeliveryLookup } from '../models/sales/uninvoiced-delivery.model';
+import { SalesInvoice } from '../models/sales-invoice.model';
 
 export interface CreditSummary {
   isApproved: boolean;
@@ -80,8 +89,8 @@ export class CorporateFleetService {
     return this.http.get<RemainingVinCandidate[]>(`${this.baseUrl}/orders/${orderId}/remaining-vins`);
   }
 
-  processBatch(dto: ProcessBatchDto): Observable<CorporateBatchResult> {
-    return this.http.post<CorporateBatchResult>(`${this.baseUrl}/process-batch`, dto);
+  dispatchBatch(dto: DispatchBatchDto): Observable<DeliveryNoteResult[]> {
+    return this.http.post<DeliveryNoteResult[]>(`${this.baseUrl}/dispatch`, dto);
   }
 
   // ==================== Delivery Notes ====================
@@ -92,5 +101,19 @@ export class CorporateFleetService {
 
   getDeliveryNoteById(id: number): Observable<DeliveryNoteResult> {
     return this.http.get<DeliveryNoteResult>(`${this.baseUrl}/deliveries/${id}`);
+  }
+
+  getUninvoicedDeliveries(): Observable<UninvoicedDeliveryLookup[]> {
+    return this.http.get<UninvoicedDeliveryLookup[]>(`${this.baseUrl}/deliveries/uninvoiced`);
+  }
+
+  // ==================== Flexible Invoicing ====================
+
+  createInvoiceFromQuotation(dto: CreateCorporateInvoiceFromQuotationDto): Observable<SalesInvoice> {
+    return this.http.post<SalesInvoice>(`${this.baseUrl}/invoices/from-quotation`, dto);
+  }
+
+  createInvoiceFromDelivery(dto: CreateCorporateInvoiceFromDeliveryDto): Observable<SalesInvoice> {
+    return this.http.post<SalesInvoice>(`${this.baseUrl}/invoices/from-delivery`, dto);
   }
 }

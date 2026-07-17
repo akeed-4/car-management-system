@@ -1,7 +1,7 @@
 <div class="page-container">
   <div class="page-header header-row">
     <h1>{{ 'BANK.LIST_TITLE' | translate }}</h1>
-    <a routerLink="/setup/banks/new" mat-raised-button color="primary" *appHasPermission="'bank.create'">
+    <a routerLink="/entities/banks/new" mat-raised-button color="primary">
       <mat-icon>add</mat-icon>
       {{ 'BANK.CREATE_TITLE' | translate }}
     </a>
@@ -47,6 +47,7 @@
       <dxo-search-panel [visible]="true" [width]="240"></dxo-search-panel>
       <dxo-filter-row [visible]="true"></dxo-filter-row>
       <dxo-header-filter [visible]="true"></dxo-header-filter>
+      <dxo-column-chooser [enabled]="true" mode="select"></dxo-column-chooser>
       <dxo-paging [pageSize]="10"></dxo-paging>
       <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]" [showInfo]="true"></dxo-pager>
 
@@ -56,17 +57,23 @@
       <dxi-column dataField="swiftCode" [caption]="'BANK.SWIFT_CODE' | translate" [width]="120"></dxi-column>
       <dxi-column dataField="country" [caption]="'BANK.COUNTRY' | translate" [width]="130"></dxi-column>
       <dxi-column dataField="currency" [caption]="'BANK.CURRENCY' | translate" [width]="100"></dxi-column>
-      <dxi-column dataField="isActive" dataType="boolean" [caption]="'COMMON.ACTIVE' | translate" [width]="90"></dxi-column>
+      <dxi-column dataField="isActive" dataType="boolean" [caption]="'COMMON.ACTIVE' | translate" [width]="110" cellTemplate="statusTemplate"></dxi-column>
+
+      <div *dxTemplate="let cell of 'statusTemplate'">
+        <span class="status-badge" [class.status-active]="cell.data.isActive" [class.status-inactive]="!cell.data.isActive">
+          {{ (cell.data.isActive ? 'COMMON.ACTIVE' : 'COMMON.INACTIVE') | translate }}
+        </span>
+      </div>
 
       <dxi-column type="buttons" [caption]="'COMMON.ACTIONS' | translate" [width]="150" [fixed]="true" fixedPosition="right" cellTemplate="actionsTemplate"></dxi-column>
       <div *dxTemplate="let cell of 'actionsTemplate'">
         <button mat-icon-button [matTooltip]="'COMMON.VIEW' | translate" (click)="onView({ row: { data: cell.data } })">
           <mat-icon>visibility</mat-icon>
         </button>
-        <button mat-icon-button [matTooltip]="'COMMON.EDIT' | translate" (click)="onEdit({ row: { data: cell.data } })" *appHasPermission="'bank.edit'">
+        <button mat-icon-button [matTooltip]="'COMMON.EDIT' | translate" (click)="onEdit({ row: { data: cell.data } })">
           <mat-icon>edit</mat-icon>
         </button>
-        <button mat-icon-button color="warn" [matTooltip]="'COMMON.DELETE' | translate" (click)="onDelete({ row: { data: cell.data } })" *appHasPermission="'bank.delete'">
+        <button mat-icon-button color="warn" [matTooltip]="'COMMON.DELETE' | translate" (click)="onDelete({ row: { data: cell.data } })">
           <mat-icon>delete</mat-icon>
         </button>
       </div>

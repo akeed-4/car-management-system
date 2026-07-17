@@ -13,16 +13,13 @@ import { FormsModule } from '@angular/forms';
 import { DxDataGridModule, DxDataGridComponent } from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { CorporateFleetService } from '../../../../services/corporate-fleet.service';
-import { AccountingService } from '../../../accounting/accounting.service';
 import { CurrentSettingService } from '../../../../services/current-setting.service';
 import { NotificationService } from '@/src/services/notification.service';
-import { OrderFulfillmentProgress, RemainingVinCandidate } from '../../../../models/corporate/corporate-dispatch.model';
+import { DeliveryNoteResult, OrderFulfillmentProgress, RemainingVinCandidate } from '../../../../models/corporate/corporate-dispatch.model';
 import { CorporateOrder } from '../../../../models/corporate/corporate-order.model';
 import { DocumentChecklistComponent, ChecklistItem } from '../../shared/document-checklist/document-checklist.component';
 import { SignaturePadComponent } from '../../shared/signature-pad/signature-pad.component';
 import { AttachmentUploaderComponent } from '../../shared/attachment-uploader/attachment-uploader.component';
-
-const VAT_RATE = 0.15;
 
 const DEFAULT_CHECKLIST: ChecklistItem[] = [
   { label: 'CORPORATE.CHECKLIST_KEYS', checked: false },
@@ -60,7 +57,6 @@ const DEFAULT_CHECKLIST: ChecklistItem[] = [
 })
 export class CorporateFleetDispatcherComponent implements OnInit {
   private corporateFleetService = inject(CorporateFleetService);
-  private accountingService = inject(AccountingService);
   private currentSettingService = inject(CurrentSettingService);
   private notificationService = inject(NotificationService);
   private route = inject(ActivatedRoute);
@@ -76,11 +72,6 @@ export class CorporateFleetDispatcherComponent implements OnInit {
   remainingVins = signal<RemainingVinCandidate[]>([]);
   selectedCarIds = signal<number[]>([]);
 
-  debitAccounts = signal<any[]>([]);
-  creditAccounts = signal<any[]>([]);
-  debitAccountId: number | null = null;
-  creditAccountId: number | null = null;
-
   receiverName = '';
   receiverNationalId = '';
   receiverPhone = '';
@@ -91,7 +82,7 @@ export class CorporateFleetDispatcherComponent implements OnInit {
   currentChecklist = signal<ChecklistItem[]>(DEFAULT_CHECKLIST);
 
   submitting = signal(false);
-  lastResult = signal<{ deliveryNoteIds: number[]; invoiceNumber: string } | null>(null);
+  lastResult = signal<{ deliveryNoteIds: number[] } | null>(null);
 
   ngOnInit(): void {
     this.orderId = Number(this.route.snapshot.queryParamMap.get('orderId')) || null;
@@ -99,9 +90,6 @@ export class CorporateFleetDispatcherComponent implements OnInit {
       this.loadData(this.orderId);
     }
     this.loadPendingOrders();
-
-    this.accountingService.getAccountsByCategory('debit').subscribe(accounts => this.debitAccounts.set(accounts));
-    this.accountingService.getAccountsByCategory('credit').subscribe(accounts => this.creditAccounts.set(accounts));
   }
 
   private loadPendingOrders(): void {
@@ -151,16 +139,13 @@ export class CorporateFleetDispatcherComponent implements OnInit {
     this.remainingVins().filter(v => this.selectedCarIds().includes(v.carId))
   );
 
-  subtotal = computed(() => this.selectedVehicles().reduce((sum, v) => sum + v.unitPrice, 0));
-  vatAmount = computed(() => this.subtotal() * VAT_RATE);
-  grandTotal = computed(() => this.subtotal() + this.vatAmount());
+  /** Informational total of the vehicles being dispatched -- invoicing (and its VAT) happens later, as a separate step. */
+  dispatchValue = computed(() => this.selectedVehicles().reduce((sum, v) => sum + v.unitPrice, 0));
 
   get isFormValid(): boolean {
     return (
       !!this.orderId &&
       this.selectedCarIds().length > 0 &&
-      !!this.debitAccountId &&
-      !!this.creditAccountId &&
       !!this.receiverName &&
       !!this.signatureData
     );
@@ -178,11 +163,9 @@ export class CorporateFleetDispatcherComponent implements OnInit {
 
     this.submitting.set(true);
     this.corporateFleetService
-      .processBatch({
+      .dispatchBatch({
         customerOrderId: this.orderId,
         carIds: this.selectedCarIds(),
-        debitAccountId: this.debitAccountId!,
-        creditAccountId: this.creditAccountId!,
         receiverName: this.receiverName,
         receiverNationalId: this.receiverNationalId || undefined,
         receiverPhone: this.receiverPhone || undefined,
@@ -193,11 +176,12 @@ export class CorporateFleetDispatcherComponent implements OnInit {
         userId: 1
       })
       .subscribe({
-        next: result => {
+        next: (result: any) => {
           this.submitting.set(false);
-          this.notificationService.showSuccess('CORPORATE.DELIVERY_COMPLETED');
-          const deliveryNoteIds = result.deliveryNotes.map(dn => dn.id);
-          this.lastResult.set({ deliveryNoteIds, invoiceNumber: result.invoice.invoiceNumber });
+          this.notificationService.showSuccess('CORPORATE.DISPATCH_COMPLETED');
+          const notes: DeliveryNoteResult[] = result.data || result || [];
+          const deliveryNoteIds = notes.map(dn => dn.id);
+          this.lastResult.set({ deliveryNoteIds });
           if (this.attachmentUploader && deliveryNoteIds.length > 0) {
             this.attachmentUploader.uploadPending(deliveryNoteIds[0]);
           }
@@ -206,7 +190,7 @@ export class CorporateFleetDispatcherComponent implements OnInit {
         },
         error: () => {
           this.submitting.set(false);
-          this.notificationService.showError('CORPORATE.DELIVERY_FAILED');
+          this.notificationService.showError('CORPORATE.DISPATCH_FAILED');
         }
       });
   }

@@ -99,7 +99,7 @@ export class BankManagementFormComponent implements OnInit {
       error: () => {
         this.isLoading.set(false);
         this.notificationService.showError(this.translate.instant('BANK.LOAD_ERROR'));
-        this.router.navigate(['/setup/banks']);
+        this.router.navigate(['/entities/banks']);
       }
     });
   }
@@ -117,7 +117,7 @@ export class BankManagementFormComponent implements OnInit {
     const onSuccess = () => {
       this.isSaving.set(false);
       this.notificationService.showSuccess(this.translate.instant(this.mode === 'edit' ? 'BANK.UPDATE_SUCCESS' : 'BANK.CREATE_SUCCESS'));
-      this.router.navigate(['/setup/banks']);
+      this.router.navigate(['/entities/banks']);
     };
     const onError = (err: any) => {
       this.isSaving.set(false);
@@ -133,12 +133,12 @@ export class BankManagementFormComponent implements OnInit {
   }
 
   cancel(): void {
-    this.router.navigate(['/setup/banks']);
+    this.router.navigate(['/entities/banks']);
   }
 
   editFromView(): void {
     if (this.bankId) {
-      this.router.navigate(['/setup/banks/edit', this.bankId]);
+      this.router.navigate(['/entities/banks/edit', this.bankId]);
     }
   }
 }

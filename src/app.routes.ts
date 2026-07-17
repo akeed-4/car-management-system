@@ -86,8 +86,6 @@ import { CostPriceCalculationSettingsComponent } from './components/setup/cost-p
 import { DocumentNumberingSettingsComponent } from './components/setup/document-numbering-settings/document-numbering-settings.component';
 import { DocumentLifecycleSettingsComponent } from './components/setup/document-lifecycle-settings/document-lifecycle-settings.component';
 import { QrCodeSettingsComponent } from './components/setup/qr-code-settings/qr-code-settings.component';
-import { BankListComponent } from './components/bank/bank-list/bank-list.component';
-import { BankFormComponent } from './components/bank/bank-form/bank-form.component';
 import { BankManagementListComponent } from './components/setup/banks/bank-list/bank-list.component';
 import { BankManagementFormComponent } from './components/setup/banks/bank-form/bank-form.component';
 import { OpeningBalancesInventoryListComponent } from './components/inventory/opening-balances-inventory-list/opening-balances-inventory-list.component';
@@ -135,7 +133,6 @@ import { PurchaseRequisitionViewComponent } from './components/purchases/purchas
 import { PurchaseRequisitionApprovalListComponent } from './components/purchases/purchase-requisition-approval-list/purchase-requisition-approval-list.component';
 import { CarsReceiptNoteListComponent } from './components/purchases/cars-receipt-note-list/cars-receipt-note-list.component';
 import { CarsReceiptNoteFormComponent } from './components/purchases/cars-receipt-note-form/cars-receipt-note-form.component';
-import { RetailDeliveryContainerComponent } from './components/sales/retail/retail-delivery-container/retail-delivery-container.component';
 import { BankQuotationContainerComponent } from './components/sales/bank-financing/bank-quotation-container/bank-quotation-container.component';
 import { BankApprovalManagerComponent } from './components/sales/bank-financing/bank-approval-manager/bank-approval-manager.component';
 import { CorporateQuotationContainerComponent } from './components/sales/corporate/corporate-quotation-container/corporate-quotation-container.component';
@@ -154,8 +151,9 @@ import { BankOrderListComponent } from './components/sales/bank-financing/bank-o
 import { BankQuotationListComponent } from './components/sales/bank-financing/bank-quotation-list/bank-quotation-list.component';
 import { BankInvoiceListComponent } from './components/sales/bank-financing/bank-invoice-list/bank-invoice-list.component';
 import { BankCollectionListComponent } from './components/sales/bank-financing/bank-collection-list/bank-collection-list.component';
-import { RetailDeliveryListComponent } from './components/sales/retail/retail-delivery-list/retail-delivery-list.component';
-import { RetailDeliveryViewComponent } from './components/sales/retail/retail-delivery-view/retail-delivery-view.component';
+import { BankVehicleDeliveryFormComponent } from './components/sales/bank-financing/bank-vehicle-delivery-form/bank-vehicle-delivery-form.component';
+import { BankVehicleDeliveryListComponent } from './components/sales/bank-financing/bank-vehicle-delivery-list/bank-vehicle-delivery-list.component';
+import { BankVehicleDeliveryViewComponent } from './components/sales/bank-financing/bank-vehicle-delivery-view/bank-vehicle-delivery-view.component';
 
 export const APP_ROUTES: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -189,15 +187,8 @@ export const APP_ROUTES: Routes = [
       { path: 'cost-centers/edit/:id', component: CostCenterFormComponent },
       { path: 'setup/cost-price-settings', component: CostPriceCalculationSettingsComponent },
       { path: 'setup/document-numbering-settings', component: DocumentNumberingSettingsComponent },
-      { path: 'setup/banks', component: BankManagementListComponent, canActivate: [permissionGuard('banks.view')] },
-      { path: 'setup/banks/new', component: BankManagementFormComponent, canActivate: [permissionGuard('banks.view')] },
-      { path: 'setup/banks/edit/:id', component: BankManagementFormComponent, canActivate: [permissionGuard('banks.view')] },
-      { path: 'setup/banks/view/:id', component: BankManagementFormComponent, canActivate: [permissionGuard('banks.view')] },
       { path: 'setup/document-lifecycle-settings', component: DocumentLifecycleSettingsComponent },
       { path: 'setup/qr-code-settings', component: QrCodeSettingsComponent },
-      { path: 'bank/list', component: BankListComponent },
-      { path: 'bank/form', component: BankFormComponent },
-      { path: 'bank/form/:id', component: BankFormComponent },
       // Redirect to the functional inventory form
       { path: 'inventory', component: InventoryListComponent },
   { path: 'inventory/opening-balances', component: OpeningBalancesInventoryListComponent },
@@ -258,9 +249,9 @@ export const APP_ROUTES: Routes = [
   { path: 'sales/bank/orders', component: BankOrderListComponent },
   { path: 'sales/bank/orders/new', component: BankSalesOrderComponent },
   { path: 'sales/bank/orders/view/:id', component: BankSalesOrderComponent },
-  { path: 'sales/bank/deliveries', component: RetailDeliveryListComponent, data: { channel: 'bank' } },
-  { path: 'sales/bank/deliveries/new', component: RetailDeliveryContainerComponent, data: { channel: 'bank' } },
-  { path: 'sales/bank/deliveries/view/:id', component: RetailDeliveryViewComponent, data: { channel: 'bank' } },
+  { path: 'sales/bank/deliveries', component: BankVehicleDeliveryListComponent },
+  { path: 'sales/bank/deliveries/new', component: BankVehicleDeliveryFormComponent },
+  { path: 'sales/bank/deliveries/view/:id', component: BankVehicleDeliveryViewComponent },
   { path: 'sales/bank/invoices', component: BankInvoiceListComponent },
   { path: 'sales/bank/invoices/new', component: BankInvoiceFormComponent },
   { path: 'sales/bank/invoices/edit/:id', component: BankInvoiceFormComponent },
@@ -352,6 +343,10 @@ export const APP_ROUTES: Routes = [
   { path: 'entities/suppliers', component: SuppliersComponent },
   { path: 'entities/suppliers/new', component: SupplierFormComponent },
   { path: 'entities/suppliers/edit/:id', component: SupplierFormComponent },
+  { path: 'entities/banks', component: BankManagementListComponent },
+  { path: 'entities/banks/new', component: BankManagementFormComponent },
+  { path: 'entities/banks/edit/:id', component: BankManagementFormComponent },
+  { path: 'entities/banks/view/:id', component: BankManagementFormComponent },
   { path: 'reports/financial', component: FinancialReportsComponent },
   { path: 'reports/tax', component: TaxReportsComponent },
   { path: 'reports/administrative', component: AdministrativeReportsComponent },

@@ -110,11 +110,13 @@ export class BankSalesOrderComponent implements OnInit {
     }
   }
 
+  
+
   private loadApprovalOptions(): void {
     this.approvalOptionsLoading.set(true);
     this.bankFinancingService.getAllBankQuotations().subscribe({
-      next: approvals => {
-        this.approvalOptions.set(approvals);
+      next: (approvals: any) => {
+        this.approvalOptions.set(approvals.data || approvals || []);
         this.approvalOptionsLoading.set(false);
       },
       error: () => {

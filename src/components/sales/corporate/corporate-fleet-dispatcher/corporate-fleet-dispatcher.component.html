@@ -31,7 +31,7 @@
       <mat-card class="doc-card success-card" *ngIf="lastResult() as r">
         <div class="success-row">
           <mat-icon class="success-icon">check_circle</mat-icon>
-          <span>{{ 'CORPORATE.DELIVERY_COMPLETED' | translate }} — {{ 'INVOICE.INVOICE_SUMMARY' | translate }} {{ r.invoiceNumber }}</span>
+          <span>{{ 'CORPORATE.DISPATCH_COMPLETED' | translate }}</span>
           <a *ngIf="r.deliveryNoteIds.length === 1" [routerLink]="['/sales/corporate/deliveries/view', r.deliveryNoteIds[0]]" mat-button color="primary">
             {{ 'CORPORATE.VIEW_DELIVERY_NOTE' | translate }}
           </a>
@@ -111,26 +111,6 @@
                   <input matInput [(ngModel)]="driverName">
                 </mat-form-field>
               </mat-grid-tile>
-              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>{{ 'INVOICE.DEBIT_ACCOUNT' | translate }}</mat-label>
-                  <mat-select [(ngModel)]="debitAccountId" required>
-                    <mat-option *ngFor="let account of debitAccounts()" [value]="account.id">
-                      {{ account.accountCode }} - {{ account.accountNameAr }}
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </mat-grid-tile>
-              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>{{ 'INVOICE.CREDIT_ACCOUNT' | translate }}</mat-label>
-                  <mat-select [(ngModel)]="creditAccountId" required>
-                    <mat-option *ngFor="let account of creditAccounts()" [value]="account.id">
-                      {{ account.accountCode }} - {{ account.accountNameAr }}
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </mat-grid-tile>
             </mat-grid-list>
           </ng-container>
 
@@ -168,25 +148,17 @@
       <mat-card class="summary-card">
         <mat-card-title>{{ 'CORPORATE.TOTAL_VALUE' | translate }}</mat-card-title>
         <mat-card-content>
-          <div class="summary-item">
-            <p>{{ 'INVOICE.SUBTOTAL' | translate }}</p>
-            <p class="font-mono">{{ subtotal() | currency:'SAR':'symbol':'1.0-0' }}</p>
-          </div>
-          <div class="summary-item">
-            <p>{{ 'INVOICE.VAT' | translate }}</p>
-            <p class="font-mono">+ {{ vatAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
-          </div>
-          <hr>
           <div class="summary-item total">
-            <p>{{ 'INVOICE.TOTAL' | translate }}</p>
-            <p class="font-mono">{{ grandTotal() | currency:'SAR':'symbol':'1.0-0' }}</p>
+            <p>{{ 'CORPORATE.DISPATCH_VALUE' | translate }}</p>
+            <p class="font-mono">{{ dispatchValue() | currency:'SAR':'symbol':'1.0-0' }}</p>
           </div>
+          <p class="dispatch-hint">{{ 'CORPORATE.INVOICE_LATER_HINT' | translate }}</p>
         </mat-card-content>
 
         <div class="form-actions">
           <button mat-raised-button color="primary" class="save-btn" (click)="onSubmit()" [disabled]="!isFormValid || submitting()">
             <mat-icon>local_shipping</mat-icon>
-            {{ 'CORPORATE.CONFIRM_DELIVERY' | translate }}
+            {{ 'CORPORATE.DISPATCH_VEHICLES' | translate }}
           </button>
           <a routerLink="/sales" mat-button class="cancel-btn">{{ 'INVOICE.CANCEL' | translate }}</a>
         </div>

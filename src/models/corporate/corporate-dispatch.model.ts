@@ -17,9 +17,11 @@ export interface RemainingVinCandidate {
 export interface DeliveryNoteResult {
   id: number;
   deliveryNoteNumber: string;
-  salesInvoiceId: number;
+  /** Null until an invoice is created from this delivery note. */
+  salesInvoiceId?: number;
   carId: number;
   vin: string;
+  carDescription?: string;
   gatePassSerial: string;
   deliveryDate: string;
   deliveredToName?: string;
@@ -31,16 +33,10 @@ export interface DeliveryNoteResult {
   notes?: string;
 }
 
-export interface CorporateBatchResult {
-  invoice: { id: number; invoiceNumber: string; totalAmount: number };
-  deliveryNotes: DeliveryNoteResult[];
-}
-
-export interface ProcessBatchDto {
+/** Dispatch creates the delivery note(s) only -- invoicing is a separate later step. */
+export interface DispatchBatchDto {
   customerOrderId: number;
   carIds: number[];
-  debitAccountId: number;
-  creditAccountId: number;
   receiverName?: string;
   receiverNationalId?: string;
   receiverPhone?: string;
@@ -48,5 +44,19 @@ export interface ProcessBatchDto {
   signatureData?: string;
   checklistJson?: string;
   notes?: string;
+  userId: number;
+}
+
+export interface CreateCorporateInvoiceFromQuotationDto {
+  corporateQuotationId: number;
+  debitAccountId: number;
+  creditAccountId: number;
+  userId: number;
+}
+
+export interface CreateCorporateInvoiceFromDeliveryDto {
+  deliveryNoteIds: number[];
+  debitAccountId: number;
+  creditAccountId: number;
   userId: number;
 }
