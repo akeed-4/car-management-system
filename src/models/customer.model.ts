@@ -15,6 +15,7 @@ export interface Customer {
   employer?: string;
   monthlyIncome?: number;
   creditScore?: number;
+  creditLimit: number;
   preferredContactMethod?: 'Phone' | 'Email' | 'SMS';
   notes?: string;
   isActive: boolean;

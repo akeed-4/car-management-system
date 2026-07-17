@@ -1,0 +1,106 @@
+<div class="panel-header">
+  <mat-form-field appearance="outline" class="search-field">
+    <mat-icon matPrefix>search</mat-icon>
+    <input
+      matInput
+      [ngModel]="roleSearchTerm()"
+      (ngModelChange)="roleSearchTerm.set($event)"
+      [placeholder]="'ROLES.LIST.SEARCH_PLACEHOLDER' | translate">
+  </mat-form-field>
+</div>
+
+<div class="role-list" role="listbox">
+  @if (loading()) {
+    @for (row of skeletonRows; track row) {
+      <div class="role-card skeleton-shimmer"></div>
+    }
+  } @else if (filteredRoles().length === 0) {
+    <div class="empty-state">
+      <mat-icon>badge</mat-icon>
+      <p>{{ (roles().length === 0 ? 'ROLES.LIST.NO_ROLES' : 'ROLES.LIST.NO_MATCHES') | translate }}</p>
+    </div>
+  } @else {
+    @for (role of filteredRoles(); track trackByRoleId($index, role)) {
+      <div
+        class="role-card"
+        role="option"
+        tabindex="0"
+        [class.selected]="role.id === selectedRoleId()"
+        [attr.aria-selected]="role.id === selectedRoleId()"
+        (click)="roleSelect.emit(role.id)"
+        (keydown.enter)="roleSelect.emit(role.id)">
+
+        <div class="role-card-main">
+          <span class="role-name">{{ role.name }}</span>
+
+          <div class="role-stats">
+            <mat-chip class="stat-chip" [matTooltip]="'ROLES.LIST.STATS.USERS_COUNT' | translate">
+              <mat-icon matChipAvatar>group</mat-icon>
+              {{ role.usersCount }}
+            </mat-chip>
+            <mat-chip class="stat-chip" [matTooltip]="'ROLES.LIST.STATS.PERMISSIONS_COUNT' | translate">
+              <mat-icon matChipAvatar>verified_user</mat-icon>
+              {{ role.permissionsCount }}
+            </mat-chip>
+            @if (role.createdAt) {
+              <span class="meta-line">{{ 'ROLES.LIST.STATS.CREATED' | translate }}: {{ role.createdAt | date:'mediumDate' }}</span>
+            }
+            @if (role.updatedAt) {
+              <span class="meta-line">{{ 'ROLES.LIST.STATS.MODIFIED' | translate }}: {{ role.updatedAt | date:'mediumDate' }}</span>
+            }
+          </div>
+        </div>
+
+        <button
+          mat-icon-button
+          class="row-menu-trigger"
+          [matMenuTriggerFor]="rowMenu"
+          [matTooltip]="'COMMON.ACTIONS' | translate"
+          (click)="$event.stopPropagation()">
+          @if (duplicatingRoleId() === role.id || deletingRoleId() === role.id || exportingRoleId() === role.id) {
+            <mat-spinner diameter="18"></mat-spinner>
+          } @else {
+            <mat-icon>more_vert</mat-icon>
+          }
+        </button>
+        <mat-menu #rowMenu="matMenu">
+          <button mat-menu-item (click)="duplicateRole.emit(role)">
+            <mat-icon>content_copy</mat-icon>
+            {{ 'ROLES.LIST.ACTIONS.DUPLICATE' | translate }}
+          </button>
+          <button mat-menu-item (click)="exportRole.emit(role)">
+            <mat-icon>file_download</mat-icon>
+            {{ 'ROLES.LIST.ACTIONS.EXPORT' | translate }}
+          </button>
+          <button mat-menu-item class="danger-item" (click)="deleteRole.emit(role)">
+            <mat-icon>delete</mat-icon>
+            {{ 'ROLES.LIST.ACTIONS.DELETE' | translate }}
+          </button>
+        </mat-menu>
+      </div>
+    }
+  }
+</div>
+
+<div class="new-role-bar">
+  <mat-form-field appearance="outline" class="new-role-field">
+    <input
+      matInput
+      [ngModel]="newRoleName()"
+      (ngModelChange)="newRoleNameChange.emit($event)"
+      [placeholder]="'ROLES.LIST.NEW_ROLE_PLACEHOLDER' | translate"
+      (keydown.enter)="createRole.emit()">
+  </mat-form-field>
+  <button
+    mat-mini-fab
+    color="primary"
+    [disabled]="!newRoleName().trim() || creatingRole()"
+    [matTooltip]="'ROLES.LIST.ADD_NEW' | translate"
+    (click)="createRole.emit()">
+    @if (creatingRole()) {
+      <mat-spinner diameter="20" color="accent"></mat-spinner>
+    } @else {
+      <mat-icon>add</mat-icon>
+    }
+  </button>
+</div>

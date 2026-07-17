@@ -63,8 +63,8 @@ export class CorporateDeliveryViewComponent implements OnInit {
   private loadDeliveryNote(id: number): void {
     this.loading.set(true);
     this.corporateFleetService.getDeliveryNoteById(id).subscribe({
-      next: note => {
-        this.deliveryNote.set(note);
+      next: (note: any) => {
+        this.deliveryNote.set(note.data || note || null);
         this.loading.set(false);
       },
       error: () => {

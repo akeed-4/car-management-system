@@ -68,7 +68,7 @@ export class CurrentSettingService {
 
   getCompanyId():number{
     try {
-      return parseInt(this.localStorageService.getLocalStorage('companyId') || '0');
+      return parseInt(this.localStorageService.getLocalStorage('companyId') || '1');
     } catch (error) {
       return 0;
     }

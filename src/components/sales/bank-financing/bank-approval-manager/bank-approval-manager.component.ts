@@ -85,7 +85,7 @@ export class BankApprovalManagerComponent implements OnInit {
 
   private loadPendingQuotations(): void {
     this.bankFinancingService.getQuotationsByStatus('Locked').subscribe({
-      next: quotations => this.pendingQuotations.set(quotations),
+      next: (quotations: any) => this.pendingQuotations.set(quotations.data || quotations || []),
       error: () => this.notificationService.showError('BANK_FINANCING.PARTNERS_LOAD_FAILED')
     });
   }

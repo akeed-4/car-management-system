@@ -446,6 +446,34 @@
     "DELETE_ERROR": "خطأ في حذف إعداد الترقيم",
     "VALIDATION_ERROR": "يرجى تصحيح الحقول المحددة"
   },
+  "BANK": {
+    "LIST_TITLE": "إدارة البنوك",
+    "CREATE_TITLE": "بنك جديد",
+    "EDIT_TITLE": "تعديل البنك",
+    "VIEW_TITLE": "تفاصيل البنك",
+    "BANK_CODE": "رمز البنك",
+    "NAME_ENGLISH": "اسم البنك (إنجليزي)",
+    "NAME_ARABIC": "اسم البنك (عربي)",
+    "SWIFT_CODE": "رمز السويفت",
+    "IBAN_PREFIX": "بادئة الآيبان",
+    "COUNTRY": "الدولة",
+    "CURRENCY": "العملة",
+    "NOTES": "ملاحظات",
+    "ADDRESS": "العنوان",
+    "PHONE": "الهاتف",
+    "EMAIL": "البريد الإلكتروني",
+    "WEBSITE": "الموقع الإلكتروني",
+    "INVALID_EMAIL": "يرجى إدخال بريد إلكتروني صحيح",
+    "NO_BANKS": "لا توجد بنوك",
+    "CONFIRM_DELETE": "هل أنت متأكد من حذف البنك '{{code}}'؟",
+    "LOAD_ERROR": "خطأ في تحميل البنوك",
+    "CREATE_SUCCESS": "تم إنشاء البنك بنجاح",
+    "UPDATE_SUCCESS": "تم تحديث البنك بنجاح",
+    "SAVE_ERROR": "خطأ في حفظ البنك",
+    "DELETE_SUCCESS": "تم حذف البنك بنجاح",
+    "DELETE_ERROR": "خطأ في حذف البنك",
+    "VALIDATION_ERROR": "يرجى تصحيح الحقول المحددة"
+  },
   "DOCUMENT_LIFECYCLE_SETTINGS": {
     "TITLE": "إعدادات دورة حياة المستندات",
     "SUBTITLE": "تحديد ما إذا كان كل نوع مستند يُعتمد تلقائيًا عند الحفظ",
@@ -2000,6 +2028,8 @@
       "EMPLOYER": "جهة العمل",
       "MONTHLY_INCOME": "الدخل الشهري",
       "CREDIT_SCORE": "نقاط الائتمان",
+      "FINANCIAL_INFO": "المعلومات المالية",
+      "CREDIT_LIMIT": "حد الائتمان",
       "ADDITIONAL_INFO": "معلومات إضافية",
       "NOTES": "ملاحظات",
       "ACTIVE_CUSTOMER": "عميل نشط",
@@ -2013,7 +2043,9 @@
         "ADDRESS_REQUIRED": "العنوان مطلوب",
         "EMAIL_INVALID": "البريد الإلكتروني غير صحيح",
         "INCOME_MIN": "الدخل يجب أن يكون رقماً موجباً",
-        "CREDIT_SCORE_RANGE": "نقاط الائتمان يجب أن تكون بين 0 و 1000"
+        "CREDIT_SCORE_RANGE": "نقاط الائتمان يجب أن تكون بين 0 و 1000",
+        "CREDIT_LIMIT_REQUIRED": "حد الائتمان مطلوب",
+        "CREDIT_LIMIT_MIN": "حد الائتمان يجب أن يكون 0 أو أكثر"
       }
     },
     "LIST_TITLE": "إدارة العملاء",
@@ -3484,13 +3516,75 @@
     }
   },
   "ROLES": {
+    "PAGE": {
+      "TITLE": "الأدوار والصلاحيات",
+      "SUBTITLE": "إدارة الأدوار والتحكم فيما يمكن لكل دور الوصول إليه في النظام",
+      "BREADCRUMB": "إدارة الأمان"
+    },
+    "LIST": {
+      "SEARCH_PLACEHOLDER": "البحث عن دور...",
+      "ADD_NEW": "إضافة دور",
+      "NEW_ROLE_PLACEHOLDER": "اسم الدور الجديد",
+      "NO_ROLES": "لم يتم إنشاء أي أدوار بعد",
+      "NO_MATCHES": "لا توجد أدوار مطابقة لبحثك",
+      "STATS": {
+        "USERS_COUNT": "عدد المستخدمين المعينين لهذا الدور",
+        "PERMISSIONS_COUNT": "الصلاحيات الممنوحة",
+        "CREATED": "تاريخ الإنشاء",
+        "MODIFIED": "آخر تعديل"
+      },
+      "ACTIONS": {
+        "DUPLICATE": "نسخ",
+        "EXPORT": "تصدير",
+        "DELETE": "حذف"
+      }
+    },
+    "PERMISSIONS": {
+      "SEARCH_PLACEHOLDER": "البحث عن صلاحية...",
+      "SELECT_ROLE_PROMPT": "اختر دورًا من القائمة لعرض صلاحياته وتعديلها",
+      "NO_PERMISSIONS_FOUND": "لا توجد صلاحيات مطابقة للبحث أو الفلتر",
+      "FILTER": {
+        "ALL": "الكل",
+        "SELECTED": "المحددة",
+        "UNSELECTED": "غير المحددة",
+        "MODIFIED": "المعدّلة"
+      },
+      "SELECT_ALL_IN_GROUP": "تحديد الكل في المجموعة",
+      "SAVE": "حفظ",
+      "DISCARD": "تراجع",
+      "UNSAVED_BADGE": "تغييرات غير محفوظة"
+    },
+    "CONFIRM": {
+      "UNSAVED_TITLE": "تغييرات غير محفوظة",
+      "UNSAVED_MESSAGE": "توجد تغييرات غير محفوظة على صلاحيات هذا الدور. هل تريد حفظها قبل التبديل إلى دور آخر؟",
+      "SAVE_AND_SWITCH": "حفظ والتبديل",
+      "DISCARD_AND_SWITCH": "تجاهل والتبديل",
+      "CANCEL": "إلغاء",
+      "DUPLICATE_TITLE": "نسخ الدور؟",
+      "DUPLICATE_MESSAGE": "سيتم إنشاء نسخة من \"{{name}}\" بنفس الصلاحيات.",
+      "DELETE_TITLE": "حذف الدور؟",
+      "DELETE_MESSAGE": "الدور \"{{name}}\" معين لـ {{usersCount}} مستخدم. لا يمكن التراجع عن هذا الإجراء."
+    },
+    "DUPLICATE_SUFFIX": " (نسخة)",
+    "EXPORT": {
+      "GROUP": "المجموعة",
+      "PERMISSION": "الصلاحية",
+      "GRANTED": "ممنوحة",
+      "YES": "نعم",
+      "NO": "لا"
+    },
     "SUCCESS": {
       "CREATED": "تم إنشاء الدور بنجاح",
-      "PERMISSIONS_UPDATED": "تم تحديث الصلاحيات بنجاح"
+      "PERMISSIONS_UPDATED": "تم تحديث الصلاحيات بنجاح",
+      "DUPLICATED": "تم نسخ الدور بنجاح",
+      "DELETED": "تم حذف الدور بنجاح"
     },
     "ERRORS": {
       "CREATE_FAILED": "فشل إنشاء الدور",
-      "UPDATE_FAILED": "فشل تحديث الصلاحيات"
+      "UPDATE_FAILED": "فشل تحديث الصلاحيات",
+      "DUPLICATE_FAILED": "فشل نسخ الدور",
+      "DELETE_FAILED": "فشل حذف الدور",
+      "EXPORT_FAILED": "فشل تصدير الدور"
     }
   },
   "DIRECT_SALES": {

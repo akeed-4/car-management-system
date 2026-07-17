@@ -47,8 +47,8 @@ export class CorporateQuotationListComponent implements OnInit {
   loadQuotations(): void {
     this.loading.set(true);
     this.corporateFleetService.getAllQuotations().subscribe({
-      next: quotations => {
-        this.quotations.set(quotations);
+      next: (quotations: any) => {
+        this.quotations.set(quotations.data || quotations || []);
         this.loading.set(false);
       },
       error: () => {

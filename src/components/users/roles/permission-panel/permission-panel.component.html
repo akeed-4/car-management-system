@@ -1,0 +1,104 @@
+@if (disabled()) {
+  <div class="empty-state large">
+    <mat-icon>touch_app</mat-icon>
+    <p>{{ 'ROLES.PERMISSIONS.SELECT_ROLE_PROMPT' | translate }}</p>
+  </div>
+} @else {
+  <div class="toolbar">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-icon matPrefix>search</mat-icon>
+      <input
+        matInput
+        [ngModel]="permissionSearchTerm()"
+        (ngModelChange)="permissionSearchTerm.set($event)"
+        [placeholder]="'ROLES.PERMISSIONS.SEARCH_PLACEHOLDER' | translate">
+    </mat-form-field>
+
+    <mat-button-toggle-group
+      class="filter-toggle"
+      [value]="filterMode()"
+      (change)="filterMode.set($event.value)">
+      <mat-button-toggle value="all">{{ 'ROLES.PERMISSIONS.FILTER.ALL' | translate }}</mat-button-toggle>
+      <mat-button-toggle value="selected">{{ 'ROLES.PERMISSIONS.FILTER.SELECTED' | translate }}</mat-button-toggle>
+      <mat-button-toggle value="unselected">{{ 'ROLES.PERMISSIONS.FILTER.UNSELECTED' | translate }}</mat-button-toggle>
+      <mat-button-toggle value="modified">{{ 'ROLES.PERMISSIONS.FILTER.MODIFIED' | translate }}</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  <div class="permission-groups">
+    @if (loading()) {
+      @for (row of skeletonGroups; track row) {
+        <div class="group-skeleton skeleton-shimmer"></div>
+      }
+    } @else if (filteredGroups().length === 0) {
+      <div class="empty-state">
+        <mat-icon>search_off</mat-icon>
+        <p>{{ 'ROLES.PERMISSIONS.NO_PERMISSIONS_FOUND' | translate }}</p>
+      </div>
+    } @else {
+      <mat-accordion multi>
+        @for (group of filteredGroups(); track trackByGroupKey($index, group)) {
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <mat-checkbox
+                  [checked]="getGroupState(group.allKeys) === 'all'"
+                  [indeterminate]="getGroupState(group.allKeys) === 'partial'"
+                  (click)="$event.stopPropagation()"
+                  (change)="groupToggle.emit({ group: group.key, checked: $event.checked })"
+                  [attr.aria-label]="'ROLES.PERMISSIONS.SELECT_ALL_IN_GROUP' | translate">
+                </mat-checkbox>
+                <span class="group-title">{{ group.title }}</span>
+              </mat-panel-title>
+              <mat-panel-description>
+                {{ group.entries.length }} / {{ group.allKeys.length }}
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+
+            <div class="permission-grid">
+              @for (entry of group.entries; track trackByPermissionKey($index, entry)) {
+                <label
+                  class="permission-tile"
+                  [class.modified]="isModified(entry.key)"
+                  [matTooltip]="entry.key">
+                  <mat-checkbox
+                    [checked]="isChecked(entry.key)"
+                    (change)="permissionToggle.emit(entry.key)">
+                  </mat-checkbox>
+                  <span class="permission-label">
+                    @if (splitLabel(entry.label).match) {
+                      {{ splitLabel(entry.label).pre }}<mark>{{ splitLabel(entry.label).match }}</mark>{{ splitLabel(entry.label).post }}
+                    } @else {
+                      {{ entry.label }}
+                    }
+                  </span>
+                </label>
+              }
+            </div>
+          </mat-expansion-panel>
+        }
+      </mat-accordion>
+    }
+  </div>
+
+  <div class="save-bar">
+    @if (hasUnsavedChanges()) {
+      <span class="unsaved-badge">
+        <mat-icon>fiber_manual_record</mat-icon>
+        {{ 'ROLES.PERMISSIONS.UNSAVED_BADGE' | translate }}
+      </span>
+    }
+    <span class="save-bar-spacer"></span>
+    <button mat-stroked-button [disabled]="!hasUnsavedChanges() || saving()" (click)="discard.emit()">
+      {{ 'ROLES.PERMISSIONS.DISCARD' | translate }}
+    </button>
+    <button mat-raised-button color="primary" [disabled]="!hasUnsavedChanges() || saving()" (click)="save.emit()">
+      @if (saving()) {
+        <mat-spinner diameter="18"></mat-spinner>
+      } @else {
+        <mat-icon>save</mat-icon>
+      }
+      {{ 'ROLES.PERMISSIONS.SAVE' | translate }}
+    </button>
+  </div>
+}

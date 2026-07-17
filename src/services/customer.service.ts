@@ -47,7 +47,7 @@ export class CustomerService {
 
   /** Update customer */
   updateCustomer(customer: Customer): Observable<Customer> {
-    return this.http.put<Customer>(`${this.apiUrl}/${customer.id}`, customer)
+    return this.http.put<Customer>(`${this.apiUrl}/Update/${customer.id}`, customer)
       .pipe(
         tap(updated => {
           this.customers.update(c =>

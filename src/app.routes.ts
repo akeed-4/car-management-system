@@ -88,6 +88,8 @@ import { DocumentLifecycleSettingsComponent } from './components/setup/document-
 import { QrCodeSettingsComponent } from './components/setup/qr-code-settings/qr-code-settings.component';
 import { BankListComponent } from './components/bank/bank-list/bank-list.component';
 import { BankFormComponent } from './components/bank/bank-form/bank-form.component';
+import { BankManagementListComponent } from './components/setup/banks/bank-list/bank-list.component';
+import { BankManagementFormComponent } from './components/setup/banks/bank-form/bank-form.component';
 import { OpeningBalancesInventoryListComponent } from './components/inventory/opening-balances-inventory-list/opening-balances-inventory-list.component';
 import { OpeningBalancesInventoryFormComponent } from './components/inventory/opening-balances-inventory-form/opening-balances-inventory-form.component';
 import { OpeningBalancesFinancialListComponent } from './components/accounting/opening-balances-financial/opening-balances-financial-list/opening-balances-financial-list.component';
@@ -187,6 +189,10 @@ export const APP_ROUTES: Routes = [
       { path: 'cost-centers/edit/:id', component: CostCenterFormComponent },
       { path: 'setup/cost-price-settings', component: CostPriceCalculationSettingsComponent },
       { path: 'setup/document-numbering-settings', component: DocumentNumberingSettingsComponent },
+      { path: 'setup/banks', component: BankManagementListComponent, canActivate: [permissionGuard('banks.view')] },
+      { path: 'setup/banks/new', component: BankManagementFormComponent, canActivate: [permissionGuard('banks.view')] },
+      { path: 'setup/banks/edit/:id', component: BankManagementFormComponent, canActivate: [permissionGuard('banks.view')] },
+      { path: 'setup/banks/view/:id', component: BankManagementFormComponent, canActivate: [permissionGuard('banks.view')] },
       { path: 'setup/document-lifecycle-settings', component: DocumentLifecycleSettingsComponent },
       { path: 'setup/qr-code-settings', component: QrCodeSettingsComponent },
       { path: 'bank/list', component: BankListComponent },

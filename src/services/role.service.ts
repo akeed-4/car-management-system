@@ -1,8 +1,9 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map, tap } from 'rxjs';
+import { Observable, finalize, map, tap } from 'rxjs';
 import { Role } from '../models/role.model';
 import { environment } from '../environments/environment';
+import { UserService } from './user.service';
 
 export interface Permission {
   id: number;
@@ -23,6 +24,7 @@ export type PermissionsList = {
 })
 export class RoleService {
   private http = inject(HttpClient);
+  private userService = inject(UserService);
   private apiUrl = `${environment.origin}api/Roles`;
   private permissionsApiUrl = `${environment.origin}api/Permissions`;
 
@@ -31,6 +33,20 @@ export class RoleService {
 
   private permissionsListSignal = signal<PermissionsList>({});
   public permissionsList$ = this.permissionsListSignal.asReadonly();
+
+  private rolesLoading = signal<boolean>(true);
+  public rolesLoading$ = this.rolesLoading.asReadonly();
+
+  private permissionsLoading = signal<boolean>(true);
+  public permissionsLoading$ = this.permissionsLoading.asReadonly();
+
+  public usersCountByRole = computed<Record<number, number>>(() => {
+    const counts: Record<number, number> = {};
+    for (const user of this.userService.users$()) {
+      counts[user.roleId] = (counts[user.roleId] ?? 0) + 1;
+    }
+    return counts;
+  });
 
   constructor() {
     this.loadRoles();
@@ -42,20 +58,23 @@ export class RoleService {
   }
 
   loadRoles(): void {
+    this.rolesLoading.set(true);
     this.getAllRoles().subscribe({
       error: error => console.error('Failed to load roles:', error)
     });
   }
 
   loadPermissions(): void {
+    this.permissionsLoading.set(true);
     this.getPermissionsList().subscribe({
       error: error => console.error('Failed to load permissions:', error)
     });
   }
 
   getAllRoles(): Observable<Role[]> {
-    return this.http.get<Role[]>(this.apiUrl).pipe(
-      tap(roles => this.roles.set(roles))
+    return this.http.get<Role[]>(`${this.apiUrl}/GetAll`).pipe(
+      tap(roles => this.roles.set(roles)),
+      finalize(() => this.rolesLoading.set(false))
     );
   }
 
@@ -64,13 +83,13 @@ export class RoleService {
   }
 
   createRole(name: string, permissionKeys: string[]): Observable<Role> {
-    return this.http.post<Role>(this.apiUrl, { name, permissionKeys }).pipe(
+    return this.http.post<Role>(`${this.apiUrl}/CreateRole`, { name, permissionKeys }).pipe(
       tap(() => this.loadRoles())
     );
   }
 
   updateRolePermissions(id: number, name: string | null, permissionKeys: string[]): Observable<void> {
-    return this.http.put<void>(`${this.apiUrl}/${id}`, { name, permissionKeys }).pipe(
+    return this.http.put<void>(`${this.apiUrl}/UpdateRole/${id}`, { name, permissionKeys }).pipe(
       tap(() => this.loadRoles())
     );
   }
@@ -86,7 +105,7 @@ export class RoleService {
   }
 
   getPermissionsList(): Observable<PermissionsList> {
-    return this.http.get<Permission[]>(this.permissionsApiUrl).pipe(
+    return this.http.get<Permission[]>(`${this.permissionsApiUrl}/GetAll`).pipe(
       map(permissions => {
         const grouped: PermissionsList = {};
         for (const p of permissions) {
@@ -97,7 +116,8 @@ export class RoleService {
         }
         return grouped;
       }),
-      tap(grouped => this.permissionsListSignal.set(grouped))
+      tap(grouped => this.permissionsListSignal.set(grouped)),
+      finalize(() => this.permissionsLoading.set(false))
     );
   }
 }

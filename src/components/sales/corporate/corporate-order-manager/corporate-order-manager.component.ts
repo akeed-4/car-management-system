@@ -104,7 +104,7 @@ export class CorporateOrderManagerComponent implements OnInit {
         this.loading.set(false);
         debugger
         this.corporateFleetService.getCreditSummary(quotation.data.customerId).subscribe({
-          next: summary => this.creditSummary.set(summary),
+          next: (summary: any) => this.creditSummary.set(summary.data),
           error: () => {}
         });
       },

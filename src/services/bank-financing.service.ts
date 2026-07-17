@@ -9,7 +9,7 @@ import { CreateBankApprovalDto } from '../models/bank-financing/bank-approval.mo
   providedIn: 'root'
 })
 export class BankFinancingService {
-  private readonly baseUrl = `${environment.origin}api/bank`;
+  private readonly baseUrl = `${environment.origin}api/BankFinancingSales`;
 
   constructor(private http: HttpClient) {}
 

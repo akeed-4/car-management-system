@@ -1,0 +1,128 @@
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { TranslateModule } from '@ngx-translate/core';
+import { PermissionsList } from '../../../../services/role.service';
+import { splitLabel } from '../role.utils';
+
+type FilterMode = 'all' | 'selected' | 'unselected' | 'modified';
+
+interface FilteredPermissionEntry {
+  key: string;
+  label: string;
+}
+
+interface FilteredGroup {
+  key: string;
+  title: string;
+  allKeys: string[];
+  entries: FilteredPermissionEntry[];
+}
+
+@Component({
+  selector: 'app-permission-panel',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatExpansionModule,
+    MatCheckboxModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonToggleModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
+    MatProgressSpinnerModule,
+    TranslateModule
+  ],
+  templateUrl: './permission-panel.component.html',
+  styleUrl: './permission-panel.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class PermissionPanelComponent {
+  permissionsList = input.required<PermissionsList>();
+  currentPermissions = input.required<{ [key: string]: boolean }>();
+  originalPermissions = input.required<{ [key: string]: boolean }>();
+  disabled = input<boolean>(false);
+  loading = input<boolean>(false);
+  saving = input<boolean>(false);
+  hasUnsavedChanges = input<boolean>(false);
+
+  permissionToggle = output<string>();
+  groupToggle = output<{ group: string; checked: boolean }>();
+  save = output<void>();
+  discard = output<void>();
+
+  permissionSearchTerm = signal('');
+  filterMode = signal<FilterMode>('all');
+
+  skeletonGroups = [1, 2, 3];
+
+  filteredGroups = computed<FilteredGroup[]>(() => {
+    const term = this.permissionSearchTerm().trim().toLowerCase();
+    const mode = this.filterMode();
+    const current = this.currentPermissions();
+    const original = this.originalPermissions();
+
+    const groups: FilteredGroup[] = [];
+    for (const [groupKey, group] of Object.entries(this.permissionsList())) {
+      const allKeys = Object.keys(group.permissions);
+      const entries: FilteredPermissionEntry[] = [];
+
+      for (const key of allKeys) {
+        const label = group.permissions[key];
+        if (term && !label.toLowerCase().includes(term) && !key.toLowerCase().includes(term)) {
+          continue;
+        }
+        if (mode === 'selected' && !current[key]) continue;
+        if (mode === 'unselected' && current[key]) continue;
+        if (mode === 'modified' && !!current[key] === !!original[key]) continue;
+
+        entries.push({ key, label });
+      }
+
+      if (entries.length > 0) {
+        groups.push({ key: groupKey, title: group.title, allKeys, entries });
+      }
+    }
+    return groups;
+  });
+
+  isChecked(key: string): boolean {
+    return !!this.currentPermissions()[key];
+  }
+
+  isModified(key: string): boolean {
+    return !!this.currentPermissions()[key] !== !!this.originalPermissions()[key];
+  }
+
+  getGroupState(allKeys: string[]): 'all' | 'none' | 'partial' {
+    const current = this.currentPermissions();
+    const checkedCount = allKeys.filter(k => current[k]).length;
+    if (checkedCount === 0) return 'none';
+    if (checkedCount === allKeys.length) return 'all';
+    return 'partial';
+  }
+
+  splitLabel(label: string): { pre: string; match: string; post: string } {
+    return splitLabel(label, this.permissionSearchTerm());
+  }
+
+  trackByGroupKey(_index: number, group: FilteredGroup): string {
+    return group.key;
+  }
+
+  trackByPermissionKey(_index: number, entry: FilteredPermissionEntry): string {
+    return entry.key;
+  }
+}

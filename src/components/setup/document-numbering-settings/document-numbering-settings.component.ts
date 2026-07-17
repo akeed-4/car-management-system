@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -62,7 +62,10 @@ export class DocumentNumberingSettingsComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private currentSettingService = inject(CurrentSettingService);
   private translate = inject(TranslateService);
-
+  private ngZone = inject(NgZone);
+  constructor() {
+    this.openEdit = this.openEdit.bind(this);
+  }
   documentTypes = DOCUMENT_TYPES;
   formats = FORMATS;
   cadences = CADENCES;
@@ -128,9 +131,11 @@ export class DocumentNumberingSettingsComponent implements OnInit {
 
   openEdit(e: any): void {
     const row: DocumentNumberingSettingDto = e.row.data;
-    this.editingId = row.id;
-    this.form.patchValue(row);
-    this.showForm = true;
+    this.ngZone.run(() => {
+      this.editingId = row.id;
+      this.form.patchValue(row);
+      this.showForm = true;
+    });
   }
 
   closeForm(): void {
@@ -147,7 +152,7 @@ export class DocumentNumberingSettingsComponent implements OnInit {
 
     const value = this.form.getRawValue();
     const dto: CreateDocumentNumberingSettingDto = {
-      companyId: this.currentSettingService.getCompanyId(),
+      companyId: this.currentSettingService.getCompanyId() ?? 1,
       documentType: value.documentType,
       autoNumberingEnabled: value.autoNumberingEnabled,
       format: value.format,

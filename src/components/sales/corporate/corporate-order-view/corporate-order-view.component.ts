@@ -68,8 +68,8 @@ export class CorporateOrderViewComponent implements OnInit {
   private loadOrder(id: number): void {
     this.loading.set(true);
     this.corporateFleetService.getOrderById(id).subscribe({
-      next: order => {
-        this.order.set(order);
+      next: (order:any) => {
+        this.order.set(order.data);
         this.loading.set(false);
       },
       error: () => {

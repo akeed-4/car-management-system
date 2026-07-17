@@ -135,9 +135,27 @@
 
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'CUSTOMERS.FORM.CREDIT_SCORE' | translate }}</mat-label>
-            <input matInput type="number" formControlName="creditScore" min="0" max="1000">
+            <input matInput type="number" formControlName="creditScore" min="0" max="1000000000">
             <mat-error *ngIf="customerForm.get('creditScore')?.invalid && customerForm.get('creditScore')?.touched">
               {{ 'CUSTOMERS.FORM.VALIDATION.CREDIT_SCORE_RANGE' | translate }}
+            </mat-error>
+          </mat-form-field>
+          
+        </div>
+      </div>
+
+      <!-- Financial Information -->
+      <div class="form-section">
+        <h3 class="section-title">{{ 'CUSTOMERS.FORM.FINANCIAL_INFO' | translate }}</h3>
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'CUSTOMERS.FORM.CREDIT_LIMIT' | translate }}</mat-label>
+            <input matInput type="number" formControlName="creditLimit" min="0" step="0.01" required>
+            <mat-error *ngIf="customerForm.get('creditLimit')?.hasError('required') && customerForm.get('creditLimit')?.touched">
+              {{ 'CUSTOMERS.FORM.VALIDATION.CREDIT_LIMIT_REQUIRED' | translate }}
+            </mat-error>
+            <mat-error *ngIf="customerForm.get('creditLimit')?.hasError('min') && customerForm.get('creditLimit')?.touched">
+              {{ 'CUSTOMERS.FORM.VALIDATION.CREDIT_LIMIT_MIN' | translate }}
             </mat-error>
           </mat-form-field>
         </div>

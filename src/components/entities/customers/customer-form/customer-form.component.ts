@@ -123,7 +123,8 @@ export class CustomerFormComponent implements OnInit {
       occupation: [''],
       employer: [''],
       monthlyIncome: [null, [Validators.min(0)]],
-      creditScore: [null, [Validators.min(0), Validators.max(1000)]],
+      creditScore: [null, [Validators.min(0), Validators.max(10000000)]],
+      creditLimit: [null, [Validators.required, Validators.min(0)]],
       preferredContactMethod: ['Phone'],
       notes: [''],
       isActive: [true]

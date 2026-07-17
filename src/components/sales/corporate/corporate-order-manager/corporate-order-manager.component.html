@@ -140,7 +140,7 @@
           </mat-card-content>
 
           <div class="form-actions">
-            <button mat-raised-button color="primary" class="save-btn" (click)="onSubmit()" [disabled]="!isFormValid || submitting() || exceedsCreditLimit">
+            <button mat-raised-button color="primary" class="save-btn" (click)="onSubmit()" [disabled]="!isFormValid  || exceedsCreditLimit">
               <mat-icon>save</mat-icon>
               {{ 'CORPORATE.CREATE_ORDER' | translate }}
             </button>

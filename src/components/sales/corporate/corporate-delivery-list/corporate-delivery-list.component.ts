@@ -39,8 +39,8 @@ export class CorporateDeliveryListComponent implements OnInit {
   loadDeliveryNotes(): void {
     this.loading.set(true);
     this.corporateFleetService.getDeliveryNotes().subscribe({
-      next: notes => {
-        this.deliveryNotes.set(notes);
+      next: (notes: any) => {
+        this.deliveryNotes.set(notes.data || notes || []);
         this.loading.set(false);
       },
       error: () => {

@@ -1,0 +1,126 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.panel-header {
+  padding-inline: var(--space-2);
+}
+
+.search-field {
+  width: 100%;
+}
+
+.role-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-2);
+}
+
+.role-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--rounded-lg);
+  border: 1px solid var(--color-gray-200);
+  background: var(--color-white);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.role-card:hover {
+  border-color: var(--color-primary-300);
+  box-shadow: var(--shadow-md);
+}
+
+.role-card:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+}
+
+.role-card.selected {
+  border-color: var(--color-primary-600);
+  background: var(--color-primary-50);
+}
+
+.role-card-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.role-name {
+  font-weight: 600;
+  color: var(--color-gray-900);
+  font-size: 0.95rem;
+}
+
+.role-stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.stat-chip {
+  --mdc-chip-container-height: 24px;
+  font-size: 0.75rem;
+}
+
+.meta-line {
+  font-size: 0.75rem;
+  color: var(--color-gray-500);
+}
+
+.row-menu-trigger {
+  flex-shrink: 0;
+}
+
+.danger-item {
+  color: var(--color-danger-600);
+}
+
+.new-role-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-2);
+  border-top: 1px solid var(--color-gray-200);
+}
+
+.new-role-field {
+  flex: 1;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-8);
+  color: var(--color-gray-500);
+  text-align: center;
+}
+
+.skeleton-shimmer {
+  height: 76px;
+  background: linear-gradient(90deg, var(--color-gray-100) 25%, var(--color-gray-200) 37%, var(--color-gray-100) 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}

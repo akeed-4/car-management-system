@@ -444,6 +444,34 @@
     "DELETE_ERROR": "Error deleting numbering setting",
     "VALIDATION_ERROR": "Please correct the highlighted fields"
   },
+  "BANK": {
+    "LIST_TITLE": "Bank Management",
+    "CREATE_TITLE": "New Bank",
+    "EDIT_TITLE": "Edit Bank",
+    "VIEW_TITLE": "Bank Details",
+    "BANK_CODE": "Bank Code",
+    "NAME_ENGLISH": "Bank Name (English)",
+    "NAME_ARABIC": "Bank Name (Arabic)",
+    "SWIFT_CODE": "SWIFT Code",
+    "IBAN_PREFIX": "IBAN Prefix",
+    "COUNTRY": "Country",
+    "CURRENCY": "Currency",
+    "NOTES": "Notes",
+    "ADDRESS": "Address",
+    "PHONE": "Phone",
+    "EMAIL": "Email",
+    "WEBSITE": "Website",
+    "INVALID_EMAIL": "Please enter a valid email address",
+    "NO_BANKS": "No banks found",
+    "CONFIRM_DELETE": "Are you sure you want to delete bank '{{code}}'?",
+    "LOAD_ERROR": "Error loading banks",
+    "CREATE_SUCCESS": "Bank created successfully",
+    "UPDATE_SUCCESS": "Bank updated successfully",
+    "SAVE_ERROR": "Error saving bank",
+    "DELETE_SUCCESS": "Bank deleted successfully",
+    "DELETE_ERROR": "Error deleting bank",
+    "VALIDATION_ERROR": "Please correct the highlighted fields"
+  },
   "DOCUMENT_LIFECYCLE_SETTINGS": {
     "TITLE": "Document Lifecycle Settings",
     "SUBTITLE": "Configure whether each document type is automatically approved when saved",
@@ -1992,6 +2020,8 @@
       "EMPLOYER": "Employer",
       "MONTHLY_INCOME": "Monthly Income",
       "CREDIT_SCORE": "Credit Score",
+      "FINANCIAL_INFO": "Financial Information",
+      "CREDIT_LIMIT": "Credit Limit",
       "ADDITIONAL_INFO": "Additional Information",
       "NOTES": "Notes",
       "ACTIVE_CUSTOMER": "Active Customer",
@@ -2005,7 +2035,9 @@
         "ADDRESS_REQUIRED": "Address is required",
         "EMAIL_INVALID": "Email is invalid",
         "INCOME_MIN": "Income must be a positive number",
-        "CREDIT_SCORE_RANGE": "Credit score must be between 0 and 1000"
+        "CREDIT_SCORE_RANGE": "Credit score must be between 0 and 1000",
+        "CREDIT_LIMIT_REQUIRED": "Credit limit is required",
+        "CREDIT_LIMIT_MIN": "Credit limit must be 0 or greater"
       }
     },
     "LIST_TITLE": "Customers Management",
@@ -3613,13 +3645,75 @@
     }
   },
   "ROLES": {
+    "PAGE": {
+      "TITLE": "Roles & Permissions",
+      "SUBTITLE": "Manage roles and control what each role can access across the system",
+      "BREADCRUMB": "Security Administration"
+    },
+    "LIST": {
+      "SEARCH_PLACEHOLDER": "Search roles...",
+      "ADD_NEW": "Add role",
+      "NEW_ROLE_PLACEHOLDER": "New role name",
+      "NO_ROLES": "No roles have been created yet",
+      "NO_MATCHES": "No roles match your search",
+      "STATS": {
+        "USERS_COUNT": "Users assigned to this role",
+        "PERMISSIONS_COUNT": "Granted permissions",
+        "CREATED": "Created",
+        "MODIFIED": "Last modified"
+      },
+      "ACTIONS": {
+        "DUPLICATE": "Duplicate",
+        "EXPORT": "Export",
+        "DELETE": "Delete"
+      }
+    },
+    "PERMISSIONS": {
+      "SEARCH_PLACEHOLDER": "Search permissions...",
+      "SELECT_ROLE_PROMPT": "Select a role from the list to view and edit its permissions",
+      "NO_PERMISSIONS_FOUND": "No permissions match your search or filter",
+      "FILTER": {
+        "ALL": "All",
+        "SELECTED": "Selected",
+        "UNSELECTED": "Unselected",
+        "MODIFIED": "Modified"
+      },
+      "SELECT_ALL_IN_GROUP": "Select all in group",
+      "SAVE": "Save",
+      "DISCARD": "Discard",
+      "UNSAVED_BADGE": "Unsaved changes"
+    },
+    "CONFIRM": {
+      "UNSAVED_TITLE": "Unsaved changes",
+      "UNSAVED_MESSAGE": "This role has unsaved permission changes. Do you want to save them before switching roles?",
+      "SAVE_AND_SWITCH": "Save & switch",
+      "DISCARD_AND_SWITCH": "Discard & switch",
+      "CANCEL": "Cancel",
+      "DUPLICATE_TITLE": "Duplicate role?",
+      "DUPLICATE_MESSAGE": "A copy of \"{{name}}\" will be created with the same permissions.",
+      "DELETE_TITLE": "Delete role?",
+      "DELETE_MESSAGE": "\"{{name}}\" is assigned to {{usersCount}} user(s). This action cannot be undone."
+    },
+    "DUPLICATE_SUFFIX": " (Copy)",
+    "EXPORT": {
+      "GROUP": "Group",
+      "PERMISSION": "Permission",
+      "GRANTED": "Granted",
+      "YES": "Yes",
+      "NO": "No"
+    },
     "SUCCESS": {
       "CREATED": "Role created successfully",
-      "PERMISSIONS_UPDATED": "Permissions updated successfully"
+      "PERMISSIONS_UPDATED": "Permissions updated successfully",
+      "DUPLICATED": "Role duplicated successfully",
+      "DELETED": "Role deleted successfully"
     },
     "ERRORS": {
       "CREATE_FAILED": "Failed to create role",
-      "UPDATE_FAILED": "Failed to update permissions"
+      "UPDATE_FAILED": "Failed to update permissions",
+      "DUPLICATE_FAILED": "Failed to duplicate role",
+      "DELETE_FAILED": "Failed to delete role",
+      "EXPORT_FAILED": "Failed to export role"
     }
   },
   "DIRECT_SALES": {

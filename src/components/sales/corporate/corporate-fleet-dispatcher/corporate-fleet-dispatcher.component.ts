@@ -106,12 +106,13 @@ export class CorporateFleetDispatcherComponent implements OnInit {
 
   private loadPendingOrders(): void {
     this.corporateFleetService.getApprovedOrders().subscribe({
-      next: orders => this.pendingOrders.set(orders),
+      next: (orders: any) => this.pendingOrders.set(orders.data || orders || []),
       error: () => this.notificationService.showError('CORPORATE.ORDERS_LOAD_FAILED')
     });
   }
 
   onOrderSelected(id: number | null): void {
+    debugger
     this.orderId = id;
     if (id) {
       this.loadData(id);
@@ -124,12 +125,12 @@ export class CorporateFleetDispatcherComponent implements OnInit {
 
   private loadData(orderId: number): void {
     this.corporateFleetService.getFulfillmentProgress(orderId).subscribe({
-      next: progress => this.progress.set(progress),
+      next: (progress: any) => this.progress.set(progress.data),
       error: () => this.notificationService.showError('CORPORATE.FULFILLMENT_LOAD_FAILED')
     });
 
     this.corporateFleetService.getRemainingVinsForOrder(orderId).subscribe({
-      next: vins => this.remainingVins.set(vins),
+      next: (vins: any) => this.remainingVins.set(vins.data || vins || []),
       error: () => this.notificationService.showError('CORPORATE.REMAINING_VINS_LOAD_FAILED')
     });
   }

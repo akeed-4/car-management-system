@@ -34,7 +34,7 @@
     <dxi-column dataField="isActive" dataType="boolean" [caption]="'COMMON.ACTIVE' | translate" [width]="90"></dxi-column>
 
     <dxi-column type="buttons" [width]="90">
-      <dxi-button icon="edit" [hint]="'COMMON.EDIT' | translate" [onClick]="openEdit.bind(this)"></dxi-button>
+      <dxi-button icon="edit" [hint]="'COMMON.EDIT' | translate" [onClick]="openEdit"></dxi-button>
       <dxi-button icon="trash" [hint]="'COMMON.DELETE' | translate" [onClick]="delete.bind(this)"></dxi-button>
     </dxi-column>
   </dx-data-grid>
