@@ -17,7 +17,7 @@
         <div class="form-grid cols-3">
           <div>
             <label class="form-label">رقم أمر العمل</label>
-            <input type="text" [ngModel]="serviceOrder().orderNumber" disabled class="form-input" readonly>
+            <input type="text" [ngModel]="serviceOrder().orderNumber || 'يُنشأ تلقائيًا عند الحفظ'" disabled class="form-input" readonly>
           </div>
           <div>
             <label for="dateIn" class="form-label">تاريخ الدخول</label>

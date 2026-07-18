@@ -26,6 +26,7 @@
             {{ a.quotationNumber }} — {{ a.endUserName }} — {{ a.bankName }}
             <ng-container *ngIf="a.approvedAt">— {{ a.approvedAt | date:'mediumDate' }}</ng-container>
             — {{ ('BANK_FINANCING.STATUS_' + (a.status || '').toUpperCase()) | translate }}
+            <ng-container *ngIf="a.orderNumber">— {{ 'BANK_FINANCING.ORDER_NUMBER' | translate }}: {{ a.orderNumber }}</ng-container>
           </mat-option>
         </mat-select>
         <mat-hint *ngIf="!approvalOptionsLoading() && approvalOptions().length === 0">{{ 'BANK_FINANCING.NO_APPROVALS' | translate }}</mat-hint>
@@ -116,6 +117,10 @@
             <p>{{ 'BANK_FINANCING.INSTALLMENT_COUNT' | translate }}</p>
             <p class="font-mono">{{ a.installmentCount }}</p>
           </div>
+          <div class="summary-item" *ngIf="a.orderNumber">
+            <p>{{ 'BANK_FINANCING.ORDER_NUMBER' | translate }}</p>
+            <p class="font-mono">{{ a.orderNumber }}</p>
+          </div>
           <hr>
           <div class="summary-item total">
             <p>{{ 'CORPORATE.NET_TOTAL' | translate }}</p>
@@ -124,8 +129,9 @@
         </mat-card-content>
 
         <div class="form-actions">
-          <button mat-raised-button color="primary" class="save-btn" (click)="proceedToInvoice()" [disabled]="!isApproved">
-            <mat-icon>arrow_forward</mat-icon>
+          <button mat-raised-button color="primary" class="save-btn" (click)="proceedToInvoice()" [disabled]="saving()">
+            <mat-spinner *ngIf="saving()" diameter="18"></mat-spinner>
+            <mat-icon *ngIf="!saving()">arrow_forward</mat-icon>
             {{ 'BANK_FINANCING.PROCEED_TO_INVOICE' | translate }}
           </button>
           <a routerLink="/sales" mat-button class="cancel-btn">{{ 'INVOICE.CANCEL' | translate }}</a>

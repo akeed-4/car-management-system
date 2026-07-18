@@ -86,6 +86,7 @@ private notificationService = inject(NotificationService);
   selectedReservationHolderId = signal<number | null>(null);
   selectedVehicleId = signal<number | null>(null);
   vehicleSearch = signal('');
+  existingDocNumber: string | null = null;
 
   paymentMethods: Array<{ value: DepositPaymentMethod; label: string }> = [
     { value: 'CASH', label: 'ACCOUNTS.CAR_PAYMENT_FORM.PAYMENT_METHODS.CASH' },
@@ -164,8 +165,8 @@ private notificationService = inject(NotificationService);
         const id = Number(idParam);
         const deposit = this.depositService.getDepositById(id);
         if (deposit) {
+          this.existingDocNumber = deposit.voucherNumber;
           this.depositForm.patchValue({
-            voucherNumber: deposit.voucherNumber,
             date: new Date(deposit.date).toISOString().split('T')[0],
             status: deposit.status,
             customerType: deposit.customerType,
@@ -201,7 +202,6 @@ private notificationService = inject(NotificationService);
 
   private initForm() {
     this.depositForm = new FormGroup({
-      voucherNumber: new FormControl(this.generateVoucherNumber(), Validators.required),
       date: new FormControl(new Date().toISOString().split('T')[0], Validators.required),
       status: new FormControl('DRAFT'),
       customerType: new FormControl<'INDIVIDUAL' | 'COMPANY'>('INDIVIDUAL', Validators.required),
@@ -296,7 +296,7 @@ private notificationService = inject(NotificationService);
     }
 
     const newDeposit: Omit<DepositVoucher, 'id'> = {
-      voucherNumber: formValue.voucherNumber,
+      voucherNumber: this.existingDocNumber || '',
       voucherType: 'DEPOSIT',
       date: new Date(formValue.date),
       amount: Number(formValue.depositAmount),
@@ -355,10 +355,6 @@ private notificationService = inject(NotificationService);
         this.notificationService.showError(msg);
       }
     });
-  }
-
-  private generateVoucherNumber(): string {
-    return `DEP-${new Date().getFullYear()}-${Date.now().toString().slice(-4)}`;
   }
 
   getVehicleIdentity(vehicle: Car | null): string {

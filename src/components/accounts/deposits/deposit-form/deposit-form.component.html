@@ -3,7 +3,7 @@
     <div>
       <h1>{{ 'ACCOUNTS.DEPOSITS.FORM.CREATE_TITLE' | translate }}</h1>
       <p>{{ 'ACCOUNTS.DEPOSITS.FORM.SUBTITLE' | translate }}</p>
-      <p>{{ 'ACCOUNTS.DEPOSITS.FORM.VOUCHER_HINT' | translate }}: {{ depositForm.get('voucherNumber')?.value }}</p>
+      <p>{{ 'ACCOUNTS.DEPOSITS.FORM.VOUCHER_HINT' | translate }}: {{ existingDocNumber || ('CORPORATE.AUTO_GENERATED' | translate) }}</p>
     </div>
     <div class="header-actions">
       <a mat-stroked-button color="primary" routerLink="/accounts/deposits">
@@ -100,7 +100,7 @@
                         <div>
                           <h1>{{ 'ACCOUNTS.DEPOSITS.FORM.CREATE_TITLE' | translate }}</h1>
                           <p>{{ 'ACCOUNTS.DEPOSITS.FORM.SUBTITLE' | translate }}</p>
-                          <p>{{ 'ACCOUNTS.DEPOSITS.FORM.VOUCHER_HINT' | translate }}: {{ depositForm.get('voucherNumber')?.value }}</p>
+                          <p>{{ 'ACCOUNTS.DEPOSITS.FORM.VOUCHER_HINT' | translate }}: {{ existingDocNumber || ('CORPORATE.AUTO_GENERATED' | translate) }}</p>
                         </div>
 
                         <div class="header-actions">

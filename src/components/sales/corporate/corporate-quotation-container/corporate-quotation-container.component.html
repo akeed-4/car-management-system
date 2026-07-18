@@ -118,12 +118,15 @@
                 [noDataText]="'CORPORATE.NO_VEHICLES' | translate"
                 [height]="360"
                 keyExpr="carId"
+                [editing]="{ mode: 'cell', allowUpdating: true, selectTextOnEditStart: true }"
+                (onRowUpdated)="onQuantityChanged($event)"
               >
-                <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}"></dxi-column>
-                <dxi-column dataField="vin" caption="VIN"></dxi-column>
-                <dxi-column dataField="unitPrice" caption="{{ 'INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
-                <dxi-column dataField="discountedPrice" caption="{{ 'CORPORATE.DISCOUNTED_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
-                <dxi-column type="buttons">
+                <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}" [allowEditing]="false"></dxi-column>
+                <dxi-column dataField="vin" caption="VIN" [allowEditing]="false"></dxi-column>
+                <dxi-column dataField="quantity" caption="{{ 'BANK_FINANCING.QUANTITY' | translate }}" dataType="number" [allowEditing]="true"></dxi-column>
+                <dxi-column dataField="unitPrice" caption="{{ 'INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency" [allowEditing]="false"></dxi-column>
+                <dxi-column dataField="discountedPrice" caption="{{ 'CORPORATE.DISCOUNTED_PRICE' | translate }}" dataType="number" format="currency" [allowEditing]="false"></dxi-column>
+                <dxi-column type="buttons" [allowEditing]="false">
                   <dxi-button icon="trash" [onClick]="removeLine.bind(this)"></dxi-button>
                 </dxi-column>
                 <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false"

@@ -31,11 +31,14 @@
     <dxo-paging [pageSize]="10"></dxo-paging>
     <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
 
+    <dxi-column dataField="orderNumber" [caption]="'BANK_FINANCING.ORDER_NUMBER' | translate"></dxi-column>
+    <dxi-column dataField="orderDate" [caption]="'BANK_FINANCING.ORDER_DATE' | translate" dataType="date"></dxi-column>
     <dxi-column dataField="quotationNumber" [caption]="'CORPORATE.QUOTATION_NUMBER' | translate"></dxi-column>
     <dxi-column dataField="endUserName" [caption]="'BANK_FINANCING.END_USER_NAME' | translate"></dxi-column>
     <dxi-column dataField="bankName" [caption]="'BANK_FINANCING.BANK' | translate"></dxi-column>
     <dxi-column dataField="vin" caption="VIN"></dxi-column>
     <dxi-column dataField="approvedFinancingAmount" [caption]="'BANK_FINANCING.APPROVED_FINANCING_AMOUNT' | translate" dataType="number" format="currency"></dxi-column>
+    <dxi-column dataField="status" [caption]="'BANK_FINANCING.STATUS' | translate"></dxi-column>
 
     <dxi-column type="buttons" [width]="80">
       <dxi-button

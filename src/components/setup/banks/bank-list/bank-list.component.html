@@ -42,7 +42,8 @@
       [allowColumnReordering]="true"
       [allowColumnResizing]="true"
       [noDataText]="'BANK.NO_BANKS' | translate"
-      keyExpr="id">
+      keyExpr="id"
+      rtlEnabled="true">
 
       <dxo-search-panel [visible]="true" [width]="240"></dxo-search-panel>
       <dxo-filter-row [visible]="true"></dxo-filter-row>
@@ -65,7 +66,7 @@
         </span>
       </div>
 
-      <dxi-column type="buttons" [caption]="'COMMON.ACTIONS' | translate" [width]="150" [fixed]="true" fixedPosition="right" cellTemplate="actionsTemplate"></dxi-column>
+      <dxi-column type="buttons" [caption]="'COMMON.ACTIONS' | translate" [width]="150"  cellTemplate="actionsTemplate"></dxi-column>
       <div *dxTemplate="let cell of 'actionsTemplate'">
         <button mat-icon-button [matTooltip]="'COMMON.VIEW' | translate" (click)="onView({ row: { data: cell.data } })">
           <mat-icon>visibility</mat-icon>

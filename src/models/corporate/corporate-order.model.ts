@@ -4,6 +4,7 @@ export interface CorporateOrderLine {
   vin?: string;
   unitPrice: number;
   totalPrice: number;
+  quantity: number;
 }
 
 export interface CorporateOrder {
@@ -19,6 +20,7 @@ export interface CorporateOrder {
   salesRepresentative?: string;
   notes?: string;
   corporateQuotationId?: number;
+  branchId: number;
   lines: CorporateOrderLine[];
 }
 
@@ -29,5 +31,6 @@ export interface CreateCorporateOrderDto {
   expectedDeliveryDate?: string;
   salesRepresentative?: string;
   notes?: string;
+  branchId: number;
   userId: number;
 }

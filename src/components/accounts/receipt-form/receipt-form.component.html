@@ -21,7 +21,7 @@
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'ACCOUNTS.FORM.VOUCHER_NUMBER' | translate }}</mat-label>
-              <input matInput formControlName="voucherNumber" readonly>
+              <input matInput [value]="editingReceipt()?.voucherNumber || ('CORPORATE.AUTO_GENERATED' | translate)" disabled readonly>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="form-field">

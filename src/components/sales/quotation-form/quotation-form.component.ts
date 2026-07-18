@@ -33,6 +33,7 @@ export class QuotationFormComponent implements OnInit {
   quotationForm: FormGroup;
   isEditMode = false;
   quotationId: number | null = null;
+  existingDocNumber: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -40,7 +41,6 @@ export class QuotationFormComponent implements OnInit {
     private router: Router
   ) {
     this.quotationForm = this.fb.group({
-      quotationNumber: ['', Validators.required],
       quotationDate: [new Date().toISOString().split('T')[0], Validators.required],
       customerId: ['', Validators.required],
       carId: ['', Validators.required],
@@ -64,6 +64,7 @@ export class QuotationFormComponent implements OnInit {
   loadQuotation(id: number): void {
     this.salesCycleService.getQuotation(id).subscribe(
       data => {
+        this.existingDocNumber = data.quotationNumber;
         this.quotationForm.patchValue(data);
       },
       error => console.error('Error loading quotation', error)
@@ -72,7 +73,7 @@ export class QuotationFormComponent implements OnInit {
 
   onSubmit(): void {
     if (this.quotationForm.valid) {
-      const formValue = this.quotationForm.value;
+      const formValue = { ...this.quotationForm.value, quotationNumber: this.existingDocNumber || '' };
       if (this.isEditMode && this.quotationId) {
         this.salesCycleService.updateQuotation(this.quotationId, formValue).subscribe(
           () => this.router.navigate(['/sales/quotations']),

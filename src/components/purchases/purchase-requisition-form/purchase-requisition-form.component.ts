@@ -59,6 +59,7 @@ export class PurchaseRequisitionFormComponent implements OnInit {
   lineItems: RequisitionLineItem[] = [];
   documentDetails: RequisitionLineItem[] = [];
   grandTotal = 0;
+  existingDocNumber: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -85,7 +86,6 @@ export class PurchaseRequisitionFormComponent implements OnInit {
 
   initForm(): void {
     this.requisitionForm = this.fb.group({
-      requisitionNumber: ['', Validators.required],
       requisitionDate: [new Date(), Validators.required],
       departmentName: [''],
       notes: ['']
@@ -156,8 +156,8 @@ export class PurchaseRequisitionFormComponent implements OnInit {
     this.purchaseRequisitionService.getById(id).subscribe({
       next: (requisition) => {
         this.currentStatus = requisition.status;
+        this.existingDocNumber = requisition.requisitionNumber;
         this.requisitionForm.patchValue({
-          requisitionNumber: requisition.requisitionNumber,
           requisitionDate: requisition.requisitionDate,
           departmentName: requisition.departmentName,
           notes: requisition.notes
@@ -195,7 +195,7 @@ export class PurchaseRequisitionFormComponent implements OnInit {
 
     const raw = this.requisitionForm.getRawValue();
     const dto: CreatePurchaseRequisitionDto = {
-      requisitionNumber: raw.requisitionNumber,
+      requisitionNumber: this.existingDocNumber || '',
       requisitionDate: raw.requisitionDate,
       departmentName: raw.departmentName,
       notes: raw.notes,

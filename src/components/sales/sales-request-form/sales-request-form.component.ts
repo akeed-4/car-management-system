@@ -75,7 +75,6 @@ export class SalesRequestFormComponent implements OnInit {
     private router: Router
   ) {
     this.salesRequestForm = this.fb.group({
-      requestNumber: ['', Validators.required],
       requestDate: [new Date(), Validators.required],
       customerId: ['', Validators.required],
       descriptionAr: [''],

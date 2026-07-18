@@ -14,6 +14,7 @@ export interface CorporateQuotationLine {
   carDescription?: string;
   unitPrice: number;
   discountedPrice: number;
+  quantity: number;
 }
 
 export type CorporateQuotationStatus = 'Draft' | 'Approved' | 'Converted' | 'Rejected' | 'Expired';
@@ -40,7 +41,7 @@ export interface CreateCorporateQuotationDto {
   contactPerson?: string;
   paymentTerms?: string;
   volumeDiscountPercent: number;
-  lines: { carId: number; unitPrice?: number }[];
+  lines: { carId: number; unitPrice?: number; quantity: number }[];
   notes?: string;
   userId: number;
 }

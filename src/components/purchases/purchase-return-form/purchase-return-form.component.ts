@@ -46,7 +46,6 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
   returnForm!: FormGroup;
 
   // Form State
-  returnInvoiceNumber = signal(`RT-P-${Date.now()}`);
   returnInvoiceDate = signal(new Date().toISOString().split('T')[0]);
 
   // Accounts for different return types
@@ -129,7 +128,6 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
 
     if (this.returnType === 'CASH') {
       this.returnForm = this.fb.group({
-        returnInvoiceNumber: [{ value: this.returnInvoiceNumber(), disabled: true }],
         returnDate: [today, Validators.required],
         originalInvoice: [null, Validators.required],
         debitAccountId: [null, Validators.required] // Cash/Bank account for cash returns
@@ -137,7 +135,6 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
     } else {
       // CREDIT return
       this.returnForm = this.fb.group({
-        returnInvoiceNumber: [{ value: this.returnInvoiceNumber(), disabled: true }],
         returnDate: [today, Validators.required],
         originalInvoice: [null, Validators.required],
         creditAccountId: [null, Validators.required] // Supplier account for credit returns
@@ -252,7 +249,7 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
     }
 
     const newReturn: Omit<PurchaseReturnInvoice, 'id'> = {
-      returnInvoiceNumber: this.returnInvoiceNumber(),
+      returnInvoiceNumber: '',
       returnInvoiceDate: this.returnInvoiceDate(),
       originalInvoiceId: originalInvoice.id,
       supplierId: originalInvoice.supplierId,

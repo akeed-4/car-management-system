@@ -36,9 +36,17 @@
 .dx-menu-base{
     font-weight: 500 !important;
 }
+:host {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
 .example-container {
     border: 1px solid rgba(0, 0, 0, 0.5);
     font-family: "elmessiri-font", Arial, Helvetica, sans-serif;
+    flex: 1 1 auto;
+    min-height: 0;
 }
 
 .dx-context-menu .dx-menu-no-icons>.dx-menu-item-wrapper>.dx-menu-item>.dx-menu-item-content .dx-menu-item-text{
@@ -164,6 +172,7 @@ h6 {
 
 .parentDiv {
     overflow-x: hidden;
+    flex-shrink: 0;
 }
 
 ::ng-deep .my-tooltip {
@@ -464,18 +473,11 @@ only screen and (max-device-width: 740px) {
     box-sizing: border-box;
 }
 
-/* When sidenav is open, shift the page content instead of overlaying */
-.example-sidenav-content.sidenav-open {
-    margin-left: var(--sidebar-width, 256px);
-    width: calc(100% - var(--sidebar-width, 256px)) !important;
-}
-
-/* RTL support: shift from the right instead */
-.example-sidenav-content.rtl.sidenav-open {
-    margin-right: var(--sidebar-width, 256px);
-    margin-left: 0;
-    width: calc(100% - var(--sidebar-width, 256px)) !important;
-}
+/* Content shifting when the sidenav is open is handled natively by Angular Material's
+   mat-sidenav-container (mode="side", autosize) via an inline margin on mat-drawer-content,
+   sized to the sidenav's actual measured width. Do not duplicate that with a hardcoded
+   margin here -- a fixed assumed width doesn't match the real (content-sized) sidenav
+   width and stacks on top of Material's own margin, leaving a large gap. */
 
 /* Remove per-component max-widths and let .container fill the available space */
 :host ::ng-deep .example-sidenav-content .container,

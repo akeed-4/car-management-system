@@ -74,6 +74,7 @@ export class BankQuotationContainerComponent implements OnInit {
       endUserNationalId: new FormControl('', Validators.required),
       bankId: new FormControl(null, Validators.required),
       storeId: new FormControl(null, Validators.required),
+      quantity: new FormControl(1, [Validators.required, Validators.min(1)]),
       quotationDate: new FormControl(new Date(), Validators.required)
     });
 
@@ -81,6 +82,8 @@ export class BankQuotationContainerComponent implements OnInit {
       next: (banks) => this.banks.set(banks || []),
       error: () => this.notificationService.showError('BANK_FINANCING.PARTNERS_LOAD_FAILED')
     });
+
+    this.quotationForm.get('quantity')!.valueChanges.subscribe(v => this.quantity.set(v > 0 ? v : 1));
   }
 
   openVehicleDialog(): void {
@@ -110,8 +113,9 @@ export class BankQuotationContainerComponent implements OnInit {
     return vehicle ? [vehicle] : [];
   });
 
-  vatAmount = computed(() => (this.selectedVehicle()?.vehiclePrice || 0) * VAT_RATE);
-  grandTotal = computed(() => (this.selectedVehicle()?.vehiclePrice || 0) + this.vatAmount());
+  quantity = signal(1);
+  vatAmount = computed(() => (this.selectedVehicle()?.vehiclePrice || 0) * this.quantity() * VAT_RATE);
+  grandTotal = computed(() => (this.selectedVehicle()?.vehiclePrice || 0) * this.quantity() + this.vatAmount());
 
   get isFormValid(): boolean {
     return this.quotationForm.valid && !!this.selectedVehicle();
@@ -126,6 +130,12 @@ export class BankQuotationContainerComponent implements OnInit {
     }
 
     const raw = this.quotationForm.getRawValue();
+    const branchId = this.stores().find(s => s.id === raw.storeId)?.branchId;
+    if (!branchId) {
+      this.notificationService.showError('BANK_FINANCING.SELECT_VEHICLE_REQUIRED');
+      return;
+    }
+
     this.submitting.set(true);
 
     this.bankFinancingService
@@ -135,6 +145,8 @@ export class BankQuotationContainerComponent implements OnInit {
         endUserNationalId: raw.endUserNationalId,
         bankId: raw.bankId,
         carId: this.selectedVehicle()!.carId,
+        quantity: raw.quantity > 0 ? raw.quantity : 1,
+        branchId,
         userId: 1
       })
       .subscribe({
@@ -145,9 +157,9 @@ export class BankQuotationContainerComponent implements OnInit {
             queryParams: { quotationId: quotation.id }
           });
         },
-        error: () => {
+        error: (err) => {
           this.submitting.set(false);
-          this.notificationService.showError('BANK_FINANCING.QUOTATION_CREATE_FAILED');
+          this.notificationService.showError(err?.error?.message || 'BANK_FINANCING.QUOTATION_CREATE_FAILED');
         }
       });
   }

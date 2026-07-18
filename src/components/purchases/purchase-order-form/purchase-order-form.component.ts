@@ -67,6 +67,7 @@ export class PurchaseOrderFormComponent implements OnInit, OnDestroy {
   eligibleQuotations = signal<ApprovedOfferLookupDto[]>([]);
   /** Details of the selected vendor -- wrapped in an array for the details grid. */
   supplierDetails: Supplier[] = [];
+  existingDocNumber: string | null = null;
 
   private offersChangedSubscription?: Subscription;
 
@@ -121,7 +122,6 @@ export class PurchaseOrderFormComponent implements OnInit, OnDestroy {
 
   initForm(): void {
     this.poForm = this.fb.group({
-      poNumber: ['', Validators.required],
       poDate: [new Date(), Validators.required],
       vendorId: [null, Validators.required],
       supplierRfqId: [{ value: null, disabled: true }, Validators.required],
@@ -224,8 +224,8 @@ debugger
   loadPo(id: number): void {
     this.purchaseOrderService.getById(id).subscribe({
       next: (po) => {
+        this.existingDocNumber = po.poNumber;
         this.poForm.patchValue({
-          poNumber: po.poNumber,
           poDate: po.poDate,
           vendorId: po.vendorId,
           supplierRfqId: po.supplierRfqId ?? po.purchaseOfferId,
@@ -267,7 +267,7 @@ debugger
 
     const raw = this.poForm.getRawValue();
     const dto: CreatePoDto = {
-      poNumber: raw.poNumber,
+      poNumber: this.existingDocNumber || '',
       poDate: raw.poDate,
       vendorId: raw.vendorId,
       purchaseOfferId: raw.supplierRfqId,

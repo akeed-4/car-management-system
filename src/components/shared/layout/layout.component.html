@@ -61,7 +61,7 @@
         </div>
     </mat-toolbar>
 </div>
-<mat-sidenav-container class="example-container" autosize>
+<mat-sidenav-container class="example-container" >
     <mat-sidenav #sidenav [ngClass]="{'example-sidenav': !isMobile,'example-sidenav-mob': isMobile }"
         [mode]="isMobile ? 'over' : 'side'" [opened]="sideNavOpen" position="start" *ngIf="isExpanded || isShowing"
         id="side-nav-me">
@@ -82,7 +82,7 @@
         </div>
     </mat-sidenav>
 
-    <div class="example-sidenav-content" [class.sidenav-open]="sideNavOpen && !isMobile" [class.rtl]="textDir === 'rtl'">
+    <div class="example-sidenav-content">
 
         <div class="dx-viewport" id="margin-body">
             <div class="container">

@@ -304,7 +304,6 @@ export class ReceiptFormComponent implements OnInit {
     // This would need to be updated based on the actual ReceiptVoucher structure
     this.receiptForm.patchValue({
       receiptType: (receipt as any).receiptType || 'CUSTOMER',
-      voucherNumber: receipt.voucherNumber,
       voucherDate: receipt.voucherDate?.toISOString().split('T')[0],
       totalAmountReceived: receipt.amount,
       receiptMethod: receipt.paymentMethod,
@@ -327,7 +326,6 @@ export class ReceiptFormComponent implements OnInit {
   private initForm() {
     this.receiptForm = this.fb.group({
       receiptType: ['CUSTOMER', Validators.required],
-      voucherNumber: [`RV-${Date.now()}`],
       voucherDate: [new Date().toISOString().split('T')[0], Validators.required],
       totalAmountReceived: [0, [Validators.required, Validators.min(0.01)]],
       receiptMethod: ['CASH', Validators.required],
@@ -378,6 +376,7 @@ export class ReceiptFormComponent implements OnInit {
 
     const receiptData = {
       ...formValue,
+      voucherNumber: this.editingReceipt()?.voucherNumber || '',
       allocations: formValue.allocations.map((alloc: any) => ({
         invoiceId: alloc.invoiceId,
         amountToPay: alloc.amountToPay

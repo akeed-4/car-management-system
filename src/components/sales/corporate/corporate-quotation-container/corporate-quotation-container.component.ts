@@ -115,8 +115,11 @@ export class CorporateQuotationContainerComponent implements OnInit {
   }
 
   private addVehicleLine(carId: number, carDescription: string): void {
-    if (this.lines().some(l => l.carId === carId)) {
-      this.notificationService.showError('CORPORATE.VEHICLE_ALREADY_ADDED');
+    // Selecting the same vehicle again adds another unit to its existing line instead of
+    // rejecting, so a single quotation can request multiple units of one vehicle.
+    const existing = this.lines().find(l => l.carId === carId);
+    if (existing) {
+      this.updateLineQuantity(carId, existing.quantity + 1);
       return;
     }
 
@@ -131,9 +134,22 @@ export class CorporateQuotationContainerComponent implements OnInit {
         vin: car?.vin || car?.chassisNumber,
         carDescription: carDescription || (car ? `${car.make} ${car.model} ${car.year}` : ''),
         unitPrice,
-        discountedPrice: unitPrice * (1 - discountPercent / 100)
+        discountedPrice: unitPrice * (1 - discountPercent / 100),
+        quantity: 1
       }
     ]);
+  }
+
+  updateLineQuantity(carId: number, quantity: number): void {
+    this.lines.update(lines =>
+      lines.map(l => (l.carId === carId ? { ...l, quantity: quantity > 0 ? quantity : 1 } : l))
+    );
+  }
+
+  onQuantityChanged(e: any): void {
+    if (e?.data?.carId != null) {
+      this.updateLineQuantity(e.data.carId, e.data.quantity);
+    }
   }
 
   removeLine(carId: number): void {
@@ -141,9 +157,9 @@ export class CorporateQuotationContainerComponent implements OnInit {
   }
 
   // ---- Totals ----
-  subtotal = computed(() => this.lines().reduce((sum, l) => sum + l.unitPrice, 0));
+  subtotal = computed(() => this.lines().reduce((sum, l) => sum + l.unitPrice * l.quantity, 0));
   totalDiscount = computed(() => this.subtotal() - this.netTotal());
-  netTotal = computed(() => this.lines().reduce((sum, l) => sum + l.discountedPrice, 0));
+  netTotal = computed(() => this.lines().reduce((sum, l) => sum + l.discountedPrice * l.quantity, 0));
   vatAmount = computed(() => this.netTotal() * VAT_RATE);
   grandTotal = computed(() => this.netTotal() + this.vatAmount());
 
@@ -169,7 +185,7 @@ export class CorporateQuotationContainerComponent implements OnInit {
         contactPerson: raw.contactPerson || undefined,
         paymentTerms: raw.paymentTerms || undefined,
         volumeDiscountPercent: raw.volumeDiscountPercent || 0,
-        lines: this.lines().map(l => ({ carId: l.carId, unitPrice: l.unitPrice })),
+        lines: this.lines().map(l => ({ carId: l.carId, unitPrice: l.unitPrice, quantity: l.quantity })),
         notes: raw.notes || undefined,
         userId: 1
       })
@@ -181,9 +197,9 @@ export class CorporateQuotationContainerComponent implements OnInit {
             queryParams: { quotationId: quotation.id }
           });
         },
-        error: () => {
+        error: (err) => {
           this.submitting.set(false);
-          this.notificationService.showError('CORPORATE.QUOTATION_CREATE_FAILED');
+          this.notificationService.showError(err?.error?.message || 'CORPORATE.QUOTATION_CREATE_FAILED');
         }
       });
   }

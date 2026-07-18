@@ -20,34 +20,61 @@
     <section class="form-section">
       <h3 class="form-section-title">{{ 'INVOICE.SOURCE_TITLE' | translate }}</h3>
       <mat-button-toggle-group [(ngModel)]="source" (change)="onSourceChange($event.value)" class="source-toggle">
-        <mat-button-toggle value="quotation">{{ 'INVOICE.SOURCE_QUOTATION' | translate }}</mat-button-toggle>
+        <mat-button-toggle value="order">{{ 'BANK_FINANCING.SOURCE_ORDER' | translate }}</mat-button-toggle>
         <mat-button-toggle value="delivery">{{ 'INVOICE.SOURCE_DELIVERY' | translate }}</mat-button-toggle>
       </mat-button-toggle-group>
     </section>
   </mat-card>
 
-  <mat-card class="doc-card" *ngIf="source === 'quotation'">
+  <mat-card class="doc-card" *ngIf="source === 'order'">
     <section class="form-section">
-      <h3 class="form-section-title">{{ 'BANK_FINANCING.PENDING_ORDER' | translate }}</h3>
+      <h3 class="form-section-title">{{ 'BANK_FINANCING.ORDER_TITLE' | translate }}</h3>
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>{{ 'BANK_FINANCING.SELECT_ORDER' | translate }}</mat-label>
-        <mat-select [ngModel]="selectedQuotationId" (ngModelChange)="onQuotationSelected($event)">
-          <mat-option *ngFor="let q of approvedQuotations()" [value]="q.id">
-            {{ q.quotationNumber }} — {{ q.endUserName }} — {{ q.bankName }} — {{ q.carDescription }}
+        <mat-label>{{ 'BANK_FINANCING.SELECT_SALES_ORDER' | translate }}</mat-label>
+        <mat-select [ngModel]="selectedOrderId" (ngModelChange)="onOrderSelected($event)">
+          <mat-option *ngFor="let o of availableOrders()" [value]="o.id">
+            {{ o.orderNumber }} — {{ o.endUserName }} — {{ o.bankName }} — {{ o.carDescription }}
           </mat-option>
         </mat-select>
-        <mat-hint *ngIf="!quotationsLoading() && approvedQuotations().length === 0">{{ 'BANK_FINANCING.NO_PENDING_ORDERS' | translate }}</mat-hint>
-        <mat-spinner *ngIf="quotationsLoading()" matSuffix diameter="18"></mat-spinner>
+        <mat-hint *ngIf="!ordersLoading() && availableOrders().length === 0">{{ 'BANK_FINANCING.NO_UNINVOICED_ORDERS' | translate }}</mat-hint>
+        <mat-spinner *ngIf="ordersLoading()" matSuffix diameter="18"></mat-spinner>
       </mat-form-field>
     </section>
   </mat-card>
 
-  <mat-card class="doc-card lines-card" *ngIf="source === 'quotation' && selectedQuotation()">
+  <mat-card class="doc-card" *ngIf="source === 'order' && selectedOrder() as o">
+    <section class="form-section">
+      <ng-container *ngIf="cardLayout3 | async as layout">
+        <mat-grid-list [cols]="layout.columns" rowHeight="76" gutterSize="16px">
+          <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+            <div class="readonly-field">
+              <span class="readonly-label">{{ 'BANK_FINANCING.END_USER_NAME' | translate }}</span>
+              <span class="readonly-value">{{ o.endUserName }}</span>
+            </div>
+          </mat-grid-tile>
+          <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+            <div class="readonly-field">
+              <span class="readonly-label">{{ 'BANK_FINANCING.BANK' | translate }}</span>
+              <span class="readonly-value">{{ o.bankName }}</span>
+            </div>
+          </mat-grid-tile>
+          <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+            <div class="readonly-field">
+              <span class="readonly-label">{{ 'BANK_FINANCING.ORDER_NUMBER' | translate }}</span>
+              <span class="readonly-value font-mono">{{ o.orderNumber }}</span>
+            </div>
+          </mat-grid-tile>
+        </mat-grid-list>
+      </ng-container>
+    </section>
+  </mat-card>
+
+  <mat-card class="doc-card lines-card" *ngIf="source === 'order' && selectedOrder()">
     <div class="section-header">
       <h3 class="form-section-title">{{ 'BANK_FINANCING.FINANCED_VEHICLE' | translate }}</h3>
     </div>
     <div class="table-container">
-      <dx-data-grid [dataSource]="quotationVehicleLines()" [showBorders]="true" [columnAutoWidth]="true" [rtlEnabled]="true" [height]="140">
+      <dx-data-grid [dataSource]="orderVehicleLines()" [showBorders]="true" [columnAutoWidth]="true" [rtlEnabled]="true" [height]="140">
         <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}"></dxi-column>
         <dxi-column dataField="vin" caption="VIN"></dxi-column>
         <dxi-column dataField="vehiclePrice" caption="{{ 'BANK_FINANCING.VEHICLE_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
@@ -89,7 +116,7 @@
     <section class="form-section">
       <h3 class="form-section-title">{{ 'BANK_FINANCING.INVOICE_DETAILS' | translate }}</h3>
       <ng-container *ngIf="cardLayout3 | async as layout">
-        <mat-grid-list [cols]="layout.columns" rowHeight="76" gutterSize="16px">
+        <mat-grid-list [cols]="layout.columns" rowHeight="80" gutterSize="16px">
           <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>{{ 'BANK_FINANCING.BILLING_CUSTOMER' | translate }}</mat-label>
@@ -107,7 +134,7 @@
         </mat-grid-list>
       </ng-container>
       <ng-container *ngIf="cardLayout3 | async as layout">
-        <mat-grid-list [cols]="layout.columns" rowHeight="76" gutterSize="16px">
+        <mat-grid-list [cols]="layout.columns" rowHeight="80" gutterSize="16px">
           <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>{{ 'INVOICE.DEBIT_ACCOUNT' | translate }}</mat-label>

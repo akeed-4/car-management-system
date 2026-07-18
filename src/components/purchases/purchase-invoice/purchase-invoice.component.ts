@@ -199,9 +199,6 @@ export class PurchaseInvoiceComponent implements OnInit {
   // Layout for responsive design
   layout$ = this.currentSettingService.getCardLayout(4);
 
-  // Invoice number computed signal
-  invoiceNumber = computed(() => `PO-${Date.now()}`);
-
   // Edit mode signals
   isEditMode = signal(false);
   currentInvoiceId = signal<number | null>(null);
@@ -591,7 +588,6 @@ export class PurchaseInvoiceComponent implements OnInit {
 
   private initForm(): void {
     this.purchaseInvoiceForm = this.fb.group({
-      invoiceNumber: ['', Validators.required], // User-entered invoice number
       supplierId: [null, Validators.required],
       debitAccountId: [null, Validators.required],
       creditAccountId: [null, Validators.required],
@@ -636,7 +632,6 @@ export class PurchaseInvoiceComponent implements OnInit {
       next: (invoice) => {
         // Initialize form with existing invoice data
         this.purchaseInvoiceForm = this.fb.group({
-          invoiceNumber: [invoice.invoiceNumber || '', Validators.required],
           supplierId: [invoice.supplierId, Validators.required],
           debitAccountId: [invoice.debitAccountId, Validators.required],
           creditAccountId: [invoice.creditAccountId, Validators.required],
@@ -865,7 +860,7 @@ export class PurchaseInvoiceComponent implements OnInit {
     }
 
     const newInvoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue' | 'createdAt' | 'updatedAt' | 'supplier' | 'debitAccount' | 'creditAccount'> = {
-      invoiceNumber: formValue.invoiceNumber, // Use the form value
+      invoiceNumber: this.invoiceNumberSignal() || '',
       invoiceDate: formValue.invoiceDate.toISOString(),
       supplierId: supplierId,
       debitAccountId: formValue.debitAccountId,

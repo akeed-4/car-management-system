@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../environments/environment';
-import { BankPartner, BankQuotation, CreateBankQuotationDto, FinalizeBankInvoiceDto } from '../models/bank-financing/bank-quotation.model';
+import { BankPartner, BankQuotation, CreateBankOrderDto, CreateBankQuotationDto, FinalizeBankInvoiceDto } from '../models/bank-financing/bank-quotation.model';
 import { CreateBankApprovalDto } from '../models/bank-financing/bank-approval.model';
 import { BankOrderDeliveryDetails, BankOrderLookup, BankVehicleDelivery, CreateBankInvoiceFromDeliveryDto, CreateBankVehicleDeliveryDto } from '../models/bank-financing/bank-vehicle-delivery.model';
 import { UninvoicedDeliveryLookup } from '../models/sales/uninvoiced-delivery.model';
@@ -68,6 +68,29 @@ export class BankFinancingService {
   /** Invoices directly from a Bank_Approved quotation -- the "Quotation" invoice source. */
   finalizeInvoice(dto: FinalizeBankInvoiceDto): Observable<SalesInvoice> {
     return this.http.post<ApiResponse<SalesInvoice>>(`${this.baseUrl}/invoices/finalize`, dto).pipe(
+      map(res => res.data)
+    );
+  }
+
+  // ==================== Sales Order ====================
+
+  /** Confirms a Bank_Approved quotation into a Bank Sales Order with its own document number. */
+  createOrder(dto: CreateBankOrderDto): Observable<BankQuotation> {
+    return this.http.post<ApiResponse<BankQuotation>>(`${this.baseUrl}/orders`, dto).pipe(
+      map(res => res.data)
+    );
+  }
+
+  /** All confirmed Bank Sales Orders (orderNumber set), regardless of invoice status -- for the orders list screen. */
+  getAllOrders(): Observable<BankQuotation[]> {
+    return this.http.get<ApiResponse<BankQuotation[]>>(`${this.baseUrl}/orders`).pipe(
+      map(res => res.data)
+    );
+  }
+
+  /** Confirmed Bank Sales Orders not yet converted into a Sales Invoice -- feeds the invoice screen's order dropdown. */
+  getUninvoicedOrders(): Observable<BankQuotation[]> {
+    return this.http.get<ApiResponse<BankQuotation[]>>(`${this.baseUrl}/orders/uninvoiced`).pipe(
       map(res => res.data)
     );
   }

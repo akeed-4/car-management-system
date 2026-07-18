@@ -16,7 +16,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>{{ 'PURCHASE_RETURN.RETURN_NUMBER' | translate }}</mat-label>
-              <input matInput type="text" formControlName="returnInvoiceNumber" readonly>
+              <input matInput type="text" [value]="'CORPORATE.AUTO_GENERATED' | translate" disabled readonly>
             </mat-form-field>
           <div>
             <mat-form-field appearance="outline" class="form-field">

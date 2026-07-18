@@ -40,7 +40,7 @@ export class BankOrderListComponent implements OnInit {
 
   loadOrders(): void {
     this.loading.set(true);
-    this.bankFinancingService.getQuotationsByStatus('Bank_Approved').subscribe({
+    this.bankFinancingService.getAllOrders().subscribe({
       next: orders => {
         this.orders.set(orders);
         this.loading.set(false);

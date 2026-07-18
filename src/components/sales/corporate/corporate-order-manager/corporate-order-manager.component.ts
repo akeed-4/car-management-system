@@ -14,6 +14,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { CorporateFleetService, CreditSummary } from '../../../../services/corporate-fleet.service';
+import { StoreService } from '../../../../services/store.service';
 import { CurrentSettingService } from '../../../../services/current-setting.service';
 import { NotificationService } from '@/src/services/notification.service';
 import { CorporateQuotation } from '../../../../models/corporate/corporate-quotation.model';
@@ -46,12 +47,14 @@ import { CreditUtilizationWidgetComponent } from './credit-utilization-widget/cr
 })
 export class CorporateOrderManagerComponent implements OnInit {
   private corporateFleetService = inject(CorporateFleetService);
+  private storeService = inject(StoreService);
   private currentSettingService = inject(CurrentSettingService);
   private notificationService = inject(NotificationService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
   cardLayout3 = this.currentSettingService.getCardLayout(3);
+  stores = this.storeService.stores$;
 
   quotation = signal<CorporateQuotation | null>(null);
   creditSummary = signal<CreditSummary | null>(null);
@@ -69,6 +72,7 @@ export class CorporateOrderManagerComponent implements OnInit {
       paymentTerms: new FormControl('', Validators.required),
       expectedDeliveryDate: new FormControl(null),
       salesRepresentative: new FormControl(''),
+      storeId: new FormControl<number | null>(null, Validators.required),
       notes: new FormControl('')
     });
 
@@ -129,6 +133,12 @@ export class CorporateOrderManagerComponent implements OnInit {
     }
 
     const raw = this.orderForm.getRawValue();
+    const branchId = this.stores().find(s => s.id === raw.storeId)?.branchId;
+    if (!branchId) {
+      this.notificationService.showError('CORPORATE.ORDER_CREATE_FAILED');
+      return;
+    }
+
     this.submitting.set(true);
 
     this.corporateFleetService
@@ -139,6 +149,7 @@ export class CorporateOrderManagerComponent implements OnInit {
         expectedDeliveryDate: raw.expectedDeliveryDate ? new Date(raw.expectedDeliveryDate).toISOString() : undefined,
         salesRepresentative: raw.salesRepresentative || undefined,
         notes: raw.notes || undefined,
+        branchId,
         userId: 1
       })
       .subscribe({
@@ -152,7 +163,7 @@ export class CorporateOrderManagerComponent implements OnInit {
           if (err?.status === 422) {
             this.notificationService.showError('CORPORATE.CREDIT_LIMIT_EXCEEDED');
           } else {
-            this.notificationService.showError('CORPORATE.ORDER_CREATE_FAILED');
+            this.notificationService.showError(err?.error?.message || 'CORPORATE.ORDER_CREATE_FAILED');
           }
         }
       });

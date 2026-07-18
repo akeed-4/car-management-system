@@ -94,6 +94,15 @@
                       <input matInput formControlName="salesRepresentative">
                     </mat-form-field>
                   </mat-grid-tile>
+                  <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>{{ 'CORPORATE.STORE' | translate }}</mat-label>
+                      <mat-select formControlName="storeId" required>
+                        <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_STORE_OPTION' | translate }}</mat-option>
+                        <mat-option *ngFor="let store of stores()" [value]="store.id">{{ store.nameAr }}</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </mat-grid-tile>
                 </mat-grid-list>
               </ng-container>
 
@@ -120,6 +129,7 @@
               >
                 <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}" [allowEditing]="false"></dxi-column>
                 <dxi-column dataField="vin" caption="VIN" [allowEditing]="false"></dxi-column>
+                <dxi-column dataField="quantity" caption="{{ 'BANK_FINANCING.QUANTITY' | translate }}" dataType="number" [allowEditing]="false"></dxi-column>
                 <dxi-column dataField="unitPrice" caption="{{ 'INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency" [allowEditing]="false" cssClass="readonly-col"></dxi-column>
                 <dxi-column dataField="discountedPrice" caption="{{ 'CORPORATE.DISCOUNTED_PRICE' | translate }}" dataType="number" format="currency" [allowEditing]="false" cssClass="readonly-col"></dxi-column>
               </dx-data-grid>

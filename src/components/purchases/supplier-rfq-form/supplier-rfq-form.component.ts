@@ -59,6 +59,7 @@ export class SupplierRfqFormComponent implements OnInit {
   lineItems: RfqLineItem[] = [];
   documentDetails: RfqLineItem[] = [];
   grandTotal = 0;
+  existingDocNumber: string | null = null;
 
   suppliers = signal<Supplier[]>([]);
   /** Pending Purchase Requisitions eligible for quoting by the selected vendor. */
@@ -94,7 +95,6 @@ export class SupplierRfqFormComponent implements OnInit {
 
   initForm(): void {
     this.rfqForm = this.fb.group({
-      quotationNumber: ['', Validators.required],
       quotationDate: [new Date(), Validators.required],
       vendorId: [null, Validators.required],
       purchaseRequisitionId: [{ value: null, disabled: true }, Validators.required],
@@ -175,8 +175,8 @@ export class SupplierRfqFormComponent implements OnInit {
   loadRfq(id: number): void {
     this.supplierRfqService.getById(id).subscribe({
       next: (rfq) => {
+        this.existingDocNumber = rfq.quotationNumber;
         this.rfqForm.patchValue({
-          quotationNumber: rfq.quotationNumber,
           quotationDate: rfq.quotationDate,
           vendorId: rfq.vendorId,
           purchaseRequisitionId: rfq.purchaseRequisitionId,
@@ -214,7 +214,7 @@ export class SupplierRfqFormComponent implements OnInit {
 
     const raw = this.rfqForm.getRawValue();
     const dto: CreateSupplierRfqDto = {
-      quotationNumber: raw.quotationNumber,
+      quotationNumber: this.existingDocNumber || '',
       quotationDate: raw.quotationDate,
       vendorId: raw.vendorId,
       purchaseRequisitionId: raw.purchaseRequisitionId,

@@ -117,7 +117,45 @@ export interface DocumentAuditTrailEntryDto {
   userAgent?: string;
 }
 
-/** Document types known to the numbering/lifecycle engine so far. Extend as more modules are migrated. */
+/** Every document type in the ERP that has its own generated number and lifecycle setting.
+ * Single source of truth for the Document Numbering Settings and Document Lifecycle Settings
+ * admin screens. Mirrors the backend's Domain/Constants/DocumentTypes.cs (same `value` keys). */
 export const DOCUMENT_TYPES: { value: string; labelKey: string }[] = [
-  { value: 'GRN', labelKey: 'DOCUMENT_TYPES.GRN' }
+  // Purchasing
+  { value: 'PR', labelKey: 'DOCUMENT_TYPES.PR' },
+  { value: 'RFQ', labelKey: 'DOCUMENT_TYPES.RFQ' },
+  { value: 'PO', labelKey: 'DOCUMENT_TYPES.PO' },
+  { value: 'GRN', labelKey: 'DOCUMENT_TYPES.GRN' },
+  { value: 'PINV', labelKey: 'DOCUMENT_TYPES.PINV' },
+  { value: 'PRET', labelKey: 'DOCUMENT_TYPES.PRET' },
+  // Sales - Retail (Afrad)
+  { value: 'RQ', labelKey: 'DOCUMENT_TYPES.RQ' },
+  { value: 'SO-RTL', labelKey: 'DOCUMENT_TYPES.SO-RTL' },
+  { value: 'INV-RTL', labelKey: 'DOCUMENT_TYPES.INV-RTL' },
+  { value: 'DN-RTL', labelKey: 'DOCUMENT_TYPES.DN-RTL' },
+  // Sales - Corporate (Sharikat)
+  { value: 'CQ', labelKey: 'DOCUMENT_TYPES.CQ' },
+  { value: 'INV-CORP', labelKey: 'DOCUMENT_TYPES.INV-CORP' },
+  { value: 'DN-CORP', labelKey: 'DOCUMENT_TYPES.DN-CORP' },
+  { value: 'GP-CORP', labelKey: 'DOCUMENT_TYPES.GP-CORP' },
+  // Sales - Bank (Bunuk)
+  { value: 'BQ', labelKey: 'DOCUMENT_TYPES.BQ' },
+  { value: 'SO-BANK', labelKey: 'DOCUMENT_TYPES.SO-BANK' },
+  { value: 'INV-BANK', labelKey: 'DOCUMENT_TYPES.INV-BANK' },
+  { value: 'DN-BANK', labelKey: 'DOCUMENT_TYPES.DN-BANK' },
+  { value: 'GP-BANK', labelKey: 'DOCUMENT_TYPES.GP-BANK' },
+  // Sales - legacy/generic
+  { value: 'CUSTQ', labelKey: 'DOCUMENT_TYPES.CUSTQ' },
+  { value: 'SRET', labelKey: 'DOCUMENT_TYPES.SRET' },
+  // Accounting
+  { value: 'JE', labelKey: 'DOCUMENT_TYPES.JE' },
+  { value: 'RCPT', labelKey: 'DOCUMENT_TYPES.RCPT' },
+  { value: 'PAY', labelKey: 'DOCUMENT_TYPES.PAY' },
+  { value: 'DEP', labelKey: 'DOCUMENT_TYPES.DEP' },
+  // Other
+  { value: 'CONS', labelKey: 'DOCUMENT_TYPES.CONS' },
+  { value: 'SVCO', labelKey: 'DOCUMENT_TYPES.SVCO' },
+  { value: 'REQCAR', labelKey: 'DOCUMENT_TYPES.REQCAR' },
+  { value: 'SALESREQ', labelKey: 'DOCUMENT_TYPES.SALESREQ' },
+  { value: 'DELSCH', labelKey: 'DOCUMENT_TYPES.DELSCH' }
 ];

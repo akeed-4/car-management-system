@@ -28,7 +28,7 @@
             <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
               <mat-form-field appearance="outline" class="form-field">
                 <mat-label>{{ 'SALES_REQUEST.REQUEST_NUMBER' | translate }}</mat-label>
-                <input matInput formControlName="requestNumber" required>
+                <input matInput [value]="'CORPORATE.AUTO_GENERATED' | translate" disabled readonly>
               </mat-form-field>
             </mat-grid-tile>
 

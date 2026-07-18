@@ -5,7 +5,7 @@
     <div class="form-row">
       <mat-form-field appearance="outline">
         <mat-label>{{ 'QUOTATION.QUOTATION_NUMBER' | translate }}</mat-label>
-        <input matInput formControlName="quotationNumber" required>
+        <input matInput [value]="existingDocNumber || ('CORPORATE.AUTO_GENERATED' | translate)" disabled readonly>
       </mat-form-field>
 
       <mat-form-field appearance="outline">

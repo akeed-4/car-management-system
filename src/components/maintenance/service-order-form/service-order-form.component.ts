@@ -66,11 +66,6 @@ export class ServiceOrderFormComponent implements OnInit {
       }
     } else {
       console.log('Creating new order');
-      this.serviceOrder.update(order => ({
-        ...order,
-        orderNumber: `SO-${Date.now()}`
-      }));
-      console.log('New order created:', this.serviceOrder());
     }
   }
 
@@ -124,8 +119,8 @@ export class ServiceOrderFormComponent implements OnInit {
     const orderData = this.serviceOrder();
 
     // Basic validation
-    if (!orderData.orderNumber || !orderData.dateIn || !orderData.customerName) {
-      alert('الرجاء تعبئة الحقول الأساسية: رقم الأمر، تاريخ الدخول، واسم العميل.');
+    if (!orderData.dateIn || !orderData.customerName) {
+      alert('الرجاء تعبئة الحقول الأساسية: تاريخ الدخول، واسم العميل.');
       return;
     }
     if (orderData.serviceItems && orderData.serviceItems.some(item => !item.description || item.cost <= 0)) {

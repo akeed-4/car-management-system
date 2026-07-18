@@ -23,11 +23,8 @@
           <div class="flex-1">
             <mat-form-field appearance="outline" class="w-100">
               <mat-label>{{ 'PURCHASE_ORDER.PO_NUMBER' | translate }}</mat-label>
-              <input matInput formControlName="poNumber" placeholder="PO-0000">
+              <input matInput [value]="existingDocNumber || ('CORPORATE.AUTO_GENERATED' | translate)" disabled readonly>
               <mat-icon matSuffix>tag</mat-icon>
-              <mat-error *ngIf="poForm.get('poNumber')?.hasError('required')">
-                {{ 'COMMON.REQUIRED' | translate }}
-              </mat-error>
             </mat-form-field>
           </div>
 

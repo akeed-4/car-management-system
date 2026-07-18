@@ -24,7 +24,7 @@ import { SalesInvoiceFormComponent } from '../sales-invoice-form/sales-invoice-f
 import { SalesChannel } from '../../../models/enums/sales-channel.enum';
 import { SaleType } from '../../../models/sales-enhancements.model';
 
-type InvoiceSource = 'quotation' | 'delivery';
+type InvoiceSource = 'order' | 'delivery';
 
 @Component({
   selector: 'app-bank-invoice-form',
@@ -68,12 +68,12 @@ export class BankInvoiceFormComponent implements OnInit {
   /** Edit mode falls back to the generic invoice form -- unchanged behavior. */
   editId: number | null = null;
 
-  source: InvoiceSource = 'quotation';
+  source: InvoiceSource = 'order';
 
-  approvedQuotations = signal<BankQuotation[]>([]);
-  quotationsLoading = signal(false);
-  selectedQuotationId: number | null = null;
-  selectedQuotation = signal<BankQuotation | null>(null);
+  availableOrders = signal<BankQuotation[]>([]);
+  ordersLoading = signal(false);
+  selectedOrderId: number | null = null;
+  selectedOrder = signal<BankQuotation | null>(null);
 
   uninvoicedDeliveries = signal<UninvoicedDeliveryLookup[]>([]);
   deliveriesLoading = signal(false);
@@ -95,29 +95,35 @@ export class BankInvoiceFormComponent implements OnInit {
       return;
     }
 
-    this.loadApprovedQuotations();
+    this.loadAvailableOrders();
     this.loadUninvoicedDeliveries();
     this.accountingService.getAccountsByCategory('debit').subscribe(accounts => this.debitAccounts.set(accounts));
     this.accountingService.getAccountsByCategory('credit').subscribe(accounts => this.creditAccounts.set(accounts));
+
+    const orderId = Number(this.route.snapshot.queryParamMap.get('orderId')) || null;
+    if (orderId) {
+      this.source = 'order';
+      this.onOrderSelected(orderId);
+    }
   }
 
   onSourceChange(source: InvoiceSource): void {
     this.source = source;
-    this.selectedQuotationId = null;
-    this.selectedQuotation.set(null);
+    this.selectedOrderId = null;
+    this.selectedOrder.set(null);
     this.selectedDeliveryId = null;
   }
 
-  private loadApprovedQuotations(): void {
-    this.quotationsLoading.set(true);
-    this.bankFinancingService.getQuotationsByStatus('Bank_Approved').subscribe({
-      next: quotations => {
-        this.approvedQuotations.set(quotations || []);
-        this.quotationsLoading.set(false);
+  private loadAvailableOrders(): void {
+    this.ordersLoading.set(true);
+    this.bankFinancingService.getUninvoicedOrders().subscribe({
+      next: orders => {
+        this.availableOrders.set(orders || []);
+        this.ordersLoading.set(false);
       },
       error: () => {
-        this.quotationsLoading.set(false);
-        this.notificationService.showError('BANK_FINANCING.APPROVALS_LOAD_FAILED');
+        this.ordersLoading.set(false);
+        this.notificationService.showError('BANK_FINANCING.ORDERS_LOAD_FAILED');
       }
     });
   }
@@ -136,15 +142,15 @@ export class BankInvoiceFormComponent implements OnInit {
     });
   }
 
-  onQuotationSelected(id: number | null): void {
-    this.selectedQuotationId = id;
-    this.selectedQuotation.set(null);
+  onOrderSelected(id: number | null): void {
+    this.selectedOrderId = id;
+    this.selectedOrder.set(null);
     if (!id) {
       return;
     }
     this.bankFinancingService.getQuotationById(id).subscribe({
-      next: q => this.selectedQuotation.set(q),
-      error: () => this.notificationService.showError('BANK_FINANCING.APPROVAL_LOAD_FAILED')
+      next: q => this.selectedOrder.set(q),
+      error: () => this.notificationService.showError('BANK_FINANCING.ORDER_LOAD_FAILED')
     });
   }
 
@@ -156,16 +162,16 @@ export class BankInvoiceFormComponent implements OnInit {
     this.uninvoicedDeliveries().find(d => d.id === this.selectedDeliveryId) || null
   );
 
-  quotationVehicleLines = computed(() => {
-    const q = this.selectedQuotation();
-    return q ? [{ carDescription: q.carDescription, vin: q.vin, vehiclePrice: q.vehiclePrice }] : [];
+  orderVehicleLines = computed(() => {
+    const o = this.selectedOrder();
+    return o ? [{ carDescription: o.carDescription, vin: o.vin, vehiclePrice: o.vehiclePrice }] : [];
   });
 
   get isFormValid(): boolean {
     if (!this.debitAccountId || !this.creditAccountId || !this.bankBillingCustomerId || !this.issuedPlateNumber) {
       return false;
     }
-    return this.source === 'quotation' ? !!this.selectedQuotationId : !!this.selectedDeliveryId;
+    return this.source === 'order' ? !!this.selectedOrderId : !!this.selectedDeliveryId;
   }
 
   onSubmit(): void {
@@ -175,9 +181,9 @@ export class BankInvoiceFormComponent implements OnInit {
 
     this.submitting.set(true);
 
-    const call$ = this.source === 'quotation'
+    const call$ = this.source === 'order'
       ? this.bankFinancingService.finalizeInvoice({
-          bankQuotationId: this.selectedQuotationId!,
+          bankQuotationId: this.selectedOrderId!,
           bankBillingCustomerId: this.bankBillingCustomerId!,
           issuedPlateNumber: this.issuedPlateNumber,
           debitAccountId: this.debitAccountId!,

@@ -412,7 +412,36 @@
     "AUDIT_ACTION_DELETE": "Deleted"
   },
   "DOCUMENT_TYPES": {
-    "GRN": "Goods Receipt Note (GRN)"
+    "PR": "Purchase Requisition",
+    "RFQ": "Supplier RFQ",
+    "PO": "Purchase Order",
+    "GRN": "Goods Receipt Note (GRN)",
+    "PINV": "Purchase Invoice",
+    "PRET": "Purchase Return Invoice",
+    "RQ": "Retail Quotation",
+    "SO-RTL": "Retail Sales Order",
+    "INV-RTL": "Retail Sales Invoice",
+    "DN-RTL": "Retail Delivery Note",
+    "CQ": "Corporate Quotation",
+    "INV-CORP": "Corporate Sales Invoice",
+    "DN-CORP": "Corporate Delivery Note",
+    "GP-CORP": "Corporate Gate Pass",
+    "BQ": "Bank Quotation",
+    "SO-BANK": "Bank Sales Order",
+    "INV-BANK": "Bank Sales Invoice",
+    "DN-BANK": "Bank Delivery Note",
+    "GP-BANK": "Bank Gate Pass",
+    "CUSTQ": "Customer Quotation",
+    "SRET": "Sales Return Invoice",
+    "JE": "Journal Entry",
+    "RCPT": "Receipt Voucher",
+    "PAY": "Payment Voucher",
+    "DEP": "Deposit Voucher",
+    "CONS": "Consignment Car",
+    "SVCO": "Service Order",
+    "REQCAR": "Requested Car",
+    "SALESREQ": "Sales Request",
+    "DELSCH": "Delivery Schedule"
   },
   "DOCUMENT_NUMBERING": {
     "TITLE": "Document Numbering Settings",
@@ -765,6 +794,7 @@
     "FINANCED_VEHICLE": "Financed Vehicle",
     "NO_VEHICLE_SELECTED": "No vehicle selected yet",
     "VEHICLE_PRICE": "Vehicle Price",
+    "QUANTITY": "Quantity",
     "CREATE_QUOTATION_AND_LOCK": "Create Quotation & Lock Vehicle",
     "QUOTATION_CREATED": "Quotation created and vehicle locked",
     "QUOTATION_CREATE_FAILED": "Failed to create quotation",
@@ -842,7 +872,11 @@
     "NO_UNINVOICED_DELIVERIES": "No un-invoiced delivery notes",
     "INVOICE_DETAILS": "Invoice Details",
     "BILLING_CUSTOMER": "Bank Billing Customer",
-    "ISSUED_PLATE_NUMBER": "Issued Plate Number"
+    "ISSUED_PLATE_NUMBER": "Issued Plate Number",
+    "ORDER_DATE": "Order Date",
+    "SOURCE_ORDER": "From Sales Order",
+    "SELECT_SALES_ORDER": "Select a sales order",
+    "NO_UNINVOICED_ORDERS": "No sales orders awaiting invoicing"
   },
   "CORPORATE": {
     "QUOTATION_TITLE": "Corporate Sales Quotation",

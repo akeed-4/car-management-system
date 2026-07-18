@@ -21,11 +21,12 @@ import { BankQuotation } from '../../../../models/bank-financing/bank-quotation.
 
 /**
  * Financing review/confirmation step between Bank Approval and Sales Invoice.
- * Deliberately does not persist a separate order record: the bank end-user has no
- * Customer record yet at this stage (one is only resolved/created at invoice
- * finalization), so there is no valid CustomerId to attach a CustomerOrder row to.
- * This screen re-displays the approved BankQuotation as a read-only financing
- * summary + vehicle line, and hands off to the Sales Invoice step.
+ * Displays the approved BankQuotation as a read-only financing summary + vehicle
+ * line. "Proceed to Sales Invoice" confirms it into a Bank Sales Order (generating
+ * an order number server-side) and hands off to the Sales Invoice step. No separate
+ * CustomerOrder row is created: the bank end-user has no Customer record yet at this
+ * stage (one is only resolved/created at invoice finalization), so the order is
+ * tracked as an orderNumber/orderDate on the BankQuotation itself.
  */
 @Component({
   selector: 'app-bank-sales-order',
@@ -62,6 +63,7 @@ export class BankSalesOrderComponent implements OnInit {
 
   approval = signal<BankQuotation | null>(null);
   loading = signal(false);
+  saving = signal(false);
 
   // ==================== Approval lookup ====================
   approvalOptions = signal<BankQuotation[]>([]);
@@ -151,11 +153,28 @@ export class BankSalesOrderComponent implements OnInit {
 
   proceedToInvoice(): void {
     const approval = this.approval();
-    if (!approval || !this.isApproved) {
+    if (!approval || !this.isApproved || this.saving()) {
       return;
     }
-    this.router.navigate(['/sales/bank/invoices/new'], {
-      queryParams: { approvalId: approval.id }
+
+    if (approval.orderNumber) {
+      // Order already confirmed on a previous visit -- don't create a duplicate, just hand off.
+      this.router.navigate(['/sales/bank/invoices/new'], { queryParams: { orderId: approval.id } });
+      return;
+    }
+
+    this.saving.set(true);
+    this.bankFinancingService.createOrder({ bankQuotationId: approval.id, userId: 1 }).subscribe({
+      next: order => {
+        this.saving.set(false);
+        this.approval.set(order);
+        this.notificationService.showSuccess('BANK_FINANCING.ORDER_CREATED');
+        this.router.navigate(['/sales/bank/invoices/new'], { queryParams: { orderId: order.id } });
+      },
+      error: () => {
+        this.saving.set(false);
+        this.notificationService.showError('BANK_FINANCING.ORDER_CREATE_FAILED');
+      }
     });
   }
 }

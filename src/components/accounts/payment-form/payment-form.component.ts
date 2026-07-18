@@ -108,7 +108,6 @@ export class PaymentFormComponent implements OnInit {
   // ── Form Init ────────────────────────────────────────────────────────────────
   private initForm(): void {
     this.paymentForm = this.fb.group({
-      voucherNumber:      [`PV-${Date.now()}`],
       voucherDate:        [new Date().toISOString().split('T')[0], Validators.required],
       paymentMethod:      ['BANK_TRANSFER',  Validators.required],
       totalVoucherAmount: [0, [Validators.required, Validators.min(0.01)]],
@@ -141,7 +140,6 @@ export class PaymentFormComponent implements OnInit {
 
   private populateForm(payment: Payment): void {
     this.paymentForm.patchValue({
-      voucherNumber:      payment.voucherNumber,
       voucherDate:        new Date(payment.voucherDate).toISOString().split('T')[0],
       totalVoucherAmount: payment.amount,
       debitAccountId:     payment.debitAccountId  ?? null,
@@ -228,7 +226,7 @@ export class PaymentFormComponent implements OnInit {
 
     const v = this.paymentForm.value;
     const payment: Partial<Payment> = {
-      voucherNumber:    v.voucherNumber,
+      voucherNumber:    this.editingPayment()?.voucherNumber || '',
       voucherDate:      new Date(v.voucherDate),
       amount:           v.totalVoucherAmount,
       status:           v.status === 'DRAFT' ? VoucherStatus.Draft : VoucherStatus.Approved,

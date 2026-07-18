@@ -26,6 +26,13 @@ export interface BankQuotation {
   installmentTermMonths?: number;
   approvalNotes?: string;
   approvedAt?: string;
+  /** Set once a Bank Sales Order has been confirmed from this approved quotation. */
+  orderNumber?: string;
+  orderDate?: string;
+  /** Number of units of carId financed by this quotation (quantity-based stock reservation). */
+  quantity: number;
+  /** Branch this quotation's vehicle(s) were reserved from. */
+  branchId: number;
 }
 
 export interface CreateBankQuotationDto {
@@ -34,6 +41,14 @@ export interface CreateBankQuotationDto {
   endUserNationalId: string;
   bankId: number;
   carId: number;
+  quantity: number;
+  branchId: number;
+  userId: number;
+}
+
+/** Confirms a Bank_Approved quotation into a Bank Sales Order with its own document number. */
+export interface CreateBankOrderDto {
+  bankQuotationId: number;
   userId: number;
 }
 
