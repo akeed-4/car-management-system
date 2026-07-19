@@ -13,7 +13,7 @@ import {
   providedIn: 'root'
 })
 export class DocumentNumberingService {
-  private apiUrl = environment.origin + 'api/DocumentNumberingSettings';
+  private apiUrl = environment.origin + 'api/DocumentSettings/Numbering';
 
   constructor(private http: HttpClient) { }
 

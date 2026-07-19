@@ -99,7 +99,8 @@ export class PurchaseRequestFormComponent implements OnInit {
     this.requestForm = this.fb.group({
       requestNumber: ['', Validators.required],
       requestDate: [new Date(), Validators.required],
-      purchaseOfferId: [null, Validators.required],
+      /** UI-only: picks a Requisition to pre-fill items from; not part of the saved request. */
+      sourceRequisitionId: [null, Validators.required],
       supplierId: [null, Validators.required],
       notes: ['']
     });
@@ -169,13 +170,16 @@ export class PurchaseRequestFormComponent implements OnInit {
         this.requestForm.patchValue({
           requestNumber: request.requestNumber,
           requestDate: request.requestDate,
-          purchaseOfferId: request.purchaseOfferId,
           supplierId: request.supplierId,
           notes: request.notes
         }, { emitEvent: false });
+        // The source-requisition picker is only meaningful when creating a new request, so it
+        // has nothing to patch here -- disable its required validation in edit mode.
+        this.requestForm.get('sourceRequisitionId')?.clearValidators();
+        this.requestForm.get('sourceRequisitionId')?.updateValueAndValidity({ emitEvent: false });
         this.requestItems = (request.items || []).map((item: any) => ({
           carId: item.carId,
-          carDescription: item.car?.description || `${item.car?.make ?? ''} ${item.car?.model ?? ''} ${item.car?.year ?? ''}`.trim(),
+          carDescription: item.carDescription || item.car?.description || `${item.car?.make ?? ''} ${item.car?.model ?? ''} ${item.car?.year ?? ''}`.trim(),
           make: item.car?.make || '',
           model: item.car?.model || '',
           year: item.car?.year || new Date().getFullYear(),
@@ -221,11 +225,11 @@ export class PurchaseRequestFormComponent implements OnInit {
     const dto: CreatePurchaseRequestDto = {
       requestNumber: this.requestForm.value.requestNumber,
       requestDate: this.requestForm.value.requestDate,
-      purchaseOfferId: this.requestForm.value.purchaseOfferId,
       supplierId: this.requestForm.getRawValue().supplierId,
       notes: this.requestForm.value.notes,
       items: this.requestItems.map(item => ({
         carId: item.carId,
+        carDescription: item.carDescription,
         quantity: item.quantity,
         unitPrice: item.unitPrice
       }))

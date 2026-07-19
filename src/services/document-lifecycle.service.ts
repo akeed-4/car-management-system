@@ -13,7 +13,7 @@ import {
   providedIn: 'root'
 })
 export class DocumentLifecycleService {
-  private apiUrl = environment.origin + 'api/DocumentLifecycleSettings';
+  private apiUrl = environment.origin + 'api/DocumentSettings/Lifecycle';
 
   constructor(private http: HttpClient) { }
 

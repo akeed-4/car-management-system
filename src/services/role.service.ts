@@ -26,7 +26,7 @@ export class RoleService {
   private http = inject(HttpClient);
   private userService = inject(UserService);
   private apiUrl = `${environment.origin}api/Roles`;
-  private permissionsApiUrl = `${environment.origin}api/Permissions`;
+  private permissionsApiUrl = `${environment.origin}api/Roles/Permissions`;
 
   private roles = signal<Role[]>([]);
   public roles$ = this.roles.asReadonly();

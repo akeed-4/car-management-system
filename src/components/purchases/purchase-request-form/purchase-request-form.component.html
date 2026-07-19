@@ -44,14 +44,14 @@
           <div class="flex-1">
             <mat-form-field appearance="outline" class="w-100">
               <mat-label>{{ 'PURCHASE_REQUESTS.SELECT_ORDER' | translate }}</mat-label>
-              <mat-select formControlName="purchaseOfferId" (selectionChange)="onOrderSelected($event.value)">
+              <mat-select formControlName="sourceRequisitionId" (selectionChange)="onOrderSelected($event.value)">
                 <mat-option *ngFor="let o of eligibleOrders()" [value]="o.id">
                   {{ o.requisitionNumber }} — {{ o.departmentName }} — {{ o.requisitionDate | date:'mediumDate' }}
                 </mat-option>
               </mat-select>
               <mat-icon matSuffix>assignment</mat-icon>
               <mat-hint>{{ 'PURCHASE_REQUESTS.SELECT_ORDER_HINT' | translate }}</mat-hint>
-              <mat-error *ngIf="requestForm.get('purchaseOfferId')?.hasError('required')">
+              <mat-error *ngIf="requestForm.get('sourceRequisitionId')?.hasError('required')">
                 {{ 'COMMON.REQUIRED' | translate }}
               </mat-error>
             </mat-form-field>
