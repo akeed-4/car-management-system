@@ -1,16 +1,16 @@
 <div class="container">
-    <div class="page-header">
-        <h2>{{ pageTitle() | translate }}</h2>
-        <a routerLink="/inventory" class="back-link">{{ 'INVENTORY.FORM.BACK_TO_INVENTORY' | translate }}</a>
-    </div>
-
     <div class="card">
-        <form [formGroup]="carForm">
+        <div class="card-header">
+            <h2>{{ pageTitle() | translate }}</h2>
+            <a routerLink="/inventory" class="back-link">{{ 'INVENTORY.FORM.BACK_TO_INVENTORY' | translate }}</a>
+        </div>
+
+        <form [formGroup]="carForm" class="card-body">
             <!-- Main Details Section -->
             <section class="form-section">
                 <h3 class="form-section-title">{{ 'INVENTORY.FORM.MAIN_DETAILS' | translate }}</h3>
                 <ng-container *ngIf="layout$ | async as layout">
-                    <mat-grid-list [cols]="layout.columns" rowHeight="90px" gutterSize="6px">
+                    <mat-grid-list [cols]="layout.columns" rowHeight="64px" gutterSize="4px">
                         <mat-grid-tile [colspan]="1" [rowspan]="1">
                             <mat-form-field appearance="outline" class="full-width">
                                 <mat-label>{{ 'INVENTORY.FORM.MANUFACTURER' | translate }}</mat-label>
@@ -74,7 +74,7 @@
                     </mat-grid-list>
                 </ng-container>
                 <ng-container *ngIf="layout$ | async as layout">
-                    <mat-grid-list [cols]="layout.columns" rowHeight="90px" gutterSize="6px">
+                    <mat-grid-list [cols]="layout.columns" rowHeight="64px" gutterSize="4px">
                         <mat-grid-tile [colspan]="1" [rowspan]="1">
                             <div class="radio-group-container">
                                 <label class="form-label">{{ 'INVENTORY.FORM.CONDITION' | translate }}</label>
@@ -94,7 +94,7 @@
             <section class="form-section">
                 <h3 class="form-section-title">{{ 'INVENTORY.FORM.SAUDI_DETAILS' | translate }}</h3>
                 <ng-container *ngIf="layout$ | async as layout">
-                    <mat-grid-list [cols]="layout.columns" rowHeight="90px" gutterSize="6px">
+                    <mat-grid-list [cols]="layout.columns" rowHeight="64px" gutterSize="4px">
                         <mat-grid-tile [colspan]="1" [rowspan]="1">
                             <mat-form-field appearance="outline" class="full-width">
                                 <mat-label>{{ 'INVENTORY.FORM.VIN' | translate }}</mat-label>
@@ -137,7 +137,7 @@
             <section class="form-section">
                 <h3 class="form-section-title">{{ 'INVENTORY.FORM.TECHNICAL' | translate }}</h3>
                 <ng-container *ngIf="layout$ | async as layout">
-                    <mat-grid-list [cols]="layout.columns" rowHeight="90px" gutterSize="6px">
+                    <mat-grid-list [cols]="layout.columns" rowHeight="64px" gutterSize="4px">
                         <mat-grid-tile [colspan]="1" [rowspan]="1">
                             <mat-form-field appearance="outline" class="full-width">
                                 <mat-label>{{ 'INVENTORY.FORM.MILEAGE' | translate }}</mat-label>
@@ -181,7 +181,7 @@
             <section class="form-section">
                 <h3 class="form-section-title">{{ 'INVENTORY.FORM.FINANCIALS' | translate }}</h3>
                 <ng-container *ngIf="layout$ | async as layout">
-                    <mat-grid-list [cols]="layout.columns" rowHeight="90px" gutterSize="6px">
+                    <mat-grid-list [cols]="layout.columns" rowHeight="64px" gutterSize="4px">
                         <mat-grid-tile [colspan]="1" [rowspan]="1">
                             <mat-form-field appearance="outline" class="full-width">
                                 <mat-label>{{ 'INVENTORY.FORM.PURCHASE_PRICE' | translate }}</mat-label>
@@ -288,7 +288,7 @@
             <section class="form-section">
                 <h3 class="form-section-title">{{ 'INVENTORY.FORM.DESCRIPTION_PHOTOS' | translate }}</h3>
                 <ng-container *ngIf="layout$ | async as layout">
-                    <mat-grid-list [cols]="2" rowHeight="300px" gutterSize="16px">
+                    <mat-grid-list [cols]="2" rowHeight="200px" gutterSize="10px">
                         <mat-grid-tile [colspan]="1" [rowspan]="1">
                             <mat-form-field appearance="outline" class="full-width">
                                 <mat-label>{{ 'INVENTORY.FORM.MARKETING_DESCRIPTION' | translate }}</mat-label>
@@ -333,30 +333,29 @@
                     </mat-grid-list>
                 </ng-container>
             </section>
-
-            <!-- Form Actions -->
-            <div class="form-actions">
-                <button type="button" (click)="cancelForm()" class="btn btn-light">{{ 'INVENTORY.FORM.CANCEL' |
-                    translate }}</button>
-                <button type="button" (click)="saveCar()" [disabled]="carForm.invalid" class="btn btn-primary">
-                    {{ editMode() ? ( 'INVENTORY.FORM.SAVE_CHANGES' | translate ) : ( 'INVENTORY.FORM.ADD_CAR' |
-                    translate ) }}
-                </button>
-                @if(editMode()) {
-
-                @if(car()?.status === 'Reserved') {
-                <button type="button" (click)="navigateToDepositForm()" class="btn btn-secondary">
-                    <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15A2.25 2.25 0 0 0 2.25 6.75v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
-                    </svg>
-                    <span>{{ 'INVENTORY.FORM.DEPOSIT_VOUCHER' | translate }}</span>
-                </button>
-                }
-                }
-
-            </div>
         </form>
+
+        <!-- Form Actions (sticky footer) -->
+        <div class="form-actions">
+            <button type="button" (click)="cancelForm()" class="btn btn-light">{{ 'INVENTORY.FORM.CANCEL' |
+                translate }}</button>
+            <button type="button" (click)="saveCar()" [disabled]="carForm.invalid" class="btn btn-primary">
+                {{ editMode() ? ( 'INVENTORY.FORM.SAVE_CHANGES' | translate ) : ( 'INVENTORY.FORM.ADD_CAR' |
+                translate ) }}
+            </button>
+            @if(editMode()) {
+
+            @if(car()?.status === 'Reserved') {
+            <button type="button" (click)="navigateToDepositForm()" class="btn btn-secondary">
+                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15A2.25 2.25 0 0 0 2.25 6.75v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
+                </svg>
+                <span>{{ 'INVENTORY.FORM.DEPOSIT_VOUCHER' | translate }}</span>
+            </button>
+            }
+            }
+        </div>
     </div>
 </div>
 
