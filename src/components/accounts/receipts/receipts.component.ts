@@ -12,7 +12,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
 import { ReceiptService } from '../../../services/receipt.service';
-import { ReceiptVoucher } from '../../../models/receipt-voucher.model';
+import { Receipt } from '../../../models/receipt.model';
 import CustomStore from 'devextreme/data/custom_store';
 import { ToastService } from '@/src/services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
@@ -82,7 +82,7 @@ export class ReceiptsComponent {
   }
   
 
-  trackByReceiptId(index: number, receipt: ReceiptVoucher): number {
+  trackByReceiptId(index: number, receipt: Receipt): number {
     return receipt.id;
   }
 }

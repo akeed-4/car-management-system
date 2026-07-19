@@ -1,0 +1,44 @@
+<div class="cash-calculator">
+  <div class="cash-calculator-row">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'INVOICE.TOTAL' | translate }}</mat-label>
+      <input matInput type="text" [value]="invoiceTotal | number:'1.2-2'" disabled readonly>
+      <span matPrefix>SAR&nbsp;</span>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'CASH_CALCULATOR.AMOUNT_RECEIVED' | translate }}</mat-label>
+      <input
+        matInput
+        type="number"
+        min="0"
+        step="0.01"
+        [ngModel]="amountReceivedSignal()"
+        (ngModelChange)="onAmountReceivedInput($event.toString())"
+      >
+      <span matPrefix>SAR&nbsp;</span>
+      <button mat-icon-button matSuffix type="button"
+              [title]="'CASH_CALCULATOR.FILL_EXACT' | translate"
+              (click)="fillExactAmount()">
+        <mat-icon>check_circle</mat-icon>
+      </button>
+    </mat-form-field>
+  </div>
+
+  <div class="cash-calculator-result" [class.is-change]="changeDue() > 0" [class.is-owed]="remainingOwed() > 0" [class.is-exact]="isExactMatch()">
+    <ng-container *ngIf="isExactMatch(); else notExact">
+      <mat-icon>check_circle</mat-icon>
+      <span>{{ 'CASH_CALCULATOR.EXACT_AMOUNT' | translate }}</span>
+    </ng-container>
+    <ng-template #notExact>
+      <ng-container *ngIf="changeDue() > 0">
+        <mat-icon>currency_exchange</mat-icon>
+        <span>{{ 'CASH_CALCULATOR.CHANGE_DUE' | translate }}: {{ changeDue() | number:'1.2-2' }}</span>
+      </ng-container>
+      <ng-container *ngIf="remainingOwed() > 0">
+        <mat-icon>warning</mat-icon>
+        <span>{{ 'CASH_CALCULATOR.REMAINING_OWED' | translate }}: {{ remainingOwed() | number:'1.2-2' }}</span>
+      </ng-container>
+    </ng-template>
+  </div>
+</div>

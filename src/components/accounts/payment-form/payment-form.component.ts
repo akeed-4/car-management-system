@@ -15,6 +15,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { InvoiceDropdownGridComponent } from '../../shared/invoice-dropdown-grid/invoice-dropdown-grid.component';
 import { SupplierService } from '../../../services/supplier.service';
+import { Supplier } from '../../../models/supplier.model';
 import { PurchasesService } from '../../../services/purchases.service';
 import { PaymentService } from '../../../services/payment.service';
 import { InventoryService } from '../../../services/inventory.service';
@@ -68,6 +69,8 @@ export class PaymentFormComponent implements OnInit {
   paymentForm!: FormGroup;
 
   accounts        = toSignal(this.accountingService.accounts$, { initialValue: [] });
+  suppliers           = signal<Supplier[]>([]);
+  /** Outstanding (unpaid/partially paid) invoices for the selected supplier only - Requirement 6. */
   outstandingInvoices = signal<PurchaseInvoice[]>([]);
   selectedInvoiceId   = signal<number | null>(null);
   isEditMode          = signal(false);
@@ -92,8 +95,8 @@ export class PaymentFormComponent implements OnInit {
   ngOnInit(): void {
     this.initForm();
 
-    this.purchasesService.getInvoices().subscribe(invoices => {
-      this.outstandingInvoices.set(invoices);
+    this.supplierService.getSuppliers().subscribe(suppliers => {
+      this.suppliers.set(suppliers);
     });
 
     this.route.paramMap.subscribe(params => {
@@ -113,6 +116,7 @@ export class PaymentFormComponent implements OnInit {
       totalVoucherAmount: [0, [Validators.required, Validators.min(0.01)]],
       debitAccountId:     [null, Validators.required],   // ← NEW
       creditAccountId:    [null, Validators.required],   // ← NEW
+      supplierId:         [null, Validators.required],
       purchaseInvoiceId:  [null],
       notes:              [''],
       status:             ['DRAFT'],
@@ -121,6 +125,21 @@ export class PaymentFormComponent implements OnInit {
     });
 
     this.addDetail();
+  }
+
+  // ── Supplier Change ──────────────────────────────────────────────────────────
+  /** Requirement 6: selecting a supplier loads only their unpaid/partially-paid invoices. */
+  onSupplierChange(supplierId: number | null): void {
+    this.paymentForm.patchValue({ purchaseInvoiceId: null });
+    this.onInvoiceChange(null);
+    if (!supplierId) {
+      this.outstandingInvoices.set([]);
+      return;
+    }
+    this.purchasesService.getOutstandingInvoicesBySupplierId(supplierId).subscribe({
+      next: invoices => this.outstandingInvoices.set(invoices),
+      error: () => this.outstandingInvoices.set([])
+    });
   }
 
   get details(): FormArray {
@@ -144,6 +163,7 @@ export class PaymentFormComponent implements OnInit {
       totalVoucherAmount: payment.amount,
       debitAccountId:     payment.debitAccountId  ?? null,
       creditAccountId:    payment.creditAccountId ?? null,
+      purchaseInvoiceId:  payment.purchaseInvoiceId ?? null,
       notes:              payment.notes,
       status:             payment.status,
     });
@@ -153,6 +173,15 @@ export class PaymentFormComponent implements OnInit {
 
     if (payment.purchaseInvoiceId) {
       this.selectedInvoiceId.set(payment.purchaseInvoiceId);
+      // The invoice being edited may already be fully paid (excluded from the outstanding list) -
+      // load it directly and set the supplier so the dropdown still shows it.
+      this.purchasesService.getInvoiceById(payment.purchaseInvoiceId).subscribe(invoice => {
+        this.paymentForm.patchValue({ supplierId: invoice.supplierId }, { emitEvent: false });
+        this.purchasesService.getOutstandingInvoicesBySupplierId(invoice.supplierId).subscribe(invoices => {
+          const merged = invoices.some(i => i.id === invoice.id) ? invoices : [...invoices, invoice];
+          this.outstandingInvoices.set(merged);
+        });
+      });
     }
   }
 
@@ -183,7 +212,7 @@ export class PaymentFormComponent implements OnInit {
 
   // ── Invoice Change ───────────────────────────────────────────────────────────
   onInvoiceChange(invoiceId: number | null): void {
-    debugger
+    this.paymentForm.patchValue({ purchaseInvoiceId: invoiceId });
     this.selectedInvoiceId.set(invoiceId);
     if (!invoiceId) {
       while (this.details.length) this.details.removeAt(0);
@@ -225,6 +254,11 @@ export class PaymentFormComponent implements OnInit {
     }
 
     const v = this.paymentForm.value;
+    if (!v.purchaseInvoiceId) {
+      this.notificationService.showError(this.translate.instant('ACCOUNTS.FORM.SELECT_INVOICE'));
+      return;
+    }
+
     const payment: Partial<Payment> = {
       voucherNumber:    this.editingPayment()?.voucherNumber || '',
       voucherDate:      new Date(v.voucherDate),
@@ -233,6 +267,7 @@ export class PaymentFormComponent implements OnInit {
       notes:            v.notes,
       createdBy:        v.createdBy || 1,
       beneficiaryType:  BeneficiaryType.Supplier,
+      beneficiaryId:    v.supplierId,
       purchaseInvoiceId:v.purchaseInvoiceId,
       debitAccountId:   v.debitAccountId,    // ← NEW
       creditAccountId:  v.creditAccountId,   // ← NEW

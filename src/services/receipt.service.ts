@@ -1,74 +1,41 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ReceiptVoucher } from '../models/receipt-voucher.model';
+import { Receipt, CreateReceiptDto } from '../models/receipt.model';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
-import 'devextreme/data/odata/store';
-import { LoadOptions } from 'devextreme/data';
 
+/**
+ * Matches carSystemBackend's ReceiptsController exactly (Application/DTOs/ReceiptDto.cs,
+ * Controllers/ReceiptsController.cs) - one Receipt per customer/invoice, with ReceiptDetails as
+ * the per-car cost breakdown, not a multi-invoice allocation batch.
+ */
 @Injectable({
   providedIn: 'root',
 })
 export class ReceiptService {
   private http = inject(HttpClient);
-  private apiUrl = environment.origin + 'api/receipts'; // ضع رابط API الحقيقي هنا
+  private apiUrl = environment.origin + 'api/Receipts';
 
   receipts$ = this.getReceipts();
 
   constructor() {}
 
-  // جلب كل الإيصالات
-  getReceipts(): Observable<ReceiptVoucher[]> {
-    return this.http.get<ReceiptVoucher[]>(this.apiUrl+'/GetAll');
+  getReceipts(): Observable<Receipt[]> {
+    return this.http.get<Receipt[]>(`${this.apiUrl}/GetAll`);
   }
 
-  // جلب كل الإيصالات مع خيارات التحميل
-  getReceiptsWithLoadOptions(loadOptions: any): Observable<any> {
-    return this.http.post<any>(this.apiUrl+`/GetAll`, loadOptions);
+  getReceiptById(id: number): Observable<Receipt> {
+    return this.http.get<Receipt>(`${this.apiUrl}/GetById/${id}`);
   }
 
-  // جلب إيصال محدد حسب ID
-  getReceiptById(id: number): Observable<ReceiptVoucher> {
-    return this.http.get<ReceiptVoucher>(`${this.apiUrl+'/GetById'}/${id}`);
+  addReceipt(receipt: CreateReceiptDto): Observable<Receipt> {
+    return this.http.post<Receipt>(`${this.apiUrl}/Create`, receipt);
   }
 
-  // إضافة إيصال جديد
-  addReceipt(receipt: Partial<ReceiptVoucher>): Observable<ReceiptVoucher> {
-    // Ensure paymentMethod is a numeric code when server expects an integer
-    const payload: any = { ...receipt };
-    if (typeof payload.paymentMethod === 'string') {
-      const m = String(payload.paymentMethod).toUpperCase();
-      const map: Record<string, number> = {
-        CASH: 1,
-        BANK_TRANSFER: 2,
-        BANK: 2,
-        CARD: 3,
-        CHECK: 4,
-        CHEQUE: 4,
-        'BANKTRANSFER': 2
-      };
-      payload.paymentMethod = map[m] ?? payload.paymentMethod;
-    }
-
-    return this.http.post<ReceiptVoucher>(this.apiUrl+'/Create', payload);
+  updateReceipt(receipt: Partial<CreateReceiptDto>, receiptId: number): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/Update/${receiptId}`, receipt);
   }
 
-  // تحديث إيصال
-  updateReceipt(receipt: Partial<ReceiptVoucher>, receiptId: number): Observable<ReceiptVoucher> {
-    return this.http.put<ReceiptVoucher>(`${this.apiUrl+'/Update'}/${receiptId}`, receipt);
-  }
-
-  // أرشفة إيصال
-  archiveReceipt(id: number): Observable<ReceiptVoucher> {
-    return this.http.patch<ReceiptVoucher>(`${this.apiUrl+'/Archive'}/${id}`, { isArchived: true });
-  }
-
-  // إلغاء أرشفة إيصال
-  unarchiveReceipt(id: number): Observable<ReceiptVoucher> {
-    return this.http.patch<ReceiptVoucher>(`${this.apiUrl}/${id}`, { isArchived: false });
-  }
-
-  // حذف إيصال
   deleteReceipt(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/Delete/${id}`);
   }

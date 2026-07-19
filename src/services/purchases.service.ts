@@ -22,26 +22,25 @@ export class PurchasesService {
   }
 
   addInvoice(invoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue' | 'createdAt' | 'updatedAt' | 'supplier' | 'debitAccount' | 'creditAccount'>): Observable<PurchaseInvoice> {
+    // The backend derives amountPaid/amountDue/status itself from paymentType + initialPayment
+    // (cash invoices are auto-marked fully paid; credit invoices net off initialPayment) - it
+    // does not trust client-sent amountPaid/amountDue on create.
     const payload: any = {
       ...invoice,
-      amountPaid: 0,
-      amountDue: invoice.totalAmount,
       isArchived: false,
     };
 
-    // Backend expects paymentMethod as a string (System.String) - keep it as-is.
     return this.http.post<PurchaseInvoice>(this.apiUrl+'/Create', payload);
   }
 
   updateInvoice(id: number, invoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue' | 'createdAt' | 'updatedAt' | 'supplier' | 'debitAccount' | 'creditAccount'>): Observable<PurchaseInvoice> {
+    // Same as addInvoice: let the backend recompute amountPaid/amountDue/status from
+    // paymentType + initialPayment rather than forcing them here.
     const payload: any = {
       ...invoice,
-      amountPaid: 0,
-      amountDue: invoice.totalAmount,
       isArchived: false,
     };
 
-    // Backend expects paymentMethod as a string (System.String) - keep it as-is.
     return this.http.put<PurchaseInvoice>(`${this.apiUrl}/Update/${id}`, payload);
   }
 

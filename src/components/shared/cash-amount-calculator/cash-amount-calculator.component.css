@@ -1,0 +1,40 @@
+.cash-calculator {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cash-calculator-row {
+  display: flex;
+  gap: 16px;
+}
+
+.full-width {
+  flex: 1;
+  width: 100%;
+}
+
+.cash-calculator-result {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-weight: 500;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.cash-calculator-result.is-exact {
+  background: rgba(46, 125, 50, 0.12);
+  color: #2e7d32;
+}
+
+.cash-calculator-result.is-change {
+  background: rgba(25, 118, 210, 0.12);
+  color: #1565c0;
+}
+
+.cash-calculator-result.is-owed {
+  background: rgba(198, 40, 40, 0.12);
+  color: #c62828;
+}

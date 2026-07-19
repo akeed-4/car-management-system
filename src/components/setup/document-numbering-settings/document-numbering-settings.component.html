@@ -30,11 +30,15 @@
     <dxi-column dataField="prefix" [caption]="'DOCUMENT_NUMBERING.PREFIX' | translate"></dxi-column>
     <dxi-column dataField="suffix" [caption]="'DOCUMENT_NUMBERING.SUFFIX' | translate"></dxi-column>
     <dxi-column dataField="digitPadding" [caption]="'DOCUMENT_NUMBERING.DIGIT_PADDING' | translate" [width]="100"></dxi-column>
+    <dxi-column dataField="startingNumber" [caption]="'DOCUMENT_NUMBERING.STARTING_NUMBER' | translate" [width]="100"></dxi-column>
+    <dxi-column dataField="currentNumber" [caption]="'DOCUMENT_NUMBERING.CURRENT_NUMBER' | translate" [width]="100" [allowEditing]="false"></dxi-column>
+    <dxi-column dataField="nextNumberPreview" [caption]="'DOCUMENT_NUMBERING.NEXT_NUMBER' | translate" [allowEditing]="false"></dxi-column>
     <dxi-column dataField="autoNumberingEnabled" dataType="boolean" [caption]="'DOCUMENT_NUMBERING.AUTO_ENABLED' | translate" [width]="110"></dxi-column>
     <dxi-column dataField="isActive" dataType="boolean" [caption]="'COMMON.ACTIVE' | translate" [width]="90"></dxi-column>
 
-    <dxi-column type="buttons" [width]="90">
+    <dxi-column type="buttons" [width]="130">
       <dxi-button icon="edit" [hint]="'COMMON.EDIT' | translate" [onClick]="openEdit"></dxi-button>
+      <dxi-button icon="revert" [hint]="'DOCUMENT_NUMBERING.RESET_SEQUENCE' | translate" [onClick]="resetSequence"></dxi-button>
       <dxi-button icon="trash" [hint]="'COMMON.DELETE' | translate" [onClick]="delete.bind(this)"></dxi-button>
     </dxi-column>
   </dx-data-grid>
@@ -88,6 +92,12 @@
             <mat-label>{{ 'DOCUMENT_NUMBERING.DIGIT_PADDING' | translate }}</mat-label>
             <input matInput type="number" formControlName="digitPadding" min="1" max="10">
           </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'DOCUMENT_NUMBERING.STARTING_NUMBER' | translate }}</mat-label>
+            <input matInput type="number" formControlName="startingNumber" min="1"
+                   [matTooltip]="'DOCUMENT_NUMBERING.STARTING_NUMBER_HINT' | translate">
+          </mat-form-field>
         </div>
 
         <div class="toggle-row">
@@ -103,6 +113,11 @@
           <mat-slide-toggle formControlName="isActive">
             {{ 'COMMON.ACTIVE' | translate }}
           </mat-slide-toggle>
+        </div>
+
+        <div class="preview-box" *ngIf="editingId != null">
+          <span class="preview-label">{{ 'DOCUMENT_NUMBERING.CURRENT_NUMBER' | translate }}</span>
+          <span class="preview-value">{{ currentNumberForEditing() }}</span>
         </div>
 
         <div class="preview-box">

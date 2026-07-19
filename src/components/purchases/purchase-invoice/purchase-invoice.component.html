@@ -169,6 +169,26 @@
             </div>
           </section>
 
+          <!-- Requirement 2: Cash Amount Calculator (cash invoices) -->
+          <section class="form-section" *ngIf="isCashPayment()">
+            <h3 class="form-section-title">{{ 'CASH_CALCULATOR.TITLE' | translate }}</h3>
+            <app-cash-amount-calculator
+              [invoiceTotal]="totalAmount()"
+              [initialAmountReceived]="totalAmount()"
+              (amountReceivedChange)="onAmountReceivedChange($event)">
+            </app-cash-amount-calculator>
+          </section>
+
+          <!-- Requirement 5: Initial Payment on credit invoices -->
+          <section class="form-section" *ngIf="!isCashPayment()">
+            <h3 class="form-section-title">{{ 'PURCHASE_INVOICE.INITIAL_PAYMENT' | translate }}</h3>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'PURCHASE_INVOICE.INITIAL_PAYMENT' | translate }}</mat-label>
+              <input matInput type="number" min="0" formControlName="initialPayment">
+              <span matPrefix>SAR&nbsp;</span>
+            </mat-form-field>
+          </section>
+
           <section class="form-section linked-note-section" *ngIf="linkedReceiptIds().length > 0">
             <div class="linked-receipts-note">
               <mat-icon>link</mat-icon>
@@ -263,6 +283,19 @@
             <p class="margin-vat-note" *ngIf="hasMarginVatItems()">
               {{ 'PURCHASE_INVOICE.MARGIN_VAT_NOTE' | translate }}
             </p>
+            <hr>
+            <div class="summary-item">
+              <p>{{ 'PURCHASE_INVOICE.AMOUNT_PAID' | translate }}</p>
+              <p class="font-mono">{{ previewAmountPaid() | currency:'SAR':'symbol':'1.0-0' }}</p>
+            </div>
+            <div class="summary-item">
+              <p>{{ 'PURCHASE_INVOICE.AMOUNT_DUE' | translate }}</p>
+              <p class="font-mono">{{ previewAmountDue() | currency:'SAR':'symbol':'1.0-0' }}</p>
+            </div>
+            <div class="summary-item">
+              <p>{{ 'PURCHASE_INVOICE.PAYMENT_STATUS' | translate }}</p>
+              <p class="font-mono">{{ previewStatus() | translate }}</p>
+            </div>
           </mat-card-content>
 
           <div class="form-actions">

@@ -38,6 +38,7 @@ import { SalesCycleService } from '../../../services/sales-cycle.service';
 import { Quotation } from '../../../models/quotation.model';
 import { SalesChannel } from '../../../models/enums/sales-channel.enum';
 import { SaleType } from '../../../models/sales-enhancements.model';
+import { CashAmountCalculatorComponent } from '../../shared/cash-amount-calculator/cash-amount-calculator.component';
 
 const VAT_RATE_FULL = 0.15; // 15% for new cars on full sale price
 const VAT_RATE_MARGIN = 0.15; // 15% applied to profit margin for used cars
@@ -69,6 +70,7 @@ export enum InvoiceType {
     MatDividerModule,
     DxDataGridModule,
     TranslateModule,
+    CashAmountCalculatorComponent,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './sales-invoice-form.component.html',
@@ -161,7 +163,10 @@ export class SalesInvoiceFormComponent implements OnInit {
     private route: ActivatedRoute,
     private notificationService: NotificationService
   ) {
-    this.invoiceNumber.set(`INV-${Date.now()}`);
+    // Left blank on create -- the server generates the real number (DocumentNumberingSetting for
+    // the applicable INV-RTL/INV-CORP/INV-BANK type), or accepts a manually-typed one if that
+    // document type has automatic numbering disabled. See purchase-invoice.component.ts for the
+    // same pattern.
   }
 
   ngOnInit() {
@@ -192,6 +197,7 @@ export class SalesInvoiceFormComponent implements OnInit {
         downPayment: new FormControl(0)
       });
       this.updateDownPaymentValidators();
+      this.watchAmountReceivedControls();
 
       // Deep-link from a preceding Sales Order step (Corporate/Bank workflows)
       const orderId = this.route.snapshot.queryParamMap.get('orderId');
@@ -249,6 +255,19 @@ export class SalesInvoiceFormComponent implements OnInit {
       control.clearValidators();
     }
     control.updateValueAndValidity();
+  }
+
+  /** Keeps amountReceivedSignal (used by the live Paid/Due/Status preview) in sync with the
+   * downPayment form control for credit/installment sales. Cash sales always show the full total. */
+  private watchAmountReceivedControls(): void {
+    this.invoiceForm.get('downPayment')?.valueChanges.subscribe((value: number) => {
+      if (!this.isCash) {
+        this.amountReceivedSignal.set(Number(value) || 0);
+      }
+    });
+    if (!this.isCash) {
+      this.amountReceivedSignal.set(Number(this.invoiceForm.get('downPayment')?.value) || 0);
+    }
   }
 
   /** Prefills the invoice from a Sales Order created in a preceding workflow step (Corporate/Bank). */
@@ -342,6 +361,8 @@ export class SalesInvoiceFormComponent implements OnInit {
           downPayment: new FormControl(invoice.downPayment || 0)
         });
         this.updateDownPaymentValidators();
+        this.amountReceivedSignal.set(invoice.isCash ? invoice.totalAmount : (invoice.downPayment || invoice.amountPaid || 0));
+        this.watchAmountReceivedControls();
 
         // Set invoice number and items
         this.invoiceNumber.set(invoice.invoiceNumber);
@@ -479,6 +500,27 @@ export class SalesInvoiceFormComponent implements OnInit {
   hasInstallments = computed(() => {
     return this.invoiceItems().some(item => item.installmentDetails);
   });
+
+  /** Amount received from the cash calculator (cash sales) or the down-payment field (credit sales). */
+  amountReceivedSignal = signal(0);
+
+  /** Live preview of AmountPaid/AmountDue/Status - mirrors InvoicePaymentCalculator.Recalculate on the backend. */
+  previewAmountPaid = computed(() => {
+    const total = this.totalAmount();
+    const raw = this.isCash ? total : Math.max(0, this.amountReceivedSignal());
+    return Math.min(total, raw);
+  });
+
+  previewAmountDue = computed(() => Math.max(0, this.totalAmount() - this.previewAmountPaid()));
+
+  previewStatus = computed(() => {
+    if (this.totalAmount() > 0 && this.previewAmountDue() <= 0) return 'INVOICE.STATUS_PAID';
+    return 'INVOICE.STATUS_PENDING';
+  });
+
+  onAmountReceivedChange(value: number): void {
+    this.amountReceivedSignal.set(value || 0);
+  }
 
   // Computed property for car cards display
   carCards = computed(() => {
@@ -748,9 +790,8 @@ export class SalesInvoiceFormComponent implements OnInit {
       vatAmount: this.vatAmount(),
       notes: this.invoiceForm.get('notes')?.value || '',
       isArchived: false,
-      status: "Pending",
-      amountPaid: 0,
-      amountDue: this.totalAmount(),
+      // amountPaid/amountDue/status are derived server-side from isCash + downPayment - see
+      // SalesInvoiceService.CreateInvoiceEntityAsync / RecalculatePaymentFields.
       ownershipTransferStatus: 'Not Started',
       depositId: this.selectedDeposit()?.id || null,
     };

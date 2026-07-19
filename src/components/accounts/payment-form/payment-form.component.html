@@ -74,13 +74,26 @@
           </div>
         </div>
 
-        <!-- Invoice Selection -->
+        <!-- Supplier + Invoice Selection (Requirement 6: pick supplier, see only their outstanding invoices) -->
         <div class="form-section invoice-section">
           <h3>{{ 'ACCOUNTS.FORM.INVOICE_SELECTION' | translate }}</h3>
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'ACCOUNTS.FORM.SUPPLIER' | translate }}</mat-label>
+              <mat-select formControlName="supplierId" required
+                          (selectionChange)="onSupplierChange($event.value)">
+                <mat-option [value]="null" disabled>{{ 'ACCOUNTS.FORM.SELECT_SUPPLIER' | translate }}</mat-option>
+                <mat-option *ngFor="let s of suppliers()" [value]="s.id">{{ s.name }}</mat-option>
+              </mat-select>
+              <mat-error *ngIf="paymentForm.get('supplierId')?.hasError('required')">
+                {{ 'VALIDATION.REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'ACCOUNTS.FORM.INVOICE' | translate }}</mat-label>
               <mat-select formControlName="purchaseInvoiceId"
+                          [disabled]="!paymentForm.get('supplierId')?.value"
                           (selectionChange)="onInvoiceChange($event.value)">
                 <mat-option [value]="null" disabled>{{ 'ACCOUNTS.FORM.SELECT_INVOICE' | translate }}</mat-option>
                 <mat-option *ngFor="let inv of outstandingInvoices(); trackBy: trackByInvoiceId" [value]="inv.id">

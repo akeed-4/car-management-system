@@ -12,7 +12,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ReceiptService } from '../../../../services/receipt.service';
 import { SalesService } from '../../../../services/sales.service';
 import { NotificationService } from '@/src/services/notification.service';
-import { ReceiptVoucher } from '../../../../models/receipt-voucher.model';
+import { Receipt } from '../../../../models/receipt.model';
 import { SalesChannel } from '../../../../models/enums/sales-channel.enum';
 
 @Component({
@@ -41,7 +41,7 @@ export class CorporateReceiptListComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private router = inject(Router);
 
-  receipts = signal<ReceiptVoucher[]>([]);
+  receipts = signal<Receipt[]>([]);
   loading = signal(false);
 
   ngOnInit(): void {
@@ -49,10 +49,10 @@ export class CorporateReceiptListComponent implements OnInit {
   }
 
   /**
-   * ReceiptVoucher has no channel field. Corporate receipts are identified by
-   * joining against sales invoices with salesChannel === Sharikat via
-   * receipt.salesInvoiceId — receipts not linked to a corporate invoice
-   * (e.g. manually entered, unlinked receipts) will not appear here.
+   * Receipt has no channel field. Corporate receipts are identified by joining against sales
+   * invoices with salesChannel === Sharikat via receipt.referenceId (set when source = Sale) —
+   * receipts not linked to a corporate invoice (e.g. manually entered, unlinked receipts) will
+   * not appear here.
    */
   loadReceipts(): void {
     this.loading.set(true);
@@ -64,7 +64,7 @@ export class CorporateReceiptListComponent implements OnInit {
         const corporateInvoiceIds = new Set(
           invoices.filter(i => i.salesChannel === SalesChannel.Sharikat).map(i => i.id)
         );
-        this.receipts.set(receipts.filter(r => r.salesInvoiceId != null && corporateInvoiceIds.has(r.salesInvoiceId)));
+        this.receipts.set(receipts.filter(r => r.referenceId != null && corporateInvoiceIds.has(r.referenceId)));
         this.loading.set(false);
       },
       error: () => {

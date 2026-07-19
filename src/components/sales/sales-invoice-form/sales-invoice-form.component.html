@@ -62,7 +62,7 @@
                 <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'INVOICE.INVOICE_NUMBER' | translate }}</mat-label>
-                    <input matInput [value]="invoiceNumber()" disabled readonly>
+                    <input matInput [value]="invoiceNumber() || ('CORPORATE.AUTO_GENERATED' | translate)" disabled readonly>
                   </mat-form-field>
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
@@ -191,6 +191,16 @@
               </mat-grid-list>
             </ng-container>
           </section>
+
+          <!-- Requirement 2: Cash Amount Calculator (cash sales) -->
+          <section class="form-section" *ngIf="saleType === SaleType.Cash">
+            <h3 class="form-section-title">{{ 'CASH_CALCULATOR.TITLE' | translate }}</h3>
+            <app-cash-amount-calculator
+              [invoiceTotal]="totalAmount()"
+              [initialAmountReceived]="totalAmount()"
+              (amountReceivedChange)="onAmountReceivedChange($event)">
+            </app-cash-amount-calculator>
+          </section>
         </mat-card>
 
         <!-- Grid + Notes share a row so Notes sits beside the line items instead of stacking under
@@ -276,6 +286,19 @@
             <div class="summary-item total">
               <p>{{ 'INVOICE.TOTAL' | translate }}</p>
               <p class="font-mono">{{ totalAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
+            </div>
+            <hr>
+            <div class="summary-item">
+              <p>{{ 'INVOICE.AMOUNT_PAID' | translate }}</p>
+              <p class="font-mono">{{ previewAmountPaid() | currency:'SAR':'symbol':'1.0-0' }}</p>
+            </div>
+            <div class="summary-item">
+              <p>{{ 'INVOICE.AMOUNT_DUE' | translate }}</p>
+              <p class="font-mono">{{ previewAmountDue() | currency:'SAR':'symbol':'1.0-0' }}</p>
+            </div>
+            <div class="summary-item">
+              <p>{{ 'INVOICE.STATUS' | translate }}</p>
+              <p class="font-mono">{{ previewStatus() | translate }}</p>
             </div>
           </mat-card-content>
 

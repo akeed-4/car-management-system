@@ -56,6 +56,7 @@ import { NotificationService } from '../../../services/notification.service';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { CarsReceiptNoteService } from '@/src/services/cars-receipt-note.service';
 import { CarsReceiptNoteDto } from '@/src/models/cars-receipt-note.model';
+import { CashAmountCalculatorComponent } from '../../shared/cash-amount-calculator/cash-amount-calculator.component';
 
 @Component({
   selector: 'app-purchase-invoice',
@@ -63,6 +64,7 @@ import { CarsReceiptNoteDto } from '@/src/models/cars-receipt-note.model';
   imports: [
     RouterModule,
     ReactiveFormsModule,
+    CashAmountCalculatorComponent,
     FormsModule,
     CommonModule,
     TranslateModule,
@@ -266,6 +268,32 @@ export class PurchaseInvoiceComponent implements OnInit {
   
   totalAmount = computed(() => Math.round(this.subtotal() + this.vatAmount()));
 
+  /** True when the current payment type is cash - drives the auto-paid summary + cash calculator. */
+  isCashPayment = computed(() => (this.purchaseInvoiceForm?.get('paymentType')?.value ?? '').toString().toLowerCase() === 'cash');
+
+  /** Amount received from the cash calculator (cash invoices) or the initial-payment field (credit invoices). */
+  amountReceivedSignal = signal(0);
+
+  /** Live preview of AmountPaid/AmountDue/Status - mirrors InvoicePaymentCalculator.Recalculate on the backend. */
+  previewAmountPaid = computed(() => {
+    const total = this.totalAmount();
+    const raw = this.isCashPayment() ? total : Math.max(0, this.amountReceivedSignal());
+    return Math.min(total, raw);
+  });
+
+  previewAmountDue = computed(() => Math.max(0, this.totalAmount() - this.previewAmountPaid()));
+
+  previewStatus = computed(() => {
+    if (this.totalAmount() <= 0) return 'PURCHASE_INVOICE.STATUS_UNPAID';
+    if (this.previewAmountDue() <= 0) return 'PURCHASE_INVOICE.STATUS_PAID';
+    if (this.previewAmountPaid() > 0) return 'PURCHASE_INVOICE.STATUS_PARTIALLY_PAID';
+    return 'PURCHASE_INVOICE.STATUS_UNPAID';
+  });
+
+  onAmountReceivedChange(value: number): void {
+    this.amountReceivedSignal.set(value || 0);
+  }
+
   /** True when any line's car uses the ZATCA profit-margin VAT scheme -- the server computes the
    *  authoritative Subtotal/VATAmount for those lines from (unit price - prior car cost), which
    *  can differ from the standard rate-on-price estimate shown above before saving. */
@@ -327,6 +355,7 @@ export class PurchaseInvoiceComponent implements OnInit {
     const invoiceId = this.route.snapshot.params['id'];
     if (!invoiceId) {
       this.initForm();
+      this.watchInitialPaymentControl();
     }
 
     // Load suppliers
@@ -597,6 +626,7 @@ export class PurchaseInvoiceComponent implements OnInit {
       dueDate: [null], // Optional, required only for credit invoices
       invoiceType: [InvoiceType.Taxable, Validators.required],
       ClassificationId: [0, Validators.required],
+      initialPayment: [0, [Validators.min(0)]],
       notes: ['']
     }, { validators: [this.accountValidator, this.dueDateValidator] });
 
@@ -605,6 +635,22 @@ export class PurchaseInvoiceComponent implements OnInit {
 
     // Set initial invoice type
     this.invoiceType.set(InvoiceType.Taxable);
+  }
+
+  /** Keeps amountReceivedSignal (used by the live Paid/Due/Status preview) in sync with the
+   * initialPayment form control for credit invoices. */
+  private watchInitialPaymentControl(): void {
+    this.purchaseInvoiceForm.get('initialPayment')?.valueChanges.subscribe((value: number) => {
+      if (!this.isCashPayment()) {
+        this.amountReceivedSignal.set(Number(value) || 0);
+      }
+    });
+    this.purchaseInvoiceForm.get('paymentType')?.valueChanges.subscribe(() => {
+      // Cash always fully paid; switching back to credit falls back to the initialPayment field.
+      if (!this.isCashPayment()) {
+        this.amountReceivedSignal.set(Number(this.purchaseInvoiceForm.get('initialPayment')?.value) || 0);
+      }
+    });
   }
 
   private accountValidator(group: AbstractControl): { [key: string]: any } | null {
@@ -637,11 +683,16 @@ export class PurchaseInvoiceComponent implements OnInit {
           creditAccountId: [invoice.creditAccountId, Validators.required],
           invoiceDate: [new Date(invoice.invoiceDate), Validators.required],
           paymentMethod: [invoice.paymentMethod || 'Bank Transfer'],
+          paymentType: [invoice.paymentType || 'credit'],
           dueDate: [invoice.dueDate ? new Date(invoice.dueDate) : null],
           invoiceType: [invoice.invoiceType || InvoiceType.Taxable, Validators.required],
           ClassificationId: [invoice.ClassificationId || 0, Validators.required],
+          initialPayment: [invoice.initialPayment || 0, [Validators.min(0)]],
           notes: [invoice.notes || ''],
         }, { validators: [this.accountValidator, this.dueDateValidator] });
+
+        this.amountReceivedSignal.set(invoice.initialPayment || invoice.amountPaid || 0);
+        this.watchInitialPaymentControl();
 
         // Set invoice number signal
         this.invoiceNumberSignal.set(invoice.invoiceNumber);
@@ -872,6 +923,9 @@ export class PurchaseInvoiceComponent implements OnInit {
       invoiceType: formValue.invoiceType,
       items: items,
       totalAmount: this.totalAmount(),
+      // Cash invoices are auto-marked fully paid server-side; credit invoices net this off
+      // against the total (Requirement 5's "Initial Payment"). Status is derived by the backend.
+      initialPayment: this.isCashPayment() ? 0 : this.amountReceivedSignal(),
       notes: formValue.notes,
       status: 'Unpaid',
       isArchived: false,

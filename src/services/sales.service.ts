@@ -47,10 +47,11 @@ getOutstandingInvoicesByCustomerId(customerId: number): Observable<SalesInvoice[
 
   // إضافة فاتورة جديدة
   addInvoice(invoice: SalesInvoice): Observable<SalesInvoice> {
+    // The backend derives amountPaid/amountDue/status itself from isCash + downPayment (cash
+    // invoices are auto-marked fully paid; credit invoices net off downPayment) - it does not
+    // trust client-sent amountPaid/amountDue on create.
     const payload: any = {
       ...invoice,
-      amountPaid: 0,
-      amountDue: invoice.totalAmount,
       ownershipTransferStatus: 'Not Started',
       isArchived: false,
     };

@@ -36,4 +36,10 @@ export class DocumentNumberingService {
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/Delete/${id}`);
   }
+
+  /** Administrator-only: resets this setting's current sequence bucket back to zero so the next
+   * generated number starts at startingNumber again. Does not affect existing documents. */
+  resetSequence(id: number): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/ResetSequence`, {});
+  }
 }

@@ -16,6 +16,7 @@ export interface PurchaseInvoice {
   totalAmount: number;
   amountPaid: number;
   amountDue: number;
+  initialPayment?: number; // Down payment made at creation time for a credit invoice
   notes?: string;
   status: string; // Paid, Unpaid
   isArchived?: boolean;

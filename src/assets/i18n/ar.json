@@ -104,7 +104,20 @@
     "VEHICLE_SELECTED_SUCCESS": "تم اختيار المركبة بنجاح وتم تعليمها كمحجوزة",
     "VEHICLE_LOCK_ERROR": "خطأ في تعليم المركبة",
     "VEHICLE_CLEARED": "تم مسح اختيار المركبة واستعادة الحالة",
-    "TOTAL_AMOUNT": "إجمالي المبلغ"
+    "TOTAL_AMOUNT": "إجمالي المبلغ",
+    "INITIAL_PAYMENT": "الدفعة الأولى",
+    "PAYMENT_STATUS": "حالة الدفع",
+    "STATUS_UNPAID": "غير مدفوعة",
+    "STATUS_PARTIALLY_PAID": "مدفوعة جزئياً"
+  },
+  "CASH_CALCULATOR": {
+    "TITLE": "المبلغ النقدي",
+    "AMOUNT_RECEIVED": "المبلغ المستلم",
+    "REMAINING_CHANGE": "الباقي",
+    "CHANGE_DUE": "الباقي المستحق للعميل",
+    "REMAINING_OWED": "المبلغ المتبقي",
+    "EXACT_AMOUNT": "تم استلام المبلغ بالكامل",
+    "FILL_EXACT": "تعبئة إجمالي الفاتورة"
   },
   "PURCHASE_INVOICE": {
     "CREATE_TITLE": "إنشاء فاتورة شراء",
@@ -186,7 +199,14 @@
     "RECEIVED_QTY": "الكمية المستلمة",
     "CAR_RECEIPTS": "إيصالات استلام السيارات",
     "RECEIPT_NOTES": "إشعارات الاستلام (GRN)",
-    "NOTE_LINE_MISSING_CAR": "بعض بنود إشعار الاستلام ليس لها سيارة مسجلة وتم تخطيها"
+    "NOTE_LINE_MISSING_CAR": "بعض بنود إشعار الاستلام ليس لها سيارة مسجلة وتم تخطيها",
+    "AMOUNT_PAID": "المبلغ المدفوع",
+    "AMOUNT_DUE": "المبلغ المستحق",
+    "INITIAL_PAYMENT": "الدفعة الأولى",
+    "PAYMENT_STATUS": "حالة الدفع",
+    "STATUS_PAID": "مدفوعة",
+    "STATUS_UNPAID": "غير مدفوعة",
+    "STATUS_PARTIALLY_PAID": "مدفوعة جزئياً"
   },
   "COMMON": {
     "RESET": "إعادة تعيين",
@@ -455,6 +475,14 @@
     "PREFIX": "البادئة",
     "SUFFIX": "اللاحقة",
     "DIGIT_PADDING": "طول الرقم (عدد الخانات)",
+    "STARTING_NUMBER": "الرقم الابتدائي",
+    "STARTING_NUMBER_HINT": "أول رقم يتم إصداره عند بدء هذه الدورة من جديد (مثال: استئناف الترقيم من 1000 بدلاً من 1). يؤثر فقط على دورة لم يصدر منها أي رقم بعد.",
+    "CURRENT_NUMBER": "الرقم الحالي",
+    "NEXT_NUMBER": "الرقم التالي",
+    "RESET_SEQUENCE": "إعادة تعيين التسلسل",
+    "RESET_SEQUENCE_CONFIRM": "إعادة تعيين تسلسل الترقيم لـ {{type}}؟ سيبدأ المستند التالي من الرقم الابتدائي. لا يمكن التراجع عن هذا الإجراء ولا يؤثر على المستندات الحالية.",
+    "RESET_SEQUENCE_SUCCESS": "تمت إعادة تعيين التسلسل بنجاح",
+    "RESET_SEQUENCE_ERROR": "خطأ في إعادة تعيين التسلسل",
     "AUTO_ENABLED": "تفعيل الترقيم التلقائي",
     "USE_DATE_BASED_MAX_NUMBER": "المتابعة من أعلى رقم حسب التاريخ",
     "USE_DATE_BASED_MAX": "المتابعة من أعلى رقم حسب التاريخ",
@@ -1877,12 +1905,15 @@
       "CREDIT": "دائن",
       "DIFFERENCE": "الفرق",
       "UNALLOCATED_BALANCE": "الرصيد غير الموزع",
+      "UNALLOCATED_BALANCE_ERROR": "يجب أن يساوي إجمالي المبالغ الموزعة إجمالي المبلغ المستلم",
       "NOTES": "ملاحظات",
       "CANCEL": "إلغاء",
       "SAVE": "حفظ سند الصرف",
       "SAVE_RECEIPT": "حفظ سند القبض",
       "UPDATE": "تحديث",
-      "AUTO_DISTRIBUTE_TOOLTIP": "توزيع الإجمالي تلقائيًا بين صفوف السيارات"
+      "AUTO_DISTRIBUTE_TOOLTIP": "توزيع الإجمالي تلقائيًا بين صفوف السيارات",
+      "SUPPLIER": "المورد",
+      "SELECT_SUPPLIER": "-- اختر المورد --"
     },
     "DEPOSITS": {
       "LIST_TITLE": "قائمة سندات العربون",
@@ -1997,7 +2028,8 @@
       "SAVED": "تم حفظ سند القبض وتحديث الفاتورة.",
       "ERROR_LOADING": "خطأ في تحميل السند",
       "ERROR_UPDATING": "خطأ في تحديث السند",
-      "ERROR_SAVING": "خطأ في حفظ السند"
+      "ERROR_SAVING": "خطأ في حفظ السند",
+      "NO_ALLOCATIONS": "الرجاء توزيع المبلغ المستلم على فاتورة واحدة على الأقل"
     },
     "ADD_NEW": "إضافة مصنع جديد",
     "EDIT_TITLE": "تعديل المصنع",

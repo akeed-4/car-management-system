@@ -19,7 +19,7 @@ import { SalesService } from '../../../services/sales.service';
 import { ReceiptService } from '../../../services/receipt.service';
 import { TreasuryService } from '../../../services/treasury.service';
 import { SalesInvoice } from '@/src/models/sales-invoice.model';
-import { ReceiptVoucher } from '@/src/models/receipt-voucher.model';
+import { Receipt, ReceiptSource, CreateReceiptDto } from '@/src/models/receipt.model';
 import { PaymentMethod, VoucherStatus, BeneficiaryType } from '@/src/models/payment-voucher.model';
 import { AccountingService } from '../../accounting/accounting.service';
 import { Account } from '../../accounting/models';
@@ -72,7 +72,7 @@ export class ReceiptFormComponent implements OnInit {
   selectedInvoiceCars = signal<any[]>([]);
   receiptTypes = ['CUSTOMER','GENERAL','ADVANCE','TRANSFER'];
   isEditMode = signal(false);
-  editingReceipt = signal<ReceiptVoucher | null>(null);
+  editingReceipt = signal<Receipt | null>(null);
   totalAmountReceived = computed(() => this.receiptForm?.get('totalAmountReceived')?.value || 0);
   totalAllocated = computed(() => {
     const allocations = this.allocations.value;
@@ -300,21 +300,35 @@ export class ReceiptFormComponent implements OnInit {
   }
 
 
-  private populateForm(receipt: ReceiptVoucher) {
-    // This would need to be updated based on the actual ReceiptVoucher structure
+  private populateForm(receipt: Receipt) {
     this.receiptForm.patchValue({
-      receiptType: (receipt as any).receiptType || 'CUSTOMER',
-      voucherDate: receipt.voucherDate?.toISOString().split('T')[0],
-      totalAmountReceived: receipt.amount,
-      receiptMethod: receipt.paymentMethod,
+      receiptType: 'CUSTOMER',
+      voucherDate: receipt.voucherDate?.toString().split('T')[0],
+      totalAmountReceived: receipt.totalAmount,
       creditAccountId: receipt.creditAccountId,
       debitAccountId: receipt.debitAccountId,
       customerId: receipt.customerId,
       notes: receipt.notes
     });
 
-    // Populate allocations if they exist in the receipt
-    // This depends on the actual ReceiptVoucher model structure
+    // A Receipt maps to exactly one invoice (referenceId) - populate a single allocation row
+    // rather than the multi-invoice picker used when creating a new receipt.
+    this.clearAllocations();
+    if (receipt.source === ReceiptSource.Sale && receipt.referenceId) {
+      const allocation = this.fb.group({
+        invoiceId: [receipt.referenceId],
+        reference: [''],
+        originalBalance: [receipt.totalAmount],
+        amountToPay: [receipt.totalAmount, [Validators.min(0)]],
+        selectedInvoice: [receipt.referenceId],
+        invoiceAccountId: [receipt.receiptDetails?.[0]?.incomeAccountId ?? null]
+      });
+      this.allocations.push(allocation);
+
+      if (receipt.customerId) {
+        this.loadCustomerInvoices(receipt.customerId);
+      }
+    }
   }
   // ── Account Name Helper ──────────────────────────────────────────────────────
   getAccountName(accountId: number | null): string {
@@ -362,29 +376,61 @@ export class ReceiptFormComponent implements OnInit {
     }
   }
 
+  /** Builds one CreateReceiptDto per allocation row (an amountToPay > 0 against one invoice) -
+   * the backend's Receipt is a single-invoice-per-receipt model (one CustomerId/ReferenceId),
+   * so a multi-invoice allocation batch becomes several sequential Receipt creations. */
+  private buildReceiptDtos(): CreateReceiptDto[] {
+    const formValue = this.receiptForm.value;
+    const voucherDate = formValue.voucherDate;
+    const customerId = formValue.customerId;
+    const creditAccountId = formValue.creditAccountId;
+    const debitAccountId = formValue.debitAccountId;
+    const notes = formValue.notes;
+
+    const rows = (formValue.allocations || []).filter((a: any) => (a.amountToPay || 0) > 0);
+
+    return rows.map((alloc: any, index: number) => ({
+      voucherNumber: `${this.editingReceipt()?.voucherNumber || 'RCPT'}-${index + 1}`,
+      voucherDate,
+      totalAmount: alloc.amountToPay,
+      creditAccountId,
+      debitAccountId,
+      customerId,
+      source: ReceiptSource.Sale,
+      referenceId: alloc.invoiceId ?? alloc.selectedInvoice ?? undefined,
+      notes,
+      receiptDetails: [{
+        incomeAccountId: alloc.invoiceAccountId ?? creditAccountId,
+        amount: alloc.amountToPay,
+        note: alloc.reference || undefined
+      }]
+    }));
+  }
+
   saveReceipt() {
     if (this.receiptForm.invalid) {
       return;
     }
     // Only enforce allocation balance for CUSTOMER receipts
     if (this.isCustomerReceipt() && this.unallocatedBalance() !== 0) {
-      alert('Total allocated amount must equal the total amount received');
+      alert(this.translate.instant('ACCOUNTS.FORM.UNALLOCATED_BALANCE_ERROR') || 'Total allocated amount must equal the total amount received');
+      return;
+    }
+    if (this.isCustomerReceipt() && !this.receiptForm.get('customerId')?.value) {
+      alert(this.translate.instant('ACCOUNTS.FORM.SELECT_CUSTOMER') || 'Please select a customer');
       return;
     }
 
-    const formValue = this.receiptForm.value;
-
-    const receiptData = {
-      ...formValue,
-      voucherNumber: this.editingReceipt()?.voucherNumber || '',
-      allocations: formValue.allocations.map((alloc: any) => ({
-        invoiceId: alloc.invoiceId,
-        amountToPay: alloc.amountToPay
-      }))
-    };
+    const dtos = this.buildReceiptDtos();
+    if (this.isCustomerReceipt() && dtos.length === 0) {
+      alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.NO_ALLOCATIONS') || 'Please allocate the received amount to at least one invoice');
+      return;
+    }
 
     if (this.isEditMode()) {
-      this.receiptService.updateReceipt(receiptData, this.editingReceipt()!.id).subscribe({
+      // A receipt maps to exactly one invoice - editing updates that single Receipt in place.
+      const dto = dtos[0] ?? this.buildSingleReceiptDto();
+      this.receiptService.updateReceipt(dto, this.editingReceipt()!.id).subscribe({
         next: () => {
           this.router.navigate(['/accounts/receipts']);
         },
@@ -393,17 +439,42 @@ export class ReceiptFormComponent implements OnInit {
           alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.ERROR_UPDATING') || 'Error updating receipt');
         }
       });
-    } else {
-      this.receiptService.addReceipt(receiptData).subscribe({
-        next: (response) => {
-          this.router.navigate(['/accounts/receipts']);
-        },
-        error: (error) => {
-          console.error('Error saving receipt:', error);
-          alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.ERROR_SAVING') || 'Error saving receipt');
-        }
-      });
+      return;
     }
+
+    // Create mode: post each allocation as its own Receipt, one after another so a duplicate
+    // voucher-number collision or partial failure is reported per row rather than silently
+    // dropping the rest.
+    this.createReceiptsSequentially(dtos, 0);
+  }
+
+  private buildSingleReceiptDto(): CreateReceiptDto {
+    const formValue = this.receiptForm.value;
+    return {
+      voucherNumber: this.editingReceipt()?.voucherNumber || 'RCPT',
+      voucherDate: formValue.voucherDate,
+      totalAmount: formValue.totalAmountReceived,
+      creditAccountId: formValue.creditAccountId,
+      debitAccountId: formValue.debitAccountId,
+      customerId: formValue.customerId,
+      source: ReceiptSource.Other,
+      notes: formValue.notes,
+      receiptDetails: [{ incomeAccountId: formValue.creditAccountId, amount: formValue.totalAmountReceived }]
+    };
+  }
+
+  private createReceiptsSequentially(dtos: CreateReceiptDto[], index: number): void {
+    if (index >= dtos.length) {
+      this.router.navigate(['/accounts/receipts']);
+      return;
+    }
+    this.receiptService.addReceipt(dtos[index]).subscribe({
+      next: () => this.createReceiptsSequentially(dtos, index + 1),
+      error: (error) => {
+        console.error('Error saving receipt:', error);
+        alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.ERROR_SAVING') || 'Error saving receipt');
+      }
+    });
   }
 
   trackByCustomerId(index: number, customer: any): number {

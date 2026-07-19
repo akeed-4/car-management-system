@@ -65,6 +65,7 @@ export class DocumentNumberingSettingsComponent implements OnInit {
   private ngZone = inject(NgZone);
   constructor() {
     this.openEdit = this.openEdit.bind(this);
+    this.resetSequence = this.resetSequence.bind(this);
   }
   documentTypes = DOCUMENT_TYPES;
   formats = FORMATS;
@@ -92,6 +93,7 @@ export class DocumentNumberingSettingsComponent implements OnInit {
       prefix: [''],
       suffix: [''],
       digitPadding: [4, [Validators.required, Validators.min(1), Validators.max(10)]],
+      startingNumber: [1, [Validators.required, Validators.min(1)]],
       useDateBasedMaxNumber: [false],
       fiscalYearStartMonth: [1, [Validators.required, Validators.min(1), Validators.max(12)]],
       isActive: [true]
@@ -122,6 +124,7 @@ export class DocumentNumberingSettingsComponent implements OnInit {
       prefix: '',
       suffix: '',
       digitPadding: 4,
+      startingNumber: 1,
       useDateBasedMaxNumber: false,
       fiscalYearStartMonth: 1,
       isActive: true
@@ -160,6 +163,7 @@ export class DocumentNumberingSettingsComponent implements OnInit {
       prefix: value.prefix || undefined,
       suffix: value.suffix || undefined,
       digitPadding: value.digitPadding,
+      startingNumber: value.startingNumber,
       useDateBasedMaxNumber: value.useDateBasedMaxNumber,
       fiscalYearStartMonth: value.fiscalYearStartMonth,
       isActive: value.isActive
@@ -182,6 +186,24 @@ export class DocumentNumberingSettingsComponent implements OnInit {
     });
   }
 
+  /** Administrator-only: resets the sequence counter back to zero so the next number issued
+   * starts at startingNumber again. Requires explicit confirmation since it's not reversible. */
+  resetSequence(e: any): void {
+    const row: DocumentNumberingSettingDto = e.row.data;
+    const confirmed = confirm(this.translate.instant('DOCUMENT_NUMBERING.RESET_SEQUENCE_CONFIRM', { type: row.documentType }));
+    if (!confirmed) return;
+
+    this.service.resetSequence(row.id).subscribe({
+      next: () => {
+        this.notificationService.showSuccess(this.translate.instant('DOCUMENT_NUMBERING.RESET_SEQUENCE_SUCCESS'));
+        this.loadSettings();
+      },
+      error: () => {
+        this.notificationService.showError(this.translate.instant('DOCUMENT_NUMBERING.RESET_SEQUENCE_ERROR'));
+      }
+    });
+  }
+
   delete(e: any): void {
     const row: DocumentNumberingSettingDto = e.row.data;
     this.service.delete(row.id).subscribe({
@@ -195,13 +217,27 @@ export class DocumentNumberingSettingsComponent implements OnInit {
     });
   }
 
-  /** Live client-side preview only -- the real number always comes from the server. */
+  /** Current LastNumber for the setting being edited (0 if nothing generated yet this bucket). */
+  currentNumberForEditing(): number {
+    if (this.editingId == null) return 0;
+    return this.settings().find(s => s.id === this.editingId)?.currentNumber ?? 0;
+  }
+
+  /** While editing an existing setting, shows the real server-computed next number (reflects the
+   * actual current sequence). For a brand-new, unsaved setting there is no sequence row yet, so
+   * this falls back to a client-side estimate using startingNumber -- purely illustrative until
+   * the first save, at which point loadSettings() will refresh it with the real value. */
   get preview(): string {
     if (!this.form) return '';
+    if (this.editingId != null) {
+      const row = this.settings().find(s => s.id === this.editingId);
+      if (row?.nextNumberPreview) return row.nextNumberPreview;
+    }
+
     const v = this.form.getRawValue();
     const prefix = v.prefix || '';
     const suffix = v.suffix || '';
-    const seq = String(1).padStart(v.digitPadding || 4, '0');
+    const seq = String(v.startingNumber || 1).padStart(v.digitPadding || 4, '0');
     const now = new Date();
     const yyyy = now.getFullYear();
     const mm = String(now.getMonth() + 1).padStart(2, '0');

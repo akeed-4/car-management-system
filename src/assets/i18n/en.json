@@ -95,7 +95,20 @@
     "VEHICLE_SELECTED_SUCCESS": "Vehicle selected successfully and marked as Reserved",
     "VEHICLE_LOCK_ERROR": "Error locking vehicle status",
     "VEHICLE_CLEARED": "Vehicle selection cleared and status restored",
-    "TOTAL_AMOUNT": "Total Amount"
+    "TOTAL_AMOUNT": "Total Amount",
+    "INITIAL_PAYMENT": "Initial Payment",
+    "PAYMENT_STATUS": "Payment Status",
+    "STATUS_UNPAID": "Unpaid",
+    "STATUS_PARTIALLY_PAID": "Partially Paid"
+  },
+  "CASH_CALCULATOR": {
+    "TITLE": "Cash Amount",
+    "AMOUNT_RECEIVED": "Amount Received",
+    "REMAINING_CHANGE": "Remaining Change",
+    "CHANGE_DUE": "Change Due",
+    "REMAINING_OWED": "Remaining Owed",
+    "EXACT_AMOUNT": "Exact amount received",
+    "FILL_EXACT": "Fill exact invoice total"
   },
   "PURCHASE_INVOICE": {
     "CREATE_TITLE": "Create Purchase Invoice",
@@ -184,7 +197,14 @@
     "RECEIVED_QTY": "Received Qty",
     "CAR_RECEIPTS": "Car Receipts",
     "RECEIPT_NOTES": "Receipt Notes (GRN)",
-    "NOTE_LINE_MISSING_CAR": "Some receipt note lines have no car on file and were skipped"
+    "NOTE_LINE_MISSING_CAR": "Some receipt note lines have no car on file and were skipped",
+    "AMOUNT_PAID": "Amount Paid",
+    "AMOUNT_DUE": "Amount Due",
+    "INITIAL_PAYMENT": "Initial Payment",
+    "PAYMENT_STATUS": "Payment Status",
+    "STATUS_PAID": "Paid",
+    "STATUS_UNPAID": "Unpaid",
+    "STATUS_PARTIALLY_PAID": "Partially Paid"
   },
   "COMMON": {
     "RESET": "Reset",
@@ -453,6 +473,14 @@
     "PREFIX": "Prefix",
     "SUFFIX": "Suffix",
     "DIGIT_PADDING": "Number Length (Digits)",
+    "STARTING_NUMBER": "Starting Number",
+    "STARTING_NUMBER_HINT": "First number issued the next time this bucket starts fresh (e.g. resuming numbering at 1000 instead of 1). Only affects a bucket with no numbers issued yet.",
+    "CURRENT_NUMBER": "Current Number",
+    "NEXT_NUMBER": "Next Number",
+    "RESET_SEQUENCE": "Reset Sequence",
+    "RESET_SEQUENCE_CONFIRM": "Reset the number sequence for {{type}}? The next document will restart at the Starting Number. This cannot be undone and does not affect existing documents.",
+    "RESET_SEQUENCE_SUCCESS": "Sequence reset successfully",
+    "RESET_SEQUENCE_ERROR": "Error resetting sequence",
     "AUTO_ENABLED": "Automatic Numbering Enabled",
     "USE_DATE_BASED_MAX_NUMBER": "Continue Max Number From Date",
     "USE_DATE_BASED_MAX": "Continue Max Number From Date",
@@ -1883,12 +1911,15 @@
       "CREDIT": "Credit",
       "DIFFERENCE": "Difference",
       "UNALLOCATED_BALANCE": "Unallocated Balance",
+      "UNALLOCATED_BALANCE_ERROR": "Total allocated amount must equal the total amount received",
       "NOTES": "Notes",
       "CANCEL": "Cancel",
       "SAVE": "Save Payment Voucher",
       "SAVE_RECEIPT": "Save Receipt",
       "UPDATE": "Update",
-      "AUTO_DISTRIBUTE_TOOLTIP": "Automatically distribute the total among car rows"
+      "AUTO_DISTRIBUTE_TOOLTIP": "Automatically distribute the total among car rows",
+      "SUPPLIER": "Supplier",
+      "SELECT_SUPPLIER": "-- Select supplier --"
     },
     "DEPOSITS": {
       "LIST_TITLE": "Deposit Vouchers",
@@ -2003,7 +2034,8 @@
       "SAVED": "Receipt voucher saved and invoice updated.",
       "ERROR_LOADING": "Error loading receipt",
       "ERROR_UPDATING": "Error updating receipt",
-      "ERROR_SAVING": "Error saving receipt"
+      "ERROR_SAVING": "Error saving receipt",
+      "NO_ALLOCATIONS": "Please allocate the received amount to at least one invoice"
     }
   },
   "MANUFACTURERS": {

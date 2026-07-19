@@ -64,9 +64,14 @@ export interface DocumentNumberingSettingDto {
   prefix?: string;
   suffix?: string;
   digitPadding: number;
+  startingNumber: number;
   useDateBasedMaxNumber: boolean;
   fiscalYearStartMonth: number;
   isActive: boolean;
+  /** Server-computed: LastNumber issued so far for the active bucket (0 if none yet), and the
+   * real next formatted number (null when autoNumberingEnabled is false -- manual entry only). */
+  currentNumber: number;
+  nextNumberPreview?: string;
 }
 
 export interface CreateDocumentNumberingSettingDto {
@@ -80,6 +85,7 @@ export interface CreateDocumentNumberingSettingDto {
   prefix?: string;
   suffix?: string;
   digitPadding: number;
+  startingNumber: number;
   useDateBasedMaxNumber: boolean;
   fiscalYearStartMonth: number;
   isActive: boolean;
