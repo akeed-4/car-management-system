@@ -16,6 +16,24 @@ import { QrCodeConfigurationService } from '../../../services/qr-code-configurat
 import { QrCodeComponent } from '../../shared/qr-code/qr-code.component';
 import { QrCodeContext } from '../../../models/qr-code.model';
 import { Company } from '../../../models/branch.model';
+import { DiscountType } from '../../../models/sales-invoice-financials';
+import { SalesInvoiceCalculationService } from '../../../services/sales-invoice-calculation.service';
+
+export interface SalesInvoicePrintBreakdown {
+  subtotal: number;
+  discountType: DiscountType;
+  discountValue: number;
+  discountAmount: number;
+  amountAfterDiscount: number;
+  vatRate: number;
+  vatAmount: number;
+  totalAmount: number;
+  previousPayments: number;
+  downPayment: number;
+  currentPayment: number;
+  amountPaid: number;
+  remainingBalance: number;
+}
 
 @Component({
   selector: 'app-printable-sales-invoice',
@@ -35,6 +53,7 @@ export class PrintableSalesInvoiceComponent {
   private currentSettingService = inject(CurrentSettingService);
   private qrCodeService = inject(QrCodeService);
   private qrCodeConfigurationService = inject(QrCodeConfigurationService);
+  private calc = inject(SalesInvoiceCalculationService);
 
   invoice = signal<SalesInvoice | null>(null);
   customer = signal<Customer | null>(null);
@@ -67,6 +86,40 @@ export class PrintableSalesInvoiceComponent {
       totalBeforeVat: inv.subtotal,
       vatAmount: inv.vatAmount,
       grandTotal: inv.totalAmount
+    };
+  });
+
+  /** Prefers the invoice's own persisted breakdown fields (authoritative once the backend returns
+   * them) and only fills gaps for older invoices that predate this breakdown -- this guarantees
+   * the print view can never disagree with what was actually saved/shown on the create/edit form. */
+  printBreakdown = computed<SalesInvoicePrintBreakdown | null>(() => {
+    const inv = this.invoice();
+    if (!inv) return null;
+
+    const vatRate = inv.vatRate ?? this.calc.resolveVatRate(null, inv.invoiceType ?? null);
+    const discountType: DiscountType = inv.discountType ?? 'Fixed';
+    const discountValue = inv.discountValue ?? 0;
+    const discountAmount = inv.discountAmount ?? this.calc.calculateDiscountAmount(inv.subtotal, discountType, discountValue);
+    const amountAfterDiscount = inv.amountAfterDiscount ?? Math.max(0, inv.subtotal - discountAmount);
+    const previousPayments = inv.previousPayments ?? 0;
+    const downPayment = inv.downPayment ?? 0;
+    const currentPayment = inv.currentPayment ?? Math.max(0, inv.amountPaid - previousPayments);
+    const remainingBalance = inv.remainingBalance ?? inv.amountDue;
+
+    return {
+      subtotal: inv.subtotal,
+      discountType,
+      discountValue,
+      discountAmount,
+      amountAfterDiscount,
+      vatRate,
+      vatAmount: inv.vatAmount,
+      totalAmount: inv.totalAmount,
+      previousPayments,
+      downPayment,
+      currentPayment,
+      amountPaid: inv.amountPaid,
+      remainingBalance,
     };
   });
 
@@ -148,6 +201,8 @@ export class PrintableSalesInvoiceComponent {
   private generateInvoiceHtml(inv: SalesInvoice, customer: Customer, qrImageHtml: string): string {
     const isPaid = inv.status === 'Paid';
     const transferStatusText = this.transferStatusText();
+    const breakdown = this.printBreakdown()!;
+    const vatRateFactor = breakdown.vatRate / 100;
 
     const itemsTable = inv.items.map((item, idx) => `
       <tr>
@@ -155,7 +210,7 @@ export class PrintableSalesInvoiceComponent {
         <td class="col-description">${item.carDescription}</td>
         <td class="col-quantity text-center">${item.quantity}</td>
         <td class="col-price text-right">${item.unitPrice.toFixed(2)} SAR</td>
-        <td class="col-tax text-right">${(item.unitPrice * 0.15).toFixed(2)} SAR</td>
+        <td class="col-tax text-right">${(item.unitPrice * vatRateFactor).toFixed(2)} SAR</td>
         <td class="col-total text-right">${item.unitPrice.toFixed(2)} SAR</td>
         <td class="col-line-total text-right font-semibold">${item.lineTotal.toFixed(2)} SAR</td>
       </tr>
@@ -429,20 +484,50 @@ export class PrintableSalesInvoiceComponent {
               <span class="summary-value">${inv.items.length}</span>
             </div>
             <div class="summary-row">
-              <span class="summary-label">إجمالي الخاضع للضريبة</span>
-              <span class="summary-value">${inv.subtotal.toFixed(2)} SAR</span>
+              <span class="summary-label">المجموع الفرعي (قبل الخصم)</span>
+              <span class="summary-value">${breakdown.subtotal.toFixed(2)} SAR</span>
+            </div>
+            ${breakdown.discountAmount > 0 ? `
+            <div class="summary-row">
+              <span class="summary-label">الخصم (${breakdown.discountType === 'Percentage' ? breakdown.discountValue + '%' : 'مبلغ ثابت'})</span>
+              <span class="summary-value">- ${breakdown.discountAmount.toFixed(2)} SAR</span>
             </div>
             <div class="summary-row">
-              <span class="summary-label">ضرائب أخرى</span>
-              <span class="summary-value">0.00</span>
+              <span class="summary-label">المبلغ بعد الخصم</span>
+              <span class="summary-value">${breakdown.amountAfterDiscount.toFixed(2)} SAR</span>
             </div>
+            ` : ''}
             <div class="summary-row highlight">
-              <span class="summary-label">نسبة الضريبة</span>
-              <span class="summary-value">${inv.vatAmount.toFixed(2)} SAR</span>
+              <span class="summary-label">ضريبة القيمة المضافة (${breakdown.vatRate}%)</span>
+              <span class="summary-value">${breakdown.vatAmount.toFixed(2)} SAR</span>
             </div>
             <div class="summary-row total-row">
-              <span class="summary-label">الإجمالي مع الضريبة</span>
-              <span class="summary-value">${inv.totalAmount.toFixed(2)} SAR</span>
+              <span class="summary-label">إجمالي الفاتورة</span>
+              <span class="summary-value">${breakdown.totalAmount.toFixed(2)} SAR</span>
+            </div>
+            ${breakdown.previousPayments > 0 ? `
+            <div class="summary-row">
+              <span class="summary-label">الدفعات السابقة</span>
+              <span class="summary-value">- ${breakdown.previousPayments.toFixed(2)} SAR</span>
+            </div>
+            ` : ''}
+            ${breakdown.downPayment > 0 ? `
+            <div class="summary-row">
+              <span class="summary-label">الدفعة المقدمة</span>
+              <span class="summary-value">${breakdown.downPayment.toFixed(2)} SAR</span>
+            </div>
+            ` : ''}
+            <div class="summary-row">
+              <span class="summary-label">الدفعة الحالية</span>
+              <span class="summary-value">- ${breakdown.currentPayment.toFixed(2)} SAR</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-label">إجمالي المدفوع</span>
+              <span class="summary-value">${breakdown.amountPaid.toFixed(2)} SAR</span>
+            </div>
+            <div class="summary-row total-row">
+              <span class="summary-label">الرصيد المتبقي</span>
+              <span class="summary-value">${breakdown.remainingBalance.toFixed(2)} SAR</span>
             </div>
           </div>
 

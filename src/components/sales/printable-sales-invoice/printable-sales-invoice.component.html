@@ -3,6 +3,7 @@
 <div class="invoice-container" dir="rtl">
 
   @if (invoice(); as inv) {
+    @if (printBreakdown(); as breakdown) {
     <!-- Header Section -->
     <div class="invoice-header">
       <div class="header-top">
@@ -73,7 +74,7 @@
             <td class="col-description">{{ item.carDescription }}</td>
             <td class="col-quantity text-center">{{ item.quantity }}</td>
             <td class="col-price text-right">{{ item.unitPrice | currency:'SAR':'symbol':'1.0-2' }}</td>
-            <td class="col-tax text-right">{{ (item.unitPrice * 0.15) | currency:'SAR':'symbol':'1.0-2' }}</td>
+            <td class="col-tax text-right">{{ (item.unitPrice * (breakdown.vatRate / 100)) | currency:'SAR':'symbol':'1.0-2' }}</td>
             <td class="col-total text-right">{{ item.unitPrice | currency:'SAR':'symbol':'1.0-2' }}</td>
             <td class="col-line-total text-right font-semibold">{{ item.lineTotal | currency:'SAR':'symbol':'1.0-2' }}</td>
           </tr>
@@ -89,19 +90,52 @@
       </div>
       <div class="summary-row">
         <span class="summary-label">{{ 'SALES.PRINTABLE.TOTAL_TAXABLE' | translate }}</span>
-        <span class="summary-value">{{ inv.subtotal | currency:'SAR':'symbol':'1.0-2' }}</span>
+        <span class="summary-value">{{ breakdown.subtotal | currency:'SAR':'symbol':'1.0-2' }}</span>
       </div>
-      <div class="summary-row">
-        <span class="summary-label">{{ 'SALES.PRINTABLE.OTHER_TAXES' | translate }}</span>
-        <span class="summary-value">0.00</span>
-      </div>
+      @if (breakdown.discountAmount > 0) {
+        <div class="summary-row">
+          <span class="summary-label">
+            {{ 'SALES.PRINTABLE.DISCOUNT' | translate }}
+            ({{ breakdown.discountType === 'Percentage' ? breakdown.discountValue + '%' : ('SALES.PRINTABLE.DISCOUNT_FIXED' | translate) }})
+          </span>
+          <span class="summary-value">- {{ breakdown.discountAmount | currency:'SAR':'symbol':'1.0-2' }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">{{ 'SALES.PRINTABLE.AMOUNT_AFTER_DISCOUNT' | translate }}</span>
+          <span class="summary-value">{{ breakdown.amountAfterDiscount | currency:'SAR':'symbol':'1.0-2' }}</span>
+        </div>
+      }
       <div class="summary-row highlight">
-        <span class="summary-label">{{ 'SALES.PRINTABLE.VAT_PERCENTAGE' | translate }}</span>
-        <span class="summary-value">{{ inv.vatAmount | currency:'SAR':'symbol':'1.0-2' }}</span>
+        <span class="summary-label">{{ 'SALES.PRINTABLE.VAT_PERCENTAGE' | translate }} ({{ breakdown.vatRate }}%)</span>
+        <span class="summary-value">{{ breakdown.vatAmount | currency:'SAR':'symbol':'1.0-2' }}</span>
       </div>
       <div class="summary-row total-row">
         <span class="summary-label">{{ 'SALES.PRINTABLE.TOTAL_WITH_TAT' | translate }}</span>
-        <span class="summary-value">{{ inv.totalAmount | currency:'SAR':'symbol':'1.0-2' }}</span>
+        <span class="summary-value">{{ breakdown.totalAmount | currency:'SAR':'symbol':'1.0-2' }}</span>
+      </div>
+      @if (breakdown.previousPayments > 0) {
+        <div class="summary-row">
+          <span class="summary-label">{{ 'SALES.PRINTABLE.PREVIOUS_PAYMENTS' | translate }}</span>
+          <span class="summary-value">- {{ breakdown.previousPayments | currency:'SAR':'symbol':'1.0-2' }}</span>
+        </div>
+      }
+      @if (breakdown.downPayment > 0) {
+        <div class="summary-row">
+          <span class="summary-label">{{ 'INVOICE.DOWN_PAYMENT' | translate }}</span>
+          <span class="summary-value">{{ breakdown.downPayment | currency:'SAR':'symbol':'1.0-2' }}</span>
+        </div>
+      }
+      <div class="summary-row">
+        <span class="summary-label">{{ 'SALES.PRINTABLE.CURRENT_PAYMENT' | translate }}</span>
+        <span class="summary-value">- {{ breakdown.currentPayment | currency:'SAR':'symbol':'1.0-2' }}</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">{{ 'INVOICE.AMOUNT_PAID' | translate }}</span>
+        <span class="summary-value">{{ breakdown.amountPaid | currency:'SAR':'symbol':'1.0-2' }}</span>
+      </div>
+      <div class="summary-row total-row">
+        <span class="summary-label">{{ 'SALES.PRINTABLE.REMAINING_BALANCE' | translate }}</span>
+        <span class="summary-value">{{ breakdown.remainingBalance | currency:'SAR':'symbol':'1.0-2' }}</span>
       </div>
     </div>
 
@@ -117,7 +151,7 @@
       <p class="footer-text">{{ 'SALES.PRINTABLE.FOOTER_MESSAGE' | translate }}</p>
       <p class="footer-disclaimer">{{ 'SALES.PRINTABLE.FOOTER_DISCLAIMER' | translate }}</p>
     </div>
-
+    }
   } @else {
     <div class="no-invoice-message">
       <p>{{ 'SALES.PRINTABLE.NO_INVOICE' | translate }}</p>

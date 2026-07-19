@@ -127,17 +127,9 @@
 
             <ng-container *ngIf="cardLayout3 | async as layout">
               <mat-grid-list [cols]="layout.columns" rowHeight="88" gutterSize="16px">
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows" *ngIf="channel !== SalesChannel.Bunuk && saleType !== SaleType.Credit">
-                  <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>{{ 'INVOICE.PAYMENT_METHOD' | translate }}</mat-label>
-                    <mat-select formControlName="paymentMethod">
-                      <mat-option value="Cash">{{ 'INVOICE.PAYMENT_CASH' | translate }}</mat-option>
-                      <mat-option *ngIf="selectedCustomer()?.isCreditCustomer" value="Bank Transfer">{{ 'INVOICE.PAYMENT_BANK_TRANSFER' | translate }}</mat-option>
-                      <mat-option *ngIf="selectedCustomer()?.isCreditCustomer" value="Finance">{{ 'INVOICE.PAYMENT_FINANCE' | translate }}</mat-option>
-                      <mat-option *ngIf="selectedCustomer()?.isCreditCustomer" value="Installments">{{ 'INVOICE.PAYMENT_INSTALLMENTS' | translate }}</mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                </mat-grid-tile>
+                <!-- Payment Method has no UI of its own: Payment Type below is the single payment
+                     selector the user picks from, and Payment Method is derived from it
+                     automatically (see derivePaymentMethodFromType in the component). -->
                 <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows" *ngIf="saleType !== SaleType.Cash">
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'INVOICE.DOWN_PAYMENT' | translate }}</mat-label>
@@ -146,11 +138,29 @@
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
                   <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'INVOICE.DISCOUNT_TYPE' | translate }}</mat-label>
+                    <mat-select formControlName="discountType">
+                      <mat-option value="Fixed">{{ 'INVOICE.DISCOUNT_FIXED' | translate }}</mat-option>
+                      <mat-option value="Percentage">{{ 'INVOICE.DISCOUNT_PERCENTAGE' | translate }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'INVOICE.DISCOUNT_VALUE' | translate }}</mat-label>
+                    <input matInput type="number" min="0" formControlName="discountValue">
+                    <span matSuffix *ngIf="invoiceForm.get('discountType')?.value === 'Percentage'">%</span>
+                    <span matSuffix *ngIf="invoiceForm.get('discountType')?.value !== 'Percentage'">{{ 'COMMON.CURRENCY' | translate }}</span>
+                    <mat-error *ngIf="invoiceForm.get('discountValue')?.hasError('discountExceedsSubtotal')">
+                      {{ (invoiceForm.get('discountType')?.value === 'Percentage' ? 'INVOICE.DISCOUNT_EXCEEDS_100' : 'INVOICE.DISCOUNT_EXCEEDS_SUBTOTAL') | translate }}
+                    </mat-error>
+                  </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'INVOICE.PAYMENT_TYPE' | translate }}</mat-label>
-                    <mat-select formControlName="paymentType">
-                      <mat-option value="Bank Transfer">{{ 'INVOICE.PAYMENT_BANK_TRANSFER' | translate }}</mat-option>
-                      <mat-option value="Cash">{{ 'INVOICE.PAYMENT_CASH' | translate }}</mat-option>
-                      <mat-option value="Check">{{ 'INVOICE.PAYMENT_CHECK' | translate }}</mat-option>
+                    <mat-select formControlName="paymentType" required>
+                      <mat-option *ngFor="let opt of paymentTypeOptions()" [value]="opt.value">{{ opt.labelKey | translate }}</mat-option>
                     </mat-select>
                   </mat-form-field>
                 </mat-grid-tile>
@@ -222,20 +232,28 @@
             <div class="table-container premium-table">
               <dx-data-grid
                 [dataSource]="invoiceItems()"
+                keyExpr="lineKey"
                 [showBorders]="true"
                 [columnAutoWidth]="true"
                 [rowAlternationEnabled]="true"
-                [editing]="{ mode: 'cell', allowUpdating: true, allowDeleting: true }"
+                [repaintChangesOnly]="true"
+                [editing]="{ mode: 'cell', allowUpdating: true, allowDeleting: true, useIcons: true }"
                 [rtlEnabled]="true"
-                (onRowRemoving)="removeItem($event.data.carId)"
-                (onCellValueChanged)="updateItemPrice($event.data.carId, $event.value)"
+                (onRowRemoving)="removeItem($event.data.lineKey)"
+                (onRowUpdated)="onInvoiceItemRowUpdated($event)"
                 [noDataText]="'INVOICE.NO_ITEMS' | translate"
                 [height]="360"
               >
-                <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}"></dxi-column>
-                <dxi-column dataField="quantity" caption="{{ 'PURCHASE_INVOICE.QUANTITY' | translate }}" dataType="number"></dxi-column>
-                <dxi-column dataField="salesPrice" caption="{{ 'SALES.COL_SALES_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
-                <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" dataType="number" format="currency"></dxi-column>
+                <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}" [allowEditing]="false"></dxi-column>
+                <dxi-column dataField="quantity" caption="{{ 'PURCHASE_INVOICE.QUANTITY' | translate }}" dataType="number" [setCellValue]="setQuantityValue">
+                  <dxi-validation-rule type="required"></dxi-validation-rule>
+                  <dxi-validation-rule type="range" [min]="1" message="{{ 'INVOICE.INVALID_QUANTITY' | translate }}"></dxi-validation-rule>
+                </dxi-column>
+                <dxi-column dataField="salesPrice" caption="{{ 'SALES.COL_SALES_PRICE' | translate }}" dataType="number" format="currency" [setCellValue]="setPriceValue">
+                  <dxi-validation-rule type="required"></dxi-validation-rule>
+                  <dxi-validation-rule type="range" [min]="0" message="{{ 'INVOICE.INVALID_PRICE' | translate }}"></dxi-validation-rule>
+                </dxi-column>
+                <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" dataType="number" format="currency" [allowEditing]="false"></dxi-column>
                 <dxi-column dataField="installmentDetails.numberOfInstallments" caption="{{ 'INVOICE.NUMBER_OF_INSTALLMENTS' | translate }}" [visible]="hasInstallments()"></dxi-column>
                 <dxi-column dataField="installmentDetails.installmentAmount" caption="{{ 'INVOICE.INSTALLMENT_AMOUNT' | translate }}" dataType="number" format="currency" [visible]="hasInstallments()"></dxi-column>
                 <dxi-column type="buttons">
@@ -272,29 +290,45 @@
           <mat-card-content>
             <div class="summary-item">
               <p>{{ 'INVOICE.SUBTOTAL' | translate }}</p>
-              <p class="font-mono">{{ subtotal() | currency:'SAR':'symbol':'1.0-0' }}</p>
+              <p class="font-mono">{{ subtotal() | currency:'SAR':'symbol':'1.0-2' }}</p>
+            </div>
+            <div class="summary-item" *ngIf="discountAmount() > 0">
+              <p>{{ 'INVOICE.DISCOUNT' | translate }} ({{ invoiceForm.get('discountType')?.value === 'Percentage' ? (invoiceForm.get('discountValue')?.value + '%') : ('INVOICE.DISCOUNT_FIXED' | translate) }})</p>
+              <p class="font-mono">- {{ discountAmount() | currency:'SAR':'symbol':'1.0-2' }}</p>
             </div>
             <div class="summary-item">
-              <p>{{ 'INVOICE.VAT' | translate }}</p>
-              <p class="font-mono">+ {{ vatAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
+              <p>{{ 'INVOICE.AMOUNT_AFTER_DISCOUNT' | translate }}</p>
+              <p class="font-mono">{{ amountAfterDiscount() | currency:'SAR':'symbol':'1.0-2' }}</p>
             </div>
-            <div class="summary-item" *ngIf="depositAmount() > 0">
-              <p>{{ 'INVOICE.PAID_DEPOSIT' | translate }}</p>
-              <p class="font-mono">- {{ depositAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
+            <div class="summary-item">
+              <p>{{ 'INVOICE.VAT' | translate }} ({{ vatRate() }}%)</p>
+              <p class="font-mono">+ {{ vatAmount() | currency:'SAR':'symbol':'1.0-2' }}</p>
             </div>
             <hr>
             <div class="summary-item total">
               <p>{{ 'INVOICE.TOTAL' | translate }}</p>
-              <p class="font-mono">{{ totalAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
+              <p class="font-mono">{{ totalAmount() | currency:'SAR':'symbol':'1.0-2' }}</p>
             </div>
             <hr>
-            <div class="summary-item">
-              <p>{{ 'INVOICE.AMOUNT_PAID' | translate }}</p>
-              <p class="font-mono">{{ previewAmountPaid() | currency:'SAR':'symbol':'1.0-0' }}</p>
+            <div class="summary-item" *ngIf="previousPayments() > 0">
+              <p>{{ 'INVOICE.PREVIOUS_PAYMENTS' | translate }}</p>
+              <p class="font-mono">- {{ previousPayments() | currency:'SAR':'symbol':'1.0-2' }}</p>
+            </div>
+            <div class="summary-item" *ngIf="saleType !== SaleType.Cash">
+              <p>{{ 'INVOICE.DOWN_PAYMENT' | translate }}</p>
+              <p class="font-mono">{{ downPaymentSignal() | currency:'SAR':'symbol':'1.0-2' }}</p>
             </div>
             <div class="summary-item">
-              <p>{{ 'INVOICE.AMOUNT_DUE' | translate }}</p>
-              <p class="font-mono">{{ previewAmountDue() | currency:'SAR':'symbol':'1.0-0' }}</p>
+              <p>{{ 'INVOICE.CURRENT_PAYMENT' | translate }}</p>
+              <p class="font-mono">- {{ currentPayment() | currency:'SAR':'symbol':'1.0-2' }}</p>
+            </div>
+            <div class="summary-item">
+              <p>{{ 'INVOICE.AMOUNT_PAID' | translate }}</p>
+              <p class="font-mono">{{ previewAmountPaid() | currency:'SAR':'symbol':'1.0-2' }}</p>
+            </div>
+            <div class="summary-item total">
+              <p>{{ 'INVOICE.REMAINING_BALANCE' | translate }}</p>
+              <p class="font-mono">{{ remainingBalance() | currency:'SAR':'symbol':'1.0-2' }}</p>
             </div>
             <div class="summary-item">
               <p>{{ 'INVOICE.STATUS' | translate }}</p>
@@ -303,7 +337,7 @@
           </mat-card-content>
 
           <div class="form-actions">
-            <button mat-raised-button color="primary" class="save-btn" (click)="saveInvoice()" [disabled]="!invoiceForm.get('customer')?.valid || !invoiceForm.get('invoiceDate')?.valid || invoiceItems().length === 0">
+            <button mat-raised-button color="primary" class="save-btn" (click)="saveInvoice()" [disabled]="!invoiceForm.get('customer')?.valid || !invoiceForm.get('invoiceDate')?.valid || invoiceForm.get('discountValue')?.invalid || invoiceItems().length === 0">
               <mat-icon>save</mat-icon>
               {{ 'INVOICE.ISSUE' | translate }}
             </button>

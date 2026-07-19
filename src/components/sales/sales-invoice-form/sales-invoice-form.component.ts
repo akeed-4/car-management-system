@@ -1,20 +1,22 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, OnInit, Input } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
-import { ReactiveFormsModule, FormControl, Validators, FormGroup } from '@angular/forms';
+import { AbstractControl, ReactiveFormsModule, FormControl, ValidationErrors, Validators, FormGroup } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
-import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { InventoryService } from '../../../services/inventory.service';
 import { CustomerService } from '../../../services/customer.service';
 import { SalesService } from '../../../services/sales.service';
 import { CurrentSettingService } from '../../../services/current-setting.service';
 import { StoreService } from '../../../services/store.service';
 import { DepositService } from '../../../services/deposit.service';
-import { SalesInvoice } from '../../../models/sales-invoice.model';
 import { InvoiceItem } from '../../../models/invoice-item.model';
-import { Car } from '../../../models/car.model';
 import { StoreCarStockDto } from '../../../models/store-car-stock.model';
 import { Customer } from '../../../models/customer.model';
+import { InvoiceClassificationOption } from '../../../models/invoice-classification.model';
+import { AccountNode } from '../../../models/account-node.model';
+import { DepositVoucher } from '../../../models/deposit-voucher.model';
+import { CustomerOrder } from '../../../models/customer-order.model';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -39,15 +41,23 @@ import { Quotation } from '../../../models/quotation.model';
 import { SalesChannel } from '../../../models/enums/sales-channel.enum';
 import { SaleType } from '../../../models/sales-enhancements.model';
 import { CashAmountCalculatorComponent } from '../../shared/cash-amount-calculator/cash-amount-calculator.component';
-
-const VAT_RATE_FULL = 0.15; // 15% for new cars on full sale price
-const VAT_RATE_MARGIN = 0.15; // 15% applied to profit margin for used cars
+import { DiscountType } from '../../../models/sales-invoice-financials';
+import { SalesInvoiceCalculationService } from '../../../services/sales-invoice-calculation.service';
 
 export enum InvoiceType {
   Taxable = 'Taxable',
   ZeroRated = 'Zero Rated',
   Exempt = 'Exempt'
 }
+
+/** Full pool of Payment Type instruments -- the single payment selector the user sees. Payment
+ * Method (a separate backend/accounting field) is derived from whichever of these is picked; see
+ * derivePaymentMethodFromType. */
+const PAYMENT_TYPE_POOL: { value: string; labelKey: string }[] = [
+  { value: 'Bank Transfer', labelKey: 'INVOICE.PAYMENT_BANK_TRANSFER' },
+  { value: 'Check', labelKey: 'INVOICE.PAYMENT_CHECK' },
+  { value: 'Cash', labelKey: 'INVOICE.PAYMENT_CASH' },
+];
 
 @Component({
   selector: 'app-sales-invoice-form',
@@ -78,9 +88,26 @@ export enum InvoiceType {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SalesInvoiceFormComponent implements OnInit {
-    @Input() lockPaymentMethod: boolean = false;
-    @Input() fixedPaymentMethod: any;
-    @Input() customTitle:any;
+    // Injected services -- declared first so field initializers further down the class (e.g.
+    // cardLayout2 below) that read them run only after they're assigned.
+    private inventoryService = inject(InventoryService);
+    private customerService = inject(CustomerService);
+    private salesCycleService = inject(SalesCycleService);
+    private salesService = inject(SalesService);
+    private currentSettingService = inject(CurrentSettingService);
+    private storeService = inject(StoreService);
+    private accountingService = inject(AccountingService);
+    private depositService = inject(DepositService);
+    private router = inject(Router);
+    private translate = inject(TranslateService);
+    private dialog = inject(MatDialog);
+    private route = inject(ActivatedRoute);
+    private notificationService = inject(NotificationService);
+    private calc = inject(SalesInvoiceCalculationService);
+
+    @Input() lockPaymentMethod = false;
+    @Input() fixedPaymentMethod: string | null = null;
+    @Input() customTitle: string | null = null;
   @Input() titleKey = 'INVOICE.CREATE_TITLE';
     /** Sales distribution channel (Afrad/Sharikat/Bunuk) — drives which fields are shown. */
     @Input() channel: SalesChannel = SalesChannel.Afrad;
@@ -93,10 +120,6 @@ export class SalesInvoiceFormComponent implements OnInit {
     /** Derived from saleType for backward compatibility with the payload/edit-mode logic below. */
     get isCash(): boolean {
       return this.saleType === SaleType.Cash;
-    }
-    // Utility to calculate total amount
-    calculateTotalAmount(items: any[]): number {
-      return items.reduce((sum, item) => sum + (item.amount || 0), 0);
     }
   displayedColumns: string[] = ['carDescription', 'quantity', 'unitPrice', 'lineTotal', 'actions'];
 
@@ -119,6 +142,12 @@ export class SalesInvoiceFormComponent implements OnInit {
 
   // Invoice items state
   invoiceItems = signal<InvoiceItem[]>([]);
+  /** Source of unique `lineKey` values for the grid (see InvoiceItem.lineKey) -- monotonically
+   * increasing per form instance, never reused, never sent to the backend. */
+  private nextLineKey = 1;
+  private allocateLineKey(): number {
+    return this.nextLineKey++;
+  }
 
   invoiceNumber = signal('');
   isEditMode = signal(false);
@@ -129,17 +158,34 @@ export class SalesInvoiceFormComponent implements OnInit {
   invoiceType = signal<InvoiceType>(InvoiceType.Taxable);
 
   // Invoice classification signals
-  invoiceClassifications = signal<any[]>([]);
-  selectedInvoiceClassification = signal<any | null>(null);
+  invoiceClassifications = signal<InvoiceClassificationOption[]>([]);
+  selectedInvoiceClassification = signal<InvoiceClassificationOption | null>(null);
 
   // Account signals
-  debitAccounts = signal<any[]>([]);
-  creditAccounts = signal<any[]>([]);
+  debitAccounts = signal<AccountNode[]>([]);
+  creditAccounts = signal<AccountNode[]>([]);
 
   // Deposit signals
-  selectedDeposit = signal<any | null>(null);
+  selectedDeposit = signal<DepositVoucher | null>(null);
   depositAmount = signal(0);
-  selectedCustomerOrder = signal<any | null>(null);
+  // Bank Sales orders carry a bankId not modeled on the base CustomerOrder type.
+  selectedCustomerOrder = signal<(CustomerOrder & { bankId?: number }) | null>(null);
+
+  // Discount + VAT rate signals (mirror the discountType/discountValue/invoiceType form controls
+  // so the financial-breakdown computed signals below can react to them).
+  discountTypeSignal = signal<DiscountType>('Fixed');
+  discountValueSignal = signal(0);
+  invoiceTypeSignal = signal<InvoiceType>(InvoiceType.Taxable);
+  /** Mirrors the downPayment control purely for display in the "Down Payment" summary row. */
+  downPaymentSignal = signal(0);
+  /** Snapshot of amountPaid as loaded when entering edit mode -- represents money already
+   * collected for this invoice prior to this editing session (see previousPayments below). */
+  originalAmountPaid = signal(0);
+
+  /** Payment Method is no longer a user-facing field -- Payment Type is now the single control
+   * the user picks from, and Payment Method (still required by the backend/accounting) is derived
+   * from it automatically (see watchPaymentTypeControl). */
+  paymentTypeOptions = computed(() => PAYMENT_TYPE_POOL);
 
   // Traceability: Parent Quotation lineage state
   activeQuotations = signal<Quotation[]>([]);
@@ -148,25 +194,22 @@ export class SalesInvoiceFormComponent implements OnInit {
   hasQuotationLineage = computed(() => !!this.linkedQuotation());
   hasOrderLineage = computed(() => !!this.selectedCustomerOrder());
 
-  constructor(
-    private inventoryService: InventoryService,
-    private customerService: CustomerService,
-    private salesCycleService: SalesCycleService,
-    private salesService: SalesService,
-    private currentSettingService: CurrentSettingService,
-    private storeService: StoreService,
-    private accountingService: AccountingService,
-    private depositService: DepositService,
-    private router: Router,
-    private translate: TranslateService,
-    private dialog: MatDialog,
-    private route: ActivatedRoute,
-    private notificationService: NotificationService
-  ) {
+  constructor() {
     // Left blank on create -- the server generates the real number (DocumentNumberingSetting for
     // the applicable INV-RTL/INV-CORP/INV-BANK type), or accepts a manually-typed one if that
     // document type has automatic numbering disabled. See purchase-invoice.component.ts for the
     // same pattern.
+
+    // Keeps the discountValue control's "exceeds subtotal" validity fresh as items or the
+    // discount type change -- Validators.pattern-style static validators can't see live signal
+    // state on their own, so this effect re-triggers validation whenever the inputs it depends on
+    // change (e.g. removing a line no longer covered by a fixed discount surfaces the error
+    // immediately instead of only on the next keystroke in the discount field).
+    effect(() => {
+      this.subtotal();
+      this.discountTypeSignal();
+      this.invoiceForm?.get('discountValue')?.updateValueAndValidity({ emitEvent: false });
+    });
   }
 
   ngOnInit() {
@@ -194,10 +237,15 @@ export class SalesInvoiceFormComponent implements OnInit {
         selectedQuantity: new FormControl(1, [Validators.required, Validators.min(1)]),
         notes: new FormControl(''),
         selectedCostPrice: new FormControl(0, [Validators.required, Validators.min(0)]),
-        downPayment: new FormControl(0)
+        downPayment: new FormControl(0),
+        discountType: new FormControl<DiscountType>('Fixed'),
+        discountValue: new FormControl(0, [Validators.min(0), this.discountExceedsSubtotalValidator])
       });
       this.updateDownPaymentValidators();
       this.watchAmountReceivedControls();
+      this.watchDiscountControls();
+      this.watchClassificationAndTypeControls();
+      this.watchPaymentTypeControl();
 
       // Deep-link from a preceding Sales Order step (Corporate/Bank workflows)
       const orderId = this.route.snapshot.queryParamMap.get('orderId');
@@ -225,16 +273,11 @@ export class SalesInvoiceFormComponent implements OnInit {
     // Load active quotations for the traceability bar's Parent Quotation dropdown
     this.loadActiveQuotations();
 
-    // Watch for customer changes to set payment method and check for pending orders
+    // Watch for customer changes to check for pending orders
+    // (paymentMethod is no longer set here -- it's derived from paymentType, see watchPaymentTypeControl)
     this.invoiceForm.get('customer')?.valueChanges.subscribe(customerId => {
       const customer = this.customers().find(c => c.id === customerId);
       this.selectedCustomer.set(customer || null);
-      // Set payment method based on channel/saleType
-      if (this.channel === SalesChannel.Bunuk) {
-        this.invoiceForm.get('paymentMethod')?.setValue('Finance');
-      } else {
-        this.invoiceForm.get('paymentMethod')?.setValue(this.isCash ? 'Cash' : 'Bank Transfer');
-      }
 
       // Check for pending orders
       if (customerId) {
@@ -268,6 +311,66 @@ export class SalesInvoiceFormComponent implements OnInit {
     if (!this.isCash) {
       this.amountReceivedSignal.set(Number(this.invoiceForm.get('downPayment')?.value) || 0);
     }
+    this.downPaymentSignal.set(Number(this.invoiceForm.get('downPayment')?.value) || 0);
+    this.invoiceForm.get('downPayment')?.valueChanges.subscribe((value: number) => {
+      this.downPaymentSignal.set(Number(value) || 0);
+    });
+  }
+
+  /** A Percentage discount can't exceed 100%; a Fixed discount can't exceed the current subtotal.
+   * Declared as a bound arrow field (not a method) so Angular can call it directly as a
+   * ValidatorFn while it still reads live `this` state (current subtotal/discount type). */
+  private discountExceedsSubtotalValidator = (control: AbstractControl): ValidationErrors | null => {
+    const discountType = this.invoiceForm?.get('discountType')?.value as DiscountType;
+    const valid = this.calc.isDiscountValid(this.subtotal(), discountType, Number(control.value) || 0);
+    return valid ? null : { discountExceedsSubtotal: true };
+  };
+
+  /** Keeps discountAmount/amountAfterDiscount in sync with the discount type/value form controls. */
+  private watchDiscountControls(): void {
+    this.discountTypeSignal.set((this.invoiceForm.get('discountType')?.value as DiscountType) || 'Fixed');
+    this.discountValueSignal.set(Number(this.invoiceForm.get('discountValue')?.value) || 0);
+    this.invoiceForm.get('discountType')?.valueChanges.subscribe((value: DiscountType) => {
+      this.discountTypeSignal.set(value || 'Fixed');
+    });
+    this.invoiceForm.get('discountValue')?.valueChanges.subscribe((value: number) => {
+      this.discountValueSignal.set(Number(value) || 0);
+    });
+  }
+
+  /** Payment Method has no UI of its own anymore -- Payment Type is the only field the user
+   * touches, and Payment Method (still required server-side/for accounting) is derived from it
+   * automatically. Bank-financed (Bunuk channel) sales always report "Finance" regardless of the
+   * selected type, matching the previous customer-driven default for that channel. */
+  private derivePaymentMethodFromType(paymentType: string): string {
+    if (this.channel === SalesChannel.Bunuk) return 'Finance';
+    return paymentType === 'Cash' ? 'Cash' : (paymentType || 'Bank Transfer');
+  }
+
+  private watchPaymentTypeControl(): void {
+    const typeControl = this.invoiceForm.get('paymentType');
+    const methodControl = this.invoiceForm.get('paymentMethod');
+    if (!typeControl || !methodControl) return;
+
+    const applyPaymentType = (value: string) => {
+      methodControl.setValue(this.derivePaymentMethodFromType(value), { emitEvent: false });
+    };
+
+    applyPaymentType(typeControl.value);
+    typeControl.valueChanges.subscribe(applyPaymentType);
+  }
+
+  /** Keeps vatRate reactive to both the invoice-classification dropdown (authoritative VAT rate)
+   * and the Taxable/Zero-Rated/Exempt selector (fallback when no classification vatRate is set). */
+  private watchClassificationAndTypeControls(): void {
+    this.invoiceTypeSignal.set((this.invoiceForm.get('invoiceType')?.value as InvoiceType) || InvoiceType.Taxable);
+    this.invoiceForm.get('invoiceType')?.valueChanges.subscribe((value: InvoiceType) => {
+      this.invoiceTypeSignal.set(value || InvoiceType.Taxable);
+    });
+    this.invoiceForm.get('ClassificationId')?.valueChanges.subscribe((id: number) => {
+      const found = this.invoiceClassifications().find(c => c.value === id);
+      this.selectedInvoiceClassification.set(found || null);
+    });
   }
 
   /** Prefills the invoice from a Sales Order created in a preceding workflow step (Corporate/Bank). */
@@ -316,6 +419,7 @@ export class SalesInvoiceFormComponent implements OnInit {
     this.invoiceForm.get('customer')?.disable();
 
     const items: InvoiceItem[] = (quotation.items || []).map(line => ({
+      lineKey: this.allocateLineKey(),
       carId: line.carId,
       carDescription: line.carDescription,
       quantity: line.quantity,
@@ -358,15 +462,23 @@ export class SalesInvoiceFormComponent implements OnInit {
           selectedQuantity: new FormControl(1, [Validators.required, Validators.min(1)]),
           notes: new FormControl(invoice.notes || ''),
           selectedCostPrice: new FormControl(0, [Validators.required, Validators.min(0)]),
-          downPayment: new FormControl(invoice.downPayment || 0)
+          downPayment: new FormControl(invoice.downPayment || 0),
+          discountType: new FormControl<DiscountType>(invoice.discountType || 'Fixed'),
+          discountValue: new FormControl(invoice.discountValue || 0, [Validators.min(0), this.discountExceedsSubtotalValidator])
         });
         this.updateDownPaymentValidators();
         this.amountReceivedSignal.set(invoice.isCash ? invoice.totalAmount : (invoice.downPayment || invoice.amountPaid || 0));
+        this.originalAmountPaid.set(invoice.amountPaid || 0);
         this.watchAmountReceivedControls();
+        this.watchDiscountControls();
+        this.watchClassificationAndTypeControls();
+        this.watchPaymentTypeControl();
 
         // Set invoice number and items
         this.invoiceNumber.set(invoice.invoiceNumber);
-        this.invoiceItems.set(invoice.items || []);
+        // Backend-loaded items don't carry a lineKey -- assign one so the grid's row identity is
+        // unique even when a prep-charge line shares its carId with the vehicle line it belongs to.
+        this.invoiceItems.set((invoice.items || []).map(item => ({ ...item, lineKey: this.allocateLineKey() })));
       },
       error: (error) => {
         console.error('Failed to load invoice for edit', error);
@@ -462,6 +574,7 @@ export class SalesInvoiceFormComponent implements OnInit {
       }
     });
   }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- CarSelectionDialogComponent's own result is untyped (its `cars` signal is `any[]`); typing this parameter would just hide that, not fix it.
     addCarToSales(car: any): void {
     // Check if already exists
     const alreadyExists = this.invoiceItems().some(item => item.carId === car.id);
@@ -472,11 +585,12 @@ export class SalesInvoiceFormComponent implements OnInit {
 
     // Create invoice item with default quantity of 1
     const newItem: InvoiceItem = {
+      lineKey: this.allocateLineKey(),
       carId: car.id,
       carDescription: `${car.make} ${car.model} (${car.year})`,
       quantity: 1,
       salesPrice: car.salesPrice || 0,
-      lineTotal: (car.salesPrice || 0) * 1,
+      lineTotal: this.calc.calculateLineTotal(1, car.salesPrice || 0),
     };
 
     // Add to invoice items
@@ -486,16 +600,30 @@ export class SalesInvoiceFormComponent implements OnInit {
     this.loadPreparationCharges(car.id);
   }
 
-  // Computed properties for calculations
-  subtotal = computed(() => this.invoiceItems().reduce((sum, item) => sum + item.lineTotal, 0));
-  
-  vatAmount = computed(() => {
-    return this.subtotal() * VAT_RATE_FULL;
-  });
+  // ---- Financial breakdown computed signals --------------------------------------------------
+  // All formulas are delegated to SalesInvoiceCalculationService (backed by
+  // sales-invoice-financials.ts) so the create/edit form and the printable invoice (which
+  // recomputes from the saved record) can never show inconsistent figures, and no calculation is
+  // ever written out twice.
 
-  grossTotal = computed(() => this.subtotal() + this.vatAmount());
+  /** Subtotal before discount -- sum of all line totals. */
+  subtotal = computed(() => this.calc.calculateSubtotal(this.invoiceItems()));
 
-  totalAmount = computed(() => this.grossTotal() - this.depositAmount());
+  /** VAT rate (0 or 15) -- the selected classification's own rate wins; falls back to the
+   * Taxable/Zero-Rated/Exempt selector when no classification is set. */
+  vatRate = computed(() => this.calc.resolveVatRate(this.selectedInvoiceClassification()?.vatRate, this.invoiceTypeSignal()));
+
+  private baseFinancials = computed(() => this.calc.calculateFinancials({
+    subtotal: this.subtotal(),
+    discountType: this.discountTypeSignal(),
+    discountValue: this.discountValueSignal(),
+    vatRate: this.vatRate(),
+  }));
+
+  discountAmount = computed(() => this.baseFinancials().discountAmount);
+  amountAfterDiscount = computed(() => this.baseFinancials().amountAfterDiscount);
+  vatAmount = computed(() => this.baseFinancials().vatAmount);
+  totalAmount = computed(() => this.baseFinancials().totalAmount);
 
   hasInstallments = computed(() => {
     return this.invoiceItems().some(item => item.installmentDetails);
@@ -504,14 +632,21 @@ export class SalesInvoiceFormComponent implements OnInit {
   /** Amount received from the cash calculator (cash sales) or the down-payment field (credit sales). */
   amountReceivedSignal = signal(0);
 
+  /** Money already collected before this save (a deposit paid on the vehicle, plus -- in edit
+   * mode -- whatever was already recorded as paid on the invoice being edited). */
+  previousPayments = computed(() => this.depositAmount() + (this.isEditMode() ? this.originalAmountPaid() : 0));
+
+  /** Money being captured in this exact transaction: the full total for cash sales (assumed
+   * fully paid at sale time), or the down payment entered for credit/installment sales. */
+  currentPayment = computed(() => this.isCash ? this.totalAmount() : Math.max(0, this.amountReceivedSignal()));
+
   /** Live preview of AmountPaid/AmountDue/Status - mirrors InvoicePaymentCalculator.Recalculate on the backend. */
-  previewAmountPaid = computed(() => {
-    const total = this.totalAmount();
-    const raw = this.isCash ? total : Math.max(0, this.amountReceivedSignal());
-    return Math.min(total, raw);
-  });
+  previewAmountPaid = computed(() => Math.min(this.totalAmount(), this.previousPayments() + this.currentPayment()));
 
   previewAmountDue = computed(() => Math.max(0, this.totalAmount() - this.previewAmountPaid()));
+
+  /** Alias of previewAmountDue for the "Remaining Balance" summary row. */
+  remainingBalance = computed(() => this.previewAmountDue());
 
   previewStatus = computed(() => {
     if (this.totalAmount() > 0 && this.previewAmountDue() <= 0) return 'INVOICE.STATUS_PAID';
@@ -534,6 +669,7 @@ export class SalesInvoiceFormComponent implements OnInit {
   });
 
   // Methods for managing invoice items
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- called with either the mock allCars shape or CarSelectionDialogComponent's untyped result; neither is a shared model.
   addCarToInvoice(car: any): void {
     const dialogRef = this.dialog.open(InvoiceItemDialogComponent, {
       width: '400px',
@@ -564,12 +700,14 @@ export class SalesInvoiceFormComponent implements OnInit {
 
         // Create invoice item
         const newItem: InvoiceItem = {
+          lineKey: this.allocateLineKey(),
           carId: car.carId,
           carName: car.carName,
           carDescription: `${car.make} ${car.model} (${car.year})`,
           quantity,
           unitPrice,
-          lineTotal: unitPrice * quantity,
+          salesPrice: unitPrice,
+          lineTotal: this.calc.calculateLineTotal(quantity, unitPrice),
           carImage: car.imageUrl
         };
 
@@ -607,11 +745,13 @@ export class SalesInvoiceFormComponent implements OnInit {
         const pendingCharges = charges.filter(charge => charge.status === 'Pending');
         pendingCharges.forEach(charge => {
           const chargeItem: InvoiceItem = {
+            lineKey: this.allocateLineKey(),
             carId: vehicleId,
             carDescription: `Preparation: ${charge.itemName}`,
             quantity: 1,
             unitPrice: charge.price,
-            lineTotal: charge.price,
+            salesPrice: charge.price,
+            lineTotal: this.calc.calculateLineTotal(1, charge.price),
             isPreparationCharge: true // Flag to identify preparation charges
           };
           this.invoiceItems.update(items => [...items, chargeItem]);
@@ -707,12 +847,14 @@ export class SalesInvoiceFormComponent implements OnInit {
 
   // ---- 4. Build invoice item ----
   const newItem: InvoiceItem = {
+    lineKey: this.allocateLineKey(),
     carId: stockItem.carId,
     carName: stockItem.carName,
     carDescription: stockItem.carName,
     quantity,
     unitPrice,
-    lineTotal: unitPrice * quantity,
+    salesPrice: unitPrice,
+    lineTotal: this.calc.calculateLineTotal(quantity, unitPrice),
     carImage: null
   };
 
@@ -728,18 +870,42 @@ export class SalesInvoiceFormComponent implements OnInit {
 }
 
   
-  removeItem(carId: number): void {
-    this.invoiceItems.update(items => items.filter(item => item.carId !== carId));
+  removeItem(lineKey: number): void {
+    this.invoiceItems.update(items => items.filter(item => item.lineKey !== lineKey));
   }
-  
-  updateItemPrice(carId: number, newPrice: number): void {
-    this.invoiceItems.update(items =>
-      items.map(item =>
-        item.carId === carId
-          ? { ...item, unitPrice: newPrice, lineTotal: newPrice * item.quantity }
-          : item
-      )
-    );
+
+  /** DevExtreme's dxDataGrid has no "onCellValueChanged" event (there never was one -- it doesn't
+   * appear anywhere in the devextreme package, so the previous binding of that name in the
+   * template silently never fired). The documented way to recompute a dependent column while a
+   * cell is still being edited is a per-column `setCellValue`: it runs inside the grid's own
+   * edit-buffer merge, so the Line Total cell updates live, in the same edit cycle, instead of
+   * waiting on an external round-trip through this component. See setPriceValue below for the
+   * other half of the pair. */
+  setQuantityValue = (newData: Partial<InvoiceItem>, value: unknown, currentRowData: InvoiceItem): void => {
+    const quantity = Math.max(0, Number(value) || 0);
+    const salesPrice = Math.max(0, currentRowData.salesPrice ?? currentRowData.unitPrice ?? 0);
+    newData.quantity = quantity;
+    newData.lineTotal = this.calc.calculateLineTotal(quantity, salesPrice);
+  };
+
+  setPriceValue = (newData: Partial<InvoiceItem>, value: unknown, currentRowData: InvoiceItem): void => {
+    const salesPrice = Math.max(0, Number(value) || 0);
+    const quantity = Math.max(0, currentRowData.quantity || 0);
+    newData.salesPrice = salesPrice;
+    newData.unitPrice = salesPrice; // keep unitPrice in sync -- print view and payload still read it
+    newData.lineTotal = this.calc.calculateLineTotal(quantity, salesPrice);
+  };
+
+  /** `mode: 'cell'` auto-saves each cell edit as soon as it commits, so onRowUpdated fires once per
+   * edit with the final merged row (already carrying the recalculated lineTotal from
+   * setQuantityValue/setPriceValue above). Mirroring that into the invoiceItems signal
+   * here -- rather than trying to react per keystroke -- is what cascades into the
+   * subtotal/discount/VAT/total computed signals that drive the summary rail outside the grid.
+   * Matched by lineKey, not carId: a vehicle's preparation-charge lines intentionally reuse the
+   * vehicle's carId, so carId alone can't identify a single row. */
+  onInvoiceItemRowUpdated(event: { data: InvoiceItem }): void {
+    const updated = event.data;
+    this.invoiceItems.update(items => items.map(item => item.lineKey === updated.lineKey ? updated : item));
   }
 
 
@@ -784,10 +950,22 @@ export class SalesInvoiceFormComponent implements OnInit {
       quotationId: this.linkedQuotation()?.id,
       quotationNumber: this.linkedQuotation()?.quotationNumber,
       sourceOrderId: this.selectedCustomerOrder()?.id || null,
-      items: items,
+      // lineKey is a client-side-only grid row identity (see InvoiceItem.lineKey) -- strip it so
+      // it doesn't leak into the persisted record.
+      items: items.map(({ lineKey, ...item }) => item),
+      // Full financial breakdown -- computed once via calculateSalesInvoiceFinancials so these
+      // numbers are guaranteed consistent with what the summary rail and the printed invoice show.
       subtotal: this.subtotal(),
-      totalAmount: this.totalAmount(),
+      discountType: this.discountTypeSignal(),
+      discountValue: this.discountValueSignal(),
+      discountAmount: this.discountAmount(),
+      amountAfterDiscount: this.amountAfterDiscount(),
+      vatRate: this.vatRate(),
       vatAmount: this.vatAmount(),
+      totalAmount: this.totalAmount(),
+      previousPayments: this.previousPayments(),
+      currentPayment: this.currentPayment(),
+      remainingBalance: this.remainingBalance(),
       notes: this.invoiceForm.get('notes')?.value || '',
       isArchived: false,
       // amountPaid/amountDue/status are derived server-side from isCash + downPayment - see
@@ -817,12 +995,14 @@ export class SalesInvoiceFormComponent implements OnInit {
           // Mark preparation charges as applied
           this.markPreparationChargesAsApplied(savedInvoice.id);
           // Mark customer order as invoiced
-          if (this.selectedCustomerOrder()) {
-            this.salesService.markCustomerOrderAsInvoiced(this.selectedCustomerOrder().id).subscribe();
+          const order = this.selectedCustomerOrder();
+          if (order?.id) {
+            this.salesService.markCustomerOrderAsInvoiced(order.id).subscribe();
           }
           // Mark deposit as invoiced
-          if (this.selectedDeposit()) {
-            this.depositService.markDepositAsInvoiced(this.selectedDeposit().id).subscribe();
+          const deposit = this.selectedDeposit();
+          if (deposit) {
+            this.depositService.markDepositAsInvoiced(deposit.id).subscribe();
           }
           if (this.channel === SalesChannel.Bunuk) {
             // Bank Sales workflow: continue to Vehicle Delivery
@@ -831,10 +1011,12 @@ export class SalesInvoiceFormComponent implements OnInit {
             this.router.navigate(['/sales']);
           }
         },
-        error: () => {
+        error: (error) => {
+          console.log(error);
           this.notificationService.showError('TOAST.SAVE_ERROR');
         }
       });
     }
   }
+  
 }

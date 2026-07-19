@@ -2,7 +2,7 @@
   <h2 class="modal-title">{{ 'SALES_INVOICE.VEHICLE_LOOKUP_TITLE' | translate }}</h2>
 
   <!-- Filter Section -->
-  <div class="filter-section">
+  <div class="filter-section" [formGroup]="filterForm">
     <div class="filter-grid">
       <mat-form-field appearance="outline" class="filter-field">
         <mat-label>{{ 'SALES_INVOICE.SEARCH_VIN' | translate }}</mat-label>

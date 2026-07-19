@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { SalesInvoice } from '../models/sales-invoice.model';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, map } from 'rxjs';
 import { InventoryService } from './inventory.service';
 import { environment } from '../environments/environment';
 import { StoreCarStockDto } from '../models/store-car-stock.model';
@@ -26,23 +26,32 @@ export class SalesService {
     this.getInvoices().subscribe(invoices => this.invoices.set(invoices));
   }
 
+  /** Some Sales endpoints (GetInvoices/GetInvoice/Create/...) return the raw ApiResponse<T>
+   * envelope ({ success, message, data }) instead of a bare T -- the global unwrapping
+   * interceptor isn't actually wired up (provideHttpClient() lacks withInterceptorsFromDi()), so
+   * without this every .reduce()/.map() on a "list" response throws "not a function". Safe
+   * either way: passes bare responses through unchanged. */
+  private unwrap<T>(response: any): T {
+    return response && typeof response === 'object' && 'data' in response ? response.data : response;
+  }
+
   // جلب جميع الفواتير
   getInvoices(): Observable<SalesInvoice[]> {
-    return this.http.get<SalesInvoice[]>(this.apiUrl);
+    return this.http.get<SalesInvoice[]>(this.apiUrl).pipe(map(res => this.unwrap<SalesInvoice[]>(res)));
   }
 
   // جلب فواتير غير مدفوعة لعميل
 getOutstandingInvoicesByCustomerId(customerId: number): Observable<SalesInvoice[]> {
   return this.http.get<SalesInvoice[]>(
     `${this.apiUrl}/GetOutstandingByCustomerId/${customerId}`
-  );
+  ).pipe(map(res => this.unwrap<SalesInvoice[]>(res)));
 }
   // جلب جميع فواتير العميل
   getInvoicesByCustomerId(customerId: number): Observable<SalesInvoice[]> {
-    return this.http.get<SalesInvoice[]>(`${this.apiUrl}?customerId=${customerId}`);
+    return this.http.get<SalesInvoice[]>(`${this.apiUrl}?customerId=${customerId}`).pipe(map(res => this.unwrap<SalesInvoice[]>(res)));
   }
   getInvoiceById(id: number): Observable<SalesInvoice> {
-    return this.http.get<SalesInvoice>(`${this.apiUrl}/GetInvoice/${id}`);
+    return this.http.get<SalesInvoice>(`${this.apiUrl}/GetInvoice/${id}`).pipe(map(res => this.unwrap<SalesInvoice>(res)));
   }
 
   // إضافة فاتورة جديدة
@@ -56,21 +65,7 @@ getOutstandingInvoicesByCustomerId(customerId: number): Observable<SalesInvoice[
       isArchived: false,
     };
 
-    if (typeof payload.paymentMethod === 'string') {
-      const m = String(payload.paymentMethod).toUpperCase();
-      const map: Record<string, number> = {
-        CASH: 1,
-        BANK_TRANSFER: 2,
-        BANK: 2,
-        CARD: 3,
-        CHECK: 4,
-        CHEQUE: 4,
-        'FINANCE': 5
-      };
-      payload.paymentMethod = map[m] ?? payload.paymentMethod;
-    }
-
-    return this.http.post<SalesInvoice>(this.apiUrl+'/Create', payload);
+    return this.http.post<SalesInvoice>(this.apiUrl+'/Create', payload).pipe(map(res => this.unwrap<SalesInvoice>(res)));
   }
 
   // تحديث فاتورة موجودة
@@ -80,29 +75,30 @@ getOutstandingInvoicesByCustomerId(customerId: number): Observable<SalesInvoice[
 
   // حذف فاتورة
   deleteInvoice(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/Delete/${id}`);
   }
 
   // بدء نقل الملكية
   initiateOwnershipTransfer(invoiceId: number): Observable<SalesInvoice> {
-    const transferUrl = `${this.apiUrl}/${invoiceId}/transfer-ownership`;
-    return this.http.post<SalesInvoice>(transferUrl, {});
+    return this.http.put<SalesInvoice>(`${this.apiUrl}/OwnershipTransfer/${invoiceId}`, {});
   }
 
   // تطبيق الدفع على فاتورة
   applyPayment(invoiceId: number, paymentAmount: number): Observable<SalesInvoice> {
-    const paymentUrl = `${this.apiUrl}/${invoiceId}/apply-payment`;
-    return this.http.post<SalesInvoice>(paymentUrl, { paymentAmount });
+    return this.http.put<SalesInvoice>(`${this.apiUrl}/ApplyPayment/${invoiceId}`, paymentAmount)
+      .pipe(map(res => this.unwrap<SalesInvoice>(res)));
   }
 
   // أرشفة فاتورة
   archiveInvoice(id: number): Observable<SalesInvoice> {
-    return this.http.post<SalesInvoice>(`${this.apiUrl}/${id}/archive`, {});
+    return this.http.put<SalesInvoice>(`${this.apiUrl}/Archive/${id}`, {})
+      .pipe(map(res => this.unwrap<SalesInvoice>(res)));
   }
 
   // إلغاء أرشفة فاتورة
   unarchiveInvoice(id: number): Observable<SalesInvoice> {
-    return this.http.post<SalesInvoice>(`${this.apiUrl}/${id}/unarchive`, {});
+    return this.http.put<SalesInvoice>(`${this.apiUrl}/Unarchive/${id}`, {})
+      .pipe(map(res => this.unwrap<SalesInvoice>(res)));
   }
 
   // جلب مخزون السيارات حسب المتجر
