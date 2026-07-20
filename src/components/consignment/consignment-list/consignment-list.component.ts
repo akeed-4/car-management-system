@@ -18,6 +18,7 @@ import {
   DxDataGridComponent,
 } from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
+import { firstValueFrom } from 'rxjs';
 import { ConsignmentService } from '../../../services/consignment.service';
 import { HasPermissionDirective } from '../../shared/permission.directive';
 import { ModalComponent } from '../../shared/modal/modal.component';
@@ -69,7 +70,7 @@ export class ConsignmentListComponent {
 
   dataSource = new CustomStore<ConsignmentCar>({
     key: 'id',
-    load: (loadOptions) => {
+    load: async (loadOptions) => {
       const options: Record<string, unknown> = { ...loadOptions };
 
       if (this.statusFilter()) {
@@ -78,14 +79,12 @@ export class ConsignmentListComponent {
         options['filter'] = existing ? [existing, 'and', statusFilterExpr] : statusFilterExpr;
       }
 
-      return this.consignmentService.loadDataGrid(options).toPromise()
-        .then(result => {
-          this.lastLoadedRows.set(result?.data ?? []);
-          return {
-            data: result?.data ?? [],
-            totalCount: result?.totalCount ?? 0,
-          };
-        });
+      const result = await firstValueFrom(this.consignmentService.loadDataGrid(options));
+      this.lastLoadedRows.set(result?.data ?? []);
+      return {
+        data: result?.data ?? [],
+        totalCount: result?.totalCount ?? 0,
+      };
     },
   });
 

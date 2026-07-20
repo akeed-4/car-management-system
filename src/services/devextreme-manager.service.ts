@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, ViewChild } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { LocalStorageService } from './local-storage.service';
 import { TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -19,7 +20,7 @@ function sendRequestFactory(httpClient: HttpClient) {
       config.body = options.data;
     }
 
-    return httpClient.request(method, url, config).toPromise();
+    return firstValueFrom(httpClient.request(method, url, config));
   };
 }
 

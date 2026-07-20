@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { firstValueFrom } from 'rxjs';
 import { QrCodeService } from '../../../services/qr-code.service';
 import { QrCodeConfigurationService } from '../../../services/qr-code-configuration.service';
 import { CurrentSettingService } from '../../../services/current-setting.service';
@@ -47,7 +48,7 @@ export class QrCodeComponent implements OnChanges {
 
     const config$ = this.config
       ? Promise.resolve(this.config)
-      : this.qrCodeConfigurationService.getByCompany(this.currentSettingService.getCompanyId()).toPromise();
+      : firstValueFrom(this.qrCodeConfigurationService.getByCompany(this.currentSettingService.getCompanyId()));
 
     config$
       .then((config) => {

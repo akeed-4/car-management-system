@@ -14,6 +14,7 @@ import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-a
 import { ReceiptService } from '../../../services/receipt.service';
 import { Receipt } from '../../../models/receipt.model';
 import CustomStore from 'devextreme/data/custom_store';
+import { firstValueFrom } from 'rxjs';
 import { ToastService } from '@/src/services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
 
@@ -46,7 +47,7 @@ export class ReceiptsComponent {
   dataSource = new CustomStore({
     key: 'id',
     load: (loadOptions) => {
-      return this.receiptService.getReceipts().toPromise();
+      return firstValueFrom(this.receiptService.getReceipts());
     }
   });
   toastService = inject(NotificationService);

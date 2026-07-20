@@ -18,6 +18,7 @@ import {
   DxDataGridComponent,
 } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { firstValueFrom } from 'rxjs';
 import { RequestedCarService } from '../../../services/requested-car.service';
 import { HasPermissionDirective } from '../../shared/permission.directive';
 import { ModalComponent } from '../../shared/modal/modal.component';
@@ -74,7 +75,7 @@ export class RequestedCarsComponent {
 
   dataSource = new CustomStore<RequestedCar>({
     key: 'id',
-    load: (loadOptions) => {
+    load: async (loadOptions) => {
       this.loading.set(true);
       const options: Record<string, unknown> = { ...loadOptions };
 
@@ -86,19 +87,18 @@ export class RequestedCarsComponent {
         options['filter'] = existing ? [existing, ...filters.flatMap(f => ['and', f])] : (filters.length === 1 ? filters[0] : filters);
       }
 
-      return this.requestedCarService.loadDataGrid(options).toPromise()
-        .then(result => {
-          this.loading.set(false);
-          this.lastLoadedRows.set(result?.data ?? []);
-          return {
-            data: result?.data ?? [],
-            totalCount: result?.totalCount ?? 0,
-          };
-        })
-        .catch(err => {
-          this.loading.set(false);
-          throw err;
-        });
+      try {
+        const result = await firstValueFrom(this.requestedCarService.loadDataGrid(options));
+        this.loading.set(false);
+        this.lastLoadedRows.set(result?.data ?? []);
+        return {
+          data: result?.data ?? [],
+          totalCount: result?.totalCount ?? 0,
+        };
+      } catch (err) {
+        this.loading.set(false);
+        throw err;
+      }
     },
   });
 

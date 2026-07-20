@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { SalesInvoice } from '../models/sales-invoice.model';
 import { PosPaymentStatus } from '../models/pos-payment-status.model';
 import { SalesService } from './sales.service';
@@ -22,7 +23,7 @@ export class PaymentGatewayService {
   async initiatePosPayment(invoice: SalesInvoice): Promise<PosPaymentStatus> {
     try {
       // استدعاء API خارجي لإتمام الدفع
-      const response = await this.http.post<{ status: PosPaymentStatus }>(
+      const response = await firstValueFrom(this.http.post<{ status: PosPaymentStatus }>(
         this.paymentApiUrl,
         {
           invoiceId: invoice.id,
@@ -30,7 +31,7 @@ export class PaymentGatewayService {
           customerId: invoice.customerId,
           paymentMethod: 2,
         }
-      ).toPromise();
+      ));
 
       const finalStatus: PosPaymentStatus = response?.status || 'Failed';
 
@@ -39,7 +40,7 @@ export class PaymentGatewayService {
         this.salesService.applyPayment(invoice.id, invoice.amountDue);
 
         // 2. Automatically generate a receipt voucher
-        const accounts = await this.treasuryService.getAccounts().toPromise();
+        const accounts = await firstValueFrom(this.treasuryService.getAccounts());
       const defaultAccount = accounts[0]; // أو أي ح // Assume bank account
         this.receiptService.addReceipt({
           voucherNumber: `RV-POS-${invoice.id}`,

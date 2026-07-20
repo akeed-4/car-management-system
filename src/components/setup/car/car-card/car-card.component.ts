@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 
 import { InventoryService } from '../../../../services/inventory.service';
 import { GeminiService } from '../../../../services/gemini.service';
@@ -334,7 +335,7 @@ backToCard(): void {
       try {
         if (this.editMode()) {
           const carToUpdate = { ...carToSave, id: formValue.id };
-          await this.inventoryService.updateCar(carToUpdate as Car).toPromise();
+          await firstValueFrom(this.inventoryService.updateCar(carToUpdate as Car));
           this.notificationService.showSuccess(this.translate.instant('TOAST.EDIT_SUCCESS'));
         } else {
           await this.inventoryService.addCar(carToSave as any);

@@ -18,6 +18,7 @@ import {
   DxDataGridComponent,
 } from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
+import { firstValueFrom } from 'rxjs';
 import { DailyEntryService } from '../../../services/daily-entry.service';
 import { HasPermissionDirective } from '../../shared/permission.directive';
 import { ModalComponent } from '../../shared/modal/modal.component';
@@ -71,7 +72,7 @@ export class DailyEntriesListComponent {
 
   dataSource = new CustomStore<DailyEntry>({
     key: 'id',
-    load: (loadOptions) => {
+    load: async (loadOptions) => {
       const options: Record<string, unknown> = { ...loadOptions };
 
       const filters: unknown[] = [];
@@ -83,14 +84,12 @@ export class DailyEntriesListComponent {
         options['filter'] = existing ? [existing, 'and', combined] : combined;
       }
 
-      return this.dailyEntryService.loadDataGrid(options).toPromise()
-        .then(result => {
-          this.lastLoadedRows.set(result?.data ?? []);
-          return {
-            data: result?.data ?? [],
-            totalCount: result?.totalCount ?? 0,
-          };
-        });
+      const result = await firstValueFrom(this.dailyEntryService.loadDataGrid(options));
+      this.lastLoadedRows.set(result?.data ?? []);
+      return {
+        data: result?.data ?? [],
+        totalCount: result?.totalCount ?? 0,
+      };
     },
   });
 

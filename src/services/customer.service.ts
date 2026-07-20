@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import { Customer } from '../models/customer.model';
 import { tap } from 'rxjs';
 import { environment } from '../environments/environment';
@@ -32,7 +32,7 @@ export class CustomerService {
 
   /** Get customer by ID */
   getCustomerById(id: number): Promise<Customer> {
-   return this.http.get<Customer>(`${this.apiUrl}/GetById/${id}`).toPromise();
+   return firstValueFrom(this.http.get<Customer>(`${this.apiUrl}/GetById/${id}`));
   }
 
   /** Add new customer */

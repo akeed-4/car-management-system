@@ -16,7 +16,7 @@ import { Payment } from '../../../models/payment.model';
 import { AccountingService } from '../../accounting/accounting.service';
 import { Account } from '../../accounting/models';
 import CustomStore from 'devextreme/data/custom_store';
-import { map } from 'rxjs';
+import { firstValueFrom, map } from 'rxjs';
 import { ToastService } from '@/src/services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
 
@@ -87,7 +87,7 @@ export class PaymentsComponent implements OnDestroy, AfterViewInit {
   dataSource = new CustomStore({
     key: 'id',
     load: (loadOptions) => {
-      return this.paymentService.getPayments().toPromise();
+      return firstValueFrom(this.paymentService.getPayments());
     }
   });
 

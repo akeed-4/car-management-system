@@ -18,6 +18,7 @@ import {
   DxDataGridComponent,
 } from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
+import { firstValueFrom } from 'rxjs';
 import { DeliveryService } from '../../../services/delivery.service';
 import { HasPermissionDirective } from '../../shared/permission.directive';
 import { ModalComponent } from '../../shared/modal/modal.component';
@@ -75,7 +76,7 @@ export class DeliveryScheduleComponent implements OnInit {
 
   dataSource = new CustomStore<DeliverySchedule>({
     key: 'id',
-    load: (loadOptions) => {
+    load: async (loadOptions) => {
       const options: Record<string, unknown> = { ...loadOptions };
 
       if (this.statusFilter()) {
@@ -84,14 +85,12 @@ export class DeliveryScheduleComponent implements OnInit {
         options['filter'] = existing ? [existing, 'and', statusFilterExpr] : statusFilterExpr;
       }
 
-      return this.deliveryService.loadDataGrid(options).toPromise()
-        .then(result => {
-          this.lastLoadedRows.set(result?.data ?? []);
-          return {
-            data: result?.data ?? [],
-            totalCount: result?.totalCount ?? 0,
-          };
-        });
+      const result = await firstValueFrom(this.deliveryService.loadDataGrid(options));
+      this.lastLoadedRows.set(result?.data ?? []);
+      return {
+        data: result?.data ?? [],
+        totalCount: result?.totalCount ?? 0,
+      };
     },
   });
 
