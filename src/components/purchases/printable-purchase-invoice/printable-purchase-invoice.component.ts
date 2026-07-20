@@ -11,13 +11,15 @@ import { CurrentSettingService } from '../../../services/current-setting.service
 import { QrCodeComponent } from '../../shared/qr-code/qr-code.component';
 import { QrCodeContext } from '../../../models/qr-code.model';
 import { Company } from '../../../models/branch.model';
+import { TranslateModule } from '@ngx-translate/core';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-printable-purchase-invoice',
   standalone: true,
-  imports: [CurrencyPipe, DatePipe, QrCodeComponent],
+  imports: [CurrencyPipe, DatePipe, QrCodeComponent, TranslateModule, MatIconModule],
   templateUrl: './printable-purchase-invoice.component.html',
-  styleUrl: './printable-purchase-invoice.component.css',
+  styleUrls: ['./printable-purchase-invoice.component.css', '../../shared/printable-invoice/printable-invoice.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PrintablePurchaseInvoiceComponent {

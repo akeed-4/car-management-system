@@ -5,10 +5,9 @@ import { QrCodeConfigurationDto, QrCodeContext, QR_PLAIN_CONTENT_FIELDS } from '
 /**
  * Core, document-agnostic QR logic: builds the payload string (ZATCA TLV/Base64, or a
  * configurable plain-text template) and renders it to a data-URL image. Framework-agnostic of
- * any specific document -- callers assemble a QrCodeContext once and pass it in. Reused by both
- * the live <app-qr-code> component and any print-string HTML builder (e.g.
- * printable-sales-invoice's generateInvoiceHtml()) so the payload/image logic is never
- * duplicated between the live view and the print path.
+ * any specific document -- callers assemble a QrCodeContext once and pass it in. Used by the
+ * live <app-qr-code> component, which every printable invoice renders directly (printing is
+ * window.print() on the live view, not a separately hand-built HTML string).
  */
 @Injectable({
   providedIn: 'root'

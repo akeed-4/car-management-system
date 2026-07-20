@@ -30,4 +30,18 @@ ClassificationId?: number;
   debitAccount?: AccountNode;
   creditAccount?: AccountNode;
   items: InvoiceItem[];
+
+  /** Non-null identifies this as an auction purchase (e.g. "BCA", "Copart", "Manheim"). */
+  auctionProvider?: string | null;
+  auctionLotNumber?: string | null;
+  auctionCharges?: AuctionCharge[];
+  /** Sum of auctionCharges -- convenience field, not persisted separately. */
+  auctionChargesTotal?: number;
+}
+
+export interface AuctionCharge {
+  id?: number;
+  chargeType: string; // BuyerFee, GateFee, TransportFee, ...
+  amount: number;
+  description?: string | null;
 }

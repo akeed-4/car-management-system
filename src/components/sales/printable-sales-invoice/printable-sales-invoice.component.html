@@ -1,172 +1,195 @@
-
-
-<div class="invoice-container" dir="rtl">
-
+<div class="printable-invoice-page">
   @if (invoice(); as inv) {
     @if (printBreakdown(); as breakdown) {
-    <!-- Header Section -->
-    <div class="invoice-header">
-      <div class="header-top">
-        <div class="company-logo">
-          <img src="/assets/logo.png" alt="Company Logo" class="logo">
+      <div class="doc-sheet">
+        <!-- Header: company identity + document title/number -->
+        <header class="doc-header">
+          <div class="doc-header-company">
+            <div class="doc-logo">{{ companyInfo().name?.charAt(0) || 'C' }}</div>
+            <div>
+              <p class="doc-company-name">{{ companyInfo().name }}</p>
+              <p class="doc-company-meta">{{ companyInfo().address }}</p>
+              <p class="doc-company-meta">{{ 'SALES.PRINTABLE.VAT_REGISTRATION' | translate }}: {{ companyInfo().taxNumber }}</p>
+              <p class="doc-company-meta">{{ 'SALES.PRINTABLE.CUSTOMER_PHONE' | translate }}: {{ companyInfo().phone || ('SALES.PRINTABLE.NOT_SPECIFIED' | translate) }}</p>
+            </div>
+          </div>
+          <div class="doc-header-title">
+            <h1 class="doc-title">{{ 'SALES.PRINTABLE.TAX_INVOICE' | translate }}</h1>
+            <p class="doc-subtitle">{{ 'SALES.PRINTABLE.CASH_SALES' | translate }}</p>
+            <div class="doc-number-box">{{ inv.invoiceNumber }}</div>
+          </div>
+        </header>
+
+        <!-- Meta strip: date / due date / payment method / status -->
+        <div class="doc-meta-strip">
+          <div class="doc-meta-cell">
+            <p class="doc-meta-label">{{ 'SALES.PRINTABLE.INVOICE_DATE' | translate }}</p>
+            <p class="doc-meta-value">{{ inv.invoiceDate | date:'dd/MM/yyyy' }}</p>
+          </div>
+          <div class="doc-meta-cell">
+            <p class="doc-meta-label">{{ 'SALES.PRINTABLE.DUE_DATE' | translate }}</p>
+            <p class="doc-meta-value">{{ inv.dueDate ? (inv.dueDate | date:'dd/MM/yyyy') : ('SALES.PRINTABLE.NOT_SPECIFIED' | translate) }}</p>
+          </div>
+          <div class="doc-meta-cell">
+            <p class="doc-meta-label">{{ 'SALES.PRINTABLE.PAYMENT_METHOD_LABEL' | translate }}</p>
+            <p class="doc-meta-value">{{ inv.paymentMethod || ('SALES.PRINTABLE.NOT_SPECIFIED' | translate) }}</p>
+          </div>
+          <div class="doc-meta-cell">
+            <p class="doc-meta-label">{{ 'SALES.PRINTABLE.STATUS' | translate }}</p>
+            <span class="doc-status-badge"
+              [class.is-paid]="inv.status === 'Paid'"
+              [class.is-unpaid]="inv.status === 'Overdue'"
+              [class.is-partial]="inv.status === 'Pending'">
+              {{ inv.status === 'Paid' ? ('SALES.PRINTABLE.STATUS_PAID' | translate) : inv.status === 'Overdue' ? ('SALES.PRINTABLE.STATUS_OVERDUE' | translate) : ('SALES.PRINTABLE.STATUS_PENDING' | translate) }}
+            </span>
+          </div>
         </div>
-        <div class="company-details">
-          <h1 class="company-name">{{ companyInfo().name }}</h1>
-          <p class="company-address">{{ companyInfo().address }}</p>
-          <p class="company-tax">{{ 'SALES.PRINTABLE.VAT_REGISTRATION' | translate }}: {{ companyInfo().taxNumber }}</p>
-          <p class="company-phone">{{ 'SALES.PRINTABLE.CUSTOMER_PHONE' | translate }}: {{ companyInfo().phone }}</p>
+
+        <!-- Bill-from / bill-to -->
+        <div class="doc-parties">
+          <div>
+            <h3 class="doc-party-heading">{{ 'SALES.PRINTABLE.FROM_COMPANY' | translate }}</h3>
+            <p class="doc-party-name">{{ companyInfo().name }}</p>
+            <p class="doc-party-line">{{ companyInfo().address }}</p>
+            <p class="doc-party-line">{{ 'SALES.PRINTABLE.VAT_REGISTRATION' | translate }}: {{ companyInfo().taxNumber }}</p>
+          </div>
+          <div>
+            <h3 class="doc-party-heading">{{ 'SALES.PRINTABLE.TO_CUSTOMER' | translate }}</h3>
+            @if (customer(); as cust) {
+              <p class="doc-party-name">{{ cust.name }}</p>
+              <p class="doc-party-line">{{ 'SALES.PRINTABLE.CUSTOMER_ID' | translate }}: {{ cust.nationalId }}</p>
+              <p class="doc-party-line">{{ 'SALES.PRINTABLE.CUSTOMER_PHONE' | translate }}: {{ cust.phone }}</p>
+              <p class="doc-party-line">{{ 'SALES.PRINTABLE.CUSTOMER_EMAIL' | translate }}: {{ cust.email }}</p>
+              <p class="doc-party-line">{{ 'SALES.PRINTABLE.CUSTOMER_ADDRESS' | translate }}: {{ cust.address }}</p>
+            }
+          </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Invoice Title Section -->
-    <div class="invoice-title-section">
-      <h2 class="invoice-title">{{ 'SALES.PRINTABLE.TAX_INVOICE' | translate }}</h2>
-      <p class="invoice-subtitle">{{ 'SALES.PRINTABLE.CASH_SALES' | translate }}</p>
-      <p class="invoice-ref">{{ 'SALES.PRINTABLE.INVOICE_NUMBER' | translate }}: {{ inv.invoiceNumber }}</p>
-    </div>
+        <!-- Line items -->
+        <div class="doc-section">
+          <h3 class="doc-section-title">{{ 'SALES.PRINTABLE.ITEMS' | translate }}</h3>
+          <table class="doc-table">
+            <thead>
+              <tr>
+                <th class="doc-col-center">#</th>
+                <th>{{ 'SALES.PRINTABLE.ITEM' | translate }}</th>
+                <th class="doc-col-center">{{ 'SALES.PRINTABLE.QTY' | translate }}</th>
+                <th class="doc-col-end">{{ 'SALES.PRINTABLE.UNIT_PRICE' | translate }}</th>
+                <th class="doc-col-end">{{ 'SALES.PRINTABLE.VAT_PERCENTAGE' | translate }}</th>
+                <th class="doc-col-end">{{ 'SALES.PRINTABLE.LINE_TOTAL' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of inv.items; track item.carId; let i = $index) {
+                <tr>
+                  <td class="doc-col-center doc-mono">{{ i + 1 }}</td>
+                  <td class="doc-strong">{{ item.carDescription }}</td>
+                  <td class="doc-col-center doc-mono">{{ item.quantity }}</td>
+                  <td class="doc-col-end doc-mono">{{ (item.unitPrice ?? 0) | currency:'SAR':'symbol':'1.2-2' }}</td>
+                  <td class="doc-col-end doc-mono">{{ ((item.unitPrice ?? 0) * (breakdown.vatRate / 100)) | currency:'SAR':'symbol':'1.2-2' }}</td>
+                  <td class="doc-col-end doc-mono doc-strong">{{ item.lineTotal | currency:'SAR':'symbol':'1.2-2' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
 
-    <!-- Invoice Info Section -->
-    <div class="invoice-info-grid">
-      <div class="info-row">
-        <span class="info-label">{{ 'SALES.PRINTABLE.INVOICE_DATE' | translate }}:</span>
-        <span class="info-value">{{ inv.invoiceDate | date: 'dd/MM/yyyy HH:mm' }}</span>
-        <span class="info-label" style="margin-right: 40px;">{{ 'SALES.PRINTABLE.PAYMENT_METHOD_LABEL' | translate }}:</span>
-        <span class="info-value">{{ inv.paymentMethod }}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">{{ 'SALES.PRINTABLE.VAT_REGISTRATION' | translate }}:</span>
-        <span class="info-value">{{ companyInfo().taxNumber }}</span>
-        <span class="info-label" style="margin-right: 40px;">{{ 'SALES.PRINTABLE.LOCATION' | translate }}</span>
-        <span class="info-value">-</span>
-      </div>
-    </div>
+        <!-- Financial summary -->
+        <div class="doc-totals-wrap">
+          <div class="doc-totals-box">
+            <div class="doc-totals-row">
+              <span class="doc-totals-label">{{ 'SALES.PRINTABLE.SUBTOTAL' | translate }}</span>
+              <span class="doc-totals-value">{{ breakdown.subtotal | currency:'SAR':'symbol':'1.2-2' }}</span>
+            </div>
+            @if (breakdown.discountAmount > 0) {
+              <div class="doc-totals-row">
+                <span class="doc-totals-label">
+                  {{ 'SALES.PRINTABLE.DISCOUNT' | translate }}
+                  ({{ breakdown.discountType === 'Percentage' ? breakdown.discountValue + '%' : ('SALES.PRINTABLE.DISCOUNT_FIXED' | translate) }})
+                </span>
+                <span class="doc-totals-value">- {{ breakdown.discountAmount | currency:'SAR':'symbol':'1.2-2' }}</span>
+              </div>
+              <div class="doc-totals-row">
+                <span class="doc-totals-label">{{ 'SALES.PRINTABLE.AMOUNT_AFTER_DISCOUNT' | translate }}</span>
+                <span class="doc-totals-value">{{ breakdown.amountAfterDiscount | currency:'SAR':'symbol':'1.2-2' }}</span>
+              </div>
+            }
+            <div class="doc-totals-row">
+              <span class="doc-totals-label">{{ 'SALES.PRINTABLE.VAT_PERCENTAGE' | translate }} ({{ breakdown.vatRate }}%)</span>
+              <span class="doc-totals-value">{{ breakdown.vatAmount | currency:'SAR':'symbol':'1.2-2' }}</span>
+            </div>
+            <div class="doc-totals-row is-grand">
+              <span class="doc-totals-label">{{ 'SALES.PRINTABLE.TOTAL_WITH_TAT' | translate }}</span>
+              <span class="doc-totals-value">{{ breakdown.totalAmount | currency:'SAR':'symbol':'1.2-2' }}</span>
+            </div>
+            @if (breakdown.previousPayments > 0) {
+              <div class="doc-totals-row">
+                <span class="doc-totals-label">{{ 'SALES.PRINTABLE.PREVIOUS_PAYMENTS' | translate }}</span>
+                <span class="doc-totals-value">- {{ breakdown.previousPayments | currency:'SAR':'symbol':'1.2-2' }}</span>
+              </div>
+            }
+            @if (breakdown.downPayment > 0) {
+              <div class="doc-totals-row">
+                <span class="doc-totals-label">{{ 'INVOICE.DOWN_PAYMENT' | translate }}</span>
+                <span class="doc-totals-value">{{ breakdown.downPayment | currency:'SAR':'symbol':'1.2-2' }}</span>
+              </div>
+            }
+            <div class="doc-totals-row">
+              <span class="doc-totals-label">{{ 'SALES.PRINTABLE.CURRENT_PAYMENT' | translate }}</span>
+              <span class="doc-totals-value">- {{ breakdown.currentPayment | currency:'SAR':'symbol':'1.2-2' }}</span>
+            </div>
+            <div class="doc-totals-row">
+              <span class="doc-totals-label">{{ 'INVOICE.AMOUNT_PAID' | translate }}</span>
+              <span class="doc-totals-value">{{ breakdown.amountPaid | currency:'SAR':'symbol':'1.2-2' }}</span>
+            </div>
+            <div class="doc-totals-row is-due">
+              <span class="doc-totals-label">{{ 'SALES.PRINTABLE.REMAINING_BALANCE' | translate }}</span>
+              <span class="doc-totals-value" [class.is-outstanding]="breakdown.remainingBalance > 0" [class.is-settled]="breakdown.remainingBalance <= 0">
+                {{ breakdown.remainingBalance | currency:'SAR':'symbol':'1.2-2' }}
+              </span>
+            </div>
+          </div>
+        </div>
 
-    <!-- Customer Info Section -->
-    <div class="customer-section">
-      <h3 class="section-title">{{ 'SALES.PRINTABLE.CUSTOMER_INFO' | translate }}</h3>
-      <div class="customer-details">
-        <p><strong>{{ 'SALES.PRINTABLE.CUSTOMER_NAME' | translate }}:</strong> {{ customer().name }}</p>
-        <p><strong>{{ 'SALES.PRINTABLE.CUSTOMER_ID' | translate }}:</strong> {{ customer().nationalId }}</p>
-        <p><strong>{{ 'SALES.PRINTABLE.CUSTOMER_PHONE' | translate }}:</strong> {{ customer().phone }}</p>
-        <p><strong>{{ 'SALES.PRINTABLE.CUSTOMER_EMAIL' | translate }}:</strong> {{ customer().email }}</p>
-        <p><strong>{{ 'SALES.PRINTABLE.CUSTOMER_ADDRESS' | translate }}:</strong> {{ customer().address }}</p>
-      </div>
-    </div>
-
-    <!-- Items Table -->
-    <table class="items-table">
-      <thead>
-        <tr>
-          <th class="col-number">#</th>
-          <th class="col-description">{{ 'SALES.PRINTABLE.ITEMS' | translate }}</th>
-          <th class="col-quantity">{{ 'SALES.PRINTABLE.QTY' | translate }}</th>
-          <th class="col-price">{{ 'SALES.PRINTABLE.UNIT_PRICE' | translate }}</th>
-          <th class="col-tax">{{ 'SALES.PRINTABLE.VAT' | translate }}</th>
-          <th class="col-total">{{ 'SALES.PRINTABLE.UNIT_PRICE' | translate }}</th>
-          <th class="col-line-total">{{ 'SALES.PRINTABLE.TOTAL_WITH_TAT' | translate }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for(item of inv.items; track $index; let idx = $index) {
-          <tr>
-            <td class="col-number">{{ idx + 1 }}</td>
-            <td class="col-description">{{ item.carDescription }}</td>
-            <td class="col-quantity text-center">{{ item.quantity }}</td>
-            <td class="col-price text-right">{{ item.unitPrice | currency:'SAR':'symbol':'1.0-2' }}</td>
-            <td class="col-tax text-right">{{ (item.unitPrice * (breakdown.vatRate / 100)) | currency:'SAR':'symbol':'1.0-2' }}</td>
-            <td class="col-total text-right">{{ item.unitPrice | currency:'SAR':'symbol':'1.0-2' }}</td>
-            <td class="col-line-total text-right font-semibold">{{ item.lineTotal | currency:'SAR':'symbol':'1.0-2' }}</td>
-          </tr>
+        @if (inv.notes) {
+          <div class="doc-notes-grid">
+            <div>
+              <h4 class="doc-notes-heading">{{ 'SALES.PRINTABLE.NOTES' | translate }}</h4>
+              <p class="doc-notes-box">{{ inv.notes }}</p>
+            </div>
+          </div>
         }
-      </tbody>
-    </table>
 
-    <!-- Summary Section -->
-    <div class="summary-table">
-      <div class="summary-row">
-        <span class="summary-label">{{ 'SALES.PRINTABLE.ITEMS_COUNT' | translate }}</span>
-        <span class="summary-value">{{ inv.items.length }}</span>
-      </div>
-      <div class="summary-row">
-        <span class="summary-label">{{ 'SALES.PRINTABLE.TOTAL_TAXABLE' | translate }}</span>
-        <span class="summary-value">{{ breakdown.subtotal | currency:'SAR':'symbol':'1.0-2' }}</span>
-      </div>
-      @if (breakdown.discountAmount > 0) {
-        <div class="summary-row">
-          <span class="summary-label">
-            {{ 'SALES.PRINTABLE.DISCOUNT' | translate }}
-            ({{ breakdown.discountType === 'Percentage' ? breakdown.discountValue + '%' : ('SALES.PRINTABLE.DISCOUNT_FIXED' | translate) }})
-          </span>
-          <span class="summary-value">- {{ breakdown.discountAmount | currency:'SAR':'symbol':'1.0-2' }}</span>
-        </div>
-        <div class="summary-row">
-          <span class="summary-label">{{ 'SALES.PRINTABLE.AMOUNT_AFTER_DISCOUNT' | translate }}</span>
-          <span class="summary-value">{{ breakdown.amountAfterDiscount | currency:'SAR':'symbol':'1.0-2' }}</span>
-        </div>
-      }
-      <div class="summary-row highlight">
-        <span class="summary-label">{{ 'SALES.PRINTABLE.VAT_PERCENTAGE' | translate }} ({{ breakdown.vatRate }}%)</span>
-        <span class="summary-value">{{ breakdown.vatAmount | currency:'SAR':'symbol':'1.0-2' }}</span>
-      </div>
-      <div class="summary-row total-row">
-        <span class="summary-label">{{ 'SALES.PRINTABLE.TOTAL_WITH_TAT' | translate }}</span>
-        <span class="summary-value">{{ breakdown.totalAmount | currency:'SAR':'symbol':'1.0-2' }}</span>
-      </div>
-      @if (breakdown.previousPayments > 0) {
-        <div class="summary-row">
-          <span class="summary-label">{{ 'SALES.PRINTABLE.PREVIOUS_PAYMENTS' | translate }}</span>
-          <span class="summary-value">- {{ breakdown.previousPayments | currency:'SAR':'symbol':'1.0-2' }}</span>
-        </div>
-      }
-      @if (breakdown.downPayment > 0) {
-        <div class="summary-row">
-          <span class="summary-label">{{ 'INVOICE.DOWN_PAYMENT' | translate }}</span>
-          <span class="summary-value">{{ breakdown.downPayment | currency:'SAR':'symbol':'1.0-2' }}</span>
-        </div>
-      }
-      <div class="summary-row">
-        <span class="summary-label">{{ 'SALES.PRINTABLE.CURRENT_PAYMENT' | translate }}</span>
-        <span class="summary-value">- {{ breakdown.currentPayment | currency:'SAR':'symbol':'1.0-2' }}</span>
-      </div>
-      <div class="summary-row">
-        <span class="summary-label">{{ 'INVOICE.AMOUNT_PAID' | translate }}</span>
-        <span class="summary-value">{{ breakdown.amountPaid | currency:'SAR':'symbol':'1.0-2' }}</span>
-      </div>
-      <div class="summary-row total-row">
-        <span class="summary-label">{{ 'SALES.PRINTABLE.REMAINING_BALANCE' | translate }}</span>
-        <span class="summary-value">{{ breakdown.remainingBalance | currency:'SAR':'symbol':'1.0-2' }}</span>
-      </div>
-    </div>
+        <!-- QR code -->
+        @if (qrContext(); as ctx) {
+          <div class="doc-qr-section">
+            <app-qr-code [context]="ctx"></app-qr-code>
+          </div>
+        }
 
-    <!-- QR Code Section -->
-    @if (qrContext(); as ctx) {
-      <div class="qr-code-section">
-        <app-qr-code [context]="ctx"></app-qr-code>
+        <!-- Footer -->
+        <footer class="doc-footer">
+          <p class="doc-footer-thanks">{{ 'SALES.PRINTABLE.FOOTER_MESSAGE' | translate }}</p>
+          <p class="doc-footer-line">{{ 'SALES.PRINTABLE.FOOTER_DISCLAIMER' | translate }}</p>
+        </footer>
       </div>
-    }
 
-    <!-- Footer -->
-    <div class="invoice-footer">
-      <p class="footer-text">{{ 'SALES.PRINTABLE.FOOTER_MESSAGE' | translate }}</p>
-      <p class="footer-disclaimer">{{ 'SALES.PRINTABLE.FOOTER_DISCLAIMER' | translate }}</p>
-    </div>
+      <div class="doc-actions no-print">
+        <button class="doc-btn doc-btn-secondary" (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon>
+          <span>{{ 'SALES.PRINTABLE.BACK' | translate }}</span>
+        </button>
+        <button class="doc-btn doc-btn-primary" (click)="printInvoice()">
+          <mat-icon>print</mat-icon>
+          <span>{{ 'SALES.PRINTABLE.PRINT' | translate }}</span>
+        </button>
+      </div>
     }
   } @else {
-    <div class="no-invoice-message">
-      <p>{{ 'SALES.PRINTABLE.NO_INVOICE' | translate }}</p>
+    <div class="doc-not-found">
+      <mat-icon>error_outline</mat-icon>
+      <h3>{{ 'SALES.PRINTABLE.NOT_FOUND' | translate }}</h3>
+      <button class="doc-btn doc-btn-secondary" (click)="goBack()">{{ 'SALES.PRINTABLE.BACK' | translate }}</button>
     </div>
   }
-</div>
-
-<!-- Print Controls -->
-<div class="print-controls no-print">
-  <button (click)="goBack()" class="btn btn-secondary">
-    <mat-icon>arrow_back</mat-icon>
-     {{ 'SALES.PRINTABLE.BACK' | translate }}
-  </button>
-  <button (click)="printInvoice()" class="btn btn-primary">
-    <mat-icon>print</mat-icon>
-     {{ 'SALES.PRINTABLE.PRINT' | translate }}
-  </button>
 </div>

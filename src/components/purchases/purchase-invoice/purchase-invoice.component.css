@@ -198,6 +198,32 @@
   resize: none;
 }
 
+.auction-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 0.5rem);
+  margin-top: var(--space-2, 0.5rem);
+}
+
+.auction-charges h4 {
+  margin: var(--space-2, 0.5rem) 0;
+}
+
+.auction-charge-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 0.5rem);
+}
+
+.auction-charge-row mat-form-field {
+  flex: 1;
+}
+
+.auction-charges-total {
+  margin-top: var(--space-2, 0.5rem);
+  font-weight: 600;
+}
+
 .workspace-sidebar {
   position: sticky;
   top: var(--space-4, 1rem);
