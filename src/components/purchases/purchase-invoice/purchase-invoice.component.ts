@@ -10,6 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -23,11 +24,11 @@ import { StoreService } from '../../../services/store.service';
 import { SalesService } from '../../../services/sales.service';
 import { ChartOfAccountsService } from '../../../services/chart-of-accounts.service';
 import { VinService } from '../../../services/vin.service';
-import { PurchaseInvoice } from '../../../models/purchase-invoice.model';
+import { PurchaseInvoice, AuctionCharge } from '../../../models/purchase-invoice.model';
 import { InvoiceItem } from '../../../models/invoice-item.model';
 import { Car } from '../../../models/car.model';
 import { Supplier } from '../../../models/supplier.model';
-import { AccountNode } from '../../../models/account-node.model';
+import { Account } from '../../accounting/models';
 import { StoreCarStockDto } from '../../../models/store-car-stock.model';
 import { InvoiceClassificationOption } from '../../../models/invoice-classification.model';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
@@ -37,7 +38,9 @@ import { MatSelectChange } from '@angular/material/select';
 import { ToastService } from '@/src/services/toast.service';
 import { LanguageService } from '@/src/services/language.service';
 import { Direction } from '@angular/cdk/bidi';
-import { CarSelectionDialogComponent } from './car-selection-dialog/car-selection-dialog.component';
+import { CarSelectionDialogComponent, PurchaseCarSelectionCard } from './car-selection-dialog/car-selection-dialog.component';
+import { buildVehicleDescription } from '../../../models/vehicle-description';
+import { applyFieldLock } from '../../../models/form-field-lock';
 import { VinManagementDialogComponent, VinEntry } from '../vin-management-dialog/vin-management-dialog.component';
 import { PurchaseCycleService } from '../../../services/purchase-cycle.service';
 import { CarReceipt } from '../../../models/car-receipt.model';
@@ -74,6 +77,7 @@ import { CashAmountCalculatorComponent } from '../../shared/cash-amount-calculat
     MatButtonModule,
     MatGridListModule,
     MatIconModule,
+    MatCheckboxModule,
     MatTableModule,
     MatCardModule,
     MatDatepickerModule,
@@ -144,8 +148,8 @@ export class PurchaseInvoiceComponent implements OnInit {
   stores = this.storeService.stores$;
   cars = this.inventoryService.cars$;
   carStocks = signal<StoreCarStockDto[]>([]);
-  debitAccounts = signal<AccountNode[]>([]);
-  creditAccounts = signal<AccountNode[]>([]);
+  debitAccounts = signal<Account[]>([]);
+  creditAccounts = signal<Account[]>([]);
   textDir: Direction = this.languageService.getCurrentLanguage() == 'en' ? 'ltr' : 'rtl';
 
   // Filter controls for mat-select search
@@ -215,6 +219,24 @@ export class PurchaseInvoiceComponent implements OnInit {
   // Invoice items state
   invoiceItems = signal<InvoiceItem[]>([]);
 
+  // Auction purchase state -- only meaningful when isAuctionPurchase is checked; the backend's
+  // AuctionPurchaseService is the actual authority on provider validation/charge rules, this is
+  // just the form's data entry surface.
+  auctionProviders = ['BCA', 'Copart', 'Manheim'];
+  auctionCharges = signal<AuctionCharge[]>([]);
+
+  addAuctionCharge(): void {
+    this.auctionCharges.update(charges => [...charges, { chargeType: '', amount: 0 }]);
+  }
+
+  removeAuctionCharge(index: number): void {
+    this.auctionCharges.update(charges => charges.filter((_, i) => i !== index));
+  }
+
+  auctionChargesTotal(): number {
+    return this.auctionCharges().reduce((sum, c) => sum + (Number(c.amount) || 0), 0);
+  }
+
   // Car Receipts (GRN) linking state
   openCarReceipts = signal<CarReceipt[]>([]);
   selectedReceiptIds = signal<number[]>([]);
@@ -266,10 +288,20 @@ export class PurchaseInvoiceComponent implements OnInit {
     return 0;
   });
   
-  totalAmount = computed(() => Math.round(this.subtotal() + this.vatAmount()));
+  // Auction charges are folded in on top of the item subtotal+VAT, matching the backend
+  // (PurchaseInvoiceService.CreateAsync: totalAmount = createDto.TotalAmount + auctionChargesTotal).
+  totalAmount = computed(() => Math.round(this.subtotal() + this.vatAmount() + this.auctionChargesTotal()));
 
   /** True when the current payment type is cash - drives the auto-paid summary + cash calculator. */
   isCashPayment = computed(() => (this.purchaseInvoiceForm?.get('paymentType')?.value ?? '').toString().toLowerCase() === 'cash');
+
+  /** True for either the base route's own dropdown value ('Credit (Deferred)') or, when locked
+   * via a Cash/Credit wrapper, the lowercase 'credit' fixedPaymentMethod value -- drives the Due
+   * Date field's visibility for both the unlocked and locked Purchase Invoice flows. */
+  isCreditPayment = computed(() => {
+    const paymentMethod = (this.purchaseInvoiceForm?.get('paymentMethod')?.value ?? '').toString().toLowerCase();
+    return paymentMethod === 'credit (deferred)' || paymentMethod === 'credit';
+  });
 
   /** Amount received from the cash calculator (cash invoices) or the initial-payment field (credit invoices). */
   amountReceivedSignal = signal(0);
@@ -317,13 +349,6 @@ export class PurchaseInvoiceComponent implements OnInit {
   });
 
   constructor() {
-    // Check if we're editing an existing invoice
-    const invoiceId = this.route.snapshot.params['id'];
-    if (invoiceId) {
-      this.isEditMode.set(true);
-      this.currentInvoiceId.set(+invoiceId);
-      this.loadInvoiceForEdit(+invoiceId);
-    }
   }
 
   /**
@@ -351,9 +376,16 @@ export class PurchaseInvoiceComponent implements OnInit {
       }
     });
 
-    // Initialize form if not editing
+    // Moved here from the constructor: @Input()s (lockPaymentMethod/fixedPaymentMethod) are not
+    // yet set when the constructor runs, so triggering the edit-mode load from there meant
+    // handlePaymentMethodLocking() -- fired by ngOnChanges right after construction -- always
+    // saw purchaseInvoiceForm as undefined and silently never locked the field in edit mode.
     const invoiceId = this.route.snapshot.params['id'];
-    if (!invoiceId) {
+    if (invoiceId) {
+      this.isEditMode.set(true);
+      this.currentInvoiceId.set(+invoiceId);
+      this.loadInvoiceForEdit(+invoiceId);
+    } else {
       this.initForm();
       this.watchInitialPaymentControl();
     }
@@ -575,24 +607,18 @@ export class PurchaseInvoiceComponent implements OnInit {
   }
 
   /**
-   * Handle payment method locking based on input properties
+   * Locks paymentMethod (the field dueDateValidator and downstream logic actually key off) to
+   * fixedPaymentMethod when this instance is wrapped by a Cash/Credit-fixed component. Previously
+   * patched paymentType but disabled the different paymentMethod control -- fixed here so both
+   * agree, and paymentType is kept in sync too since isCashPayment() reads that one.
    */
   private handlePaymentMethodLocking(): void {
-    if (this.purchaseInvoiceForm && this.lockPaymentMethod && this.fixedPaymentMethod) {
-      // Set the payment method value
-      this.purchaseInvoiceForm.patchValue({
-        paymentType: this.fixedPaymentMethod
-      });
-
-      // Update signal
-      this.paymentMethodSignal.set(this.fixedPaymentMethod);
-
-      // Disable the payment method control
-      const paymentMethodControl = this.purchaseInvoiceForm.get('paymentMethod');
-      if (paymentMethodControl) {
-        paymentMethodControl.disable();
-      }
+    if (!this.purchaseInvoiceForm || !this.lockPaymentMethod || !this.fixedPaymentMethod) {
+      return;
     }
+    applyFieldLock(this.purchaseInvoiceForm.get('paymentMethod'), { value: this.fixedPaymentMethod, disable: true });
+    applyFieldLock(this.purchaseInvoiceForm.get('paymentType'), { value: this.fixedPaymentMethod, disable: true });
+    this.paymentMethodSignal.set(this.fixedPaymentMethod);
   }
 
 
@@ -602,16 +628,14 @@ export class PurchaseInvoiceComponent implements OnInit {
    */
  
   private loadAccounts(): void {
-    // Load debit accounts (inventory/expense)
-    this.accountingService.getAccountsByCategory('debit').subscribe(accounts => {
+    // Debit/Credit selectors must only offer leaf/postable accounts -- parent/grouping accounts
+    // are excluded server-side by this endpoint, not filtered client-side from the category list.
+    this.accountingService.getPostableAccounts('debit').subscribe(accounts => {
       this.debitAccounts.set(accounts);
-      console.log('Debit accounts loaded', accounts);
     });
 
-    // Load credit accounts (supplier/cash/bank)
-    this.accountingService.getAccountsByCategory('credit').subscribe(accounts => {
+    this.accountingService.getPostableAccounts('credit').subscribe(accounts => {
       this.creditAccounts.set(accounts);
-      console.log('Credit accounts loaded', accounts);
     });
   }
 
@@ -627,7 +651,10 @@ export class PurchaseInvoiceComponent implements OnInit {
       invoiceType: [InvoiceType.Taxable, Validators.required],
       ClassificationId: [0, Validators.required],
       initialPayment: [0, [Validators.min(0)]],
-      notes: ['']
+      notes: [''],
+      isAuctionPurchase: [false],
+      auctionProvider: [null],
+      auctionLotNumber: ['']
     }, { validators: [this.accountValidator, this.dueDateValidator] });
 
     // Set payment method signal
@@ -662,11 +689,15 @@ export class PurchaseInvoiceComponent implements OnInit {
     return null;
   }
 
+  /** paymentMethod holds either the base route's own dropdown value ('Credit (Deferred)') or,
+   * when locked via a Cash/Credit wrapper, the lowercase 'cash'/'credit' fixedPaymentMethod value
+   * -- match both shapes so a locked Credit Purchase Invoice still requires a due date. */
   private dueDateValidator(group: AbstractControl): { [key: string]: any } | null {
-    const paymentMethod = group.get('paymentMethod')?.value;
+    const paymentMethod = (group.get('paymentMethod')?.value ?? '').toString().toLowerCase();
     const dueDate = group.get('dueDate')?.value;
+    const isCredit = paymentMethod === 'credit (deferred)' || paymentMethod === 'credit';
 
-    if (paymentMethod === 'Credit (Deferred)' && !dueDate) {
+    if (isCredit && !dueDate) {
       return { dueDateRequired: true };
     }
 
@@ -689,7 +720,17 @@ export class PurchaseInvoiceComponent implements OnInit {
           ClassificationId: [invoice.ClassificationId || 0, Validators.required],
           initialPayment: [invoice.initialPayment || 0, [Validators.min(0)]],
           notes: [invoice.notes || ''],
+          isAuctionPurchase: [!!invoice.auctionProvider],
+          auctionProvider: [invoice.auctionProvider || null],
+          auctionLotNumber: [invoice.auctionLotNumber || ''],
         }, { validators: [this.accountValidator, this.dueDateValidator] });
+
+        this.auctionCharges.set(invoice.auctionCharges || []);
+
+        // ngOnChanges may have already fired (before this async form existed) and found nothing
+        // to lock -- apply the lock explicitly now that the real edit-mode form exists, so a
+        // Cash/Credit-fixed invoice opened for edit is actually locked, not just on create.
+        this.handlePaymentMethodLocking();
 
         this.amountReceivedSignal.set(invoice.initialPayment || invoice.amountPaid || 0);
         this.watchInitialPaymentControl();
@@ -763,7 +804,7 @@ export class PurchaseInvoiceComponent implements OnInit {
 
     const newItem: InvoiceItem = {
       carId: car.id,
-      carDescription: `${car.make} ${car.model} (${car.year})`,
+      carDescription: buildVehicleDescription(car),
       quantity: quantity,
       unitPrice: price,
       lineTotal: price * quantity,
@@ -832,7 +873,7 @@ export class PurchaseInvoiceComponent implements OnInit {
   }
 
   // Method for adding car from card selection
-  addCarToPurchase(car: any): void {
+  addCarToPurchase(car: PurchaseCarSelectionCard): void {
     // Check if already exists
     const alreadyExists = this.invoiceItems().some(item => item.carId === car.id);
     if (alreadyExists) {
@@ -843,7 +884,7 @@ export class PurchaseInvoiceComponent implements OnInit {
     // Create invoice item with default quantity of 1
     const newItem: InvoiceItem = {
       carId: car.id,
-      carDescription: `${car.make} ${car.model} (${car.year})`,
+      carDescription: buildVehicleDescription(car),
       quantity: 1,
       unitPrice: car.purchasePrice || 0,
       lineTotal: (car.purchasePrice || 0) * 1,
@@ -922,14 +963,23 @@ export class PurchaseInvoiceComponent implements OnInit {
       ClassificationId: parseInt(formValue.ClassificationId),
       invoiceType: formValue.invoiceType,
       items: items,
-      totalAmount: this.totalAmount(),
+      // Pre-auction total (items + VAT) -- the backend adds AuctionCharges on top itself
+      // (PurchaseInvoiceService.CreateAsync), so sending the already-inclusive totalAmount()
+      // here would double-count the auction fees.
+      totalAmount: Math.round(this.subtotal() + this.vatAmount()),
       // Cash invoices are auto-marked fully paid server-side; credit invoices net this off
       // against the total (Requirement 5's "Initial Payment"). Status is derived by the backend.
       initialPayment: this.isCashPayment() ? 0 : this.amountReceivedSignal(),
       notes: formValue.notes,
       status: 'Unpaid',
       isArchived: false,
-      carReceiptIds: this.linkedReceiptIds()
+      carReceiptIds: this.linkedReceiptIds(),
+      // Auction fields are only meaningful when the toggle is checked -- otherwise this is a
+      // normal supplier purchase and auctionProvider stays null, matching the backend's
+      // IsAuctionPurchase(auctionProvider) check.
+      auctionProvider: formValue.isAuctionPurchase ? formValue.auctionProvider : null,
+      auctionLotNumber: formValue.isAuctionPurchase ? formValue.auctionLotNumber : null,
+      auctionCharges: formValue.isAuctionPurchase ? this.auctionCharges() : []
     };
 
     if (this.isEditMode()) {

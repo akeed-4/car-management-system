@@ -159,7 +159,9 @@ export class ReceiptFormComponent implements OnInit {
 
   ngOnInit() {
     this.initForm();
-    this.accountingService.accounts$.subscribe(accounts => this.accounts.set(accounts));
+    // Debit/Credit selectors must only offer leaf/postable accounts -- parent/grouping accounts
+    // are excluded server-side by this endpoint, not filtered client-side from the full account list.
+    this.accountingService.getPostableAccounts().subscribe(accounts => this.accounts.set(accounts));
 
     // react to receiptType changes: clear customer/invoices/allocations when not CUSTOMER
     this.receiptForm.get('receiptType')?.valueChanges.subscribe((val: string) => {

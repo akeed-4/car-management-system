@@ -112,13 +112,13 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
   }
 
   private loadAccounts(): void {
-    // Load cash/bank accounts for cash returns
-    this.accountingService.getAccountsByCategory('cash-bank').subscribe(accounts => {
+    // Debit/Credit selectors must only offer leaf/postable accounts -- parent/grouping accounts
+    // are excluded server-side by this endpoint, not filtered client-side from the category list.
+    this.accountingService.getPostableAccounts('cash-bank').subscribe(accounts => {
       this.cashBankAccounts.set(accounts);
     });
 
-    // Load supplier accounts for credit returns
-    this.accountingService.getAccountsByCategory('supplier').subscribe(accounts => {
+    this.accountingService.getPostableAccounts('supplier').subscribe(accounts => {
       this.supplierAccounts.set(accounts);
     });
   }

@@ -84,7 +84,7 @@
                   [allowEditing]="false"></dxi-column>
                 <dxi-column dataField="accountId" caption="{{ 'ACCOUNTING.ACCOUNT' | translate }}" [setCellValue]="setAccountCellValue">
 
-                  <dxo-lookup [dataSource]="partialAccounts" valueExpr="id" displayExpr="accountNameAr">
+                  <dxo-lookup [dataSource]="postableAccounts" valueExpr="id" displayExpr="accountNameAr">
                   </dxo-lookup>
 
                 </dxi-column>

@@ -156,7 +156,12 @@
                     </mat-error>
                   </mat-form-field>
                 </mat-grid-tile>
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                <!-- Cash invoices have exactly one valid Payment Type ("Cash"), locked and
+                     disabled via applyPaymentTypeLock() in the component. Credit/Installments
+                     have no single fixed instrument (none of Bank Transfer/Check/Cash applies
+                     until the credit is actually repaid), so the field doesn't apply and is
+                     hidden entirely rather than shown with an arbitrary locked value. -->
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows" *ngIf="saleType === SaleType.Cash">
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'INVOICE.PAYMENT_TYPE' | translate }}</mat-label>
                     <mat-select formControlName="paymentType" required>

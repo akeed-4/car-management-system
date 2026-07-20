@@ -46,6 +46,12 @@ export interface Account {
   balance: number;
   createdDate: Date;
   updatedDate: Date;
+  /** Computed server-side from the account hierarchy -- true if any account references this one
+   * as its parent. Single source of truth for "is this a grouping/control account"; do not derive
+   * this client-side from isMainAccount, which the backend never keeps in sync with real children. */
+  hasChildren?: boolean;
+  /** Inverse of hasChildren -- true means this account may be selected for a Debit/Credit posting. */
+  isPostable?: boolean;
 }
 
 export interface JournalEntry {

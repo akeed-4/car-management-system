@@ -68,7 +68,9 @@ export class PaymentFormComponent implements OnInit {
 
   paymentForm!: FormGroup;
 
-  accounts        = toSignal(this.accountingService.accounts$, { initialValue: [] });
+  // Debit/Credit selectors must only offer leaf/postable accounts -- parent/grouping accounts
+  // are excluded server-side by this endpoint, not filtered client-side from the full account list.
+  accounts        = toSignal(this.accountingService.getPostableAccounts(), { initialValue: [] });
   suppliers           = signal<Supplier[]>([]);
   /** Outstanding (unpaid/partially paid) invoices for the selected supplier only - Requirement 6. */
   outstandingInvoices = signal<PurchaseInvoice[]>([]);

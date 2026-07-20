@@ -341,6 +341,18 @@ export class AccountingService {
   }
 
   /**
+   * Centralized "posting/leaf accounts only" lookup -- every Debit/Credit account selector must
+   * call this instead of getAccounts()/getAccountsByCategory(), both of which include parent/
+   * grouping accounts. Optional category narrows by the same "debit"/"credit"/"cash-bank"/
+   * "supplier" values as getAccountsByCategory(). Backend is still the final authority (rejects
+   * a parent account on Create/Update even if this lookup is bypassed) -- this only drives the UI.
+   */
+  getPostableAccounts(category?: string): Observable<Account[]> {
+    const url = category ? `${this.Url}/accounts/postable?category=${category}` : `${this.Url}/accounts/postable`;
+    return this.http.get<Account[]>(url, { headers: this.headers });
+  }
+
+  /**
    * Create journal entries for sales return
    */
   createSalesReturnEntry(salesReturn: any): import('@/src/models/sales-return.model').JournalEntry[] {

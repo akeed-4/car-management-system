@@ -91,8 +91,10 @@ export class CompaniesInvoiceFormComponent implements OnInit {
 
     this.loadApprovedQuotations();
     this.loadUninvoicedDeliveries();
-    this.accountingService.getAccountsByCategory('debit').subscribe(accounts => this.debitAccounts.set(accounts));
-    this.accountingService.getAccountsByCategory('credit').subscribe(accounts => this.creditAccounts.set(accounts));
+    // Debit/Credit selectors must only offer leaf/postable accounts -- parent/grouping accounts
+    // are excluded server-side by this endpoint, not filtered client-side from the category list.
+    this.accountingService.getPostableAccounts('debit').subscribe(accounts => this.debitAccounts.set(accounts));
+    this.accountingService.getPostableAccounts('credit').subscribe(accounts => this.creditAccounts.set(accounts));
   }
 
   onSourceChange(source: InvoiceSource): void {

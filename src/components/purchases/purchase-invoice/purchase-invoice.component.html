@@ -149,7 +149,7 @@
                     </mat-select>
                   </mat-form-field>
                 </mat-grid-tile>
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows" *ngIf="purchaseInvoiceForm.get('paymentMethod')?.value === 'Credit (Deferred)'">
+                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows" *ngIf="isCreditPayment()">
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'PURCHASE_INVOICE.DUE_DATE' | translate }}</mat-label>
                     <input matInput [matDatepicker]="dueDatePicker" formControlName="dueDate">
@@ -248,6 +248,51 @@
                   [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
               </dx-data-grid>
             </div>
+          </mat-card>
+
+          <mat-card class="doc-card auction-card">
+            <section class="form-section auction-section">
+              <mat-checkbox formControlName="isAuctionPurchase">
+                {{ 'PURCHASE_INVOICE.AUCTION.IS_AUCTION_PURCHASE' | translate }}
+              </mat-checkbox>
+
+              <div *ngIf="purchaseInvoiceForm.get('isAuctionPurchase')?.value" class="auction-details">
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'PURCHASE_INVOICE.AUCTION.PROVIDER' | translate }}</mat-label>
+                  <mat-select formControlName="auctionProvider">
+                    <mat-option *ngFor="let provider of auctionProviders" [value]="provider">{{ provider }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'PURCHASE_INVOICE.AUCTION.LOT_NUMBER' | translate }}</mat-label>
+                  <input matInput formControlName="auctionLotNumber">
+                </mat-form-field>
+
+                <div class="auction-charges">
+                  <h4>{{ 'PURCHASE_INVOICE.AUCTION.CHARGES' | translate }}</h4>
+                  <div class="auction-charge-row" *ngFor="let charge of auctionCharges(); let i = index">
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ 'PURCHASE_INVOICE.AUCTION.CHARGE_TYPE' | translate }}</mat-label>
+                      <input matInput [(ngModel)]="charge.chargeType" [ngModelOptions]="{standalone: true}">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ 'PURCHASE_INVOICE.AUCTION.AMOUNT' | translate }}</mat-label>
+                      <input matInput type="number" [(ngModel)]="charge.amount" [ngModelOptions]="{standalone: true}">
+                    </mat-form-field>
+                    <button mat-icon-button type="button" (click)="removeAuctionCharge(i)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                  <button mat-stroked-button type="button" (click)="addAuctionCharge()">
+                    <mat-icon>add</mat-icon> {{ 'PURCHASE_INVOICE.AUCTION.ADD_CHARGE' | translate }}
+                  </button>
+                  <div class="auction-charges-total">
+                    {{ 'PURCHASE_INVOICE.AUCTION.CHARGES_TOTAL' | translate }}: {{ auctionChargesTotal() | number:'1.2-2' }}
+                  </div>
+                </div>
+              </div>
+            </section>
           </mat-card>
 
           <mat-card class="doc-card notes-card">

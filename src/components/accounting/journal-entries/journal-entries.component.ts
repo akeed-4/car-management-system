@@ -76,10 +76,10 @@ export class JournalEntriesComponent implements OnInit {
     });
   }
 
-  // Return only partial (non-main) accounts for lookups
-  get partialAccounts(): Account[] {
-    return this.accounts.filter(a => !a.isMainAccount && a.accountLevel > 1);
-  }
+  // Postable (leaf) accounts only -- parent/grouping accounts must never be selectable for a
+  // journal line. Fetched from the centralized backend endpoint rather than derived client-side
+  // from isMainAccount, which does not reliably track whether an account currently has children.
+  postableAccounts: Account[] = [];
 
   ngOnInit() {
     this.journalEntries$.subscribe(entries => {
@@ -96,6 +96,11 @@ export class JournalEntriesComponent implements OnInit {
 
     // Ensure accounts are loaded
     this.accountingService.getAccounts().subscribe();
+
+    // Journal lines may only post to leaf/postable accounts.
+    this.accountingService.getPostableAccounts().subscribe(accounts => {
+      this.postableAccounts = accounts;
+    });
 
     // Load cost centers if needed
     // this.accountingService.getCostCenters().subscribe(cc => this.costCenters = cc);

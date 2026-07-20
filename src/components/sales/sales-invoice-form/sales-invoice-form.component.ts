@@ -14,7 +14,7 @@ import { InvoiceItem } from '../../../models/invoice-item.model';
 import { StoreCarStockDto } from '../../../models/store-car-stock.model';
 import { Customer } from '../../../models/customer.model';
 import { InvoiceClassificationOption } from '../../../models/invoice-classification.model';
-import { AccountNode } from '../../../models/account-node.model';
+import { Account } from '../../accounting/models';
 import { DepositVoucher } from '../../../models/deposit-voucher.model';
 import { CustomerOrder } from '../../../models/customer-order.model';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -32,7 +32,9 @@ import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
 import { InvoiceItemDialogComponent } from '../invoice-item-dialog/invoice-item-dialog.component';
-import { CarSelectionDialogComponent } from '../car-selection-dialog/car-selection-dialog.component';
+import { CarSelectionDialogComponent, SalesCarSelectionCard, SalesCarSelectionDialogData } from '../car-selection-dialog/car-selection-dialog.component';
+import { buildVehicleDescription } from '../../../models/vehicle-description';
+import { applyFieldLock } from '../../../models/form-field-lock';
 import { DxoValueErrorBarComponent } from 'devextreme-angular/ui/nested';
 import { NotificationService } from '@/src/services/notification.service';
 import { AccountingService } from '../../accounting/accounting.service';
@@ -105,8 +107,6 @@ export class SalesInvoiceFormComponent implements OnInit {
     private notificationService = inject(NotificationService);
     private calc = inject(SalesInvoiceCalculationService);
 
-    @Input() lockPaymentMethod = false;
-    @Input() fixedPaymentMethod: string | null = null;
     @Input() customTitle: string | null = null;
   @Input() titleKey = 'INVOICE.CREATE_TITLE';
     /** Sales distribution channel (Afrad/Sharikat/Bunuk) — drives which fields are shown. */
@@ -162,8 +162,8 @@ export class SalesInvoiceFormComponent implements OnInit {
   selectedInvoiceClassification = signal<InvoiceClassificationOption | null>(null);
 
   // Account signals
-  debitAccounts = signal<AccountNode[]>([]);
-  creditAccounts = signal<AccountNode[]>([]);
+  debitAccounts = signal<Account[]>([]);
+  creditAccounts = signal<Account[]>([]);
 
   // Deposit signals
   selectedDeposit = signal<DepositVoucher | null>(null);
@@ -229,7 +229,7 @@ export class SalesInvoiceFormComponent implements OnInit {
         invoiceDate: new FormControl(new Date(), Validators.required),
         dueDate: new FormControl(''),
         paymentMethod: new FormControl('Cash'),
-        paymentType: new FormControl(this.fixedPaymentMethod || 'Bank Transfer'),
+        paymentType: new FormControl(this.saleType === SaleType.Cash ? 'Cash' : 'Bank Transfer'),
         invoiceType: new FormControl(InvoiceType.Taxable, Validators.required),
         ClassificationId: new FormControl(0, Validators.required),
         salesperson: new FormControl(''),
@@ -246,6 +246,7 @@ export class SalesInvoiceFormComponent implements OnInit {
       this.watchDiscountControls();
       this.watchClassificationAndTypeControls();
       this.watchPaymentTypeControl();
+      this.applyPaymentTypeLock();
 
       // Deep-link from a preceding Sales Order step (Corporate/Bank workflows)
       const orderId = this.route.snapshot.queryParamMap.get('orderId');
@@ -358,6 +359,20 @@ export class SalesInvoiceFormComponent implements OnInit {
 
     applyPaymentType(typeControl.value);
     typeControl.valueChanges.subscribe(applyPaymentType);
+  }
+
+  /** Cash invoices only ever have one valid Payment Type ("Cash") -- lock and disable the
+   * control so it can't be changed. Credit/Installments have no single fixed instrument (the
+   * pool is Bank Transfer/Check/Cash, none of which applies until the credit is actually repaid),
+   * so the field is left enabled here and hidden entirely in the template instead of locked to an
+   * arbitrary value -- matches Purchase's "no markup at all" treatment for the same situation. */
+  private applyPaymentTypeLock(): void {
+    const control = this.invoiceForm.get('paymentType');
+    if (this.saleType === SaleType.Cash) {
+      applyFieldLock(control, { value: 'Cash', disable: true });
+    } else {
+      applyFieldLock(control, null);
+    }
   }
 
   /** Keeps vatRate reactive to both the invoice-classification dropdown (authoritative VAT rate)
@@ -473,6 +488,10 @@ export class SalesInvoiceFormComponent implements OnInit {
         this.watchDiscountControls();
         this.watchClassificationAndTypeControls();
         this.watchPaymentTypeControl();
+        // Applied after saleType is reassigned above from the saved invoice (not just the
+        // wrapper's @Input()), so a Cash invoice opened for edit is locked using its real,
+        // persisted classification even if that differs from whatever route/wrapper was used.
+        this.applyPaymentTypeLock();
 
         // Set invoice number and items
         this.invoiceNumber.set(invoice.invoiceNumber);
@@ -511,9 +530,27 @@ export class SalesInvoiceFormComponent implements OnInit {
   }
 
   addCarToInvoiceById(vehicleId: number): void {
+    // allCars is placeholder/mock inventory data (unrelated to the real StoreCarStockDto-backed
+    // available-cars flow) -- normalize its shape into StoreCarStockDto so addCarToInvoice has a
+    // single real contract instead of accepting two unrelated shapes.
     const car = this.allCars().find(c => c.id === vehicleId);
     if (car) {
-      this.addCarToInvoice(car);
+      this.addCarToInvoice({
+        id: car.id,
+        storeId: 0,
+        storeName: '',
+        carId: car.id,
+        carName: buildVehicleDescription({ make: car.make, model: car.model, year: car.year }),
+        carDescription: '',
+        availableQuantity: 1,
+        quantity: 1,
+        reservedQuantity: 0,
+        lastUpdatedAt: '',
+        salesPrice: car.salePrice,
+        make: car.make,
+        model: car.model,
+        year: car.year,
+      });
     }
   }
 
@@ -544,22 +581,20 @@ export class SalesInvoiceFormComponent implements OnInit {
   }
 
   private loadAccounts(): void {
-    // Load debit accounts (sales revenue/income)
-    this.accountingService.getAccountsByCategory('debit').subscribe(accounts => {
+    // Debit/Credit selectors must only offer leaf/postable accounts -- parent/grouping accounts
+    // are excluded server-side by this endpoint, not filtered client-side from the category list.
+    this.accountingService.getPostableAccounts('debit').subscribe(accounts => {
       this.debitAccounts.set(accounts);
-      console.log('Debit accounts loaded', accounts);
     });
 
-    // Load credit accounts (customer/cash/bank)
-    this.accountingService.getAccountsByCategory('credit').subscribe(accounts => {
+    this.accountingService.getPostableAccounts('credit').subscribe(accounts => {
       this.creditAccounts.set(accounts);
-      console.log('Credit accounts loaded', accounts);
     });
   }
 
   toggleCarCards(): void {
     const storeId = this.invoiceForm.get('storeId')?.value;
-    const dialogRef = this.dialog.open(CarSelectionDialogComponent, {
+    const dialogRef = this.dialog.open<CarSelectionDialogComponent, SalesCarSelectionDialogData, SalesCarSelectionCard | undefined>(CarSelectionDialogComponent, {
       width: '90vw',
       maxWidth: '1200px',
       height: '80vh',
@@ -574,10 +609,10 @@ export class SalesInvoiceFormComponent implements OnInit {
       }
     });
   }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- CarSelectionDialogComponent's own result is untyped (its `cars` signal is `any[]`); typing this parameter would just hide that, not fix it.
-    addCarToSales(car: any): void {
+
+  addCarToSales(car: SalesCarSelectionCard): void {
     // Check if already exists
-    const alreadyExists = this.invoiceItems().some(item => item.carId === car.id);
+    const alreadyExists = this.invoiceItems().some(item => item.carId === car.carId);
     if (alreadyExists) {
       this.notificationService.showError('PURCHASE_INVOICE.ERROR_ALREADY_ADDED');
       return;
@@ -586,8 +621,8 @@ export class SalesInvoiceFormComponent implements OnInit {
     // Create invoice item with default quantity of 1
     const newItem: InvoiceItem = {
       lineKey: this.allocateLineKey(),
-      carId: car.id,
-      carDescription: `${car.make} ${car.model} (${car.year})`,
+      carId: car.carId,
+      carDescription: buildVehicleDescription(car) || car.carDescription || car.carName,
       quantity: 1,
       salesPrice: car.salesPrice || 0,
       lineTotal: this.calc.calculateLineTotal(1, car.salesPrice || 0),
@@ -663,20 +698,20 @@ export class SalesInvoiceFormComponent implements OnInit {
       ...car,
       imageUrl: 'https://via.placeholder.com/300x200?text=' + encodeURIComponent(car.carName), // Placeholder image with car name
       carName: car.carName,
-      specs: car.carDescription || 'No description available',
+      specs: car.carDescription || buildVehicleDescription(car) || 'No description available',
       availableQuantity: car.availableQuantity
     }));
   });
 
   // Methods for managing invoice items
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- called with either the mock allCars shape or CarSelectionDialogComponent's untyped result; neither is a shared model.
-  addCarToInvoice(car: any): void {
+  addCarToInvoice(car: StoreCarStockDto): void {
+    const description = buildVehicleDescription(car);
     const dialogRef = this.dialog.open(InvoiceItemDialogComponent, {
       width: '400px',
       data: {
-        carName: `${car.make} ${car.model} (${car.year})`,
+        carName: description,
         quantity: 1,
-        unitPrice: car.salePrice || 0,
+        unitPrice: car.salesPrice || 0,
         maxQuantity: car.availableQuantity
       }
     });
@@ -703,12 +738,11 @@ export class SalesInvoiceFormComponent implements OnInit {
           lineKey: this.allocateLineKey(),
           carId: car.carId,
           carName: car.carName,
-          carDescription: `${car.make} ${car.model} (${car.year})`,
+          carDescription: description,
           quantity,
           unitPrice,
           salesPrice: unitPrice,
           lineTotal: this.calc.calculateLineTotal(quantity, unitPrice),
-          carImage: car.imageUrl
         };
 
         // Add to invoice items
