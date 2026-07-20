@@ -1,0 +1,97 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="breadcrumb">
+      <span>{{ 'PLATFORM.BREADCRUMB' | translate }}</span>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="current">{{ (isEdit() ? 'PLATFORM.PLANS.EDIT_TITLE' : 'PLATFORM.PLANS.CREATE_TITLE') | translate }}</span>
+    </div>
+    <h1>{{ (isEdit() ? 'PLATFORM.PLANS.EDIT_TITLE' : 'PLATFORM.PLANS.CREATE_TITLE') | translate }}</h1>
+  </div>
+
+  <div class="loading-overlay" *ngIf="isLoading()">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <form [formGroup]="planForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading()">
+    <section class="form-section">
+      <h2>{{ 'PLATFORM.PLANS.GENERAL' | translate }}</h2>
+      <div class="form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'PLATFORM.PLANS.CODE' | translate }}</mat-label>
+          <input matInput formControlName="code" required>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'PLATFORM.PLANS.NAME' | translate }}</mat-label>
+          <input matInput formControlName="name" required>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'PLATFORM.PLANS.SORT_ORDER' | translate }}</mat-label>
+          <input matInput type="number" formControlName="sortOrder">
+        </mat-form-field>
+        <mat-checkbox formControlName="isActive">{{ 'PLATFORM.PLANS.IS_ACTIVE' | translate }}</mat-checkbox>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2>{{ 'PLATFORM.PLANS.PRICING' | translate }}</h2>
+      <div class="form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'PLATFORM.BILLING_CYCLE.MONTHLY' | translate }}</mat-label>
+          <input matInput type="number" formControlName="priceMonthly">
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'PLATFORM.BILLING_CYCLE.QUARTERLY' | translate }}</mat-label>
+          <input matInput type="number" formControlName="priceQuarterly">
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'PLATFORM.BILLING_CYCLE.SEMI_ANNUAL' | translate }}</mat-label>
+          <input matInput type="number" formControlName="priceSemiAnnual">
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'PLATFORM.BILLING_CYCLE.YEARLY' | translate }}</mat-label>
+          <input matInput type="number" formControlName="priceYearly">
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'PLATFORM.BILLING_CYCLE.LIFETIME' | translate }}</mat-label>
+          <input matInput type="number" formControlName="priceLifetime">
+        </mat-form-field>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2>{{ 'PLATFORM.PLANS.LIMITS' | translate }}</h2>
+      <div class="limits-editor" [formArrayName]="'limits'">
+        @for (limitGroup of limitsArray.controls; track $index) {
+          <div class="limit-editor-row" [formGroupName]="$index">
+            <span class="limit-name">{{ limitGroup.get('metricKey')?.value }}</span>
+            <mat-checkbox formControlName="unlimited">{{ 'PLATFORM.PLANS.UNLIMITED' | translate }}</mat-checkbox>
+            <mat-form-field appearance="outline" class="limit-value-field">
+              <input matInput type="number" formControlName="maxValue" [disabled]="limitGroup.get('unlimited')?.value">
+            </mat-form-field>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2>{{ 'PLATFORM.PLANS.FEATURES' | translate }}</h2>
+      <div class="features-editor" [formArrayName]="'features'">
+        @for (featureGroup of featuresArray.controls; track $index) {
+          <div class="feature-editor-row" [formGroupName]="$index">
+            <mat-checkbox formControlName="isEnabled">{{ featureGroup.get('featureKey')?.value }}</mat-checkbox>
+          </div>
+        }
+      </div>
+    </section>
+
+    <div class="form-actions">
+      <button mat-stroked-button type="button" (click)="cancel()" [disabled]="isSaving()">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button mat-flat-button color="primary" type="submit" [disabled]="isSaving()">
+        <mat-spinner *ngIf="isSaving()" diameter="18"></mat-spinner>
+        <span *ngIf="!isSaving()">{{ 'COMMON.SAVE' | translate }}</span>
+      </button>
+    </div>
+  </form>
+</div>

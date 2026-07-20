@@ -1,0 +1,60 @@
+<div class="platform-dashboard">
+  <div class="dashboard-header">
+    <h1>{{ 'PLATFORM.DASHBOARD.TITLE' | translate }}</h1>
+    <button class="refresh-btn" (click)="refresh()">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+
+  <mat-progress-bar mode="indeterminate" *ngIf="loading()"></mat-progress-bar>
+
+  <div class="stat-grid" *ngIf="!loading()">
+    <mat-card class="stat-card" *ngFor="let card of statCards()" [style.border-left]="'4px solid ' + card.color">
+      <div class="card-content">
+        <div class="card-icon" [style.background-color]="card.bgColor">
+          <mat-icon [style.color]="card.color">{{ card.icon }}</mat-icon>
+        </div>
+        <div class="card-info">
+          <h3 class="card-title">{{ card.title | translate }}</h3>
+          <p class="card-value">{{ card.value }}</p>
+        </div>
+      </div>
+    </mat-card>
+  </div>
+
+  <div class="loading-state" *ngIf="loading()">
+    <mat-card class="stat-card skeleton" *ngFor="let i of [1,2,3,4,5,6,7,8]">
+      <div class="skeleton-content"></div>
+    </mat-card>
+  </div>
+
+  <div class="dashboard-panels" *ngIf="!loading()">
+    <mat-card class="panel-card">
+      <h2>{{ 'PLATFORM.DASHBOARD.LATEST_REGISTRATIONS' | translate }}</h2>
+      <div class="panel-list" *ngIf="latestRegistrations().length; else noRegistrations">
+        <div class="panel-row" *ngFor="let tenant of latestRegistrations()">
+          <span class="row-title">{{ tenant.name }}</span>
+          <span class="row-subtitle">{{ tenant.subdomain }} &middot; {{ tenant.planName }}</span>
+          <span class="row-date">{{ tenant.createdAt | date:'mediumDate' }}</span>
+        </div>
+      </div>
+      <ng-template #noRegistrations>
+        <p class="empty-state">{{ 'PLATFORM.DASHBOARD.NO_DATA' | translate }}</p>
+      </ng-template>
+    </mat-card>
+
+    <mat-card class="panel-card">
+      <h2>{{ 'PLATFORM.DASHBOARD.RECENT_PAYMENTS' | translate }}</h2>
+      <div class="panel-list" *ngIf="recentPayments().length; else noPayments">
+        <div class="panel-row" *ngFor="let payment of recentPayments()">
+          <span class="row-title">{{ payment.tenantName }}</span>
+          <span class="row-subtitle">{{ payment.amount | number:'1.2-2' }} {{ payment.currency }} &middot; {{ payment.status }}</span>
+          <span class="row-date">{{ payment.paidAt | date:'mediumDate' }}</span>
+        </div>
+      </div>
+      <ng-template #noPayments>
+        <p class="empty-state">{{ 'PLATFORM.DASHBOARD.NO_DATA' | translate }}</p>
+      </ng-template>
+    </mat-card>
+  </div>
+</div>

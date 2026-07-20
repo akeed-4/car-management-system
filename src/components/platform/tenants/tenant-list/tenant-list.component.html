@@ -1,0 +1,164 @@
+<div class="page-container">
+
+  <div class="page-header">
+    <div class="breadcrumb">
+      <span>{{ 'PLATFORM.BREADCRUMB' | translate }}</span>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="current">{{ 'PLATFORM.TENANTS.TITLE' | translate }}</span>
+    </div>
+    <div class="header-row">
+      <div>
+        <h1>{{ 'PLATFORM.TENANTS.TITLE' | translate }}</h1>
+        <p class="subtitle">{{ 'PLATFORM.TENANTS.SUBTITLE' | translate }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="summary-cards">
+    <mat-card class="summary-card total">
+      <mat-icon>business</mat-icon>
+      <div class="summary-info">
+        <div class="summary-value">{{ summary().total }}</div>
+        <div class="summary-label">{{ 'PLATFORM.TENANTS.SUMMARY.TOTAL' | translate }}</div>
+      </div>
+    </mat-card>
+    <mat-card class="summary-card active">
+      <mat-icon>check_circle</mat-icon>
+      <div class="summary-info">
+        <div class="summary-value">{{ summary().active }}</div>
+        <div class="summary-label">{{ 'PLATFORM.TENANTS.SUMMARY.ACTIVE' | translate }}</div>
+      </div>
+    </mat-card>
+    <mat-card class="summary-card provisioning">
+      <mat-icon>hourglass_top</mat-icon>
+      <div class="summary-info">
+        <div class="summary-value">{{ summary().provisioning }}</div>
+        <div class="summary-label">{{ 'PLATFORM.TENANTS.SUMMARY.PROVISIONING' | translate }}</div>
+      </div>
+    </mat-card>
+    <mat-card class="summary-card suspended">
+      <mat-icon>block</mat-icon>
+      <div class="summary-info">
+        <div class="summary-value">{{ summary().suspended }}</div>
+        <div class="summary-label">{{ 'PLATFORM.TENANTS.SUMMARY.SUSPENDED' | translate }}</div>
+      </div>
+    </mat-card>
+  </div>
+
+  <mat-toolbar class="page-toolbar">
+    <button mat-flat-button color="primary" (click)="newTenant()" *appHasPermission="'platform.tenants.create'">
+      <mat-icon>add</mat-icon>
+      {{ 'PLATFORM.TENANTS.NEW_TENANT' | translate }}
+    </button>
+
+    <button mat-stroked-button (click)="refresh()">
+      <mat-icon>refresh</mat-icon>
+      {{ 'COMMON.REFRESH' | translate }}
+    </button>
+
+    <span class="toolbar-spacer"></span>
+
+    <mat-form-field appearance="outline" class="filter-select">
+      <mat-label>{{ 'PLATFORM.TENANTS.STATUS' | translate }}</mat-label>
+      <mat-select [(ngModel)]="statusFilter" (selectionChange)="onStatusFilterChange()">
+        <mat-option [value]="''">{{ 'COMMON.ALL' | translate }}</mat-option>
+        @for (s of statusOptions; track s.value) {
+          <mat-option [value]="s.value">{{ s.label | translate }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-icon-button (click)="resetFilters()" [matTooltip]="'COMMON.RESET_FILTER' | translate">
+      <mat-icon>filter_alt_off</mat-icon>
+    </button>
+
+    <button mat-icon-button [matMenuTriggerFor]="exportMenu" [matTooltip]="'COMMON.EXPORT' | translate">
+      <mat-icon>file_download</mat-icon>
+    </button>
+    <mat-menu #exportMenu="matMenu">
+      <button mat-menu-item (click)="exportExcel()">
+        <mat-icon>description</mat-icon>
+        {{ 'COMMON.EXPORT_EXCEL' | translate }}
+      </button>
+      <button mat-menu-item (click)="exportPdf()">
+        <mat-icon>picture_as_pdf</mat-icon>
+        {{ 'COMMON.EXPORT_PDF' | translate }}
+      </button>
+    </mat-menu>
+
+    <button mat-icon-button (click)="printGrid()" [matTooltip]="'COMMON.PRINT' | translate">
+      <mat-icon>print</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <div class="grid-container">
+    <dx-data-grid
+      #dataGrid
+      id="platformTenantsGrid"
+      [dataSource]="dataSource"
+      [remoteOperations]="true"
+      keyExpr="id"
+      [showBorders]="true"
+      [showRowLines]="true"
+      [showColumnLines]="true"
+      [rtlEnabled]="true"
+      [columnAutoWidth]="true"
+      [allowColumnReordering]="true"
+      [allowColumnResizing]="true"
+      [hoverStateEnabled]="true"
+      (onRowDblClick)="openDetails($event)">
+
+      <dxo-load-panel [enabled]="true"></dxo-load-panel>
+      <dxo-search-panel [visible]="true" [width]="280"></dxo-search-panel>
+      <dxo-header-filter [visible]="true"></dxo-header-filter>
+      <dxo-filter-row [visible]="true"></dxo-filter-row>
+      <dxo-group-panel [visible]="false"></dxo-group-panel>
+      <dxo-column-chooser [enabled]="true" mode="select"></dxo-column-chooser>
+      <dxo-column-fixing [enabled]="true"></dxo-column-fixing>
+      <dxo-state-storing [enabled]="true" type="localStorage" [storageKey]="gridStateKey"></dxo-state-storing>
+      <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
+      <dxo-paging [pageSize]="20"></dxo-paging>
+      <dxo-pager [visible]="true" [allowedPageSizes]="[10, 20, 50, 100]" [showPageSizeSelector]="true" [showInfo]="true" [showNavigationButtons]="true" displayMode="full"></dxo-pager>
+      <dxo-selection mode="multiple" showCheckBoxesMode="onClick"></dxo-selection>
+      <dxo-export [enabled]="false"></dxo-export>
+
+      <dxi-column dataField="code" [caption]="'PLATFORM.TENANTS.CODE' | translate" [width]="110" [fixed]="true"></dxi-column>
+      <dxi-column dataField="name" [caption]="'PLATFORM.TENANTS.COMPANY' | translate"></dxi-column>
+      <dxi-column dataField="adminFullName" [caption]="'PLATFORM.TENANTS.OWNER' | translate"></dxi-column>
+      <dxi-column dataField="adminEmail" [caption]="'PLATFORM.TENANTS.EMAIL' | translate"></dxi-column>
+      <dxi-column dataField="phone" [caption]="'PLATFORM.TENANTS.PHONE' | translate" [width]="130"></dxi-column>
+      <dxi-column dataField="planName" [caption]="'PLATFORM.TENANTS.PLAN' | translate" [width]="130"></dxi-column>
+
+      <dxi-column dataField="status" [caption]="'PLATFORM.TENANTS.STATUS' | translate" [width]="130" cellTemplate="statusTemplate"></dxi-column>
+      <div *dxTemplate="let cell of 'statusTemplate'">
+        <span class="chip" [ngClass]="getTenantStatusClass(cell.value)">
+          {{ ('PLATFORM.TENANT_STATUS.' + (cell.value === TenantStatus.Active ? 'ACTIVE' : cell.value === TenantStatus.Provisioning ? 'PROVISIONING' : cell.value === TenantStatus.Suspended ? 'SUSPENDED' : 'BLOCKED')) | translate }}
+        </span>
+      </div>
+
+      <dxi-column dataField="createdAt" dataType="date" format="yyyy-MM-dd" [caption]="'PLATFORM.TENANTS.CREATED' | translate" [width]="120"></dxi-column>
+
+      <dxi-column type="buttons" [caption]="'COMMON.ACTIONS' | translate" [width]="150" [fixed]="true" fixedPosition="right" cellTemplate="actionsTemplate"></dxi-column>
+      <div *dxTemplate="let cell of 'actionsTemplate'">
+        <button mat-icon-button [matTooltip]="'COMMON.EDIT' | translate" (click)="editTenant(cell.data.id)" *appHasPermission="'platform.tenants.edit'">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button [matTooltip]="'PLATFORM.TENANTS.TOGGLE_SUSPEND' | translate" (click)="toggleSuspend(cell.data)" *appHasPermission="'platform.tenants.suspend'">
+          <mat-icon>{{ cell.data.status === TenantStatus.Suspended ? 'play_circle' : 'pause_circle' }}</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" [matTooltip]="'COMMON.DELETE' | translate" (click)="requestDelete(cell.data.id)" *appHasPermission="'platform.tenants.delete'">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </dx-data-grid>
+  </div>
+
+  <app-modal
+    [isOpen]="isDeleteModalOpen()"
+    [title]="'PLATFORM.TENANTS.DELETE_CONFIRM_TITLE' | translate"
+    [message]="'PLATFORM.TENANTS.DELETE_CONFIRM_MESSAGE' | translate"
+    (confirm)="confirmDelete()"
+    (cancel)="closeDeleteModal()">
+  </app-modal>
+
+</div>

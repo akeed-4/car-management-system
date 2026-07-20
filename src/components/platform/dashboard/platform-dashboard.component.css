@@ -1,0 +1,152 @@
+.platform-dashboard {
+  width: 100%;
+  padding: 16px;
+}
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.refresh-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+}
+
+.refresh-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.stat-grid,
+.loading-state {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  position: relative;
+}
+
+.card-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px;
+}
+
+.card-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.card-title {
+  font-size: 12px;
+  color: #666;
+  margin: 0 0 6px 0;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.card-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+  line-height: 1;
+}
+
+.skeleton {
+  height: 100px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-content {
+  height: 100%;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.dashboard-panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.panel-card {
+  padding: 16px;
+}
+
+.panel-card h2 {
+  font-size: 16px;
+  margin: 0 0 12px 0;
+}
+
+.panel-row {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.panel-row:last-child {
+  border-bottom: none;
+}
+
+.row-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.row-subtitle {
+  font-size: 12px;
+  color: #777;
+}
+
+.row-date {
+  font-size: 11px;
+  color: #999;
+}
+
+.empty-state {
+  color: #999;
+  font-size: 13px;
+  text-align: center;
+  padding: 16px 0;
+}
+
+@media (max-width: 768px) {
+  .stat-grid,
+  .loading-state {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+}

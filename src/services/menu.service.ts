@@ -248,5 +248,18 @@ export const menuData = [
       { id: 123, name: 'اعدادات دورة حياة المستندات', englishName: 'Document Lifecycle Settings', route: '/setup/document-lifecycle-settings' },
       { id: 124, name: 'اعدادات رمز الاستجابة السريعة', englishName: 'QR Code Settings', route: '/setup/qr-code-settings' }
     ]
+  },
+  {
+    id: 14,
+    name: 'إدارة المنصة',
+    englishName: 'Platform',
+    submenu: [
+      { id: 141, name: 'لوحة التحكم', englishName: 'Dashboard', route: '/platform/dashboard' },
+      { id: 142, name: 'المستأجرون', englishName: 'Tenants', route: '/platform/tenants' },
+      { id: 143, name: 'خطط الاشتراك', englishName: 'Subscription Plans', route: '/platform/plans' },
+      { id: 144, name: 'الاشتراكات', englishName: 'Subscriptions', route: '/platform/subscriptions' },
+      { id: 145, name: 'النطاقات', englishName: 'Domains', route: '/platform/domains' },
+      { id: 146, name: 'الإعدادات العامة', englishName: 'Global Settings', route: '/platform/settings' }
+    ]
   }
 ];

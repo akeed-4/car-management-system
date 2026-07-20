@@ -304,6 +304,7 @@
     "EXPORT_PDF": "تصدير إلى PDF",
     "RESET_FILTER": "إعادة تعيين الفلتر",
     "ACTIONS": "إجراءات",
+    "ADD": "إضافة",
     "NONE": "بدون",
     "ALL": "الكل",
     "SEARCH": "بحث",
@@ -3978,6 +3979,174 @@
     "CAR_PROFITABILITY": {
       "TITLE": "تقرير ربحية السيارة",
       "SUBTITLE": "استعراض وتصفية وتصدير بيانات ربحية السيارة."
+    }
+  },
+  "PLATFORM": {
+    "BREADCRUMB": "المنصة",
+    "DASHBOARD": {
+      "TITLE": "لوحة تحكم المنصة",
+      "TOTAL_TENANTS": "إجمالي المستأجرين",
+      "ACTIVE_TENANTS": "المستأجرون النشطون",
+      "TRIAL_TENANTS": "مستأجرو الفترة التجريبية",
+      "EXPIRED_SUBSCRIPTIONS": "الاشتراكات المنتهية",
+      "MONTHLY_REVENUE": "الإيراد الشهري",
+      "ANNUAL_REVENUE": "الإيراد السنوي",
+      "STORAGE_USAGE": "استخدام التخزين",
+      "ACTIVE_DOMAINS": "النطاقات النشطة",
+      "LATEST_REGISTRATIONS": "أحدث التسجيلات",
+      "RECENT_PAYMENTS": "أحدث المدفوعات",
+      "NO_DATA": "لا توجد بيانات بعد",
+      "LOAD_ERROR": "فشل تحميل لوحة التحكم"
+    },
+    "TENANTS": {
+      "TITLE": "المستأجرون",
+      "SUBTITLE": "إدارة الشركات المشتركة وحالة تجهيزها.",
+      "NEW_TENANT": "مستأجر جديد",
+      "CREATE_TITLE": "إنشاء مستأجر",
+      "EDIT_TITLE": "تعديل مستأجر",
+      "STATUS": "الحالة",
+      "CODE": "الرمز",
+      "COMPANY": "الشركة",
+      "OWNER": "المالك",
+      "EMAIL": "البريد الإلكتروني",
+      "PHONE": "الهاتف",
+      "PLAN": "الخطة",
+      "CREATED": "تاريخ الإنشاء",
+      "LEGAL_NAME": "الاسم القانوني",
+      "IS_ACTIVE": "نشط",
+      "NOTES": "ملاحظات",
+      "PASSWORD": "كلمة المرور",
+      "ADDRESS": "العنوان",
+      "COUNTRY": "الدولة",
+      "CURRENCY": "العملة",
+      "TIMEZONE": "المنطقة الزمنية",
+      "LANGUAGE": "اللغة",
+      "TRIAL_EXPIRATION": "انتهاء الفترة التجريبية",
+      "ADD_DOMAIN": "إضافة نطاق",
+      "NO_DOMAINS": "لا توجد نطاقات مضافة بعد",
+      "LIMITS_HINT": "الحدود مستمدة من خطة الاشتراك المختارة.",
+      "FEATURES_HINT": "الميزات مستمدة من خطة الاشتراك المختارة.",
+      "SELECT_PLAN_FIRST": "اختر خطة اشتراك لعرض حدودها وميزاتها",
+      "TOGGLE_SUSPEND": "إيقاف / تفعيل",
+      "DELETE_CONFIRM_TITLE": "حذف المستأجر",
+      "DELETE_CONFIRM_MESSAGE": "هل أنت متأكد من حذف هذا المستأجر؟ لا يمكن التراجع عن هذا الإجراء.",
+      "SECTIONS": {
+        "GENERAL": "عام",
+        "CONTACT": "التواصل",
+        "SUBSCRIPTION": "الاشتراك",
+        "DOMAINS": "النطاقات",
+        "LIMITS": "الحدود",
+        "FEATURES": "الميزات"
+      },
+      "SUMMARY": {
+        "TOTAL": "الإجمالي",
+        "ACTIVE": "نشط",
+        "PROVISIONING": "قيد التجهيز",
+        "SUSPENDED": "موقوف"
+      }
+    },
+    "PLANS": {
+      "TITLE": "خطط الاشتراك",
+      "NEW_PLAN": "خطة جديدة",
+      "CREATE_TITLE": "إنشاء خطة",
+      "EDIT_TITLE": "تعديل خطة",
+      "INACTIVE": "غير مفعلة",
+      "USERS": "مستخدمين",
+      "STORAGE_MB": "ميجابايت تخزين",
+      "BRANCHES": "فروع",
+      "FEATURES_ENABLED": "ميزات",
+      "DUPLICATE": "نسخ",
+      "DEACTIVATE": "تعطيل",
+      "GENERAL": "عام",
+      "PRICING": "التسعير",
+      "SORT_ORDER": "ترتيب العرض",
+      "IS_ACTIVE": "مفعلة",
+      "CODE": "الرمز",
+      "NAME": "الاسم",
+      "LIMITS": "الحدود",
+      "FEATURES": "الميزات",
+      "UNLIMITED": "غير محدود"
+    },
+    "SUBSCRIPTIONS": {
+      "TITLE": "الاشتراكات",
+      "TENANT": "المستأجر",
+      "PLAN": "الخطة",
+      "STATUS": "الحالة",
+      "START": "البداية",
+      "END": "النهاية",
+      "RENEW": "التجديد",
+      "AMOUNT": "المبلغ",
+      "PAYMENT_STATUS": "حالة الدفع",
+      "CANCEL": "إلغاء"
+    },
+    "DOMAINS": {
+      "TITLE": "النطاقات",
+      "HOSTNAME": "اسم النطاق",
+      "SSL": "SSL",
+      "TENANT": "المستأجر",
+      "STATUS": "الحالة",
+      "CREATED": "تاريخ الإنشاء",
+      "VERIFIED": "موثّق",
+      "PENDING": "قيد التحقق"
+    },
+    "SETTINGS": {
+      "TITLE": "الإعدادات العامة",
+      "APPLICATION_NAME": "اسم التطبيق",
+      "LOGO_URL": "رابط الشعار",
+      "SMTP_HOST": "خادم SMTP",
+      "SMTP_PORT": "منفذ SMTP",
+      "SMTP_USERNAME": "اسم مستخدم SMTP",
+      "SMTP_PASSWORD": "كلمة مرور SMTP",
+      "SMTP_USE_SSL": "استخدام SSL",
+      "STORAGE_PROVIDER": "مزود التخزين",
+      "STORAGE_BASE_PATH": "مسار التخزين الأساسي",
+      "TAP_SECRET_KEY": "مفتاح Tap السري",
+      "TAP_PUBLISHABLE_KEY": "مفتاح Tap العام",
+      "DEFAULT_TRIAL_DAYS": "أيام الفترة التجريبية الافتراضية",
+      "GRACE_PERIOD_DAYS": "أيام فترة السماح",
+      "ALLOW_TENANT_HEADER": "السماح بتحديد المستأجر عبر الترويسة (غير الإنتاج)",
+      "SECTIONS": {
+        "GENERAL": "عام",
+        "SMTP": "SMTP",
+        "STORAGE": "التخزين",
+        "API_KEYS": "مفاتيح API",
+        "SECURITY": "الأمان"
+      }
+    },
+    "TENANT_STATUS": {
+      "PROVISIONING": "قيد التجهيز",
+      "ACTIVE": "نشط",
+      "SUSPENDED": "موقوف",
+      "BLOCKED": "محظور"
+    },
+    "SUBSCRIPTION_STATUS": {
+      "TRIAL": "تجريبي",
+      "PENDING_PAYMENT": "بانتظار الدفع",
+      "ACTIVE": "نشط",
+      "RENEWAL_PENDING": "بانتظار التجديد",
+      "GRACE_PERIOD": "فترة سماح",
+      "SUSPENDED": "موقوف",
+      "EXPIRED": "منتهي",
+      "CANCELLED": "ملغى",
+      "BLOCKED": "محظور"
+    },
+    "BILLING_CYCLE": {
+      "MONTHLY": "شهري",
+      "QUARTERLY": "ربع سنوي",
+      "SEMI_ANNUAL": "نصف سنوي",
+      "YEARLY": "سنوي",
+      "LIFETIME": "مدى الحياة"
+    },
+    "PAYMENT_STATUS": {
+      "PENDING": "معلق",
+      "SUCCESS": "ناجح",
+      "FAILED": "فاشل",
+      "REFUNDED": "مسترد"
+    },
+    "PAYMENT_TYPE": {
+      "INITIAL": "أولي",
+      "RENEWAL": "تجديد",
+      "RETRY": "إعادة محاولة"
     }
   }
 }

@@ -1,0 +1,203 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="breadcrumb">
+      <span>{{ 'PLATFORM.BREADCRUMB' | translate }}</span>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="current">{{ (isEdit() ? 'PLATFORM.TENANTS.EDIT_TITLE' : 'PLATFORM.TENANTS.CREATE_TITLE') | translate }}</span>
+    </div>
+    <h1>{{ (isEdit() ? 'PLATFORM.TENANTS.EDIT_TITLE' : 'PLATFORM.TENANTS.CREATE_TITLE') | translate }}</h1>
+  </div>
+
+  <div class="loading-overlay" *ngIf="isLoading()">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <form [formGroup]="tenantForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading()">
+    <mat-tab-group animationDuration="150ms">
+
+      <!-- General -->
+      <mat-tab [label]="'PLATFORM.TENANTS.SECTIONS.GENERAL' | translate">
+        <div class="tab-content form-grid">
+          <mat-form-field appearance="outline" *ngIf="isEdit()">
+            <mat-label>{{ 'PLATFORM.TENANTS.CODE' | translate }}</mat-label>
+            <input matInput formControlName="code" readonly>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'PLATFORM.TENANTS.COMPANY' | translate }}</mat-label>
+            <input matInput formControlName="name" required>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'PLATFORM.TENANTS.LEGAL_NAME' | translate }}</mat-label>
+            <input matInput formControlName="companyLegalName" required>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'PLATFORM.TENANTS.STATUS' | translate }}</mat-label>
+            <mat-select formControlName="status">
+              @for (s of statusOptions; track s.value) {
+                <mat-option [value]="s.value">{{ s.label | translate }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-checkbox formControlName="isActive">{{ 'PLATFORM.TENANTS.IS_ACTIVE' | translate }}</mat-checkbox>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'PLATFORM.TENANTS.NOTES' | translate }}</mat-label>
+            <textarea matInput formControlName="notes" rows="3"></textarea>
+          </mat-form-field>
+        </div>
+      </mat-tab>
+
+      <!-- Contact -->
+      <mat-tab [label]="'PLATFORM.TENANTS.SECTIONS.CONTACT' | translate">
+        <div class="tab-content form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'PLATFORM.TENANTS.OWNER' | translate }}</mat-label>
+            <input matInput formControlName="adminFullName" required>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'PLATFORM.TENANTS.EMAIL' | translate }}</mat-label>
+            <input matInput type="email" formControlName="adminEmail" required>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" *ngIf="!isEdit()">
+            <mat-label>{{ 'PLATFORM.TENANTS.PASSWORD' | translate }}</mat-label>
+            <input matInput type="password" formControlName="adminPassword" required>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'PLATFORM.TENANTS.PHONE' | translate }}</mat-label>
+            <input matInput formControlName="phone">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'PLATFORM.TENANTS.ADDRESS' | translate }}</mat-label>
+            <input matInput formControlName="address">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'PLATFORM.TENANTS.COUNTRY' | translate }}</mat-label>
+            <input matInput formControlName="country">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'PLATFORM.TENANTS.CURRENCY' | translate }}</mat-label>
+            <input matInput formControlName="currency">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'PLATFORM.TENANTS.TIMEZONE' | translate }}</mat-label>
+            <input matInput formControlName="timezone">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'PLATFORM.TENANTS.LANGUAGE' | translate }}</mat-label>
+            <mat-select formControlName="language">
+              <mat-option value="en">English</mat-option>
+              <mat-option value="ar">Arabic</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </mat-tab>
+
+      <!-- Subscription -->
+      <mat-tab [label]="'PLATFORM.TENANTS.SECTIONS.SUBSCRIPTION' | translate">
+        <div class="tab-content form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'PLATFORM.TENANTS.PLAN' | translate }}</mat-label>
+            <mat-select formControlName="planId" required>
+              @for (p of plans(); track p.id) {
+                <mat-option [value]="p.id">{{ p.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" *ngIf="!isEdit()">
+            <mat-label>{{ 'PLATFORM.TENANTS.TRIAL_EXPIRATION' | translate }}</mat-label>
+            <input matInput [matDatepicker]="trialPicker" formControlName="trialEndsAt">
+            <mat-datepicker-toggle matIconSuffix [for]="trialPicker"></mat-datepicker-toggle>
+            <mat-datepicker #trialPicker></mat-datepicker>
+          </mat-form-field>
+        </div>
+      </mat-tab>
+
+      <!-- Domains -->
+      <mat-tab [label]="'PLATFORM.TENANTS.SECTIONS.DOMAINS' | translate">
+        <div class="tab-content">
+          <div class="domain-add-row">
+            <mat-form-field appearance="outline" class="domain-input">
+              <mat-label>{{ 'PLATFORM.TENANTS.ADD_DOMAIN' | translate }}</mat-label>
+              <input matInput [ngModel]="newDomainName()" (ngModelChange)="newDomainName.set($event)" [ngModelOptions]="{standalone: true}" placeholder="erp.company.com">
+            </mat-form-field>
+            <button mat-stroked-button type="button" (click)="addDomain()">
+              <mat-icon>add</mat-icon>
+              {{ 'COMMON.ADD' | translate }}
+            </button>
+          </div>
+
+          <mat-chip-set>
+            @for (domain of domains(); track domain.domainName) {
+              <mat-chip (removed)="removeDomain(domain.domainName)">
+                {{ domain.domainName }}
+                <span class="domain-verified" *ngIf="domain.isVerified">&#10003;</span>
+                <button matChipRemove><mat-icon>cancel</mat-icon></button>
+              </mat-chip>
+            } @empty {
+              <p class="empty-state">{{ 'PLATFORM.TENANTS.NO_DOMAINS' | translate }}</p>
+            }
+          </mat-chip-set>
+        </div>
+      </mat-tab>
+
+      <!-- Limits (read-only, derived from the selected plan) -->
+      <mat-tab [label]="'PLATFORM.TENANTS.SECTIONS.LIMITS' | translate">
+        <div class="tab-content">
+          <p class="section-hint">{{ 'PLATFORM.TENANTS.LIMITS_HINT' | translate }}</p>
+          <div class="limits-grid" *ngIf="selectedPlan(); else noPlan">
+            @for (limit of selectedPlan()!.limits; track limit.metricKey) {
+              <div class="limit-row">
+                <span class="limit-key">{{ limit.metricKey }}</span>
+                <span class="limit-value">{{ limit.maxValue === null ? ('PLATFORM.PLANS.UNLIMITED' | translate) : limit.maxValue }}</span>
+              </div>
+            }
+          </div>
+          <ng-template #noPlan>
+            <p class="empty-state">{{ 'PLATFORM.TENANTS.SELECT_PLAN_FIRST' | translate }}</p>
+          </ng-template>
+        </div>
+      </mat-tab>
+
+      <!-- Features (read-only, derived from the selected plan) -->
+      <mat-tab [label]="'PLATFORM.TENANTS.SECTIONS.FEATURES' | translate">
+        <div class="tab-content">
+          <p class="section-hint">{{ 'PLATFORM.TENANTS.FEATURES_HINT' | translate }}</p>
+          <div class="features-grid" *ngIf="selectedPlan(); else noPlanFeatures">
+            @for (feature of selectedPlan()!.features; track feature.featureKey) {
+              <div class="feature-row" [class.disabled]="!feature.isEnabled">
+                <mat-icon>{{ feature.isEnabled ? 'check_circle' : 'cancel' }}</mat-icon>
+                <span>{{ feature.featureKey }}</span>
+              </div>
+            }
+          </div>
+          <ng-template #noPlanFeatures>
+            <p class="empty-state">{{ 'PLATFORM.TENANTS.SELECT_PLAN_FIRST' | translate }}</p>
+          </ng-template>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+
+    <div class="form-actions">
+      <button mat-stroked-button type="button" (click)="cancel()" [disabled]="isSaving()">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button mat-flat-button color="primary" type="submit" [disabled]="isSaving()">
+        <mat-spinner *ngIf="isSaving()" diameter="18"></mat-spinner>
+        <span *ngIf="!isSaving()">{{ 'COMMON.SAVE' | translate }}</span>
+      </button>
+    </div>
+  </form>
+</div>

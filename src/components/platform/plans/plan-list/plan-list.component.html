@@ -1,0 +1,77 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="breadcrumb">
+      <span>{{ 'PLATFORM.BREADCRUMB' | translate }}</span>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="current">{{ 'PLATFORM.PLANS.TITLE' | translate }}</span>
+    </div>
+    <div class="header-row">
+      <h1>{{ 'PLATFORM.PLANS.TITLE' | translate }}</h1>
+      <button mat-flat-button color="primary" (click)="newPlan()" *appHasPermission="'platform.plans.create'">
+        <mat-icon>add</mat-icon>
+        {{ 'PLATFORM.PLANS.NEW_PLAN' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <mat-progress-bar mode="indeterminate" *ngIf="loading()"></mat-progress-bar>
+
+  <div class="plan-grid" *ngIf="!loading()">
+    <mat-card class="plan-card" *ngFor="let plan of plans()" [class.inactive]="!plan.isActive">
+      <div class="plan-header">
+        <h2>{{ plan.name }}</h2>
+        <span class="plan-badge" *ngIf="!plan.isActive">{{ 'PLATFORM.PLANS.INACTIVE' | translate }}</span>
+      </div>
+
+      <div class="plan-price">
+        <span class="price-value">{{ plan.priceMonthly | number:'1.0-0' }}</span>
+        <span class="price-cycle">/ {{ 'PLATFORM.BILLING_CYCLE.MONTHLY' | translate }}</span>
+      </div>
+
+      <div class="plan-limits">
+        <div class="limit-item">
+          <mat-icon>people</mat-icon>
+          <span>{{ getLimit(plan, 'Users') }} {{ 'PLATFORM.PLANS.USERS' | translate }}</span>
+        </div>
+        <div class="limit-item">
+          <mat-icon>storage</mat-icon>
+          <span>{{ getLimit(plan, 'StorageMb') }} {{ 'PLATFORM.PLANS.STORAGE_MB' | translate }}</span>
+        </div>
+        <div class="limit-item">
+          <mat-icon>store</mat-icon>
+          <span>{{ getLimit(plan, 'Branches') }} {{ 'PLATFORM.PLANS.BRANCHES' | translate }}</span>
+        </div>
+        <div class="limit-item">
+          <mat-icon>check_circle</mat-icon>
+          <span>{{ enabledFeatureCount(plan) }} {{ 'PLATFORM.PLANS.FEATURES_ENABLED' | translate }}</span>
+        </div>
+      </div>
+
+      <div class="plan-actions">
+        <button mat-stroked-button (click)="viewPlan(plan)">
+          <mat-icon>visibility</mat-icon>
+          {{ 'COMMON.VIEW' | translate }}
+        </button>
+        <button mat-icon-button [matMenuTriggerFor]="planMenu">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #planMenu="matMenu">
+          <button mat-menu-item (click)="editPlan(plan)" *appHasPermission="'platform.plans.edit'">
+            <mat-icon>edit</mat-icon>
+            {{ 'COMMON.EDIT' | translate }}
+          </button>
+          <button mat-menu-item (click)="duplicatePlan(plan)" *appHasPermission="'platform.plans.create'">
+            <mat-icon>content_copy</mat-icon>
+            {{ 'PLATFORM.PLANS.DUPLICATE' | translate }}
+          </button>
+          <ng-container *appHasPermission="'platform.plans.edit'">
+            <button mat-menu-item (click)="deactivatePlan(plan)" *ngIf="plan.isActive">
+              <mat-icon>block</mat-icon>
+              {{ 'PLATFORM.PLANS.DEACTIVATE' | translate }}
+            </button>
+          </ng-container>
+        </mat-menu>
+      </div>
+    </mat-card>
+  </div>
+</div>

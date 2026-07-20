@@ -302,6 +302,7 @@
     "EXPORT_PDF": "Export to PDF",
     "RESET_FILTER": "Reset Filter",
     "ACTIONS": "Actions",
+    "ADD": "Add",
     "NONE": "None",
     "ALL": "All",
     "SEARCH": "Search",
@@ -4107,6 +4108,174 @@
     "CAR_PROFITABILITY": {
       "TITLE": "Car Profitability Report",
       "SUBTITLE": "Browse, filter, and export car profitability data."
+    }
+  },
+  "PLATFORM": {
+    "BREADCRUMB": "Platform",
+    "DASHBOARD": {
+      "TITLE": "Platform Dashboard",
+      "TOTAL_TENANTS": "Total Tenants",
+      "ACTIVE_TENANTS": "Active Tenants",
+      "TRIAL_TENANTS": "Trial Tenants",
+      "EXPIRED_SUBSCRIPTIONS": "Expired Subscriptions",
+      "MONTHLY_REVENUE": "Monthly Revenue",
+      "ANNUAL_REVENUE": "Annual Revenue",
+      "STORAGE_USAGE": "Storage Usage",
+      "ACTIVE_DOMAINS": "Active Domains",
+      "LATEST_REGISTRATIONS": "Latest Registrations",
+      "RECENT_PAYMENTS": "Recent Payments",
+      "NO_DATA": "No data yet",
+      "LOAD_ERROR": "Failed to load the dashboard"
+    },
+    "TENANTS": {
+      "TITLE": "Tenants",
+      "SUBTITLE": "Manage subscriber businesses and their provisioning status.",
+      "NEW_TENANT": "New Tenant",
+      "CREATE_TITLE": "Create Tenant",
+      "EDIT_TITLE": "Edit Tenant",
+      "STATUS": "Status",
+      "CODE": "Code",
+      "COMPANY": "Company",
+      "OWNER": "Owner",
+      "EMAIL": "Email",
+      "PHONE": "Phone",
+      "PLAN": "Plan",
+      "CREATED": "Created",
+      "LEGAL_NAME": "Legal Name",
+      "IS_ACTIVE": "Is Active",
+      "NOTES": "Notes",
+      "PASSWORD": "Password",
+      "ADDRESS": "Address",
+      "COUNTRY": "Country",
+      "CURRENCY": "Currency",
+      "TIMEZONE": "Timezone",
+      "LANGUAGE": "Language",
+      "TRIAL_EXPIRATION": "Trial Expiration",
+      "ADD_DOMAIN": "Add Domain",
+      "NO_DOMAINS": "No domains configured yet",
+      "LIMITS_HINT": "Limits come from the selected subscription plan.",
+      "FEATURES_HINT": "Features come from the selected subscription plan.",
+      "SELECT_PLAN_FIRST": "Select a subscription plan to see its limits and features",
+      "TOGGLE_SUSPEND": "Suspend / Activate",
+      "DELETE_CONFIRM_TITLE": "Delete Tenant",
+      "DELETE_CONFIRM_MESSAGE": "Are you sure you want to delete this tenant? This cannot be undone.",
+      "SECTIONS": {
+        "GENERAL": "General",
+        "CONTACT": "Contact",
+        "SUBSCRIPTION": "Subscription",
+        "DOMAINS": "Domains",
+        "LIMITS": "Limits",
+        "FEATURES": "Features"
+      },
+      "SUMMARY": {
+        "TOTAL": "Total",
+        "ACTIVE": "Active",
+        "PROVISIONING": "Provisioning",
+        "SUSPENDED": "Suspended"
+      }
+    },
+    "PLANS": {
+      "TITLE": "Subscription Plans",
+      "NEW_PLAN": "New Plan",
+      "CREATE_TITLE": "Create Plan",
+      "EDIT_TITLE": "Edit Plan",
+      "INACTIVE": "Inactive",
+      "USERS": "Users",
+      "STORAGE_MB": "MB Storage",
+      "BRANCHES": "Branches",
+      "FEATURES_ENABLED": "Features",
+      "DUPLICATE": "Duplicate",
+      "DEACTIVATE": "Deactivate",
+      "GENERAL": "General",
+      "PRICING": "Pricing",
+      "SORT_ORDER": "Sort Order",
+      "IS_ACTIVE": "Is Active",
+      "CODE": "Code",
+      "NAME": "Name",
+      "LIMITS": "Limits",
+      "FEATURES": "Features",
+      "UNLIMITED": "Unlimited"
+    },
+    "SUBSCRIPTIONS": {
+      "TITLE": "Subscriptions",
+      "TENANT": "Tenant",
+      "PLAN": "Plan",
+      "STATUS": "Status",
+      "START": "Start",
+      "END": "End",
+      "RENEW": "Renew",
+      "AMOUNT": "Amount",
+      "PAYMENT_STATUS": "Payment Status",
+      "CANCEL": "Cancel"
+    },
+    "DOMAINS": {
+      "TITLE": "Domains",
+      "HOSTNAME": "Hostname",
+      "SSL": "SSL",
+      "TENANT": "Tenant",
+      "STATUS": "Status",
+      "CREATED": "Created",
+      "VERIFIED": "Verified",
+      "PENDING": "Pending"
+    },
+    "SETTINGS": {
+      "TITLE": "Global Settings",
+      "APPLICATION_NAME": "Application Name",
+      "LOGO_URL": "Logo URL",
+      "SMTP_HOST": "SMTP Host",
+      "SMTP_PORT": "SMTP Port",
+      "SMTP_USERNAME": "SMTP Username",
+      "SMTP_PASSWORD": "SMTP Password",
+      "SMTP_USE_SSL": "Use SSL",
+      "STORAGE_PROVIDER": "Storage Provider",
+      "STORAGE_BASE_PATH": "Storage Base Path",
+      "TAP_SECRET_KEY": "Tap Secret Key",
+      "TAP_PUBLISHABLE_KEY": "Tap Publishable Key",
+      "DEFAULT_TRIAL_DAYS": "Default Trial Days",
+      "GRACE_PERIOD_DAYS": "Grace Period Days",
+      "ALLOW_TENANT_HEADER": "Allow X-Tenant-Id header resolution (non-production)",
+      "SECTIONS": {
+        "GENERAL": "General",
+        "SMTP": "SMTP",
+        "STORAGE": "Storage",
+        "API_KEYS": "API Keys",
+        "SECURITY": "Security"
+      }
+    },
+    "TENANT_STATUS": {
+      "PROVISIONING": "Provisioning",
+      "ACTIVE": "Active",
+      "SUSPENDED": "Suspended",
+      "BLOCKED": "Blocked"
+    },
+    "SUBSCRIPTION_STATUS": {
+      "TRIAL": "Trial",
+      "PENDING_PAYMENT": "Pending Payment",
+      "ACTIVE": "Active",
+      "RENEWAL_PENDING": "Renewal Pending",
+      "GRACE_PERIOD": "Grace Period",
+      "SUSPENDED": "Suspended",
+      "EXPIRED": "Expired",
+      "CANCELLED": "Cancelled",
+      "BLOCKED": "Blocked"
+    },
+    "BILLING_CYCLE": {
+      "MONTHLY": "Monthly",
+      "QUARTERLY": "Quarterly",
+      "SEMI_ANNUAL": "Semi-Annual",
+      "YEARLY": "Yearly",
+      "LIFETIME": "Lifetime"
+    },
+    "PAYMENT_STATUS": {
+      "PENDING": "Pending",
+      "SUCCESS": "Success",
+      "FAILED": "Failed",
+      "REFUNDED": "Refunded"
+    },
+    "PAYMENT_TYPE": {
+      "INITIAL": "Initial",
+      "RENEWAL": "Renewal",
+      "RETRY": "Retry"
     }
   }
 }

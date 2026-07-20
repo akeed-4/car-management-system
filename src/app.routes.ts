@@ -383,6 +383,10 @@ export const APP_ROUTES: Routes = [
     path: 'car-management/reports',
     loadChildren: () => import('./components/car-management/reports/car-reports.routes').then(m => m.CAR_REPORTS_ROUTES)
   },
+  {
+    path: 'platform',
+    loadChildren: () => import('./components/platform/platform.routes').then(m => m.PLATFORM_ROUTES)
+  },
       { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
       { path: '**', redirectTo: '/dashboard' }
     ]

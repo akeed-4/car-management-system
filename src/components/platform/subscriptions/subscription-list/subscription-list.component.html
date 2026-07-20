@@ -1,0 +1,67 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="breadcrumb">
+      <span>{{ 'PLATFORM.BREADCRUMB' | translate }}</span>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="current">{{ 'PLATFORM.SUBSCRIPTIONS.TITLE' | translate }}</span>
+    </div>
+    <div class="header-row">
+      <h1>{{ 'PLATFORM.SUBSCRIPTIONS.TITLE' | translate }}</h1>
+      <button mat-stroked-button (click)="refresh()">
+        <mat-icon>refresh</mat-icon>
+        {{ 'COMMON.REFRESH' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <mat-progress-bar mode="indeterminate" *ngIf="loading()"></mat-progress-bar>
+
+  <div class="grid-container" *ngIf="!loading()">
+    <dx-data-grid
+      [dataSource]="subscriptions()"
+      keyExpr="id"
+      [showBorders]="true"
+      [showRowLines]="true"
+      [rtlEnabled]="true"
+      [columnAutoWidth]="true"
+      [hoverStateEnabled]="true">
+
+      <dxo-search-panel [visible]="true" [width]="240"></dxo-search-panel>
+      <dxo-filter-row [visible]="true"></dxo-filter-row>
+      <dxo-paging [pageSize]="20"></dxo-paging>
+      <dxo-pager [visible]="true" [showPageSizeSelector]="true" [allowedPageSizes]="[10,20,50]"></dxo-pager>
+
+      <dxi-column dataField="tenantName" [caption]="'PLATFORM.SUBSCRIPTIONS.TENANT' | translate"></dxi-column>
+      <dxi-column dataField="planName" [caption]="'PLATFORM.SUBSCRIPTIONS.PLAN' | translate"></dxi-column>
+
+      <dxi-column dataField="status" [caption]="'PLATFORM.SUBSCRIPTIONS.STATUS' | translate" cellTemplate="statusTemplate"></dxi-column>
+      <div *dxTemplate="let cell of 'statusTemplate'">
+        <span class="chip" [style.background]="getStatusColor(cell.value) + '22'" [style.color]="getStatusColor(cell.value)">
+          {{ getStatusLabel(cell.value) | translate }}
+        </span>
+      </div>
+
+      <dxi-column dataField="currentPeriodStart" dataType="date" format="yyyy-MM-dd" [caption]="'PLATFORM.SUBSCRIPTIONS.START' | translate"></dxi-column>
+      <dxi-column dataField="currentPeriodEnd" dataType="date" format="yyyy-MM-dd" [caption]="'PLATFORM.SUBSCRIPTIONS.END' | translate"></dxi-column>
+      <dxi-column dataField="nextRenewalAt" dataType="date" format="yyyy-MM-dd" [caption]="'PLATFORM.SUBSCRIPTIONS.RENEW' | translate"></dxi-column>
+      <dxi-column dataField="amount" dataType="number" format="#,##0.00" [caption]="'PLATFORM.SUBSCRIPTIONS.AMOUNT' | translate"></dxi-column>
+
+      <dxi-column dataField="paymentStatus" [caption]="'PLATFORM.SUBSCRIPTIONS.PAYMENT_STATUS' | translate" cellTemplate="paymentStatusTemplate"></dxi-column>
+      <div *dxTemplate="let cell of 'paymentStatusTemplate'">
+        <span class="chip" [style.background]="getPaymentStatusColor(cell.value) + '22'" [style.color]="getPaymentStatusColor(cell.value)">
+          {{ getPaymentStatusLabel(cell.value) | translate }}
+        </span>
+      </div>
+
+      <dxi-column type="buttons" [caption]="'COMMON.ACTIONS' | translate" [width]="120" cellTemplate="actionsTemplate"></dxi-column>
+      <div *dxTemplate="let cell of 'actionsTemplate'">
+        <button mat-icon-button [matTooltip]="'PLATFORM.SUBSCRIPTIONS.RENEW' | translate" (click)="renew(cell.data)" *appHasPermission="'platform.subscriptions.manage'">
+          <mat-icon>autorenew</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" [matTooltip]="'PLATFORM.SUBSCRIPTIONS.CANCEL' | translate" (click)="cancel(cell.data)" *appHasPermission="'platform.subscriptions.manage'">
+          <mat-icon>cancel</mat-icon>
+        </button>
+      </div>
+    </dx-data-grid>
+  </div>
+</div>
