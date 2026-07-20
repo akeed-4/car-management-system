@@ -7,6 +7,8 @@ import { CustomerService } from '../../../../services/customer.service';
 import { InventoryService } from '../../../../services/inventory.service';
 import { DepositService } from '../../../../services/deposit.service';
 import { Car } from '../../../../models/car.model';
+import { buildVehicleDescription } from '../../../../models/vehicle-description';
+import type { SalesCarSelectionCard } from '../../../sales/car-selection-dialog/car-selection-dialog.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -71,10 +73,12 @@ private notificationService = inject(NotificationService);
         autoFocus: true,
         disableClose: false
       });
-      dialogRef.afterClosed().subscribe((selectedCar: any) => {
-        if (selectedCar && selectedCar.id) {
-          this.depositForm.patchValue({ vehicleId: selectedCar.id });
-          this.selectedVehicleId.set(selectedCar.id);
+      // Dialog result is normalized to StoreCarStockDto shape (carId), even though this caller
+      // supplied plain Car[] -- see CarSelectionDialogComponent.normalize().
+      dialogRef.afterClosed().subscribe((selectedCar: SalesCarSelectionCard | undefined) => {
+        if (selectedCar?.carId) {
+          this.depositForm.patchValue({ vehicleId: selectedCar.carId });
+          this.selectedVehicleId.set(selectedCar.carId);
         }
       });
     });
@@ -153,8 +157,9 @@ private notificationService = inject(NotificationService);
     this.initForm();
     this.watchFormControls();
 
-    // Load accounts for dropdowns
-    this.accountingService.accounts$.subscribe(accs => this.accounts.set(accs));
+    // Load accounts for dropdowns -- Debit/Credit selectors must only offer leaf/postable
+    // accounts, excluded server-side by this endpoint rather than filtered client-side.
+    this.accountingService.getPostableAccounts().subscribe(accs => this.accounts.set(accs));
 
     const routePath = this.route.snapshot.routeConfig?.path ?? '';
 
@@ -366,7 +371,9 @@ private notificationService = inject(NotificationService);
   }
 
   getVehicleLabel(vehicle: Car): string {
-    return `${vehicle.plateNumber || '-'} - ${vehicle.make} ${vehicle.model} ${vehicle.year}`;
+    const plate = vehicle.plateNumber || '-';
+    const description = buildVehicleDescription(vehicle);
+    return description ? `${plate} - ${description}` : plate;
   }
 
   getAccountLabel(account: AccountNode): string {

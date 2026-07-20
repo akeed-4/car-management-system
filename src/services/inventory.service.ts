@@ -1,8 +1,19 @@
 import { Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Car, CarStatus, CarLocation } from '../models/car.model';
 import { Observable, tap, switchMap, firstValueFrom } from 'rxjs';
 import { environment } from '../environments/environment';
+
+export interface VehicleLookupFilter {
+  vin?: string;
+  plateNumber?: string;
+  make?: string;
+  model?: string;
+  exteriorColor?: string;
+  year?: number;
+  customerId?: number;
+  status?: string;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -49,6 +60,21 @@ export class InventoryService {
         this.cars.set(available);
       })
     );
+  }
+
+  /**
+   * Multi-field vehicle lookup for selection popups (VIN, plate, make, model, color, year,
+   * customer). Every supplied filter is ANDed server-side; defaults to Available-only unless
+   * a status is explicitly supplied. Does not touch the cars$ signal -- callers own the result.
+   */
+  lookupCars(filter: VehicleLookupFilter): Observable<Car[]> {
+    let params = new HttpParams();
+    Object.entries(filter).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && value !== '') {
+        params = params.set(key.charAt(0).toUpperCase() + key.slice(1), value);
+      }
+    });
+    return this.http.get<Car[]>(`${this.apiUrl}/lookup`, { params });
   }
 
   // =======================

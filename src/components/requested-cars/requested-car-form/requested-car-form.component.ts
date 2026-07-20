@@ -12,7 +12,9 @@ import { UserService } from '../../../services/user.service';
 import { AttachmentService } from '../../../services/attachment.service';
 import { Attachment } from '../../../models/attachment.model';
 import { Customer } from '../../../models/customer.model';
+import { Car } from '../../../models/car.model';
 import { CustomerLookupModalComponent } from '../../shared/customer-lookup-modal/customer-lookup-modal.component';
+import { VehicleLookupDialogComponent } from '../../shared/vehicle-lookup-dialog/vehicle-lookup-dialog.component';
 import { AuditHistoryPanelComponent } from '../../shared/audit-history-panel/audit-history-panel.component';
 import { RequestedCarAiPanelComponent } from '../requested-car-ai-panel/requested-car-ai-panel.component';
 import { RequestedCar } from '../../../models/requested-car.model';
@@ -68,6 +70,9 @@ export class RequestedCarFormComponent implements OnInit {
   saving = signal(false);
 
   selectedCustomer = signal<Customer | null>(null);
+  /** Set when the current Make/Model/Year/Color came from a selected inventory vehicle rather
+   * than free-text entry; drives the locked/read-only state of those fields. */
+  selectedVehicle = signal<Car | null>(null);
 
   manufacturers = this.manufacturerService.manufacturers$;
   allModels = toSignal(this.carModelService.getCarModels(), { initialValue: [] });
@@ -107,6 +112,19 @@ export class RequestedCarFormComponent implements OnInit {
             name: rc.customerName,
             phone: rc.customerPhone,
           } as Customer);
+          if (rc.carId) {
+            // Denormalized fields only -- full Car isn't refetched here, just enough to show
+            // the locked summary and know a real vehicle (not free text) backs this request.
+            this.selectedVehicle.set({
+              id: rc.carId,
+              vin: rc.carVin ?? '',
+              plateNumber: rc.carPlateNumber ?? '',
+              make: rc.make,
+              model: rc.model,
+              year: rc.year,
+            } as Car);
+            this.lockVehicleFields();
+          }
         },
         error: () => {
           this.router.navigate(['/requested-cars']);
@@ -120,6 +138,7 @@ export class RequestedCarFormComponent implements OnInit {
     this.requestForm = new FormGroup({
       customerId: new FormControl<number | null>(null, Validators.required),
       salespersonId: new FormControl<number | null>(null),
+      carId: new FormControl<number | null>(null),
       make: new FormControl('', Validators.required),
       model: new FormControl('', Validators.required),
       year: new FormControl<number | null>(null),
@@ -144,16 +163,57 @@ export class RequestedCarFormComponent implements OnInit {
     });
   }
 
+  openVehicleLookup(): void {
+    const ref = this.dialog.open(VehicleLookupDialogComponent, { width: '1200px' });
+    ref.afterClosed().subscribe((vehicle: Car | null) => {
+      if (vehicle) {
+        this.selectedVehicle.set(vehicle);
+        this.requestForm.patchValue({
+          carId: vehicle.id,
+          make: vehicle.make,
+          model: vehicle.model,
+          year: vehicle.year,
+          color: vehicle.exteriorColor,
+        });
+        this.lockVehicleFields();
+      }
+    });
+  }
+
+  /** Selecting another vehicle while locked (edit mode) refreshes the mapped fields the same
+   * way a fresh selection does -- re-running the lookup and patch is enough since patchValue
+   * works on disabled controls. */
+  private lockVehicleFields(): void {
+    this.requestForm.get('make')?.disable({ emitEvent: false });
+    this.requestForm.get('model')?.disable({ emitEvent: false });
+    this.requestForm.get('year')?.disable({ emitEvent: false });
+    this.requestForm.get('color')?.disable({ emitEvent: false });
+  }
+
+  /** "Enter manually" fallback: clears the vehicle link and re-enables free-text entry for
+   * requests describing a car not currently in stock. */
+  clearVehicleSelection(): void {
+    this.selectedVehicle.set(null);
+    this.requestForm.get('make')?.enable({ emitEvent: false });
+    this.requestForm.get('model')?.enable({ emitEvent: false });
+    this.requestForm.get('year')?.enable({ emitEvent: false });
+    this.requestForm.get('color')?.enable({ emitEvent: false });
+    this.requestForm.patchValue({ carId: null, make: '', model: '', year: null, color: '' });
+  }
+
   saveRequest() {
     if (this.requestForm.invalid || this.saving()) {
       return;
     }
     this.saving.set(true);
 
-    const formValue = this.requestForm.value;
+    // getRawValue(), not .value -- Make/Model/Year/Color are disabled while locked to a
+    // selected vehicle, and .value silently omits disabled controls from the payload.
+    const formValue = this.requestForm.getRawValue();
 
     if (this.editMode() && this.currentId()) {
-      this.requestedCarService.update(this.currentId()!, formValue).subscribe({
+      const updateDto = { ...formValue, clearCarId: !formValue.carId };
+      this.requestedCarService.update(this.currentId()!, updateDto).subscribe({
         next: () => {
           this.saving.set(false);
           this.router.navigate(['/requested-cars']);

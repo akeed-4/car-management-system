@@ -14,6 +14,12 @@ export interface RequestedCar {
   salespersonId?: number | null;
   salespersonName?: string | null;
 
+  /** Set when this request references a real inventory vehicle (selected via the vehicle-lookup
+   * popup); null for free-text wishlist requests describing a car not currently in stock. */
+  carId?: number | null;
+  carVin?: string | null;
+  carPlateNumber?: string | null;
+
   make: string;
   model: string;
   year?: number;
@@ -36,6 +42,7 @@ export interface CreateRequestedCarDto {
   requestDate: string;
   customerId: number;
   salespersonId?: number | null;
+  carId?: number | null;
   make: string;
   model: string;
   year?: number;
@@ -52,6 +59,10 @@ export interface UpdateRequestedCarDto {
   requestDate?: string;
   customerId?: number;
   salespersonId?: number | null;
+  carId?: number | null;
+  /** Explicit flag distinguishing "clear the vehicle link" (true) from "leave carId unchanged"
+   * (false/omitted) -- carId being undefined does not mean "no change" once this is set. */
+  clearCarId?: boolean;
   make?: string;
   model?: string;
   year?: number;

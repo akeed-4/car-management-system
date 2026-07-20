@@ -9,6 +9,15 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { InventoryService } from '../../../../services/inventory.service';
+import { Car } from '../../../../models/car.model';
+import { buildVehicleDescription } from '../../../../models/vehicle-description';
+
+export interface PurchaseCarSelectionCard extends Car {
+  imageUrl: string;
+  carName: string;
+  specs: string;
+  availableQuantity: number;
+}
 
 @Component({
   selector: 'app-car-selection-dialog',
@@ -28,21 +37,21 @@ import { InventoryService } from '../../../../services/inventory.service';
   styleUrl: './car-selection-dialog.component.css'
 })
 export class CarSelectionDialogComponent implements OnInit {
-  private dialogRef = inject(MatDialogRef<CarSelectionDialogComponent>);
+  private dialogRef = inject(MatDialogRef<CarSelectionDialogComponent, PurchaseCarSelectionCard | undefined>);
   private inventoryService = inject(InventoryService);
 
   searchTerm = '';
-  cars = signal<any[]>([]);
-  filteredCars = signal<any[]>([]);
+  cars = signal<PurchaseCarSelectionCard[]>([]);
+  filteredCars = signal<PurchaseCarSelectionCard[]>([]);
 
   constructor() {
     // Load cars and create card data
     const cars = this.inventoryService.cars$();
-    const carCards = cars.map(car => ({
+    const carCards: PurchaseCarSelectionCard[] = cars.map(car => ({
       ...car,
-      imageUrl: car.photos?.[0] || 'https://via.placeholder.com/300x200?text=' + encodeURIComponent(car.make + ' ' + car.model),
-      carName: `${car.make} ${car.model}`,
-      specs: `${car.year}  - ${car.mileage} km`,
+      imageUrl: car.photos?.[0] || 'https://via.placeholder.com/300x200?text=' + encodeURIComponent(buildVehicleDescription(car) || 'Vehicle'),
+      carName: buildVehicleDescription(car),
+      specs: `${car.year ?? ''} - ${car.mileage ?? 0} km`,
       availableQuantity: car.quantity || 0
     }));
     this.cars.set(carCards);
@@ -63,7 +72,7 @@ export class CarSelectionDialogComponent implements OnInit {
     this.filteredCars.set(filtered);
   }
 
-  selectCar(car: any) {
+  selectCar(car: PurchaseCarSelectionCard) {
     this.dialogRef.close(car);
   }
 

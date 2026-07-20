@@ -70,6 +70,46 @@
   }
 }
 
+.vehicle-lookup-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.manual-entry-hint {
+  color: var(--color-gray-500, #888);
+  font-size: 0.85rem;
+}
+
+.selected-vehicle-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #e8f5e9;
+  border: 1px solid #4caf50;
+  border-radius: 20px;
+  padding: 4px 8px 4px 16px;
+  color: #1b5e20;
+  font-size: 0.9rem;
+
+  mat-icon:first-child {
+    color: #2e7d32;
+  }
+
+  button {
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
 .attachments-list {
   display: flex;
   flex-direction: column;

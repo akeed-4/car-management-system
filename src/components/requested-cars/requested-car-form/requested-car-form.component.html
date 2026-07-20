@@ -59,6 +59,30 @@
 
         <div class="form-section">
           <h3 class="section-title">{{ 'REQUESTED_CARS.FORM.CAR_SPECIFICATIONS' | translate }}</h3>
+
+          <div class="vehicle-lookup-row">
+            @if (selectedVehicle(); as vehicle) {
+              <div class="selected-vehicle-chip">
+                <mat-icon>directions_car</mat-icon>
+                <span>{{ vehicle.make }} {{ vehicle.model }} ({{ vehicle.year }}) &ndash; <span dir="ltr">{{ vehicle.vin }}</span></span>
+                <button mat-icon-button type="button" color="warn" (click)="clearVehicleSelection()"
+                        [matTooltip]="'REQUESTED_CARS.FORM.ENTER_MANUALLY' | translate">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+              <button mat-stroked-button type="button" color="primary" (click)="openVehicleLookup()">
+                <mat-icon>search</mat-icon>
+                {{ 'REQUESTED_CARS.FORM.CHANGE_VEHICLE' | translate }}
+              </button>
+            } @else {
+              <button mat-stroked-button type="button" color="primary" (click)="openVehicleLookup()">
+                <mat-icon>search</mat-icon>
+                {{ 'VEHICLE_LOOKUP.TITLE' | translate }}
+              </button>
+              <span class="manual-entry-hint">{{ 'REQUESTED_CARS.FORM.OR_ENTER_MANUALLY' | translate }}</span>
+            }
+          </div>
+
           <div class="form-grid cols-3">
             <mat-form-field appearance="outline">
               <mat-label>{{ 'REQUESTED_CARS.FORM.MANUFACTURER' | translate }}</mat-label>

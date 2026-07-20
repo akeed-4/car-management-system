@@ -11,6 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { InventoryService } from '../../../services/inventory.service';
 import { Car } from '../../../models/car.model';
+import { buildVehicleDescription } from '../../../models/vehicle-description';
 
 @Component({
   selector: 'app-vehicle-lookup-modal',
@@ -117,7 +118,7 @@ export class VehicleLookupModalComponent {
 
   // Display value functions for grid columns
   getDisplayVin = (rowData: Car) => rowData.vin || '-';
-  getDisplayModel = (rowData: Car) => `${rowData.make} ${rowData.model}`;
+  getDisplayModel = (rowData: Car) => buildVehicleDescription({ make: rowData.make, model: rowData.model });
   getDisplayColor = (rowData: Car) => rowData.exteriorColor || '-';
   getDisplayPrice = (rowData: Car) => {
     if (!rowData.salePrice) return '-';

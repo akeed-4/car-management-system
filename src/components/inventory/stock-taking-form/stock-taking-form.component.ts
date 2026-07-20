@@ -21,7 +21,8 @@ import { StoreService } from '@/src/services/store.service';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
 import { DxDataGridModule } from 'devextreme-angular';
-import { CarSelectionDialogComponent } from '../../sales/car-selection-dialog/car-selection-dialog.component';
+import { CarSelectionDialogComponent, SalesCarSelectionCard } from '../../sales/car-selection-dialog/car-selection-dialog.component';
+import { buildVehicleDescription } from '../../../models/vehicle-description';
 
 @Component({
   selector: 'app-stock-taking-form',
@@ -174,14 +175,14 @@ get stores() {
 
     if (event.column.dataField === 'itemId') {
       // When itemId changes, update all car-related fields
-      const cars = typeof this.allCars === 'function' ? this.allCars() : (this.allCars as any);
-      const selectedCar = Array.isArray(cars) ? cars.find(c => c.id === event.value) : undefined;
+      const cars = this.allCars();
+      const selectedCar = cars.find(c => c.id === event.value);
       if (!selectedCar) return;
 
-      const sel = selectedCar as any;
+      const description = buildVehicleDescription(selectedCar);
       // Update grid cell directly so the change is visible immediately
       try {
-        event.component.cellValue(event.rowIndex, 'itemName', `${sel.make ?? ''} ${sel.model ?? ''} ${sel.year ?? ''}`.trim());
+        event.component.cellValue(event.rowIndex, 'itemName', description);
       } catch (e) {
         // some grid events may not provide component or rowIndex — ignore safely
       }
@@ -192,12 +193,12 @@ get stores() {
         updatedItems[idx] = {
           ...updatedItems[idx],
           itemId: Number(event.value) || 0,
-          itemName: `${sel.make ?? ''} ${sel.model ?? ''} ${sel.year ?? ''}`.trim(),
-          category: sel.condition ?? 'Unknown',
-          unitCost: Number(sel.purchasePrice) || 0,
+          itemName: description,
+          category: selectedCar.condition ?? 'Unknown',
+          unitCost: Number(selectedCar.purchasePrice) || 0,
           quantityCounted: 1,
-          totalCost: (Number(sel.purchasePrice) || 0) * 1,
-          notes: `VIN: ${sel.vin ?? 'N/A'} | Plate: ${sel.plateNumber ?? 'N/A'}`
+          totalCost: (Number(selectedCar.purchasePrice) || 0) * 1,
+          notes: `VIN: ${selectedCar.vin ?? 'N/A'} | Plate: ${selectedCar.plateNumber ?? 'N/A'}`
         };
         return updatedItems;
       });
@@ -220,23 +221,27 @@ get stores() {
     });
   }
 
-  // Add selected car to the stock-taking items grid (pre-fill fields)
-  addCarToStockTake(car: any): void {
-    // Prevent duplicates by itemId (car.id)
-    const exists = this.items().some(i => i.itemId === car.id);
+  // Add selected car to the stock-taking items grid (pre-fill fields). The dialog with no
+  // pre-supplied `cars` always resolves via the store-stock API, so the result is a
+  // StoreCarStockDto-shaped card -- it has no condition/purchasePrice (those are inventory-Car-only
+  // fields), so those two default rather than reading nonexistent properties.
+  addCarToStockTake(car: SalesCarSelectionCard): void {
+    // Prevent duplicates by itemId (car.carId)
+    const exists = this.items().some(i => i.itemId === car.carId);
     if (exists) {
       // Optionally show a toast or alert; keep simple for now
       alert(this.translate.instant ? this.translate.instant('INVENTORY.STOCK_TAKING_FORM.ERROR_ALREADY_ADDED') : 'Item already added');
       return;
     }
 
+    const description = buildVehicleDescription(car) || car.carDescription || car.carName;
     const newItem: StockTakeItem = {
-      itemId: car.id,
-      itemName: `${car.make} ${car.model} ${car.year}`.trim(),
-      category: car.condition ?? '',
+      itemId: car.carId,
+      itemName: description,
+      category: '',
       quantityCounted: 1,
-      unitCost: Number(car.purchasePrice) || 0,
-      totalCost: (Number(car.purchasePrice) || 0) * 1,
+      unitCost: Number(car.salesPrice) || 0,
+      totalCost: (Number(car.salesPrice) || 0) * 1,
       notes: `VIN: ${car.vin ?? 'N/A'} | Plate: ${car.plateNumber ?? 'N/A'}`
     };
 

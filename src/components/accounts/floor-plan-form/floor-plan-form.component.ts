@@ -10,6 +10,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { FloorPlanService } from '@/src/services/floor-plan.service';
+import { buildVehicleDescription } from '@/src/models/vehicle-description';
+import type { SalesCarSelectionCard } from '../../sales/car-selection-dialog/car-selection-dialog.component';
 
 @Component({
   selector: 'app-floor-plan-form',
@@ -33,11 +35,11 @@ export class FloorPlanFormComponent {
   private floorPlanService: FloorPlanService = inject(FloorPlanService);
   private dialog = inject(MatDialog);
 
-  selectedVehicle = signal<any | null>(null);
+  selectedVehicle = signal<SalesCarSelectionCard | null>(null);
   
   // بناء النموذج
   financingForm = this.fb.group({
-    carId: [null, Validators.required],
+    carId: [null as number | null, Validators.required],
     financierId: [null, Validators.required],
     financedAmount: [0, [Validators.required, Validators.min(1)]],
     startDate: [new Date().toISOString().substring(0, 10), Validators.required],
@@ -53,18 +55,20 @@ export class FloorPlanFormComponent {
         autoFocus: true,
         disableClose: false
       });
-      dialogRef.afterClosed().subscribe((selectedCar: any) => {
-        if (selectedCar && selectedCar.id) {
-          this.financingForm.patchValue({ carId: selectedCar.id });
+      dialogRef.afterClosed().subscribe((selectedCar: SalesCarSelectionCard | undefined) => {
+        if (selectedCar?.carId) {
+          this.financingForm.patchValue({ carId: selectedCar.carId });
           this.selectedVehicle.set(selectedCar);
         }
       });
     });
   }
 
-  getVehicleLabel(vehicle: any): string {
+  getVehicleLabel(vehicle: SalesCarSelectionCard | null): string {
     if (!vehicle) return '';
-    return `${vehicle.plateNumber || '-'} - ${vehicle.make || ''} ${vehicle.model || ''} ${vehicle.year || ''}`;
+    const plate = vehicle.plateNumber || '-';
+    const description = buildVehicleDescription(vehicle);
+    return description ? `${plate} - ${description}` : plate;
   }
 
   save() {

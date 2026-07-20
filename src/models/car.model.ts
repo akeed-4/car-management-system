@@ -43,5 +43,8 @@ export interface Car {
   authorizationDocumentNumber?: string;
   carType?: string;
   transportationType?: string;
+  customerId?: number;
+  customerName?: string;
+  trackByBatch?: boolean;
 }
 

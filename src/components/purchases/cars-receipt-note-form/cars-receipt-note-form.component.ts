@@ -17,6 +17,7 @@ import { CarsReceiptNoteService } from '../../../services/cars-receipt-note.serv
 import { NotificationService } from '../../../services/notification.service';
 import { ActivePOLookupDto, CarsReceiptNoteDto, CreateCarsReceiptNoteDto } from '../../../models/cars-receipt-note.model';
 import { CarSelectionDialogComponent } from '../purchase-invoice/car-selection-dialog/car-selection-dialog.component';
+import { buildVehicleDescription } from '../../../models/vehicle-description';
 import { DocumentHeaderComponent } from '../../shared/document-header/document-header.component';
 import { DocumentActionsToolbarComponent } from '../../shared/document-actions-toolbar/document-actions-toolbar.component';
 import { ApprovalActionDialogComponent, ApprovalActionDialogResult } from '../../shared/approval-action-dialog/approval-action-dialog.component';
@@ -183,7 +184,7 @@ export class CarsReceiptNoteFormComponent implements OnInit {
       this.lineItems[index] = {
         ...this.lineItems[index],
         carId: car.id,
-        carDescription: `${car.make} ${car.model} (${car.year})`
+        carDescription: buildVehicleDescription(car)
       };
       this.lineItems = [...this.lineItems];
       this.updateDocumentPreview();

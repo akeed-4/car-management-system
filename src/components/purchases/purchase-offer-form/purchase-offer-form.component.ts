@@ -18,6 +18,7 @@ import { PurchaseCycleService } from '../../../services/purchase-cycle.service';
 import { MatCardModule } from '@angular/material/card';
 import { NotificationService } from '@/src/services/notification.service';
 import { Car } from '../../../models/car.model';
+import { buildVehicleDescription } from '../../../models/vehicle-description';
 import { CarSelectionDialogComponent } from '../purchase-invoice/car-selection-dialog/car-selection-dialog.component';
 
 @Component({
@@ -125,7 +126,7 @@ export class PurchaseOfferFormComponent implements OnInit {
 
         this.offerItems = (request.items || []).map(item => ({
           carId: item.carId,
-          carDescription: item.car?.description || `${item.car?.make ?? ''} ${item.car?.model ?? ''} ${item.car?.year ?? ''}`.trim(),
+          carDescription: item.car?.description || buildVehicleDescription(item.car),
           make: item.car?.make || '',
           model: item.car?.model || '',
           year: item.car?.year || new Date().getFullYear(),
@@ -193,7 +194,7 @@ export class PurchaseOfferFormComponent implements OnInit {
     const unitPrice = car.purchasePrice ?? car.salePrice ?? 0;
     this.offerItems = [...this.offerItems, {
       carId: car.id,
-      carDescription: car.description || `${car.make} ${car.model} ${car.year}`,
+      carDescription: car.description || buildVehicleDescription(car),
       make: car.make || '',
       model: car.model || '',
       year: car.year || new Date().getFullYear(),

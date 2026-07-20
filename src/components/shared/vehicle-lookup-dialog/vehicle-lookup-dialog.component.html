@@ -1,0 +1,127 @@
+<mat-dialog-content class="vehicle-lookup-modal">
+  <h2 class="modal-title">{{ 'VEHICLE_LOOKUP.TITLE' | translate }}</h2>
+
+  <form class="filter-section" [formGroup]="filterForm" (ngSubmit)="search()">
+    <div class="filter-grid">
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>{{ 'VEHICLE_LOOKUP.VIN' | translate }}</mat-label>
+        <input matInput formControlName="vin" dir="ltr">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>{{ 'VEHICLE_LOOKUP.PLATE_NUMBER' | translate }}</mat-label>
+        <input matInput formControlName="plateNumber">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>{{ 'VEHICLE_LOOKUP.MAKE' | translate }}</mat-label>
+        <input matInput formControlName="make">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>{{ 'VEHICLE_LOOKUP.MODEL' | translate }}</mat-label>
+        <input matInput formControlName="model">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>{{ 'VEHICLE_LOOKUP.COLOR' | translate }}</mat-label>
+        <input matInput formControlName="exteriorColor">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>{{ 'VEHICLE_LOOKUP.YEAR' | translate }}</mat-label>
+        <input matInput type="number" formControlName="year">
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" type="submit" class="search-btn">
+        <mat-icon>search</mat-icon>
+        {{ 'COMMON.SEARCH' | translate }}
+      </button>
+      <button mat-stroked-button color="primary" type="button" (click)="resetFilters()" class="reset-btn">
+        <mat-icon>clear</mat-icon>
+        {{ 'COMMON.RESET' | translate }}
+      </button>
+    </div>
+  </form>
+
+  <div class="grid-section">
+    @if (loading()) {
+      <div class="status-message">
+        <mat-icon class="status-icon spin">refresh</mat-icon>
+        <p>{{ 'COMMON.LOADING' | translate }}</p>
+      </div>
+    } @else if (results().length > 0) {
+      <dx-data-grid
+        [dataSource]="results()"
+        [showBorders]="true"
+        [showRowLines]="true"
+        [showColumnLines]="true"
+        [rtlEnabled]="true"
+        [allowColumnReordering]="true"
+        [allowColumnResizing]="true"
+        [columnAutoWidth]="true"
+        [wordWrapEnabled]="true"
+        [selection]="{ mode: 'single' }"
+        (onSelectionChanged)="onVehicleSelect($event.selectedRowsData?.[0])">
+
+        <dxi-column dataField="vin" caption="{{ 'VEHICLE_LOOKUP.VIN' | translate }}"></dxi-column>
+        <dxi-column dataField="plateNumber" caption="{{ 'VEHICLE_LOOKUP.PLATE_NUMBER' | translate }}"></dxi-column>
+        <dxi-column dataField="make" caption="{{ 'VEHICLE_LOOKUP.MAKE' | translate }}"></dxi-column>
+        <dxi-column dataField="model" caption="{{ 'VEHICLE_LOOKUP.MODEL' | translate }}"></dxi-column>
+        <dxi-column dataField="year" caption="{{ 'VEHICLE_LOOKUP.YEAR' | translate }}" width="80"></dxi-column>
+        <dxi-column dataField="exteriorColor" caption="{{ 'VEHICLE_LOOKUP.EXTERIOR_COLOR' | translate }}"></dxi-column>
+        <dxi-column dataField="interiorColor" caption="{{ 'VEHICLE_LOOKUP.INTERIOR_COLOR' | translate }}"></dxi-column>
+        <dxi-column dataField="transmission" caption="{{ 'VEHICLE_LOOKUP.TRANSMISSION' | translate }}"></dxi-column>
+        <dxi-column dataField="mileage" caption="{{ 'VEHICLE_LOOKUP.MILEAGE' | translate }}"></dxi-column>
+        <dxi-column dataField="status" caption="{{ 'VEHICLE_LOOKUP.STATUS' | translate }}"></dxi-column>
+        <dxi-column dataField="customerName" caption="{{ 'VEHICLE_LOOKUP.CUSTOMER' | translate }}"></dxi-column>
+        <dxi-column dataField="purchasePrice" caption="{{ 'VEHICLE_LOOKUP.PURCHASE_PRICE' | translate }}" format="currency"></dxi-column>
+        <dxi-column dataField="salePrice" caption="{{ 'VEHICLE_LOOKUP.SALE_PRICE' | translate }}" format="currency"></dxi-column>
+
+      </dx-data-grid>
+    } @else if (hasSearched()) {
+      <div class="status-message">
+        <mat-icon class="status-icon">directions_car</mat-icon>
+        <p>{{ 'VEHICLE_LOOKUP.NO_RESULTS' | translate }}</p>
+      </div>
+    } @else {
+      <div class="status-message">
+        <mat-icon class="status-icon">search</mat-icon>
+        <p>{{ 'VEHICLE_LOOKUP.SEARCH_PROMPT' | translate }}</p>
+      </div>
+    }
+  </div>
+
+  @if (selectedVehicle(); as vehicle) {
+    <div class="selected-vehicle-summary">
+      <div class="summary-image">
+        @if (vehicle.photos && vehicle.photos.length > 0) {
+          <img [src]="vehicle.photos[0]" [attr.alt]="vehicle.make + ' ' + vehicle.model">
+        } @else {
+          <mat-icon class="no-photo-icon">directions_car</mat-icon>
+        }
+      </div>
+      <div class="summary-details">
+        <h3>{{ vehicle.make }} {{ vehicle.model }} ({{ vehicle.year }})</h3>
+        <div class="detail-row">
+          <span class="label">{{ 'VEHICLE_LOOKUP.VIN' | translate }}:</span>
+          <span class="value" dir="ltr">{{ vehicle.vin }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">{{ 'VEHICLE_LOOKUP.PLATE_NUMBER' | translate }}:</span>
+          <span class="value">{{ vehicle.plateNumber }}</span>
+        </div>
+      </div>
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-stroked-button (click)="cancel()">
+    {{ 'COMMON.CANCEL' | translate }}
+  </button>
+  <button mat-raised-button color="primary" (click)="confirmSelection()" [disabled]="!selectedVehicle()">
+    <mat-icon>check</mat-icon>
+    {{ 'VEHICLE_LOOKUP.SELECT_VEHICLE' | translate }}
+  </button>
+</mat-dialog-actions>
