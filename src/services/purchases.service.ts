@@ -18,7 +18,7 @@ export class PurchasesService {
   }
 
   getInvoiceById(id: number): Observable<PurchaseInvoice> {
-    return this.http.get<PurchaseInvoice>(`${this.apiUrl}/${id}`);
+    return this.http.get<PurchaseInvoice>(`${this.apiUrl+'/GetById'}/${id}`);
   }
 
   addInvoice(invoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue' | 'createdAt' | 'updatedAt' | 'supplier' | 'debitAccount' | 'creditAccount'>): Observable<PurchaseInvoice> {
