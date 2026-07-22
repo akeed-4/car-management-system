@@ -7,8 +7,12 @@ import { ConsignmentService } from '../../../services/consignment.service';
 import { AttachmentService } from '../../../services/attachment.service';
 import { Attachment } from '../../../models/attachment.model';
 import { Supplier } from '../../../models/supplier.model';
+import { Car } from '../../../models/car.model';
 import { SupplierLookupModalComponent } from '../../shared/supplier-lookup-modal/supplier-lookup-modal.component';
+import { VehicleLookupDialogComponent } from '../../shared/vehicle-lookup-dialog/vehicle-lookup-dialog.component';
 import { AuditHistoryPanelComponent } from '../../shared/audit-history-panel/audit-history-panel.component';
+import { NotificationService } from '../../../services/notification.service';
+import { TranslateService } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -50,6 +54,8 @@ export class ConsignmentFormComponent implements OnInit {
   private consignmentService = inject(ConsignmentService);
   private attachmentService = inject(AttachmentService);
   private dialog = inject(MatDialog);
+  private notificationService = inject(NotificationService);
+  private translate = inject(TranslateService);
 
   carForm!: FormGroup;
   editMode = signal(false);
@@ -57,6 +63,9 @@ export class ConsignmentFormComponent implements OnInit {
   saving = signal(false);
 
   selectedSupplier = signal<Supplier | null>(null);
+  /** True once a vehicle has been pulled in from the lookup popup this session -- purely a UI hint,
+   * not persisted; the form fields it populated remain freely editable afterward. */
+  selectedVehicleSource = signal<Car | null>(null);
 
   attachments = signal<Attachment[]>([]);
   uploading = signal(false);
@@ -117,6 +126,40 @@ export class ConsignmentFormComponent implements OnInit {
         this.selectedSupplier.set(supplier);
         this.carForm.patchValue({ supplierId: supplier.id });
       }
+    });
+  }
+
+  /** Opens the shared vehicle lookup popup and fills every ConsignmentCar field that has a real
+   * counterpart on the looked-up Car -- ConsignmentCar is a standalone entity (no CarId FK, see
+   * consignment-car-form design notes) that only duplicates a subset of Car's fields, so only
+   * those overlapping fields are populated here; nothing is silently invented on the form. */
+  openVehicleLookup(): void {
+    const ref = this.dialog.open(VehicleLookupDialogComponent, { width: '1200px', maxWidth: '95vw' });
+    ref.afterClosed().subscribe((car: Car | null) => {
+      if (!car) return;
+
+      this.carForm.patchValue({
+        make: car.make ?? '',
+        model: car.model ?? '',
+        year: car.year ?? null,
+        exteriorColor: car.exteriorColor ?? '',
+        vin: car.vin ?? '',
+        plateNumber: car.plateNumber ?? '',
+        mileage: car.mileage ?? null,
+      });
+
+      // Mark every field the lookup just touched as dirty/touched so validation styling and any
+      // (valueChanges) subscribers downstream react exactly as if the user had typed them in.
+      ['make', 'model', 'year', 'exteriorColor', 'vin', 'plateNumber', 'mileage'].forEach((name) => {
+        const control = this.carForm.get(name);
+        control?.markAsDirty();
+        control?.markAsTouched();
+      });
+
+      this.selectedVehicleSource.set(car);
+      this.notificationService.showSuccess(
+        this.translate.instant('CONSIGNMENT.FORM.VEHICLE_PREFILLED_FROM_LOOKUP')
+      );
     });
   }
 

@@ -3605,7 +3605,8 @@
     "SALE_PRICE": "Sale Price",
     "NO_RESULTS": "No vehicles found matching your search",
     "SEARCH_PROMPT": "Enter search criteria and click Search to find a vehicle",
-    "SELECT_VEHICLE": "Select Vehicle"
+    "SELECT_VEHICLE": "Select Vehicle",
+    "LOAD_ERROR": "Could not load vehicles. Please check your connection and try again."
   },
   "AUDIT_HISTORY": {
     "TITLE": "History",
@@ -3669,6 +3670,7 @@
       "EDIT_TITLE": "Edit Consignment Car",
       "SUPPLIER_DETAILS": "Supplier Details",
       "VEHICLE_DETAILS": "Vehicle Details",
+      "VEHICLE_PREFILLED_FROM_LOOKUP": "Vehicle details filled from inventory",
       "FINANCIAL_DETAILS": "Financial Details",
       "SAVE_CAR": "Save Consignment Car"
     }
