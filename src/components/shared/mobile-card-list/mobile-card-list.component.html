@@ -1,0 +1,46 @@
+<ng-container *ngIf="items.length; else emptyState">
+  <cdk-virtual-scroll-viewport
+    *ngIf="virtualScroll; else plainList"
+    [itemSize]="itemSize"
+    class="mobile-card-list-viewport"
+  >
+    <div class="mobile-card-list">
+      <div
+        *cdkVirtualFor="let item of items; trackBy: trackByItem"
+        class="mobile-card mobile-card-list-item"
+        (click)="onItemClick(item)"
+      >
+        <ng-container *ngTemplateOutlet="cardBody; context: { $implicit: item }"></ng-container>
+      </div>
+    </div>
+  </cdk-virtual-scroll-viewport>
+
+  <ng-template #plainList>
+    <div class="mobile-card-list">
+      <div
+        *ngFor="let item of items; trackBy: trackByItem"
+        class="mobile-card mobile-card-list-item"
+        (click)="onItemClick(item)"
+      >
+        <ng-container *ngTemplateOutlet="cardBody; context: { $implicit: item }"></ng-container>
+      </div>
+    </div>
+  </ng-template>
+</ng-container>
+
+<ng-template #emptyState>
+  <div class="mobile-card-list-empty">{{ emptyMessage | translate }}</div>
+</ng-template>
+
+<ng-template #cardBody let-item>
+  <div class="mobile-card-list-title">{{ titleOf(item) }}</div>
+
+  <div class="mobile-card-list-row" *ngFor="let field of fields">
+    <span class="label">{{ field.label | translate }}</span>
+    <span class="value">{{ field.value(item) }}</span>
+  </div>
+
+  <div class="mobile-card-list-actions" *ngIf="actionsTemplate" (click)="$event.stopPropagation()">
+    <ng-container *ngTemplateOutlet="actionsTemplate; context: { $implicit: item }"></ng-container>
+  </div>
+</ng-template>

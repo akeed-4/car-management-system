@@ -1,0 +1,29 @@
+<div class="mobile-header-bar">
+  <button
+    *ngIf="showBack"
+    type="button"
+    mat-icon-button
+    class="mobile-touch-target"
+    [attr.aria-label]="'COMMON.BACK' | translate"
+    (click)="onBack()"
+  >
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+
+  <span class="mobile-header-title">{{ title }}</span>
+
+  <button
+    *ngIf="actions"
+    type="button"
+    mat-icon-button
+    class="mobile-touch-target"
+    [matMenuTriggerFor]="actionsMenu"
+    [attr.aria-label]="'COMMON.MORE_ACTIONS' | translate"
+  >
+    <mat-icon>more_vert</mat-icon>
+  </button>
+
+  <mat-menu #actionsMenu="matMenu">
+    <ng-container *ngTemplateOutlet="actions"></ng-container>
+  </mat-menu>
+</div>

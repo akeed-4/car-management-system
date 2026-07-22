@@ -1,0 +1,7 @@
+:host {
+  display: block;
+}
+
+.action-btn {
+  flex: 1 1 0;
+}

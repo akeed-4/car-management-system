@@ -1,0 +1,22 @@
+<div class="mobile-sticky-footer">
+  <button
+    type="button"
+    mat-stroked-button
+    class="mobile-control action-btn"
+    (click)="onCancel()"
+    [disabled]="saving"
+  >
+    {{ cancelLabel | translate }}
+  </button>
+
+  <button
+    type="button"
+    mat-flat-button
+    color="primary"
+    class="mobile-control action-btn"
+    (click)="onSave()"
+    [disabled]="saveDisabled || saving"
+  >
+    {{ saveLabel | translate }}
+  </button>
+</div>
