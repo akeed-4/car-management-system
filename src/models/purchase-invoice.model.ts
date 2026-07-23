@@ -10,7 +10,8 @@ export interface PurchaseInvoice {
   debitAccountId: number; // Inventory or expense account
   creditAccountId: number; // Supplier, cash, or bank account
   paymentMethod?: string; // Cash, Bank Transfer
-  
+  storeId?:number;
+  branchId?:number;
   invoiceType?: string; // Taxable, Zero Rated, Exempt
   dueDate?: string; // Due date for credit invoices
   totalAmount: number;

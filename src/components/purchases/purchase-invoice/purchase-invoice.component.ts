@@ -706,46 +706,46 @@ export class PurchaseInvoiceComponent implements OnInit {
 
   loadInvoiceForEdit(invoiceId: number): void {
     this.procurementService.getInvoiceById(invoiceId).subscribe({
-      next: (invoice) => {
+      next: (invoice:any) => {
         // Initialize form with existing invoice data
         this.purchaseInvoiceForm = this.fb.group({
-          supplierId: [invoice.supplierId, Validators.required],
-          debitAccountId: [invoice.debitAccountId, Validators.required],
-          creditAccountId: [invoice.creditAccountId, Validators.required],
-          invoiceDate: [new Date(invoice.invoiceDate), Validators.required],
-          paymentMethod: [invoice.paymentMethod || 'Bank Transfer'],
-          paymentType: [invoice.paymentType || 'credit'],
-          dueDate: [invoice.dueDate ? new Date(invoice.dueDate) : null],
-          invoiceType: [invoice.invoiceType || InvoiceType.Taxable, Validators.required],
-          ClassificationId: [invoice.ClassificationId || 0, Validators.required],
-          initialPayment: [invoice.initialPayment || 0, [Validators.min(0)]],
-          notes: [invoice.notes || ''],
-          isAuctionPurchase: [!!invoice.auctionProvider],
-          auctionProvider: [invoice.auctionProvider || null],
-          auctionLotNumber: [invoice.auctionLotNumber || ''],
+          supplierId: [invoice.data.supplierId, Validators.required],
+          debitAccountId: [invoice.data.debitAccountId, Validators.required],
+          creditAccountId: [invoice.data.creditAccountId, Validators.required],
+          invoiceDate: [new Date(invoice.data.invoiceDate), Validators.required],
+          paymentMethod: [invoice.data.paymentMethod || 'Bank Transfer'],
+          paymentType: [invoice.data.paymentType || 'credit'],
+          dueDate: [invoice.data.dueDate ? new Date(invoice.dueDate) : null],
+          invoiceType: [invoice.data.invoiceType || InvoiceType.Taxable, Validators.required],
+          ClassificationId: [invoice.data.ClassificationId || 0, Validators.required],
+          initialPayment: [invoice.data.initialPayment || 0, [Validators.min(0)]],
+          notes: [invoice.data.notes || ''],
+          isAuctionPurchase: [!!invoice.data.auctionProvider],
+          auctionProvider: [invoice.data.auctionProvider || null],
+          auctionLotNumber: [invoice.data.auctionLotNumber || ''],
         }, { validators: [this.accountValidator, this.dueDateValidator] });
 
-        this.auctionCharges.set(invoice.auctionCharges || []);
+        this.auctionCharges.set(invoice.data.auctionCharges || []);
 
         // ngOnChanges may have already fired (before this async form existed) and found nothing
         // to lock -- apply the lock explicitly now that the real edit-mode form exists, so a
         // Cash/Credit-fixed invoice opened for edit is actually locked, not just on create.
         this.handlePaymentMethodLocking();
 
-        this.amountReceivedSignal.set(invoice.initialPayment || invoice.amountPaid || 0);
+        this.amountReceivedSignal.set(invoice.data.initialPayment || invoice.data.amountPaid || 0);
         this.watchInitialPaymentControl();
 
         // Set invoice number signal
-        this.invoiceNumberSignal.set(invoice.invoiceNumber);
+        this.invoiceNumberSignal.set(invoice.data.invoiceNumber);
 
         // Set invoice type signal
-        this.invoiceType.set((invoice.invoiceType as InvoiceType) || InvoiceType.Taxable);
+        this.invoiceType.set((invoice.data.invoiceType as InvoiceType) || InvoiceType.Taxable);
 
         // Set invoice items
-        this.invoiceItems.set(invoice.items || []);
+        this.invoiceItems.set(invoice.data.items || []);
 
         // Restore linked Car Receipts
-        this.linkedReceiptIds.set(invoice.carReceiptIds || []);
+        this.linkedReceiptIds.set(invoice.data.carReceiptIds || []);
         this.loadUninvoicedReceipts();
       },
       error: (error) => {
@@ -954,6 +954,8 @@ export class PurchaseInvoiceComponent implements OnInit {
     const newInvoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue' | 'createdAt' | 'updatedAt' | 'supplier' | 'debitAccount' | 'creditAccount'> = {
       invoiceNumber: this.invoiceNumberSignal() || '',
       invoiceDate: formValue.invoiceDate.toISOString(),
+      storeId:this.currentSettingService.getStoreId() || 1,
+      branchId:this.currentSettingService.getBranchId()||1,
       supplierId: supplierId,
       debitAccountId: formValue.debitAccountId,
       creditAccountId: formValue.creditAccountId,
