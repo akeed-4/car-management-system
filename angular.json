@@ -25,7 +25,8 @@
             "styles": [
               "node_modules/devextreme/dist/css/dx.light.css",
               "node_modules/ngx-toastr/toastr.css",
-              "src/styles.css"
+              "src/styles.css",
+              "src/styles-mobile.css"
             ],
             "assets": [
               "src/assets",

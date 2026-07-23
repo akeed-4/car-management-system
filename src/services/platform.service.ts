@@ -22,9 +22,9 @@ export interface DxLoadResult<T> {
 
 /**
  * Client for the platform/SaaS admin API (Tenants, Subscription Plans, Subscriptions, Domains,
- * Global Settings). All Platform.* backend controllers are new -- see the SaaS Subscription
- * System roadmap Phase 6/9 for when they land; this service already targets the endpoint shapes
- * agreed there so no rewrite is needed once they're wired up.
+ * Global Settings). Route segments (GetTenants/GetAll/GetById/Create/Update/Delete) mirror each
+ * Platform.* controller's explicit action names exactly -- these are named actions, not bare
+ * REST verbs on the controller route, so any future controller method rename must be mirrored here.
  */
 @Injectable({
   providedIn: 'root',
@@ -36,19 +36,19 @@ export class PlatformService {
   // ----- Dashboard -----
 
   getDashboard(): Observable<PlatformDashboardDto> {
-    return this.http.get<PlatformDashboardDto>(`${this.baseUrl}/dashboard`);
+    return this.http.get<PlatformDashboardDto>(`${this.baseUrl}/dashboard/Get`);
   }
 
   // ----- Tenants -----
 
   /** Plain list (client-side paging use cases, dropdowns, etc.). */
   getTenants(): Observable<TenantDto[]> {
-    return this.http.get<TenantDto[]>(`${this.baseUrl}/tenants`);
+    return this.http.get<TenantDto[]>(`${this.baseUrl}/tenants/GetTenants`);
   }
 
   /** Server-side paging/filtering/sorting/search for the DevExtreme grid, against the same
-   *  GET /api/platform/tenants endpoint -- the backend distinguishes plain vs. DataSourceLoadOptions
-   *  requests by the presence of DevExtreme's query params (skip/take/filter/sort/...). */
+   *  GET /api/platform/tenants/GetTenants endpoint -- the backend distinguishes plain vs.
+   *  DataSourceLoadOptions requests by the presence of DevExtreme's query params (skip/take/filter/sort/...). */
   loadTenantsGrid(loadOptions: Record<string, unknown>): Observable<DxLoadResult<TenantDto>> {
     let params = new HttpParams();
     for (const key of Object.keys(loadOptions)) {
@@ -57,41 +57,41 @@ export class PlatformService {
         params = params.set(key, typeof value === 'object' ? JSON.stringify(value) : String(value));
       }
     }
-    return this.http.get<DxLoadResult<TenantDto>>(`${this.baseUrl}/tenants`, { params });
+    return this.http.get<DxLoadResult<TenantDto>>(`${this.baseUrl}/tenants/GetTenants`, { params });
   }
 
   getTenantById(id: number): Observable<TenantDto> {
-    return this.http.get<TenantDto>(`${this.baseUrl}/tenants/${id}`);
+    return this.http.get<TenantDto>(`${this.baseUrl}/tenants/GetById/${id}`);
   }
 
   createTenant(dto: CreateTenantDto): Observable<TenantDto> {
-    return this.http.post<TenantDto>(`${this.baseUrl}/tenants`, dto);
+    return this.http.post<TenantDto>(`${this.baseUrl}/tenants/Create`, dto);
   }
 
   updateTenant(id: number, dto: UpdateTenantDto): Observable<TenantDto> {
-    return this.http.put<TenantDto>(`${this.baseUrl}/tenants/${id}`, dto);
+    return this.http.put<TenantDto>(`${this.baseUrl}/tenants/Update/${id}`, dto);
   }
 
   deleteTenant(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/tenants/${id}`);
+    return this.http.delete<void>(`${this.baseUrl}/tenants/Delete/${id}`);
   }
 
   // ----- Subscription Plans -----
 
   getPlans(): Observable<SubscriptionPlanDto[]> {
-    return this.http.get<SubscriptionPlanDto[]>(`${this.baseUrl}/plans`);
+    return this.http.get<SubscriptionPlanDto[]>(`${this.baseUrl}/plans/GetAll`);
   }
 
   getPlanById(id: number): Observable<SubscriptionPlanDto> {
-    return this.http.get<SubscriptionPlanDto>(`${this.baseUrl}/plans/${id}`);
+    return this.http.get<SubscriptionPlanDto>(`${this.baseUrl}/plans/GetById/${id}`);
   }
 
   createPlan(dto: CreateSubscriptionPlanDto): Observable<SubscriptionPlanDto> {
-    return this.http.post<SubscriptionPlanDto>(`${this.baseUrl}/plans`, dto);
+    return this.http.post<SubscriptionPlanDto>(`${this.baseUrl}/plans/Create`, dto);
   }
 
   updatePlan(id: number, dto: UpdateSubscriptionPlanDto): Observable<SubscriptionPlanDto> {
-    return this.http.put<SubscriptionPlanDto>(`${this.baseUrl}/plans/${id}`, dto);
+    return this.http.put<SubscriptionPlanDto>(`${this.baseUrl}/plans/Update/${id}`, dto);
   }
 
   /** Duplicate is a client-side compose (fetch + createPlan with a new code/name) -- no dedicated
@@ -120,7 +120,7 @@ export class PlatformService {
   // ----- Subscriptions -----
 
   getSubscriptions(): Observable<SubscriptionDto[]> {
-    return this.http.get<SubscriptionDto[]>(`${this.baseUrl}/subscriptions`);
+    return this.http.get<SubscriptionDto[]>(`${this.baseUrl}/subscriptions/GetAll`);
   }
 
   renewSubscription(id: number): Observable<SubscriptionDto> {
@@ -134,16 +134,16 @@ export class PlatformService {
   // ----- Domains -----
 
   getDomains(): Observable<DomainDto[]> {
-    return this.http.get<DomainDto[]>(`${this.baseUrl}/domains`);
+    return this.http.get<DomainDto[]>(`${this.baseUrl}/domains/GetAll`);
   }
 
   // ----- Global Settings -----
 
   getSettings(): Observable<GlobalSettingDto[]> {
-    return this.http.get<GlobalSettingDto[]>(`${this.baseUrl}/settings`);
+    return this.http.get<GlobalSettingDto[]>(`${this.baseUrl}/settings/GetAll`);
   }
 
   updateSettings(settings: GlobalSettingDto[]): Observable<GlobalSettingDto[]> {
-    return this.http.put<GlobalSettingDto[]>(`${this.baseUrl}/settings`, settings);
+    return this.http.put<GlobalSettingDto[]>(`${this.baseUrl}/settings/Update`, settings);
   }
 }

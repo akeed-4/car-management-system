@@ -52,6 +52,16 @@
         <div class="form-section">
           <h3 class="section-title">{{ 'CONSIGNMENT.FORM.VEHICLE_DETAILS' | translate }}</h3>
           <div class="form-grid cols-3">
+            <div class="lookup-field col-span-3">
+              <button mat-stroked-button type="button" color="primary" (click)="openVehicleLookup()">
+                <mat-icon>search</mat-icon>
+                {{ 'VEHICLE_LOOKUP.TITLE' | translate }}
+              </button>
+              @if (selectedVehicleSource()) {
+                <span class="lookup-hint">{{ 'CONSIGNMENT.FORM.VEHICLE_PREFILLED_FROM_LOOKUP' | translate }}</span>
+              }
+            </div>
+
             <mat-form-field appearance="outline">
               <mat-label>{{ 'REQUESTED_CARS.FORM.MANUFACTURER' | translate }}</mat-label>
               <input matInput type="text" formControlName="make">

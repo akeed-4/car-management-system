@@ -62,7 +62,8 @@
         [columnAutoWidth]="true"
         [wordWrapEnabled]="true"
         [selection]="{ mode: 'single' }"
-        (onSelectionChanged)="onVehicleSelect($event.selectedRowsData?.[0])">
+        (onSelectionChanged)="onVehicleSelect($event.selectedRowsData?.[0])"
+        (onRowDblClick)="onRowDoubleClick($event.data)">
 
         <dxi-column dataField="vin" caption="{{ 'VEHICLE_LOOKUP.VIN' | translate }}"></dxi-column>
         <dxi-column dataField="plateNumber" caption="{{ 'VEHICLE_LOOKUP.PLATE_NUMBER' | translate }}"></dxi-column>

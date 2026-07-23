@@ -1,0 +1,234 @@
+/* ==========================================================================
+   Mobile Design System — additive layer, loaded after styles.css.
+   Pure CSS breakpoints only. Nothing here changes desktop rendering:
+   every rule is scoped inside a max-width media query or an opt-in
+   utility class that desktop markup never applies.
+   ========================================================================== */
+
+:root {
+  /* Breakpoint reference values (for documentation / JS parity with
+     ResponsiveService — CSS media queries below still hardcode the px
+     values since custom properties cannot be used inside @media). */
+  --bp-xs: 360px;   /* small phones */
+  --bp-sm: 480px;   /* large phones */
+  --bp-md: 768px;   /* tablets / phablets landscape */
+  --bp-lg: 1024px;  /* small desktop / tablet landscape */
+
+  /* Touch-friendly sizing tokens, opt-in via utility classes/components. */
+  --mobile-control-height: 52px;
+  --mobile-control-font-size: 16px; /* >=16px prevents iOS Safari auto-zoom on focus */
+  --mobile-touch-target: 44px;
+  --mobile-card-radius: 16px;
+  --mobile-card-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --mobile-card-shadow-active: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --mobile-header-height: 56px;
+  --mobile-action-bar-height: 64px;
+  --mobile-gutter: 16px;
+  --mobile-gap: 12px;
+}
+
+/* --------------------------------------------------------------------------
+   Utility classes: opt-in only. A component must explicitly add these
+   classes to its own template, so nothing here affects existing screens
+   unless they're touched deliberately.
+   -------------------------------------------------------------------------- */
+
+/* Hide on mobile / show only on mobile (max-width: 768px = tablet+phone). */
+.mobile-only {
+  display: none !important;
+}
+.desktop-only {
+  display: revert !important;
+}
+
+@media (max-width: 768px) {
+  .mobile-only {
+    display: revert !important;
+  }
+  .desktop-only {
+    display: none !important;
+  }
+}
+
+/* Touch-friendly form controls. Apply to input/select/textarea/button that
+   need larger hit targets on mobile without affecting desktop sizing. */
+@media (max-width: 768px) {
+  .mobile-control {
+    min-height: var(--mobile-control-height) !important;
+    font-size: var(--mobile-control-font-size) !important;
+  }
+
+  .mobile-touch-target {
+    min-width: var(--mobile-touch-target) !important;
+    min-height: var(--mobile-touch-target) !important;
+  }
+}
+
+/* Material Design mobile card: 16px radius + soft shadow, opt-in via class. */
+.mobile-card {
+  background-color: var(--color-white);
+  border-radius: var(--mobile-card-radius);
+  box-shadow: var(--mobile-card-shadow);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+.mobile-card:active {
+  box-shadow: var(--mobile-card-shadow-active);
+  transform: translateY(1px);
+}
+
+/* Sticky bottom action bar container — used by app-sticky-action-bar, but
+   also usable directly for one-off footers that need the same treatment. */
+.mobile-sticky-footer {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: var(--mobile-gap);
+  min-height: var(--mobile-action-bar-height);
+  padding: var(--space-2) var(--mobile-gutter);
+  background-color: var(--color-white);
+  border-top: 1px solid var(--color-gray-200);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+}
+
+@media (max-width: 768px) {
+  .mobile-sticky-footer {
+    padding-bottom: max(var(--space-2), env(safe-area-inset-bottom));
+  }
+}
+
+/* Compact mobile page header (used by app-mobile-header). Fixed height,
+   flex layout: back button / title / action menu. */
+.mobile-header-bar {
+  display: flex;
+  align-items: center;
+  height: var(--mobile-header-height);
+  padding: 0 var(--space-2);
+  gap: var(--space-2);
+  background-color: var(--color-white);
+  border-bottom: 1px solid var(--color-gray-200);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.mobile-header-bar .mobile-header-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-gray-800);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Card-list rows (used by app-mobile-card-list to replace dx-data-grid on
+   mobile). Kept generic so any entity's field set can render through it. */
+.mobile-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mobile-gap);
+  padding: var(--mobile-gutter);
+}
+
+.mobile-card-list-item {
+  padding: var(--space-3);
+}
+
+.mobile-card-list-item .mobile-card-list-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-2);
+  font-size: 14px;
+  color: var(--color-gray-600);
+  padding: 2px 0;
+}
+
+.mobile-card-list-item .mobile-card-list-row .label {
+  color: var(--color-gray-500);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.mobile-card-list-item .mobile-card-list-row .value {
+  font-size: 14px;
+  color: var(--color-gray-800);
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobile-card-list-item .mobile-card-list-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-gray-800);
+  margin-bottom: var(--space-1);
+}
+
+.mobile-card-list-item .mobile-card-list-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+/* --------------------------------------------------------------------------
+   DevExtreme mobile overrides — scoped to an opt-in wrapper class
+   (.dx-mobile-optimized) applied by a screen's host/container, never
+   globally, so existing grids/forms/popups elsewhere are unaffected.
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .dx-mobile-optimized .dx-datagrid .dx-datagrid-headers {
+    display: none; /* header row is redundant once rows render as cards */
+  }
+
+  .dx-mobile-optimized .dx-form .dx-field-item {
+    padding-bottom: var(--space-2);
+  }
+
+  .dx-mobile-optimized .dx-form .dx-field-item-label {
+    font-size: 13px;
+  }
+
+  .dx-mobile-optimized .dx-texteditor-input,
+  .dx-mobile-optimized .dx-selectbox,
+  .dx-mobile-optimized .dx-datebox,
+  .dx-mobile-optimized .dx-dropdowneditor-input-wrapper input {
+    min-height: var(--mobile-control-height) !important;
+    font-size: var(--mobile-control-font-size) !important;
+  }
+
+  .dx-mobile-optimized .dx-popup-content {
+    padding: var(--mobile-gutter);
+  }
+
+  /* Fullscreen slide-up dialogs on mobile. Popup must also set
+     fullScreen or width/height via its component API — this only
+     ensures no rounded corners / margins remain when it does. */
+  .dx-mobile-optimized.dx-popup-fullscreen .dx-popup-content {
+    border-radius: 0;
+  }
+
+  .dx-mobile-optimized .dx-tabpanel .dx-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .dx-mobile-optimized .dx-toolbar {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: var(--mobile-header-height);
+  }
+
+  .dx-mobile-optimized .dx-drawer-panel-content {
+    width: 85vw !important;
+    max-width: 320px;
+  }
+}

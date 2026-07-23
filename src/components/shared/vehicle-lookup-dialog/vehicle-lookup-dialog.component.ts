@@ -10,6 +10,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { InventoryService } from '../../../services/inventory.service';
 import { Car } from '../../../models/car.model';
+import { TranslateService } from '@ngx-translate/core';
+import { NotificationService } from '../../../services/notification.service';
 
 /**
  * Reusable vehicle-selection popup: search real inventory by VIN/plate/make/model/color/year,
@@ -42,6 +44,8 @@ import { Car } from '../../../models/car.model';
 export class VehicleLookupDialogComponent {
   private inventoryService = inject(InventoryService);
   private dialogRef = inject(MatDialogRef<VehicleLookupDialogComponent>);
+  private translate = inject(TranslateService);
+  private notificationService = inject(NotificationService);
 
   filterForm = new FormGroup({
     vin: new FormControl(''),
@@ -77,6 +81,7 @@ export class VehicleLookupDialogComponent {
         this.results.set([]);
         this.hasSearched.set(true);
         this.loading.set(false);
+        this.notificationService.showError(this.translate.instant('VEHICLE_LOOKUP.LOAD_ERROR'));
       }
     });
   }
@@ -89,6 +94,13 @@ export class VehicleLookupDialogComponent {
     if (this.selectedVehicle()) {
       this.dialogRef.close(this.selectedVehicle());
     }
+  }
+
+  /** Double-click a row: select it and close immediately, skipping the extra Select-button click. */
+  onRowDoubleClick(car: Car | undefined): void {
+    if (!car) return;
+    this.selectedVehicle.set(car);
+    this.dialogRef.close(car);
   }
 
   cancel(): void {
