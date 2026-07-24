@@ -1,71 +1,574 @@
-/* General Styles */
-.registration-container {
-  max-width: 400px;
-  margin: 50px auto;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
+/* ==========================================================================
+   Layout
+   ========================================================================== */
 
-h2 {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.form-group {
-  margin-bottom: 15px;
-}
-
-label {
+:host {
+  --brand-blue: #2563eb;
+  --brand-blue-dark: #1d4ed8;
+  --brand-indigo: #4f46e5;
+  --success-green: #16a34a;
+  --error-red: #dc2626;
+  --warn-orange: #f59e0b;
+  --page-bg: #f4f6fb;
+  --card-bg: #ffffff;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
   display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
 }
 
-input {
+.registration-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 40% 60%;
+  background: var(--page-bg);
+}
+
+/* ==========================================================================
+   Brand panel (left, 40%)
+   ========================================================================== */
+
+.brand-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 40px;
+  background: linear-gradient(135deg, var(--brand-indigo) 0%, var(--brand-blue) 55%, #0ea5e9 100%);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+.brand-panel::before,
+.brand-panel::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+}
+
+.brand-panel::before {
+  width: 380px;
+  height: 380px;
+  top: -140px;
+  inset-inline-end: -120px;
+}
+
+.brand-panel::after {
+  width: 260px;
+  height: 260px;
+  bottom: -100px;
+  inset-inline-start: -80px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.brand-content {
+  position: relative;
+  max-width: 420px;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 40px;
+}
+
+.brand-logo-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(4px);
+}
+
+.brand-logo-icon mat-icon {
+  color: #fff;
+}
+
+.brand-name {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.brand-welcome {
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.3;
+  margin: 0 0 12px;
+}
+
+.brand-tagline {
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.88);
+  margin: 0 0 36px;
+}
+
+.feature-list {
+  list-style: none;
+  margin: 0 0 36px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.feature-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.feature-icon {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.feature-icon mat-icon {
+  font-size: 19px;
+  width: 19px;
+  height: 19px;
+  color: #fff;
+}
+
+.feature-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.feature-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.feature-desc {
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.5;
+}
+
+.trust-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.trust-badge mat-icon {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+}
+
+/* ==========================================================================
+   Form panel (right, 60%)
+   ========================================================================== */
+
+.form-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 32px;
+}
+
+.form-card {
   width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  max-width: 700px;
+  background: var(--card-bg);
+  border-radius: 20px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 20px 40px -8px rgba(16, 24, 40, 0.12);
+  padding: 44px 48px;
+  animation: fadeInUp 0.45s ease-out;
 }
 
-button {
+.form-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.form-header h2 {
+  margin: 0 0 8px;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.form-header p {
+  margin: 0;
+  font-size: 14.5px;
+  color: var(--text-secondary);
+}
+
+.registration-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-section {
+  margin-bottom: 8px;
+}
+
+.section-title {
+  margin: 0 0 14px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--brand-blue);
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 16px;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+/* ==========================================================================
+   Material form field sizing (52-56px inputs, icons inside)
+   ========================================================================== */
+
+::ng-deep .registration-form .mat-mdc-form-field {
   width: 100%;
-  padding: 10px;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  font-size: 15px;
 }
 
-button:hover {
-  background-color: #218838;
+::ng-deep .registration-form .mat-mdc-text-field-wrapper {
+  border-radius: 12px;
 }
 
-.error {
-  color: red;
-  font-size: 0.875rem;
+::ng-deep .registration-form .mat-mdc-form-field-infix {
+  min-height: 24px;
+  padding-top: 16px !important;
+  padding-bottom: 16px !important;
 }
 
-button:disabled {
-  background-color: #9fd6ac;
-  cursor: not-allowed;
+::ng-deep .registration-form .mat-mdc-form-field-icon-prefix {
+  padding-inline-end: 10px;
+  color: var(--text-secondary);
+}
+
+::ng-deep .registration-form .mat-mdc-form-field:focus-within .mat-mdc-form-field-icon-prefix {
+  color: var(--brand-blue);
+  transition: color 0.2s ease;
+}
+
+::ng-deep .registration-form .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__leading,
+::ng-deep .registration-form .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__notch,
+::ng-deep .registration-form .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__trailing {
+  transition: border-color 0.2s ease, border-width 0.2s ease;
+}
+
+/* ==========================================================================
+   Password strength meter
+   ========================================================================== */
+
+.password-strength {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: -2px 0 12px;
+}
+
+.strength-bar {
+  flex: 1;
+  display: flex;
+  gap: 4px;
+}
+
+.strength-segment {
+  flex: 1;
+  height: 5px;
+  border-radius: 3px;
+  background: #e5e7eb;
+  transition: background-color 0.25s ease;
+}
+
+.strength-bar.level-weak .strength-segment.filled { background: var(--error-red); }
+.strength-bar.level-fair .strength-segment.filled { background: var(--warn-orange); }
+.strength-bar.level-good .strength-segment.filled { background: var(--brand-blue); }
+.strength-bar.level-strong .strength-segment.filled { background: var(--success-green); }
+
+.strength-label {
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.strength-label.level-weak { color: var(--error-red); }
+.strength-label.level-fair { color: var(--warn-orange); }
+.strength-label.level-good { color: var(--brand-blue); }
+.strength-label.level-strong { color: var(--success-green); }
+
+.password-checklist {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 12px;
+}
+
+.password-checklist li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+.password-checklist li mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: #d1d5db;
+  transition: color 0.2s ease;
+}
+
+.password-checklist li.met {
+  color: var(--success-green);
+}
+
+.password-checklist li.met mat-icon {
+  color: var(--success-green);
+}
+
+.password-match-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  margin: -4px 0 14px;
+}
+
+.password-match-indicator mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.password-match-indicator.match {
+  color: var(--success-green);
+}
+
+.password-match-indicator.no-match {
+  color: var(--error-red);
+}
+
+/* ==========================================================================
+   Terms, alerts, submit
+   ========================================================================== */
+
+.terms-section {
+  margin-top: 4px;
+}
+
+::ng-deep .terms-section .mdc-checkbox {
+  padding: 6px;
+}
+
+.field-error {
+  color: var(--error-red);
+  font-size: 12.5px;
+  margin-top: 4px;
+  margin-inline-start: 4px;
+}
+
+.alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.alert mat-icon {
+  font-size: 19px;
+  width: 19px;
+  height: 19px;
+  flex: 0 0 auto;
+}
+
+.error-alert {
+  background: #fef2f2;
+  color: var(--error-red);
+  border: 1px solid #fecaca;
+}
+
+.submit-button {
+  height: 52px;
+  border-radius: 12px;
+  font-size: 15.5px;
+  font-weight: 700;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 8px 16px -6px rgba(37, 99, 235, 0.4);
+}
+
+.submit-button:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 20px -6px rgba(37, 99, 235, 0.5);
+}
+
+.submit-button ::ng-deep .mat-mdc-progress-spinner circle {
+  stroke: #fff;
 }
 
 .alt-action {
   text-align: center;
-  margin-top: 15px;
-  font-size: 0.9rem;
+  margin: 20px 0 0;
+  font-size: 13.5px;
+  color: var(--text-secondary);
 }
 
-.terms-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: normal;
-  font-size: 0.9rem;
-  cursor: pointer;
+.alt-action a {
+  color: var(--brand-blue);
+  font-weight: 700;
+  text-decoration: none;
+  margin-inline-start: 4px;
+}
+
+.alt-action a:hover {
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   Animations
+   ========================================================================== */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 1100px) {
+  .registration-page {
+    grid-template-columns: 36% 64%;
+  }
+
+  .form-card {
+    padding: 36px;
+  }
+}
+
+@media (max-width: 860px) {
+  .registration-page {
+    grid-template-columns: 1fr;
+  }
+
+  .brand-panel {
+    padding: 36px 32px;
+  }
+
+  .brand-content {
+    max-width: 100%;
+  }
+
+  .feature-list {
+    display: none;
+  }
+
+  .brand-welcome {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 560px) {
+  .form-panel {
+    padding: 24px 16px;
+  }
+
+  .form-card {
+    padding: 28px 22px;
+    border-radius: 16px;
+  }
+
+  .field-grid,
+  .password-checklist {
+    grid-template-columns: 1fr;
+  }
+
+  .brand-panel {
+    padding: 28px 20px;
+  }
+
+  .trust-badges {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   Dark mode
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  :host {
+    --page-bg: #0f172a;
+    --card-bg: #1e293b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+  }
+
+  .form-card {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 20px 40px -8px rgba(0, 0, 0, 0.5);
+  }
+
+  .strength-segment {
+    background: #334155;
+  }
+
+  .error-alert {
+    background: rgba(220, 38, 38, 0.12);
+    border-color: rgba(220, 38, 38, 0.35);
+  }
+
+  ::ng-deep .registration-form .mat-mdc-form-field-icon-prefix {
+    color: var(--text-secondary);
+  }
 }

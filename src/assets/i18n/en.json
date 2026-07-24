@@ -2198,6 +2198,10 @@
   },
   "REGISTRATION": {
     "TITLE": "Create your account",
+    "SUBTITLE": "Set up your company workspace in a couple of minutes.",
+    "PRODUCT_NAME": "CarERP",
+    "WELCOME_TITLE": "Run your dealership from one place",
+    "WELCOME_SUBTITLE": "Inventory, sales, purchases, and accounting for car dealerships — built for growing teams.",
     "COMPANY_NAME": "Company Name",
     "COMPANY_NAME_ERROR": "Company name is required",
     "FULL_NAME": "Full Name",
@@ -2213,13 +2217,48 @@
     "PHONE": "Phone",
     "COUNTRY": "Country",
     "SUBMIT": "Create Account",
+    "CREATING_ACCOUNT": "Creating your account...",
     "HAVE_ACCOUNT": "Already have an account?",
     "LOG_IN": "Log in",
     "PASSWORD_MISMATCH": "Passwords do not match",
+    "PASSWORDS_MATCH": "Passwords match",
     "FILL_REQUIRED_FIELDS": "Please fill in all required fields",
     "REGISTER_ERROR": "Could not create your account. Please try again.",
     "ACCEPT_TERMS": "I agree to the Terms of Service and Privacy Policy",
-    "ACCEPT_TERMS_ERROR": "You must accept the Terms of Service to continue"
+    "ACCEPT_TERMS_ERROR": "You must accept the Terms of Service to continue",
+    "SHOW_PASSWORD": "Show password",
+    "HIDE_PASSWORD": "Hide password",
+    "SECTIONS": {
+      "COMPANY": "Company Information",
+      "ADMIN": "Administrator Information",
+      "SECURITY": "Security"
+    },
+    "PASSWORD_STRENGTH": {
+      "WEAK": "Weak",
+      "FAIR": "Fair",
+      "GOOD": "Good",
+      "STRONG": "Strong"
+    },
+    "PASSWORD_REQUIREMENTS": {
+      "LENGTH": "At least 8 characters",
+      "UPPERCASE": "An uppercase letter",
+      "LOWERCASE": "A lowercase letter",
+      "NUMBER": "A number",
+      "SPECIAL": "A special character"
+    },
+    "FEATURES": {
+      "INVENTORY": { "TITLE": "Inventory Management", "DESC": "Track every vehicle from purchase to sale." },
+      "SALES": { "TITLE": "Sales & Purchases", "DESC": "Manage invoices, quotations, and orders end to end." },
+      "REPORTS": { "TITLE": "Accounting & Reports", "DESC": "Real-time financials and performance insights." },
+      "BRANCHES": { "TITLE": "Multi-Branch Support", "DESC": "Run several branches and warehouses from one account." },
+      "LANGUAGES": { "TITLE": "Arabic & English", "DESC": "A fully bilingual, RTL-ready workspace." },
+      "SECURITY": { "TITLE": "Secure by Design", "DESC": "Your data is encrypted and access-controlled." }
+    },
+    "TRUST": {
+      "SECURE": "Secure & Encrypted",
+      "UPTIME": "Cloud-Hosted",
+      "SUPPORT": "Dedicated Support"
+    }
   },
   "FORGOT_PASSWORD": {
     "TITLE": "Forgot your password?",
