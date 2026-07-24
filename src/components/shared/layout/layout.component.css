@@ -57,7 +57,12 @@
     /* Safari */
     user-select: none;
     float: right;
-    /* width: 240px; */
+    /* 80% of the viewport, capped so it doesn't span edge-to-edge on larger
+       phones/small tablets -- matches the mobile-first drawer spec (overlay
+       mode, ~80% width, never full-bleed). */
+    width: min(80vw, 320px) !important;
+    max-width: 85vw;
+    height: 100%;
 }
 
 .full-width {
@@ -488,7 +493,17 @@ only screen and (max-device-width: 740px) {
     margin: 8px !important;
     padding: 0 8px !important;
 }
-
+@media screen and (max-width: 740px) {
+    :host ::ng-deep .example-sidenav-content .container,
+:host ::ng-deep #margin-body .container,
+:host ::ng-deep .example-sidenav-content .container-me {
+    max-width: 600px !important;
+    width: 380px !important;
+    margin:1px !important;
+    padding: 0 8px !important;
+}
+    
+}
 :host ::ng-deep .example-sidenav-content .card,
 :host ::ng-deep #margin-body .card {
     max-width: none !important;
@@ -506,5 +521,30 @@ only screen and (max-device-width: 740px) {
 
 .footer {
     flex-shrink: 0; /* يمنع الفوتر من التمدد */
+}
+
+/* --- Mobile toolbar: 48px touch targets + no horizontal overflow --- */
+@media (max-width: 768px) {
+    #side-nav-toggle,
+    .login-button,
+    .select-button {
+        min-height: 48px;
+        min-width: 48px;
+    }
+
+    .example-toolbar {
+        flex-wrap: nowrap;
+        padding: 0 4px;
+    }
+
+    /* Long, untranslated screen titles must never force the toolbar wider
+       than the viewport -- ellipsize instead of pushing the menu button
+       or manage-account control off-screen. */
+    .screen-title {
+        max-width: 30vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 }
 

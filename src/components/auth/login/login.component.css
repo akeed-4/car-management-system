@@ -137,3 +137,35 @@ button:hover {
   color: red;
   font-size: 0.875rem;
 }
+
+.alt-action {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 0.9rem;
+}
+
+.success {
+  color: #2e7d32;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.forgot-link {
+  font-size: 0.9rem;
+}

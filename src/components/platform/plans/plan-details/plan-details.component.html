@@ -78,7 +78,7 @@
       <div class="features-editor" [formArrayName]="'features'">
         @for (featureGroup of featuresArray.controls; track $index) {
           <div class="feature-editor-row" [formGroupName]="$index">
-            <mat-checkbox formControlName="isEnabled">{{ featureGroup.get('featureKey')?.value }}</mat-checkbox>
+            <mat-checkbox formControlName="isEnabled">{{ featureName(featureGroup.get('featureKey')?.value) }}</mat-checkbox>
           </div>
         }
       </div>

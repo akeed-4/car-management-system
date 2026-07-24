@@ -209,16 +209,7 @@ export const menuData = [
   },
 
 
-  {
-    id: 10,
-    name: 'التقارير',
-    englishName: 'Reports',
-    submenu: [
-      { id: 101, name: 'التقارير المالية', englishName: 'Financial Reports', route: '/reports/financial' },
-      { id: 102, name: 'تقارير المخزون', englishName: 'Inventory Reports', route: '/reports/inventory' },
-      { id: 103, name: 'تقارير المبيعات', englishName: 'Sales Reports', route: '/reports/sales' }
-    ]
-  },
+
   {
     id: 11,
     name: 'المستخدمون ',
@@ -255,7 +246,7 @@ export const menuData = [
     englishName: 'Platform',
     submenu: [
       { id: 141, name: 'لوحة التحكم', englishName: 'Dashboard', route: '/platform/dashboard' },
-      { id: 142, name: 'المستأجرون', englishName: 'Tenants', route: '/platform/tenants' },
+      { id: 142, name: 'الشركات', englishName: 'Companies', route: '/platform/companies' },
       { id: 143, name: 'خطط الاشتراك', englishName: 'Subscription Plans', route: '/platform/plans' },
       { id: 144, name: 'الاشتراكات', englishName: 'Subscriptions', route: '/platform/subscriptions' },
       { id: 145, name: 'النطاقات', englishName: 'Domains', route: '/platform/domains' },

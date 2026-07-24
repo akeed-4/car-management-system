@@ -52,7 +52,8 @@
         </div>
 
         <div class="form-row">
-          <mat-radio-group formControlName="condition" class="radio-group">
+          <label class="field-label" id="condition-label">{{ 'INVENTORY.FORM.CONDITION' | translate }}</label>
+          <mat-radio-group formControlName="condition" class="radio-group" aria-labelledby="condition-label">
             <mat-radio-button value="Used">{{ 'INVENTORY.FORM.USED' | translate }}</mat-radio-button>
             <mat-radio-button value="New">{{ 'INVENTORY.FORM.NEW' | translate }}</mat-radio-button>
           </mat-radio-group>
@@ -328,10 +329,11 @@
           <mat-hint>{{ 'INVENTORY.FORM.TRACK_BY_BATCH_HINT' | translate }}</mat-hint>
         </div>
 
-        <div class="form-row">
-          <mat-checkbox formControlName="calculateVATFromProfitMargin" color="primary">
+        <div class="form-row toggle-row">
+          <mat-slide-toggle formControlName="calculateVATFromProfitMargin" color="primary">
             {{ 'INVENTORY.FORM.CALCULATE_VAT_FROM_PROFIT_MARGIN' | translate }}
-          </mat-checkbox>
+          </mat-slide-toggle>
+          <mat-hint>{{ 'INVENTORY.FORM.CALCULATE_VAT_FROM_PROFIT_MARGIN_HINT' | translate }}</mat-hint>
         </div>
 
         <div *ngIf="priceSuggestion() as suggestion" class="price-suggestions">

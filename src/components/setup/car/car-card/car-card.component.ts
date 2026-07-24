@@ -207,7 +207,8 @@ private translate = inject(TranslateService);
       floorPlanId: [null],
       isArchived: [false],
       quantity: [1],
-      trackByBatch: [true]
+      trackByBatch: [true],
+      calculateVATFromProfitMargin: [false]
     });
 
     // Initialize selected photo from form

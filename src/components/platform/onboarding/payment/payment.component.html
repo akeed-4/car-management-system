@@ -1,0 +1,29 @@
+<div class="page-container">
+  <mat-card class="payment-card">
+    <h1>{{ 'ONBOARDING.PAYMENT.TITLE' | translate }}</h1>
+    <p class="plan-summary" *ngIf="plan() as p">
+      {{ 'ONBOARDING.PAYMENT.PLAN_SUMMARY' | translate:{ plan: p.name } }}
+      &mdash; {{ priceFor(p) | number:'1.0-0' }} / {{ billingCycleLabel() | translate }}
+    </p>
+
+    <mat-progress-bar mode="indeterminate" *ngIf="loading()"></mat-progress-bar>
+
+    <div class="config-error" *ngIf="configError()">
+      {{ 'ONBOARDING.PAYMENT.CONFIG_ERROR' | translate }}
+    </div>
+
+    <div class="card-form" [id]="cardContainerId" [class.hidden]="loading() || configError()"></div>
+
+    <div class="processing" *ngIf="processing()">
+      {{ 'ONBOARDING.PAYMENT.PROCESSING' | translate }}
+    </div>
+
+    <button mat-flat-button color="primary" class="pay-button"
+            [disabled]="loading() || configError() || processing()"
+            (click)="pay()">
+      {{ 'ONBOARDING.PAYMENT.PAY_NOW' | translate }}
+    </button>
+
+    <a routerLink="/onboarding/plans" class="back-link">{{ 'ONBOARDING.PAYMENT.BACK_TO_PLANS' | translate }}</a>
+  </mat-card>
+</div>

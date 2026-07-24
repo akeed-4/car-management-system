@@ -705,47 +705,55 @@ export class PurchaseInvoiceComponent implements OnInit {
   }
 
   loadInvoiceForEdit(invoiceId: number): void {
+    // PurchasesService.getInvoiceById() now unwraps the backend's { success, message, data }
+    // envelope itself, so `invoice` here is a flat PurchaseInvoice -- matching its declared type
+    // and how every other consumer (PrintablePurchaseInvoiceComponent, saveInvoice() below) reads
+    // it. Previously this method read `invoice.data.xxx` for every header field (a workaround for
+    // the un-unwrapped envelope) but `invoice.data.items` for the line items -- since the service
+    // now does the unwrapping, `invoice.items` is the correct, and only, way to read it.
     this.procurementService.getInvoiceById(invoiceId).subscribe({
-      next: (invoice:any) => {
+      next: (invoice) => {
         // Initialize form with existing invoice data
         this.purchaseInvoiceForm = this.fb.group({
-          supplierId: [invoice.data.supplierId, Validators.required],
-          debitAccountId: [invoice.data.debitAccountId, Validators.required],
-          creditAccountId: [invoice.data.creditAccountId, Validators.required],
-          invoiceDate: [new Date(invoice.data.invoiceDate), Validators.required],
-          paymentMethod: [invoice.data.paymentMethod || 'Bank Transfer'],
-          paymentType: [invoice.data.paymentType || 'credit'],
-          dueDate: [invoice.data.dueDate ? new Date(invoice.dueDate) : null],
-          invoiceType: [invoice.data.invoiceType || InvoiceType.Taxable, Validators.required],
-          ClassificationId: [invoice.data.ClassificationId || 0, Validators.required],
-          initialPayment: [invoice.data.initialPayment || 0, [Validators.min(0)]],
-          notes: [invoice.data.notes || ''],
-          isAuctionPurchase: [!!invoice.data.auctionProvider],
-          auctionProvider: [invoice.data.auctionProvider || null],
-          auctionLotNumber: [invoice.data.auctionLotNumber || ''],
+          supplierId: [invoice.supplierId, Validators.required],
+          debitAccountId: [invoice.debitAccountId, Validators.required],
+          creditAccountId: [invoice.creditAccountId, Validators.required],
+          invoiceDate: [new Date(invoice.invoiceDate), Validators.required],
+          paymentMethod: [invoice.paymentMethod || 'Bank Transfer'],
+          paymentType: [invoice.paymentType || 'credit'],
+          dueDate: [invoice.dueDate ? new Date(invoice.dueDate) : null],
+          invoiceType: [invoice.invoiceType || InvoiceType.Taxable, Validators.required],
+          ClassificationId: [invoice.ClassificationId || 0, Validators.required],
+          initialPayment: [invoice.initialPayment || 0, [Validators.min(0)]],
+          notes: [invoice.notes || ''],
+          isAuctionPurchase: [!!invoice.auctionProvider],
+          auctionProvider: [invoice.auctionProvider || null],
+          auctionLotNumber: [invoice.auctionLotNumber || ''],
         }, { validators: [this.accountValidator, this.dueDateValidator] });
 
-        this.auctionCharges.set(invoice.data.auctionCharges || []);
+        this.auctionCharges.set(invoice.auctionCharges || []);
 
         // ngOnChanges may have already fired (before this async form existed) and found nothing
         // to lock -- apply the lock explicitly now that the real edit-mode form exists, so a
         // Cash/Credit-fixed invoice opened for edit is actually locked, not just on create.
         this.handlePaymentMethodLocking();
 
-        this.amountReceivedSignal.set(invoice.data.initialPayment || invoice.data.amountPaid || 0);
+        this.amountReceivedSignal.set(invoice.initialPayment || invoice.amountPaid || 0);
         this.watchInitialPaymentControl();
 
         // Set invoice number signal
-        this.invoiceNumberSignal.set(invoice.data.invoiceNumber);
+        this.invoiceNumberSignal.set(invoice.invoiceNumber);
 
         // Set invoice type signal
-        this.invoiceType.set((invoice.data.invoiceType as InvoiceType) || InvoiceType.Taxable);
+        this.invoiceType.set((invoice.invoiceType as InvoiceType) || InvoiceType.Taxable);
 
-        // Set invoice items
-        this.invoiceItems.set(invoice.data.items || []);
+        // Set invoice items -- this is what populates the DevExtreme grid (bound to
+        // invoiceItems() in the template). Re-assigning the signal triggers change detection on
+        // its own; no manual ChangeDetectorRef/grid.instance.option() call is needed here.
+        this.invoiceItems.set(invoice.items || []);
 
         // Restore linked Car Receipts
-        this.linkedReceiptIds.set(invoice.data.carReceiptIds || []);
+        this.linkedReceiptIds.set(invoice.carReceiptIds || []);
         this.loadUninvoicedReceipts();
       },
       error: (error) => {

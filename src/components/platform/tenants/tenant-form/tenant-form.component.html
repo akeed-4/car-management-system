@@ -104,6 +104,24 @@
         </div>
       </mat-tab>
 
+      <!-- Access: grant an existing user access to this company (multi-company support) -->
+      <mat-tab [label]="'PLATFORM.TENANTS.GRANT_ACCESS' | translate" *ngIf="isEdit()">
+        <div class="tab-content">
+          <p class="section-hint">{{ 'PLATFORM.TENANTS.GRANT_ACCESS_HINT' | translate }}</p>
+          <div class="domain-add-row">
+            <mat-form-field appearance="outline" class="domain-input">
+              <mat-label>{{ 'PLATFORM.TENANTS.EMAIL' | translate }}</mat-label>
+              <input matInput type="email" [ngModel]="grantAccessEmail()" (ngModelChange)="grantAccessEmail.set($event)"
+                [ngModelOptions]="{standalone: true}" [placeholder]="'PLATFORM.TENANTS.GRANT_ACCESS_EMAIL_PLACEHOLDER' | translate">
+            </mat-form-field>
+            <button mat-stroked-button type="button" [disabled]="isGrantingAccess() || !grantAccessEmail().trim()" (click)="grantAccess()">
+              <mat-spinner *ngIf="isGrantingAccess()" diameter="18"></mat-spinner>
+              <span *ngIf="!isGrantingAccess()">{{ 'PLATFORM.TENANTS.GRANT_ACCESS' | translate }}</span>
+            </button>
+          </div>
+        </div>
+      </mat-tab>
+
       <!-- Subscription -->
       <mat-tab [label]="'PLATFORM.TENANTS.SECTIONS.SUBSCRIPTION' | translate">
         <div class="tab-content form-grid">
@@ -179,7 +197,7 @@
             @for (feature of selectedPlan()!.features; track feature.featureKey) {
               <div class="feature-row" [class.disabled]="!feature.isEnabled">
                 <mat-icon>{{ feature.isEnabled ? 'check_circle' : 'cancel' }}</mat-icon>
-                <span>{{ feature.featureKey }}</span>
+                <span>{{ (translate.currentLang === 'ar' ? feature.nameAr : feature.nameEn) || feature.featureKey }}</span>
               </div>
             }
           </div>

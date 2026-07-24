@@ -1,0 +1,14 @@
+<div class="page-container">
+  <mat-card class="activation-card">
+    <h1>{{ 'ONBOARDING.TENANT_ACTIVATION.TITLE' | translate }}</h1>
+
+    <mat-progress-bar mode="indeterminate" *ngIf="loading()"></mat-progress-bar>
+
+    <ng-container *ngIf="!loading()">
+      <p class="reason">{{ reasonKey() | translate }}</p>
+      <button mat-stroked-button (click)="logout()">
+        {{ 'ONBOARDING.TENANT_ACTIVATION.LOGOUT' | translate }}
+      </button>
+    </ng-container>
+  </mat-card>
+</div>

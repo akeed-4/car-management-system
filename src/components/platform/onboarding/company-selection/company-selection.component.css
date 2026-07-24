@@ -1,0 +1,53 @@
+.page-container {
+  max-width: 560px;
+  margin: 60px auto;
+  padding: 0 20px;
+}
+
+.selection-card {
+  padding: 28px !important;
+  border-radius: 12px;
+}
+
+h1 {
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.subtitle {
+  color: #666;
+  margin: 0 0 24px;
+  text-align: center;
+}
+
+.companies-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.company-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+.company-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.company-name {
+  font-weight: 600;
+}
+
+.company-code {
+  color: #888;
+  font-size: 12px;
+}

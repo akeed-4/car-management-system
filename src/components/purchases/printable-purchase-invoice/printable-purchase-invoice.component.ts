@@ -4,10 +4,11 @@ import { PurchasesService } from '../../../services/purchases.service';
 import { PurchaseInvoice } from '../../../models/purchase-invoice.model';
 import { SupplierService } from '../../../services/supplier.service';
 import { Supplier } from '../../../models/supplier.model';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { CurrencyPipe, DatePipe, DOCUMENT } from '@angular/common';
 import { Location } from '@angular/common';
 import { CompanyService } from '../../../services/company.service';
 import { CurrentSettingService } from '../../../services/current-setting.service';
+import { LanguageService } from '../../../services/language.service';
 import { QrCodeComponent } from '../../shared/qr-code/qr-code.component';
 import { QrCodeContext } from '../../../models/qr-code.model';
 import { Company } from '../../../models/branch.model';
@@ -29,10 +30,18 @@ export class PrintablePurchaseInvoiceComponent {
   private supplierService = inject(SupplierService);
   private companyService = inject(CompanyService);
   private currentSettingService = inject(CurrentSettingService);
+  private languageService = inject(LanguageService);
+  private document = inject(DOCUMENT);
 
   invoice = signal<PurchaseInvoice | null>(null);
   supplier = signal<Supplier | null>(null);
   company = signal<Company | null>(null);
+
+  // This route lives outside <app-layout>, so nothing else in the app sets <html dir/lang> for
+  // it -- LayoutComponent normally owns that, but it is never instantiated on a print page.
+  textDir = signal<'ltr' | 'rtl'>(this.languageService.getCurrentLanguage() === 'en' ? 'ltr' : 'rtl');
+
+  private hasAutoPrinted = false;
 
   // Sourced from the real Company record (CompanyService) -- no longer hardcoded, and no
   // longer duplicated independently of printable-sales-invoice's own copy of the same data.
@@ -53,9 +62,8 @@ export class PrintablePurchaseInvoiceComponent {
     const inv = this.invoice();
     const sup = this.supplier();
     const c = this.company();
-    if (!inv || !sup) return null;
-    const totalBeforeVat = inv.totalAmount / 1.15;
-    const vatAmount = inv.totalAmount - totalBeforeVat;
+    const tax = this.taxSummary();
+    if (!inv || !sup || !tax) return null;
     return {
       companyName: sup.name,
       vatNumber: sup.taxNumber ?? '',
@@ -65,16 +73,32 @@ export class PrintablePurchaseInvoiceComponent {
       customerName: c ? (c.nameAr || c.nameEn) : undefined,
       customerVatNumber: c?.vatRegistrationNumber,
       currency: 'SAR',
-      totalBeforeVat,
-      vatAmount,
+      totalBeforeVat: tax.taxableAmount,
+      vatAmount: tax.vatAmount,
       grandTotal: inv.totalAmount
     };
+  });
+
+  /** Single source of truth for the VAT breakdown -- feeds both the Totals box and the
+   * dedicated Tax Summary section so the two can never disagree. */
+  taxSummary = computed(() => {
+    const inv = this.invoice();
+    if (!inv) return null;
+    const rate = 15;
+    const taxableAmount = inv.totalAmount / 1.15;
+    const vatAmount = inv.totalAmount - taxableAmount;
+    return { rate, taxableAmount, vatAmount, total: inv.totalAmount };
   });
 
   // Current year for footer
   currentYear = new Date().getFullYear();
 
   constructor() {
+    // Apply the current language's direction immediately, then keep it in sync -- this page has
+    // no LayoutComponent ancestor to do it for us (see `textDir` field comment above).
+    this.applyDirection(this.languageService.getCurrentLanguage());
+    this.languageService.language$.subscribe(lang => this.applyDirection(lang));
+
     effect(() => {
       const idParam = this.route.snapshot.params['id'];
       if (idParam) {
@@ -92,6 +116,27 @@ export class PrintablePurchaseInvoiceComponent {
       next: (c) => this.company.set(c),
       error: (error) => console.error('Error loading company info:', error)
     });
+
+    // Auto-trigger the print dialog once the document has real data to show (invoice + company),
+    // per the dedicated print-route contract: load -> render -> print, no manual click required.
+    effect(() => {
+      if (!this.hasAutoPrinted && this.invoice() && this.company()) {
+        this.hasAutoPrinted = true;
+        setTimeout(() => window.print(), 300);
+      }
+    });
+
+    // This page is always opened in its own tab/window (see purchases list `window.open` calls),
+    // so it is safe/expected to close itself once the user finishes with the print dialog.
+    window.onafterprint = () => window.close();
+  }
+
+  private applyDirection(lang: string): void {
+    const dir = lang === 'en' ? 'ltr' : 'rtl';
+    this.textDir.set(dir);
+    const htmlTag = this.document.getElementsByTagName('html')[0] as HTMLHtmlElement;
+    htmlTag.dir = dir;
+    htmlTag.lang = lang;
   }
 
   printInvoice(): void {
@@ -99,6 +144,10 @@ export class PrintablePurchaseInvoiceComponent {
   }
 
   goBack(): void {
-    this.location.back();
+    if (window.opener || window.history.length <= 1) {
+      window.close();
+    } else {
+      this.location.back();
+    }
   }
 }

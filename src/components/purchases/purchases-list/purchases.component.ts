@@ -9,6 +9,8 @@ import { FormsModule } from '@angular/forms';
 import { PurchasesService } from '../../../services/purchases.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DxDataGridModule } from 'devextreme-angular';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
 
 type SortColumn = keyof PurchaseInvoice | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -16,7 +18,7 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-purchases',
   standalone: true,
-  imports: [RouterLink, FormsModule, TranslateModule, DxDataGridModule],
+  imports: [RouterLink, FormsModule, TranslateModule, DxDataGridModule, MobileCardListComponent],
   templateUrl: './purchases.component.html',
   styleUrl: './purchases.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,6 +27,12 @@ export class PurchasesComponent {
     private procurementService = inject(PurchasesService);
   private translate = inject(TranslateService);
   private router = inject(Router);
+  private responsiveService = inject(ResponsiveService);
+  /** Reference pattern: below 768px the dx-data-grid (unusable -- clipped
+   * columns, forced horizontal scroll) is swapped for app-mobile-card-list,
+   * which renders the exact same rows as full-width cards instead. The grid
+   * remains the single source of truth for data/filtering/sorting either way. */
+  isMobile = this.responsiveService.isMobile;
     invoices = toSignal(this.procurementService.getInvoices(), { initialValue: [] });
 
     filter = signal('');
@@ -96,6 +104,45 @@ export class PurchasesComponent {
       return invoices;
     });
 
+    // --- Mobile card-list rendering (see `isMobile` field comment above) ---
+    mobileTitleOf = (inv: PurchaseInvoice) => inv.invoiceNumber;
+    mobileTrackBy = (_index: number, inv: PurchaseInvoice) => inv.id;
+
+    private formatCurrency = (value: number) => `${(value ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SAR`;
+
+    mobileFields: MobileCardField<PurchaseInvoice>[] = [
+      { label: 'PURCHASES.SUPPLIER', value: (inv) => inv.supplier?.name || 'N/A' },
+      { label: 'PURCHASES.INVOICE_DATE', value: (inv) => new Date(inv.invoiceDate).toLocaleDateString() },
+      { label: 'PURCHASES.TOTAL_COST', value: (inv) => this.formatCurrency(inv.totalAmount) },
+      { label: 'PURCHASES.AMOUNT_PAID', value: (inv) => this.formatCurrency(inv.amountPaid) },
+      { label: 'PURCHASES.AMOUNT_DUE', value: (inv) => this.formatCurrency(inv.amountDue) },
+      { label: 'PURCHASES.STATUS', value: (inv) => inv.status },
+    ];
+
+    mobilePrint(inv: PurchaseInvoice): void {
+      window.open(`/purchases/invoice/print/${inv.id}`, '_blank');
+    }
+
+    mobileEdit(inv: PurchaseInvoice): void {
+      this.router.navigate(['/purchases/invoice/edit', inv.id]);
+    }
+
+    mobileDelete(inv: PurchaseInvoice): void {
+      this.deleteInvoice({ row: { data: { id: inv.id } } });
+    }
+
+    mobileArchive(inv: PurchaseInvoice): void {
+      this.archiveInvoice({ row: { data: { id: inv.id } } });
+    }
+
+    mobileUnarchive(inv: PurchaseInvoice): void {
+      this.unarchiveInvoice({ row: { data: { id: inv.id } } });
+    }
+
+    mobileCanArchive(inv: PurchaseInvoice): boolean {
+      return !this.showArchived() && inv.status === 'Paid';
+    }
+
     onFilter(event: Event) {
       const input = event.target as HTMLInputElement;
       this.filter.set(input.value);
@@ -147,7 +194,9 @@ export class PurchasesComponent {
 
     // DevExtreme button click handlers
     onPrintClick = (e: any) => {
-      this.router.navigate(['/purchases/invoice/print', e.row.data.id]);
+      // Opens the dedicated print route in its own tab so the printable page never inherits the
+      // app's sidebar/toolbar -- see PrintablePurchaseInvoiceComponent.
+      window.open(`/purchases/invoice/print/${e.row.data.id}`, '_blank');
     }
 
     onEditClick = (e: any) => {
@@ -176,7 +225,7 @@ export class PurchasesComponent {
     
 
     printInvoice(data: any) {
-      this.router.navigate(['/purchases/invoice/print', data.row.data.id]);
+      window.open(`/purchases/invoice/print/${data.row.data.id}`, '_blank');
     }
 
     editInvoice(data: any) {

@@ -18,6 +18,29 @@
         <input type="checkbox" id="showArchived" [checked]="showArchived()" (change)="showArchived.set(!showArchived())">
       </div>
     </div>
+    <!-- Mobile (<=768px): the grid's clipped/scrolling columns are unusable on a phone,
+         so rows render as full-width cards instead -- same data, same actions. -->
+    @if (isMobile()) {
+      <app-mobile-card-list
+        [items]="filteredAndSortedInvoices()"
+        [fields]="mobileFields"
+        [titleOf]="mobileTitleOf"
+        [trackByFn]="mobileTrackBy"
+        emptyMessage="PURCHASES.NO_PURCHASE_INVOICES"
+      >
+        <ng-template let-inv>
+          <button type="button" class="btn btn-light" (click)="mobilePrint(inv)">{{ 'PURCHASES.PRINT_INVOICE' | translate }}</button>
+          <button type="button" class="btn btn-light" (click)="mobileEdit(inv)">{{ 'PURCHASES.EDIT_INVOICE' | translate }}</button>
+          <button type="button" class="btn btn-light" (click)="mobileDelete(inv)">{{ 'PURCHASES.DELETE_INVOICE' | translate }}</button>
+          @if (mobileCanArchive(inv)) {
+            <button type="button" class="btn btn-light" (click)="mobileArchive(inv)">{{ 'PURCHASES.ARCHIVE' | translate }}</button>
+          }
+          @if (showArchived()) {
+            <button type="button" class="btn btn-light" (click)="mobileUnarchive(inv)">{{ 'PURCHASES.UNARCHIVE' | translate }}</button>
+          }
+        </ng-template>
+      </app-mobile-card-list>
+    } @else {
     <div class="table-wrapper premium-table">
       <dx-data-grid
         [dataSource]="filteredAndSortedInvoices()"
@@ -101,5 +124,6 @@
         <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20, 50]" [showInfo]="true"></dxo-pager>
       </dx-data-grid>
     </div>
+    }
   </div>
 </div>

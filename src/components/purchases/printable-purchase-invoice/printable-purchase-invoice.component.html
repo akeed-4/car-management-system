@@ -1,4 +1,4 @@
-<div class="printable-invoice-page">
+<div class="printable-invoice-page" [attr.dir]="textDir()">
   @if (invoice(); as inv) {
     <div class="doc-sheet">
       <!-- Header: company identity + document title/number -->
@@ -95,26 +95,75 @@
       </div>
 
       <!-- Financial summary -->
-      <div class="doc-totals-wrap">
-        <div class="doc-totals-box">
-          <div class="doc-totals-row">
-            <span class="doc-totals-label">{{ 'PURCHASE_INVOICE.PRINTABLE.SUBTOTAL' | translate }}</span>
-            <span class="doc-totals-value">{{ (inv.totalAmount / 1.15) | currency:'SAR':'symbol':'1.2-2' }}</span>
+      @if (taxSummary(); as tax) {
+        <div class="doc-totals-wrap">
+          <div class="doc-totals-box">
+            <div class="doc-totals-row">
+              <span class="doc-totals-label">{{ 'PURCHASE_INVOICE.PRINTABLE.SUBTOTAL' | translate }}</span>
+              <span class="doc-totals-value">{{ tax.taxableAmount | currency:'SAR':'symbol':'1.2-2' }}</span>
+            </div>
+            <div class="doc-totals-row">
+              <span class="doc-totals-label">{{ 'PURCHASE_INVOICE.PRINTABLE.VAT' | translate }}</span>
+              <span class="doc-totals-value">{{ tax.vatAmount | currency:'SAR':'symbol':'1.2-2' }}</span>
+            </div>
+            <div class="doc-totals-row is-grand">
+              <span class="doc-totals-label">{{ 'PURCHASE_INVOICE.PRINTABLE.TOTAL' | translate }}</span>
+              <span class="doc-totals-value">{{ inv.totalAmount | currency:'SAR':'symbol':'1.2-2' }}</span>
+            </div>
+            <div class="doc-totals-row is-due">
+              <span class="doc-totals-label">{{ 'PURCHASE_INVOICE.PRINTABLE.AMOUNT_DUE' | translate }}</span>
+              <span class="doc-totals-value" [class.is-outstanding]="inv.amountDue > 0" [class.is-settled]="inv.amountDue <= 0">
+                {{ inv.amountDue | currency:'SAR':'symbol':'1.2-2' }}
+              </span>
+            </div>
           </div>
-          <div class="doc-totals-row">
-            <span class="doc-totals-label">{{ 'PURCHASE_INVOICE.PRINTABLE.VAT' | translate }}</span>
-            <span class="doc-totals-value">{{ (inv.totalAmount - (inv.totalAmount / 1.15)) | currency:'SAR':'symbol':'1.2-2' }}</span>
+        </div>
+
+        <!-- Tax summary: ZATCA-style VAT breakdown, kept separate from the running totals box -->
+        <div class="doc-section">
+          <h3 class="doc-section-title">{{ 'PURCHASE_INVOICE.PRINTABLE.TAX_SUMMARY' | translate }}</h3>
+          <table class="doc-table">
+            <thead>
+              <tr>
+                <th>{{ 'PURCHASE_INVOICE.PRINTABLE.VAT_RATE' | translate }}</th>
+                <th class="doc-col-end">{{ 'PURCHASE_INVOICE.PRINTABLE.TAXABLE_AMOUNT' | translate }}</th>
+                <th class="doc-col-end">{{ 'PURCHASE_INVOICE.PRINTABLE.VAT' | translate }}</th>
+                <th class="doc-col-end">{{ 'PURCHASE_INVOICE.PRINTABLE.TOTAL' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="doc-mono">{{ tax.rate }}%</td>
+                <td class="doc-col-end doc-mono">{{ tax.taxableAmount | currency:'SAR':'symbol':'1.2-2' }}</td>
+                <td class="doc-col-end doc-mono">{{ tax.vatAmount | currency:'SAR':'symbol':'1.2-2' }}</td>
+                <td class="doc-col-end doc-mono doc-strong">{{ tax.total | currency:'SAR':'symbol':'1.2-2' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      }
+
+      <!-- Payment information -->
+      <div class="doc-meta-strip">
+        <div class="doc-meta-cell">
+          <p class="doc-meta-label">{{ 'PURCHASE_INVOICE.PRINTABLE.PAYMENT_METHOD' | translate }}</p>
+          <p class="doc-meta-value">{{ inv.paymentMethod || ('PURCHASE_INVOICE.PRINTABLE.NOT_SPECIFIED' | translate) }}</p>
+        </div>
+        @if (inv.initialPayment) {
+          <div class="doc-meta-cell">
+            <p class="doc-meta-label">{{ 'PURCHASE_INVOICE.PRINTABLE.INITIAL_PAYMENT' | translate }}</p>
+            <p class="doc-meta-value">{{ inv.initialPayment | currency:'SAR':'symbol':'1.2-2' }}</p>
           </div>
-          <div class="doc-totals-row is-grand">
-            <span class="doc-totals-label">{{ 'PURCHASE_INVOICE.PRINTABLE.TOTAL' | translate }}</span>
-            <span class="doc-totals-value">{{ inv.totalAmount | currency:'SAR':'symbol':'1.2-2' }}</span>
-          </div>
-          <div class="doc-totals-row is-due">
-            <span class="doc-totals-label">{{ 'PURCHASE_INVOICE.PRINTABLE.AMOUNT_DUE' | translate }}</span>
-            <span class="doc-totals-value" [class.is-outstanding]="inv.amountDue > 0" [class.is-settled]="inv.amountDue <= 0">
-              {{ inv.amountDue | currency:'SAR':'symbol':'1.2-2' }}
-            </span>
-          </div>
+        }
+        <div class="doc-meta-cell">
+          <p class="doc-meta-label">{{ 'PURCHASE_INVOICE.PRINTABLE.AMOUNT_PAID' | translate }}</p>
+          <p class="doc-meta-value">{{ inv.amountPaid | currency:'SAR':'symbol':'1.2-2' }}</p>
+        </div>
+        <div class="doc-meta-cell">
+          <p class="doc-meta-label">{{ 'PURCHASE_INVOICE.PRINTABLE.AMOUNT_DUE' | translate }}</p>
+          <p class="doc-meta-value" [class.is-outstanding]="inv.amountDue > 0" [class.is-settled]="inv.amountDue <= 0">
+            {{ inv.amountDue | currency:'SAR':'symbol':'1.2-2' }}
+          </p>
         </div>
       </div>
 
@@ -174,6 +223,22 @@
           <app-qr-code [context]="ctx"></app-qr-code>
         </div>
       }
+
+      <!-- Signature section -->
+      <div class="doc-signature-grid">
+        <div class="doc-signature-box">
+          <div class="doc-signature-line"></div>
+          <p class="doc-signature-role">{{ 'PURCHASE_INVOICE.PRINTABLE.SIGNATURE_PREPARED_ROLE' | translate }}</p>
+          <p class="doc-signature-sub">{{ 'PURCHASE_INVOICE.PRINTABLE.SIGNATURE_NAME_LABEL' | translate }}</p>
+          <p class="doc-signature-sub">{{ 'PURCHASE_INVOICE.PRINTABLE.SIGNATURE_DATE_LABEL' | translate }}</p>
+        </div>
+        <div class="doc-signature-box">
+          <div class="doc-signature-line"></div>
+          <p class="doc-signature-role">{{ 'PURCHASE_INVOICE.PRINTABLE.SIGNATURE_RECEIVED_ROLE' | translate }}</p>
+          <p class="doc-signature-sub">{{ 'PURCHASE_INVOICE.PRINTABLE.SIGNATURE_NAME_LABEL' | translate }}</p>
+          <p class="doc-signature-sub">{{ 'PURCHASE_INVOICE.PRINTABLE.SIGNATURE_DATE_LABEL' | translate }}</p>
+        </div>
+      </div>
 
       <!-- Footer -->
       <footer class="doc-footer">

@@ -17,6 +17,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PlatformService } from '../../../../services/platform.service';
 import { NotificationService } from '../../../../services/notification.service';
 import { CreateTenantDto, TenantDto } from '../../../../models/platform/tenant.model';
+import { TenantMembershipDto } from '../../../../models/platform/tenant-membership.model';
 import { SubscriptionPlanDto } from '../../../../models/platform/subscription-plan.model';
 import { DomainDto } from '../../../../models/platform/domain.model';
 import { TenantStatus, TenantStatusHelper } from '../../../../models/enums/platform.enums';
@@ -47,7 +48,7 @@ export class TenantFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private platformService = inject(PlatformService);
   private notificationService = inject(NotificationService);
-  private translate = inject(TranslateService);
+  protected translate = inject(TranslateService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
@@ -60,6 +61,11 @@ export class TenantFormComponent implements OnInit {
   plans = signal<SubscriptionPlanDto[]>([]);
   domains = signal<DomainDto[]>([]);
   newDomainName = signal('');
+
+  // "Grant Access": the only way to add an existing user to a second company -- self-registration
+  // rejects any already-registered email, and creating a tenant here never creates/links a User.
+  grantAccessEmail = signal('');
+  isGrantingAccess = signal(false);
 
   readonly statusOptions = TenantStatusHelper.getAll();
 
@@ -125,7 +131,7 @@ export class TenantFormComponent implements OnInit {
       error: () => {
         this.notificationService.showError('TOAST.LOAD_ERROR');
         this.isLoading.set(false);
-        this.router.navigate(['/platform/tenants']);
+        this.router.navigate(['/platform/companies']);
       },
     });
   }
@@ -178,6 +184,26 @@ export class TenantFormComponent implements OnInit {
     this.domains.update(list => list.filter(d => d.domainName !== domainName));
   }
 
+  grantAccess(): void {
+    const email = this.grantAccessEmail().trim();
+    const id = this.tenantId();
+    if (!email || !id) return;
+
+    this.isGrantingAccess.set(true);
+    this.platformService.addTenantMember(id, { email, role: 'Member' }).subscribe({
+      next: (membership: TenantMembershipDto) => {
+        this.notificationService.showSuccess(
+          this.translate.instant('PLATFORM.TENANTS.GRANT_ACCESS_SUCCESS', { email, company: membership.tenantName }));
+        this.grantAccessEmail.set('');
+        this.isGrantingAccess.set(false);
+      },
+      error: (error) => {
+        this.notificationService.showError(error?.error?.message || this.translate.instant('TOAST.SAVE_ERROR'));
+        this.isGrantingAccess.set(false);
+      },
+    });
+  }
+
   onSubmit(): void {
     if (this.tenantForm.invalid) {
       this.notificationService.showWarning('TOAST.VALIDATION_ERROR');
@@ -208,7 +234,7 @@ export class TenantFormComponent implements OnInit {
         next: () => {
           this.notificationService.showSuccess(this.translate.instant('TOAST.EDIT_SUCCESS'));
           this.isSaving.set(false);
-          this.router.navigate(['/platform/tenants']);
+          this.router.navigate(['/platform/companies']);
         },
         error: () => {
           this.notificationService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
@@ -237,7 +263,7 @@ export class TenantFormComponent implements OnInit {
         next: () => {
           this.notificationService.showSuccess(this.translate.instant('TOAST.ADD_SUCCESS'));
           this.isSaving.set(false);
-          this.router.navigate(['/platform/tenants']);
+          this.router.navigate(['/platform/companies']);
         },
         error: () => {
           this.notificationService.showError(this.translate.instant('TOAST.SAVE_ERROR'));

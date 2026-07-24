@@ -28,6 +28,21 @@ export const PLATFORM_ROUTES: Routes = [
         path: 'tenants/edit/:id',
         loadComponent: () => import('./tenants/tenant-form/tenant-form.component').then(m => m.TenantFormComponent),
       },
+      // "Companies" is the user-facing label/route for the same Tenant admin surface above
+      // (menu.service.ts points here now) -- kept as separate paths onto the same components
+      // rather than a rename, so /platform/tenants/* still resolves for anyone with it bookmarked.
+      {
+        path: 'companies',
+        loadComponent: () => import('./tenants/tenant-list/tenant-list.component').then(m => m.TenantListComponent),
+      },
+      {
+        path: 'companies/new',
+        loadComponent: () => import('./tenants/tenant-form/tenant-form.component').then(m => m.TenantFormComponent),
+      },
+      {
+        path: 'companies/edit/:id',
+        loadComponent: () => import('./tenants/tenant-form/tenant-form.component').then(m => m.TenantFormComponent),
+      },
       {
         path: 'plans',
         loadComponent: () => import('./plans/plan-list/plan-list.component').then(m => m.PlanListComponent),

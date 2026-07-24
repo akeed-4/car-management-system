@@ -1,0 +1,48 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>{{ 'ONBOARDING.PLANS.TITLE' | translate }}</h1>
+    <p class="subtitle">{{ 'ONBOARDING.PLANS.SUBTITLE' | translate }}</p>
+
+    <mat-button-toggle-group class="cycle-toggle" [value]="billingCycle()" (change)="setBillingCycle($event.value)">
+      <mat-button-toggle *ngFor="let c of billingCycles" [value]="c.value">
+        {{ c.label | translate }}
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  <mat-progress-bar mode="indeterminate" *ngIf="loading()"></mat-progress-bar>
+
+  <div class="plan-grid" *ngIf="!loading()">
+    <mat-card class="plan-card" *ngFor="let plan of plans()">
+      <div class="plan-header">
+        <h2>{{ planNameKey(plan) | translate }}</h2>
+      </div>
+
+      <div class="plan-price" *ngIf="priceFor(plan) as price; else noPrice">
+        <span class="price-value">{{ price | number:'1.0-0' }}</span>
+        <span class="price-cycle">/ {{ billingCycleLabel() | translate }}</span>
+      </div>
+      <ng-template #noPrice>
+        <div class="plan-price plan-price-na">—</div>
+      </ng-template>
+
+      <div class="plan-features">
+        <div class="feature-item" *ngFor="let f of plan.features">
+          <mat-icon [class.enabled]="f.isEnabled">{{ f.isEnabled ? 'check_circle' : 'cancel' }}</mat-icon>
+          <span>{{ featureLabelKey(f.featureKey) | translate }}</span>
+        </div>
+      </div>
+
+      <div class="plan-actions">
+        <button mat-stroked-button color="primary" [disabled]="subscribingPlanId() === plan.id"
+                (click)="startFreeTrial(plan)">
+          {{ 'ONBOARDING.PLANS.START_TRIAL' | translate }}
+        </button>
+        <button mat-flat-button color="primary" [disabled]="subscribingPlanId() === plan.id"
+                (click)="subscribeAndPay(plan)">
+          {{ 'ONBOARDING.PLANS.SUBSCRIBE_AND_PAY' | translate }}
+        </button>
+      </div>
+    </mat-card>
+  </div>
+</div>

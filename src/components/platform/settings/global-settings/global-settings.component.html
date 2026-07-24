@@ -73,6 +73,14 @@
             <mat-label>{{ 'PLATFORM.SETTINGS.TAP_PUBLISHABLE_KEY' | translate }}</mat-label>
             <input matInput formControlName="tapPublishableKey">
           </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'PLATFORM.SETTINGS.TAP_MERCHANT_ID' | translate }}</mat-label>
+            <input matInput formControlName="tapMerchantId">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'PLATFORM.SETTINGS.DEFAULT_CURRENCY' | translate }}</mat-label>
+            <input matInput formControlName="defaultCurrency" required>
+          </mat-form-field>
         </div>
       </mat-tab>
 

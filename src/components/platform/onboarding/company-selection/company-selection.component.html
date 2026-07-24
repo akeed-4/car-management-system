@@ -1,0 +1,29 @@
+<div class="page-container">
+  <mat-card class="selection-card">
+    <h1>{{ 'ONBOARDING.COMPANY_SELECTION.TITLE' | translate }}</h1>
+    <p class="subtitle">{{ 'ONBOARDING.COMPANY_SELECTION.SUBTITLE' | translate }}</p>
+
+    <mat-progress-bar mode="indeterminate" *ngIf="loading()"></mat-progress-bar>
+
+    <div class="companies-list" *ngIf="!loading()">
+      @for (membership of memberships(); track membership.tenantId) {
+        <div class="company-row">
+          <div class="company-info">
+            <mat-icon>business</mat-icon>
+            <div>
+              <div class="company-name">{{ membership.tenantName }}</div>
+              <div class="company-code">{{ membership.tenantCode }}</div>
+            </div>
+          </div>
+          <button
+            mat-flat-button
+            color="primary"
+            [disabled]="selectingTenantId() !== null"
+            (click)="select(membership)">
+            {{ 'ONBOARDING.COMPANY_SELECTION.SELECT' | translate }}
+          </button>
+        </div>
+      }
+    </div>
+  </mat-card>
+</div>

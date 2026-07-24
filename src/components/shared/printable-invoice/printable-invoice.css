@@ -9,7 +9,7 @@
   background: #eef1f5;
   min-height : 100%;
   padding  : 24px;
-  font-family : 'Segoe UI', Tahoma, Arial, sans-serif;
+  font-family : var(--font-family-sans, 'Almarai', 'Segoe UI', Tahoma, Arial, sans-serif);
   color : #1f2937;
 }
 
@@ -304,6 +304,39 @@
   padding: 10px 12px;
 }
 
+/* --- Signature section --- */
+.doc-signature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 40px;
+  padding: 28px 32px 36px;
+  border-top: 1px solid #d8dce3;
+}
+
+.doc-signature-box {
+  text-align: center;
+}
+
+/* Blank space reserved for the physical/wet signature, ruled off by a bottom border */
+.doc-signature-line {
+  height: 44px;
+  border-bottom: 1px solid #1f2937;
+  margin-bottom: 8px;
+}
+
+.doc-signature-role {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.doc-signature-sub {
+  font-size: 11px;
+  color: #8892a0;
+  margin: 2px 0;
+}
+
 /* --- QR code section --- */
 .doc-qr-section {
   display: flex;
@@ -410,9 +443,19 @@
 
 /* --- Print --- */
 @media print {
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
+  html, body {
+    background: #fff !important;
+  }
+
   .printable-invoice-page {
     background: #fff;
     padding: 0;
+    color: #000;
   }
 
   .doc-sheet {
@@ -425,16 +468,38 @@
     display: none !important;
   }
 
+  /* Preserve accent colors (headers, status badges, grand-total band) -- browsers strip
+     background colors by default when printing unless explicitly told to keep them. */
   .doc-table thead th,
   .doc-totals-row.is-grand,
-  .doc-status-badge {
+  .doc-status-badge,
+  .doc-header,
+  .doc-footer,
+  .doc-number-box,
+  .doc-logo {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
 
-  @page {
-    margin: 12mm;
-    size: A4;
+  /* Repeat the item-table header row on every printed page */
+  .doc-table thead {
+    display: table-header-group;
+  }
+
+  .doc-table tfoot {
+    display: table-footer-group;
+  }
+
+  /* Never split a single line item, or a self-contained block, across a page break */
+  .doc-table tbody tr,
+  .doc-meta-strip,
+  .doc-parties,
+  .doc-totals-box,
+  .doc-notes-grid,
+  .doc-signature-grid,
+  .doc-qr-section {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 }
 
@@ -453,7 +518,8 @@
   }
 
   .doc-parties,
-  .doc-notes-grid {
+  .doc-notes-grid,
+  .doc-signature-grid {
     grid-template-columns: 1fr;
   }
 }

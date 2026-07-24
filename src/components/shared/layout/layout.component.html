@@ -32,6 +32,7 @@
             <button class="login-button" mat-raised-button color="accent" *ngIf="!isAuthenticated" (click)="logIn()">
                 {{'admin.login' | translate}}</button>
         </div>
+        <app-company-switcher *ngIf="isAuthenticated"></app-company-switcher>
         <div style="font-size: 15px">
 
             <button *ngIf="isAuthenticated" class="select-button" color="accent" mat-raised-button

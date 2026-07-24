@@ -49,3 +49,23 @@ button:hover {
   color: red;
   font-size: 0.875rem;
 }
+
+button:disabled {
+  background-color: #9fd6ac;
+  cursor: not-allowed;
+}
+
+.alt-action {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 0.9rem;
+}
+
+.terms-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: normal;
+  font-size: 0.9rem;
+  cursor: pointer;
+}

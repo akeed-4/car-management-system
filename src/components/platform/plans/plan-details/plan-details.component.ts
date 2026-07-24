@@ -14,6 +14,7 @@ import { NotificationService } from '../../../../services/notification.service';
 import {
   CreateSubscriptionPlanDto,
   PLAN_FEATURE_KEYS,
+  PLAN_FEATURE_NAMES,
   PLAN_METRIC_KEYS,
   SubscriptionPlanDto,
 } from '../../../../models/platform/subscription-plan.model';
@@ -83,6 +84,12 @@ export class PlanDetailsComponent implements OnInit {
       unlimited: [maxValue === null],
       maxValue: [maxValue ?? 0],
     });
+  }
+
+  featureName(featureKey: string): string {
+    const names = PLAN_FEATURE_NAMES[featureKey];
+    if (!names) return featureKey;
+    return this.translate.currentLang === 'ar' ? names.nameAr : names.nameEn;
   }
 
   private buildFeatureGroup(featureKey: string, isEnabled: boolean) {
@@ -166,6 +173,8 @@ export class PlanDetailsComponent implements OnInit {
       })),
       features: value.features.map((f: { featureKey: string; isEnabled: boolean }) => ({
         featureKey: f.featureKey,
+        nameEn: PLAN_FEATURE_NAMES[f.featureKey]?.nameEn ?? f.featureKey,
+        nameAr: PLAN_FEATURE_NAMES[f.featureKey]?.nameAr ?? f.featureKey,
         isEnabled: f.isEnabled,
       })),
     };

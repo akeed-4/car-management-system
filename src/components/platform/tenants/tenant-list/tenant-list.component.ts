@@ -96,11 +96,11 @@ export class TenantListComponent {
   getTenantStatusClass = getTenantStatusClass;
 
   newTenant(): void {
-    this.router.navigate(['/platform/tenants/new']);
+    this.router.navigate(['/platform/companies/new']);
   }
 
   editTenant(id: number): void {
-    this.router.navigate(['/platform/tenants/edit', id]);
+    this.router.navigate(['/platform/companies/edit', id]);
   }
 
   openDetails(e: { data?: TenantDto }): void {

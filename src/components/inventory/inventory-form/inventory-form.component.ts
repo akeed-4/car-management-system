@@ -25,6 +25,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTableModule } from '@angular/material/table';
@@ -52,6 +54,8 @@ import { CarCategory } from '../../../types/car-category.model';
     MatInputModule,
     MatSelectModule,
     MatRadioModule,
+    MatSlideToggleModule,
+    MatCheckboxModule,
     MatDatepickerModule,
     MatNativeDateModule,
     MatTableModule,

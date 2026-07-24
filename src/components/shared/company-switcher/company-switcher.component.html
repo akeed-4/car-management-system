@@ -1,0 +1,15 @@
+<div class="company-switcher" *ngIf="hasMultipleTenants()">
+  <button mat-stroked-button color="accent" [matMenuTriggerFor]="companyMenu" [disabled]="switching()">
+    <mat-icon>business</mat-icon>
+    <span class="company-name">{{ current()?.tenantName }}</span>
+    <mat-icon>arrow_drop_down</mat-icon>
+  </button>
+  <mat-menu #companyMenu="matMenu" xPosition="before">
+    @for (membership of memberships(); track membership.tenantId) {
+      <button mat-menu-item (click)="switchTo(membership)" [disabled]="membership.tenantId === current()?.tenantId">
+        <mat-icon>{{ membership.tenantId === current()?.tenantId ? 'check_circle' : 'business' }}</mat-icon>
+        <span>{{ membership.tenantName }}</span>
+      </button>
+    }
+  </mat-menu>
+</div>

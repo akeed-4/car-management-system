@@ -19,6 +19,8 @@ export interface GlobalSettingsFormValue {
   storageBasePath?: string | null;
   tapSecretKey?: string | null;
   tapPublishableKey?: string | null;
+  tapMerchantId?: string | null;
+  defaultCurrency: string;
   defaultTrialDays: number;
   gracePeriodDays: number;
   allowTenantHeaderResolution: boolean;

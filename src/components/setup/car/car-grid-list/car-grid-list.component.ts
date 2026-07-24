@@ -129,10 +129,14 @@ export class CarGridListComponent implements OnInit {
   }
 
   showDeclarationDialog(): Observable<boolean> {
+    // 'responsive-dialog-panel' (see styles-mobile.css) makes this fill the
+    // screen on phones and ~90% on tablets; the width/height below still
+    // govern desktop sizing exactly as before.
     const dialogRef = this.dialog.open(CarDeclarationDialogComponent, {
       width: '600px',
       disableClose: true,
-      data: {}
+      data: {},
+      panelClass: 'responsive-dialog-panel'
     });
 
     return dialogRef.afterClosed();
@@ -144,7 +148,8 @@ export class CarGridListComponent implements OnInit {
       maxWidth: '1200px',
       height: '90vh',
       data: car,
-      disableClose: false
+      disableClose: false,
+      panelClass: 'responsive-dialog-panel'
     });
   }
 

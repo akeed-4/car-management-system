@@ -12,6 +12,18 @@ import {
 import { SubscriptionDto } from '../models/platform/subscription.model';
 import { DomainDto } from '../models/platform/domain.model';
 import { GlobalSettingDto } from '../models/platform/global-setting.model';
+import {
+  MySubscriptionStatusDto,
+  PublicPaymentConfigDto,
+  SelfRegisterTenantDto,
+  SubscribeToPlanDto,
+} from '../models/platform/onboarding.model';
+import {
+  LinkExistingUserToTenantDto,
+  SelectTenantResponseDto,
+  TenantMembershipDto,
+} from '../models/platform/tenant-membership.model';
+import { AppLoginResponse } from './AuthService.service';
 
 export interface DxLoadResult<T> {
   data: T[];
@@ -32,6 +44,69 @@ export interface DxLoadResult<T> {
 export class PlatformService {
   private http = inject(HttpClient);
   private baseUrl = environment.origin.replace(/\/+$/, '') + '/api/platform';
+  // Anonymous endpoints only (self-registration, plan browsing, Tap publishable key) --
+  // must never expose anything requiring an existing session or the Tap secret key.
+  private publicUrl = this.baseUrl + '/public';
+  // Authenticated, but scoped to the caller's own tenant -- as distinct from the admin-only
+  // endpoints above (e.g. getTenants()/getPlans()) which operate across every tenant.
+  private myUrl = this.baseUrl + '/my';
+
+  // ----- Onboarding (anonymous) -----
+
+  /** Public plan catalog for the pre-signup plan picker -- same shape as getPlans() but only
+   *  ever returns active plans and requires no auth/permission. */
+  getPublicPlans(): Observable<SubscriptionPlanDto[]> {
+    return this.http.get<SubscriptionPlanDto[]>(`${this.publicUrl}/plans/GetActive`);
+  }
+
+  /** Only the Tap *publishable* key -- safe to expose to an anonymous browser. */
+  getPublicPaymentConfig(): Observable<PublicPaymentConfigDto> {
+    return this.http.get<PublicPaymentConfigDto>(`${this.publicUrl}/payment-config/Get`);
+  }
+
+  /** Creates a new tenant + its admin user in one step and returns a login response so the
+   *  caller (RegistrationComponent) can sign the user in immediately, exactly like AuthService.login(). */
+  selfRegisterTenant(dto: SelfRegisterTenantDto): Observable<AppLoginResponse> {
+    return this.http.post<AppLoginResponse>(`${this.publicUrl}/tenants/Register`, dto);
+  }
+
+  // ----- Onboarding (authenticated, caller's own tenant) -----
+
+  getMySubscriptionStatus(): Observable<MySubscriptionStatusDto> {
+    return this.http.get<MySubscriptionStatusDto>(`${this.myUrl}/subscription/Status`);
+  }
+
+  /** `dto.startFreeTrial` needs no `tapToken`; a paid subscription needs a Tap Card SDK token
+   *  (see TapPaymentService) instead of raw card data. */
+  subscribeCurrentTenant(dto: SubscribeToPlanDto): Observable<SubscriptionDto> {
+    return this.http.post<SubscriptionDto>(`${this.myUrl}/subscription/Subscribe`, dto);
+  }
+
+  // ----- My companies (multi-tenant membership) -----
+
+  /** Every company the caller belongs to -- see MyTenantsController. */
+  getMyTenants(): Observable<TenantMembershipDto[]> {
+    return this.http.get<TenantMembershipDto[]>(`${this.myUrl}/tenants`);
+  }
+
+  /** Resolved from the caller's current JWT tenantId claim; null when none is selected yet. */
+  getCurrentTenant(): Observable<TenantMembershipDto | null> {
+    return this.http.get<TenantMembershipDto | null>(`${this.myUrl}/tenants/current`);
+  }
+
+  /** Switches the caller's active company. Returns a reissued token+refresh-token pair -- callers
+   *  must feed the response into AuthService.setSession() so subsequent requests carry the new
+   *  tenantId claim. Never trust a client-supplied tenant id beyond routing: the backend validates
+   *  membership server-side. */
+  selectTenant(tenantId: number): Observable<SelectTenantResponseDto> {
+    return this.http.post<SelectTenantResponseDto>(`${this.myUrl}/tenants/${tenantId}/select`, {});
+  }
+
+  /** Platform-admin "Grant Access": links an existing user (by email) to a tenant they don't
+   *  currently belong to. */
+  addTenantMember(tenantId: number, dto: LinkExistingUserToTenantDto): Observable<TenantMembershipDto> {
+    return this.http.post<TenantMembershipDto>(`${this.baseUrl}/tenants/${tenantId}/Members`, dto);
+  }
 
   // ----- Dashboard -----
 
@@ -108,7 +183,7 @@ export class PlatformService {
       isActive: true,
       sortOrder: source.sortOrder + 1,
       limits: source.limits.map(l => ({ metricKey: l.metricKey, maxValue: l.maxValue })),
-      features: source.features.map(f => ({ featureKey: f.featureKey, isEnabled: f.isEnabled })),
+      features: source.features.map(f => ({ featureKey: f.featureKey, nameEn: f.nameEn, nameAr: f.nameAr, isEnabled: f.isEnabled })),
     };
     return this.createPlan(dto);
   }

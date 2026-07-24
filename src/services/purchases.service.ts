@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { PurchaseInvoice } from '../models/purchase-invoice.model';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../environments/environment';
 
 @Injectable({
@@ -13,12 +13,27 @@ export class PurchasesService {
 
   constructor() {}
 
+  /** GetById (unlike GetAll) returns the raw ApiResponse<T> envelope ({ success, message, data })
+   * instead of a bare PurchaseInvoice -- there's no global unwrapping interceptor configured, so
+   * without this the caller receives the envelope itself typed (incorrectly) as PurchaseInvoice.
+   * That mismatch is the root cause of the edit-mode grid bug: PurchaseInvoiceComponent worked
+   * around it ad hoc by reading `invoice.data.xxx` for header fields, but `invoice.data.items` was
+   * the one field it also needed and every other consumer (PrintablePurchaseInvoiceComponent,
+   * this file's own JSDoc/typing) assumes the bare shape. Unwrapping once here, at the source,
+   * means every consumer can trust the declared `Observable<PurchaseInvoice>` type literally.
+   * Passes bare responses through unchanged, so this is safe regardless of what the backend
+   * actually returns (see SalesService.unwrap, which documents the same backend inconsistency). */
+  private unwrap<T>(response: any): T {
+    return response && typeof response === 'object' && 'data' in response ? response.data : response;
+  }
+
   getInvoices(): Observable<PurchaseInvoice[]> {
     return this.http.get<PurchaseInvoice[]>(this.apiUrl+'/GetAll');
   }
 
   getInvoiceById(id: number): Observable<PurchaseInvoice> {
-    return this.http.get<PurchaseInvoice>(`${this.apiUrl+'/GetById'}/${id}`);
+    return this.http.get<PurchaseInvoice>(`${this.apiUrl+'/GetById'}/${id}`)
+      .pipe(map(res => this.unwrap<PurchaseInvoice>(res)));
   }
 
   addInvoice(invoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue' | 'createdAt' | 'updatedAt' | 'supplier' | 'debitAccount' | 'creditAccount'>): Observable<PurchaseInvoice> {

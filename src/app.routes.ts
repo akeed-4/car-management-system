@@ -1,6 +1,10 @@
 
 import { Routes } from '@angular/router';
 import { permissionGuard } from './guards/permission.guard';
+import { subscriptionGuard } from './guards/subscription.guard';
+import { tenantGuard } from './guards/tenant.guard';
+import { guestGuard } from './guards/guest.guard';
+import { companySelectedGuard } from './guards/company-selected.guard';
 import { DashboardComponent } from './components/dashboard/dashboard-main/dashboard.component';
 import { InventoryListComponent } from './components/inventory/inventory-list/inventory-list.component';
 import { InventoryFormComponent } from './components/inventory/inventory-form/inventory-form.component';
@@ -66,6 +70,13 @@ import { DepositListComponent } from './components/accounts/deposits/deposit-lis
 import { DepositFormComponent } from './components/accounts/deposits/deposit-form/deposit-form.component';
 import { LoginComponent } from './components/auth/login/login.component';
 import { RegistrationComponent } from './components/auth/registration/registration.component';
+import { ForgotPasswordComponent } from './components/auth/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './components/auth/reset-password/reset-password.component';
+import { PlanSelectionComponent } from './components/platform/onboarding/plan-selection/plan-selection.component';
+import { PaymentComponent } from './components/platform/onboarding/payment/payment.component';
+import { RenewSubscriptionComponent } from './components/platform/onboarding/renew-subscription/renew-subscription.component';
+import { TenantActivationComponent } from './components/platform/onboarding/tenant-activation/tenant-activation.component';
+import { CompanySelectionComponent } from './components/platform/onboarding/company-selection/company-selection.component';
 import { LayoutComponent } from './components/shared/layout/layout.component';
 import { CarCardComponent } from './components/setup/car/car-card/car-card.component';
 import { CarListComponent } from './components/setup/car/car-list/car-list.component';
@@ -157,11 +168,51 @@ import { BankVehicleDeliveryViewComponent } from './components/sales/bank-financ
 
 export const APP_ROUTES: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: 'login', component: LoginComponent },
-  { path: 'registration', component: RegistrationComponent },
+  // guestGuard bounces an already-signed-in user who's fully onboarded away from these two --
+  // landing back on the signup/login form after you already have a working session is confusing.
+  // A signed-in-but-not-yet-onboarded user is instead sent wherever they actually belong.
+  { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
+  { path: 'registration', component: RegistrationComponent, canActivate: [guestGuard] },
+  { path: 'forgot-password', component: ForgotPasswordComponent, canActivate: [guestGuard] },
+  { path: 'reset-password', component: ResetPasswordComponent, canActivate: [guestGuard] },
+  // Onboarding steps are bare pages like login/registration (no sidebar/toolbar) since the
+  // visiting tenant may not have a usable subscription yet -- see subscriptionGuard/tenantGuard,
+  // which redirect a signed-in user here based on their current tenant/subscription status.
+  { path: 'onboarding/plans', component: PlanSelectionComponent },
+  { path: 'onboarding/payment', component: PaymentComponent },
+  { path: 'onboarding/renew', component: RenewSubscriptionComponent },
+  { path: 'tenant-activation', component: TenantActivationComponent },
+  // Bare page like the above -- reached via companySelectedGuard when the caller belongs to more
+  // than one company. Not itself guarded (the guard that sends you here would just send you right
+  // back).
+  { path: 'select-company', component: CompanySelectionComponent },
+  // Print routes are deliberately siblings of `login`/`registration`, NOT children of
+  // LayoutComponent. They render as bare, chrome-free pages (no sidebar/toolbar/menu) so
+  // `window.print()` only ever rasterizes the invoice document itself.
+  { path: 'sales/invoice/print/:id', component: PrintableSalesInvoiceComponent },
+  { path: 'purchases/invoice/print/:id', component: PrintablePurchaseInvoiceComponent },
+  // Must come before the '' + children block below: that block's own wildcard ('**') child would
+  // otherwise swallow /platform/* first, since Angular tries top-level routes in array order and
+  // '' matches (as an empty prefix) before 'platform' is ever considered. Kept as its own
+  // LayoutComponent instance (rather than nested inside the '' block's children, as it used to
+  // be) specifically so it is NOT covered by that block's canActivate: [subscriptionGuard] --
+  // /platform/* is the internal super-admin console, gated only by platform.routes.ts' own
+  // authGuard, not by whether the caller's tenant has a subscription.
+  {
+    path: 'platform',
+    component: LayoutComponent,
+    loadChildren: () => import('./components/platform/platform.routes').then(m => m.PLATFORM_ROUTES)
+  },
   {
     path: '',
     component: LayoutComponent,
+    // Order matters: Angular runs canActivate guards in array order and short-circuits on the
+    // first redirect. companySelectedGuard runs first so that by the time tenantGuard/
+    // subscriptionGuard run, either a company is already selected (JWT tenantId claim correct) or
+    // the caller has already been sent to /select-company -- neither of those two needs any code
+    // change for multi-company support as a result. Then a suspended tenant / deactivated user
+    // (tenantGuard) is turned away before subscriptionGuard's own status lookup even fires.
+    canActivate: [companySelectedGuard, tenantGuard, subscriptionGuard],
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'setup/manufacturers', component: ManufacturersComponent },
@@ -264,7 +315,6 @@ export const APP_ROUTES: Routes = [
   { path: 'sales/invoice/credit/edit/:id', component: SalesInvoiceCreditComponent },
   { path: 'sales/invoice/cash', component: CashInvoiceListComponent },
   { path: 'sales/invoice/credit', component: CreditInvoiceListComponent },
-  { path: 'sales/invoice/print/:id', component: PrintableSalesInvoiceComponent },
   { path: 'sales/return', component: SalesReturnInvoiceListComponent },
   { path: 'sales/returns', component: SalesReturnInvoiceListComponent }, // Added plural route
   { path: 'sales/cash/return/new', component: CashInvoiceFormComponent },
@@ -302,7 +352,6 @@ export const APP_ROUTES: Routes = [
   { path: 'purchases/invoice/credit/new', component: PurchaseCreditInvoiceComponent },
   { path: 'purchases/invoice/new', component: PurchaseInvoiceComponent },
   { path: 'purchases/invoice/edit/:id', component: PurchaseInvoiceComponent },
-  { path: 'purchases/invoice/print/:id', component: PrintablePurchaseInvoiceComponent },
   { path: 'purchases/return', component: PurchaseReturnInvoiceComponent },
   { path: 'purchases/returns', component: PurchaseReturnInvoiceComponent }, // Added plural route
   { path: 'purchases/return/new', component: PurchaseReturnFormComponent },
@@ -382,10 +431,6 @@ export const APP_ROUTES: Routes = [
   {
     path: 'car-management/reports',
     loadChildren: () => import('./components/car-management/reports/car-reports.routes').then(m => m.CAR_REPORTS_ROUTES)
-  },
-  {
-    path: 'platform',
-    loadChildren: () => import('./components/platform/platform.routes').then(m => m.PLATFORM_ROUTES)
   },
       { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
       { path: '**', redirectTo: '/dashboard' }

@@ -28,6 +28,7 @@ import { MenuService } from '../../../services/menu.service';
 import { DynamicMenuService } from '../../../services/dynamic-menu.service';
 import { MenuItem } from '../../../models/menu.model';
 import { DxMenuModule, DxTreeListModule } from 'devextreme-angular';
+import { CompanySwitcherComponent } from '../company-switcher/company-switcher.component';
 
 @Component({
   selector: 'app-layout',
@@ -46,7 +47,8 @@ import { DxMenuModule, DxTreeListModule } from 'devextreme-angular';
     TranslateModule,
     RouterOutlet,
     DxMenuModule,
-    DxTreeListModule
+    DxTreeListModule,
+    CompanySwitcherComponent
   ],
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.css']
@@ -412,6 +414,13 @@ export class LayoutComponent {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         window.scrollTo(0, 0);
+        // Auto-close the slide-in drawer after navigating away on mobile --
+        // on desktop the sidenav is mode="side" (pushes content, stays open
+        // by design) so this only ever fires for the mobile mode="over" case.
+        if (this.isMobile && this.isExpanded) {
+          this.isExpanded = false;
+          this.onToggleClick();
+        }
       }
     });
   }

@@ -276,6 +276,8 @@ a:hover {
 }
 .table tbody tr {
   border-bottom: 1px solid var(--color-gray-200);
+  transition: background-color 0.15s;
+}
 
 /* Apply consistent 2px margin and width for main layout components so
    all content fits without overflowing. This targets typical page
@@ -301,8 +303,6 @@ img, svg, picture, iframe, video {
   width: 100% !important;
 }
 
-  transition: background-color 0.15s;
-}
 .table tbody tr:last-child {
   border-bottom: none;
 }

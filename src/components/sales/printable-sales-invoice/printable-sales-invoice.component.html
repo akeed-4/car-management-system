@@ -1,4 +1,4 @@
-<div class="printable-invoice-page">
+<div class="printable-invoice-page" [attr.dir]="textDir()">
   @if (invoice(); as inv) {
     @if (printBreakdown(); as breakdown) {
       <div class="doc-sheet">
@@ -151,6 +151,53 @@
           </div>
         </div>
 
+        <!-- Tax summary: ZATCA-style VAT breakdown, kept separate from the running totals box -->
+        <div class="doc-section">
+          <h3 class="doc-section-title">{{ 'SALES.PRINTABLE.TAX_SUMMARY' | translate }}</h3>
+          <table class="doc-table">
+            <thead>
+              <tr>
+                <th>{{ 'SALES.PRINTABLE.VAT_RATE' | translate }}</th>
+                <th class="doc-col-end">{{ 'SALES.PRINTABLE.TAXABLE_AMOUNT' | translate }}</th>
+                <th class="doc-col-end">{{ 'SALES.PRINTABLE.VAT_PERCENTAGE' | translate }}</th>
+                <th class="doc-col-end">{{ 'SALES.PRINTABLE.TOTAL_WITH_TAT' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="doc-mono">{{ breakdown.vatRate }}%</td>
+                <td class="doc-col-end doc-mono">{{ breakdown.amountAfterDiscount | currency:'SAR':'symbol':'1.2-2' }}</td>
+                <td class="doc-col-end doc-mono">{{ breakdown.vatAmount | currency:'SAR':'symbol':'1.2-2' }}</td>
+                <td class="doc-col-end doc-mono doc-strong">{{ breakdown.totalAmount | currency:'SAR':'symbol':'1.2-2' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Payment information -->
+        <div class="doc-meta-strip">
+          <div class="doc-meta-cell">
+            <p class="doc-meta-label">{{ 'SALES.PRINTABLE.PAYMENT_METHOD_LABEL' | translate }}</p>
+            <p class="doc-meta-value">{{ inv.paymentMethod || ('SALES.PRINTABLE.NOT_SPECIFIED' | translate) }}</p>
+          </div>
+          @if (breakdown.downPayment > 0) {
+            <div class="doc-meta-cell">
+              <p class="doc-meta-label">{{ 'INVOICE.DOWN_PAYMENT' | translate }}</p>
+              <p class="doc-meta-value">{{ breakdown.downPayment | currency:'SAR':'symbol':'1.2-2' }}</p>
+            </div>
+          }
+          <div class="doc-meta-cell">
+            <p class="doc-meta-label">{{ 'INVOICE.AMOUNT_PAID' | translate }}</p>
+            <p class="doc-meta-value">{{ breakdown.amountPaid | currency:'SAR':'symbol':'1.2-2' }}</p>
+          </div>
+          <div class="doc-meta-cell">
+            <p class="doc-meta-label">{{ 'SALES.PRINTABLE.REMAINING_BALANCE' | translate }}</p>
+            <p class="doc-meta-value" [class.is-outstanding]="breakdown.remainingBalance > 0" [class.is-settled]="breakdown.remainingBalance <= 0">
+              {{ breakdown.remainingBalance | currency:'SAR':'symbol':'1.2-2' }}
+            </p>
+          </div>
+        </div>
+
         @if (inv.notes) {
           <div class="doc-notes-grid">
             <div>
@@ -166,6 +213,22 @@
             <app-qr-code [context]="ctx"></app-qr-code>
           </div>
         }
+
+        <!-- Signature section -->
+        <div class="doc-signature-grid">
+          <div class="doc-signature-box">
+            <div class="doc-signature-line"></div>
+            <p class="doc-signature-role">{{ 'SALES.PRINTABLE.SIGNATURE_PREPARED_ROLE' | translate }}</p>
+            <p class="doc-signature-sub">{{ 'SALES.PRINTABLE.SIGNATURE_NAME_LABEL' | translate }}</p>
+            <p class="doc-signature-sub">{{ 'SALES.PRINTABLE.SIGNATURE_DATE_LABEL' | translate }}</p>
+          </div>
+          <div class="doc-signature-box">
+            <div class="doc-signature-line"></div>
+            <p class="doc-signature-role">{{ 'SALES.PRINTABLE.SIGNATURE_RECEIVED_ROLE' | translate }}</p>
+            <p class="doc-signature-sub">{{ 'SALES.PRINTABLE.SIGNATURE_NAME_LABEL' | translate }}</p>
+            <p class="doc-signature-sub">{{ 'SALES.PRINTABLE.SIGNATURE_DATE_LABEL' | translate }}</p>
+          </div>
+        </div>
 
         <!-- Footer -->
         <footer class="doc-footer">

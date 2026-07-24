@@ -1,0 +1,13 @@
+.company-switcher {
+  display: inline-flex;
+  align-items: center;
+  margin-inline-end: 8px;
+}
+
+.company-name {
+  margin: 0 6px;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

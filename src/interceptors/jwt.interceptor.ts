@@ -1,57 +1,80 @@
-import { Injectable } from '@angular/core';
-import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { catchError, filter, finalize, switchMap, take } from 'rxjs/operators';
+import { AuthService } from '../services/AuthService.service';
+
+/** Endpoints that must never trigger a refresh-and-retry: a 401 from these means "bad credentials
+ *  / bad token / bad reset link", not "session expired", and retrying would either loop forever
+ *  (refresh-token itself) or silently paper over a real auth failure. */
+const AUTH_ENDPOINTS = ['/api/Users/login', '/api/Users/refresh-token', '/api/Users/forgot-password', '/api/Users/reset-password'];
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
-  
-  /**
-   * Intercepts HTTP requests and adds JWT token to Authorization header
-   */
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
+  private isRefreshing = false;
+  private refreshedToken$ = new BehaviorSubject<string | null>(null);
+
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // Get JWT token from localStorage
-    const token = this.getToken();
+    const token = this.authService.getToken();
+    const authedReq = token ? this.withToken(req, token) : req;
 
-    // Clone request and add authorization header if token exists
-    if (token) {
-      const clonedReq = req.clone({
-        setHeaders: {
-          Authorization: `Bearer ${token}`
+    return next.handle(authedReq).pipe(
+      catchError((error: unknown) => {
+        if (
+          error instanceof HttpErrorResponse &&
+          error.status === 401 &&
+          !AUTH_ENDPOINTS.some(endpoint => req.url.includes(endpoint))
+        ) {
+          return this.handleUnauthorized(req, next);
         }
-      });
-      return next.handle(clonedReq);
-    }
-
-    // If no token, proceed with original request
-    return next.handle(req);
+        return throwError(() => error);
+      }),
+    );
   }
 
-  /**
-   * Get JWT token from storage
-   * Modify this method based on where you store your token
-   */
-  private getToken(): string | null {
-    // Option 1: localStorage
-    const token = localStorage.getItem('access_token') || 
-                  localStorage.getItem('token') ||
-                  localStorage.getItem('jwt_token');
-    
-    if (token) {
-      return token;
+  private withToken(req: HttpRequest<any>, token: string): HttpRequest<any> {
+    return req.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
+  }
+
+  /** Queues concurrent 401s behind a single in-flight refresh instead of firing one
+   *  refresh-token call per failed request; each queued request retries once the new token
+   *  (or a `null` on failure, which falls through to a hard logout) arrives. */
+  private handleUnauthorized(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    if (!this.authService.getRefreshToken()) {
+      this.forceLogout();
+      return throwError(() => new Error('Session expired'));
     }
 
-    // Option 2: sessionStorage
-    const sessionToken = sessionStorage.getItem('access_token') || 
-                         sessionStorage.getItem('token');
-    
-    if (sessionToken) {
-      return sessionToken;
+    if (!this.isRefreshing) {
+      this.isRefreshing = true;
+      this.refreshedToken$.next(null);
+
+      return this.authService.refreshToken().pipe(
+        switchMap(response => {
+          this.refreshedToken$.next(response.token);
+          return next.handle(this.withToken(req, response.token));
+        }),
+        catchError(error => {
+          this.forceLogout();
+          return throwError(() => error);
+        }),
+        finalize(() => { this.isRefreshing = false; }),
+      );
     }
 
-    // Option 3: From OIDC service (if using angular-auth-oidc-client)
-    // You can inject OidcSecurityService and get token from there
-    // const oidcToken = this.oidcSecurityService.getAccessToken();
-    
-    return null;
+    return this.refreshedToken$.pipe(
+      filter((token): token is string => token !== null),
+      take(1),
+      switchMap(token => next.handle(this.withToken(req, token))),
+    );
+  }
+
+  private forceLogout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
   }
 }

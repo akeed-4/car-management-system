@@ -476,6 +476,23 @@
   }
 }
 
+/* --- Touch targets: every tappable control reaches 48px on phones/tablets,
+   per platform accessibility guidance (Android 48dp / iOS 44pt minimums). --- */
+@media (max-width: 768px) {
+  .card-actions .action-btn,
+  .card-actions button.mat-mdc-icon-button,
+  .list-actions button.mat-mdc-icon-button,
+  .add-button,
+  .clear-btn {
+    min-height: 48px;
+  }
+
+  .card-actions button.mat-mdc-icon-button,
+  .list-actions button.mat-mdc-icon-button {
+    min-width: 48px;
+  }
+}
+
 /* Showroom Entry Styling */
 .showroom-badge {
   position: absolute;

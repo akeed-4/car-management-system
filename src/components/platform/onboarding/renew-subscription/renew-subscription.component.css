@@ -1,0 +1,36 @@
+.page-container {
+  max-width: 480px;
+  margin: 60px auto;
+  padding: 0 20px;
+}
+
+.renew-card {
+  padding: 28px !important;
+  border-radius: 12px;
+  text-align: center;
+}
+
+h1 {
+  margin: 0 0 12px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.status-line {
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.hint {
+  color: #666;
+  margin: 0 0 20px;
+}
+
+.renew-button {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.logout-button {
+  width: 100%;
+}

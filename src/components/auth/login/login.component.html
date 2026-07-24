@@ -1,5 +1,8 @@
 <div class="login-container">
   <h2>{{ 'LOGIN.TITLE' | translate }}</h2>
+
+  <p class="success" *ngIf="passwordWasReset">{{ 'LOGIN.PASSWORD_RESET_SUCCESS' | translate }}</p>
+
   <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
     <div class="form-group">
       <label for="email">{{ 'LOGIN.EMAIL' | translate }}</label>
@@ -17,10 +20,23 @@
       </div>
     </div>
 
+    <div class="form-row">
+      <label class="remember-me">
+        <input type="checkbox" formControlName="rememberMe" />
+        {{ 'LOGIN.REMEMBER_ME' | translate }}
+      </label>
+      <a routerLink="/forgot-password" class="forgot-link">{{ 'LOGIN.FORGOT_PASSWORD' | translate }}</a>
+    </div>
+
     <div class="error" *ngIf="errorMessage">
       {{ errorMessage }}
     </div>
 
     <button type="submit">{{ 'LOGIN.SUBMIT' | translate }}</button>
   </form>
+
+  <p class="alt-action">
+    {{ 'LOGIN.NO_ACCOUNT' | translate }}
+    <a routerLink="/registration">{{ 'LOGIN.SIGN_UP' | translate }}</a>
+  </p>
 </div>

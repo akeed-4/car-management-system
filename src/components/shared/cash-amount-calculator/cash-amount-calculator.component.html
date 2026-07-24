@@ -26,10 +26,7 @@
   </div>
 
   <div class="cash-calculator-result" [class.is-change]="changeDue() > 0" [class.is-owed]="remainingOwed() > 0" [class.is-exact]="isExactMatch()">
-    <ng-container *ngIf="isExactMatch(); else notExact">
-      <mat-icon>check_circle</mat-icon>
-      <span>{{ 'CASH_CALCULATOR.EXACT_AMOUNT' | translate }}</span>
-    </ng-container>
+   
     <ng-template #notExact>
       <ng-container *ngIf="changeDue() > 0">
         <mat-icon>currency_exchange</mat-icon>

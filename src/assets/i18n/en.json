@@ -251,6 +251,11 @@
       "VAT": "VAT (15%)",
       "TOTAL": "Total",
       "AMOUNT_DUE": "Amount Due",
+      "AMOUNT_PAID": "Amount Paid",
+      "INITIAL_PAYMENT": "Initial Payment",
+      "TAX_SUMMARY": "Tax Summary",
+      "VAT_RATE": "VAT Rate",
+      "TAXABLE_AMOUNT": "Taxable Amount",
       "AUCTION_INFO": "Auction Details",
       "AUCTION_CHARGE_TYPE": "Charge Type",
       "AUCTION_AMOUNT": "Amount",
@@ -267,7 +272,11 @@
       "NOT_FOUND_TITLE": "Invoice Not Found",
       "NOT_FOUND_MESSAGE": "The requested purchase invoice could not be found. Please verify the invoice number.",
       "BACK": "Back",
-      "PRINT": "Print Invoice"
+      "PRINT": "Print Invoice",
+      "SIGNATURE_PREPARED_ROLE": "Prepared / Issued By",
+      "SIGNATURE_RECEIVED_ROLE": "Received / Approved By (Supplier)",
+      "SIGNATURE_NAME_LABEL": "Name & Signature",
+      "SIGNATURE_DATE_LABEL": "Date"
     }
   },
   "COMMON": {
@@ -1752,7 +1761,14 @@
       "CR_NUMBER": "CR Number",
       "FROM_COMPANY": "From",
       "TO_CUSTOMER": "Bill To",
-      "NOTES": "Notes"
+      "NOTES": "Notes",
+      "TAX_SUMMARY": "Tax Summary",
+      "VAT_RATE": "VAT Rate",
+      "TAXABLE_AMOUNT": "Taxable Amount",
+      "SIGNATURE_PREPARED_ROLE": "Prepared / Issued By",
+      "SIGNATURE_RECEIVED_ROLE": "Received / Approved By (Customer)",
+      "SIGNATURE_NAME_LABEL": "Name & Signature",
+      "SIGNATURE_DATE_LABEL": "Date"
     },
     "TYPE": {
       "LABEL": "Sale Type",
@@ -2173,11 +2189,126 @@
     "PASSWORD_ERROR": "Password is required and must be at least 6 characters",
     "SUBMIT": "Login",
     "INVALID_CREDENTIALS": "Invalid credentials",
-    "FILL_REQUIRED_FIELDS": "Please fill in all required fields"
+    "FILL_REQUIRED_FIELDS": "Please fill in all required fields",
+    "NO_ACCOUNT": "Don't have an account?",
+    "SIGN_UP": "Sign up",
+    "REMEMBER_ME": "Remember me",
+    "FORGOT_PASSWORD": "Forgot password?",
+    "PASSWORD_RESET_SUCCESS": "Your password has been reset. Please log in with your new password."
   },
   "REGISTRATION": {
+    "TITLE": "Create your account",
+    "COMPANY_NAME": "Company Name",
+    "COMPANY_NAME_ERROR": "Company name is required",
+    "FULL_NAME": "Full Name",
+    "FULL_NAME_ERROR": "Full name is required",
+    "NAME": "Full Name",
+    "NAME_ERROR": "Full name is required",
+    "EMAIL": "Email",
+    "EMAIL_ERROR": "A valid email is required",
+    "PASSWORD": "Password",
+    "PASSWORD_ERROR": "Password is required and must be at least 6 characters",
+    "CONFIRM_PASSWORD": "Confirm Password",
+    "CONFIRM_PASSWORD_ERROR": "Please confirm your password",
+    "PHONE": "Phone",
+    "COUNTRY": "Country",
+    "SUBMIT": "Create Account",
+    "HAVE_ACCOUNT": "Already have an account?",
+    "LOG_IN": "Log in",
     "PASSWORD_MISMATCH": "Passwords do not match",
-    "FILL_REQUIRED_FIELDS": "Please fill in all required fields"
+    "FILL_REQUIRED_FIELDS": "Please fill in all required fields",
+    "REGISTER_ERROR": "Could not create your account. Please try again.",
+    "ACCEPT_TERMS": "I agree to the Terms of Service and Privacy Policy",
+    "ACCEPT_TERMS_ERROR": "You must accept the Terms of Service to continue"
+  },
+  "FORGOT_PASSWORD": {
+    "TITLE": "Forgot your password?",
+    "HINT": "Enter the email address associated with your account and we'll send you a link to reset your password.",
+    "EMAIL": "Email",
+    "EMAIL_ERROR": "A valid email is required",
+    "SUBMIT": "Send Reset Link",
+    "SUCCESS": "If an account exists for that email, a reset link has been sent.",
+    "BACK_TO_LOGIN": "Back to login"
+  },
+  "RESET_PASSWORD": {
+    "TITLE": "Reset your password",
+    "NEW_PASSWORD": "New Password",
+    "NEW_PASSWORD_ERROR": "Password must be at least 6 characters",
+    "CONFIRM_PASSWORD": "Confirm New Password",
+    "PASSWORD_MISMATCH": "Passwords do not match",
+    "SUBMIT": "Reset Password",
+    "RESET_ERROR": "Could not reset your password. The link may have expired.",
+    "INVALID_LINK": "This password reset link is invalid or has expired.",
+    "BACK_TO_LOGIN": "Back to login"
+  },
+  "ONBOARDING": {
+    "PLANS": {
+      "TITLE": "Choose a plan",
+      "SUBTITLE": "Pick the plan that fits your business. You can change it later.",
+      "BILLING_CYCLE": "Billing cycle",
+      "START_TRIAL": "Start Free Trial",
+      "SUBSCRIBE_AND_PAY": "Subscribe & Pay",
+      "MOST_POPULAR": "Most Popular",
+      "TRIAL_STARTED": "Your free trial has started",
+      "LOAD_ERROR": "Could not load subscription plans",
+      "SUBSCRIBE_ERROR": "Could not start your subscription. Please try again.",
+      "NAMES": {
+        "STARTER": "Starter",
+        "PROFESSIONAL": "Professional",
+        "ENTERPRISE": "Enterprise",
+        "UNLIMITED": "Unlimited"
+      },
+      "FEATURES": {
+        "ACCOUNTING": "Accounting",
+        "INVENTORY": "Inventory",
+        "SALES": "Sales",
+        "PURCHASES": "Purchases",
+        "POS": "Point of Sale",
+        "CRM": "CRM",
+        "PAYROLL": "Payroll",
+        "HR": "HR",
+        "ASSETS": "Assets",
+        "MANUFACTURING": "Manufacturing",
+        "REPORTS": "Reports",
+        "AI": "AI",
+        "NOTIFICATIONS": "Notifications",
+        "MOBILE_APP": "Mobile App",
+        "API": "API Access"
+      }
+    },
+    "PAYMENT": {
+      "TITLE": "Payment details",
+      "PLAN_SUMMARY": "You're subscribing to {{plan}}",
+      "PAY_NOW": "Pay & Subscribe",
+      "PROCESSING": "Processing payment...",
+      "CONFIG_ERROR": "Payment could not be initialized. Please try again later.",
+      "TOKEN_ERROR": "Could not validate your card. Please check the details and try again.",
+      "SUBSCRIBE_ERROR": "Payment succeeded but activating your subscription failed. Please contact support.",
+      "BACK_TO_PLANS": "Back to plans"
+    },
+    "RENEW": {
+      "TITLE": "Renew your subscription",
+      "PLAN_STATUS": "{{plan}} — {{status}}",
+      "HINT": "Your subscription is no longer active. Renew now to keep using the platform.",
+      "RENEW_NOW": "Renew Now",
+      "LOGOUT": "Log out"
+    },
+    "TENANT_ACTIVATION": {
+      "TITLE": "Account not active",
+      "GENERIC": "Your account isn't active yet. Please contact your administrator or support.",
+      "USER_INACTIVE": "Your user account has been deactivated. Please contact your administrator.",
+      "PROVISIONING": "Your company account is still being set up. This usually only takes a few minutes — please check back shortly.",
+      "SUSPENDED": "Your company account has been suspended. Please contact support to reactivate it.",
+      "BLOCKED": "Your company account has been blocked. Please contact support.",
+      "LOGOUT": "Log out"
+    },
+    "COMPANY_SELECTION": {
+      "TITLE": "Choose a company",
+      "SUBTITLE": "You have access to more than one company. Pick which one to work in.",
+      "SELECT": "Select",
+      "SELECT_ERROR": "Could not switch to this company. Please try again.",
+      "LOAD_ERROR": "Could not load your companies"
+    }
   },
   "CUSTOMERS": {
     "FORM": {
@@ -2644,7 +2775,11 @@
     "FORM": {
       "TRACK_BY_BATCH": "Track by Batch",
       "TRACK_BY_BATCH_HINT": "Enable batch tracking for this item to manage inventory by production batches",
-      "CALCULATE_VAT_FROM_PROFIT_MARGIN": "Calculate VAT From Profit Margin"
+      "CONDITION": "Vehicle Condition",
+      "NEW": "New Vehicle",
+      "USED": "Used Vehicle",
+      "CALCULATE_VAT_FROM_PROFIT_MARGIN": "Apply VAT on Margin",
+      "CALCULATE_VAT_FROM_PROFIT_MARGIN_HINT": "When enabled, VAT is calculated only on the profit margin (selling price minus total cost) instead of the full selling price."
     }
   },
   "STOCK_TAKING_APPROVAL": {
@@ -4130,11 +4265,11 @@
       "LOAD_ERROR": "Failed to load the dashboard"
     },
     "TENANTS": {
-      "TITLE": "Tenants",
+      "TITLE": "Companies",
       "SUBTITLE": "Manage subscriber businesses and their provisioning status.",
-      "NEW_TENANT": "New Tenant",
-      "CREATE_TITLE": "Create Tenant",
-      "EDIT_TITLE": "Edit Tenant",
+      "NEW_TENANT": "New Company",
+      "CREATE_TITLE": "Create Company",
+      "EDIT_TITLE": "Edit Company",
       "STATUS": "Status",
       "CODE": "Code",
       "COMPANY": "Company",
@@ -4159,8 +4294,12 @@
       "FEATURES_HINT": "Features come from the selected subscription plan.",
       "SELECT_PLAN_FIRST": "Select a subscription plan to see its limits and features",
       "TOGGLE_SUSPEND": "Suspend / Activate",
-      "DELETE_CONFIRM_TITLE": "Delete Tenant",
-      "DELETE_CONFIRM_MESSAGE": "Are you sure you want to delete this tenant? This cannot be undone.",
+      "DELETE_CONFIRM_TITLE": "Delete Company",
+      "DELETE_CONFIRM_MESSAGE": "Are you sure you want to delete this company? This cannot be undone.",
+      "GRANT_ACCESS": "Grant Access",
+      "GRANT_ACCESS_HINT": "Give an existing user access to this company -- they'll be able to switch into it from the company switcher.",
+      "GRANT_ACCESS_EMAIL_PLACEHOLDER": "User's email",
+      "GRANT_ACCESS_SUCCESS": "{{email}} now has access to {{company}}",
       "SECTIONS": {
         "GENERAL": "General",
         "CONTACT": "Contact",
@@ -4233,6 +4372,8 @@
       "STORAGE_BASE_PATH": "Storage Base Path",
       "TAP_SECRET_KEY": "Tap Secret Key",
       "TAP_PUBLISHABLE_KEY": "Tap Publishable Key",
+      "TAP_MERCHANT_ID": "Tap Merchant ID",
+      "DEFAULT_CURRENCY": "Default Currency",
       "DEFAULT_TRIAL_DAYS": "Default Trial Days",
       "GRACE_PERIOD_DAYS": "Grace Period Days",
       "ALLOW_TENANT_HEADER": "Allow X-Tenant-Id header resolution (non-production)",
@@ -4278,6 +4419,11 @@
       "INITIAL": "Initial",
       "RENEWAL": "Renewal",
       "RETRY": "Retry"
+    }
+  },
+  "LAYOUT": {
+    "COMPANY_SWITCHER": {
+      "SWITCH_ERROR": "Could not switch companies. Please try again."
     }
   }
 }

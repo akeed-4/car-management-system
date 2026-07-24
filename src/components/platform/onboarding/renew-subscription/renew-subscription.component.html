@@ -1,0 +1,21 @@
+<div class="page-container">
+  <mat-card class="renew-card">
+    <h1>{{ 'ONBOARDING.RENEW.TITLE' | translate }}</h1>
+
+    <mat-progress-bar mode="indeterminate" *ngIf="loading()"></mat-progress-bar>
+
+    <ng-container *ngIf="!loading()">
+      <p class="status-line" *ngIf="status()?.planName">
+        {{ 'ONBOARDING.RENEW.PLAN_STATUS' | translate:{ plan: status()?.planName, status: (statusLabel() | translate) } }}
+      </p>
+      <p class="hint">{{ 'ONBOARDING.RENEW.HINT' | translate }}</p>
+
+      <button mat-flat-button color="primary" class="renew-button" (click)="renew()">
+        {{ 'ONBOARDING.RENEW.RENEW_NOW' | translate }}
+      </button>
+      <button mat-stroked-button class="logout-button" (click)="logout()">
+        {{ 'ONBOARDING.RENEW.LOGOUT' | translate }}
+      </button>
+    </ng-container>
+  </mat-card>
+</div>

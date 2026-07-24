@@ -4,12 +4,13 @@ import { SalesService } from '../../../services/sales.service';
 import { SalesInvoice } from '../../../models/sales-invoice.model';
 import { CustomerService } from '../../../services/customer.service';
 import { Customer } from '../../../models/customer.model';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { CurrencyPipe, DatePipe, DOCUMENT } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { Location } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { CompanyService } from '../../../services/company.service';
 import { CurrentSettingService } from '../../../services/current-setting.service';
+import { LanguageService } from '../../../services/language.service';
 import { QrCodeComponent } from '../../shared/qr-code/qr-code.component';
 import { QrCodeContext } from '../../../models/qr-code.model';
 import { Company } from '../../../models/branch.model';
@@ -48,10 +49,18 @@ export class PrintableSalesInvoiceComponent {
   private companyService = inject(CompanyService);
   private currentSettingService = inject(CurrentSettingService);
   private calc = inject(SalesInvoiceCalculationService);
+  private languageService = inject(LanguageService);
+  private document = inject(DOCUMENT);
 
   invoice = signal<SalesInvoice | null>(null);
   customer = signal<Customer | null>(null);
   company = signal<Company | null>(null);
+
+  // This route lives outside <app-layout>, so nothing else in the app sets <html dir/lang> for
+  // it -- LayoutComponent normally owns that, but it is never instantiated on a print page.
+  textDir = signal<'ltr' | 'rtl'>(this.languageService.getCurrentLanguage() === 'en' ? 'ltr' : 'rtl');
+
+  private hasAutoPrinted = false;
 
   // Sourced from the real Company record (CompanyService) -- no longer hardcoded.
   companyInfo = computed(() => {
@@ -118,6 +127,11 @@ export class PrintableSalesInvoiceComponent {
   });
 
   constructor() {
+    // Apply the current language's direction immediately, then keep it in sync -- this page has
+    // no LayoutComponent ancestor to do it for us (see `textDir` field comment above).
+    this.applyDirection(this.languageService.getCurrentLanguage());
+    this.languageService.language$.subscribe(lang => this.applyDirection(lang));
+
     effect(() => {
       const idParam = this.route.snapshot.params['id'];
       if (idParam) {
@@ -140,6 +154,27 @@ export class PrintableSalesInvoiceComponent {
       next: (c) => this.company.set(c),
       error: (error) => console.error('Error loading company info:', error)
     });
+
+    // Auto-trigger the print dialog once the document has real data to show (invoice + company),
+    // per the dedicated print-route contract: load -> render -> print, no manual click required.
+    effect(() => {
+      if (!this.hasAutoPrinted && this.invoice() && this.company()) {
+        this.hasAutoPrinted = true;
+        setTimeout(() => window.print(), 300);
+      }
+    });
+
+    // This page is always opened in its own tab/window (see sales list `window.open` calls), so
+    // it is safe/expected to close itself once the user finishes with the print dialog.
+    window.onafterprint = () => window.close();
+  }
+
+  private applyDirection(lang: string): void {
+    const dir = lang === 'en' ? 'ltr' : 'rtl';
+    this.textDir.set(dir);
+    const htmlTag = this.document.getElementsByTagName('html')[0] as HTMLHtmlElement;
+    htmlTag.dir = dir;
+    htmlTag.lang = lang;
   }
 
   printInvoice(): void {
@@ -147,6 +182,10 @@ export class PrintableSalesInvoiceComponent {
   }
 
   goBack(): void {
-    this.location.back();
+    if (window.opener || window.history.length <= 1) {
+      window.close();
+    } else {
+      this.location.back();
+    }
   }
 }

@@ -77,13 +77,21 @@
                     <mat-grid-list [cols]="layout.columns" rowHeight="80px" gutterSize="4px">
                         <mat-grid-tile [colspan]="1" [rowspan]="1">
                             <div class="radio-group-container">
-                                <label class="form-label">{{ 'INVENTORY.FORM.CONDITION' | translate }}</label>
-                                <mat-radio-group formControlName="condition" class="radio-group">
+                                <label class="form-label" id="condition-label">{{ 'INVENTORY.FORM.CONDITION' | translate }}</label>
+                                <mat-radio-group formControlName="condition" class="radio-group" aria-labelledby="condition-label">
                                     <mat-radio-button value="Used">{{ 'INVENTORY.FORM.USED' | translate
                                         }}</mat-radio-button>
                                     <mat-radio-button value="New">{{ 'INVENTORY.FORM.NEW' | translate
                                         }}</mat-radio-button>
                                 </mat-radio-group>
+                            </div>
+                        </mat-grid-tile>
+                        <mat-grid-tile [colspan]="1" [rowspan]="1">
+                            <div class="toggle-container">
+                                <mat-slide-toggle formControlName="calculateVATFromProfitMargin" color="primary">
+                                    {{ 'INVENTORY.FORM.CALCULATE_VAT_FROM_PROFIT_MARGIN' | translate }}
+                                </mat-slide-toggle>
+                                <p class="toggle-hint">{{ 'INVENTORY.FORM.CALCULATE_VAT_FROM_PROFIT_MARGIN_HINT' | translate }}</p>
                             </div>
                         </mat-grid-tile>
                     </mat-grid-list>

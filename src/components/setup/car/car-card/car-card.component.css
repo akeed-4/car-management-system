@@ -446,6 +446,23 @@ mat-form-field.mat-form-field {
 
   .btn {
     justify-content: center;
+    /* 48px minimum touch target (the desktop 0.55rem/1.15rem padding above
+       only reaches ~32px tall) -- large enough to tap reliably, still
+       visually compact via the same font-size/border-radius as desktop. */
+    min-height: 48px;
+  }
+
+  .browse-photo-btn,
+  .delete-photo-btn {
+    min-height: 48px;
+  }
+
+  /* >=16px prevents iOS Safari from auto-zooming the page on input focus;
+     desktop keeps its denser 0.82rem sizing untouched. */
+  .mat-mdc-form-field-label,
+  .mat-mdc-text-field-wrapper,
+  mat-form-field.mat-form-field {
+    font-size: 16px !important;
   }
 }
 
@@ -467,15 +484,25 @@ mat-form-field.mat-form-field {
 /* Toggle Container */
 .toggle-container {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   justify-content: center;
   height: 100%;
   padding: 0.75rem;
+  gap: 0.25rem;
 }
 
 .toggle-container mat-slide-toggle {
   font-size: 0.85rem;
   font-weight: 600;
+}
+
+.toggle-hint {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: #666;
+  line-height: 1.3;
 }
 
 /* --- End Compact, Bold Design --- */

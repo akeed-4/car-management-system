@@ -62,7 +62,9 @@ export class SalesInvoiceListComponent {
 
   onPrintClick = (e: any) => {
     const invoiceId = e.row.data.id;
-    this.router.navigate([`/sales/invoice/print/${invoiceId}`]);
+    // Opens the dedicated print route in its own tab so the printable page never inherits the
+    // app's sidebar/toolbar -- see PrintableSalesInvoiceComponent.
+    window.open(`/sales/invoice/print/${invoiceId}`, '_blank');
   }
 
   deleteInvoice(invoice: any): void {

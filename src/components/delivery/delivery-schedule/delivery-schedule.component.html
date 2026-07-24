@@ -140,7 +140,7 @@
         <dxo-selection mode="multiple" showCheckBoxesMode="onClick"></dxo-selection>
         <dxo-export [enabled]="false"></dxo-export>
 
-        <dxi-column dataField="deliveryNumber" [caption]="'DELIVERY_SCHEDULE.DELIVERY_NUMBER' | translate" [width]="130" [fixed]="true"></dxi-column>
+        <dxi-column dataField="deliveryNumber" [caption]="'DELIVERY_SCHEDULE.DELIVERY_NUMBER' | translate" ></dxi-column>
         <dxi-column dataField="customerName" [caption]="'REQUESTED_CARS.CUSTOMER' | translate"></dxi-column>
         <dxi-column dataField="carDescription" [caption]="'DAILY_ENTRIES.VEHICLE' | translate"></dxi-column>
         <dxi-column dataField="carVin" [caption]="'CONSIGNMENT.VIN' | translate" [width]="150"></dxi-column>
@@ -171,7 +171,7 @@
 
         <dxi-column dataField="notes" [caption]="'REQUESTED_CARS.NOTES' | translate" [visible]="false"></dxi-column>
 
-        <dxi-column type="buttons" [caption]="'COMMON.ACTIONS' | translate" [width]="120" [fixed]="true" fixedPosition="right" cellTemplate="actionsTemplate"></dxi-column>
+        <dxi-column type="buttons" [caption]="'COMMON.ACTIONS' | translate" [width]="120"  cellTemplate="actionsTemplate"></dxi-column>
         <div *dxTemplate="let cell of 'actionsTemplate'">
           <button mat-icon-button [matTooltip]="'COMMON.EDIT' | translate" (click)="editDelivery(cell.data.id)" *appHasPermission="'deliverySchedule.edit'">
             <mat-icon>edit</mat-icon>
