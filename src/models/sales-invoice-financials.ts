@@ -55,6 +55,52 @@ export function calculateVatAmount(amountAfterDiscount: number, vatRate: number 
   return round2(Math.max(0, amountAfterDiscount) * ((vatRate || 0) / 100));
 }
 
+export interface VatLineInput {
+  /** Fixed, VAT-inclusive amount the customer is charged for this line (unitPrice * quantity). */
+  grossAmount: number;
+  /** Car.calculateVATFromProfitMargin for this line's vehicle. */
+  useMarginScheme: boolean;
+  /** The car's landed cost (Car.totalCost), scaled to this line's quantity. Ignored unless useMarginScheme. */
+  priorCost: number;
+  vatRatePercent: number;
+}
+
+export interface VatLineResult {
+  subtotal: number;
+  vatAmount: number;
+  totalAmount: number;
+  marginWasNonPositive: boolean;
+}
+
+/**
+ * Preview-only mirror of the backend's VatCalculationService.CalculateFromGrossAmount -- the
+ * saved invoice's persisted vatRate/vatAmount from the backend remain authoritative; this exists
+ * so the sales-invoice form can show a live per-line VAT breakdown (standard vs. profit-margin)
+ * before save without duplicating the backend as the source of truth. Splits a fixed, VAT-inclusive
+ * gross amount into subtotal + VAT: the standard back-out (subtotal = gross / (1 + rate)) or the
+ * ZATCA used-goods profit-margin scheme (VAT charged only on the margin above priorCost, with the
+ * margin itself treated as VAT-inclusive).
+ */
+export function calculateLineVat(input: VatLineInput): VatLineResult {
+  const grossAmount = Math.max(0, input.grossAmount || 0);
+  const rate = Math.max(0, input.vatRatePercent || 0) / 100;
+
+  if (!input.useMarginScheme) {
+    const subtotal = rate > 0 ? round2(grossAmount / (1 + rate)) : grossAmount;
+    const vatAmount = round2(grossAmount - subtotal);
+    return { subtotal, vatAmount, totalAmount: grossAmount, marginWasNonPositive: false };
+  }
+
+  const margin = grossAmount - Math.max(0, input.priorCost || 0);
+  if (margin <= 0) {
+    return { subtotal: grossAmount, vatAmount: 0, totalAmount: grossAmount, marginWasNonPositive: true };
+  }
+
+  const vatAmount = round2((margin * rate) / (1 + rate));
+  const subtotal = round2(grossAmount - vatAmount);
+  return { subtotal, vatAmount, totalAmount: grossAmount, marginWasNonPositive: false };
+}
+
 export interface SalesInvoiceFinancialsInput {
   subtotal: number;
   discountType?: DiscountType;

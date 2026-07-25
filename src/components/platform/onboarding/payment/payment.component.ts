@@ -118,10 +118,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
 
     this.cardHandle.result.then(
       (token) => this.completeSubscription(token.id),
-      () => {
-        this.notificationService.showError('ONBOARDING.PAYMENT.TOKEN_ERROR');
-        this.processing.set(false);
-      },
+      () => this.backToPlanSelection('ONBOARDING.PAYMENT.TOKEN_ERROR'),
     );
     this.cardHandle.tokenize();
   }
@@ -137,11 +134,18 @@ export class PaymentComponent implements OnInit, OnDestroy {
         const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
         this.router.navigateByUrl(returnUrl || '/dashboard');
       },
-      error: () => {
-        this.notificationService.showError('ONBOARDING.PAYMENT.SUBSCRIBE_ERROR');
-        this.processing.set(false);
-      },
+      error: () => this.backToPlanSelection('ONBOARDING.PAYMENT.SUBSCRIBE_ERROR'),
     });
+  }
+
+  /** Payment failed or was cancelled -- onboarding stays at "pending subscription" (no
+   *  subscription record was created), so send the user back to plan selection rather than
+   *  stranding them on a dead card form. */
+  private backToPlanSelection(errorKey: string): void {
+    this.notificationService.showError(errorKey);
+    this.processing.set(false);
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    this.router.navigate(['/onboarding/plans'], { queryParams: returnUrl ? { returnUrl } : undefined });
   }
 
   ngOnDestroy(): void {

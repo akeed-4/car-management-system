@@ -309,6 +309,9 @@
               <p>{{ 'INVOICE.VAT' | translate }} ({{ vatRate() }}%)</p>
               <p class="font-mono">+ {{ vatAmount() | currency:'SAR':'symbol':'1.0-2' }}</p>
             </div>
+            <p class="margin-vat-note" *ngIf="hasMarginVatItems()">
+              {{ 'INVOICE.MARGIN_VAT_NOTE' | translate }}
+            </p>
             <hr>
             <div class="summary-item total">
               <p>{{ 'INVOICE.TOTAL' | translate }}</p>

@@ -295,7 +295,11 @@ getTitle(): string {
     const depreciation = returnedAmount * 0.10;
     const restockingFee = returnedAmount * 0.05;
     const taxableRefund = returnedAmount - depreciation - restockingFee;
-    const vatOnRefund = taxableRefund * 0.15; // 15% VAT
+    // Derived from the ORIGINAL invoice's own realized VAT ratio -- not a hardcoded rate -- so a
+    // profit-margin-VAT invoice's return isn't over-taxed at the flat standard rate. Mirrors the
+    // backend's SalesReturnService.CreateAsync fix (effectiveVatRatio = VATAmount / Subtotal).
+    const effectiveVatRatio = invoice.subtotal > 0 ? invoice.vatAmount / invoice.subtotal : 0;
+    const vatOnRefund = taxableRefund * effectiveVatRatio;
     const netRefund = taxableRefund - vatOnRefund + depositAmount;
 
     this.refundCalculation.set({

@@ -641,24 +641,68 @@ export class SalesInvoiceFormComponent implements OnInit {
   // recomputes from the saved record) can never show inconsistent figures, and no calculation is
   // ever written out twice.
 
-  /** Subtotal before discount -- sum of all line totals. */
-  subtotal = computed(() => this.calc.calculateSubtotal(this.invoiceItems()));
+  /** Full Car pool (including calculateVATFromProfitMargin/totalCost), for the per-line VAT
+   * preview below -- same source purchase-invoice.component.ts already uses for its own
+   * hasMarginVatItems check. */
+  cars = this.inventoryService.cars$;
 
   /** VAT rate (0 or 15) -- the selected classification's own rate wins; falls back to the
    * Taxable/Zero-Rated/Exempt selector when no classification is set. */
   vatRate = computed(() => this.calc.resolveVatRate(this.selectedInvoiceClassification()?.vatRate, this.invoiceTypeSignal()));
 
-  private baseFinancials = computed(() => this.calc.calculateFinancials({
-    subtotal: this.subtotal(),
-    discountType: this.discountTypeSignal(),
-    discountValue: this.discountValueSignal(),
-    vatRate: this.vatRate(),
-  }));
+  /** Per-line VAT preview: profit-margin-scheme cars are computed via calculateLineVat (VAT on
+   * margin above the car's landed cost, gross-fixed-price basis); every other line keeps the
+   * existing net-plus-VAT-on-top convention. Preview only -- the backend recomputes and persists
+   * the authoritative Subtotal/VATAmount on save. */
+  lineVatBreakdown = computed(() => {
+    const carsList = this.cars() ?? [];
+    const rate = this.vatRate();
+    return this.invoiceItems().map(item => {
+      const car = carsList.find((c: any) => c.id === item.carId);
+      if (car?.calculateVATFromProfitMargin) {
+        return this.calc.calculateLineVat({
+          grossAmount: item.lineTotal,
+          useMarginScheme: true,
+          priorCost: (car.totalCost ?? 0) * item.quantity,
+          vatRatePercent: rate,
+        });
+      }
+      const vatAmount = this.calc.calculateVatAmount(item.lineTotal, rate);
+      return { subtotal: item.lineTotal, vatAmount, totalAmount: item.lineTotal + vatAmount, marginWasNonPositive: false };
+    });
+  });
 
-  discountAmount = computed(() => this.baseFinancials().discountAmount);
-  amountAfterDiscount = computed(() => this.baseFinancials().amountAfterDiscount);
-  vatAmount = computed(() => this.baseFinancials().vatAmount);
-  totalAmount = computed(() => this.baseFinancials().totalAmount);
+  /** True when any line's car uses the ZATCA profit-margin VAT scheme -- the server computes the
+   *  authoritative Subtotal/VATAmount for those lines from (unit price - prior car cost), which
+   *  can differ from the standard rate-on-price estimate shown above before saving. */
+  hasMarginVatItems = computed(() => {
+    const carsList = this.cars() ?? [];
+    return this.invoiceItems().some(item => {
+      const car = carsList.find((c: any) => c.id === item.carId);
+      return !!car?.calculateVATFromProfitMargin;
+    });
+  });
+
+  /** Subtotal before discount -- sum of each line's VAT-exclusive preview amount (standard or
+   * margin-scheme). */
+  subtotal = computed(() => this.lineVatBreakdown().reduce((sum, r) => sum + r.subtotal, 0));
+
+  private grossVatTotal = computed(() => this.lineVatBreakdown().reduce((sum, r) => sum + r.vatAmount, 0));
+
+  discountAmount = computed(() => this.calc.calculateDiscountAmount(this.subtotal(), this.discountTypeSignal(), this.discountValueSignal()));
+
+  amountAfterDiscount = computed(() => Math.max(0, this.subtotal() - this.discountAmount()));
+
+  /** Scales the blended per-line VAT proportionally by the discount, keeping the effective
+   * average rate constant before/after discount -- mirrors the backend's
+   * SalesInvoiceService.CalculateAmountsAsync so preview and saved totals stay aligned. */
+  vatAmount = computed(() => {
+    const sub = this.subtotal();
+    if (sub <= 0) return 0;
+    return Math.round((this.grossVatTotal() * (this.amountAfterDiscount() / sub) + Number.EPSILON) * 100) / 100;
+  });
+
+  totalAmount = computed(() => Math.round((this.amountAfterDiscount() + this.vatAmount() + Number.EPSILON) * 100) / 100);
 
   hasInstallments = computed(() => {
     return this.invoiceItems().some(item => item.installmentDetails);

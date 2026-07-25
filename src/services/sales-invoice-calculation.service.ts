@@ -3,8 +3,11 @@ import {
   DiscountType,
   SalesInvoiceFinancials,
   SalesInvoiceFinancialsInput,
+  VatLineInput,
+  VatLineResult,
   calculateDiscountAmount,
   calculateLineTotal,
+  calculateLineVat,
   calculateSalesInvoiceFinancials,
   calculateSubtotal,
   calculateVatAmount,
@@ -47,5 +50,9 @@ export class SalesInvoiceCalculationService {
 
   calculateFinancials(input: SalesInvoiceFinancialsInput): SalesInvoiceFinancials {
     return calculateSalesInvoiceFinancials(input);
+  }
+
+  calculateLineVat(input: VatLineInput): VatLineResult {
+    return calculateLineVat(input);
   }
 }

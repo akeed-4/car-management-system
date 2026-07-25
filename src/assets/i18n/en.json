@@ -57,6 +57,7 @@
     "DISCOUNT": "Discount",
     "AMOUNT_AFTER_DISCOUNT": "Amount After Discount",
     "VAT": "VAT",
+    "MARGIN_VAT_NOTE": "One or more items use profit-margin VAT. The exact VAT amount is calculated on save and may differ from the estimate above.",
     "TOTAL": "Invoice Total",
     "PREVIOUS_PAYMENTS": "Previous Payments",
     "CURRENT_PAYMENT": "Current Payment",

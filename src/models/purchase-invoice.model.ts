@@ -14,6 +14,11 @@ export interface PurchaseInvoice {
   branchId?:number;
   invoiceType?: string; // Taxable, Zero Rated, Exempt
   dueDate?: string; // Due date for credit invoices
+  /** VAT-exclusive amount -- only populated when the invoice contains a profit-margin-VAT car
+   * (backend only overwrites Subtotal/VATAmount in that case; standard invoices leave these
+   * unset and carry the full breakdown in totalAmount only). */
+  subtotal?: number;
+  vatAmount?: number;
   totalAmount: number;
   amountPaid: number;
   amountDue: number;

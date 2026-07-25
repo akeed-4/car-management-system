@@ -80,13 +80,19 @@ export class PrintablePurchaseInvoiceComponent {
   });
 
   /** Single source of truth for the VAT breakdown -- feeds both the Totals box and the
-   * dedicated Tax Summary section so the two can never disagree. */
+   * dedicated Tax Summary section so the two can never disagree. Trusts the backend's persisted
+   * subtotal/vatAmount when present (always correct for both standard and profit-margin-VAT
+   * invoices); only falls back to the flat-15%-back-out estimate when those fields are absent,
+   * which today is the common case for standard invoices (the backend currently only populates
+   * them when the invoice contains a profit-margin-VAT car) -- this estimate is wrong for a
+   * margin invoice, which is exactly why the persisted-field path takes priority whenever available. */
   taxSummary = computed(() => {
     const inv = this.invoice();
     if (!inv) return null;
-    const rate = 15;
-    const taxableAmount = inv.totalAmount / 1.15;
-    const vatAmount = inv.totalAmount - taxableAmount;
+    const hasPersistedBreakdown = inv.subtotal != null && inv.vatAmount != null;
+    const taxableAmount = hasPersistedBreakdown ? inv.subtotal! : inv.totalAmount / 1.15;
+    const vatAmount = hasPersistedBreakdown ? inv.vatAmount! : inv.totalAmount - taxableAmount;
+    const rate = taxableAmount > 0 ? Math.round((vatAmount / taxableAmount) * 100) : 0;
     return { rate, taxableAmount, vatAmount, total: inv.totalAmount };
   });
 
