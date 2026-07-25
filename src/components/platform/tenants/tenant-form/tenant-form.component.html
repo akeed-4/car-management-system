@@ -101,6 +101,12 @@
               <mat-option value="ar">Arabic</mat-option>
             </mat-select>
           </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'PLATFORM.TENANTS.LOGO_URL' | translate }}</mat-label>
+            <input matInput formControlName="logoUrl" [placeholder]="'PLATFORM.TENANTS.LOGO_URL_PLACEHOLDER' | translate">
+            <mat-hint>{{ 'PLATFORM.TENANTS.LOGO_URL_HINT' | translate }}</mat-hint>
+          </mat-form-field>
         </div>
       </mat-tab>
 

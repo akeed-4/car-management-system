@@ -19,6 +19,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { Direction } from '@angular/cdk/bidi';
 import { LoginResponse, OidcSecurityService } from 'angular-auth-oidc-client';
 import { AuthService } from '../../../services/AuthService.service';
+import { TenantContextService } from '../../../services/tenant-context.service';
+import { NotificationService } from '../../../services/notification.service';
 import { environment } from '../../../environments/environment';
 import { CurrentSettingService } from '../../../services/current-setting.service';
 import { CurrentUserService } from '../../../services/current-user.service';
@@ -64,12 +66,18 @@ export class LayoutComponent {
   isShowing = false;
   showSubSubMenu: boolean = false;
   year = new Date().getFullYear();
-  isAuthenticated = false;
+  /** Driven by AuthService.currentUser() (reactive) rather than a field that's set once --
+   *  updates immediately on login/logout with no page reload needed. */
+  get isAuthenticated(): boolean {
+    return !!this.authService.currentUser();
+  }
   userName = '';
   private identityUrl = environment.origin;
   currentLanguage!: string;
   userLanguage!: string;
-  UserFullName: string = 'User';
+  get UserFullName(): string {
+    return this.authService.currentUser()?.name || 'User';
+  }
   sideNavPosition!: string;
   menuRtlEnabled = false;
   menuName = "";
@@ -143,6 +151,8 @@ export class LayoutComponent {
     private titleService: Title,
     public dialog: MatDialog,
     private authService: AuthService,
+    private tenantContext: TenantContextService,
+    private notificationService: NotificationService,
   ) {
     this.itemClick = this.itemClick.bind(this);
     this.currentLanguage = this.languageService.getCurrentLanguage();
@@ -325,17 +335,39 @@ export class LayoutComponent {
 
 
   logIn() {
-    // this.oidcSecurityService.authorize();
-    console.log('Login clicked');
+    this.router.navigate(['/login']);
   }
   // help() {
   //   var url = `${environment.rootName}/help/chat`;
   //   this.router.navigate([url]);
   // }
 
-  logOut() {
-    this.authService.logout();
-    this.router.navigate(['/login']);
+  isLoggingOut = false;
+
+  async logOut(): Promise<void> {
+    if (this.isLoggingOut) return;
+
+    const result = await this.notificationService.confirmAlert(
+      this.translateService.instant('admin.confirmLogoutTitle'),
+      this.translateService.instant('admin.confirmLogoutText'),
+      this.translateService.instant('admin.logout'),
+    );
+    if (!result.isConfirmed) return;
+
+    this.isLoggingOut = true;
+    try {
+      this.authService.logout();
+      this.tenantContext.clear();
+      this.notificationService.showSuccess('admin.logoutSuccess');
+    } catch {
+      this.notificationService.showError('admin.logoutError');
+    } finally {
+      this.isLoggingOut = false;
+      // replaceUrl drops the app-shell route from history -- combined with the route guards
+      // (tenantGuard/subscriptionGuard/authGuard) re-checking isLoggedIn() on every activation,
+      // this is what prevents navigating back into a protected page after logout.
+      this.router.navigate(['/login'], { replaceUrl: true });
+    }
   }
 
   changePassword() {

@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../environments/environment';
@@ -42,6 +42,11 @@ const REMEMBER_ME_KEY = 'remember_me';
 export class AuthService {
   private apiUrl = `${environment.origin.replace(/\/+$/, '')}/api/Users`;
   private http = inject(HttpClient);
+
+  /** Reactive counterpart to getCurrentUser() -- lets the topbar (and anything else) reflect the
+   *  signed-in user immediately on login/logout without a page reload. */
+  private _currentUser = signal<AppLoginResponse | null>(this.getCurrentUser());
+  currentUser = this._currentUser.asReadonly();
 
   login(credentials: login, rememberMe = true): Observable<AppLoginResponse> {
     return this.http.post<AppLoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
@@ -87,12 +92,27 @@ export class AuthService {
       store.setItem(REFRESH_TOKEN_KEY, response.refreshToken);
     }
     localStorage.setItem(REMEMBER_ME_KEY, String(rememberMe));
+    this._currentUser.set(response);
   }
 
+  /** Full client-side session teardown, shared by the topbar's manual logout and
+   *  JwtInterceptor's forced logout on an unrecoverable 401. Callers that also need to clear
+   *  tenant context (TenantContextService.clear()) must do so themselves -- AuthService can't
+   *  depend on TenantContextService directly, since TenantContextService already depends on
+   *  AuthService (for setSession() during a tenant switch), and that would be a circular
+   *  dependency. */
   logout(): void {
+    const refreshToken = this.getRefreshToken();
+    // Best-effort server-side revocation: fired while the token is still attached (the JWT
+    // interceptor reads live storage synchronously within this call), but never awaited -- a
+    // network failure or an already-expired token must never block the user from actually being
+    // logged out locally.
+    this.http.post(`${this.apiUrl}/logout`, { refreshToken }).subscribe({ error: () => {} });
+
     this.clearStorage(localStorage);
     this.clearStorage(sessionStorage);
     localStorage.removeItem(REMEMBER_ME_KEY);
+    this._currentUser.set(null);
   }
 
   getCurrentUser(): AppLoginResponse | null {

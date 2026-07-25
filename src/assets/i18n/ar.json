@@ -3426,7 +3426,11 @@
     "logout": "تسجيل الخروج",
     "changePassword": "تغيير كلمة المرور",
     "systemAdmin": "إدارة النظام",
-    "userProfile": "الملف الشخصي"
+    "userProfile": "الملف الشخصي",
+    "confirmLogoutTitle": "تسجيل الخروج؟",
+    "confirmLogoutText": "ستحتاج إلى تسجيل الدخول مرة أخرى للوصول إلى حسابك.",
+    "logoutSuccess": "تم تسجيل خروجك بنجاح.",
+    "logoutError": "حدث خطأ أثناء تسجيل الخروج."
   },
   "SUPPLIER_QUOTATION": {
     "TITLE": "عرض أسعار المورد",
@@ -4157,6 +4161,7 @@
   },
   "PLATFORM": {
     "BREADCRUMB": "المنصة",
+    "TENANT_NOT_FOUND": "تعذر التحقق من صلاحية الوصول إلى شركتك. الرجاء تسجيل الدخول مرة أخرى.",
     "DASHBOARD": {
       "TITLE": "لوحة تحكم المنصة",
       "TOTAL_TENANTS": "إجمالي المستأجرين",
@@ -4301,6 +4306,7 @@
     },
     "SUBSCRIPTION_STATUS": {
       "TRIAL": "تجريبي",
+      "PENDING_SELECTION": "بانتظار اختيار الخطة",
       "PENDING_PAYMENT": "بانتظار الدفع",
       "ACTIVE": "نشط",
       "RENEWAL_PENDING": "بانتظار التجديد",

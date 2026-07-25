@@ -12,6 +12,11 @@ export interface TenantMembershipDto {
   planId?: number | null;
   planName?: string | null;
   isCurrent: boolean;
+  companyLegalName?: string | null;
+  currency?: string | null;
+  language?: string | null;
+  timezone?: string | null;
+  logoUrl?: string | null;
 }
 
 /** POST /api/platform/my/tenants/{id}/select. Carries a reissued token+refresh-token pair so the
@@ -27,6 +32,11 @@ export interface SelectTenantResponseDto {
   tenantId: number;
   tenantName: string;
   tenantCode: string;
+  companyLegalName?: string | null;
+  currency?: string | null;
+  language?: string | null;
+  timezone?: string | null;
+  logoUrl?: string | null;
 }
 
 /** POST /api/platform/tenants/{id}/Members (platform-admin "Grant Access" action). */

@@ -19,6 +19,10 @@ export enum SubscriptionStatus {
   Expired = 7,
   Cancelled = 8,
   Blocked = 9,
+  /** Tenant provisioned, no plan ever chosen yet -- the initial state a self-registered tenant's
+   * placeholder subscription is created in. Not a usable status (see resolveOnboardingDestination),
+   * so it routes to the plan picker rather than the dashboard. */
+  PendingSelection = 10,
 }
 
 export enum BillingCycle {
@@ -82,6 +86,7 @@ export class SubscriptionStatusHelper {
       [SubscriptionStatus.Expired]: 'PLATFORM.SUBSCRIPTION_STATUS.EXPIRED',
       [SubscriptionStatus.Cancelled]: 'PLATFORM.SUBSCRIPTION_STATUS.CANCELLED',
       [SubscriptionStatus.Blocked]: 'PLATFORM.SUBSCRIPTION_STATUS.BLOCKED',
+      [SubscriptionStatus.PendingSelection]: 'PLATFORM.SUBSCRIPTION_STATUS.PENDING_SELECTION',
     };
     return labels[status];
   }
@@ -97,6 +102,7 @@ export class SubscriptionStatusHelper {
       [SubscriptionStatus.Expired]: 'red',
       [SubscriptionStatus.Cancelled]: 'gray',
       [SubscriptionStatus.Blocked]: 'red',
+      [SubscriptionStatus.PendingSelection]: 'gray',
     };
     return colors[status];
   }

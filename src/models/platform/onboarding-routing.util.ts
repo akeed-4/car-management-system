@@ -48,5 +48,8 @@ export function resolveOnboardingDestination(
     return { commands: ['/onboarding/renew'] };
   }
 
+  // Also where a freshly self-registered tenant lands: its placeholder subscription is created
+  // with status PendingSelection (no plan ever chosen), which is neither hasActiveSubscription
+  // nor PendingPayment nor a renewal-needed status, so it always falls through to here.
   return { commands: ['/onboarding/plans'], queryParams: returnUrl ? { returnUrl } : undefined };
 }

@@ -3504,7 +3504,11 @@
     "logout": "Logout",
     "changePassword": "Change Password",
     "systemAdmin": "System Administration",
-    "userProfile": "User Profile"
+    "userProfile": "User Profile",
+    "confirmLogoutTitle": "Log out?",
+    "confirmLogoutText": "You'll need to sign in again to access your account.",
+    "logoutSuccess": "You have been logged out successfully.",
+    "logoutError": "Something went wrong while logging out."
   },
   "SUPPLIER_QUOTATION": {
     "TITLE": "Supplier Quotation",
@@ -4289,6 +4293,7 @@
   },
   "PLATFORM": {
     "BREADCRUMB": "Platform",
+    "TENANT_NOT_FOUND": "Your company access could not be verified. Please sign in again.",
     "DASHBOARD": {
       "TITLE": "Platform Dashboard",
       "TOTAL_TENANTS": "Total Tenants",
@@ -4327,6 +4332,9 @@
       "CURRENCY": "Currency",
       "TIMEZONE": "Timezone",
       "LANGUAGE": "Language",
+      "LOGO_URL": "Logo URL",
+      "LOGO_URL_PLACEHOLDER": "https://example.com/logo.png",
+      "LOGO_URL_HINT": "Paste a direct image URL. Shown in the company switcher.",
       "TRIAL_EXPIRATION": "Trial Expiration",
       "ADD_DOMAIN": "Add Domain",
       "NO_DOMAINS": "No domains configured yet",
@@ -4433,6 +4441,7 @@
     },
     "SUBSCRIPTION_STATUS": {
       "TRIAL": "Trial",
+      "PENDING_SELECTION": "Pending Plan Selection",
       "PENDING_PAYMENT": "Pending Payment",
       "ACTIVE": "Active",
       "RENEWAL_PENDING": "Renewal Pending",

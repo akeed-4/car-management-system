@@ -14,6 +14,7 @@ export interface TenantDto {
   currency?: string | null;
   timezone?: string | null;
   language?: string | null;
+  logoUrl?: string | null;
   status: TenantStatus;
   planId?: number | null;
   planName?: string | null;
@@ -37,6 +38,7 @@ export interface CreateTenantDto {
   currency?: string | null;
   timezone?: string | null;
   language?: string | null;
+  logoUrl?: string | null;
   planId: number;
   trialDays?: number | null;
   isActive: boolean;

@@ -1,9 +1,20 @@
-<div class="company-switcher" *ngIf="hasMultipleTenants()">
-  <button mat-stroked-button color="accent" [matMenuTriggerFor]="companyMenu" [disabled]="switching()">
-    <mat-icon>business</mat-icon>
+<div class="company-switcher" *ngIf="current()">
+  <button *ngIf="hasMultipleTenants(); else staticChip" mat-stroked-button color="accent"
+    [matMenuTriggerFor]="companyMenu" [disabled]="switching()">
+    <img *ngIf="current()?.logoUrl as logo" [src]="logo" class="company-logo" alt="">
+    <mat-icon *ngIf="!current()?.logoUrl">business</mat-icon>
     <span class="company-name">{{ current()?.tenantName }}</span>
     <mat-icon>arrow_drop_down</mat-icon>
   </button>
+
+  <ng-template #staticChip>
+    <div class="company-chip">
+      <img *ngIf="current()?.logoUrl as logo" [src]="logo" class="company-logo" alt="">
+      <mat-icon *ngIf="!current()?.logoUrl">business</mat-icon>
+      <span class="company-name">{{ current()?.tenantName }}</span>
+    </div>
+  </ng-template>
+
   <mat-menu #companyMenu="matMenu" xPosition="before">
     @for (membership of memberships(); track membership.tenantId) {
       <button mat-menu-item (click)="switchTo(membership)" [disabled]="membership.tenantId === current()?.tenantId">

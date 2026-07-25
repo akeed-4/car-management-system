@@ -11,3 +11,18 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.company-logo {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  border-radius: 2px;
+}
+
+.company-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+  height: 36px;
+  color: inherit;
+}

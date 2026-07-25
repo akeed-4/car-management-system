@@ -9,11 +9,11 @@ import { NotificationService } from '../../../services/notification.service';
 import { TenantMembershipDto } from '../../../models/platform/tenant-membership.model';
 
 /**
- * Company switcher dropdown for the top navbar -- lets a user with access to more than one
- * company switch between them without logging out. Rendered only when
- * TenantContextService.hasMultipleTenants() is true, so the common single-company user sees
- * nothing new. Memberships are already loaded into TenantContextService by companySelectedGuard
- * before the app shell (and this component) ever renders -- no extra fetch needed here.
+ * Always-visible company indicator for the top navbar: shows the current tenant's name + logo.
+ * When the user has access to more than one company (TenantContextService.hasMultipleTenants()),
+ * it renders as a dropdown trigger so they can switch; otherwise it's a static, non-interactive
+ * chip. Memberships are already loaded into TenantContextService by companySelectedGuard before
+ * the app shell (and this component) ever renders -- no extra fetch needed here.
  */
 @Component({
   selector: 'app-company-switcher',

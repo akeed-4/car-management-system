@@ -56,7 +56,7 @@
                     <span class="hello-drop">{{ 'layout.changeTheme' | translate }}</span>
                 </button>
                 <!-- <button (click)="help()" mat-menu-item> <span class="hello-drop">{{'admin.help' | translate}}</span></button> -->
-                <button (click)="logOut()" mat-menu-item> <span class="hello-drop">{{'admin.logout' |
+                <button (click)="logOut()" mat-menu-item [disabled]="isLoggingOut"> <span class="hello-drop">{{'admin.logout' |
                         translate}}</span></button>
             </mat-menu>
         </div>

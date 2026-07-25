@@ -11,6 +11,11 @@ export interface CurrentTenantState {
   companyCode: string;
   subscriptionId: number | null;
   planId: number | null;
+  companyLegalName: string | null;
+  currency: string | null;
+  language: string | null;
+  timezone: string | null;
+  logoUrl: string | null;
 }
 
 const CURRENT_TENANT_KEY = 'current_tenant';
@@ -76,6 +81,11 @@ export class TenantContextService {
           companyCode: response.tenantCode,
           subscriptionId: membership?.subscriptionId ?? null,
           planId: membership?.planId ?? null,
+          companyLegalName: response.companyLegalName ?? null,
+          currency: response.currency ?? null,
+          language: response.language ?? null,
+          timezone: response.timezone ?? null,
+          logoUrl: response.logoUrl ?? null,
         };
         this.localStorage.setItem(CURRENT_TENANT_KEY, JSON.stringify(state));
         this._current.set(state);

@@ -4,15 +4,19 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, filter, finalize, switchMap, take } from 'rxjs/operators';
 import { AuthService } from '../services/AuthService.service';
+import { TenantContextService } from '../services/tenant-context.service';
 
 /** Endpoints that must never trigger a refresh-and-retry: a 401 from these means "bad credentials
  *  / bad token / bad reset link", not "session expired", and retrying would either loop forever
- *  (refresh-token itself) or silently paper over a real auth failure. */
-const AUTH_ENDPOINTS = ['/api/Users/login', '/api/Users/refresh-token', '/api/Users/forgot-password', '/api/Users/reset-password'];
+ *  (refresh-token itself) or silently paper over a real auth failure. logout is included because
+ *  a 401 there just means the token was already invalid -- an expected, harmless outcome for a
+ *  fire-and-forget call, not something to refresh-and-retry. */
+const AUTH_ENDPOINTS = ['/api/Users/login', '/api/Users/refresh-token', '/api/Users/forgot-password', '/api/Users/reset-password', '/api/Users/logout'];
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
   private authService = inject(AuthService);
+  private tenantContext = inject(TenantContextService);
   private router = inject(Router);
 
   private isRefreshing = false;
@@ -75,6 +79,7 @@ export class JwtInterceptor implements HttpInterceptor {
 
   private forceLogout(): void {
     this.authService.logout();
+    this.tenantContext.clear();
     this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
   }
 }
