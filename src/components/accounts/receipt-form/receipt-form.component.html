@@ -32,9 +32,11 @@
 
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Receipt Type</mat-label>
+              <mat-label>{{ 'ACCOUNTS.FORM.RECEIPT_TYPE' | translate }}</mat-label>
               <mat-select formControlName="receiptType">
-                <mat-option *ngFor="let t of receiptTypes" [value]="t">{{ t }}</mat-option>
+                <mat-option *ngFor="let t of receiptTypes" [value]="t">
+                  {{ 'ACCOUNTS.FORM.RECEIPT_TYPE_OPTIONS.' + t | translate }}
+                </mat-option>
               </mat-select>
             </mat-form-field>
 
@@ -194,6 +196,7 @@
                   <td>{{ allocation.get('originalBalance')?.value | currency:'SAR' }}</td>
                   <td>
                     <mat-form-field appearance="outline" class="table-field">
+                      <mat-label>{{ 'ACCOUNTS.FORM.AMOUNT_TO_PAY' | translate }}</mat-label>
                       <input matInput type="number" formControlName="amountToPay"
                              min="0"
                              [max]="allocation.get('originalBalance')?.value">
@@ -241,14 +244,14 @@
               <div class="accounting-item">
                 <span>{{ getAccountName(receiptForm.get('creditAccountId')?.value) }}</span>
                 <span class="amount credit-amount">
-                  {{ totalAllocated() | currency:'SAR' }}
+                  {{ (isCustomerReceipt() ? totalAllocated() : totalAmountReceived()) | currency:'SAR' }}
                 </span>
               </div>
             </div>
 
           </div>
 
-          <div class="difference-section" [class.error]="unallocatedBalance() !== 0">
+          <div class="difference-section" *ngIf="isCustomerReceipt()" [class.error]="unallocatedBalance() !== 0">
             <strong>
               {{ 'ACCOUNTS.FORM.UNALLOCATED_BALANCE' | translate }}:
               {{ unallocatedBalance() | currency:'SAR' }}
@@ -271,7 +274,7 @@
           {{ 'ACCOUNTS.FORM.CANCEL' | translate }}
         </a>
         <button mat-raised-button color="primary" type="submit"
-                [disabled]="receiptForm.invalid || unallocatedBalance() !== 0">
+                [disabled]="receiptForm.invalid || (isCustomerReceipt() && unallocatedBalance() !== 0)">
           {{ (isEditMode() ? 'ACCOUNTS.FORM.UPDATE' : 'ACCOUNTS.FORM.SAVE_RECEIPT') | translate }}
         </button>
       </mat-card-actions>

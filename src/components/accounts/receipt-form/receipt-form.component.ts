@@ -23,7 +23,7 @@ import { Receipt, ReceiptSource, CreateReceiptDto } from '@/src/models/receipt.m
 import { PaymentMethod, VoucherStatus, BeneficiaryType } from '@/src/models/payment-voucher.model';
 import { AccountingService } from '../../accounting/accounting.service';
 import { Account } from '../../accounting/models';
-import { ToastService } from '@/src/services/toast.service';
+import { NotificationService } from '@/src/services/notification.service';
 import { InventoryService } from '../../../services/inventory.service';
 
 @Component({
@@ -60,6 +60,7 @@ export class ReceiptFormComponent implements OnInit {
   private accountingService = inject(AccountingService);
   private inventoryService = inject(InventoryService);
   private translate = inject(TranslateService);
+  private notificationService = inject(NotificationService);
   private fb = inject(FormBuilder);
 
   receiptForm!: FormGroup;
@@ -295,7 +296,7 @@ export class ReceiptFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading receipt:', error);
-        alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.ERROR_LOADING') || 'Error loading receipt');
+        this.notificationService.showError(this.translate.instant('ACCOUNTS.RECEIPT_FORM.ERROR_LOADING'));
         this.router.navigate(['/accounts/receipts']);
       }
     });
@@ -411,43 +412,75 @@ export class ReceiptFormComponent implements OnInit {
 
   saveReceipt() {
     if (this.receiptForm.invalid) {
-      return;
-    }
-    // Only enforce allocation balance for CUSTOMER receipts
-    if (this.isCustomerReceipt() && this.unallocatedBalance() !== 0) {
-      alert(this.translate.instant('ACCOUNTS.FORM.UNALLOCATED_BALANCE_ERROR') || 'Total allocated amount must equal the total amount received');
-      return;
-    }
-    if (this.isCustomerReceipt() && !this.receiptForm.get('customerId')?.value) {
-      alert(this.translate.instant('ACCOUNTS.FORM.SELECT_CUSTOMER') || 'Please select a customer');
+      this.receiptForm.markAllAsTouched();
       return;
     }
 
-    const dtos = this.buildReceiptDtos();
-    if (this.isCustomerReceipt() && dtos.length === 0) {
-      alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.NO_ALLOCATIONS') || 'Please allocate the received amount to at least one invoice');
+    // CUSTOMER receipts: amount is split across one or more invoice allocations.
+    if (this.isCustomerReceipt()) {
+      if (this.unallocatedBalance() !== 0) {
+        this.notificationService.showError(this.translate.instant('ACCOUNTS.FORM.UNALLOCATED_BALANCE_ERROR'));
+        return;
+      }
+      if (!this.receiptForm.get('customerId')?.value) {
+        this.notificationService.showError(this.translate.instant('ACCOUNTS.FORM.SELECT_CUSTOMER'));
+        return;
+      }
+
+      const dtos = this.buildReceiptDtos();
+      if (dtos.length === 0) {
+        this.notificationService.showError(this.translate.instant('ACCOUNTS.RECEIPT_FORM.NO_ALLOCATIONS'));
+        return;
+      }
+
+      if (this.isEditMode()) {
+        // A receipt maps to exactly one invoice - editing updates that single Receipt in place.
+        this.receiptService.updateReceipt(dtos[0], this.editingReceipt()!.id).subscribe({
+          next: () => {
+            this.notificationService.showSuccess(this.translate.instant('TOAST.UPDATED'));
+            this.router.navigate(['/accounts/receipts']);
+          },
+          error: (error) => {
+            console.error('Error updating receipt:', error);
+            this.notificationService.showError(this.translate.instant('ACCOUNTS.RECEIPT_FORM.ERROR_UPDATING'));
+          }
+        });
+        return;
+      }
+
+      // Create mode: post each allocation as its own Receipt, one after another so a duplicate
+      // voucher-number collision or partial failure is reported per row rather than silently
+      // dropping the rest.
+      this.createReceiptsSequentially(dtos, 0);
       return;
     }
 
+    // GENERAL / ADVANCE / TRANSFER receipts: no invoice link, a single receipt for the full amount.
+    const dto = this.buildSingleReceiptDto();
     if (this.isEditMode()) {
-      // A receipt maps to exactly one invoice - editing updates that single Receipt in place.
-      const dto = dtos[0] ?? this.buildSingleReceiptDto();
       this.receiptService.updateReceipt(dto, this.editingReceipt()!.id).subscribe({
         next: () => {
+          this.notificationService.showSuccess(this.translate.instant('TOAST.UPDATED'));
           this.router.navigate(['/accounts/receipts']);
         },
         error: (error) => {
           console.error('Error updating receipt:', error);
-          alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.ERROR_UPDATING') || 'Error updating receipt');
+          this.notificationService.showError(this.translate.instant('ACCOUNTS.RECEIPT_FORM.ERROR_UPDATING'));
         }
       });
       return;
     }
 
-    // Create mode: post each allocation as its own Receipt, one after another so a duplicate
-    // voucher-number collision or partial failure is reported per row rather than silently
-    // dropping the rest.
-    this.createReceiptsSequentially(dtos, 0);
+    this.receiptService.addReceipt(dto).subscribe({
+      next: () => {
+        this.notificationService.showSuccess(this.translate.instant('TOAST.ADD_SUCCESS'));
+        this.router.navigate(['/accounts/receipts']);
+      },
+      error: (error) => {
+        console.error('Error saving receipt:', error);
+        this.notificationService.showError(this.translate.instant('ACCOUNTS.RECEIPT_FORM.ERROR_SAVING'));
+      }
+    });
   }
 
   private buildSingleReceiptDto(): CreateReceiptDto {
@@ -467,6 +500,7 @@ export class ReceiptFormComponent implements OnInit {
 
   private createReceiptsSequentially(dtos: CreateReceiptDto[], index: number): void {
     if (index >= dtos.length) {
+      this.notificationService.showSuccess(this.translate.instant('TOAST.ADD_SUCCESS'));
       this.router.navigate(['/accounts/receipts']);
       return;
     }
@@ -474,7 +508,7 @@ export class ReceiptFormComponent implements OnInit {
       next: () => this.createReceiptsSequentially(dtos, index + 1),
       error: (error) => {
         console.error('Error saving receipt:', error);
-        alert(this.translate.instant('ACCOUNTS.RECEIPT_FORM.ERROR_SAVING') || 'Error saving receipt');
+        this.notificationService.showError(this.translate.instant('ACCOUNTS.RECEIPT_FORM.ERROR_SAVING'));
       }
     });
   }

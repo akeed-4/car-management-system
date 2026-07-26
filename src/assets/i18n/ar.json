@@ -2067,7 +2067,19 @@
       "UPDATE": "تحديث",
       "AUTO_DISTRIBUTE_TOOLTIP": "توزيع الإجمالي تلقائيًا بين صفوف السيارات",
       "SUPPLIER": "المورد",
-      "SELECT_SUPPLIER": "-- اختر المورد --"
+      "SELECT_SUPPLIER": "-- اختر المورد --",
+      "RECEIPT_TYPE": "نوع سند القبض",
+      "RECEIPT_TYPE_OPTIONS": {
+        "CUSTOMER": "عميل (مرتبط بفاتورة)",
+        "GENERAL": "عام (بدون فاتورة)",
+        "ADVANCE": "دفعة مقدمة",
+        "TRANSFER": "تحويل"
+      },
+      "NOTE": "ملاحظة",
+      "ACTIONS": "إجراءات",
+      "ADD_ROW": "إضافة صف",
+      "SELECT_INVOICE_OPTIONAL": "-- بدون فاتورة (اختياري) --",
+      "DIFFERENCE_ERROR": "يجب أن يساوي إجمالي مبلغ السند مجموع صفوف التوزيع"
     },
     "DEPOSITS": {
       "LIST_TITLE": "قائمة سندات العربون",

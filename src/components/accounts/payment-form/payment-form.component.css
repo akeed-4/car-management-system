@@ -36,6 +36,10 @@
   }
 }
 
+.add-row-btn {
+  margin-top: .5rem;
+}
+
 .form-row {
   display: flex;
   gap: 1rem;

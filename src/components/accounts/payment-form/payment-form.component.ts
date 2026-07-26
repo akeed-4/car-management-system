@@ -188,10 +188,12 @@ export class PaymentFormComponent implements OnInit {
   }
 
   // ── Detail Helpers ───────────────────────────────────────────────────────────
+  /** chassisNumber/model are only meaningful when the row was auto-populated from an
+   * invoice's car; a manual (no-invoice) payment row only needs an amount. */
   private buildDetailGroup(car?: any): FormGroup {
     return this.fb.group({
-      chassisNumber: [car?.chassisNumber || '', Validators.required],
-      model:         [car?.model         || '', Validators.required],
+      chassisNumber: [car?.chassisNumber || ''],
+      model:         [car?.model         || ''],
       carId:         [car?.carId         || car?.id || null],
       amount:        [car?.amount        || 0, [Validators.required, Validators.min(0.01)]],
       note:          [car?.note          || '']
@@ -256,10 +258,6 @@ export class PaymentFormComponent implements OnInit {
     }
 
     const v = this.paymentForm.value;
-    if (!v.purchaseInvoiceId) {
-      this.notificationService.showError(this.translate.instant('ACCOUNTS.FORM.SELECT_INVOICE'));
-      return;
-    }
 
     const payment: Partial<Payment> = {
       voucherNumber:    this.editingPayment()?.voucherNumber || '',

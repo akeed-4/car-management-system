@@ -2072,7 +2072,19 @@
       "UPDATE": "Update",
       "AUTO_DISTRIBUTE_TOOLTIP": "Automatically distribute the total among car rows",
       "SUPPLIER": "Supplier",
-      "SELECT_SUPPLIER": "-- Select supplier --"
+      "SELECT_SUPPLIER": "-- Select supplier --",
+      "RECEIPT_TYPE": "Receipt Type",
+      "RECEIPT_TYPE_OPTIONS": {
+        "CUSTOMER": "Customer (linked to invoice)",
+        "GENERAL": "General (no invoice)",
+        "ADVANCE": "Advance",
+        "TRANSFER": "Transfer"
+      },
+      "NOTE": "Note",
+      "ACTIONS": "Actions",
+      "ADD_ROW": "Add Row",
+      "SELECT_INVOICE_OPTIONAL": "-- No invoice (optional) --",
+      "DIFFERENCE_ERROR": "Total voucher amount must equal the sum of the distribution rows"
     },
     "DEPOSITS": {
       "LIST_TITLE": "Deposit Vouchers",
