@@ -105,10 +105,16 @@
             <mat-form-field appearance="outline">
               <mat-label>{{ 'CONSIGNMENT.STATUS' | translate }}</mat-label>
               <mat-select formControlName="status">
-                <mat-option *ngFor="let s of statusOptions" [value]="s">
+                <mat-option *ngIf="carForm.get('status')?.disabled" value="Sold">
+                  {{ 'CONSIGNMENT.STATUS_SOLD' | translate }}
+                </mat-option>
+                <mat-option *ngFor="let s of editableStatusOptions" [value]="s">
                   {{ ('CONSIGNMENT.STATUS_' + s.toUpperCase()) | translate }}
                 </mat-option>
               </mat-select>
+              @if (carForm.get('status')?.disabled) {
+                <mat-hint>{{ 'CONSIGNMENT.FORM.SOLD_STATUS_LOCKED_HINT' | translate }}</mat-hint>
+              }
             </mat-form-field>
           </div>
         </div>
@@ -127,8 +133,22 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline">
+              <mat-label>{{ 'CONSIGNMENT.SALE.COMMISSION_TYPE' | translate }}</mat-label>
+              <mat-select formControlName="commissionType">
+                <mat-option value="Percentage">{{ 'CONSIGNMENT.SALE.COMMISSION_PERCENTAGE' | translate }}</mat-option>
+                <mat-option value="FixedAmount">{{ 'CONSIGNMENT.SALE.COMMISSION_FIXED' | translate }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" *ngIf="carForm.get('commissionType')?.value !== 'FixedAmount'">
               <mat-label>{{ 'CONSIGNMENT.COMMISSION_RATE' | translate }}</mat-label>
               <input matInput type="number" formControlName="commissionRate">
+              <span matTextSuffix>%</span>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" *ngIf="carForm.get('commissionType')?.value === 'FixedAmount'">
+              <mat-label>{{ 'CONSIGNMENT.SALE.COMMISSION_FIXED' | translate }}</mat-label>
+              <input matInput type="number" formControlName="commissionFixedAmount">
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="col-span-3">

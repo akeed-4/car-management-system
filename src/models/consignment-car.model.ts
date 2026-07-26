@@ -1,4 +1,5 @@
 export type ConsignmentCarStatus = 'Available' | 'Reserved' | 'Sold' | 'Returned';
+export type CommissionType = 'Percentage' | 'FixedAmount';
 
 export interface ConsignmentCar {
   id: number;
@@ -20,7 +21,10 @@ export interface ConsignmentCar {
   arrivalDate: string;
   expectedSalePrice: number;
   currentCost: number;
+  commissionType: CommissionType;
   commissionRate: number;
+  commissionFixedAmount: number;
+  /** Preview only, recalculated off expectedSalePrice -- the posted amount lives on ConsignmentSale.commissionAmount. */
   commissionAmount?: number;
 
   status: ConsignmentCarStatus;
@@ -54,7 +58,9 @@ export interface CreateConsignmentCarDto {
   arrivalDate: string;
   expectedSalePrice: number;
   currentCost: number;
+  commissionType?: CommissionType;
   commissionRate: number;
+  commissionFixedAmount?: number;
   location?: string;
   notes?: string;
   companyId?: number | null;
@@ -75,11 +81,12 @@ export interface UpdateConsignmentCarDto {
   arrivalDate?: string;
   expectedSalePrice?: number;
   currentCost?: number;
+  commissionType?: CommissionType;
   commissionRate?: number;
+  commissionFixedAmount?: number;
+  /** "Sold" is rejected by the backend here -- selling must go through ConsignmentSaleService.sell(). */
   status?: ConsignmentCarStatus;
   location?: string;
-  soldDate?: string | null;
-  actualSalePrice?: number | null;
   notes?: string;
   companyId?: number | null;
   branchId?: number | null;

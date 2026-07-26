@@ -1,4 +1,5 @@
-import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -30,6 +31,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
   private authService = inject(AuthService);
   private languageService = inject(LanguageService);
+  private destroyRef = inject(DestroyRef);
 
   readonly cardContainerId = CARD_CONTAINER_ID;
 
@@ -52,7 +54,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.planId = Number(planIdParam);
     this.billingCycle = Number(cycleParam) as BillingCycle;
 
-    this.platformService.getPublicPlans().subscribe({
+    this.platformService.getPublicPlans().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (plans) => {
         const plan = plans.find(p => p.id === this.planId) ?? null;
         this.plan.set(plan);

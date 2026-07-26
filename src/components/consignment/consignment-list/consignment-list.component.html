@@ -159,8 +159,21 @@
       <dxi-column dataField="notes" [caption]="'REQUESTED_CARS.NOTES' | translate" [visible]="false"></dxi-column>
       <dxi-column dataField="createdAt" dataType="datetime" [caption]="'REQUESTED_CARS.CREATED_DATE' | translate" [visible]="false"></dxi-column>
 
-      <dxi-column type="buttons" [caption]="'COMMON.ACTIONS' | translate" [width]="120" [fixed]="true" fixedPosition="right" cellTemplate="actionsTemplate"></dxi-column>
+      <dxi-column type="buttons" [caption]="'COMMON.ACTIONS' | translate" [width]="200" [fixed]="true" fixedPosition="right" cellTemplate="actionsTemplate"></dxi-column>
       <div *dxTemplate="let cell of 'actionsTemplate'">
+        <ng-container *ngIf="canSell(cell.data)">
+          <button mat-icon-button [matTooltip]="'CONSIGNMENT.SALE.SELL' | translate" (click)="sellCar(cell.data)" *appHasPermission="'consignmentCar.sell'">
+            <mat-icon>sell</mat-icon>
+          </button>
+        </ng-container>
+        <ng-container *ngIf="cell.data.status === 'Sold'">
+          <button mat-icon-button [matTooltip]="'CONSIGNMENT.SALE.CANCEL_SALE' | translate" (click)="cancelSale(cell.data)" *appHasPermission="'consignmentCar.sell'">
+            <mat-icon>undo</mat-icon>
+          </button>
+          <button mat-icon-button [matTooltip]="'CONSIGNMENT.SALE.RETURN_TO_OWNER' | translate" (click)="returnCar(cell.data)" *appHasPermission="'consignmentCar.sell'">
+            <mat-icon>keyboard_return</mat-icon>
+          </button>
+        </ng-container>
         <button mat-icon-button [matTooltip]="'COMMON.EDIT' | translate" (click)="editCar(cell.data.id)" *appHasPermission="'consignmentCar.edit'">
           <mat-icon>edit</mat-icon>
         </button>

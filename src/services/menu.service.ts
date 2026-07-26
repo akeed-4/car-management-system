@@ -150,7 +150,8 @@ export const menuData = [
       { id: 64, name: 'فواتير المشتريات النقدية', englishName: 'Cash Purchase Invoices', route: '/purchases/invoice/cash' },
       { id: 65, name: 'فواتير المشتريات الآجلة', englishName: 'Credit Purchase Invoices', route: '/purchases/invoice/credit' },
       { id: 66, name: 'مرتجعات المشتريات النقدية', englishName: 'Cash Purchase Returns', route: '/purchases/return/cash' },
-      { id: 67, name: 'مرتجعات المشتريات الآجلة', englishName: 'Credit Purchase Returns', route: '/purchases/return/credit' }
+      { id: 67, name: 'مرتجعات المشتريات الآجلة', englishName: 'Credit Purchase Returns', route: '/purchases/return/credit' },
+      { id: 68, name: 'التكاليف الإضافية للمشتريات', englishName: 'Purchase Additional Costs', route: '/purchase-additional-costs' }
     ]
   },
   {

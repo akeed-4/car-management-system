@@ -20,11 +20,16 @@ import {
 import { TranslateModule } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { ConsignmentService } from '../../../services/consignment.service';
+import { ConsignmentSaleService } from '../../../services/consignment-sale.service';
 import { HasPermissionDirective } from '../../shared/permission.directive';
 import { ModalComponent } from '../../shared/modal/modal.component';
 import { AuditHistoryPanelComponent } from '../../shared/audit-history-panel/audit-history-panel.component';
 import { ConsignmentCar } from '../../../models/consignment-car.model';
 import { getConsignmentStatusClass } from '../consignment-status.util';
+import { ConsignmentSaleDialogComponent } from '../consignment-sale-dialog/consignment-sale-dialog.component';
+import { NotificationService } from '../../../services/notification.service';
+import { AuthService } from '../../../services/AuthService.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-consignment-list',
@@ -54,8 +59,12 @@ export class ConsignmentListComponent {
   @ViewChild(DxDataGridComponent, { static: false }) grid!: DxDataGridComponent;
 
   private consignmentService = inject(ConsignmentService);
+  private consignmentSaleService = inject(ConsignmentSaleService);
   private router = inject(Router);
   private dialog = inject(MatDialog);
+  private notificationService = inject(NotificationService);
+  private authService = inject(AuthService);
+  private translate = inject(TranslateService);
 
   statusFilter = signal<string>('');
 
@@ -189,5 +198,67 @@ export class ConsignmentListComponent {
       data: { entityName: 'ConsignmentCar', entityId: id },
       width: '600px',
     });
+  }
+
+  /** Available/Reserved only -- the dialog posts the commission journal entry and flips the
+   * vehicle to Sold server-side; no direct status edit ever reaches this from the UI. */
+  canSell(car: ConsignmentCar): boolean {
+    return car.status === 'Available' || car.status === 'Reserved';
+  }
+
+  sellCar(car: ConsignmentCar): void {
+    const ref = this.dialog.open(ConsignmentSaleDialogComponent, {
+      width: '520px',
+      maxWidth: '95vw',
+      data: { car },
+    });
+    ref.afterClosed().subscribe((result) => {
+      if (result) {
+        this.notificationService.showSuccess(this.translate.instant('CONSIGNMENT.SALE.SUCCESS'));
+        this.refresh();
+      }
+    });
+  }
+
+  cancelSale(car: ConsignmentCar): void {
+    if (!car.id) return;
+    this.findActiveSaleAndReverse(car, 'cancel');
+  }
+
+  returnCar(car: ConsignmentCar): void {
+    if (!car.id) return;
+    this.findActiveSaleAndReverse(car, 'return');
+  }
+
+  /** The ConsignmentCar grid doesn't carry its ConsignmentSale.Id directly, so the active
+   * (Posted) sale for this car is looked up first via the grid endpoint filtered by car -- same
+   * dual-mode GetAll used everywhere else, just called for a single-page lookup here. */
+  private findActiveSaleAndReverse(car: ConsignmentCar, action: 'cancel' | 'return'): void {
+    this.consignmentSaleService
+      .loadDataGrid({ filter: [['consignmentCarId', '=', car.id], 'and', ['status', '=', 'Posted']] })
+      .subscribe((result) => {
+        const sale = result.data?.[0];
+        if (!sale) {
+          this.notificationService.showError(this.translate.instant('CONSIGNMENT.SALE.NO_ACTIVE_SALE'));
+          return;
+        }
+        const userId = this.authService.currentUser()?.id ?? 0;
+        const call = action === 'cancel'
+          ? this.consignmentSaleService.cancel(sale.id, userId)
+          : this.consignmentSaleService.return(sale.id, userId);
+        call.subscribe({
+          next: (response) => {
+            if (response.success) {
+              this.notificationService.showSuccess(
+                this.translate.instant(action === 'cancel' ? 'CONSIGNMENT.SALE.CANCELLED' : 'CONSIGNMENT.SALE.RETURNED')
+              );
+              this.refresh();
+            } else {
+              this.notificationService.showError(response.message);
+            }
+          },
+          error: (err) => this.notificationService.showError(err?.error?.message ?? err?.message ?? 'Error'),
+        });
+      });
   }
 }

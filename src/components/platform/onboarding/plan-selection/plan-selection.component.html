@@ -12,7 +12,16 @@
 
   <mat-progress-bar mode="indeterminate" *ngIf="loading()"></mat-progress-bar>
 
-  <div class="plan-grid" *ngIf="!loading()">
+  <div class="plan-load-error" *ngIf="!loading() && loadError()">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ 'ONBOARDING.PLANS.LOAD_ERROR' | translate }}</p>
+    <button mat-stroked-button color="primary" (click)="retry()">
+      <mat-icon>refresh</mat-icon>
+      {{ 'ONBOARDING.PLANS.RETRY' | translate }}
+    </button>
+  </div>
+
+  <div class="plan-grid" *ngIf="!loading() && !loadError()">
     <mat-card class="plan-card" *ngFor="let plan of plans()">
       <div class="plan-header">
         <h2>{{ planNameKey(plan) | translate }}</h2>

@@ -71,6 +71,10 @@ export class ConsignmentFormComponent implements OnInit {
   uploading = signal(false);
 
   statusOptions = ['Available', 'Reserved', 'Sold', 'Returned'];
+  /** "Sold" is intentionally excluded -- the backend rejects setting it through this generic
+   * update path; selling now goes exclusively through the Consignment Sale dialog on the list
+   * screen so commission accounting is always posted alongside the status change. */
+  editableStatusOptions = ['Available', 'Reserved', 'Returned'];
 
   ngOnInit() {
     this.initForm();
@@ -89,6 +93,12 @@ export class ConsignmentFormComponent implements OnInit {
             name: car.supplierName,
             phone: car.supplierPhone,
           } as Supplier);
+          // Sold vehicles can only change status via the Consignment Sale dialog's
+          // cancel/return actions on the list screen -- lock the field here rather than
+          // silently dropping "Sold" from the dropdown while still submitting it unchanged.
+          if (car.status === 'Sold') {
+            this.carForm.get('status')?.disable();
+          }
         },
         error: () => {
           this.router.navigate(['/consignment-cars']);
@@ -112,7 +122,9 @@ export class ConsignmentFormComponent implements OnInit {
       arrivalDate: new FormControl(new Date().toISOString().split('T')[0], Validators.required),
       expectedSalePrice: new FormControl<number | null>(null, Validators.required),
       currentCost: new FormControl<number | null>(0, Validators.required),
+      commissionType: new FormControl<'Percentage' | 'FixedAmount'>('Percentage'),
       commissionRate: new FormControl<number | null>(5, Validators.required),
+      commissionFixedAmount: new FormControl<number | null>(0),
       status: new FormControl('Available'),
       location: new FormControl(''),
       notes: new FormControl(''),

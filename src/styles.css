@@ -49,6 +49,16 @@
 
   /* Fonts */
   --font-family-sans: 'Almarai', sans-serif;
+  /* Aliases for --font-body/--font-secondary/--font-heading, referenced throughout this file
+     and several component stylesheets but never previously defined -- every rule using them
+     was silently falling back to the browser/inherited default font instead of the app's
+     actual typeface. index.html loads several Arabic webfonts (Cairo, Amiri, Noto Sans Arabic,
+     etc.) besides Almarai with no documented convention for which maps to heading/secondary/body,
+     so all three alias to the same --font-family-sans (Almarai) rather than guess at an unproven
+     heading/body split -- this is the app's one confirmed, intentionally-loaded default typeface. */
+  --font-body: var(--font-family-sans);
+  --font-secondary: var(--font-family-sans);
+  --font-heading: var(--font-family-sans);
 
   /* Spacing */
   --space-1: 0.25rem;
@@ -711,7 +721,10 @@ form {
 }
 
 mat-form-field {
-  width: 99.9%;
+  /* Was 99.9% (an old fractional-width workaround, likely for a since-fixed horizontal-scrollbar
+     rounding issue) -- normalized to a clean 100%, matching .form-grid mat-form-field below, so
+     every full-width field in the app sizes identically instead of two competing conventions. */
+  width: 100%;
 }
 
 

@@ -154,6 +154,16 @@ export class RegistrationComponent {
   }
 
   onSubmit(): void {
+    // Guards against a double-fire (Enter key re-submit, double-click before the button's
+    // [disabled] binding visually updates, etc.) creating two tenants from one form submission
+    // and racing two overlapping setSession()/navigate() chains against each other -- which is
+    // what left the plans screen blank until a manual refresh: the second, "losing" chain's
+    // in-flight requests could still resolve after the first chain's navigation had already
+    // torn down/rebuilt the destination component.
+    if (this.isSubmitting()) {
+      return;
+    }
+
     this.errorMessage = null;
 
     if (this.registrationForm.invalid) {
@@ -201,15 +211,23 @@ export class RegistrationComponent {
 
   /** Same status-lookup -> resolveOnboardingDestination() sequence LoginComponent uses: no active
    *  subscription yet (always true for a brand new signup) -> /onboarding/plans; already active
-   *  (e.g. re-registration edge case) -> /dashboard. */
+   *  (e.g. re-registration edge case) -> /dashboard. isSubmitting is cleared right before
+   *  navigating (every path, success or fallback) rather than left set until this component is
+   *  torn down -- it was previously never reset on the success path at all, so a user who
+   *  navigated back to /registration mid-session (e.g. via browser back) would find the form
+   *  permanently disabled. */
   private goToOnboardingDestination(): void {
     const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
     this.platformService.getMySubscriptionStatus().subscribe({
       next: (status) => {
         const destination = resolveOnboardingDestination(status, returnUrl);
+        this.isSubmitting.set(false);
         this.router.navigate(destination.commands, { queryParams: destination.queryParams });
       },
-      error: () => this.router.navigate(['/onboarding/plans'], returnUrl ? { queryParams: { returnUrl } } : {}),
+      error: () => {
+        this.isSubmitting.set(false);
+        this.router.navigate(['/onboarding/plans'], returnUrl ? { queryParams: { returnUrl } } : {});
+      },
     });
   }
 }

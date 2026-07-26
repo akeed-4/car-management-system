@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -62,28 +63,51 @@ export class PlanSelectionComponent {
   private notificationService = inject(NotificationService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private destroyRef = inject(DestroyRef);
 
   loading = signal(true);
+  loadError = signal(false);
   subscribingPlanId = signal<number | null>(null);
   plans = signal<SubscriptionPlanDto[]>([]);
   billingCycle = signal<BillingCycle>(BillingCycle.Monthly);
 
   readonly billingCycles = BillingCycleHelper.getAll();
 
+  /** True while a getPublicPlans() request is already in flight -- guards loadPlans() (and
+   *  therefore the retry button) against firing a second overlapping request, and against
+   *  applying a stale response's plans/loading state after this component has been destroyed
+   *  (e.g. the user double-navigated away and back before the first request settled). */
+  private loadInProgress = false;
+
   constructor() {
     this.loadPlans();
   }
 
+  /** Lets the user recover from a failed fetch (e.g. a transient network error right after a
+   *  fresh tenant provisioning) without a manual page refresh -- exposed as a "Retry" action in
+   *  the template's error state. */
+  retry(): void {
+    this.loadPlans();
+  }
+
   private loadPlans(): void {
+    if (this.loadInProgress) {
+      return;
+    }
+    this.loadInProgress = true;
     this.loading.set(true);
-    this.platformService.getPublicPlans().subscribe({
+    this.loadError.set(false);
+    this.platformService.getPublicPlans().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (plans) => {
         this.plans.set([...plans].filter(p => p.isActive).sort((a, b) => a.sortOrder - b.sortOrder));
         this.loading.set(false);
+        this.loadInProgress = false;
       },
       error: () => {
         this.notificationService.showError('ONBOARDING.PLANS.LOAD_ERROR');
+        this.loadError.set(true);
         this.loading.set(false);
+        this.loadInProgress = false;
       },
     });
   }

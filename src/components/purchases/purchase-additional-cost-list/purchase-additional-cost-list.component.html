@@ -1,0 +1,137 @@
+<div class="page-container">
+
+  <div class="page-header">
+    <div class="breadcrumb">
+      <span>{{ 'PURCHASE_INVOICE.TITLE' | translate }}</span>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="current">{{ 'PURCHASE_ADDITIONAL_COST.TITLE' | translate }}</span>
+    </div>
+    <div class="header-row">
+      <div>
+        <h1>{{ 'PURCHASE_ADDITIONAL_COST.TITLE' | translate }}</h1>
+        <p class="subtitle">{{ 'PURCHASE_ADDITIONAL_COST.SUBTITLE' | translate }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="summary-cards">
+    <mat-card class="summary-card total">
+      <mat-icon>list_alt</mat-icon>
+      <div class="summary-info">
+        <div class="summary-value">{{ summary().total }}</div>
+        <div class="summary-label">{{ 'PURCHASE_ADDITIONAL_COST.SUMMARY.TOTAL' | translate }}</div>
+      </div>
+    </mat-card>
+    <mat-card class="summary-card draft">
+      <mat-icon>edit_note</mat-icon>
+      <div class="summary-info">
+        <div class="summary-value">{{ summary().draft }}</div>
+        <div class="summary-label">{{ 'PURCHASE_ADDITIONAL_COST.SUMMARY.DRAFT' | translate }}</div>
+      </div>
+    </mat-card>
+    <mat-card class="summary-card posted">
+      <mat-icon>check_circle</mat-icon>
+      <div class="summary-info">
+        <div class="summary-value">{{ summary().posted }}</div>
+        <div class="summary-label">{{ 'PURCHASE_ADDITIONAL_COST.SUMMARY.POSTED' | translate }}</div>
+      </div>
+    </mat-card>
+    <mat-card class="summary-card value">
+      <mat-icon>payments</mat-icon>
+      <div class="summary-info">
+        <div class="summary-value">{{ summary().totalAmount | number:'1.0-0' }}</div>
+        <div class="summary-label">{{ 'PURCHASE_ADDITIONAL_COST.SUMMARY.TOTAL_AMOUNT' | translate }}</div>
+      </div>
+    </mat-card>
+  </div>
+
+  <mat-toolbar class="page-toolbar">
+    <button mat-flat-button color="primary" (click)="newCost()" *appHasPermission="'purchaseAdditionalCost.create'">
+      <mat-icon>add</mat-icon>
+      {{ 'COMMON.NEW' | translate }}
+    </button>
+
+    <button mat-stroked-button (click)="refresh()">
+      <mat-icon>refresh</mat-icon>
+      {{ 'COMMON.REFRESH' | translate }}
+    </button>
+
+    <span class="toolbar-spacer"></span>
+
+    <mat-form-field appearance="outline" class="filter-select">
+      <mat-label>{{ 'PURCHASE_ADDITIONAL_COST.STATUS' | translate }}</mat-label>
+      <mat-select [(ngModel)]="statusFilter" (selectionChange)="onStatusFilterChange()">
+        <mat-option value="">{{ 'COMMON.ALL' | translate }}</mat-option>
+        <mat-option *ngFor="let s of statusOptions" [value]="s">
+          {{ ('PURCHASE_ADDITIONAL_COST.STATUS_' + s.toUpperCase()) | translate }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </mat-toolbar>
+
+  <div class="table-wrapper">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{{ 'PURCHASE_ADDITIONAL_COST.DOCUMENT_NUMBER' | translate }}</th>
+          <th>{{ 'PURCHASE_ADDITIONAL_COST.PURCHASE_INVOICE' | translate }}</th>
+          <th>{{ 'PURCHASE_ADDITIONAL_COST.EXPENSE_CATEGORY' | translate }}</th>
+          <th>{{ 'PURCHASE_ADDITIONAL_COST.COST_DATE' | translate }}</th>
+          <th>{{ 'PURCHASE_ADDITIONAL_COST.AMOUNT' | translate }}</th>
+          <th>{{ 'PURCHASE_ADDITIONAL_COST.ALLOCATION_METHOD' | translate }}</th>
+          <th>{{ 'PURCHASE_ADDITIONAL_COST.STATUS' | translate }}</th>
+          <th>{{ 'COMMON.ACTIONS' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of filteredItems()">
+          <td>{{ item.documentNumber }}</td>
+          <td>{{ item.purchaseInvoiceNumber }}</td>
+          <td>{{ ('PURCHASE_ADDITIONAL_COST.CATEGORY_' + item.expenseCategory.toUpperCase()) | translate }}</td>
+          <td>{{ item.costDate | date:'yyyy-MM-dd' }}</td>
+          <td>{{ item.amount | number:'1.2-2' }}</td>
+          <td>{{ ('PURCHASE_ADDITIONAL_COST.METHOD_' + item.allocationMethod.toUpperCase()) | translate }}</td>
+          <td>
+            <span class="chip" [ngClass]="'status-' + item.status.toLowerCase()">
+              {{ ('PURCHASE_ADDITIONAL_COST.STATUS_' + item.status.toUpperCase()) | translate }}
+            </span>
+          </td>
+          <td class="actions-cell">
+            <ng-container *ngIf="canEdit(item)">
+              <button mat-icon-button [matTooltip]="'COMMON.EDIT' | translate" (click)="editCost(item.id)" *appHasPermission="'purchaseAdditionalCost.edit'">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </ng-container>
+            <ng-container *ngIf="item.status === 'Draft'">
+              <button mat-icon-button color="primary" [matTooltip]="'PURCHASE_ADDITIONAL_COST.POST' | translate" (click)="postCost(item)" *appHasPermission="'purchaseAdditionalCost.post'">
+                <mat-icon>task_alt</mat-icon>
+              </button>
+            </ng-container>
+            <ng-container *ngIf="item.status === 'Posted'">
+              <button mat-icon-button color="warn" [matTooltip]="'PURCHASE_ADDITIONAL_COST.CANCEL' | translate" (click)="cancelCost(item)" *appHasPermission="'purchaseAdditionalCost.post'">
+                <mat-icon>undo</mat-icon>
+              </button>
+            </ng-container>
+            <ng-container *ngIf="canEdit(item)">
+              <button mat-icon-button color="warn" [matTooltip]="'COMMON.DELETE' | translate" (click)="requestDelete(item.id)" *appHasPermission="'purchaseAdditionalCost.delete'">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </ng-container>
+          </td>
+        </tr>
+        <tr *ngIf="!loading() && filteredItems().length === 0">
+          <td colspan="8" class="empty-row">{{ 'COMMON.NO_DATA' | translate }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <app-modal
+    [isOpen]="isDeleteModalOpen()"
+    [title]="'PURCHASE_ADDITIONAL_COST.DELETE_CONFIRM_TITLE' | translate"
+    [message]="'PURCHASE_ADDITIONAL_COST.DELETE_CONFIRM_MESSAGE' | translate"
+    (confirm)="confirmDelete()"
+    (cancel)="closeDeleteModal()">
+  </app-modal>
+
+</div>
