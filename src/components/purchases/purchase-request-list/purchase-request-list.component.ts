@@ -7,6 +7,7 @@ import { PurchaseCycleService } from '../../../services/purchase-cycle.service';
 import { NotificationService } from '../../../services/notification.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { PurchaseRequestDto } from '../../../models/purchase-request.model';
 import { HasPermissionDirective } from '../../shared/permission.directive';
 import { PermissionService } from '../../../services/permission.service';
@@ -23,6 +24,7 @@ import { PermissionService } from '../../../services/permission.service';
     TranslateModule,
     MatButtonModule,
     MatIconModule,
+    MatTooltipModule,
     HasPermissionDirective
   ],
   templateUrl: './purchase-request-list.component.html',
@@ -74,7 +76,8 @@ export class PurchaseRequestListComponent implements OnInit {
     return status === 'Draft' || status === 'Pending' || status === 'PendingApproval';
   };
 
-  canEdit = (): boolean => this.permissionService.hasPermission('purchaseRequest.edit');
+  /** Approved/Rejected requests are locked server-side (UpdateAsync rejects them) -- only Pending is actually editable. */
+  canEdit = (e: any): boolean => this.isDraft(e) && this.permissionService.hasPermission('purchaseRequest.edit');
   canApprove = (e: any): boolean => this.isDraft(e) && this.permissionService.hasPermission('purchaseRequest.approve');
   canReject = (e: any): boolean => this.isDraft(e) && this.permissionService.hasPermission('purchaseRequest.reject');
   /** Approved requests are locked -- everything else (including Rejected, for cleanup) may still be deleted. */
