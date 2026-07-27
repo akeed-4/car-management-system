@@ -11,8 +11,27 @@ deadline.
 
 ## Status
 
+- [x] **Purchase Request Approval — full audit trail + legal-transition guards**
+      (user-directed, 2026-07-27). Deeper follow-up investigation of the module
+      fixed last: added `CreatedBy`/`ApprovedBy`/`ApprovedAt`/`RejectedBy`/
+      `RejectedAt`/`RejectionReason` columns (migration
+      `AddPurchaseRequestApprovalAudit`) so approvals are actually attributable
+      instead of anonymous; `RejectAsync` now stores the reason as a real column
+      instead of string-appending it into `Notes`; `UpdateAsync` no longer
+      accepts an arbitrary `Status` (previously a silent bypass around
+      Approve/Reject's guard) and now refuses to edit an Approved/Rejected
+      request at all; `[Required]` added to the reject-reason DTO so an empty
+      reason 400s. Also added `purchaseRequest.*` to the real backend
+      permission-policy catalog (`PermissionSeeder` + idempotent
+      `SeedPurchaseRequestPermissions` migration) so those keys exist for an
+      admin to grant via Roles & Permissions, matching the GRN controller's
+      phase-1 pattern — catalog entries only, no enforcement wired onto the
+      controller's actions themselves. Backend: 92/92 tests pass, clean build.
+      Frontend: Edit now hidden once a request leaves Pending (matches the new
+      server-side guard) and the status badge tooltips the rejection reason.
+      Commits `1c89ec9` (backend) and `9570d84` (frontend).
 - [x] **Purchase Request List — action buttons & approval workflow** (user-directed,
-      2026-07-27, superseded the audit's default priority order). The Approve/Reject
+      2026-07-27). The Approve/Reject
       buttons called a `PATCH .../UpdateStatus/{id}` endpoint that never existed on
       the backend (404 on every click) and Reject collected no reason despite the
       backend requiring one; the PO-screen "eligible requests" lookup pointed at a
