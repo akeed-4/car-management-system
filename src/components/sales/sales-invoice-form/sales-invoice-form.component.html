@@ -318,8 +318,11 @@
               <p class="font-mono">{{ totalAmount() | currency:'SAR':'symbol':'1.0-2' }}</p>
             </div>
             <hr>
-            <!-- Payment breakdown order (verified across every invoice screen in the ERP):
-                 Previously Paid -> Current Amount -> Remaining Balance. -->
+            <!-- Payment breakdown: Previously Paid -> Down Payment (if any) -> Current Amount ->
+                 Amount Paid (running total) -> Remaining Balance. Down Payment and Amount Paid are
+                 supporting detail rows, not part of the required 3-tier order, but are placed so
+                 the 3 required rows (Previous Payments/Current Payment/Remaining Balance) still
+                 appear in that relative order. -->
             <div class="summary-item" *ngIf="previousPayments() > 0">
               <p>{{ 'INVOICE.PREVIOUS_PAYMENTS' | translate }}</p>
               <p class="font-mono">- {{ previousPayments() | currency:'SAR':'symbol':'1.0-2' }}</p>

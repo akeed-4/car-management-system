@@ -329,11 +329,21 @@
               {{ 'PURCHASE_INVOICE.MARGIN_VAT_NOTE' | translate }}
             </p>
             <hr>
+            <!-- Payment breakdown order (matches sales-invoice-form.component.html): Previously
+                 Paid -> Current Amount -> Remaining Balance. -->
+            <div class="summary-item" *ngIf="previousPayments() > 0">
+              <p>{{ 'PURCHASE_INVOICE.PREVIOUS_PAYMENTS' | translate }}</p>
+              <p class="font-mono">{{ previousPayments() | currency:'SAR':'symbol':'1.0-0' }}</p>
+            </div>
+            <div class="summary-item">
+              <p>{{ 'PURCHASE_INVOICE.CURRENT_PAYMENT' | translate }}</p>
+              <p class="font-mono">{{ currentPayment() | currency:'SAR':'symbol':'1.0-0' }}</p>
+            </div>
             <div class="summary-item">
               <p>{{ 'PURCHASE_INVOICE.AMOUNT_PAID' | translate }}</p>
               <p class="font-mono">{{ previewAmountPaid() | currency:'SAR':'symbol':'1.0-0' }}</p>
             </div>
-            <div class="summary-item">
+            <div class="summary-item total">
               <p>{{ 'PURCHASE_INVOICE.AMOUNT_DUE' | translate }}</p>
               <p class="font-mono">{{ previewAmountDue() | currency:'SAR':'symbol':'1.0-0' }}</p>
             </div>

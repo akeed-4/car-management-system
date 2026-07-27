@@ -210,6 +210,11 @@ export class PurchaseInvoiceComponent implements OnInit {
   currentInvoiceId = signal<number | null>(null);
   invoiceNumberSignal = signal<string>('');
 
+  /** Snapshot of invoice.amountPaid as it was when this edit session was opened -- frozen so the
+   *  totals preview can separate "already paid before now" from "being paid in this edit", the
+   *  same distinction sales-invoice-form.component.ts's originalAmountPaid draws. 0 on create. */
+  originalAmountPaid = signal(0);
+
   // Reactive Form
   purchaseInvoiceForm!: FormGroup;
 
@@ -314,6 +319,16 @@ export class PurchaseInvoiceComponent implements OnInit {
   });
 
   previewAmountDue = computed(() => Math.max(0, this.totalAmount() - this.previewAmountPaid()));
+
+  /** Portion of previewAmountPaid() that was already paid before this edit session opened (0 on
+   *  create, since there's nothing "previous" yet) -- the "Previously Paid" row. */
+  previousPayments = computed(() => this.isEditMode() ? Math.min(this.previewAmountPaid(), this.originalAmountPaid()) : 0);
+
+  /** The actual amount being applied in this create/edit -- everything in previewAmountPaid()
+   *  beyond what was already paid before. On create this equals previewAmountPaid() itself
+   *  (nothing "previous" to subtract); on edit it's only the newly-added delta, mirroring
+   *  sales-invoice-form.component.ts's previousPayments/currentPayment split. */
+  currentPayment = computed(() => Math.max(0, this.previewAmountPaid() - this.previousPayments()));
 
   previewStatus = computed(() => {
     if (this.totalAmount() <= 0) return 'PURCHASE_INVOICE.STATUS_UNPAID';
@@ -739,6 +754,7 @@ export class PurchaseInvoiceComponent implements OnInit {
         this.handlePaymentMethodLocking();
 
         this.amountReceivedSignal.set(invoice.initialPayment || invoice.amountPaid || 0);
+        this.originalAmountPaid.set(invoice.amountPaid || 0);
         this.watchInitialPaymentControl();
 
         // Set invoice number signal

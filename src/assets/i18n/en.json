@@ -221,6 +221,8 @@
     "CAR_RECEIPTS": "Car Receipts",
     "RECEIPT_NOTES": "Receipt Notes (GRN)",
     "NOTE_LINE_MISSING_CAR": "Some receipt note lines have no car on file and were skipped",
+    "PREVIOUS_PAYMENTS": "Previous Payments",
+    "CURRENT_PAYMENT": "Current Payment",
     "AMOUNT_PAID": "Amount Paid",
     "AMOUNT_DUE": "Amount Due",
     "INITIAL_PAYMENT": "Initial Payment",

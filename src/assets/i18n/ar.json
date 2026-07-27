@@ -223,6 +223,8 @@
     "CAR_RECEIPTS": "إيصالات استلام السيارات",
     "RECEIPT_NOTES": "إشعارات الاستلام (GRN)",
     "NOTE_LINE_MISSING_CAR": "بعض بنود إشعار الاستلام ليس لها سيارة مسجلة وتم تخطيها",
+    "PREVIOUS_PAYMENTS": "الدفعات السابقة",
+    "CURRENT_PAYMENT": "الدفعة الحالية",
     "AMOUNT_PAID": "المبلغ المدفوع",
     "AMOUNT_DUE": "المبلغ المستحق",
     "INITIAL_PAYMENT": "الدفعة الأولى",
