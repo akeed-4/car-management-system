@@ -75,6 +75,7 @@
             <tr>
               <th class="doc-col-center">{{ 'PURCHASE_INVOICE.PRINTABLE.COL_NUMBER' | translate }}</th>
               <th>{{ 'PURCHASE_INVOICE.PRINTABLE.COL_DESCRIPTION' | translate }}</th>
+              <th>{{ 'PURCHASE_INVOICE.PRINTABLE.COL_VIN' | translate }}</th>
               <th class="doc-col-center">{{ 'PURCHASE_INVOICE.PRINTABLE.COL_QUANTITY' | translate }}</th>
               <th class="doc-col-end">{{ 'PURCHASE_INVOICE.PRINTABLE.COL_UNIT_PRICE' | translate }}</th>
               <th class="doc-col-end">{{ 'PURCHASE_INVOICE.PRINTABLE.COL_LINE_TOTAL' | translate }}</th>
@@ -85,6 +86,7 @@
               <tr>
                 <td class="doc-col-center doc-mono">{{ i + 1 }}</td>
                 <td class="doc-strong">{{ item.carDescription }}</td>
+                <td class="doc-mono">{{ item.car?.vin || '-' }}</td>
                 <td class="doc-col-center doc-mono">{{ item.quantity }}</td>
                 <td class="doc-col-end doc-mono">{{ item.unitPrice | currency:'SAR':'symbol':'1.2-2' }}</td>
                 <td class="doc-col-end doc-mono doc-strong">{{ item.lineTotal | currency:'SAR':'symbol':'1.2-2' }}</td>

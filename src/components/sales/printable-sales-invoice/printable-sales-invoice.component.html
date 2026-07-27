@@ -73,6 +73,7 @@
               <tr>
                 <th class="doc-col-center">#</th>
                 <th>{{ 'SALES.PRINTABLE.ITEM' | translate }}</th>
+                <th>{{ 'SALES.PRINTABLE.VIN' | translate }}</th>
                 <th class="doc-col-center">{{ 'SALES.PRINTABLE.QTY' | translate }}</th>
                 <th class="doc-col-end">{{ 'SALES.PRINTABLE.UNIT_PRICE' | translate }}</th>
                 <th class="doc-col-end">{{ 'SALES.PRINTABLE.VAT_PERCENTAGE' | translate }}</th>
@@ -84,6 +85,7 @@
                 <tr>
                   <td class="doc-col-center doc-mono">{{ i + 1 }}</td>
                   <td class="doc-strong">{{ item.carDescription }}</td>
+                  <td class="doc-mono">{{ item.car?.vin || '-' }}</td>
                   <td class="doc-col-center doc-mono">{{ item.quantity }}</td>
                   <td class="doc-col-end doc-mono">{{ (item.unitPrice ?? 0) | currency:'SAR':'symbol':'1.2-2' }}</td>
                   <td class="doc-col-end doc-mono">{{ ((item.unitPrice ?? 0) * (breakdown.vatRate / 100)) | currency:'SAR':'symbol':'1.2-2' }}</td>

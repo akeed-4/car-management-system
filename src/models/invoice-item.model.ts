@@ -19,6 +19,9 @@ export interface InvoiceItem {
   lineTotal: number;
   carImage?: string | null;
   carName?: string;
+  /** Minimal nested Car payload (VIN only) the backend now populates for the printable invoice's
+   * line-items table -- not present on older cached responses, so always guard with `?.`. */
+  car?: { id: number; vin: string };
   installmentDetails?: {
     downPayment: number;
     numberOfInstallments: number;
