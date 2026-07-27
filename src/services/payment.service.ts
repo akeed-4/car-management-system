@@ -42,9 +42,9 @@ export class PaymentService {
     }
     return this.http.post<Payment>(this.apiUrl+'/Create', payload);
   }
- // إضافة دفع عبر API باستخدام نموذج Voucher الموحد
-  updatePayment(payment: Partial<Payment>,paymentId: number): Observable<Payment> {
-    return this.http.post<Payment>(this.apiUrl+'/Update', payment);
+ // تحديث دفع عبر API باستخدام نموذج Voucher الموحد
+  updatePayment(payment: Partial<Payment>, paymentId: number): Observable<Payment> {
+    return this.http.put<Payment>(`${this.apiUrl}/${paymentId}`, payment);
   }
   // استدعاء كل المدفوعات
   getPayments(): Observable<Payment[]> {

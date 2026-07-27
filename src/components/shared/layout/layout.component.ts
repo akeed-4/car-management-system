@@ -85,7 +85,7 @@ export class LayoutComponent {
   showMe = false;
 
   textDir: Direction = this.languageService.getCurrentLanguage() == 'en' ? 'ltr' : 'rtl';
-  manageText = 'manage';
+  manageText = 'ادارة';
   smallScreen = false;
   title = '';
   titleDetail = 'Detail';
