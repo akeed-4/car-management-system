@@ -8,6 +8,8 @@ import { NotificationService } from '../../../services/notification.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { PurchaseRequestDto } from '../../../models/purchase-request.model';
+import { HasPermissionDirective } from '../../shared/permission.directive';
+import { PermissionService } from '../../../services/permission.service';
 
 @Component({
   selector: 'app-purchase-request-list',
@@ -20,7 +22,8 @@ import { PurchaseRequestDto } from '../../../models/purchase-request.model';
     DxTemplateModule,
     TranslateModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    HasPermissionDirective
   ],
   templateUrl: './purchase-request-list.component.html',
   styleUrls: ['./purchase-request-list.component.css']
@@ -32,6 +35,7 @@ export class PurchaseRequestListComponent implements OnInit {
     private purchaseCycleService: PurchaseCycleService,
     private notificationService: NotificationService,
     private translateService: TranslateService,
+    private permissionService: PermissionService,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
@@ -42,8 +46,8 @@ export class PurchaseRequestListComponent implements OnInit {
 
   loadRequests(): void {
     this.purchaseCycleService.getPurchaseRequests().subscribe({
-      next: (requests: any) => {
-        this.purchaseRequests = Array.isArray(requests.data) ? requests.data : (requests?.data ?? []);
+      next: (requests) => {
+        this.purchaseRequests = requests ?? [];
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -70,34 +74,69 @@ export class PurchaseRequestListComponent implements OnInit {
     return status === 'Draft' || status === 'Pending' || status === 'PendingApproval';
   };
 
+  canEdit = (): boolean => this.permissionService.hasPermission('purchaseRequest.edit');
+  canApprove = (e: any): boolean => this.isDraft(e) && this.permissionService.hasPermission('purchaseRequest.approve');
+  canReject = (e: any): boolean => this.isDraft(e) && this.permissionService.hasPermission('purchaseRequest.reject');
+  /** Approved requests are locked -- everything else (including Rejected, for cleanup) may still be deleted. */
+  canDelete = (e: any): boolean => e?.row?.data?.status !== 'Approved' && this.permissionService.hasPermission('purchaseRequest.delete');
+
+  private describeError(err: any): string {
+    return err?.error?.message ?? err?.error ?? err?.message ?? 'Unknown error';
+  }
+
   onApprove(e: any): void {
     const request: PurchaseRequestDto = e.row.data;
-    this.purchaseCycleService.updatePurchaseRequestStatus(request.id, 'Approved').subscribe({
+    this.purchaseCycleService.approvePurchaseRequest(request.id).subscribe({
       next: () => {
         this.notificationService.showSuccess(this.translateService.instant('PURCHASE_REQUESTS.APPROVE_SUCCESS'));
         this.loadRequests();
       },
-      error: (err) => {
-        this.notificationService.showError(this.translateService.instant('PURCHASE_REQUESTS.APPROVE_ERROR') + ': ' + (err?.message || 'Unknown error'));
+      error: (err: any) => {
+        this.notificationService.showError(this.translateService.instant('PURCHASE_REQUESTS.APPROVE_ERROR') + ': ' + this.describeError(err));
       }
     });
   }
 
   async onReject(e: any): Promise<void> {
     const request: PurchaseRequestDto = e.row.data;
-    const result = await this.notificationService.confirmAlert(
+    const result = await this.notificationService.confirmAlertWithInput(
       this.translateService.instant('PURCHASE_REQUESTS.REJECT_CONFIRM_TITLE'),
-      this.translateService.instant('PURCHASE_REQUESTS.REJECT_CONFIRM_TEXT')
+      this.translateService.instant('PURCHASE_REQUESTS.REJECT_REASON_PROMPT')
     );
     if (!result.isConfirmed) return;
 
-    this.purchaseCycleService.updatePurchaseRequestStatus(request.id, 'Rejected').subscribe({
+    const reason = (result.value ?? '').trim();
+    if (!reason) {
+      this.notificationService.showWarning(this.translateService.instant('PURCHASE_REQUESTS.REJECT_REASON_REQUIRED'));
+      return;
+    }
+
+    this.purchaseCycleService.rejectPurchaseRequest(request.id, reason).subscribe({
       next: () => {
         this.notificationService.showSuccess(this.translateService.instant('PURCHASE_REQUESTS.REJECT_SUCCESS'));
         this.loadRequests();
       },
-      error: (err) => {
-        this.notificationService.showError(this.translateService.instant('PURCHASE_REQUESTS.REJECT_ERROR') + ': ' + (err?.message || 'Unknown error'));
+      error: (err: any) => {
+        this.notificationService.showError(this.translateService.instant('PURCHASE_REQUESTS.REJECT_ERROR') + ': ' + this.describeError(err));
+      }
+    });
+  }
+
+  async onDelete(e: any): Promise<void> {
+    const request: PurchaseRequestDto = e.row.data;
+    const result = await this.notificationService.confirmAlert(
+      this.translateService.instant('PURCHASE_REQUESTS.DELETE_CONFIRM_TITLE'),
+      this.translateService.instant('PURCHASE_REQUESTS.DELETE_CONFIRM_TEXT')
+    );
+    if (!result.isConfirmed) return;
+
+    this.purchaseCycleService.deletePurchaseRequest(request.id).subscribe({
+      next: () => {
+        this.notificationService.showSuccess(this.translateService.instant('PURCHASE_REQUESTS.DELETE_SUCCESS'));
+        this.loadRequests();
+      },
+      error: (err: any) => {
+        this.notificationService.showError(this.translateService.instant('PURCHASE_REQUESTS.DELETE_ERROR') + ': ' + this.describeError(err));
       }
     });
   }

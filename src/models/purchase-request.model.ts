@@ -45,3 +45,11 @@ export interface PurchaseRequestDto {
   createdAt?: string;
   updatedAt?: string;
 }
+
+/** Cascading dropdown row: approved requests with remaining un-ordered lines, for the Purchase Order screen. */
+export interface ApprovedRequestLookupDto {
+  id: number;
+  requestNumber: string;
+  requestDate: string;
+  totalAmount: number;
+}

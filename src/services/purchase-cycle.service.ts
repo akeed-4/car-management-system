@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CarReceipt, CreateCarReceiptDto } from '../models/car-receipt.model';
 import { ApprovedOfferLookupDto, CreatePurchaseOfferDto, OfferItemForPODto, PurchaseOfferDto } from '../models/purchase-offer.model';
-import { CreatePurchaseRequestDto, PurchaseRequestDto, PurchaseRequestStatus } from '../models/purchase-request.model';
+import { ApprovedRequestLookupDto, CreatePurchaseRequestDto, PurchaseRequestDto } from '../models/purchase-request.model';
 import { PoDto } from '../models/purchase-order.model';
 import { environment } from '../environments/environment';
 
@@ -61,7 +61,7 @@ export class PurchaseCycleService {
   // Purchase Request (Requisition) -- created FROM an accepted Offer
   // ===================================================================
   getPurchaseRequests(): Observable<PurchaseRequestDto[]> {
-    return this.http.get<PurchaseRequestDto[]>(`${this.purchaseRequestsApiUrl}/GetAll`);
+    return this.http.get<any>(`${this.purchaseRequestsApiUrl}/GetAll`).pipe(map(response => response?.data ?? response));
   }
 
   getPurchaseRequest(id: number): Observable<PurchaseRequestDto> {
@@ -71,20 +71,28 @@ export class PurchaseCycleService {
   }
 
   createPurchaseRequest(request: CreatePurchaseRequestDto): Observable<PurchaseRequestDto> {
-    return this.http.post<PurchaseRequestDto>(`${this.purchaseRequestsApiUrl}/Create`, request);
+    return this.http.post<any>(`${this.purchaseRequestsApiUrl}/Create`, request).pipe(map(response => response?.data ?? response));
   }
 
-  updatePurchaseRequest(id: number, request: CreatePurchaseRequestDto): Observable<PurchaseRequestDto> {
-    return this.http.put<PurchaseRequestDto>(`${this.purchaseRequestsApiUrl}/Update/${id}`, request);
+  updatePurchaseRequest(id: number, request: CreatePurchaseRequestDto): Observable<any> {
+    return this.http.put<any>(`${this.purchaseRequestsApiUrl}/Update/${id}`, request);
   }
 
-  updatePurchaseRequestStatus(id: number, status: PurchaseRequestStatus): Observable<PurchaseRequestDto> {
-    return this.http.patch<PurchaseRequestDto>(`${this.purchaseRequestsApiUrl}/UpdateStatus/${id}`, { status });
+  approvePurchaseRequest(id: number): Observable<any> {
+    return this.http.post<any>(`${this.purchaseRequestsApiUrl}/${id}/approve`, {});
   }
 
-  /** Approved requests not yet converted into a PO -- feeds the Purchase Order screen's dropdown. */
-  getEligibleRequestsForPo(): Observable<PurchaseRequestDto[]> {
-    return this.http.get<PurchaseRequestDto[]>(`${this.purchaseRequestsApiUrl}/GetEligibleForPo`);
+  rejectPurchaseRequest(id: number, reason: string): Observable<any> {
+    return this.http.post<any>(`${this.purchaseRequestsApiUrl}/${id}/reject`, { reason });
+  }
+
+  deletePurchaseRequest(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.purchaseRequestsApiUrl}/${id}`);
+  }
+
+  /** Approved requests with at least one unconverted line -- feeds the Purchase Order screen's dropdown. */
+  getEligibleRequestsForPo(): Observable<ApprovedRequestLookupDto[]> {
+    return this.http.get<any>(`${this.purchaseRequestsApiUrl}/GetEligibleParents`).pipe(map(response => response?.data ?? response));
   }
 
   // ===================================================================

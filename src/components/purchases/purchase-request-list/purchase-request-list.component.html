@@ -4,7 +4,7 @@
       <h2>{{ 'PURCHASE_REQUESTS.TITLE' | translate }}</h2>
     </div>
     <div class="header-right">
-      <button mat-raised-button color="primary" (click)="addNewRequest()">
+      <button mat-raised-button color="primary" (click)="addNewRequest()" *appHasPermission="'purchaseRequest.create'">
         <mat-icon>add</mat-icon>
         {{ 'PURCHASE_REQUESTS.CREATE_TITLE' | translate }}
       </button>
@@ -45,23 +45,30 @@
       </span>
     </div>
 
-    <dxi-column type="buttons" [width]="160">
+    <dxi-column type="buttons" [width]="210">
       <dxi-button
         icon="edit"
         [hint]="'COMMON.EDIT' | translate"
+        [visible]="canEdit"
         [onClick]="onEdit.bind(this)">
       </dxi-button>
       <dxi-button
         icon="check"
         [hint]="'PURCHASE_REQUESTS.APPROVE' | translate"
-        [visible]="isDraft"
+        [visible]="canApprove"
         [onClick]="onApprove.bind(this)">
       </dxi-button>
       <dxi-button
         icon="close"
         [hint]="'PURCHASE_REQUESTS.REJECT' | translate"
-        [visible]="isDraft"
+        [visible]="canReject"
         [onClick]="onReject.bind(this)">
+      </dxi-button>
+      <dxi-button
+        icon="trash"
+        [hint]="'COMMON.DELETE' | translate"
+        [visible]="canDelete"
+        [onClick]="onDelete.bind(this)">
       </dxi-button>
     </dxi-column>
   </dx-data-grid>

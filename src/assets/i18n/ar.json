@@ -913,7 +913,13 @@
     "REJECT_SUCCESS": "تم رفض طلب الشراء",
     "REJECT_ERROR": "خطأ في رفض طلب الشراء",
     "REJECT_CONFIRM_TITLE": "هل تريد رفض هذا الطلب؟",
-    "REJECT_CONFIRM_TEXT": "لن يكون هذا الطلب متاحًا بعد الآن للتحويل إلى أمر شراء."
+    "REJECT_CONFIRM_TEXT": "لن يكون هذا الطلب متاحًا بعد الآن للتحويل إلى أمر شراء.",
+    "REJECT_REASON_PROMPT": "يرجى إدخال سبب الرفض",
+    "REJECT_REASON_REQUIRED": "سبب الرفض مطلوب",
+    "DELETE_CONFIRM_TITLE": "هل تريد حذف هذا الطلب؟",
+    "DELETE_CONFIRM_TEXT": "لا يمكن التراجع عن هذا الإجراء.",
+    "DELETE_SUCCESS": "تم حذف طلب الشراء بنجاح",
+    "DELETE_ERROR": "خطأ في حذف طلب الشراء"
   },
   "CAR_RECEIPTS": {
     "TITLE": "استلام السيارات",
