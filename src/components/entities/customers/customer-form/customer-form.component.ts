@@ -17,10 +17,25 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatIconModule } from '@angular/material/icon';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../../../services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
+
+/** Section id -> the form control names it contains, used to auto-expand + scroll to whichever
+ *  collapsed section holds the first invalid control on a failed submit (business requirement:
+ *  hidden validation errors must never silently block saving). Keep in sync with the panels in
+ *  customer-form.component.html. */
+const SECTION_FIELDS: Record<string, string[]> = {
+  basic: ['name', 'nationalId', 'phone', 'phone2'],
+  contact: ['email', 'preferredContactMethod'],
+  address: ['city', 'district', 'postalCode', 'address'],
+  personal: ['dateOfBirth', 'gender', 'occupation', 'employer', 'monthlyIncome', 'creditScore'],
+  financial: ['creditLimit'],
+  additional: ['notes', 'isActive'],
+};
 
 @Component({
   selector: 'app-customer-form',
@@ -37,6 +52,8 @@ import { NotificationService } from '@/src/services/notification.service';
     MatDatepickerModule,
     MatRadioModule,
     MatCheckboxModule,
+    MatExpansionModule,
+    MatIconModule,
     TranslateModule
   ],
   templateUrl: './customer-form.component.html',
@@ -60,6 +77,22 @@ export class CustomerFormComponent implements OnInit {
   pageTitle = signal('إضافة عميل جديد');
 
   soldCars = signal<(Car & { saleDate: string })[]>([]);
+
+  /** "Basic Info" (name/ID/phone) starts open since it's filled first for every customer; the
+   *  rest start collapsed to cut initial scroll. Sections toggle independently (multi: true). */
+  expandedSections = signal<Set<string>>(new Set(['basic']));
+
+  isSectionExpanded(section: string): boolean {
+    return this.expandedSections().has(section);
+  }
+
+  toggleSection(section: string, expanded: boolean): void {
+    this.expandedSections.update(set => {
+      const next = new Set(set);
+      if (expanded) next.add(section); else next.delete(section);
+      return next;
+    });
+  }
 
   ngOnInit() {
     this.initializeForm();
@@ -171,8 +204,29 @@ export class CustomerFormComponent implements OnInit {
         });
       }
     } else {
+      this.customerForm.markAllAsTouched();
+      this.expandInvalidSectionAndScroll();
       this.toastService.showWarning('TOAST.VALIDATION_ERROR');
     }
+  }
+
+  /** Finds the first collapsed section containing an invalid control, expands it, and scrolls
+   *  its header into view -- a validation error must never be silently hidden behind a collapsed
+   *  panel (business requirement). Runs on failed submit only; markAllAsTouched() (called just
+   *  before this) is what makes the mat-error text actually render once the panel opens. */
+  private expandInvalidSectionAndScroll(): void {
+    const invalidSection = Object.entries(SECTION_FIELDS).find(([, fields]) =>
+      fields.some(f => this.customerForm.get(f)?.invalid)
+    )?.[0];
+    if (!invalidSection) return;
+
+    this.toggleSection(invalidSection, true);
+    // The panel's expand animation/content needs a real paint before it has a height to scroll
+    // to -- a microtask fires before that, so this waits a frame instead.
+    requestAnimationFrame(() => {
+      document.getElementById(`customer-section-${invalidSection}`)
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   }
 
   getDaysRemaining(dateStr: string): number | null {

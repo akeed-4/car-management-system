@@ -6,80 +6,104 @@
 
   <mat-card class="form-container">
     <form [formGroup]="supplierForm" (ngSubmit)="saveSupplier()">
-      <!-- Basic Information -->
-      <div class="form-section">
-        <h3 class="section-title">{{ 'SUPPLIERS.FORM.BASIC_INFO' | translate }}</h3>
-        <div class="form-grid">
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'SUPPLIERS.FORM.SUPPLIER_NAME' | translate }}</mat-label>
-            <input matInput formControlName="name" required>
-            <mat-error *ngIf="supplierForm.get('name')?.invalid && supplierForm.get('name')?.touched">
-              {{ 'SUPPLIERS.FORM.VALIDATION.NAME_REQUIRED' | translate }}
-            </mat-error>
-          </mat-form-field>
+      <mat-accordion multi="true" displayMode="flat" class="form-accordion">
 
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'SUPPLIERS.FORM.CR_NUMBER' | translate }}</mat-label>
-            <input matInput formControlName="crNumber" required>
-            <mat-error *ngIf="supplierForm.get('crNumber')?.invalid && supplierForm.get('crNumber')?.touched">
-              {{ 'SUPPLIERS.FORM.VALIDATION.CR_NUMBER_REQUIRED' | translate }}
-            </mat-error>
-          </mat-form-field>
+        <!-- Basic Information -->
+        <mat-expansion-panel id="supplier-section-basic" class="form-panel"
+                              [expanded]="isSectionExpanded('basic')"
+                              (opened)="toggleSection('basic', true)" (closed)="toggleSection('basic', false)">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon class="section-icon">store</mat-icon>
+              {{ 'SUPPLIERS.FORM.BASIC_INFO' | translate }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
 
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'SUPPLIERS.FORM.TAX_NUMBER' | translate }}</mat-label>
-            <input matInput formControlName="taxNumber">
-          </mat-form-field>
+          <div class="form-grid">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'SUPPLIERS.FORM.SUPPLIER_NAME' | translate }}</mat-label>
+              <input matInput formControlName="name" required>
+              <mat-error *ngIf="supplierForm.get('name')?.invalid && supplierForm.get('name')?.touched">
+                {{ 'SUPPLIERS.FORM.VALIDATION.NAME_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
 
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'SUPPLIERS.FORM.SUPPLIER_CATEGORY' | translate }}</mat-label>
-            <mat-select formControlName="supplierCategory">
-              <mat-option value="Parts">{{ 'SUPPLIERS.FORM.CATEGORY_PARTS' | translate }}</mat-option>
-              <mat-option value="Vehicles">{{ 'SUPPLIERS.FORM.CATEGORY_VEHICLES' | translate }}</mat-option>
-              <mat-option value="Services">{{ 'SUPPLIERS.FORM.CATEGORY_SERVICES' | translate }}</mat-option>
-              <mat-option value="Equipment">{{ 'SUPPLIERS.FORM.CATEGORY_EQUIPMENT' | translate }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-      </div>
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'SUPPLIERS.FORM.CR_NUMBER' | translate }}</mat-label>
+              <input matInput formControlName="crNumber" required>
+              <mat-error *ngIf="supplierForm.get('crNumber')?.invalid && supplierForm.get('crNumber')?.touched">
+                {{ 'SUPPLIERS.FORM.VALIDATION.CR_NUMBER_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
 
-      <!-- Contact Information -->
-      <div class="form-section">
-        <h3 class="section-title">{{ 'SUPPLIERS.FORM.CONTACT_INFO' | translate }}</h3>
-        <div class="form-grid">
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'SUPPLIERS.FORM.PRIMARY_PHONE' | translate }}</mat-label>
-            <input matInput formControlName="phone" placeholder="+966xxxxxxxxx" required>
-            <mat-error *ngIf="supplierForm.get('phone')?.invalid && supplierForm.get('phone')?.touched">
-              {{ 'SUPPLIERS.FORM.VALIDATION.PHONE_REQUIRED' | translate }}
-            </mat-error>
-          </mat-form-field>
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'SUPPLIERS.FORM.TAX_NUMBER' | translate }}</mat-label>
+              <input matInput formControlName="taxNumber">
+            </mat-form-field>
 
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'SUPPLIERS.FORM.SECONDARY_PHONE' | translate }}</mat-label>
-            <input matInput formControlName="phone2" placeholder="+966xxxxxxxxx">
-          </mat-form-field>
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'SUPPLIERS.FORM.SUPPLIER_CATEGORY' | translate }}</mat-label>
+              <mat-select formControlName="supplierCategory">
+                <mat-option value="Parts">{{ 'SUPPLIERS.FORM.CATEGORY_PARTS' | translate }}</mat-option>
+                <mat-option value="Vehicles">{{ 'SUPPLIERS.FORM.CATEGORY_VEHICLES' | translate }}</mat-option>
+                <mat-option value="Services">{{ 'SUPPLIERS.FORM.CATEGORY_SERVICES' | translate }}</mat-option>
+                <mat-option value="Equipment">{{ 'SUPPLIERS.FORM.CATEGORY_EQUIPMENT' | translate }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </mat-expansion-panel>
 
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'SUPPLIERS.FORM.EMAIL' | translate }}</mat-label>
-            <input matInput type="email" formControlName="email">
-            <mat-error *ngIf="supplierForm.get('email')?.invalid && supplierForm.get('email')?.touched">
-              {{ 'SUPPLIERS.FORM.VALIDATION.EMAIL_INVALID' | translate }}
-            </mat-error>
-          </mat-form-field>
+        <!-- Contact Information -->
+        <mat-expansion-panel id="supplier-section-contact" class="form-panel"
+                              [expanded]="isSectionExpanded('contact')"
+                              (opened)="toggleSection('contact', true)" (closed)="toggleSection('contact', false)">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon class="section-icon">contact_mail</mat-icon>
+              {{ 'SUPPLIERS.FORM.CONTACT_INFO' | translate }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
 
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'SUPPLIERS.FORM.WEBSITE' | translate }}</mat-label>
-            <input matInput formControlName="website" placeholder="https://example.com">
-          </mat-form-field>
-        </div>
-      </div>
+          <div class="form-grid">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'SUPPLIERS.FORM.PRIMARY_PHONE' | translate }}</mat-label>
+              <input matInput formControlName="phone" placeholder="+966xxxxxxxxx" required>
+              <mat-error *ngIf="supplierForm.get('phone')?.invalid && supplierForm.get('phone')?.touched">
+                {{ 'SUPPLIERS.FORM.VALIDATION.PHONE_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
 
-      <!-- Address Information -->
-      <div class="form-section">
-        <h3 class="section-title">{{ 'SUPPLIERS.FORM.ADDRESS_INFO' | translate }}</h3>
-        <div >
-       
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'SUPPLIERS.FORM.SECONDARY_PHONE' | translate }}</mat-label>
+              <input matInput formControlName="phone2" placeholder="+966xxxxxxxxx">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'SUPPLIERS.FORM.EMAIL' | translate }}</mat-label>
+              <input matInput type="email" formControlName="email">
+              <mat-error *ngIf="supplierForm.get('email')?.invalid && supplierForm.get('email')?.touched">
+                {{ 'SUPPLIERS.FORM.VALIDATION.EMAIL_INVALID' | translate }}
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'SUPPLIERS.FORM.WEBSITE' | translate }}</mat-label>
+              <input matInput formControlName="website" placeholder="https://example.com">
+            </mat-form-field>
+          </div>
+        </mat-expansion-panel>
+
+        <!-- Address Information -->
+        <mat-expansion-panel id="supplier-section-address" class="form-panel"
+                              [expanded]="isSectionExpanded('address')"
+                              (opened)="toggleSection('address', true)" (closed)="toggleSection('address', false)">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon class="section-icon">location_on</mat-icon>
+              {{ 'SUPPLIERS.FORM.ADDRESS_INFO' | translate }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'SUPPLIERS.FORM.CITY' | translate }}</mat-label>
@@ -96,105 +120,138 @@
               <input matInput formControlName="postalCode">
             </mat-form-field>
           </div>
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>{{ 'SUPPLIERS.FORM.DETAILED_ADDRESS' | translate }}</mat-label>
+            <textarea matInput formControlName="address" rows="2" required></textarea>
+            <mat-error *ngIf="supplierForm.get('address')?.invalid && supplierForm.get('address')?.touched">
+              {{ 'SUPPLIERS.FORM.VALIDATION.ADDRESS_REQUIRED' | translate }}
+            </mat-error>
+          </mat-form-field>
+        </mat-expansion-panel>
+
+        <!-- Contact Person -->
+        <mat-expansion-panel id="supplier-section-contactPerson" class="form-panel"
+                              [expanded]="isSectionExpanded('contactPerson')"
+                              (opened)="toggleSection('contactPerson', true)" (closed)="toggleSection('contactPerson', false)">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon class="section-icon">person</mat-icon>
+              {{ 'SUPPLIERS.FORM.CONTACT_PERSON' | translate }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="form-grid">
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'SUPPLIERS.FORM.DETAILED_ADDRESS' | translate }}</mat-label>
-              <textarea matInput formControlName="address" rows="2" required></textarea>
-              <mat-error *ngIf="supplierForm.get('address')?.invalid && supplierForm.get('address')?.touched">
-                {{ 'SUPPLIERS.FORM.VALIDATION.ADDRESS_REQUIRED' | translate }}
+              <mat-label>{{ 'SUPPLIERS.FORM.CONTACT_PERSON_NAME' | translate }}</mat-label>
+              <input matInput formControlName="contactPerson">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'SUPPLIERS.FORM.CONTACT_PERSON_PHONE' | translate }}</mat-label>
+              <input matInput formControlName="contactPersonPhone" placeholder="+966xxxxxxxxx">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'SUPPLIERS.FORM.CONTACT_PERSON_EMAIL' | translate }}</mat-label>
+              <input matInput type="email" formControlName="contactPersonEmail">
+              <mat-error *ngIf="supplierForm.get('contactPersonEmail')?.invalid && supplierForm.get('contactPersonEmail')?.touched">
+                {{ 'SUPPLIERS.FORM.VALIDATION.EMAIL_INVALID' | translate }}
               </mat-error>
             </mat-form-field>
-        </div>
-      </div>
-
-      <!-- Contact Person -->
-      <div class="form-section">
-        <h3 class="section-title">{{ 'SUPPLIERS.FORM.CONTACT_PERSON' | translate }}</h3>
-        <div class="form-grid">
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'SUPPLIERS.FORM.CONTACT_PERSON_NAME' | translate }}</mat-label>
-            <input matInput formControlName="contactPerson">
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'SUPPLIERS.FORM.CONTACT_PERSON_PHONE' | translate }}</mat-label>
-            <input matInput formControlName="contactPersonPhone" placeholder="+966xxxxxxxxx">
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'SUPPLIERS.FORM.CONTACT_PERSON_EMAIL' | translate }}</mat-label>
-            <input matInput type="email" formControlName="contactPersonEmail">
-            <mat-error *ngIf="supplierForm.get('contactPersonEmail')?.invalid && supplierForm.get('contactPersonEmail')?.touched">
-              {{ 'SUPPLIERS.FORM.VALIDATION.EMAIL_INVALID' | translate }}
-            </mat-error>
-          </mat-form-field>
-        </div>
-      </div>
-
-      <!-- Financial Information -->
-      <div class="form-section">
-        <h3 class="section-title">{{ 'SUPPLIERS.FORM.FINANCIAL_INFO' | translate }}</h3>
-        <div class="form-grid">
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'SUPPLIERS.FORM.PAYMENT_TERMS' | translate }}</mat-label>
-            <mat-select formControlName="paymentTerms">
-              <mat-option value="Cash">{{ 'SUPPLIERS.FORM.PAYMENT_CASH' | translate }}</mat-option>
-              <mat-option value="Net 15">{{ 'SUPPLIERS.FORM.PAYMENT_NET_15' | translate }}</mat-option>
-              <mat-option value="Net 30">{{ 'SUPPLIERS.FORM.PAYMENT_NET_30' | translate }}</mat-option>
-              <mat-option value="Net 60">{{ 'SUPPLIERS.FORM.PAYMENT_NET_60' | translate }}</mat-option>
-              <mat-option value="Net 90">{{ 'SUPPLIERS.FORM.PAYMENT_NET_90' | translate }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'SUPPLIERS.FORM.CREDIT_LIMIT' | translate }}</mat-label>
-            <input matInput type="number" formControlName="creditLimit" min="0">
-            <mat-error *ngIf="supplierForm.get('creditLimit')?.invalid && supplierForm.get('creditLimit')?.touched">
-              {{ 'SUPPLIERS.FORM.VALIDATION.CREDIT_LIMIT_MIN' | translate }}
-            </mat-error>
-          </mat-form-field>
-        </div>
-      </div>
-
-      <!-- Banking Information -->
-      <div class="form-section">
-        <h3 class="section-title">{{ 'SUPPLIERS.FORM.BANKING_INFO' | translate }}</h3>
-        <div class="form-grid">
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'SUPPLIERS.FORM.BANK_NAME' | translate }}</mat-label>
-            <input matInput formControlName="bankName">
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'SUPPLIERS.FORM.BANK_ACCOUNT_NUMBER' | translate }}</mat-label>
-            <input matInput formControlName="bankAccountNumber">
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'SUPPLIERS.FORM.IBAN' | translate }}</mat-label>
-            <input matInput formControlName="iban">
-          </mat-form-field>
-        </div>
-      </div>
-
-      <!-- Additional Information -->
-      <div class="form-section">
-        <h3 class="section-title">{{ 'SUPPLIERS.FORM.ADDITIONAL_INFO' | translate }}</h3>
-        <div class="form-grid">
-          <mat-form-field appearance="outline" class="form-field full-width">
-            <mat-label>{{ 'SUPPLIERS.FORM.NOTES' | translate }}</mat-label>
-            <textarea matInput formControlName="notes" rows="4"></textarea>
-          </mat-form-field>
-
-          <div class="form-field">
-            <mat-checkbox formControlName="isActive">{{ 'SUPPLIERS.FORM.ACTIVE_SUPPLIER' | translate }}</mat-checkbox>
           </div>
-        </div>
-      </div>
+        </mat-expansion-panel>
+
+        <!-- Financial Information -->
+        <mat-expansion-panel id="supplier-section-financial" class="form-panel"
+                              [expanded]="isSectionExpanded('financial')"
+                              (opened)="toggleSection('financial', true)" (closed)="toggleSection('financial', false)">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon class="section-icon">account_balance_wallet</mat-icon>
+              {{ 'SUPPLIERS.FORM.FINANCIAL_INFO' | translate }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="form-grid">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'SUPPLIERS.FORM.PAYMENT_TERMS' | translate }}</mat-label>
+              <mat-select formControlName="paymentTerms">
+                <mat-option value="Cash">{{ 'SUPPLIERS.FORM.PAYMENT_CASH' | translate }}</mat-option>
+                <mat-option value="Net 15">{{ 'SUPPLIERS.FORM.PAYMENT_NET_15' | translate }}</mat-option>
+                <mat-option value="Net 30">{{ 'SUPPLIERS.FORM.PAYMENT_NET_30' | translate }}</mat-option>
+                <mat-option value="Net 60">{{ 'SUPPLIERS.FORM.PAYMENT_NET_60' | translate }}</mat-option>
+                <mat-option value="Net 90">{{ 'SUPPLIERS.FORM.PAYMENT_NET_90' | translate }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'SUPPLIERS.FORM.CREDIT_LIMIT' | translate }}</mat-label>
+              <input matInput type="number" formControlName="creditLimit" min="0">
+              <mat-error *ngIf="supplierForm.get('creditLimit')?.invalid && supplierForm.get('creditLimit')?.touched">
+                {{ 'SUPPLIERS.FORM.VALIDATION.CREDIT_LIMIT_MIN' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </mat-expansion-panel>
+
+        <!-- Banking Information -->
+        <mat-expansion-panel id="supplier-section-banking" class="form-panel"
+                              [expanded]="isSectionExpanded('banking')"
+                              (opened)="toggleSection('banking', true)" (closed)="toggleSection('banking', false)">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon class="section-icon">account_balance</mat-icon>
+              {{ 'SUPPLIERS.FORM.BANKING_INFO' | translate }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="form-grid">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'SUPPLIERS.FORM.BANK_NAME' | translate }}</mat-label>
+              <input matInput formControlName="bankName">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'SUPPLIERS.FORM.BANK_ACCOUNT_NUMBER' | translate }}</mat-label>
+              <input matInput formControlName="bankAccountNumber">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'SUPPLIERS.FORM.IBAN' | translate }}</mat-label>
+              <input matInput formControlName="iban">
+            </mat-form-field>
+          </div>
+        </mat-expansion-panel>
+
+        <!-- Additional Information -->
+        <mat-expansion-panel id="supplier-section-additional" class="form-panel"
+                              [expanded]="isSectionExpanded('additional')"
+                              (opened)="toggleSection('additional', true)" (closed)="toggleSection('additional', false)">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon class="section-icon">notes</mat-icon>
+              {{ 'SUPPLIERS.FORM.ADDITIONAL_INFO' | translate }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="form-grid">
+            <mat-form-field appearance="outline" class="form-field full-width">
+              <mat-label>{{ 'SUPPLIERS.FORM.NOTES' | translate }}</mat-label>
+              <textarea matInput formControlName="notes" rows="4"></textarea>
+            </mat-form-field>
+
+            <div class="form-field">
+              <mat-checkbox formControlName="isActive">{{ 'SUPPLIERS.FORM.ACTIVE_SUPPLIER' | translate }}</mat-checkbox>
+            </div>
+          </div>
+        </mat-expansion-panel>
+
+      </mat-accordion>
 
       <!-- Form Actions -->
       <div class="form-actions">
         <a routerLink="/entities/suppliers" mat-stroked-button color="accent">{{ 'SUPPLIERS.FORM.CANCEL' | translate }}</a>
-        <button mat-raised-button color="primary" type="submit" [disabled]="supplierForm.invalid">
+        <button mat-raised-button color="primary" type="submit">
           {{ editMode() ? ('SUPPLIERS.FORM.SAVE_CHANGES' | translate) : ('SUPPLIERS.FORM.ADD_SUPPLIER' | translate) }}
         </button>
       </div>

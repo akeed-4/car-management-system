@@ -9,8 +9,23 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NotificationService } from '@/src/services/notification.service';
+
+/** Section id -> the form control names it contains, used to auto-expand + scroll to whichever
+ *  collapsed section holds the first invalid control on a failed submit. Keep in sync with the
+ *  panels in supplier-form.component.html. */
+const SECTION_FIELDS: Record<string, string[]> = {
+  basic: ['name', 'crNumber', 'taxNumber', 'supplierCategory'],
+  contact: ['phone', 'phone2', 'email', 'website'],
+  address: ['city', 'district', 'postalCode', 'address'],
+  contactPerson: ['contactPerson', 'contactPersonPhone', 'contactPersonEmail'],
+  financial: ['paymentTerms', 'creditLimit'],
+  banking: ['bankName', 'bankAccountNumber', 'iban'],
+  additional: ['notes', 'isActive'],
+};
 
 @Component({
   selector: 'app-supplier-form',
@@ -24,6 +39,8 @@ import { NotificationService } from '@/src/services/notification.service';
     MatButtonModule,
     MatCardModule,
     MatCheckboxModule,
+    MatExpansionModule,
+    MatIconModule,
     TranslateModule
   ],
   templateUrl: './supplier-form.component.html',
@@ -41,6 +58,22 @@ export class SupplierFormComponent implements OnInit {
   supplier = signal<Partial<Supplier>>({});
   editMode = signal(false);
   pageTitle = signal('إضافة مورد جديد');
+
+  /** "Basic Info" (name/CR number/category) starts open since it's filled first; the rest start
+   *  collapsed to cut initial scroll. Sections toggle independently (multi: true). */
+  expandedSections = signal<Set<string>>(new Set(['basic']));
+
+  isSectionExpanded(section: string): boolean {
+    return this.expandedSections().has(section);
+  }
+
+  toggleSection(section: string, expanded: boolean): void {
+    this.expandedSections.update(set => {
+      const next = new Set(set);
+      if (expanded) next.add(section); else next.delete(section);
+      return next;
+    });
+  }
 
   ngOnInit() {
     this.initializeForm();
@@ -128,6 +161,29 @@ export class SupplierFormComponent implements OnInit {
         });
       }
       // this.router.navigate(['/entities/suppliers']);
+    } else {
+      this.supplierForm.markAllAsTouched();
+      this.expandInvalidSectionAndScroll();
+      this.notificationService.showWarning(this.translateService.instant('TOAST.VALIDATION_ERROR'));
     }
+  }
+
+  /** Finds the first collapsed section containing an invalid control, expands it, and scrolls
+   *  its header into view -- a validation error must never be silently hidden behind a collapsed
+   *  panel. Runs on failed submit only; markAllAsTouched() (called just before this) is what makes
+   *  the mat-error text actually render once the panel opens. */
+  private expandInvalidSectionAndScroll(): void {
+    const invalidSection = Object.entries(SECTION_FIELDS).find(([, fields]) =>
+      fields.some(f => this.supplierForm.get(f)?.invalid)
+    )?.[0];
+    if (!invalidSection) return;
+
+    this.toggleSection(invalidSection, true);
+    // The panel's expand animation/content needs a real paint before it has a height to scroll
+    // to -- a microtask fires before that, so this waits a frame instead.
+    requestAnimationFrame(() => {
+      document.getElementById(`supplier-section-${invalidSection}`)
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   }
 }

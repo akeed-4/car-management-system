@@ -81,6 +81,45 @@ mat-card.form-container {
   letter-spacing: 0.5px;
 }
 
+/* Collapsible sections -- reduces initial scroll (only "Basic Info" opens by default; see
+   CustomerFormComponent.expandedSections). Panels replace the old always-expanded .form-section
+   blocks; grid/field styling below still applies unchanged inside each panel's content. */
+.form-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.form-panel {
+  border-radius: 8px !important;
+  border-left: 4px solid #1976d2;
+  box-shadow: none !important;
+  background: #f8f9fa;
+}
+
+.form-panel .mat-expansion-panel-header {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #1976d2;
+  height: 56px;
+}
+
+.form-panel .mat-expansion-panel-header-title {
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-icon {
+  color: #1976d2;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.form-panel .mat-expansion-panel-body {
+  padding: 0 1.25rem 1.25rem;
+}
+
 mat-grid-list {
   margin-bottom: 0;
 }
@@ -92,14 +131,16 @@ mat-grid-tile {
 .form-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.72rem;
+  gap: 1rem 1.25rem;
   margin-top: 1rem;
 }
 
 .form-row {
   display: grid;
   grid-template-columns: 2fr 2fr 1fr;
-  gap: 1.5rem;
+  gap: 1.25rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
 .form-row .form-field {
@@ -238,6 +279,16 @@ mat-form-field.mat-form-field {
   .form-grid,
   .form-row {
     grid-template-columns: 1fr;
+  }
+
+  .form-panel .mat-expansion-panel-header {
+    height: auto;
+    min-height: 48px;
+    font-size: 0.95rem;
+  }
+
+  .form-panel .mat-expansion-panel-body {
+    padding: 0 0.75rem 1rem;
   }
 
   .form-actions {
