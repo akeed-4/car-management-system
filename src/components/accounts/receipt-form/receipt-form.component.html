@@ -114,8 +114,7 @@
               </mat-error>
             </mat-form-field>
 
-
-            <div class="form-field distribute-wrapper">
+            <div class="form-field distribute-wrapper" *ngIf="requiresAllocation()">
               <button mat-raised-button color="accent" type="button"
                       (click)="distributeAmount()"
                       [disabled]="!receiptForm.get('totalAmountReceived')?.value || allocations.length === 0"
@@ -125,10 +124,18 @@
               </button>
             </div>
           </div>
+
+          <!-- Advance payment: customer pays with no invoice selected (business rule scenario 1) --
+               keeps customerId, unlike switching Receipt Type away from CUSTOMER entirely. -->
+          <div class="form-row">
+            <mat-checkbox formControlName="noInvoiceAllocation">
+              {{ 'ACCOUNTS.FORM.NO_INVOICE_ALLOCATION' | translate }}
+            </mat-checkbox>
+          </div>
         </div>
 
         <!-- Invoice Selection & Cars -->
-        <div class="form-section invoice-cars-section" *ngIf="isCustomerReceipt() && customerInvoices().length > 0">
+        <div class="form-section invoice-cars-section" *ngIf="requiresAllocation() && customerInvoices().length > 0">
           <h3>{{ 'ACCOUNTS.FORM.INVOICE_SELECTION' | translate }}</h3>
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
@@ -170,7 +177,7 @@
         </div>
 
         <!-- Allocation Table -->
-        <div class="form-section allocation-section" *ngIf="isCustomerReceipt() && allocations.length > 0">
+        <div class="form-section allocation-section" *ngIf="requiresAllocation() && allocations.length > 0">
           <h3>{{ 'ACCOUNTS.FORM.ALLOCATION_TABLE' | translate }}</h3>
           <div class="table-container">
             <table class="allocation-table">
@@ -218,9 +225,17 @@
           </div>
         </div>
 
-        <!-- Accounting Preview -->
+        <!-- Accounting Preview / Journal Balance -->
         <div class="form-section accounting-section">
-          <h3>{{ 'ACCOUNTS.FORM.ACCOUNTING_PREVIEW' | translate }}</h3>
+          <div class="accounting-header">
+            <h3>{{ 'ACCOUNTS.FORM.ACCOUNTING_PREVIEW' | translate }}</h3>
+            <span class="balance-badge" [ngClass]="{
+              'balance-balanced': isJournalBalanced(),
+              'balance-unbalanced': !isJournalBalanced()
+            }">
+              {{ (isJournalBalanced() ? 'ACCOUNTING.BALANCED' : 'ACCOUNTING.UNBALANCED') | translate }}
+            </span>
+          </div>
           <div class="accounting-grid">
 
             <div class="accounting-card debit-card">
@@ -229,9 +244,9 @@
                 {{ 'ACCOUNTS.FORM.DEBIT' | translate }}
               </h4>
               <div class="accounting-item">
-                <span>{{ getAccountName(receiptForm.get('debitAccountId')?.value) }}</span>
+                <span>{{ debitAccountName() }}</span>
                 <span class="amount debit-amount">
-                  {{ receiptForm.get('totalAmountReceived')?.value | currency:'SAR' }}
+                  {{ journalTotalDebit() | currency:'SAR' }}
                 </span>
               </div>
             </div>
@@ -242,16 +257,19 @@
                 {{ 'ACCOUNTS.FORM.CREDIT' | translate }}
               </h4>
               <div class="accounting-item">
-                <span>{{ getAccountName(receiptForm.get('creditAccountId')?.value) }}</span>
+                <span>{{ creditAccountName() }}</span>
                 <span class="amount credit-amount">
-                  {{ (isCustomerReceipt() ? totalAllocated() : totalAmountReceived()) | currency:'SAR' }}
+                  {{ journalTotalCredit() | currency:'SAR' }}
                 </span>
               </div>
             </div>
 
           </div>
 
-          <div class="difference-section" *ngIf="isCustomerReceipt()" [class.error]="unallocatedBalance() !== 0">
+          <!-- Invoice-allocation difference: only meaningful while actually allocating across
+               invoices -- an advance/no-invoice receipt always posts the full amount, so there's
+               nothing to distribute and this row stands down. -->
+          <div class="difference-section" *ngIf="requiresAllocation()" [class.error]="unallocatedBalance() !== 0">
             <strong>
               {{ 'ACCOUNTS.FORM.UNALLOCATED_BALANCE' | translate }}:
               {{ unallocatedBalance() | currency:'SAR' }}
@@ -274,7 +292,7 @@
           {{ 'ACCOUNTS.FORM.CANCEL' | translate }}
         </a>
         <button mat-raised-button color="primary" type="submit"
-                [disabled]="receiptForm.invalid || (isCustomerReceipt() && unallocatedBalance() !== 0)">
+                [disabled]="receiptForm.invalid || !isJournalBalanced() || (requiresAllocation() && unallocatedBalance() !== 0)">
           {{ (isEditMode() ? 'ACCOUNTS.FORM.UPDATE' : 'ACCOUNTS.FORM.SAVE_RECEIPT') | translate }}
         </button>
       </mat-card-actions>

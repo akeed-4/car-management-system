@@ -88,10 +88,26 @@ export class PaymentFormComponent implements OnInit {
     this.details.value.reduce((sum: number, d: any) => sum + (d.amount || 0), 0)
   );
 
+  /** Car-cost distribution rows are only a meaningful, required breakdown when the payment is
+   *  linked to a purchase invoice (see onInvoiceChange) -- an advance/no-invoice payment has
+   *  nothing to distribute across cars, so the sum-must-match-voucher-amount rule and the
+   *  journal-balance check below both stand down when no invoice is selected. Mirrors the
+   *  backend, which already treats PurchaseInvoiceId and Details as independently optional
+   *  (PaymentService.CreateAsync only sums Details "if (dto.Details != null && dto.Details.Any())"). */
+  hasInvoiceAllocation = computed(() => !!this.paymentForm?.get('purchaseInvoiceId')?.value);
+
   difference = computed(() => {
+    if (!this.hasInvoiceAllocation()) return 0;
     const voucher = this.paymentForm?.get('totalVoucherAmount')?.value || 0;
     return voucher - this.totalAmount();
   });
+
+  // ── Journal Balance panel (Debit/Credit/Difference, mirrors journal-entries.component.ts) ──
+  debitAccountName = computed(() => this.getAccountName(this.paymentForm?.get('debitAccountId')?.value ?? null));
+  creditAccountName = computed(() => this.getAccountName(this.paymentForm?.get('creditAccountId')?.value ?? null));
+  journalTotalDebit = computed(() => this.paymentForm?.get('totalVoucherAmount')?.value || 0);
+  journalTotalCredit = computed(() => this.paymentForm?.get('totalVoucherAmount')?.value || 0);
+  isJournalBalanced = computed(() => this.journalTotalDebit() === this.journalTotalCredit());
 
   // ── Lifecycle ────────────────────────────────────────────────────────────────
   ngOnInit(): void {
@@ -189,13 +205,18 @@ export class PaymentFormComponent implements OnInit {
 
   // ── Detail Helpers ───────────────────────────────────────────────────────────
   /** chassisNumber/model are only meaningful when the row was auto-populated from an
-   * invoice's car; a manual (no-invoice) payment row only needs an amount. */
+   * invoice's car; a manual (no-invoice) payment row only needs an amount -- and even that
+   * amount is optional (not min(0.01)-required) when there's no invoice selected, since the
+   * row then represents an unused, empty distribution rather than a real car-cost line. */
   private buildDetailGroup(car?: any): FormGroup {
+    const amountValidators = this.hasInvoiceAllocation()
+      ? [Validators.required, Validators.min(0.01)]
+      : [Validators.min(0)];
     return this.fb.group({
       chassisNumber: [car?.chassisNumber || ''],
       model:         [car?.model         || ''],
       carId:         [car?.carId         || car?.id || null],
-      amount:        [car?.amount        || 0, [Validators.required, Validators.min(0.01)]],
+      amount:        [car?.amount        || 0, amountValidators],
       note:          [car?.note          || '']
     });
   }
@@ -252,8 +273,15 @@ export class PaymentFormComponent implements OnInit {
   // ── Save ─────────────────────────────────────────────────────────────────────
   savePayment(): void {
     if (this.paymentForm.invalid) { this.paymentForm.markAllAsTouched(); return; }
-    if (Math.abs(this.difference()) > 0.01) {
+    // Detail-row distribution is only required to match the voucher amount when an invoice is
+    // linked (see hasInvoiceAllocation/difference) -- an advance/no-invoice payment always posts
+    // a balanced journal entry (debit == credit == totalVoucherAmount) regardless of Details.
+    if (this.hasInvoiceAllocation() && Math.abs(this.difference()) > 0.01) {
       this.notificationService.showError(this.translate.instant('ACCOUNTS.FORM.DIFFERENCE_ERROR'));
+      return;
+    }
+    if (!this.isJournalBalanced()) {
+      this.notificationService.showError(this.translate.instant('ACCOUNTING.UNBALANCED'));
       return;
     }
 
@@ -271,13 +299,18 @@ export class PaymentFormComponent implements OnInit {
       purchaseInvoiceId:v.purchaseInvoiceId,
       debitAccountId:   v.debitAccountId,    // ← NEW
       creditAccountId:  v.creditAccountId,   // ← NEW
-      details: v.details.map((d: any) => ({
-        carId:         d.carId,
-        chassisNumber: d.chassisNumber,
-        model:         d.model,
-        amount:        d.amount,
-        note:          d.note || undefined,
-      }))
+      // With no invoice linked, Details is an optional car-cost breakdown -- an empty/zero
+      // leftover row carries no information and would fail the backend's detailsTotal===Amount
+      // check (PaymentService.CreateAsync) if a non-zero voucher amount were sent alongside it,
+      // so only rows with a real amount are ever submitted in that case.
+      details: (this.hasInvoiceAllocation() ? v.details : v.details.filter((d: any) => (d.amount || 0) > 0))
+        .map((d: any) => ({
+          carId:         d.carId,
+          chassisNumber: d.chassisNumber,
+          model:         d.model,
+          amount:        d.amount,
+          note:          d.note || undefined,
+        }))
     };
 
     const action$ = this.isEditMode()

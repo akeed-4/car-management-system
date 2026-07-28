@@ -13,6 +13,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTableModule } from '@angular/material/table';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { InvoiceDropdownGridComponent } from '../../shared/invoice-dropdown-grid/invoice-dropdown-grid.component';
 import { CustomerService } from '../../../services/customer.service';
 import { SalesService } from '../../../services/sales.service';
@@ -45,6 +46,7 @@ import { InventoryService } from '../../../services/inventory.service';
     MatDatepickerModule,
     MatNativeDateModule,
     MatTableModule,
+    MatCheckboxModule,
     InvoiceDropdownGridComponent,
   ],
   templateUrl: './receipt-form.component.html',
@@ -81,9 +83,26 @@ export class ReceiptFormComponent implements OnInit {
   });
   unallocatedBalance = computed(() => this.totalAmountReceived() - this.totalAllocated());
 
+  // ── Journal Balance panel (Debit/Credit/Difference, mirrors journal-entries.component.ts) ──
+  debitAccountName = computed(() => this.getAccountName(this.receiptForm?.get('debitAccountId')?.value ?? null));
+  creditAccountName = computed(() => this.getAccountName(this.receiptForm?.get('creditAccountId')?.value ?? null));
+  journalTotalDebit = computed(() => this.totalAmountReceived());
+  journalTotalCredit = computed(() => this.totalAmountReceived());
+  isJournalBalanced = computed(() => this.journalTotalDebit() === this.journalTotalCredit());
+
   isCustomerReceipt = computed(() => {
     return (this.receiptForm?.get('receiptType')?.value || 'CUSTOMER') === 'CUSTOMER';
   });
+
+  /** "Advance payment" toggle: a CUSTOMER receipt with no invoice allocation at all (business
+   *  rule scenario 1 -- customer pays an advance, no invoice selected). Unlike switching
+   *  receiptType away from CUSTOMER, this keeps customerId and still posts Debit Cash/Bank
+   *  Credit Customer Account. Only meaningful while isCustomerReceipt() is true. */
+  noInvoiceAllocation = computed(() => this.receiptForm?.get('noInvoiceAllocation')?.value ?? false);
+
+  /** Allocation (the invoice-distribution table) is only required when the user is both on a
+   *  CUSTOMER receipt AND hasn't opted into the advance/no-allocation toggle. */
+  requiresAllocation = computed(() => this.isCustomerReceipt() && !this.noInvoiceAllocation());
 
   // Journal preview: builds journal lines based on current form and allocations
   journalPreview = computed(() => {
@@ -167,10 +186,23 @@ export class ReceiptFormComponent implements OnInit {
     // react to receiptType changes: clear customer/invoices/allocations when not CUSTOMER
     this.receiptForm.get('receiptType')?.valueChanges.subscribe((val: string) => {
       if (val !== 'CUSTOMER') {
-        this.receiptForm.patchValue({ customerId: null });
+        this.receiptForm.patchValue({ customerId: null, noInvoiceAllocation: false });
         this.customerInvoices.set([]);
         this.selectedInvoiceCars.set([]);
         this.clearAllocations();
+      }
+    });
+
+    // Toggling "advance / no invoice allocation" on clears any half-entered allocation rows
+    // (they'd otherwise sit invisible in the form model and confuse buildReceiptDtos() if the
+    // user toggles back off); toggling off re-fetches the customer's invoices so the allocation
+    // table repopulates instead of staying empty.
+    this.receiptForm.get('noInvoiceAllocation')?.valueChanges.subscribe((checked: boolean) => {
+      if (checked) {
+        this.clearAllocations();
+      } else {
+        const customerId = this.receiptForm.get('customerId')?.value;
+        if (customerId) this.loadCustomerInvoices(customerId);
       }
     });
 
@@ -349,6 +381,8 @@ export class ReceiptFormComponent implements OnInit {
       creditAccountId: [null, Validators.required],
       debitAccountId: [null, Validators.required],
       customerId: [null],
+      // Advance-payment toggle -- see noInvoiceAllocation/requiresAllocation.
+      noInvoiceAllocation: [false],
       notes: [''],
       status: ['DRAFT'],
       createdBy: [1],
@@ -415,9 +449,16 @@ export class ReceiptFormComponent implements OnInit {
       this.receiptForm.markAllAsTouched();
       return;
     }
+    if (!this.isJournalBalanced()) {
+      this.notificationService.showError(this.translate.instant('ACCOUNTING.UNBALANCED'));
+      return;
+    }
 
-    // CUSTOMER receipts: amount is split across one or more invoice allocations.
-    if (this.isCustomerReceipt()) {
+    // CUSTOMER receipts that are actually being allocated: amount is split across one or more
+    // invoice allocations. A CUSTOMER receipt with noInvoiceAllocation checked (advance payment,
+    // business rule scenario 1) skips straight to the single-receipt path below instead, keeping
+    // customerId (unlike switching receiptType away from CUSTOMER, which would clear it).
+    if (this.requiresAllocation()) {
       if (this.unallocatedBalance() !== 0) {
         this.notificationService.showError(this.translate.instant('ACCOUNTS.FORM.UNALLOCATED_BALANCE_ERROR'));
         return;
@@ -455,7 +496,12 @@ export class ReceiptFormComponent implements OnInit {
       return;
     }
 
-    // GENERAL / ADVANCE / TRANSFER receipts: no invoice link, a single receipt for the full amount.
+    // Advance/no-allocation CUSTOMER receipt, or GENERAL/ADVANCE/TRANSFER: no invoice link, a
+    // single receipt for the full amount (customerId carried through when present).
+    if (this.isCustomerReceipt() && !this.receiptForm.get('customerId')?.value) {
+      this.notificationService.showError(this.translate.instant('ACCOUNTS.FORM.SELECT_CUSTOMER'));
+      return;
+    }
     const dto = this.buildSingleReceiptDto();
     if (this.isEditMode()) {
       this.receiptService.updateReceipt(dto, this.editingReceipt()!.id).subscribe({

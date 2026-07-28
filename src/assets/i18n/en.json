@@ -2069,6 +2069,7 @@
       "DIFFERENCE": "Difference",
       "UNALLOCATED_BALANCE": "Unallocated Balance",
       "UNALLOCATED_BALANCE_ERROR": "Total allocated amount must equal the total amount received",
+      "NO_INVOICE_ALLOCATION": "Advance payment (do not allocate to an invoice)",
       "NOTES": "Notes",
       "CANCEL": "Cancel",
       "SAVE": "Save Payment Voucher",

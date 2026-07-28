@@ -2064,6 +2064,7 @@
       "DIFFERENCE": "الفرق",
       "UNALLOCATED_BALANCE": "الرصيد غير الموزع",
       "UNALLOCATED_BALANCE_ERROR": "يجب أن يساوي إجمالي المبالغ الموزعة إجمالي المبلغ المستلم",
+      "NO_INVOICE_ALLOCATION": "دفعة مقدمة (بدون توزيع على فاتورة)",
       "NOTES": "ملاحظات",
       "CANCEL": "إلغاء",
       "SAVE": "حفظ سند الصرف",

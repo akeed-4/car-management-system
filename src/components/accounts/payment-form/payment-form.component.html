@@ -190,9 +190,17 @@
           </div>
         </div>
 
-        <!-- Accounting Preview -->
+        <!-- Accounting Preview / Journal Balance -->
         <div class="form-section accounting-section">
-          <h3>{{ 'ACCOUNTS.FORM.ACCOUNTING_PREVIEW' | translate }}</h3>
+          <div class="accounting-header">
+            <h3>{{ 'ACCOUNTS.FORM.ACCOUNTING_PREVIEW' | translate }}</h3>
+            <span class="balance-badge" [ngClass]="{
+              'balance-balanced': isJournalBalanced(),
+              'balance-unbalanced': !isJournalBalanced()
+            }">
+              {{ (isJournalBalanced() ? 'ACCOUNTING.BALANCED' : 'ACCOUNTING.UNBALANCED') | translate }}
+            </span>
+          </div>
           <div class="accounting-grid">
             <div class="accounting-card debit-card">
               <h4>
@@ -200,8 +208,8 @@
                 {{ 'ACCOUNTS.FORM.DEBIT' | translate }}
               </h4>
               <div class="accounting-item">
-                <span>{{ getAccountName(paymentForm.get('debitAccountId')?.value) }}</span>
-                <span class="amount debit-amount">{{ totalAmount() | currency:'SAR' }}</span>
+                <span>{{ debitAccountName() }}</span>
+                <span class="amount debit-amount">{{ journalTotalDebit() | currency:'SAR' }}</span>
               </div>
             </div>
             <div class="accounting-card credit-card">
@@ -210,12 +218,15 @@
                 {{ 'ACCOUNTS.FORM.CREDIT' | translate }}
               </h4>
               <div class="accounting-item">
-                <span>{{ getAccountName(paymentForm.get('creditAccountId')?.value) }}</span>
-                <span class="amount credit-amount">{{ paymentForm.get('totalVoucherAmount')?.value | currency:'SAR' }}</span>
+                <span>{{ creditAccountName() }}</span>
+                <span class="amount credit-amount">{{ journalTotalCredit() | currency:'SAR' }}</span>
               </div>
             </div>
           </div>
-          <div class="difference-section" [class.error]="difference() !== 0">
+          <!-- Car-cost distribution difference: only meaningful when an invoice is linked --
+               with no invoice, the Details rows are an optional breakdown, not a required
+               allocation, so this row (and the min(0.01) validator behind it) stands down. -->
+          <div class="difference-section" *ngIf="hasInvoiceAllocation()" [class.error]="difference() !== 0">
             <strong>{{ 'ACCOUNTS.FORM.DIFFERENCE' | translate }}: {{ difference() | currency:'SAR' }}</strong>
           </div>
         </div>
@@ -235,7 +246,7 @@
           {{ 'ACCOUNTS.FORM.CANCEL' | translate }}
         </a>
         <button mat-raised-button color="primary" type="submit"
-                [disabled]="paymentForm.invalid || difference() !== 0">
+                [disabled]="paymentForm.invalid || !isJournalBalanced() || (hasInvoiceAllocation() && difference() !== 0)">
           {{ (isEditMode() ? 'ACCOUNTS.FORM.UPDATE' : 'ACCOUNTS.FORM.SAVE') | translate }}
         </button>
       </mat-card-actions>

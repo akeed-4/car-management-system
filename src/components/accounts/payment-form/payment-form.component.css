@@ -106,6 +106,30 @@
   .due-amount { color: #d32f2f; }
 }
 
+.accounting-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 2px solid #1976d2;
+  padding-bottom: .5rem;
+  margin-bottom: 1rem;
+
+  h3 { margin: 0; border: none; padding: 0; }
+}
+
+.balance-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: .8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.balance-balanced   { background-color: #28a745; color: #fff; }
+.balance-unbalanced { background-color: #dc3545; color: #fff; }
+
 .accounting-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
