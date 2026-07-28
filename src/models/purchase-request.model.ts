@@ -42,6 +42,20 @@ export interface PurchaseRequestDto {
   /** Set once this request has been used to create a Purchase Order; hides it from the eligible dropdown. */
   convertedToPoId?: number;
   notes?: string;
+  createdBy?: number;
   createdAt?: string;
   updatedAt?: string;
+  approvedBy?: number;
+  approvedAt?: string;
+  rejectedBy?: number;
+  rejectedAt?: string;
+  rejectionReason?: string;
+}
+
+/** Cascading dropdown row: approved requests with remaining un-ordered lines, for the Purchase Order screen. */
+export interface ApprovedRequestLookupDto {
+  id: number;
+  requestNumber: string;
+  requestDate: string;
+  totalAmount: number;
 }

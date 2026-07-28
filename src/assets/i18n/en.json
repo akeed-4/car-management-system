@@ -3657,7 +3657,13 @@
     "REJECT_SUCCESS": "Purchase request rejected",
     "REJECT_ERROR": "Error rejecting purchase request",
     "REJECT_CONFIRM_TITLE": "Reject this request?",
-    "REJECT_CONFIRM_TEXT": "This request will no longer be available for conversion into a Purchase Order."
+    "REJECT_CONFIRM_TEXT": "This request will no longer be available for conversion into a Purchase Order.",
+    "REJECT_REASON_PROMPT": "Please provide a reason for rejection",
+    "REJECT_REASON_REQUIRED": "A rejection reason is required",
+    "DELETE_CONFIRM_TITLE": "Delete this request?",
+    "DELETE_CONFIRM_TEXT": "This action cannot be undone.",
+    "DELETE_SUCCESS": "Purchase request deleted successfully",
+    "DELETE_ERROR": "Error deleting purchase request"
   },
   "SALES_LIFECYCLE": {
     "TITLE": "Sales Lifecycle Management",
