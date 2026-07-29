@@ -14,6 +14,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CarsReceiptNoteService } from '../../../services/cars-receipt-note.service';
+import { PurchaseOrderService } from '../../../services/purchase-order.service';
 import { NotificationService } from '../../../services/notification.service';
 import { ActivePOLookupDto, CarsReceiptNoteDto, CreateCarsReceiptNoteDto } from '../../../models/cars-receipt-note.model';
 import { CarSelectionDialogComponent } from '../purchase-invoice/car-selection-dialog/car-selection-dialog.component';
@@ -73,9 +74,16 @@ export class CarsReceiptNoteFormComponent implements OnInit {
   /** Set once an existing GRN is loaded -- drives the document header + actions toolbar. */
   loadedGrn: CarsReceiptNoteDto | null = null;
 
+  /** True while Create is in flight -- guards against double-submit and drives the button's loading state. */
+  saving = signal(false);
+
+  /** Vendor of the currently-selected PO -- auto-displayed once selected, read-only. */
+  selectedVendorName = signal<string | null>(null);
+
   constructor(
     private fb: FormBuilder,
     private carsReceiptNoteService: CarsReceiptNoteService,
+    private purchaseOrderService: PurchaseOrderService,
     private notificationService: NotificationService,
     private translateService: TranslateService,
     private router: Router,
@@ -116,10 +124,11 @@ export class CarsReceiptNoteFormComponent implements OnInit {
     });
   }
 
-  /** Cascading onChange: selecting a PO auto-fills the GRN grid with its remaining lines. */
+  /** Cascading onChange: selecting a PO auto-fills the GRN grid with its remaining lines and displays its vendor. */
   onPoSelected(purchaseOrderId: number | null): void {
     this.lineItems = [];
     this.updateDocumentPreview();
+    this.selectedVendorName.set(this.activePOs().find(po => po.id === purchaseOrderId)?.vendorName ?? null);
     if (!purchaseOrderId) return;
 
     this.carsReceiptNoteService.getRemainingPOLines(purchaseOrderId).subscribe({
@@ -206,6 +215,10 @@ export class CarsReceiptNoteFormComponent implements OnInit {
           notes: grn.notes
         });
         this.grnForm.disable();
+        this.purchaseOrderService.getById(grn.purchaseOrderId).subscribe({
+          next: (po) => this.selectedVendorName.set(po?.vendorName ?? null),
+          error: () => this.selectedVendorName.set(null)
+        });
         this.lineItems = (grn.items || []).map(item => ({
           carId: item.carId,
           carDescription: item.carDescription,
@@ -272,6 +285,8 @@ export class CarsReceiptNoteFormComponent implements OnInit {
   }
 
   onSubmit(): void {
+    if (this.saving()) return;
+
     if (this.grnForm.invalid || this.lineItems.length === 0) {
       this.grnForm.markAllAsTouched();
       if (this.lineItems.length === 0) {
@@ -313,6 +328,7 @@ export class CarsReceiptNoteFormComponent implements OnInit {
       }))
     };
 
+    this.saving.set(true);
     this.carsReceiptNoteService.create(dto).subscribe({
       next: () => {
         this.notificationService.showSuccess(this.translateService.instant('CARS_RECEIPT_NOTE.SAVE_SUCCESS'));
@@ -321,6 +337,7 @@ export class CarsReceiptNoteFormComponent implements OnInit {
       error: (err) => {
         console.error('Error saving car receipt note', err);
         this.notificationService.showError(this.translateService.instant('CARS_RECEIPT_NOTE.SAVE_ERROR') + ': ' + (err?.message || 'Unknown error'));
+        this.saving.set(false);
       }
     });
   }

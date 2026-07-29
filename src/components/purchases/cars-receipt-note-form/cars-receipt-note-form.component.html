@@ -56,6 +56,13 @@
               </mat-error>
             </mat-form-field>
           </div>
+          <div class="flex-1" *ngIf="selectedVendorName() as vendorName">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>{{ 'CARS_RECEIPT_NOTE.VENDOR' | translate }}</mat-label>
+              <input matInput [value]="vendorName" readonly tabindex="-1">
+              <mat-icon matSuffix>store</mat-icon>
+            </mat-form-field>
+          </div>
         </div>
 
         <div class="details-grid-wrapper mb-3">
@@ -90,11 +97,12 @@
 
         <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
           <button *ngIf="!isViewMode" mat-raised-button color="primary" type="submit" class="action-btn"
-            [disabled]="grnForm.invalid || lineItems.length === 0">
-            <mat-icon class="me-1">save</mat-icon>
-            {{ 'COMMON.SAVE' | translate }}
+            [disabled]="saving()">
+            <mat-icon class="me-1" *ngIf="!saving()">save</mat-icon>
+            <mat-icon class="me-1 spin" *ngIf="saving()">refresh</mat-icon>
+            {{ (saving() ? 'COMMON.SAVING' : 'COMMON.SAVE') | translate }}
           </button>
-          <button mat-stroked-button type="button" class="action-btn" (click)="onCancel()">
+          <button mat-stroked-button type="button" class="action-btn" [disabled]="saving()" (click)="onCancel()">
             {{ (isViewMode ? 'COMMON.BACK' : 'COMMON.CANCEL') | translate }}
           </button>
         </div>

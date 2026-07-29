@@ -4,6 +4,15 @@
   padding: 1rem;
 }
 
+.spin {
+  animation: cars-receipt-note-spin 1s linear infinite;
+}
+
+@keyframes cars-receipt-note-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .styled-card {
   border-radius: 12px;
   overflow: hidden;
