@@ -1,61 +1,48 @@
-<mat-toolbar color="primary" class="toolbar">
-  <mat-toolbar-row>
-    <span>{{ pageTitle() | translate }}</span>
-    <span class="spacer"></span>
-    <a routerLink="/setup/car-category" mat-icon-button>
-      <mat-icon>arrow_back</mat-icon>
-    </a>
-  </mat-toolbar-row>
-</mat-toolbar>
-
 <div class="container">
-  <mat-card>
-    <mat-card-content>
-      <form [formGroup]="categoryForm" >
-        <mat-grid-list cols="2" rowHeight="80px" gutterSize="16px">
-          <mat-grid-tile [colspan]="2" [rowspan]="1">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'CAR_CATEGORY.FORM.MODELS' | translate }}</mat-label>
-              <mat-select formControlName="modelId" aria-required="true">
-                <mat-option *ngFor="let model of models()" [value]="model.id">
-                  {{ model.name }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </mat-grid-tile>
-          <mat-grid-tile [colspan]="1" [rowspan]="1">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'CAR_CATEGORY.FORM.NAME' | translate }}</mat-label>
-              <input matInput formControlName="name" required>
-            </mat-form-field>
-          </mat-grid-tile>
-          <mat-grid-tile [colspan]="1" [rowspan]="1">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'CAR_CATEGORY.FORM.NAME_AR' | translate }}</mat-label>
-              <input matInput formControlName="nameAr">
-            </mat-form-field>
-          </mat-grid-tile>
-  
-          <mat-grid-tile [colspan]="1" [rowspan]="1">
-            <!-- Empty tile for spacing -->
-          </mat-grid-tile>
-          <mat-grid-tile [colspan]="1" [rowspan]="1" >
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'CAR_CATEGORY.FORM.DESCRIPTION' | translate }}</mat-label>
-              <textarea matInput formControlName="description" rows="3"></textarea>
-            </mat-form-field>
-          </mat-grid-tile>
-        </mat-grid-list>
+  <div class="card">
+    <div class="card-header">
+      <h2>{{ pageTitle() | translate }}</h2>
+      <a routerLink="/setup/car-category" class="back-link">
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'CAR_CATEGORY.FORM.BACK_TO_LIST' | translate }}
+      </a>
+    </div>
 
-        <div class="form-actions">
-          <a routerLink="/setup/car-category" mat-button>
-            {{ 'CAR_CATEGORY.FORM.CANCEL' | translate }}
-          </a>
-          <button mat-raised-button color="primary" (click)="saveCategory()" [disabled]="categoryForm.invalid">
-            {{ editMode() ? ('CAR_CATEGORY.FORM.SAVE_CHANGES' | translate) : ('CAR_CATEGORY.FORM.SAVE' | translate) }}
-          </button>
-        </div>
-      </form>
-    </mat-card-content>
-  </mat-card>
+    <form [formGroup]="categoryForm" class="card-body">
+      <div class="form-grid">
+        <mat-form-field appearance="outline" class="field-span-2">
+          <mat-label>{{ 'CAR_CATEGORY.FORM.MODELS' | translate }}</mat-label>
+          <mat-select formControlName="modelId" aria-required="true">
+            <mat-option *ngFor="let model of models()" [value]="model.id">
+              {{ model.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="field-span-1">
+          <mat-label>{{ 'CAR_CATEGORY.FORM.NAME' | translate }}</mat-label>
+          <input matInput formControlName="name" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="field-span-1">
+          <mat-label>{{ 'CAR_CATEGORY.FORM.NAME_AR' | translate }}</mat-label>
+          <input matInput formControlName="nameAr" dir="rtl">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="field-span-2">
+          <mat-label>{{ 'CAR_CATEGORY.FORM.DESCRIPTION' | translate }}</mat-label>
+          <textarea matInput formControlName="description" rows="3"></textarea>
+        </mat-form-field>
+      </div>
+    </form>
+
+    <div class="form-actions">
+      <a routerLink="/setup/car-category" class="btn btn-light">
+        {{ 'CAR_CATEGORY.FORM.CANCEL' | translate }}
+      </a>
+      <button type="button" (click)="saveCategory()" [disabled]="categoryForm.invalid" class="btn btn-primary">
+        {{ editMode() ? ('CAR_CATEGORY.FORM.SAVE_CHANGES' | translate) : ('CAR_CATEGORY.FORM.SAVE' | translate) }}
+      </button>
+    </div>
+  </div>
 </div>

@@ -1,36 +1,180 @@
+/* --- Compact, Bold Car Category Design (matches car-card) --- */
 .container {
-  padding: 24px;
-  max-width: 800px;
-  margin: 0 auto;
+  max-width: 720px;
+  margin: 1.5rem auto;
+  padding: 0 0.75rem;
+  font-family: 'Roboto', sans-serif;
 }
 
-.toolbar {
-  margin-bottom: 24px;
+.card {
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+  background: #fff;
+  border: 1px solid #dbe4f0;
+  overflow: hidden;
 }
 
-.spacer {
-  flex: 1;
+/* --- Header --- */
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.25rem;
+  background: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%);
+  color: white;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.card-header h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.back-link {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  text-decoration: none;
+  color: white;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  transition: background-color 0.2s ease;
+}
+
+.back-link mat-icon {
+  font-size: 1.1rem;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.back-link:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+/* --- Body --- */
+.card-body {
+  padding: 1.25rem;
 }
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem 0.9rem;
+  align-items: start;
 }
 
-.description-field {
-  border-top: 1px solid #e0e0e0;
-  padding-top: 16px;
+.field-span-1 {
+  grid-column: span 1;
 }
 
-.full-width {
-  grid-column: 1 / -1;
+.field-span-2 {
+  grid-column: span 2;
 }
 
+mat-form-field {
+  width: 100%;
+}
+
+mat-form-field.mat-form-field {
+  font-size: 0.85rem;
+}
+
+@media (max-width: 640px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .field-span-1,
+  .field-span-2 {
+    grid-column: span 1;
+  }
+}
+
+/* --- Footer / action bar --- */
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 16px;
-  margin-top: 24px;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  background: #f8f9fc;
+  border-top: 2px solid #dbe4f0;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.15rem;
+  border-radius: 7px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.btn-light {
+  background: #eef1f8;
+  color: #333;
+  border: 1px solid #d5dcec;
+}
+
+.btn-light:hover {
+  background: #e2e8f5;
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: #4338ca;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #3730a3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(67, 56, 202, 0.35);
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+@media (max-width: 640px) {
+  .container {
+    margin: 0.75rem auto;
+    padding: 0 0.4rem;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+    gap: 0.5rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    justify-content: center;
+    min-height: 48px;
+  }
+
+  .mat-mdc-form-field-label,
+  .mat-mdc-text-field-wrapper,
+  mat-form-field.mat-form-field {
+    font-size: 16px !important;
+  }
 }

@@ -2,19 +2,15 @@ import { Component, inject, signal, computed, OnInit, Signal } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatGridListModule } from '@angular/material/grid-list';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CarCategoryService } from '../../../../services/car-category.service';
 import { CarCategory } from '../../../../types/car-category.model';
 import { CarModelService } from '../../../../services/car-model.service';
 import { CarModel } from '../../../../models/car-model.model';
 import { MatSelectModule } from '@angular/material/select';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { ToastService } from '@/src/services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
 
@@ -24,14 +20,11 @@ import { NotificationService } from '@/src/services/notification.service';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatButtonModule,
+    RouterLink,
     MatIconModule,
-    MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    MatToolbarModule,
     MatSelectModule,
-    MatGridListModule,
     TranslateModule
   ],
   templateUrl: './car-category-form.component.html',

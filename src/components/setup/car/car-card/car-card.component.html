@@ -6,210 +6,218 @@
         </div>
 
         <form [formGroup]="carForm" class="card-body">
-            <!-- Main Details Section -->
-            <section class="form-section">
-                <h3 class="form-section-title">{{ 'INVENTORY.FORM.MAIN_DETAILS' | translate }}</h3>
-                <ng-container *ngIf="layout$ | async as layout">
-                    <mat-grid-list [cols]="layout.columns" rowHeight="80px" gutterSize="4px">
-                        <mat-grid-tile [colspan]="1" [rowspan]="1">
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>{{ 'INVENTORY.FORM.MANUFACTURER' | translate }}</mat-label>
-                                <mat-select formControlName="make" required
-                                    (selectionChange)="onManufacturerChange($event.value)">
-                                    <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_MANUFACTURER' |
-                                        translate }}</mat-option>
-                                    @for (manufacturer of manufacturers(); track manufacturer.id) {
-                                    <mat-option [value]="manufacturer.name">{{ manufacturer.name }}</mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                        </mat-grid-tile>
-                        <mat-grid-tile [colspan]="1" [rowspan]="1">
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>{{ 'INVENTORY.FORM.MODEL' | translate }}</mat-label>
-                                <mat-select formControlName="modelId" required
-                                    (selectionChange)="onModelChange($event.value)">
-                                    <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_MODEL' | translate
-                                        }}</mat-option>
-                                    @for (carModel of filteredModels(); track carModel.id) {
-                                    <mat-option [value]="carModel.id">{{ carModel.name }}</mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                        </mat-grid-tile>
 
-                        <mat-grid-tile [colspan]="1" [rowspan]="1">
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>{{ 'INVENTORY.FORM.CATEGORY' | translate }}</mat-label>
-                                <mat-select formControlName="categoryId">
-                                    <mat-option [value]="null">{{ 'INVENTORY.FORM.SELECT_CATEGORY' | translate
-                                        }}</mat-option>
-                                    @for (cat of filteredCategories(); track cat.id) {
-                                    <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                        </mat-grid-tile>
+            <mat-accordion multi="true" class="car-accordion">
 
-                        <mat-grid-tile [colspan]="1" [rowspan]="1">
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>{{ 'INVENTORY.FORM.YEAR' | translate }}</mat-label>
-                                <mat-select formControlName="year" required
-                                    (selectionChange)="onYearChange($event.value)">
-                                    <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_YEAR' | translate
-                                        }}</mat-option>
-                                    @for (y of years(); track y) {
-                                    <mat-option [value]="y">{{ y }}</mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                        </mat-grid-tile>
-                        <mat-grid-tile [colspan]="1" [rowspan]="1">
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>{{ 'INVENTORY.FORM.CURRENT_LOCATION' | translate }}</mat-label>
-                                <input matInput type="text" formControlName="currentLocation" required
-                                    [placeholder]="'INVENTORY.FORM.CURRENT_LOCATION_PLACEHOLDER' | translate">
-                            </mat-form-field>
-                        </mat-grid-tile>
-                    </mat-grid-list>
-                </ng-container>
-                <ng-container *ngIf="layout$ | async as layout">
-                    <mat-grid-list [cols]="layout.columns" rowHeight="80px" gutterSize="4px">
-                        <mat-grid-tile [colspan]="1" [rowspan]="1">
-                            <div class="radio-group-container">
-                                <label class="form-label" id="condition-label">{{ 'INVENTORY.FORM.CONDITION' | translate }}</label>
-                                <mat-radio-group formControlName="condition" class="radio-group" aria-labelledby="condition-label">
-                                    <mat-radio-button value="Used">{{ 'INVENTORY.FORM.USED' | translate
-                                        }}</mat-radio-button>
-                                    <mat-radio-button value="New">{{ 'INVENTORY.FORM.NEW' | translate
-                                        }}</mat-radio-button>
-                                </mat-radio-group>
-                            </div>
-                        </mat-grid-tile>
-                        <mat-grid-tile [colspan]="1" [rowspan]="1">
-                            <div class="toggle-container">
-                                <mat-slide-toggle formControlName="calculateVATFromProfitMargin" color="primary">
-                                    {{ 'INVENTORY.FORM.CALCULATE_VAT_FROM_PROFIT_MARGIN' | translate }}
-                                </mat-slide-toggle>
-                                <p class="toggle-hint">{{ 'INVENTORY.FORM.CALCULATE_VAT_FROM_PROFIT_MARGIN_HINT' | translate }}</p>
-                            </div>
-                        </mat-grid-tile>
-                    </mat-grid-list>
-                </ng-container>
-            </section>
+                <!-- Main Details Section -->
+                <mat-expansion-panel [expanded]="true" class="section-panel">
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>
+                            <mat-icon class="panel-icon">directions_car</mat-icon>
+                            {{ 'INVENTORY.FORM.MAIN_DETAILS' | translate }}
+                        </mat-panel-title>
+                        <mat-panel-description class="panel-summary">
+                            {{ carForm.value.make || '—' }}<span *ngIf="selectedModel()"> • {{ selectedModel() }}</span><span *ngIf="carForm.value.year"> • {{ carForm.value.year }}</span>
+                        </mat-panel-description>
+                    </mat-expansion-panel-header>
 
-            <!-- Saudi Specific Details -->
-            <section class="form-section">
-                <h3 class="form-section-title">{{ 'INVENTORY.FORM.SAUDI_DETAILS' | translate }}</h3>
-                <ng-container *ngIf="layout$ | async as layout">
-                    <mat-grid-list [cols]="layout.columns" rowHeight="80px" gutterSize="4px">
-                        <mat-grid-tile [colspan]="1" [rowspan]="1">
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>{{ 'INVENTORY.FORM.VIN' | translate }}</mat-label>
-                                <input matInput type="text" formControlName="vin" required dir="ltr">
-                                <button matSuffix mat-icon-button (click)="isScannerOpen.set(true)" type="button">
-                                    <mat-icon>qr_code_scanner</mat-icon>
-                                </button>
-                            </mat-form-field>
-                        </mat-grid-tile>
-                        <mat-grid-tile [colspan]="1" [rowspan]="1">
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>{{ 'INVENTORY.FORM.PLATE_NUMBER' | translate }}</mat-label>
-                                <input matInput type="text" formControlName="plateNumber" required>
-                            </mat-form-field>
-                        </mat-grid-tile>
-                        <mat-grid-tile [colspan]="1" [rowspan]="1">
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>{{ 'INVENTORY.FORM.ISTIMARA_EXPIRY' | translate }}</mat-label>
-                                <input matInput type="date" formControlName="istimaraExpiry">
-                            </mat-form-field>
-                        </mat-grid-tile>
-                        <mat-grid-tile [colspan]="1" [rowspan]="1">
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>{{ 'INVENTORY.FORM.FAHAS_STATUS' | translate }}</mat-label>
-                                <mat-select formControlName="fahasStatus">
-                                    <mat-option value="Valid">{{ 'INVENTORY.FORM.FAHAS_VALID' | translate
-                                        }}</mat-option>
-                                    <mat-option value="Expired">{{ 'INVENTORY.FORM.FAHAS_EXPIRED' | translate
-                                        }}</mat-option>
-                                    <mat-option value="Not Required">{{ 'INVENTORY.FORM.FAHAS_NOT_REQUIRED' | translate
-                                        }}</mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                        </mat-grid-tile>
-                    </mat-grid-list>
-                </ng-container>
-            </section>
+                    <div class="form-grid">
+                        <mat-form-field appearance="outline" class="field-span-1">
+                            <mat-label>{{ 'INVENTORY.FORM.MANUFACTURER' | translate }}</mat-label>
+                            <mat-select formControlName="make" required
+                                (selectionChange)="onManufacturerChange($event.value)">
+                                <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_MANUFACTURER' |
+                                    translate }}</mat-option>
+                                @for (manufacturer of manufacturers(); track manufacturer.id) {
+                                <mat-option [value]="manufacturer.name">{{ manufacturer.name }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
 
-            <!-- Technical & Visual Details -->
-            <section class="form-section">
-                <h3 class="form-section-title">{{ 'INVENTORY.FORM.TECHNICAL' | translate }}</h3>
-                <ng-container *ngIf="layout$ | async as layout">
-                    <mat-grid-list [cols]="layout.columns" rowHeight="80px" gutterSize="4px">
-                        <mat-grid-tile [colspan]="1" [rowspan]="1">
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>{{ 'INVENTORY.FORM.MILEAGE' | translate }}</mat-label>
-                                <input matInput type="number" formControlName="mileage" required
-                                    [attr.disabled]="carForm.value.condition === 'New' ? true : null">
-                            </mat-form-field>
-                        </mat-grid-tile>
-                        <mat-grid-tile [colspan]="1" [rowspan]="1">
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>{{ 'INVENTORY.FORM.EXTERIOR_COLOR' | translate }}</mat-label>
-                                <input matInput type="text" formControlName="exteriorColor">
-                            </mat-form-field>
-                        </mat-grid-tile>
-                        <mat-grid-tile [colspan]="1" [rowspan]="1">
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>{{ 'INVENTORY.FORM.INTERIOR_COLOR' | translate }}</mat-label>
-                                <input matInput type="text" formControlName="interiorColor">
-                            </mat-form-field>
-                        </mat-grid-tile>
-                        <mat-grid-tile [colspan]="1" [rowspan]="1">
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>{{ 'INVENTORY.FORM.TRANSMISSION' | translate }}</mat-label>
-                                <mat-select formControlName="transmission">
-                                    <mat-option value="Automatic">{{ 'INVENTORY.FORM.AUTOMATIC' | translate
-                                        }}</mat-option>
-                                    <mat-option value="Manual">{{ 'INVENTORY.FORM.MANUAL' | translate }}</mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                        </mat-grid-tile>
-                        <mat-grid-tile [colspan]="1" [rowspan]="1">
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>{{ 'INVENTORY.FORM.ENGINE_SIZE' | translate }}</mat-label>
-                                <input matInput type="text" formControlName="engineSize">
-                            </mat-form-field>
-                        </mat-grid-tile>
-                    </mat-grid-list>
-                </ng-container>
-            </section>
+                        <mat-form-field appearance="outline" class="field-span-1">
+                            <mat-label>{{ 'INVENTORY.FORM.MODEL' | translate }}</mat-label>
+                            <mat-select formControlName="modelId" required
+                                (selectionChange)="onModelChange($event.value)">
+                                <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_MODEL' | translate
+                                    }}</mat-option>
+                                @for (carModel of filteredModels(); track carModel.id) {
+                                <mat-option [value]="carModel.id">{{ carModel.name }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
 
-            <!-- Financials -->
-            <section class="form-section">
-                <h3 class="form-section-title">{{ 'INVENTORY.FORM.FINANCIALS' | translate }}</h3>
-                <ng-container *ngIf="layout$ | async as layout">
-                    <mat-grid-list [cols]="layout.columns" rowHeight="80px" gutterSize="4px">
-                        <mat-grid-tile [colspan]="1" [rowspan]="1">
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>{{ 'INVENTORY.FORM.PURCHASE_PRICE' | translate }}</mat-label>
-                                <input matInput type="number" formControlName="purchasePrice" required>
-                            </mat-form-field>
-                        </mat-grid-tile>
-                        <mat-grid-tile [colspan]="1" [rowspan]="1">
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>{{ 'INVENTORY.FORM.ADDITIONAL_COSTS' | translate }}</mat-label>
-                                <input matInput type="number" formControlName="additionalCosts">
-                            </mat-form-field>
-                        </mat-grid-tile>
-                        <mat-grid-tile [colspan]="1" [rowspan]="1">
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>{{ 'INVENTORY.FORM.TRUE_TOTAL_COST' | translate }}</mat-label>
-                                <input matInput type="text" [value]="calculatedTotalCost() | currency:'SAR'" readonly>
-                            </mat-form-field>
-                        </mat-grid-tile>
-                        <mat-grid-tile [colspan]="1" [rowspan]="1">
-                            <mat-form-field appearance="outline" class="full-width">
+                        <mat-form-field appearance="outline" class="field-span-1">
+                            <mat-label>{{ 'INVENTORY.FORM.CATEGORY' | translate }}</mat-label>
+                            <mat-select formControlName="categoryId">
+                                <mat-option [value]="null">{{ 'INVENTORY.FORM.SELECT_CATEGORY' | translate
+                                    }}</mat-option>
+                                @for (cat of filteredCategories(); track cat.id) {
+                                <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="field-span-1">
+                            <mat-label>{{ 'INVENTORY.FORM.YEAR' | translate }}</mat-label>
+                            <mat-select formControlName="year" required>
+                                <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_YEAR' | translate
+                                    }}</mat-option>
+                                @for (y of years(); track y) {
+                                <mat-option [value]="y">{{ y }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="field-span-1">
+                            <mat-label>{{ 'INVENTORY.FORM.CURRENT_LOCATION' | translate }}</mat-label>
+                            <input matInput type="text" formControlName="currentLocation" required
+                                [placeholder]="'INVENTORY.FORM.CURRENT_LOCATION_PLACEHOLDER' | translate">
+                        </mat-form-field>
+
+                        <div class="radio-group-container field-span-1">
+                            <label class="form-label" id="condition-label">{{ 'INVENTORY.FORM.CONDITION' | translate }}</label>
+                            <mat-radio-group formControlName="condition" class="radio-group" aria-labelledby="condition-label">
+                                <mat-radio-button value="Used">{{ 'INVENTORY.FORM.USED' | translate
+                                    }}</mat-radio-button>
+                                <mat-radio-button value="New">{{ 'INVENTORY.FORM.NEW' | translate
+                                    }}</mat-radio-button>
+                            </mat-radio-group>
+                        </div>
+
+                        <div class="toggle-container field-span-2">
+                            <mat-slide-toggle formControlName="calculateVATFromProfitMargin" color="primary">
+                                {{ 'INVENTORY.FORM.CALCULATE_VAT_FROM_PROFIT_MARGIN' | translate }}
+                            </mat-slide-toggle>
+                            <p class="toggle-hint">{{ 'INVENTORY.FORM.CALCULATE_VAT_FROM_PROFIT_MARGIN_HINT' | translate }}</p>
+                        </div>
+                    </div>
+                </mat-expansion-panel>
+
+                <!-- Saudi Specific Details -->
+                <mat-expansion-panel [expanded]="true" class="section-panel">
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>
+                            <mat-icon class="panel-icon">badge</mat-icon>
+                            {{ 'INVENTORY.FORM.SAUDI_DETAILS' | translate }}
+                        </mat-panel-title>
+                        <mat-panel-description class="panel-summary">
+                            {{ carForm.value.plateNumber || '—' }}
+                        </mat-panel-description>
+                    </mat-expansion-panel-header>
+
+                    <div class="form-grid">
+                        <mat-form-field appearance="outline" class="field-span-1">
+                            <mat-label>{{ 'INVENTORY.FORM.VIN' | translate }}</mat-label>
+                            <input matInput type="text" formControlName="vin" required dir="ltr">
+                            <button matSuffix mat-icon-button (click)="isScannerOpen.set(true)" type="button">
+                                <mat-icon>qr_code_scanner</mat-icon>
+                            </button>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="field-span-1">
+                            <mat-label>{{ 'INVENTORY.FORM.PLATE_NUMBER' | translate }}</mat-label>
+                            <input matInput type="text" formControlName="plateNumber" required>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="field-span-1">
+                            <mat-label>{{ 'INVENTORY.FORM.ISTIMARA_EXPIRY' | translate }}</mat-label>
+                            <input matInput type="date" formControlName="istimaraExpiry">
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="field-span-1">
+                            <mat-label>{{ 'INVENTORY.FORM.FAHAS_STATUS' | translate }}</mat-label>
+                            <mat-select formControlName="fahasStatus">
+                                <mat-option value="Valid">{{ 'INVENTORY.FORM.FAHAS_VALID' | translate
+                                    }}</mat-option>
+                                <mat-option value="Expired">{{ 'INVENTORY.FORM.FAHAS_EXPIRED' | translate
+                                    }}</mat-option>
+                                <mat-option value="Not Required">{{ 'INVENTORY.FORM.FAHAS_NOT_REQUIRED' | translate
+                                    }}</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                </mat-expansion-panel>
+
+                <!-- Technical & Visual Details -->
+                <mat-expansion-panel [expanded]="true" class="section-panel">
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>
+                            <mat-icon class="panel-icon">build_circle</mat-icon>
+                            {{ 'INVENTORY.FORM.TECHNICAL' | translate }}
+                        </mat-panel-title>
+                        <mat-panel-description class="panel-summary">
+                            {{ carForm.value.exteriorColor || '—' }}<span *ngIf="carForm.value.transmission"> • {{ carForm.value.transmission }}</span>
+                        </mat-panel-description>
+                    </mat-expansion-panel-header>
+
+                    <div class="form-grid">
+                        <mat-form-field appearance="outline" class="field-span-1">
+                            <mat-label>{{ 'INVENTORY.FORM.MILEAGE' | translate }}</mat-label>
+                            <input matInput type="number" formControlName="mileage" required
+                                [attr.disabled]="carForm.value.condition === 'New' ? true : null">
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="field-span-1">
+                            <mat-label>{{ 'INVENTORY.FORM.EXTERIOR_COLOR' | translate }}</mat-label>
+                            <input matInput type="text" formControlName="exteriorColor">
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="field-span-1">
+                            <mat-label>{{ 'INVENTORY.FORM.INTERIOR_COLOR' | translate }}</mat-label>
+                            <input matInput type="text" formControlName="interiorColor">
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="field-span-1">
+                            <mat-label>{{ 'INVENTORY.FORM.TRANSMISSION' | translate }}</mat-label>
+                            <mat-select formControlName="transmission">
+                                <mat-option value="Automatic">{{ 'INVENTORY.FORM.AUTOMATIC' | translate
+                                    }}</mat-option>
+                                <mat-option value="Manual">{{ 'INVENTORY.FORM.MANUAL' | translate }}</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="field-span-1">
+                            <mat-label>{{ 'INVENTORY.FORM.ENGINE_SIZE' | translate }}</mat-label>
+                            <input matInput type="text" formControlName="engineSize">
+                        </mat-form-field>
+                    </div>
+                </mat-expansion-panel>
+
+                <!-- Financials -->
+                <mat-expansion-panel [expanded]="true" class="section-panel">
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>
+                            <mat-icon class="panel-icon">payments</mat-icon>
+                            {{ 'INVENTORY.FORM.FINANCIALS' | translate }}
+                        </mat-panel-title>
+                        <mat-panel-description class="panel-summary">
+                            {{ calculatedTotalCost() | currency:'SAR':'symbol':'1.0-0' }}
+                        </mat-panel-description>
+                    </mat-expansion-panel-header>
+
+                    <div class="form-grid">
+                        <mat-form-field appearance="outline" class="field-span-1">
+                            <mat-label>{{ 'INVENTORY.FORM.PURCHASE_PRICE' | translate }}</mat-label>
+                            <input matInput type="number" formControlName="purchasePrice" required>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="field-span-1">
+                            <mat-label>{{ 'INVENTORY.FORM.ADDITIONAL_COSTS' | translate }}</mat-label>
+                            <input matInput type="number" formControlName="additionalCosts">
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="field-span-1">
+                            <mat-label>{{ 'INVENTORY.FORM.TRUE_TOTAL_COST' | translate }}</mat-label>
+                            <input matInput type="text" [value]="calculatedTotalCost() | currency:'SAR'" readonly>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="field-span-1">
+                            <mat-label>{{ 'INVENTORY.FORM.PURCHASE_DATE' | translate }}</mat-label>
+                            <input matInput type="date" formControlName="purchaseDate">
+                        </mat-form-field>
+
+                        <div class="field-span-2 sale-price-block">
+                            <mat-form-field appearance="outline" class="sale-price-field">
                                 <mat-label>{{ 'INVENTORY.FORM.SALE_PRICE' | translate }}</mat-label>
                                 <input matInput type="number" formControlName="salePrice" required>
                                 <button matSuffix mat-icon-button type="button" (click)="suggestPrice()"
@@ -235,112 +243,113 @@
                             @if(priceSuggestionError()) {
                             <p class="error-text">{{ priceSuggestionError() }}</p>
                             }
-                        </mat-grid-tile>
-                        <mat-grid-tile [colspan]="1" [rowspan]="1">
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>{{ 'INVENTORY.FORM.PURCHASE_DATE' | translate }}</mat-label>
-                                <input matInput type="date" formControlName="purchaseDate">
-                            </mat-form-field>
-                        </mat-grid-tile>
-                        <mat-grid-tile [colspan]="1" [rowspan]="1">
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>{{ 'INVENTORY.FORM.FLOOR_PLAN' | translate }}</mat-label>
-                                <mat-select formControlName="floorPlanId">
-                                    <mat-option [value]="null">{{ 'INVENTORY.FORM.NO_FINANCING' | translate
-                                        }}</mat-option>
-                                    @for (plan of floorPlans(); track plan.id) {
-                                    <mat-option [value]="plan.id">{{ plan.planName }} - {{ plan.financier
-                                        }}</mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                        </mat-grid-tile>
-                        <!-- <mat-grid-tile [colspan]="1" [rowspan]="1" >
-                            <div class="toggle-container">
-                                <mat-slide-toggle formControlName="trackByBatch">
-                                    {{ 'INVENTORY.FORM.TRACK_BY_BATCH' | translate }}
-                                </mat-slide-toggle>
-                            </div>
-                        </mat-grid-tile> -->
-                    </mat-grid-list>
-                </ng-container>
-            </section>
+                        </div>
 
-            @if (editMode() && associatedExpenses().length > 0) {
-            <section class="form-section">
-                <h3 class="form-section-title">{{ 'INVENTORY.FORM.RELATED_COSTS' | translate }}</h3>
-                <div class="table-wrapper">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>{{ 'INVENTORY.FORM.RELATED_COSTS_DATE' | translate }}</th>
-                                <th>{{ 'INVENTORY.FORM.RELATED_COSTS_DESCRIPTION' | translate }}</th>
-                                <th>{{ 'INVENTORY.FORM.RELATED_COSTS_AMOUNT' | translate }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @for(expense of associatedExpenses(); track expense.id) {
-                            <tr>
-                                <td>{{expense.date}}</td>
-                                <td>{{expense.description}}</td>
-                                <td class="font-mono">{{expense.amount | currency:'SAR'}}</td>
-                            </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-            }
+                        <mat-form-field appearance="outline" class="field-span-1">
+                            <mat-label>{{ 'INVENTORY.FORM.FLOOR_PLAN' | translate }}</mat-label>
+                            <mat-select formControlName="floorPlanId">
+                                <mat-option [value]="null">{{ 'INVENTORY.FORM.NO_FINANCING' | translate
+                                    }}</mat-option>
+                                @for (plan of floorPlans(); track plan.id) {
+                                <mat-option [value]="plan.id">{{ plan.planName }} - {{ plan.financier
+                                    }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                </mat-expansion-panel>
 
-            <!-- Description and Photos -->
-            <section class="form-section">
-                <h3 class="form-section-title">{{ 'INVENTORY.FORM.DESCRIPTION_PHOTOS' | translate }}</h3>
-                <ng-container *ngIf="layout$ | async as layout">
-                    <mat-grid-list [cols]="2" rowHeight="200px" gutterSize="10px">
-                        <mat-grid-tile [colspan]="1" [rowspan]="1">
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>{{ 'INVENTORY.FORM.MARKETING_DESCRIPTION' | translate }}</mat-label>
-                                <textarea matInput formControlName="description" rows="6"></textarea>
-                            </mat-form-field>
-                        </mat-grid-tile>
-                        <mat-grid-tile [colspan]="1" [rowspan]="1">
-                            <div class="photo-upload-container">
-                                <label class="form-label">{{ 'INVENTORY.FORM.PHOTOS' | translate }}</label>
-                                <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)"
-                                    style="display: none;">
+                <!-- Related Costs -->
+                @if (editMode() && associatedExpenses().length > 0) {
+                <mat-expansion-panel [expanded]="true" class="section-panel">
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>
+                            <mat-icon class="panel-icon">receipt_long</mat-icon>
+                            {{ 'INVENTORY.FORM.RELATED_COSTS' | translate }}
+                        </mat-panel-title>
+                        <mat-panel-description class="panel-summary">
+                            {{ associatedExpenses().length }}
+                        </mat-panel-description>
+                    </mat-expansion-panel-header>
 
-                                @if(selectedPhoto()) {
-                                <div class="photo-display-wrapper">
-                                    <img [src]="selectedPhoto()" [attr.alt]="'INVENTORY.FORM.CAR_IMAGE_ALT' | translate" class="photo-preview-professional">
-                                    <div class="photo-button-group">
-                                        <button mat-raised-button color="primary" type="button"
-                                            (click)="fileInput.click()" class="browse-photo-btn">
-                                            <mat-icon>add_photo_alternate</mat-icon>
-                                            {{ 'INVENTORY.FORM.BROWSE_IMAGE' | translate }}
-                                        </button>
-                                        <button mat-raised-button color="warn" type="button" (click)="removePhoto()"
-                                            class="delete-photo-btn">
-                                            <mat-icon>delete</mat-icon>
-                                            {{ 'INVENTORY.FORM.REMOVE' | translate }}
-                                        </button>
-                                    </div>
-                                </div>
-                                } @else {
-                                <div class="photo-upload-empty">
-                                    <mat-icon class="upload-placeholder-icon">image</mat-icon>
-                                    <p class="upload-placeholder-text">{{ 'INVENTORY.FORM.NO_IMAGE' | translate }}</p>
-                                    <button mat-raised-button color="primary" type="button" class="upload-btn-main"
-                                        (click)="fileInput.click()">
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>{{ 'INVENTORY.FORM.RELATED_COSTS_DATE' | translate }}</th>
+                                    <th>{{ 'INVENTORY.FORM.RELATED_COSTS_DESCRIPTION' | translate }}</th>
+                                    <th>{{ 'INVENTORY.FORM.RELATED_COSTS_AMOUNT' | translate }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for(expense of associatedExpenses(); track expense.id) {
+                                <tr>
+                                    <td>{{expense.date}}</td>
+                                    <td>{{expense.description}}</td>
+                                    <td class="font-mono">{{expense.amount | currency:'SAR'}}</td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </mat-expansion-panel>
+                }
+
+                <!-- Description and Photos -->
+                <mat-expansion-panel [expanded]="false" class="section-panel">
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>
+                            <mat-icon class="panel-icon">photo_library</mat-icon>
+                            {{ 'INVENTORY.FORM.DESCRIPTION_PHOTOS' | translate }}
+                        </mat-panel-title>
+                        <mat-panel-description class="panel-summary">
+                            <mat-icon class="panel-summary-icon" *ngIf="selectedPhoto()">check_circle</mat-icon>
+                        </mat-panel-description>
+                    </mat-expansion-panel-header>
+
+                    <div class="form-grid">
+                        <mat-form-field appearance="outline" class="field-span-2">
+                            <mat-label>{{ 'INVENTORY.FORM.MARKETING_DESCRIPTION' | translate }}</mat-label>
+                            <textarea matInput formControlName="description" rows="6"></textarea>
+                        </mat-form-field>
+
+                        <div class="photo-upload-container field-span-2">
+                            <label class="form-label">{{ 'INVENTORY.FORM.PHOTOS' | translate }}</label>
+                            <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)"
+                                style="display: none;">
+
+                            @if(selectedPhoto()) {
+                            <div class="photo-display-wrapper">
+                                <img [src]="selectedPhoto()" [attr.alt]="'INVENTORY.FORM.CAR_IMAGE_ALT' | translate" class="photo-preview-professional">
+                                <div class="photo-button-group">
+                                    <button mat-raised-button color="primary" type="button"
+                                        (click)="fileInput.click()" class="browse-photo-btn">
                                         <mat-icon>add_photo_alternate</mat-icon>
                                         {{ 'INVENTORY.FORM.BROWSE_IMAGE' | translate }}
                                     </button>
+                                    <button mat-raised-button color="warn" type="button" (click)="removePhoto()"
+                                        class="delete-photo-btn">
+                                        <mat-icon>delete</mat-icon>
+                                        {{ 'INVENTORY.FORM.REMOVE' | translate }}
+                                    </button>
                                 </div>
-                                }
                             </div>
-                        </mat-grid-tile>
-                    </mat-grid-list>
-                </ng-container>
-            </section>
+                            } @else {
+                            <div class="photo-upload-empty">
+                                <mat-icon class="upload-placeholder-icon">image</mat-icon>
+                                <p class="upload-placeholder-text">{{ 'INVENTORY.FORM.NO_IMAGE' | translate }}</p>
+                                <button mat-raised-button color="primary" type="button" class="upload-btn-main"
+                                    (click)="fileInput.click()">
+                                    <mat-icon>add_photo_alternate</mat-icon>
+                                    {{ 'INVENTORY.FORM.BROWSE_IMAGE' | translate }}
+                                </button>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </mat-expansion-panel>
+
+            </mat-accordion>
         </form>
 
         <!-- Form Actions (sticky footer) -->
