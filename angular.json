@@ -26,7 +26,8 @@
               "node_modules/devextreme/dist/css/dx.light.css",
               "node_modules/ngx-toastr/toastr.css",
               "src/styles.css",
-              "src/styles-mobile.css"
+              "src/styles-mobile.css",
+              "src/styles/shell-tokens.css"
             ],
             "assets": [
               "src/assets",

@@ -846,6 +846,9 @@
     "NO_ITEMS_WARNING": "الرجاء اختيار طلب شراء يحتوي على عنصر واحد على الأقل",
     "APPROVE": "اعتماد",
     "REJECT": "رفض",
+    "SUBMIT": "إرسال للاعتماد",
+    "SUBMIT_SUCCESS": "تم إرسال عرض السعر للاعتماد بنجاح",
+    "SUBMIT_ERROR": "خطأ في إرسال عرض السعر للاعتماد",
     "APPROVE_SUCCESS": "تم اعتماد عرض السعر بنجاح",
     "APPROVE_ERROR": "خطأ في اعتماد عرض السعر",
     "REJECT_CONFIRM_TITLE": "هل تريد رفض هذا العرض؟",
@@ -1989,6 +1992,39 @@
       "INTEREST_MIN": "يجب أن يكون معدل الفائدة 0 أو أكبر",
       "SUBMIT": "إعادة الجدولة"
     }
+  },
+  "layout": {
+    "systemName": "نظام إدارة معارض السيارات",
+    "copyright": "جميع الحقوق محفوظة",
+    "menu": "القائمة",
+    "changeTheme": "تغيير المظهر",
+    "darkMode": "الوضع الداكن",
+    "lightMode": "الوضع الفاتح"
+  },
+  "selectSearch": {
+    "placeholder": "ابحث في القوائم، الفواتير، العملاء…",
+    "closeOverlay": "إغلاق البحث"
+  },
+  "shell": {
+    "expandRail": "توسيع التنقل",
+    "collapseRail": "طي التنقل",
+    "filterMenu": "تصفية القائمة",
+    "pinned": "المثبتة",
+    "recent": "الأخيرة",
+    "modules": "الوحدات",
+    "pin": "تثبيت",
+    "unpin": "إلغاء التثبيت",
+    "noMatches": "لا توجد عناصر مطابقة",
+    "search": "بحث",
+    "searchPlaceholder": "ابحث في جميع الشاشات…",
+    "noSearchResults": "لا توجد نتائج",
+    "searchHint": "اكتب للبحث في جميع الشاشات",
+    "notifications": "الإشعارات",
+    "close": "إغلاق",
+    "noNotificationsTitle": "لا توجد إشعارات جديدة",
+    "noNotificationsText": "لا توجد إشعارات في الوقت الحالي.",
+    "aiAssistant": "المساعد الذكي",
+    "language": "اللغة"
   },
   "INVOICE_ALLOCATION": {
     "SELECT_INVOICE": "اختر فاتورة للتوزيع",

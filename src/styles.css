@@ -77,6 +77,61 @@
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* Semantic surface/text/border tokens -- introduced for ThemeService/dark mode. Light mode
+     maps these onto the existing --color-* scale so nothing visually changes for today's screens;
+     dark mode (below) redefines only these semantic tokens, never the numbered --color-* scale
+     itself (redefining e.g. --color-gray-50 would invert its meaning for every consumer that
+     already reads it as "near white"). New/updated screens should prefer these semantic tokens
+     over reaching directly into --color-gray-*, so they pick up theme changes automatically. */
+  --surface-page: var(--color-gray-50);
+  --surface-card: var(--color-white);
+  --surface-raised: var(--color-white);
+  --surface-sunken: var(--color-gray-100);
+  --surface-overlay: var(--color-white);
+  --text-primary: var(--color-gray-900);
+  --text-secondary: var(--color-gray-600);
+  --text-muted: var(--color-gray-400);
+  --border-default: var(--color-gray-200);
+  --border-strong: var(--color-gray-300);
+}
+
+/* Dark theme -- toggled by ThemeService via [data-theme] on <html>, mirroring how
+   LanguageService/LayoutComponent.changeDirection() already sets [dir]/[lang] there. Only the
+   semantic tokens above are redefined; the numbered brand/status scale (color-primary-100..900,
+   color-success-100..800, etc.) stays the same in both themes so status colors (success/warning/
+   danger) keep their meaning regardless of theme, per the existing convention elsewhere in this app. */
+:root[data-theme="dark"] {
+  --surface-page: #0f1420;
+  --surface-card: #161c2c;
+  --surface-raised: #1c2334;
+  --surface-sunken: #10141f;
+  --surface-overlay: #1c2334;
+  --text-primary: #e9edf5;
+  --text-secondary: #aab2c5;
+  --text-muted: #6c7690;
+  --border-default: #2a3348;
+  --border-strong: #3a445c;
+}
+
+@media (prefers-color-scheme: dark) {
+  /* Only applies before the user has made an explicit choice -- ThemeService stamps
+     [data-theme="light"] explicitly once a preference is saved, which wins over this media
+     query per normal CSS specificity/selector-order rules (the explicit block above still needs
+     to come first in source order; ThemeService always sets data-theme so this block is really
+     only live on a user's very first visit before any preference is persisted). */
+  :root:not([data-theme="light"]):not([data-theme="dark"]) {
+    --surface-page: #0f1420;
+    --surface-card: #161c2c;
+    --surface-raised: #1c2334;
+    --surface-sunken: #10141f;
+    --surface-overlay: #1c2334;
+    --text-primary: #e9edf5;
+    --text-secondary: #aab2c5;
+    --text-muted: #6c7690;
+    --border-default: #2a3348;
+    --border-strong: #3a445c;
+  }
 }
  .dx-datagrid-headers {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;

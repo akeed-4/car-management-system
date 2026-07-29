@@ -1,0 +1,38 @@
+<a
+  *ngIf="!hasChildren(); else parentTpl"
+  class="rail-item"
+  [class.rail-item--collapsed]="collapsed"
+  [style.--depth]="depth"
+  [routerLink]="item.route ? ['/' + item.route] : null"
+  routerLinkActive="rail-item--active"
+  [routerLinkActiveOptions]="{ exact: false }"
+  (click)="onLeafClick()"
+>
+  <mat-icon class="rail-item-icon" *ngIf="item.icon">{{ item.icon }}</mat-icon>
+  <span class="rail-item-label" *ngIf="!collapsed">{{ item.name }}</span>
+</a>
+
+<ng-template #parentTpl>
+  <button
+    type="button"
+    class="rail-item rail-item--parent"
+    [class.rail-item--collapsed]="collapsed"
+    [class.rail-item--expanded]="expanded()"
+    [style.--depth]="depth"
+    (click)="toggleExpanded($event)"
+  >
+    <mat-icon class="rail-item-icon" *ngIf="item.icon">{{ item.icon }}</mat-icon>
+    <span class="rail-item-label" *ngIf="!collapsed">{{ item.name }}</span>
+    <mat-icon class="rail-item-chevron" *ngIf="!collapsed">chevron_right</mat-icon>
+  </button>
+
+  <div class="rail-children" *ngIf="expanded() && !collapsed">
+    <app-nav-rail-item
+      *ngFor="let child of item.children"
+      [item]="child"
+      [collapsed]="collapsed"
+      [depth]="depth + 1"
+      (itemActivated)="itemActivated.emit($event)"
+    ></app-nav-rail-item>
+  </div>
+</ng-template>

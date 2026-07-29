@@ -79,7 +79,7 @@ import { PaymentComponent } from './components/platform/onboarding/payment/payme
 import { RenewSubscriptionComponent } from './components/platform/onboarding/renew-subscription/renew-subscription.component';
 import { TenantActivationComponent } from './components/platform/onboarding/tenant-activation/tenant-activation.component';
 import { CompanySelectionComponent } from './components/platform/onboarding/company-selection/company-selection.component';
-import { LayoutComponent } from './components/shared/layout/layout.component';
+import { ShellComponent } from './components/shared/shell/shell.component';
 import { CarCardComponent } from './components/setup/car/car-card/car-card.component';
 import { CarListComponent } from './components/setup/car/car-list/car-list.component';
 import { CarGridListComponent } from './components/setup/car/car-grid-list/car-grid-list.component';
@@ -202,12 +202,12 @@ export const APP_ROUTES: Routes = [
   // authGuard, not by whether the caller's tenant has a subscription.
   {
     path: 'platform',
-    component: LayoutComponent,
+    component: ShellComponent,
     loadChildren: () => import('./components/platform/platform.routes').then(m => m.PLATFORM_ROUTES)
   },
   {
     path: '',
-    component: LayoutComponent,
+    component: ShellComponent,
     // Order matters: Angular runs canActivate guards in array order and short-circuits on the
     // first redirect. companySelectedGuard runs first so that by the time tenantGuard/
     // subscriptionGuard run, either a company is already selected (JWT tenantId claim correct) or

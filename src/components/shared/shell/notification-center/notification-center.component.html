@@ -1,0 +1,16 @@
+<div class="notif-backdrop" *ngIf="open" (click)="close()"></div>
+
+<aside class="notif-panel" *ngIf="open" role="dialog" [attr.aria-label]="'shell.notifications' | translate">
+  <header class="notif-header">
+    <h2 class="notif-title">{{ 'shell.notifications' | translate }}</h2>
+    <button type="button" class="notif-close" (click)="close()" [attr.aria-label]="'shell.close' | translate">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <div class="notif-empty">
+    <mat-icon class="notif-empty-icon">notifications_none</mat-icon>
+    <p class="notif-empty-title">{{ 'shell.noNotificationsTitle' | translate }}</p>
+    <p class="notif-empty-text">{{ 'shell.noNotificationsText' | translate }}</p>
+  </div>
+</aside>

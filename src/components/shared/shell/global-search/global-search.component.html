@@ -1,0 +1,42 @@
+<div class="search-backdrop" *ngIf="open" (click)="setOpen(false)"></div>
+
+<div class="search-palette" *ngIf="open" role="dialog" [attr.aria-label]="'shell.search' | translate">
+  <div class="search-input-row">
+    <mat-icon class="search-icon">search</mat-icon>
+    <input
+      #searchInput
+      type="text"
+      class="search-input"
+      [placeholder]="'shell.searchPlaceholder' | translate"
+      [value]="query()"
+      (input)="onQueryInput($any($event.target).value)"
+      (keydown)="onKeydown($event)"
+      autofocus
+    />
+    <kbd class="search-kbd">Esc</kbd>
+  </div>
+
+  <div class="search-results" *ngIf="query().trim().length > 0">
+    <button
+      type="button"
+      class="search-result"
+      *ngFor="let result of results(); let i = index"
+      [class.search-result--active]="i === activeIndex()"
+      (click)="select(result)"
+      (mouseenter)="activeIndex.set(i)"
+    >
+      <mat-icon class="search-result-icon" *ngIf="result.icon">{{ result.icon }}</mat-icon>
+      <span class="search-result-text">
+        <span class="search-result-label">{{ result.label }}</span>
+        <span class="search-result-parent" *ngIf="result.parentLabel">{{ result.parentLabel }}</span>
+      </span>
+      <mat-icon class="search-result-go">north_east</mat-icon>
+    </button>
+
+    <p class="search-empty" *ngIf="results().length === 0">{{ 'shell.noSearchResults' | translate }}</p>
+  </div>
+
+  <div class="search-hint" *ngIf="query().trim().length === 0">
+    {{ 'shell.searchHint' | translate }}
+  </div>
+</div>

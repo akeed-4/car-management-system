@@ -1,0 +1,87 @@
+<header class="shell-header">
+
+  <button
+    type="button"
+    class="header-icon-btn"
+    (click)="toggleRail.emit()"
+    [matTooltip]="(railCollapsed ? 'shell.expandRail' : 'shell.collapseRail') | translate"
+  >
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <div class="header-brand">
+    <mat-icon class="header-brand-icon">directions_car</mat-icon>
+    <span class="header-brand-name">{{ 'layout.systemName' | translate }}</span>
+  </div>
+
+  <button type="button" class="header-search-trigger" *ngIf="isAuthenticated" (click)="openSearch.emit()">
+    <mat-icon class="header-search-icon">search</mat-icon>
+    <span class="header-search-label">{{ 'shell.searchPlaceholder' | translate }}</span>
+    <kbd class="header-search-kbd">⌘K</kbd>
+  </button>
+
+  <span class="header-spacer"></span>
+
+  <ng-container *ngIf="isAuthenticated">
+    <button type="button" class="header-icon-btn" [matTooltip]="'shell.aiAssistant' | translate">
+      <mat-icon>auto_awesome</mat-icon>
+    </button>
+
+    <button type="button" class="header-icon-btn" (click)="toggleNotifications.emit()"
+      [matTooltip]="'shell.notifications' | translate">
+      <mat-icon>notifications_none</mat-icon>
+    </button>
+
+    <button type="button" class="header-icon-btn" (click)="toggleTheme.emit()"
+      [matTooltip]="(currentTheme === 'dark' ? 'layout.lightMode' : 'layout.darkMode') | translate">
+      <mat-icon>{{ currentTheme === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    </button>
+
+    <button type="button" class="header-icon-btn header-lang-btn" [matMenuTriggerFor]="langMenu"
+      [matTooltip]="'shell.language' | translate">
+      <span class="header-lang-code">{{ currentLanguage === 'ar' ? 'AR' : 'EN' }}</span>
+    </button>
+    <mat-menu #langMenu="matMenu">
+      <button mat-menu-item (click)="changeLanguage.emit('en')" [disabled]="currentLanguage === 'en'">English</button>
+      <button mat-menu-item (click)="changeLanguage.emit('ar')" [disabled]="currentLanguage === 'ar'">العربية</button>
+    </mat-menu>
+
+    <app-company-switcher></app-company-switcher>
+
+    <button type="button" class="header-avatar" [matMenuTriggerFor]="userMenu"
+      [attr.aria-label]="userFullName">
+      {{ userInitials }}
+    </button>
+    <mat-menu #userMenu="matMenu" xPosition="before">
+      <div class="user-menu-header">
+        <span class="user-menu-name">{{ userFullName }}</span>
+      </div>
+      <button mat-menu-item (click)="changePassword.emit()">
+        <mat-icon>lock_reset</mat-icon>
+        <span>{{ 'admin.changePassword' | translate }}</span>
+      </button>
+      <button mat-menu-item (click)="goToSystemAdmin.emit()">
+        <mat-icon>admin_panel_settings</mat-icon>
+        <span>{{ 'admin.systemAdmin' | translate }}</span>
+      </button>
+      <button mat-menu-item (click)="goToUserProfile.emit()">
+        <mat-icon>person</mat-icon>
+        <span>{{ 'admin.userProfile' | translate }}</span>
+      </button>
+      <button mat-menu-item (click)="logOut.emit()" [disabled]="isLoggingOut">
+        <mat-icon>logout</mat-icon>
+        <span>{{ 'admin.logout' | translate }}</span>
+      </button>
+    </mat-menu>
+  </ng-container>
+
+  <button
+    type="button"
+    class="header-login-btn"
+    *ngIf="!isAuthenticated"
+    (click)="logIn.emit()"
+  >
+    {{ 'admin.login' | translate }}
+  </button>
+
+</header>

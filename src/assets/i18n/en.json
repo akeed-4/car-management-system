@@ -844,6 +844,9 @@
     "NO_ITEMS_WARNING": "Please select a purchase requisition with at least one item",
     "APPROVE": "Approve",
     "REJECT": "Reject",
+    "SUBMIT": "Submit for Approval",
+    "SUBMIT_SUCCESS": "Supplier quotation submitted for approval",
+    "SUBMIT_ERROR": "Error submitting supplier quotation",
     "APPROVE_SUCCESS": "Supplier quotation approved successfully",
     "APPROVE_ERROR": "Error approving supplier quotation",
     "REJECT_CONFIRM_TITLE": "Reject this quotation?",
@@ -1947,6 +1950,39 @@
       "INTEREST_MIN": "Interest rate must be 0 or greater",
       "SUBMIT": "Reschedule"
     }
+  },
+  "layout": {
+    "systemName": "Car Dealership Management System",
+    "copyright": "All rights reserved",
+    "menu": "Menu",
+    "changeTheme": "Change Theme",
+    "darkMode": "Dark Mode",
+    "lightMode": "Light Mode"
+  },
+  "selectSearch": {
+    "placeholder": "Search menus, invoices, customers…",
+    "closeOverlay": "Close search"
+  },
+  "shell": {
+    "expandRail": "Expand navigation",
+    "collapseRail": "Collapse navigation",
+    "filterMenu": "Filter menu",
+    "pinned": "Pinned",
+    "recent": "Recent",
+    "modules": "Modules",
+    "pin": "Pin",
+    "unpin": "Unpin",
+    "noMatches": "No matching items",
+    "search": "Search",
+    "searchPlaceholder": "Search screens…",
+    "noSearchResults": "No results found",
+    "searchHint": "Type to search across all screens",
+    "notifications": "Notifications",
+    "close": "Close",
+    "noNotificationsTitle": "You're all caught up",
+    "noNotificationsText": "There are no notifications right now.",
+    "aiAssistant": "AI Assistant",
+    "language": "Language"
   },
   "INVOICE_ALLOCATION": {
     "SELECT_INVOICE": "Select an invoice to allocate",

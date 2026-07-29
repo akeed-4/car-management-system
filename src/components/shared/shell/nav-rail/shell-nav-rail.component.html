@@ -1,0 +1,67 @@
+<nav class="rail" [class.rail--collapsed]="collapsed" aria-label="Primary">
+
+  <div class="rail-filter" *ngIf="!collapsed">
+    <mat-icon class="rail-filter-icon">search</mat-icon>
+    <input
+      type="search"
+      class="rail-filter-input"
+      [placeholder]="'shell.filterMenu' | translate"
+      [value]="filterQuery()"
+      (input)="filterQuery.set($any($event.target).value)"
+    />
+  </div>
+
+  <div class="rail-scroll">
+
+    <section class="rail-section" *ngIf="!collapsed && pinnedItems().length > 0">
+      <h3 class="rail-section-title">{{ 'shell.pinned' | translate }}</h3>
+      <app-nav-rail-item
+        *ngFor="let item of pinnedItems()"
+        [item]="item"
+        [collapsed]="collapsed"
+        (itemActivated)="onItemActivated($event)"
+      ></app-nav-rail-item>
+    </section>
+
+    <section class="rail-section" *ngIf="!collapsed && recentItems().length > 0">
+      <h3 class="rail-section-title">{{ 'shell.recent' | translate }}</h3>
+      <app-nav-rail-item
+        *ngFor="let item of recentItems()"
+        [item]="item"
+        [collapsed]="collapsed"
+        (itemActivated)="onItemActivated($event)"
+      ></app-nav-rail-item>
+    </section>
+
+    <section class="rail-section">
+      <h3 class="rail-section-title" *ngIf="!collapsed">{{ 'shell.modules' | translate }}</h3>
+      <div class="rail-item-row" *ngFor="let item of filteredMenus()">
+        <app-nav-rail-item
+          class="rail-item-row-main"
+          [item]="item"
+          [collapsed]="collapsed"
+          (itemActivated)="onItemActivated($event)"
+        ></app-nav-rail-item>
+        <button
+          type="button"
+          class="rail-pin-btn"
+          *ngIf="!collapsed && item.route"
+          (click)="togglePin(item, $event)"
+          [class.rail-pin-btn--active]="isPinned(item)"
+          [attr.aria-label]="(isPinned(item) ? 'shell.unpin' : 'shell.pin') | translate"
+        >
+          <mat-icon>{{ isPinned(item) ? 'push_pin' : 'push_pin_outlined' }}</mat-icon>
+        </button>
+      </div>
+
+      <p class="rail-empty" *ngIf="filteredMenus().length === 0">{{ 'shell.noMatches' | translate }}</p>
+    </section>
+
+  </div>
+
+  <button type="button" class="rail-collapse-toggle" (click)="toggleCollapsed()"
+    [attr.aria-label]="(collapsed ? 'shell.expandRail' : 'shell.collapseRail') | translate">
+    <mat-icon>{{ collapsed ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+  </button>
+
+</nav>

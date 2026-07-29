@@ -1,0 +1,7 @@
+<nav class="breadcrumb" *ngIf="crumbs().length > 0" aria-label="Breadcrumb">
+  <ng-container *ngFor="let crumb of crumbs(); let last = last">
+    <a *ngIf="crumb.route && !last" class="breadcrumb-link" [routerLink]="['/' + crumb.route]">{{ crumb.label }}</a>
+    <span *ngIf="!crumb.route || last" class="breadcrumb-current">{{ crumb.label }}</span>
+    <mat-icon class="breadcrumb-sep" *ngIf="!last">chevron_right</mat-icon>
+  </ng-container>
+</nav>

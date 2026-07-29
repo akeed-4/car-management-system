@@ -1,0 +1,44 @@
+<div class="shell">
+
+  <app-shell-header
+    [isAuthenticated]="isAuthenticated"
+    [userFullName]="userFullName"
+    [currentTheme]="currentTheme"
+    [currentLanguage]="currentLanguage"
+    [isLoggingOut]="isLoggingOut"
+    [railCollapsed]="railCollapsed()"
+    (toggleRail)="toggleRail()"
+    (openSearch)="toggleSearch()"
+    (toggleNotifications)="toggleNotifications()"
+    (toggleTheme)="onThemeToggle()"
+    (changeLanguage)="onChangeLanguage($event)"
+    (changePassword)="changePassword()"
+    (goToSystemAdmin)="goToSystemAdmin()"
+    (goToUserProfile)="goToUserProfile()"
+    (logOut)="logOut()"
+    (logIn)="logIn()"
+  ></app-shell-header>
+
+  <div class="shell-body">
+    <app-shell-nav-rail
+      *ngIf="isAuthenticated"
+      [menus]="menus"
+      [collapsed]="railCollapsed()"
+      (collapsedChange)="railCollapsed.set($event)"
+    ></app-shell-nav-rail>
+
+    <main class="shell-workspace">
+      <app-shell-breadcrumb *ngIf="isAuthenticated"></app-shell-breadcrumb>
+      <div class="shell-content">
+        <router-outlet></router-outlet>
+      </div>
+      <footer class="shell-footer">
+        <span>{{ 'layout.systemName' | translate }} — © {{ 'layout.copyright' | translate }} {{ year }}</span>
+      </footer>
+    </main>
+  </div>
+
+</div>
+
+<app-global-search [menus]="menus" [open]="searchOpen()" (openChange)="searchOpen.set($event)"></app-global-search>
+<app-notification-center [open]="notificationsOpen()" (openChange)="notificationsOpen.set($event)"></app-notification-center>

@@ -1,0 +1,40 @@
+:host {
+  display: block;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--grid-1);
+  padding: var(--grid-3) var(--grid-6) 0;
+  font-size: 12.5px;
+}
+
+.breadcrumb-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--shell-duration-fast) var(--shell-ease);
+}
+
+.breadcrumb-link:hover {
+  color: var(--color-primary-600);
+}
+
+.breadcrumb-current {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.breadcrumb-sep {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+@media (max-width: 640px) {
+  .breadcrumb {
+    padding-inline: var(--grid-4);
+  }
+}
