@@ -32,7 +32,7 @@ export class DynamicMenuService {
     this.loadingSubject.next(true);
     this.errorSubject.next(null);
 
-    return this.http.get<MenuResponse>(`${this.apiUrl}/api/menus`).pipe(
+    return this.http.get<MenuResponse>(`${this.apiUrl}api/menus`).pipe(
       map(response => {
         // Handle different response formats
         if (response.data) {
