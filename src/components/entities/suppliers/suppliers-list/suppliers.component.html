@@ -168,7 +168,11 @@
           [onClick]="requestDelete">
         </dxi-button>
       </dxi-column>
-
+ <dxo-search-panel [visible]="true"></dxo-search-panel>
+    <dxo-filter-row [visible]="true"></dxo-filter-row>
+    <dxo-header-filter [visible]="true"></dxo-header-filter>
+    <dxo-paging [pageSize]="10"></dxo-paging>
+    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
     </dx-data-grid>
   </div>
 </div>
