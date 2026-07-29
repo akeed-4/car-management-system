@@ -50,23 +50,23 @@
 
     <button type="button" class="header-avatar" [matMenuTriggerFor]="userMenu"
       [attr.aria-label]="userFullName">
-      {{ userInitials }}
+      <app-avatar [avatarUrl]="userAvatarUrl" [fullName]="userFullName" [size]="36"></app-avatar>
     </button>
     <mat-menu #userMenu="matMenu" xPosition="before">
       <div class="user-menu-header">
         <span class="user-menu-name">{{ userFullName }}</span>
       </div>
+      <button mat-menu-item (click)="goToUserProfile.emit()">
+        <mat-icon>person</mat-icon>
+        <span>{{ 'admin.userProfile' | translate }}</span>
+      </button>
       <button mat-menu-item (click)="changePassword.emit()">
         <mat-icon>lock_reset</mat-icon>
         <span>{{ 'admin.changePassword' | translate }}</span>
       </button>
-      <button mat-menu-item (click)="goToSystemAdmin.emit()">
+      <button mat-menu-item *ngIf="isPlatformAdmin" (click)="goToSystemAdmin.emit()">
         <mat-icon>admin_panel_settings</mat-icon>
         <span>{{ 'admin.systemAdmin' | translate }}</span>
-      </button>
-      <button mat-menu-item (click)="goToUserProfile.emit()">
-        <mat-icon>person</mat-icon>
-        <span>{{ 'admin.userProfile' | translate }}</span>
       </button>
       <button mat-menu-item (click)="logOut.emit()" [disabled]="isLoggingOut">
         <mat-icon>logout</mat-icon>

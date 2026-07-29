@@ -16,6 +16,14 @@ export interface AppLoginResponse {
   /** Optional for the same reason -- callers that don't return one simply can't be silently
    *  refreshed; JwtInterceptor's 401 handling falls back to a hard logout in that case. */
   refreshToken?: string;
+  /** Site-relative URL (e.g. "/uploads/avatars/12/abc.jpg"), resolved against environment.origin.
+   *  Undefined/null when the user has no avatar -- render an initials avatar instead. */
+  avatarUrl?: string | null;
+  /** True when the user holds the separate "PlatformAdmin" Identity role (distinct from the
+   *  tenant-level Role/Permission system roleName reflects). Drives visibility of System Admin
+   *  navigation only -- the backend's own [Authorize(Roles = "PlatformAdmin")] on every platform
+   *  controller remains the actual enforcement point regardless of this flag. */
+  isPlatformAdmin?: boolean;
 }
 
 export interface ForgotPasswordDto {
@@ -113,6 +121,19 @@ export class AuthService {
     this.clearStorage(sessionStorage);
     localStorage.removeItem(REMEMBER_ME_KEY);
     this._currentUser.set(null);
+  }
+
+  /** Patches just the avatar URL on the already-persisted session (both storage and the
+   *  currentUser signal), so the header/profile screen reflect an upload/delete immediately
+   *  without requiring a full token refresh or re-login. */
+  updateCurrentUserAvatar(avatarUrl: string | null): void {
+    const current = this.getCurrentUser();
+    if (!current) return;
+
+    const updated: AppLoginResponse = { ...current, avatarUrl };
+    const store = localStorage.getItem(CURRENT_USER_KEY) ? localStorage : sessionStorage;
+    store.setItem(CURRENT_USER_KEY, JSON.stringify(updated));
+    this._currentUser.set(updated);
   }
 
   getCurrentUser(): AppLoginResponse | null {

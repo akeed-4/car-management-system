@@ -6,6 +6,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
 import { CompanySwitcherComponent } from '../../company-switcher/company-switcher.component';
+import { AvatarComponent } from '../../avatar/avatar.component';
 import { AppTheme } from '../../../../services/theme.service';
 
 /** Floating glass header. Purely presentational + event-emitting -- ShellComponent (the
@@ -24,6 +25,7 @@ import { AppTheme } from '../../../../services/theme.service';
     MatTooltipModule,
     TranslateModule,
     CompanySwitcherComponent,
+    AvatarComponent,
   ],
   templateUrl: './shell-header.component.html',
   styleUrl: './shell-header.component.css',
@@ -32,6 +34,8 @@ import { AppTheme } from '../../../../services/theme.service';
 export class ShellHeaderComponent {
   @Input() isAuthenticated = false;
   @Input() userFullName = 'User';
+  @Input() userAvatarUrl: string | null = null;
+  @Input() isPlatformAdmin = false;
   @Input() currentTheme: AppTheme = 'light';
   @Input() currentLanguage = 'ar';
   @Input() isLoggingOut = false;
@@ -47,10 +51,4 @@ export class ShellHeaderComponent {
   @Output() goToUserProfile = new EventEmitter<void>();
   @Output() logOut = new EventEmitter<void>();
   @Output() logIn = new EventEmitter<void>();
-
-  get userInitials(): string {
-    const parts = this.userFullName.trim().split(/\s+/).filter(Boolean);
-    if (parts.length === 0) return 'U';
-    return parts.length === 1 ? parts[0].charAt(0).toUpperCase() : (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
-  }
 }

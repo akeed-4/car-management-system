@@ -1,0 +1,111 @@
+<div class="profile-container">
+  <div class="header-section">
+    <h2>{{ 'USERS.PROFILE.TITLE' | translate }}</h2>
+    <p class="subtitle">{{ 'USERS.PROFILE.SUBTITLE' | translate }}</p>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <mat-icon class="spin">refresh</mat-icon>
+      <span>{{ 'COMMON.LOADING' | translate }}</span>
+    </div>
+  }
+  <ng-container *ngIf="!loading() && profile() as profile">
+    <mat-card class="profile-card">
+      <mat-card-content>
+
+        <div class="avatar-section">
+          <div class="avatar-wrapper">
+            <app-avatar [avatarUrl]="profile.avatarUrl" [fullName]="profile.name" [size]="96"></app-avatar>
+            @if (uploadingAvatar()) {
+              <div class="avatar-overlay">
+                <mat-icon class="spin">refresh</mat-icon>
+              </div>
+            }
+          </div>
+          <div class="avatar-actions">
+            <input #avatarInput type="file" accept="image/jpeg,image/png,image/webp,image/gif" style="display: none;" (change)="onAvatarFileSelected($event)">
+            <button mat-stroked-button type="button" [disabled]="uploadingAvatar()" (click)="avatarInput.click()">
+              <mat-icon>photo_camera</mat-icon>
+              {{ 'USERS.PROFILE.CHANGE_AVATAR' | translate }}
+            </button>
+            @if (profile.avatarUrl) {
+              <button mat-button color="warn" type="button" [disabled]="uploadingAvatar()" (click)="removeAvatar()">
+                <mat-icon>delete</mat-icon>
+                {{ 'USERS.PROFILE.REMOVE_AVATAR' | translate }}
+              </button>
+            }
+          </div>
+          <p class="avatar-hint">{{ 'USERS.PROFILE.AVATAR_HINT' | translate }}</p>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-field">
+            <label>{{ 'USERS.FORM.USERNAME' | translate }}</label>
+            <span>{{ profile.name }}</span>
+          </div>
+          <div class="info-field">
+            <label>{{ 'USERS.FORM.ROLE' | translate }}</label>
+            <span class="role-badge">{{ profile.roleName }}</span>
+          </div>
+          <div class="info-field" *ngIf="profile.tenantName">
+            <label>{{ 'USERS.PROFILE.COMPANY' | translate }}</label>
+            <span>{{ profile.tenantName }}</span>
+          </div>
+          <div class="info-field">
+            <label>{{ 'USERS.FORM.STATUS' | translate }}</label>
+            <span>{{ ('USERS.STATUS.' + profile.status.toUpperCase()) | translate }}</span>
+          </div>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="save()" class="editable-fields">
+          <div class="section-title-row">
+            <h3>{{ 'USERS.PROFILE.CONTACT_INFO' | translate }}</h3>
+            @if (!editMode()) {
+              <button mat-button type="button" (click)="startEdit()">
+                <mat-icon>edit</mat-icon>
+                {{ 'COMMON.EDIT' | translate }}
+              </button>
+            }
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'USERS.PROFILE.EMAIL' | translate }}</mat-label>
+            <input matInput type="email" formControlName="email" [readonly]="!editMode()">
+            <mat-error *ngIf="form.get('email')?.hasError('email')">
+              {{ 'USERS.PROFILE.EMAIL_INVALID' | translate }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'USERS.PROFILE.PHONE' | translate }}</mat-label>
+            <input matInput type="tel" formControlName="phoneNumber" [readonly]="!editMode()">
+          </mat-form-field>
+
+          @if (editMode()) {
+            <div class="form-actions">
+              <button mat-stroked-button type="button" [disabled]="saving()" (click)="cancelEdit()">
+                {{ 'USERS.FORM.CANCEL' | translate }}
+              </button>
+              <button mat-raised-button color="primary" type="submit" [disabled]="saving()">
+                @if (saving()) {
+                  <mat-icon class="spin">refresh</mat-icon>
+                }
+                {{ 'COMMON.SAVE' | translate }}
+              </button>
+            </div>
+          }
+        </form>
+
+        <div class="security-section">
+          <h3>{{ 'USERS.PROFILE.SECURITY' | translate }}</h3>
+          <button mat-stroked-button type="button" (click)="openChangePassword()">
+            <mat-icon>lock_reset</mat-icon>
+            {{ 'admin.changePassword' | translate }}
+          </button>
+        </div>
+
+      </mat-card-content>
+    </mat-card>
+  </ng-container>
+</div>

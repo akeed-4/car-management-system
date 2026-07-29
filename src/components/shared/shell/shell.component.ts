@@ -3,6 +3,7 @@ import { CommonModule, DOCUMENT } from '@angular/common';
 import { Router, RouterLink, RouterOutlet, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { MatDialog } from '@angular/material/dialog';
 
 import { AuthService } from '../../../services/AuthService.service';
 import { TenantContextService } from '../../../services/tenant-context.service';
@@ -13,7 +14,7 @@ import { ResponsiveService } from '../../../services/responsive.service';
 import { DynamicMenuService } from '../../../services/dynamic-menu.service';
 import { MenuService } from '../../../services/menu.service';
 import { MenuItem } from '../../../models/menu.model';
-import { environment } from '../../../environments/environment';
+import { ChangePasswordDialogComponent } from '../../users/change-password-dialog/change-password-dialog.component';
 
 import { ShellHeaderComponent } from './header/shell-header.component';
 import { ShellNavRailComponent } from './nav-rail/shell-nav-rail.component';
@@ -68,8 +69,13 @@ export class ShellComponent implements OnInit, OnDestroy {
     return this.authService.currentUser()?.name || 'User';
   }
 
-  private identityUrl = environment.origin;
-  private systemAdminUrl = environment.origin;
+  get userAvatarUrl(): string | null {
+    return this.authService.currentUser()?.avatarUrl ?? null;
+  }
+
+  get isPlatformAdmin(): boolean {
+    return !!this.authService.currentUser()?.isPlatformAdmin;
+  }
 
   constructor(
     private router: Router,
@@ -82,6 +88,7 @@ export class ShellComponent implements OnInit, OnDestroy {
     private dynamicMenuService: DynamicMenuService,
     private menuService: MenuService,
     private translateService: TranslateService,
+    private dialog: MatDialog,
     @Inject(DOCUMENT) private document: Document,
   ) {
     this.languageService.language$.subscribe(lang => {
@@ -215,14 +222,14 @@ export class ShellComponent implements OnInit, OnDestroy {
   }
 
   changePassword(): void {
-    window.location.href = this.identityUrl + '/Manage/ChangePassword';
+    this.dialog.open(ChangePasswordDialogComponent, { width: '440px' });
   }
 
   goToSystemAdmin(): void {
-    window.open(this.systemAdminUrl + '/management/home', '_blank');
+    this.router.navigate(['/platform/dashboard']);
   }
 
   goToUserProfile(): void {
-    window.open(this.systemAdminUrl + '/management/profile', '_blank');
+    this.router.navigate(['/profile']);
   }
 }

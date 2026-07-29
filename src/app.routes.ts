@@ -10,6 +10,7 @@ import { InventoryListComponent } from './components/inventory/inventory-list/in
 import { InventoryFormComponent } from './components/inventory/inventory-form/inventory-form.component';
 import { PurchasesComponent } from './components/purchases/purchases-list/purchases.component';
 import { UsersComponent } from './components/users/users-list/users.component';
+import { UserProfileComponent } from './components/users/user-profile/user-profile.component';
 import { SalesInvoiceFormComponent } from './components/sales/sales-invoice-form/sales-invoice-form.component';
 import { InvoiceCreditListComponent } from './components/sales/invoice-credit-list/invoice-credit-list.component';
 import { PurchaseInvoiceComponent } from './components/purchases/purchase-invoice/purchase-invoice.component';
@@ -414,6 +415,7 @@ export const APP_ROUTES: Routes = [
   { path: 'users/new', component: UserFormComponent, canActivate: [permissionGuard('users.create')] },
   { path: 'users/edit/:id', component: UserFormComponent, canActivate: [permissionGuard('users.edit')] },
   { path: 'users/roles', component: RolesComponent, canActivate: [permissionGuard('users.roles.view')] },
+  { path: 'profile', component: UserProfileComponent },
   { path: 'test-drives', component: TestDrivesComponent },
   { path: 'test-drives/new', component: TestDriveFormComponent },
   { path: 'test-drives/edit/:id', component: TestDriveFormComponent },

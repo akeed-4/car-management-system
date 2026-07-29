@@ -1,0 +1,4 @@
+<div class="avatar" [style.width.px]="size" [style.height.px]="size" [style.fontSize.px]="size * 0.4" [attr.aria-label]="fullName">
+  <img *ngIf="resolvedUrl as url" [src]="url" [alt]="fullName" class="avatar-image">
+  <span *ngIf="!resolvedUrl" class="avatar-initials">{{ initials }}</span>
+</div>

@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { User } from '../models/user.model';
+import { ChangePassword, MyProfile, UpdateMyProfile } from '../models/my-profile.model';
 import { environment } from '../environments/environment';
 
 @Injectable({
@@ -106,5 +107,29 @@ export class UserService {
     return this.http.post<void>(`${this.apiUrl}/${id}/roles`, { roleId }).pipe(
       tap(() => this.loadUsers())
     );
+  }
+
+  getMyProfile(): Observable<MyProfile> {
+    return this.http.get<MyProfile>(`${this.apiUrl}/me`);
+  }
+
+  updateMyProfile(dto: UpdateMyProfile): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/me`, dto);
+  }
+
+  changePassword(dto: ChangePassword): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/change-password`, dto);
+  }
+
+  /** Returns the new site-relative avatar URL (e.g. "/uploads/avatars/12/abc.jpg") -- resolve
+   *  against environment.origin when rendering it as an <img> src. */
+  uploadMyAvatar(file: File): Observable<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<string>(`${this.apiUrl}/me/avatar`, formData);
+  }
+
+  deleteMyAvatar(): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/me/avatar`);
   }
 }

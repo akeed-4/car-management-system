@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from '../../guards/auth.guard';
+import { platformAdminGuard } from '../../guards/platform-admin.guard';
 
 /**
  * Lazy-loaded Platform/SaaS admin area (Tenants, Subscription Plans, Subscriptions, Domains,
@@ -10,7 +11,7 @@ import { authGuard } from '../../guards/auth.guard';
 export const PLATFORM_ROUTES: Routes = [
   {
     path: '',
-    canActivate: [authGuard],
+    canActivate: [authGuard, platformAdminGuard()],
     children: [
       {
         path: 'dashboard',
