@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -13,6 +13,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
 import { PermissionsList } from '../../../../services/role.service';
 import { splitLabel } from '../role.utils';
+import { PermissionService } from '../../../../services/permission.service';
 
 type FilterMode = 'all' | 'selected' | 'unselected' | 'modified';
 
@@ -50,6 +51,11 @@ interface FilteredGroup {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PermissionPanelComponent {
+  private permissionService = inject(PermissionService);
+
+  /** Whether the current user may edit role permissions at all -- read-only view otherwise. */
+  canManage = computed(() => this.permissionService.hasPermission('users.roles.manage'));
+
   permissionsList = input.required<PermissionsList>();
   currentPermissions = input.required<{ [key: string]: boolean }>();
   originalPermissions = input.required<{ [key: string]: boolean }>();

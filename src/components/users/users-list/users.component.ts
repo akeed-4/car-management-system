@@ -1,10 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -29,6 +31,8 @@ type ConfirmActionType = 'delete' | 'activate' | 'deactivate' | 'lock' | 'unlock
     MatButtonModule,
     MatIconModule,
     MatChipsModule,
+    MatFormFieldModule,
+    MatSelectModule,
     MatDialogModule,
     DxDataGridModule,
     TranslateModule,
@@ -49,6 +53,22 @@ export class UsersComponent implements OnInit {
   public translate = inject(TranslateService);
 
   users = this.userService.users$;
+  roles = this.roleService.roles$;
+
+  // Toolbar filters -- applied on top of DevExtreme's own filter-row/search-panel, not a
+  // replacement for them. Both operate on the already-loaded users() array (no backend
+  // query params exist for search/filter/pagination on this endpoint).
+  statusFilter = signal<'All' | 'Active' | 'Inactive'>('All');
+  roleFilter = signal<number | 'All'>('All');
+
+  filteredUsers = computed(() => {
+    const status = this.statusFilter();
+    const roleId = this.roleFilter();
+    return this.users().filter(u =>
+      (status === 'All' || u.status === status) &&
+      (roleId === 'All' || u.roleId === roleId)
+    );
+  });
 
   // Confirmation modal state
   isConfirmModalOpen = signal(false);

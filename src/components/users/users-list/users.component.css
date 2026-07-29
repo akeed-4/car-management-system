@@ -1,6 +1,6 @@
 .users-container {
   padding: 24px;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: var(--surface-page);
   min-height: 100vh;
 }
 
@@ -8,46 +8,81 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 32px;
+  margin-bottom: 20px;
   padding: 0 8px;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .title-section h2 {
   margin: 0;
-  font-size: 2.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
-  color: #1a237e;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  color: var(--text-primary);
 }
 
 .subtitle {
-  margin: 8px 0 0 0;
-  font-size: 1rem;
-  color: #5c6bc0;
+  margin: 4px 0 0 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
 }
 
 .add-button {
-  height: 48px;
-  padding: 0 24px;
-  font-size: 16px;
+  height: 44px;
+  padding: 0 20px;
+  font-size: 15px;
   font-weight: 600;
-  box-shadow: 0 4px 12px rgba(63, 81, 181, 0.3);
-  transition: all 0.3s ease;
 }
 
-.add-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(63, 81, 181, 0.4);
+.filter-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 0 8px;
+}
+
+.filter-field {
+  min-width: 200px;
+}
+
+.filter-field.mat-mdc-form-field {
+  font-size: 0.9rem;
 }
 
 .grid-section {
-  background: white;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background: var(--surface-card);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-sm);
+  overflow-x: auto;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--color-primary-100);
+  color: var(--color-primary-700);
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+:root[data-theme="dark"] .role-badge {
+  background: color-mix(in srgb, var(--color-primary-600) 30%, transparent);
+  color: var(--color-primary-300);
 }
 
 @media (max-width: 768px) {
+  .users-container {
+    padding: 12px;
+  }
+
   .header-section {
     flex-direction: column;
     align-items: flex-start;
@@ -55,6 +90,24 @@
   }
 
   .title-section h2 {
-    font-size: 1.8rem;
+    font-size: 1.4rem;
+  }
+
+  .add-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .filter-toolbar {
+    flex-direction: column;
+  }
+
+  .filter-field {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .grid-section {
+    padding: 12px;
   }
 }

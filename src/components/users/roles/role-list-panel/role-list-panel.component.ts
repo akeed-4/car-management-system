@@ -11,6 +11,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
 import { RoleWithStats } from '../../../../models/role.model';
+import { HasPermissionDirective } from '../../../shared/permission.directive';
 
 @Component({
   selector: 'app-role-list-panel',
@@ -26,7 +27,8 @@ import { RoleWithStats } from '../../../../models/role.model';
     MatTooltipModule,
     MatChipsModule,
     MatProgressSpinnerModule,
-    TranslateModule
+    TranslateModule,
+    HasPermissionDirective
   ],
   templateUrl: './role-list-panel.component.html',
   styleUrl: './role-list-panel.component.css',

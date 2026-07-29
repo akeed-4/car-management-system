@@ -64,7 +64,7 @@
           }
         </button>
         <mat-menu #rowMenu="matMenu">
-          <button mat-menu-item (click)="duplicateRole.emit(role)">
+          <button *appHasPermission="'users.roles.manage'" mat-menu-item (click)="duplicateRole.emit(role)">
             <mat-icon>content_copy</mat-icon>
             {{ 'ROLES.LIST.ACTIONS.DUPLICATE' | translate }}
           </button>
@@ -72,7 +72,7 @@
             <mat-icon>file_download</mat-icon>
             {{ 'ROLES.LIST.ACTIONS.EXPORT' | translate }}
           </button>
-          <button mat-menu-item class="danger-item" (click)="deleteRole.emit(role)">
+          <button *appHasPermission="'users.roles.manage'" mat-menu-item class="danger-item" (click)="deleteRole.emit(role)">
             <mat-icon>delete</mat-icon>
             {{ 'ROLES.LIST.ACTIONS.DELETE' | translate }}
           </button>
@@ -82,7 +82,7 @@
   }
 </div>
 
-<div class="new-role-bar">
+<div class="new-role-bar" *appHasPermission="'users.roles.manage'">
   <mat-form-field appearance="outline" class="new-role-field">
     <input
       matInput

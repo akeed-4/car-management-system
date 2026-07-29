@@ -44,6 +44,7 @@
                 <mat-checkbox
                   [checked]="getGroupState(group.allKeys) === 'all'"
                   [indeterminate]="getGroupState(group.allKeys) === 'partial'"
+                  [disabled]="!canManage()"
                   (click)="$event.stopPropagation()"
                   (change)="groupToggle.emit({ group: group.key, checked: $event.checked })"
                   [attr.aria-label]="'ROLES.PERMISSIONS.SELECT_ALL_IN_GROUP' | translate">
@@ -63,6 +64,7 @@
                   [matTooltip]="entry.key">
                   <mat-checkbox
                     [checked]="isChecked(entry.key)"
+                    [disabled]="!canManage()"
                     (change)="permissionToggle.emit(entry.key)">
                   </mat-checkbox>
                   <span class="permission-label">
@@ -81,24 +83,26 @@
     }
   </div>
 
-  <div class="save-bar">
-    @if (hasUnsavedChanges()) {
-      <span class="unsaved-badge">
-        <mat-icon>fiber_manual_record</mat-icon>
-        {{ 'ROLES.PERMISSIONS.UNSAVED_BADGE' | translate }}
-      </span>
-    }
-    <span class="save-bar-spacer"></span>
-    <button mat-stroked-button [disabled]="!hasUnsavedChanges() || saving()" (click)="discard.emit()">
-      {{ 'ROLES.PERMISSIONS.DISCARD' | translate }}
-    </button>
-    <button mat-raised-button color="primary" [disabled]="!hasUnsavedChanges() || saving()" (click)="save.emit()">
-      @if (saving()) {
-        <mat-spinner diameter="18"></mat-spinner>
-      } @else {
-        <mat-icon>save</mat-icon>
+  @if (canManage()) {
+    <div class="save-bar">
+      @if (hasUnsavedChanges()) {
+        <span class="unsaved-badge">
+          <mat-icon>fiber_manual_record</mat-icon>
+          {{ 'ROLES.PERMISSIONS.UNSAVED_BADGE' | translate }}
+        </span>
       }
-      {{ 'ROLES.PERMISSIONS.SAVE' | translate }}
-    </button>
-  </div>
+      <span class="save-bar-spacer"></span>
+      <button mat-stroked-button [disabled]="!hasUnsavedChanges() || saving()" (click)="discard.emit()">
+        {{ 'ROLES.PERMISSIONS.DISCARD' | translate }}
+      </button>
+      <button mat-raised-button color="primary" [disabled]="!hasUnsavedChanges() || saving()" (click)="save.emit()">
+        @if (saving()) {
+          <mat-spinner diameter="18"></mat-spinner>
+        } @else {
+          <mat-icon>save</mat-icon>
+        }
+        {{ 'ROLES.PERMISSIONS.SAVE' | translate }}
+      </button>
+    </div>
+  }
 }

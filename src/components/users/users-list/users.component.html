@@ -4,16 +4,35 @@
       <h2>{{ 'USERS.LIST.TITLE' | translate }}</h2>
       <p class="subtitle">{{ 'USERS.LIST.SUBTITLE' | translate }}</p>
     </div>
-    <button mat-raised-button color="primary" class="add-button" (click)="createUser()">
+    <button *appHasPermission="'users.create'" mat-raised-button color="primary" class="add-button" (click)="createUser()">
       <mat-icon>add</mat-icon>
       {{ 'USERS.LIST.ADD_NEW' | translate }}
     </button>
   </div>
 
+  <div class="filter-toolbar">
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>{{ 'USERS.LIST.FILTER_STATUS_LABEL' | translate }}</mat-label>
+      <mat-select [value]="statusFilter()" (selectionChange)="statusFilter.set($event.value)">
+        <mat-option value="All">{{ 'USERS.LIST.FILTER_ALL_STATUSES' | translate }}</mat-option>
+        <mat-option value="Active">{{ 'USERS.STATUS.ACTIVE' | translate }}</mat-option>
+        <mat-option value="Inactive">{{ 'USERS.STATUS.INACTIVE' | translate }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>{{ 'USERS.LIST.FILTER_ROLE_LABEL' | translate }}</mat-label>
+      <mat-select [value]="roleFilter()" (selectionChange)="roleFilter.set($event.value)">
+        <mat-option value="All">{{ 'USERS.LIST.FILTER_ALL_ROLES' | translate }}</mat-option>
+        <mat-option *ngFor="let role of roles()" [value]="role.id">{{ role.name }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
   <div class="grid-section">
     <dx-data-grid
       id="usersGrid"
-      [dataSource]="users()"
+      [dataSource]="filteredUsers()"
       keyExpr="id"
       [showBorders]="true"
       [showRowLines]="true"
@@ -22,7 +41,7 @@
       [hoverStateEnabled]="true"
       [allowColumnReordering]="true"
       [allowColumnResizing]="true"
-      [rtlEnabled]="true"
+      [rtlEnabled]="translate.currentLang === 'ar'"
       [noDataText]="'USERS.LIST.NO_USERS' | translate">
 
       <dxo-load-panel [enabled]="true"></dxo-load-panel>
@@ -33,7 +52,13 @@
       <dxo-search-panel [visible]="true" [placeholder]="'USERS.LIST.SEARCH_PLACEHOLDER' | translate"></dxo-search-panel>
 
       <dxi-column dataField="name" [caption]="translate.instant('USERS.FORM.USERNAME')"></dxi-column>
-      <dxi-column dataField="roleName" [caption]="translate.instant('USERS.FORM.ROLE')"></dxi-column>
+
+      <dxi-column
+        dataField="roleName"
+        [caption]="translate.instant('USERS.FORM.ROLE')"
+        cellTemplate="roleTemplate"
+        [width]="160">
+      </dxi-column>
 
       <dxi-column
         dataField="status"
@@ -101,6 +126,10 @@
           [onClick]="deleteClick">
         </dxi-button>
       </dxi-column>
+
+      <div *dxTemplate="let data of 'roleTemplate'">
+        <span class="role-badge" [title]="data.value">{{ data.value }}</span>
+      </div>
 
       <div *dxTemplate="let data of 'statusTemplate'">
         <mat-chip [color]="getStatusColor(data.value)" selected>
