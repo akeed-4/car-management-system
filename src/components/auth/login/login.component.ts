@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -49,6 +49,11 @@ export class LoginComponent {
   errorMessage: string | null = null;
   passwordWasReset = false;
 
+  /** Spans the entire login -> membership -> tenant/onboarding chain, not just the login call
+   *  itself -- guards against a double-click firing a second full chain while the first is
+   *  still resolving its multi-step redirect. */
+  loggingIn = signal(false);
+
   constructor(
     private fb: FormBuilder,
     private router: Router,
@@ -67,9 +72,13 @@ export class LoginComponent {
   }
 
  onSubmit(): void {
+  if (this.loggingIn()) return;
+
   if (this.loginForm.valid) {
       const { rememberMe, ...credentials } = this.loginForm.value;
       const login: login = credentials;
+      this.errorMessage = null;
+      this.loggingIn.set(true);
     this.authService.login(login, rememberMe).subscribe({
       next: () => {
         // subscriptionGuard/tenantGuard (see guards/) attach the originally-requested URL as
@@ -82,6 +91,7 @@ export class LoginComponent {
             const outcome = resolveCompanySelection(memberships);
 
             if (outcome === 'pick') {
+              this.loggingIn.set(false);
               this.router.navigate(['/select-company'], { queryParams: returnUrl ? { returnUrl } : undefined });
               return;
             }
@@ -104,6 +114,7 @@ export class LoginComponent {
         });
       },
       error: (error) => {
+        this.loggingIn.set(false);
         this.errorMessage = error?.error?.message || this.translate.instant('LOGIN.INVALID_CREDENTIALS');
       }
     });
@@ -118,12 +129,16 @@ export class LoginComponent {
   private goToOnboardingDestination(returnUrl: string | null): void {
     this.platformService.getMySubscriptionStatus().subscribe({
       next: (status) => {
+        this.loggingIn.set(false);
         const destination = resolveOnboardingDestination(status, returnUrl);
         this.router.navigate(destination.commands, { queryParams: destination.queryParams });
       },
       // Fail-open: don't strand a user who successfully authenticated just because the
       // subscription-status endpoint errored -- see the guards' own fail-open note.
-      error: () => this.router.navigateByUrl(returnUrl || '/dashboard'),
+      error: () => {
+        this.loggingIn.set(false);
+        this.router.navigateByUrl(returnUrl || '/dashboard');
+      },
     });
   }
 }

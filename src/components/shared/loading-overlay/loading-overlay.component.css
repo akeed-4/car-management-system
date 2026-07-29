@@ -1,0 +1,20 @@
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--surface-page) 55%, transparent);
+  backdrop-filter: blur(1px);
+}
+
+:root[data-theme="dark"] .loading-overlay {
+  background: color-mix(in srgb, var(--surface-page) 65%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-overlay {
+    backdrop-filter: none;
+  }
+}

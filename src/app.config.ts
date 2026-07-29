@@ -9,6 +9,7 @@ import { APP_ROUTES } from './app.routes';
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
 import { TenantHeaderInterceptor } from './interceptors/tenant.interceptor';
 import { ApiResponseInterceptor } from './interceptors/api-response.interceptor';
+import { LoadingInterceptor } from './interceptors/loading.interceptor';
 
 // Factory function for TranslateHttpLoader
 export function HttpLoaderFactory(http: HttpClient) {
@@ -26,6 +27,14 @@ export const appConfig: ApplicationConfig = {
     // token, and no ApiResponse<T> envelope was ever auto-unwrapped -- which is exactly why
     // several services (SalesService, PurchasesService) had to hand-roll their own unwrap().
     provideHttpClient(withInterceptorsFromDi()),
+    // Registered first so it's outermost -- covers the full request lifecycle including
+    // JwtInterceptor's refresh-and-retry, instead of hiding the overlay after only the first
+    // (pre-refresh) attempt.
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: LoadingInterceptor,
+      multi: true
+    },
     // Register JWT Interceptor
     {
       provide: HTTP_INTERCEPTORS,

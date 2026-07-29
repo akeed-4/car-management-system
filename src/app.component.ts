@@ -13,6 +13,7 @@ import { MatExpansionModule } from '@angular/material/expansion'; // <-- هذا 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule } from '@ngx-translate/core';
+import { LoadingOverlayComponent } from './components/shared/loading-overlay/loading-overlay.component';
 
 @Component({
   selector: 'app-root',
@@ -22,7 +23,7 @@ import { TranslateModule } from '@ngx-translate/core';
   standalone: true,
   imports: [
     CommonModule
-   ,MatListModule,MatSidenavModule,MatToolbarModule,MatIconModule, MatExpansionModule, MatFormFieldModule, MatSelectModule, TranslateModule,RouterOutlet
+   ,MatListModule,MatSidenavModule,MatToolbarModule,MatIconModule, MatExpansionModule, MatFormFieldModule, MatSelectModule, TranslateModule,RouterOutlet, LoadingOverlayComponent
   ],
 })
 export class AppComponent implements OnDestroy {

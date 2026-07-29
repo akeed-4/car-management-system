@@ -32,7 +32,9 @@
       {{ errorMessage }}
     </div>
 
-    <button type="submit">{{ 'LOGIN.SUBMIT' | translate }}</button>
+    <button type="submit" [disabled]="loggingIn()">
+      {{ (loggingIn() ? 'LOGIN.SIGNING_IN' : 'LOGIN.SUBMIT') | translate }}
+    </button>
   </form>
 
   <p class="alt-action">
