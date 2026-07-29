@@ -17,10 +17,23 @@
 
         <mat-form-field appearance="outline" class="form-field">
           <mat-label>{{ 'USERS.FORM.PASSWORD' | translate }}</mat-label>
-          <input matInput type="password" formControlName="password"
+          <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password"
                  [required]="!editMode()"
-                 [placeholder]="editMode() ? ('USERS.FORM.PASSWORD_PLACEHOLDER' | translate) : ''">
-          <mat-error *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched">
+                 [placeholder]="editMode() ? ('USERS.FORM.PASSWORD_PLACEHOLDER' | translate) : ''"
+                 autocomplete="new-password">
+          <button mat-icon-button matSuffix type="button" (click)="hidePassword.set(!hidePassword())">
+            <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <mat-hint *ngIf="!userForm.get('password')?.touched || userForm.get('password')?.valid">
+            {{ 'USERS.VALIDATION.PASSWORD_POLICY_HINT' | translate }}
+          </mat-hint>
+          <mat-error *ngIf="userForm.get('password')?.hasError('requiresDigit')">
+            {{ 'USERS.VALIDATION.PASSWORD_REQUIRES_DIGIT' | translate }}
+          </mat-error>
+          <mat-error *ngIf="!userForm.get('password')?.hasError('requiresDigit') && userForm.get('password')?.hasError('minLength')">
+            {{ 'USERS.VALIDATION.PASSWORD_MIN_LENGTH' | translate }}
+          </mat-error>
+          <mat-error *ngIf="!editMode() && userForm.get('password')?.hasError('required')">
             {{ 'USERS.VALIDATION.PASSWORD_REQUIRED' | translate }}
           </mat-error>
         </mat-form-field>
@@ -52,7 +65,10 @@
 
       <div class="form-actions">
         <a routerLink="/users" mat-stroked-button color="accent">{{ 'USERS.FORM.CANCEL' | translate }}</a>
-        <button mat-raised-button color="primary" type="submit" [disabled]="userForm.invalid">
+        <button mat-raised-button color="primary" type="submit" [disabled]="saving()">
+          @if (saving()) {
+            <mat-icon class="spin">refresh</mat-icon>
+          }
           {{ editMode() ? ('USERS.FORM.EDIT_USER' | translate) : ('USERS.FORM.ADD_USER' | translate) }}
         </button>
       </div>

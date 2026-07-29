@@ -4141,6 +4141,8 @@
       "USERNAME_REQUIRED": "Username is required",
       "PASSWORD_REQUIRED": "Password is required",
       "PASSWORD_MIN_LENGTH": "Password must be at least 6 characters",
+      "PASSWORD_REQUIRES_DIGIT": "Password must contain at least one digit",
+      "PASSWORD_POLICY_HINT": "At least 6 characters, including a digit",
       "ROLE_REQUIRED": "Please select a valid role",
       "STATUS_REQUIRED": "Status is required"
     },

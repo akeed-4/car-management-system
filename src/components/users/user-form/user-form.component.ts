@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { UserService } from '../../../services/user.service';
 import { RoleService } from '../../../services/role.service';
@@ -9,8 +9,24 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
+/** Matches the backend's actual Identity password policy (ServiceCollectionExtensions.cs:
+ *  RequireDigit=true, RequiredLength=6, everything else relaxed) -- Validators.minLength(6)
+ *  alone let a 6-character all-letter password through the frontend only to be rejected server
+ *  side with no client-visible reason why. */
+function passwordPolicyValidator(): ValidatorFn {
+  return (control): ValidationErrors | null => {
+    const value = control.value;
+    if (!value) return null; // required (or its absence) is a separate validator's concern
+    const errors: ValidationErrors = {};
+    if (value.length < 6) errors['minLength'] = true;
+    if (!/\d/.test(value)) errors['requiresDigit'] = true;
+    return Object.keys(errors).length ? errors : null;
+  };
+}
 
 @Component({
   selector: 'app-user-form',
@@ -22,6 +38,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
+    MatIconModule,
     MatCardModule,
     TranslateModule
   ],
@@ -41,6 +58,7 @@ export class UserFormComponent {
   userForm!: FormGroup;
   editMode = signal(false);
   saving = signal(false);
+  hidePassword = signal(true);
   pageTitle = signal('USERS.FORM.ADD_TITLE');
 
   private editingUserId: number | null = null;
@@ -57,6 +75,8 @@ export class UserFormComponent {
         this.editingUserId = id;
         this.editMode.set(true);
         this.pageTitle.set('USERS.FORM.EDIT_TITLE');
+        this.userForm.get('password')?.setValidators([passwordPolicyValidator()]);
+        this.userForm.get('password')?.updateValueAndValidity();
         this.userService.getUserById(id).subscribe({
           next: existingUser => {
             const { password, ...userToEdit } = existingUser;
@@ -75,14 +95,19 @@ export class UserFormComponent {
   private initializeForm() {
     this.userForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
-      password: [''],
+      // Required in create mode; the edit-mode branch below relaxes this to optional
+      // (a blank password on edit means "keep the current one" -- see saveUser()).
+      password: ['', [Validators.required, passwordPolicyValidator()]],
       roleId: [null, Validators.required],
       status: ['Active', Validators.required]
     });
   }
 
   saveUser() {
-    if (!this.userForm.valid || this.saving()) {
+    if (this.saving()) return;
+
+    if (!this.userForm.valid) {
+      this.userForm.markAllAsTouched();
       return;
     }
 

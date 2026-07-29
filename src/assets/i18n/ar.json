@@ -4009,6 +4009,8 @@
       "USERNAME_REQUIRED": "اسم المستخدم مطلوب",
       "PASSWORD_REQUIRED": "كلمة المرور مطلوبة",
       "PASSWORD_MIN_LENGTH": "يجب ألا تقل كلمة المرور عن 6 أحرف",
+      "PASSWORD_REQUIRES_DIGIT": "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل",
+      "PASSWORD_POLICY_HINT": "6 أحرف على الأقل، وتتضمن رقمًا",
       "ROLE_REQUIRED": "الرجاء اختيار دور صحيح",
       "STATUS_REQUIRED": "الحالة مطلوبة"
     },
