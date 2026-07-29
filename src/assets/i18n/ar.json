@@ -1990,6 +1990,18 @@
       "SUBMIT": "إعادة الجدولة"
     }
   },
+  "INVOICE_ALLOCATION": {
+    "SELECT_INVOICE": "اختر فاتورة للتوزيع",
+    "ADD_INVOICE": "إضافة فاتورة",
+    "DISTRIBUTE": "توزيع",
+    "INVOICE": "الفاتورة",
+    "ORIGINAL_BALANCE": "الرصيد الأصلي",
+    "AMOUNT_TO_ALLOCATE": "المبلغ المراد توزيعه",
+    "REMOVE_ROW": "حذف",
+    "NO_ALLOCATIONS_YET": "لم يتم توزيع أي فاتورة بعد",
+    "TOTAL_ALLOCATED": "إجمالي الموزع",
+    "UNALLOCATED_BALANCE": "الرصيد غير الموزع"
+  },
   "ACCOUNTS": {
     "RECEIPTS": {
       "LIST_TITLE": "قائمة سندات القبض",
@@ -2071,6 +2083,8 @@
       "UNALLOCATED_BALANCE": "الرصيد غير الموزع",
       "UNALLOCATED_BALANCE_ERROR": "يجب أن يساوي إجمالي المبالغ الموزعة إجمالي المبلغ المستلم",
       "NO_INVOICE_ALLOCATION": "دفعة مقدمة (بدون توزيع على فاتورة)",
+      "LOAD_CARS_FROM_INVOICE": "تحميل السيارات من الفاتورة",
+      "LOAD_CARS": "تحميل السيارات",
       "NOTES": "ملاحظات",
       "CANCEL": "إلغاء",
       "SAVE": "حفظ سند الصرف",

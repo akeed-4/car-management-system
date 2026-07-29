@@ -1,0 +1,70 @@
+<div class="allocation-grid-root">
+
+  <div class="add-row-bar">
+    <mat-form-field appearance="outline" class="invoice-picker">
+      <mat-label>{{ 'INVOICE_ALLOCATION.SELECT_INVOICE' | translate }}</mat-label>
+      <mat-select [(ngModel)]="selectedInvoiceToAdd" [disabled]="disabled">
+        <mat-option *ngFor="let inv of availableInvoiceOptions()" [value]="inv.invoiceId">
+          {{ inv.invoiceNumber }} ({{ inv.amountDue | currency:currencyCode }})
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-stroked-button color="primary" type="button"
+            [disabled]="disabled || selectedInvoiceToAdd == null"
+            (click)="addRow()">
+      <mat-icon>add</mat-icon>
+      {{ 'INVOICE_ALLOCATION.ADD_INVOICE' | translate }}
+    </button>
+
+    <button mat-raised-button color="accent" type="button"
+            class="distribute-btn"
+            [disabled]="disabled || rows.length === 0 || totalVoucherAmount <= 0"
+            (click)="distribute()">
+      <mat-icon>call_split</mat-icon>
+      {{ 'INVOICE_ALLOCATION.DISTRIBUTE' | translate }}
+    </button>
+  </div>
+
+  <div class="table-container" *ngIf="rows.length > 0">
+    <table class="allocation-table">
+      <thead>
+        <tr>
+          <th>{{ 'INVOICE_ALLOCATION.INVOICE' | translate }}</th>
+          <th>{{ 'INVOICE_ALLOCATION.ORIGINAL_BALANCE' | translate }}</th>
+          <th>{{ 'INVOICE_ALLOCATION.AMOUNT_TO_ALLOCATE' | translate }}</th>
+          <th class="actions-col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of rows; let i = index; trackBy: trackByInvoiceId">
+          <td>{{ row.invoiceNumber }}</td>
+          <td>{{ row.originalBalance | currency:currencyCode }}</td>
+          <td>
+            <mat-form-field appearance="outline" class="table-field">
+              <input matInput type="number" min="0" [max]="row.originalBalance"
+                     [ngModel]="row.amount" [disabled]="disabled"
+                     (ngModelChange)="onAmountChange(i, $event)">
+            </mat-form-field>
+          </td>
+          <td class="actions-col">
+            <button mat-icon-button type="button" [disabled]="disabled" (click)="removeRow(i)"
+                    [attr.aria-label]="'INVOICE_ALLOCATION.REMOVE_ROW' | translate">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="empty-state" *ngIf="rows.length === 0">
+    {{ 'INVOICE_ALLOCATION.NO_ALLOCATIONS_YET' | translate }}
+  </div>
+
+  <div class="balance-summary" [class.error]="exceedsTotal()">
+    <span>{{ 'INVOICE_ALLOCATION.TOTAL_ALLOCATED' | translate }}: {{ totalAllocated() | currency:currencyCode }}</span>
+    <span>{{ 'INVOICE_ALLOCATION.UNALLOCATED_BALANCE' | translate }}: {{ unallocatedBalance() | currency:currencyCode }}</span>
+  </div>
+
+</div>

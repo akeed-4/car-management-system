@@ -113,16 +113,6 @@
                 {{ 'VALIDATION.REQUIRED' | translate }}
               </mat-error>
             </mat-form-field>
-
-            <div class="form-field distribute-wrapper" *ngIf="requiresAllocation()">
-              <button mat-raised-button color="accent" type="button"
-                      (click)="distributeAmount()"
-                      [disabled]="!receiptForm.get('totalAmountReceived')?.value || allocations.length === 0"
-                      class="distribute-btn">
-                <mat-icon>call_split</mat-icon>
-                {{ 'ACCOUNTS.FORM.DISTRIBUTE' | translate }}
-              </button>
-            </div>
           </div>
 
           <!-- Advance payment: customer pays with no invoice selected (business rule scenario 1) --
@@ -134,95 +124,15 @@
           </div>
         </div>
 
-        <!-- Invoice Selection & Cars -->
-        <div class="form-section invoice-cars-section" *ngIf="requiresAllocation() && customerInvoices().length > 0">
-          <h3>{{ 'ACCOUNTS.FORM.INVOICE_SELECTION' | translate }}</h3>
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'ACCOUNTS.FORM.INVOICE' | translate }}</mat-label>
-              <mat-select [value]="selectedInvoiceId()" (selectionChange)="loadInvoiceCars($event.value)">
-                <mat-option [value]="null" disabled>{{ 'ACCOUNTS.FORM.SELECT_INVOICE' | translate }}</mat-option>
-                <mat-option *ngFor="let inv of customerInvoices(); trackBy: trackByInvoiceId" [value]="inv.id">
-                  {{ inv.invoiceNumber }} ({{ inv.amountDue | currency:'SAR' }})
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-
-            <div class="form-field">
-              <button mat-stroked-button color="primary" type="button" (click)="addSelectedInvoiceCarsToAllocations()"
-                      [disabled]="!selectedInvoiceCars() || selectedInvoiceCars().length === 0">
-                {{ 'ACCOUNTS.FORM.CAR_DISTRIBUTION' | translate }}
-              </button>
-            </div>
-          </div>
-
-          <div class="table-container" *ngIf="selectedInvoiceCars().length > 0">
-            <table class="invoice-cars-table">
-              <thead>
-                <tr>
-                  <th>{{ 'ACCOUNTS.FORM.CHASSIS_NUMBER' | translate }}</th>
-                  <th>{{ 'ACCOUNTS.FORM.MODEL' | translate }}</th>
-                  <th>{{ 'ACCOUNTS.FORM.AMOUNT' | translate }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let car of selectedInvoiceCars()">
-                  <td>{{ car.chassisNumber || car.vin }}</td>
-                  <td>{{ car.make }} {{ car.model }} {{ car.year }}</td>
-                  <td>{{ car.purchasePrice ?? car.totalCost | currency:'SAR' }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Allocation Table -->
-        <div class="form-section allocation-section" *ngIf="requiresAllocation() && allocations.length > 0">
+        <!-- Invoice Allocation Grid -->
+        <div class="form-section allocation-section" *ngIf="requiresAllocation()">
           <h3>{{ 'ACCOUNTS.FORM.ALLOCATION_TABLE' | translate }}</h3>
-          <div class="table-container">
-            <table class="allocation-table">
-              <thead>
-                <tr>
-                  <th>{{ 'ACCOUNTS.FORM.REFERENCE' | translate }}</th>
-                  <th>{{ 'ACCOUNTS.FORM.ORIGINAL_BALANCE' | translate }}</th>
-                  <th>{{ 'ACCOUNTS.FORM.AMOUNT_TO_PAY' | translate }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let allocation of allocations.controls; let i = index" [formGroup]="allocation">
-                  <td>
-                    <mat-form-field appearance="outline" class="table-field">
-                      <mat-label>{{ 'ACCOUNTS.RECEIPT_FORM.SELECT_INVOICE' | translate }}</mat-label>
-                      <mat-select formControlName="selectedInvoice">
-                        <mat-option *ngFor="let inv of customerInvoices()" [value]="inv.id">
-                          {{ inv.invoiceNumber }}
-                        </mat-option>
-                      </mat-select>
-                    </mat-form-field>
-                  </td>
-                  <td>{{ allocation.get('originalBalance')?.value | currency:'SAR' }}</td>
-                  <td>
-                    <mat-form-field appearance="outline" class="table-field">
-                      <mat-label>{{ 'ACCOUNTS.FORM.AMOUNT_TO_PAY' | translate }}</mat-label>
-                      <input matInput type="number" formControlName="amountToPay"
-                             min="0"
-                             [max]="allocation.get('originalBalance')?.value">
-                    </mat-form-field>
-                  </td>
-                </tr>
-                <tr *ngFor="let allocation of allocations.controls; let i = index" [formGroup]="allocation">
-                  <td colspan="3" *ngIf="getInvoiceById(allocation.get('selectedInvoice')?.value)">
-                    <div class="car-list">
-                      <span *ngFor="let car of getInvoiceById(allocation.get('selectedInvoice')?.value)?.items">
-                        <mat-icon>directions_car</mat-icon>
-                        {{ car.carDescription }}
-                      </span>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <app-invoice-allocation-grid
+            [invoiceOptions]="customerInvoices()"
+            [rows]="allocationRows()"
+            [totalVoucherAmount]="totalAmountReceived()"
+            (rowsChange)="onAllocationRowsChange($event)">
+          </app-invoice-allocation-grid>
         </div>
 
         <!-- Accounting Preview / Journal Balance -->
@@ -269,7 +179,7 @@
           <!-- Invoice-allocation difference: only meaningful while actually allocating across
                invoices -- an advance/no-invoice receipt always posts the full amount, so there's
                nothing to distribute and this row stands down. -->
-          <div class="difference-section" *ngIf="requiresAllocation()" [class.error]="unallocatedBalance() !== 0">
+          <div class="difference-section" *ngIf="requiresAllocation()" [class.error]="unallocatedBalance() < -0.01">
             <strong>
               {{ 'ACCOUNTS.FORM.UNALLOCATED_BALANCE' | translate }}:
               {{ unallocatedBalance() | currency:'SAR' }}
@@ -291,8 +201,7 @@
         <a mat-stroked-button routerLink="/accounts/receipts">
           {{ 'ACCOUNTS.FORM.CANCEL' | translate }}
         </a>
-        <button mat-raised-button color="primary" type="submit"
-                [disabled]="receiptForm.invalid || !isJournalBalanced() || (requiresAllocation() && unallocatedBalance() !== 0)">
+        <button mat-raised-button color="primary" type="submit">
           {{ (isEditMode() ? 'ACCOUNTS.FORM.UPDATE' : 'ACCOUNTS.FORM.SAVE_RECEIPT') | translate }}
         </button>
       </mat-card-actions>

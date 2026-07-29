@@ -1,10 +1,12 @@
+import { InvoiceAllocation, CreateInvoiceAllocation } from './invoice-allocation.model';
+
 export enum ReceiptSource {
   Sale = 0,
   Installment = 1,
   Other = 2,
 }
 
-/** Mirrors the backend's ReceiptDto (Application/DTOs/ReceiptDto.cs). */
+/** Mirrors the backend's ReceiptDto (CarERP.Core/DTOs/Accounting/ReceiptDto.cs). */
 export interface Receipt {
   id: number;
   voucherNumber: string;
@@ -18,7 +20,7 @@ export interface Receipt {
   customerName?: string;
   source: ReceiptSource;
   sourceName?: string;
-  referenceId?: number; // Sales invoice id when source = Sale
+  referenceId?: number; // Sales invoice id when source = Sale (legacy single-invoice link)
   status?: number;
   statusName?: string;
   notes?: string;
@@ -26,6 +28,7 @@ export interface Receipt {
   createdBy?: number;
   customerOrderId?: number;
   receiptDetails: ReceiptDetail[];
+  invoiceAllocations: InvoiceAllocation[];
 }
 
 export interface ReceiptDetail {
@@ -50,4 +53,5 @@ export interface CreateReceiptDto {
   notes?: string;
   customerOrderId?: number;
   receiptDetails: { incomeAccountId: number; carId?: number; amount: number; note?: string }[];
+  invoiceAllocations: CreateInvoiceAllocation[];
 }

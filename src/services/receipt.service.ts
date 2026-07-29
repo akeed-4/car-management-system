@@ -5,9 +5,10 @@ import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
 
 /**
- * Matches carSystemBackend's ReceiptsController exactly (Application/DTOs/ReceiptDto.cs,
- * Controllers/ReceiptsController.cs) - one Receipt per customer/invoice, with ReceiptDetails as
- * the per-car cost breakdown, not a multi-invoice allocation batch.
+ * Matches CarERP.Api's ReceiptsController (CarERP.Core/DTOs/Accounting/ReceiptDto.cs) - a Receipt
+ * carries ReceiptDetails (the per-car/income-account cost breakdown) plus, optionally,
+ * invoiceAllocations (multi-invoice allocation rows, replacing the legacy single
+ * Source/ReferenceId link when present).
  */
 @Injectable({
   providedIn: 'root',

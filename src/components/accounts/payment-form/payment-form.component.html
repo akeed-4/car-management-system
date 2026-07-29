@@ -74,9 +74,9 @@
           </div>
         </div>
 
-        <!-- Supplier + Invoice Selection (Requirement 6: pick supplier, see only their outstanding invoices) -->
+        <!-- Supplier Selection -->
         <div class="form-section invoice-section">
-          <h3>{{ 'ACCOUNTS.FORM.INVOICE_SELECTION' | translate }}</h3>
+          <h3>{{ 'ACCOUNTS.FORM.SUPPLIER' | translate }}</h3>
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'ACCOUNTS.FORM.SUPPLIER' | translate }}</mat-label>
@@ -89,21 +89,41 @@
                 {{ 'VALIDATION.REQUIRED' | translate }}
               </mat-error>
             </mat-form-field>
+          </div>
+        </div>
 
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'ACCOUNTS.FORM.INVOICE' | translate }}</mat-label>
-              <mat-select formControlName="purchaseInvoiceId"
-                          [disabled]="!paymentForm.get('supplierId')?.value"
-                          (selectionChange)="onInvoiceChange($event.value)">
-                <mat-option [value]="null">{{ 'ACCOUNTS.FORM.SELECT_INVOICE_OPTIONAL' | translate }}</mat-option>
-                <mat-option *ngFor="let inv of outstandingInvoices(); trackBy: trackByInvoiceId" [value]="inv.id">
-                  {{ inv.invoiceNumber }} ({{ 'INVOICE.AMOUNT_DUE' | translate }}: {{ inv.amountDue | currency:'SAR' }})
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
+        <!-- Invoice Allocation Grid -->
+        <div class="form-section allocation-section" *ngIf="paymentForm.get('supplierId')?.value">
+          <h3>{{ 'ACCOUNTS.FORM.ALLOCATION_TABLE' | translate }}</h3>
+          <app-invoice-allocation-grid
+            [invoiceOptions]="outstandingInvoices()"
+            [rows]="allocationRows()"
+            [totalVoucherAmount]="paymentForm.get('totalVoucherAmount')?.value || 0"
+            (rowsChange)="onAllocationRowsChange($event)">
+          </app-invoice-allocation-grid>
+        </div>
 
-            <div class="form-field">
-              <button mat-raised-button color="accent" type="button"
+        <!-- Car Distribution Grid (independent of invoice allocation -- see hasInvoiceAllocation) -->
+        <div class="form-section distribution-section">
+          <div class="distribution-header">
+            <h3>{{ 'ACCOUNTS.FORM.CAR_DISTRIBUTION' | translate }}</h3>
+            <div class="distribution-actions">
+              <mat-form-field appearance="outline" class="load-cars-picker" *ngIf="allocationRows().length > 0">
+                <mat-label>{{ 'ACCOUNTS.FORM.LOAD_CARS_FROM_INVOICE' | translate }}</mat-label>
+                <mat-select #loadCarsSelect>
+                  <mat-option *ngFor="let row of allocationRows()" [value]="row.invoiceId">
+                    {{ row.invoiceNumber }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              <button mat-stroked-button color="primary" type="button"
+                      *ngIf="allocationRows().length > 0"
+                      [disabled]="!loadCarsSelect.value"
+                      (click)="loadCarsForInvoice(loadCarsSelect.value)">
+                <mat-icon>directions_car</mat-icon>
+                {{ 'ACCOUNTS.FORM.LOAD_CARS' | translate }}
+              </button>
+              <button mat-stroked-button color="accent" type="button"
                       (click)="autoDistributeAmount()"
                       [disabled]="!paymentForm.get('totalVoucherAmount')?.value || details.length === 0"
                       class="distribute-btn">
@@ -112,30 +132,6 @@
               </button>
             </div>
           </div>
-        </div>
-
-        <!-- Invoice Details -->
-        <div *ngIf="selectedInvoiceDetails() as inv" class="form-section invoice-details-section">
-          <h3>{{ 'ACCOUNTS.FORM.SELECTED_INVOICE_DETAILS' | translate }}</h3>
-          <div class="invoice-details-grid">
-            <div class="detail-item">
-              <span class="label">{{ 'ACCOUNTS.FORM.TOTAL' | translate }}</span>
-              <span class="value">{{ inv.totalAmount | currency:'SAR' }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="label">{{ 'ACCOUNTS.FORM.PAID' | translate }}</span>
-              <span class="value">{{ inv.amountPaid | currency:'SAR' }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="label">{{ 'ACCOUNTS.FORM.DUE' | translate }}</span>
-              <span class="value due-amount">{{ inv.amountDue | currency:'SAR' }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Car Distribution Grid -->
-        <div class="form-section distribution-section">
-          <h3>{{ 'ACCOUNTS.FORM.CAR_DISTRIBUTION' | translate }}</h3>
           <div class="table-container" *ngIf="details.length > 0">
             <table class="distribution-table">
               <thead>
@@ -188,6 +184,12 @@
               {{ 'ACCOUNTS.FORM.ADD_ROW' | translate }}
             </button>
           </div>
+          <div class="table-container" *ngIf="details.length === 0">
+            <button mat-stroked-button type="button" class="add-row-btn" (click)="addDetail()">
+              <mat-icon>add</mat-icon>
+              {{ 'ACCOUNTS.FORM.ADD_ROW' | translate }}
+            </button>
+          </div>
         </div>
 
         <!-- Accounting Preview / Journal Balance -->
@@ -223,9 +225,9 @@
               </div>
             </div>
           </div>
-          <!-- Car-cost distribution difference: only meaningful when an invoice is linked --
-               with no invoice, the Details rows are an optional breakdown, not a required
-               allocation, so this row (and the min(0.01) validator behind it) stands down. -->
+          <!-- Car-cost distribution difference: only meaningful when an invoice is allocated --
+               with no allocation, the Details rows are an optional breakdown, not a required
+               distribution, so this row (and the min(0.01) validator behind it) stands down. -->
           <div class="difference-section" *ngIf="hasInvoiceAllocation()" [class.error]="difference() !== 0">
             <strong>{{ 'ACCOUNTS.FORM.DIFFERENCE' | translate }}: {{ difference() | currency:'SAR' }}</strong>
           </div>
@@ -245,8 +247,7 @@
         <a mat-stroked-button routerLink="/accounts/payments">
           {{ 'ACCOUNTS.FORM.CANCEL' | translate }}
         </a>
-        <button mat-raised-button color="primary" type="submit"
-                [disabled]="paymentForm.invalid || !isJournalBalanced() || (hasInvoiceAllocation() && difference() !== 0)">
+        <button mat-raised-button color="primary" type="submit">
           {{ (isEditMode() ? 'ACCOUNTS.FORM.UPDATE' : 'ACCOUNTS.FORM.SAVE') | translate }}
         </button>
       </mat-card-actions>

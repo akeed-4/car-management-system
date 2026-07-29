@@ -2,6 +2,7 @@ import { Account } from '../components/accounting/models';
 import { Car } from './car.model';
 import { PurchaseInvoice } from './purchase-invoice.model';
 import { Voucher, VoucherStatus } from './voucher.model';
+import { InvoiceAllocation } from './invoice-allocation.model';
 
 export enum BeneficiaryType {
   Supplier = 1,
@@ -25,6 +26,7 @@ export interface Payment {
   debitAccountId:    number;      // ← NEW
   creditAccountId:   number;      // ← NEW
   details:           PaymentDetail[];
+  invoiceAllocations: InvoiceAllocation[];
 }
 
 export interface PaymentDetail {

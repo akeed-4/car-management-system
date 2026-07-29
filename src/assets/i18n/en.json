@@ -1948,6 +1948,18 @@
       "SUBMIT": "Reschedule"
     }
   },
+  "INVOICE_ALLOCATION": {
+    "SELECT_INVOICE": "Select an invoice to allocate",
+    "ADD_INVOICE": "Add Invoice",
+    "DISTRIBUTE": "Distribute",
+    "INVOICE": "Invoice",
+    "ORIGINAL_BALANCE": "Original Balance",
+    "AMOUNT_TO_ALLOCATE": "Amount to Allocate",
+    "REMOVE_ROW": "Remove",
+    "NO_ALLOCATIONS_YET": "No invoices allocated yet",
+    "TOTAL_ALLOCATED": "Total Allocated",
+    "UNALLOCATED_BALANCE": "Unallocated Balance"
+  },
   "ACCOUNTS": {
     "RECEIPTS": {
       "LIST_TITLE": "Receipt Vouchers",
@@ -2070,6 +2082,8 @@
       "UNALLOCATED_BALANCE": "Unallocated Balance",
       "UNALLOCATED_BALANCE_ERROR": "Total allocated amount must equal the total amount received",
       "NO_INVOICE_ALLOCATION": "Advance payment (do not allocate to an invoice)",
+      "LOAD_CARS_FROM_INVOICE": "Load cars from invoice",
+      "LOAD_CARS": "Load Cars",
       "NOTES": "Notes",
       "CANCEL": "Cancel",
       "SAVE": "Save Payment Voucher",
