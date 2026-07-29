@@ -39,6 +39,10 @@ export class SupplierRfqService {
     return this.http.delete<boolean>(`${this.apiUrl}/${id}`);
   }
 
+  submit(id: number): Observable<boolean> {
+    return this.http.post<boolean>(`${this.apiUrl}/${id}/submit`, {});
+  }
+
   approve(id: number): Observable<boolean> {
     return this.http.post<boolean>(`${this.apiUrl}/${id}/approve`, {});
   }

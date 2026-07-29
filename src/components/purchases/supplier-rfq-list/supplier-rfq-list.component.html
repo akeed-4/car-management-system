@@ -46,22 +46,28 @@
       </span>
     </div>
 
-    <dxi-column type="buttons" [width]="160">
+    <dxi-column type="buttons" [width]="200">
       <dxi-button
         icon="edit"
         [hint]="'COMMON.EDIT' | translate"
         [onClick]="onEdit.bind(this)">
       </dxi-button>
       <dxi-button
+        icon="upload"
+        [hint]="'SUPPLIER_RFQ.SUBMIT' | translate"
+        [visible]="isDraft"
+        [onClick]="onSubmit.bind(this)">
+      </dxi-button>
+      <dxi-button
         icon="check"
         [hint]="'SUPPLIER_RFQ.APPROVE' | translate"
-        [visible]="isDraft"
+        [visible]="isPendingApproval"
         [onClick]="onApprove.bind(this)">
       </dxi-button>
       <dxi-button
         icon="close"
         [hint]="'SUPPLIER_RFQ.REJECT' | translate"
-        [visible]="isDraft"
+        [visible]="isPendingApproval"
         [onClick]="onReject.bind(this)">
       </dxi-button>
     </dxi-column>

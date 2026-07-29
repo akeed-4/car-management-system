@@ -64,8 +64,25 @@ export class SupplierRfqListComponent implements OnInit {
   }
 
   isDraft = (e: any): boolean => {
-    return e?.row?.data?.status === 'Draft' || e?.row?.data?.status === 'Submitted';
+    return e?.row?.data?.status === 'Draft';
   };
+
+  isPendingApproval = (e: any): boolean => {
+    return e?.row?.data?.status === 'Submitted';
+  };
+
+  onSubmit(e: any): void {
+    const quotation: SupplierRfqDto = e.row.data;
+    this.supplierRfqService.submit(quotation.id).subscribe({
+      next: () => {
+        this.notificationService.showSuccess(this.translateService.instant('SUPPLIER_RFQ.SUBMIT_SUCCESS'));
+        this.loadQuotations();
+      },
+      error: (err) => {
+        this.notificationService.showError(this.translateService.instant('SUPPLIER_RFQ.SUBMIT_ERROR') + ': ' + (err?.message || 'Unknown error'));
+      }
+    });
+  }
 
   onApprove(e: any): void {
     const quotation: SupplierRfqDto = e.row.data;
