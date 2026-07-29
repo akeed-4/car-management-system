@@ -12,21 +12,35 @@
       <div class="form-grid">
         <mat-form-field appearance="outline" class="field-span-2">
           <mat-label>{{ 'CAR_CATEGORY.FORM.MODELS' | translate }}</mat-label>
-          <mat-select formControlName="modelId" aria-required="true">
+          <mat-select formControlName="modelId" required>
             <mat-option *ngFor="let model of models()" [value]="model.id">
               {{ model.name }}
             </mat-option>
           </mat-select>
+          <mat-error *ngIf="categoryForm.get('modelId')?.hasError('required')">
+            {{ 'CAR_CATEGORY.FORM.MODEL_REQUIRED' | translate }}
+          </mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="field-span-1">
           <mat-label>{{ 'CAR_CATEGORY.FORM.NAME' | translate }}</mat-label>
           <input matInput formControlName="name" required>
+          <mat-error *ngIf="categoryForm.get('name')?.hasError('required')">
+            {{ 'CAR_CATEGORY.FORM.NAME_REQUIRED' | translate }}
+          </mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="field-span-1">
           <mat-label>{{ 'CAR_CATEGORY.FORM.NAME_AR' | translate }}</mat-label>
-          <input matInput formControlName="nameAr" dir="rtl">
+          <input matInput formControlName="nameAr" dir="rtl" required>
+          <mat-error *ngIf="categoryForm.get('nameAr')?.hasError('required')">
+            {{ 'CAR_CATEGORY.FORM.NAME_AR_REQUIRED' | translate }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="field-span-2">
+          <mat-label>{{ 'CAR_CATEGORY.FORM.NAME_EN' | translate }}</mat-label>
+          <input matInput formControlName="nameEn" [placeholder]="'CAR_CATEGORY.FORM.NAME_EN_PLACEHOLDER' | translate">
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="field-span-2">
@@ -40,7 +54,7 @@
       <a routerLink="/setup/car-category" class="btn btn-light">
         {{ 'CAR_CATEGORY.FORM.CANCEL' | translate }}
       </a>
-      <button type="button" (click)="saveCategory()" [disabled]="categoryForm.invalid" class="btn btn-primary">
+      <button type="button" (click)="saveCategory()" class="btn btn-primary">
         {{ editMode() ? ('CAR_CATEGORY.FORM.SAVE_CHANGES' | translate) : ('CAR_CATEGORY.FORM.SAVE' | translate) }}
       </button>
     </div>

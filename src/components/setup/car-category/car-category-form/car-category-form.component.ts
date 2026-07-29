@@ -77,6 +77,7 @@ export class CarCategoryFormComponent implements OnInit {
 
   saveCategory(): void {
     if (this.categoryForm.invalid) {
+      this.categoryForm.markAllAsTouched();
       return;
     }
 
