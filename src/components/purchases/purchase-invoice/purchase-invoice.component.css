@@ -205,6 +205,30 @@
   margin-top: var(--space-2, 0.5rem);
 }
 
+/* Provider/Lot Number now live in a full-width card of their own (see markup) instead of being
+ * squeezed into a 3-way flex row alongside the line-items grid and Notes -- side by side on
+ * desktop, each with enough room to show a long selected value in full. */
+.auction-details > .auction-field {
+  width: 100%;
+  max-width: 420px;
+}
+
+@media (min-width: 900px) {
+  .auction-details {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .auction-details > .auction-field {
+    flex: 1 1 320px;
+  }
+
+  .auction-charges {
+    flex: 1 1 100%;
+  }
+}
+
 .auction-charges h4 {
   margin: var(--space-2, 0.5rem) 0;
 }
@@ -462,6 +486,76 @@ mat-form-field.mat-form-field {
   width: 100%;
   text-align: center;
   color: var(--color-gray-600, #4b5563);
+}
+
+/* --- Vehicle Details master-detail panel (line-items grid) --- */
+.vehicle-details-panel {
+  padding: var(--space-4, 1rem) var(--space-5, 1.25rem);
+  background: var(--surface-sunken, #f9fafb);
+}
+
+.vehicle-details-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 0.5rem);
+  margin: 0 0 var(--space-3, 0.75rem);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary, #111827);
+}
+
+.vehicle-details-title mat-icon {
+  font-size: 1.1rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: var(--color-primary-600, #2563eb);
+}
+
+.vehicle-details-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(160px, 1fr));
+  gap: var(--space-3, 0.75rem) var(--space-5, 1.25rem);
+}
+
+.vehicle-detail-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.vehicle-detail-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted, #9ca3af);
+}
+
+.vehicle-detail-value {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-primary, #111827);
+  overflow-wrap: break-word;
+}
+
+.vehicle-details-unavailable {
+  margin: 0;
+  padding: var(--space-2, 0.5rem) 0;
+  color: var(--text-muted, #9ca3af);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 1100px) {
+  .vehicle-details-grid {
+    grid-template-columns: repeat(2, minmax(140px, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .vehicle-details-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ============================================================

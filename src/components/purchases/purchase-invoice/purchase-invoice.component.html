@@ -225,6 +225,7 @@
                 [height]="360"
                 keyExpr="carId"
               >
+                <dxo-master-detail [enabled]="true" template="vehicleDetails"></dxo-master-detail>
                 <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}" [allowEditing]="false"></dxi-column>
                 <dxi-column dataField="receivedQuantity" caption="{{ 'PURCHASE_INVOICE.RECEIVED_QTY' | translate }}" dataType="number" [allowEditing]="false" [visible]="hasGrnLineage()" cssClass="readonly-col"></dxi-column>
                 <dxi-column dataField="quantity" [setCellValue]="onQuantityCellValue" caption="{{ (hasGrnLineage() ? 'PURCHASE_INVOICE.BILLING_QTY' : 'PURCHASE_INVOICE.QUANTITY') | translate }}" dataType="number" [allowEditing]="true">
@@ -246,53 +247,56 @@
 
                 <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false"
                   [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
+
+                <div *dxTemplate="let lineItem of 'vehicleDetails'" class="vehicle-details-panel">
+                  <ng-container *ngIf="getCarForLine(lineItem.carId) as vehicle; else vehicleUnavailable">
+                    <h4 class="vehicle-details-title">
+                      <mat-icon>directions_car</mat-icon>
+                      {{ 'PURCHASE_INVOICE.VEHICLE_DETAILS.TITLE' | translate }}
+                    </h4>
+                    <div class="vehicle-details-grid">
+                      <div class="vehicle-detail-field">
+                        <span class="vehicle-detail-label">{{ 'PURCHASE_INVOICE.VEHICLE_DETAILS.VIN' | translate }}</span>
+                        <span class="vehicle-detail-value font-mono" dir="ltr">{{ vehicle.vin || vehicle.chassisNumber || ('PURCHASE_INVOICE.VEHICLE_DETAILS.NOT_AVAILABLE' | translate) }}</span>
+                      </div>
+                      <div class="vehicle-detail-field">
+                        <span class="vehicle-detail-label">{{ 'PURCHASE_INVOICE.VEHICLE_DETAILS.PLATE_NUMBER' | translate }}</span>
+                        <span class="vehicle-detail-value font-mono" dir="ltr">{{ vehicle.plateNumber || ('PURCHASE_INVOICE.VEHICLE_DETAILS.NOT_AVAILABLE' | translate) }}</span>
+                      </div>
+                      <div class="vehicle-detail-field">
+                        <span class="vehicle-detail-label">{{ 'PURCHASE_INVOICE.VEHICLE_DETAILS.BRAND' | translate }}</span>
+                        <span class="vehicle-detail-value">{{ vehicle.make || ('PURCHASE_INVOICE.VEHICLE_DETAILS.NOT_AVAILABLE' | translate) }}</span>
+                      </div>
+                      <div class="vehicle-detail-field">
+                        <span class="vehicle-detail-label">{{ 'PURCHASE_INVOICE.VEHICLE_DETAILS.MODEL' | translate }}</span>
+                        <span class="vehicle-detail-value">{{ vehicle.model || ('PURCHASE_INVOICE.VEHICLE_DETAILS.NOT_AVAILABLE' | translate) }}</span>
+                      </div>
+                      <div class="vehicle-detail-field">
+                        <span class="vehicle-detail-label">{{ 'PURCHASE_INVOICE.VEHICLE_DETAILS.YEAR' | translate }}</span>
+                        <span class="vehicle-detail-value">{{ vehicle.year || ('PURCHASE_INVOICE.VEHICLE_DETAILS.NOT_AVAILABLE' | translate) }}</span>
+                      </div>
+                      <div class="vehicle-detail-field">
+                        <span class="vehicle-detail-label">{{ 'PURCHASE_INVOICE.VEHICLE_DETAILS.COLOR' | translate }}</span>
+                        <span class="vehicle-detail-value">{{ vehicle.exteriorColor || ('PURCHASE_INVOICE.VEHICLE_DETAILS.NOT_AVAILABLE' | translate) }}</span>
+                      </div>
+                      <div class="vehicle-detail-field">
+                        <span class="vehicle-detail-label">{{ 'PURCHASE_INVOICE.VEHICLE_DETAILS.ENGINE' | translate }}</span>
+                        <span class="vehicle-detail-value">{{ vehicle.engineSize || ('PURCHASE_INVOICE.VEHICLE_DETAILS.NOT_AVAILABLE' | translate) }}</span>
+                      </div>
+                      <div class="vehicle-detail-field">
+                        <span class="vehicle-detail-label">{{ 'PURCHASE_INVOICE.VEHICLE_DETAILS.MILEAGE' | translate }}</span>
+                        <span class="vehicle-detail-value font-mono">
+                          {{ vehicle.mileage != null ? (vehicle.mileage | number) + ' ' + ('PURCHASE_INVOICE.VEHICLE_DETAILS.MILEAGE_UNIT' | translate) : ('PURCHASE_INVOICE.VEHICLE_DETAILS.NOT_AVAILABLE' | translate) }}
+                        </span>
+                      </div>
+                    </div>
+                  </ng-container>
+                  <ng-template #vehicleUnavailable>
+                    <p class="vehicle-details-unavailable">{{ 'PURCHASE_INVOICE.VEHICLE_DETAILS.NOT_AVAILABLE' | translate }}</p>
+                  </ng-template>
+                </div>
               </dx-data-grid>
             </div>
-          </mat-card>
-
-          <mat-card class="doc-card auction-card">
-            <section class="form-section auction-section">
-              <mat-checkbox formControlName="isAuctionPurchase">
-                {{ 'PURCHASE_INVOICE.AUCTION.IS_AUCTION_PURCHASE' | translate }}
-              </mat-checkbox>
-
-              <div *ngIf="purchaseInvoiceForm.get('isAuctionPurchase')?.value" class="auction-details">
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'PURCHASE_INVOICE.AUCTION.PROVIDER' | translate }}</mat-label>
-                  <mat-select formControlName="auctionProvider">
-                    <mat-option *ngFor="let provider of auctionProviders" [value]="provider">{{ provider }}</mat-option>
-                  </mat-select>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'PURCHASE_INVOICE.AUCTION.LOT_NUMBER' | translate }}</mat-label>
-                  <input matInput formControlName="auctionLotNumber">
-                </mat-form-field>
-
-                <div class="auction-charges">
-                  <h4>{{ 'PURCHASE_INVOICE.AUCTION.CHARGES' | translate }}</h4>
-                  <div class="auction-charge-row" *ngFor="let charge of auctionCharges(); let i = index">
-                    <mat-form-field appearance="outline">
-                      <mat-label>{{ 'PURCHASE_INVOICE.AUCTION.CHARGE_TYPE' | translate }}</mat-label>
-                      <input matInput [(ngModel)]="charge.chargeType" [ngModelOptions]="{standalone: true}">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline">
-                      <mat-label>{{ 'PURCHASE_INVOICE.AUCTION.AMOUNT' | translate }}</mat-label>
-                      <input matInput type="number" [(ngModel)]="charge.amount" [ngModelOptions]="{standalone: true}">
-                    </mat-form-field>
-                    <button mat-icon-button type="button" (click)="removeAuctionCharge(i)">
-                      <mat-icon>delete</mat-icon>
-                    </button>
-                  </div>
-                  <button mat-stroked-button type="button" (click)="addAuctionCharge()">
-                    <mat-icon>add</mat-icon> {{ 'PURCHASE_INVOICE.AUCTION.ADD_CHARGE' | translate }}
-                  </button>
-                  <div class="auction-charges-total">
-                    {{ 'PURCHASE_INVOICE.AUCTION.CHARGES_TOTAL' | translate }}: {{ auctionChargesTotal() | number:'1.2-2' }}
-                  </div>
-                </div>
-              </div>
-            </section>
           </mat-card>
 
           <mat-card class="doc-card notes-card">
@@ -304,6 +308,54 @@
             </section>
           </mat-card>
         </div>
+
+        <!-- Auction section gets its own full-width row -- previously squeezed into a 3-way flex
+             alongside the line-items grid and Notes, which could clip a long selected provider
+             name or lot number. -->
+        <mat-card class="doc-card auction-card">
+          <section class="form-section auction-section">
+            <mat-checkbox formControlName="isAuctionPurchase">
+              {{ 'PURCHASE_INVOICE.AUCTION.IS_AUCTION_PURCHASE' | translate }}
+            </mat-checkbox>
+
+            <div *ngIf="purchaseInvoiceForm.get('isAuctionPurchase')?.value" class="auction-details">
+              <mat-form-field appearance="outline" class="auction-field">
+                <mat-label>{{ 'PURCHASE_INVOICE.AUCTION.PROVIDER' | translate }}</mat-label>
+                <mat-select formControlName="auctionProvider">
+                  <mat-option *ngFor="let provider of auctionProviders" [value]="provider">{{ provider }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="auction-field">
+                <mat-label>{{ 'PURCHASE_INVOICE.AUCTION.LOT_NUMBER' | translate }}</mat-label>
+                <input matInput formControlName="auctionLotNumber">
+              </mat-form-field>
+
+              <div class="auction-charges">
+                <h4>{{ 'PURCHASE_INVOICE.AUCTION.CHARGES' | translate }}</h4>
+                <div class="auction-charge-row" *ngFor="let charge of auctionCharges(); let i = index">
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'PURCHASE_INVOICE.AUCTION.CHARGE_TYPE' | translate }}</mat-label>
+                    <input matInput [(ngModel)]="charge.chargeType" [ngModelOptions]="{standalone: true}">
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'PURCHASE_INVOICE.AUCTION.AMOUNT' | translate }}</mat-label>
+                    <input matInput type="number" [(ngModel)]="charge.amount" [ngModelOptions]="{standalone: true}">
+                  </mat-form-field>
+                  <button mat-icon-button type="button" (click)="removeAuctionCharge(i)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+                <button mat-stroked-button type="button" (click)="addAuctionCharge()">
+                  <mat-icon>add</mat-icon> {{ 'PURCHASE_INVOICE.AUCTION.ADD_CHARGE' | translate }}
+                </button>
+                <div class="auction-charges-total">
+                  {{ 'PURCHASE_INVOICE.AUCTION.CHARGES_TOTAL' | translate }}: {{ auctionChargesTotal() | number:'1.2-2' }}
+                </div>
+              </div>
+            </div>
+          </section>
+        </mat-card>
 
       </div>
 

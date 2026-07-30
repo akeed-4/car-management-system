@@ -848,6 +848,14 @@ export class PurchaseInvoiceComponent implements OnInit {
     this.invoiceItems.update(items => items.filter(item => item.carId !== carId));
   };
 
+  /** Backs the line-item grid's Vehicle Details master-detail panel. cars() is InventoryService's
+   * full, already-loaded inventory signal (the same source the car-picker dialog reads) -- no new
+   * HTTP call needed since InvoiceItem itself only carries {carId, carDescription, ...}, not the
+   * full Car record. */
+  getCarForLine(carId: number): Car | undefined {
+    return this.cars().find(c => c.id === carId);
+  }
+
   /** DevExtreme's documented hook for deriving one column from an edit to another -- runs as part
    * of the edit itself (not a real "onCellValueChanged" grid event, which doesn't exist). Each
    * column keeps its own default assignment, then both recompute lineTotal the same way. */
