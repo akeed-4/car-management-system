@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, NgZone, OnDestroy, OnInit, signal } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { Router, RouterLink, RouterOutlet, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
@@ -7,7 +7,10 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { AuthService } from '../../../services/AuthService.service';
 import { TenantContextService } from '../../../services/tenant-context.service';
+// Toast/confirm-dialog wrapper. Distinct from NotificationFeedService below, which is the
+// persisted notification feed behind the bell -- both are used here.
 import { NotificationService } from '../../../services/notification.service';
+import { NotificationFeedService } from '../../../services/notification-feed.service';
 import { LanguageService } from '../../../services/language.service';
 import { ThemeService, AppTheme } from '../../../services/theme.service';
 import { ResponsiveService } from '../../../services/responsive.service';
@@ -61,6 +64,27 @@ export class ShellComponent implements OnInit, OnDestroy {
 
   isMobile = this.responsiveService.isMobile;
 
+  /** Drives the header bell badge. */
+  unreadNotifications = this.notificationFeed.unreadCount;
+
+  /** Bound listener so it can be detached in ngOnDestroy. */
+  private readonly onServiceWorkerMessage = (event: MessageEvent): void => {
+    // Sent by notification-sw.js when a push notification is clicked and an app tab already
+    // exists: route in-place rather than letting the worker openWindow() and reload the SPA.
+    if (event.data?.type !== 'NOTIFICATION_CLICK') return;
+
+    this.zone.run(() => {
+      if (event.data.url) {
+        this.router.navigateByUrl(event.data.url);
+      }
+      if (event.data.notificationId) {
+        this.notificationFeed
+          .markAsRead(event.data.notificationId)
+          .subscribe({ error: () => undefined });
+      }
+    });
+  };
+
   get isAuthenticated(): boolean {
     return !!this.authService.currentUser();
   }
@@ -82,6 +106,8 @@ export class ShellComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private tenantContext: TenantContextService,
     private notificationService: NotificationService,
+    private notificationFeed: NotificationFeedService,
+    private zone: NgZone,
     private languageService: LanguageService,
     private themeService: ThemeService,
     private responsiveService: ResponsiveService,
@@ -104,6 +130,7 @@ export class ShellComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadMenus();
+    this.initNotifications();
     // Auto-collapse the rail on route changes on mobile, mirroring LayoutComponent.scrollBack()'s
     // auto-close-drawer-on-navigate behavior for the old mode="over" sidenav.
     this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(() => {
@@ -114,7 +141,32 @@ export class ShellComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.removeEventListener('message', this.onServiceWorkerMessage);
+    }
+    void this.notificationFeed.stopRealtime();
+  }
+
+  /**
+   * Brings up the notification feed for a signed-in user: badge count, live SignalR stream, and
+   * (best-effort) Web Push registration. Every part degrades independently -- a failed socket or a
+   * denied push prompt still leaves the bell working off the REST feed.
+   */
+  private initNotifications(): void {
+    if (!this.isAuthenticated) return;
+
+    this.notificationFeed.refreshUnreadCount().subscribe({ error: () => undefined });
+    void this.notificationFeed.startRealtime();
+
+    // Deliberately not awaited: push setup shows a permission prompt and must never delay the
+    // shell rendering.
+    void this.notificationFeed.registerPush();
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', this.onServiceWorkerMessage);
+    }
+  }
 
   private loadMenus(): void {
     this.dynamicMenuService.menu$.subscribe({
@@ -210,6 +262,12 @@ export class ShellComponent implements OnInit, OnDestroy {
 
     this.isLoggingOut = true;
     try {
+      // Torn down before the token is cleared: the socket and the push endpoint both belong to
+      // the outgoing user, and leaving either alive would deliver their notifications to whoever
+      // signs in next on this browser.
+      await this.notificationFeed.stopRealtime();
+      await this.notificationFeed.unregisterPush();
+
       this.authService.logout();
       this.tenantContext.clear();
       this.notificationService.showSuccess('admin.logoutSuccess');

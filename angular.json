@@ -42,6 +42,11 @@
                 "input": "src",
 
                 "output": "/"
+              },
+              {
+                "glob": "notification-sw.js",
+                "input": "src",
+                "output": "/"
               }
             ]
           },

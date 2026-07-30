@@ -27,9 +27,15 @@
       <mat-icon>auto_awesome</mat-icon>
     </button>
 
-    <button type="button" class="header-icon-btn" (click)="toggleNotifications.emit()"
+    <button type="button" class="header-icon-btn header-notif-btn" (click)="toggleNotifications.emit()"
       [matTooltip]="'shell.notifications' | translate">
-      <mat-icon>notifications_none</mat-icon>
+      <mat-icon>{{ unreadCount > 0 ? 'notifications_active' : 'notifications_none' }}</mat-icon>
+      <span class="header-notif-badge" *ngIf="unreadCount > 0" aria-hidden="true">
+        {{ unreadCount > 99 ? '99+' : unreadCount }}
+      </span>
+      <span class="cdk-visually-hidden" *ngIf="unreadCount > 0">
+        {{ 'notifications.unreadCount' | translate: { count: unreadCount } }}
+      </span>
     </button>
 
     <button type="button" class="header-icon-btn" (click)="toggleTheme.emit()"

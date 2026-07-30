@@ -2045,6 +2045,18 @@
     "aiAssistant": "المساعد الذكي",
     "language": "اللغة"
   },
+  "notifications": {
+    "today": "اليوم",
+    "yesterday": "أمس",
+    "earlier": "أقدم",
+    "markAllRead": "تعليم الكل كمقروء",
+    "loading": "جارٍ تحميل الإشعارات…",
+    "unreadCount": "{{count}} إشعارات غير مقروءة",
+    "justNow": "الآن",
+    "minuteShort": " د",
+    "hourShort": " س",
+    "dayShort": " ي"
+  },
   "INVOICE_ALLOCATION": {
     "SELECT_INVOICE": "اختر فاتورة للتوزيع",
     "ADD_INVOICE": "إضافة فاتورة",

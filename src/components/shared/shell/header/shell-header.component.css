@@ -41,6 +41,29 @@
   outline-offset: 2px;
 }
 
+/* Anchor for the unread badge, which is absolutely positioned against the bell. */
+.header-notif-btn {
+  position: relative;
+}
+
+.header-notif-badge {
+  position: absolute;
+  top: 4px;
+  /* Logical property so the badge flips to the correct corner in the Arabic RTL layout. */
+  inset-inline-end: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--color-danger, #dc2626);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+  pointer-events: none;
+}
+
 .header-brand {
   display: flex;
   align-items: center;

@@ -2,15 +2,66 @@
 
 <aside class="notif-panel" *ngIf="open" role="dialog" [attr.aria-label]="'shell.notifications' | translate">
   <header class="notif-header">
-    <h2 class="notif-title">{{ 'shell.notifications' | translate }}</h2>
-    <button type="button" class="notif-close" (click)="close()" [attr.aria-label]="'shell.close' | translate">
-      <mat-icon>close</mat-icon>
-    </button>
+    <h2 class="notif-title">
+      {{ 'shell.notifications' | translate }}
+      <span class="notif-count-chip" *ngIf="unreadCount() > 0">{{ unreadCount() }}</span>
+    </h2>
+
+    <div class="notif-header-actions">
+      <button
+        type="button"
+        class="notif-mark-all"
+        *ngIf="unreadCount() > 0"
+        (click)="markAllAsRead($event)"
+        [matTooltip]="'notifications.markAllRead' | translate"
+      >
+        <mat-icon>done_all</mat-icon>
+      </button>
+      <button type="button" class="notif-close" (click)="close()" [attr.aria-label]="'shell.close' | translate">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
   </header>
 
-  <div class="notif-empty">
+  <div class="notif-loading" *ngIf="loading() && notifications().length === 0">
+    <mat-icon class="notif-spinner">progress_activity</mat-icon>
+    <span>{{ 'notifications.loading' | translate }}</span>
+  </div>
+
+  <div class="notif-empty" *ngIf="!loading() && notifications().length === 0">
     <mat-icon class="notif-empty-icon">notifications_none</mat-icon>
     <p class="notif-empty-title">{{ 'shell.noNotificationsTitle' | translate }}</p>
     <p class="notif-empty-text">{{ 'shell.noNotificationsText' | translate }}</p>
+  </div>
+
+  <div class="notif-list" *ngIf="notifications().length > 0">
+    <ng-container *ngFor="let group of groups">
+      <h3 class="notif-group-label">{{ group.labelKey | translate }}</h3>
+
+      <button
+        type="button"
+        class="notif-item"
+        *ngFor="let notification of group.items; trackBy: trackById"
+        [class.notif-item-unread]="!notification.isRead"
+        [ngClass]="priorityClass(notification.priority)"
+        (click)="onNotificationClick(notification)"
+      >
+        <span class="notif-item-icon">
+          <mat-icon>{{ iconFor(notification) }}</mat-icon>
+        </span>
+
+        <span class="notif-item-body">
+          <span class="notif-item-title">{{ notification.title }}</span>
+          <span class="notif-item-message">{{ notification.message }}</span>
+
+          <span class="notif-item-meta">
+            <span class="notif-item-doc" *ngIf="notification.documentNo">{{ notification.documentNo }}</span>
+            <span class="notif-item-time">{{ relativeTime(notification.createdDate) }}</span>
+          </span>
+        </span>
+
+        <span class="notif-item-dot" *ngIf="!notification.isRead" aria-hidden="true"></span>
+      </button>
+    </ng-container>
   </div>
 </aside>

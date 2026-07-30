@@ -2003,6 +2003,18 @@
     "aiAssistant": "AI Assistant",
     "language": "Language"
   },
+  "notifications": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "earlier": "Earlier",
+    "markAllRead": "Mark all as read",
+    "loading": "Loading notifications…",
+    "unreadCount": "{{count}} unread notifications",
+    "justNow": "just now",
+    "minuteShort": "m",
+    "hourShort": "h",
+    "dayShort": "d"
+  },
   "INVOICE_ALLOCATION": {
     "SELECT_INVOICE": "Select an invoice to allocate",
     "ADD_INVOICE": "Add Invoice",

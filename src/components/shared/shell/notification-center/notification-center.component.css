@@ -45,7 +45,34 @@
   color: var(--text-primary);
 }
 
-.notif-close {
+.notif-title {
+  display: flex;
+  align-items: center;
+  gap: var(--grid-2);
+}
+
+/* Unread total beside the panel heading. */
+.notif-count-chip {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--color-danger, #dc2626);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 20px;
+  text-align: center;
+}
+
+.notif-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--grid-1);
+}
+
+.notif-close,
+.notif-mark-all {
   border: none;
   background: transparent;
   color: var(--text-muted);
@@ -57,8 +84,166 @@
   place-items: center;
 }
 
-.notif-close:hover {
+.notif-close:hover,
+.notif-mark-all:hover {
   background: var(--surface-sunken);
+}
+
+.notif-mark-all mat-icon,
+.notif-close mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+/* ---------- list ---------- */
+
+.notif-list {
+  overflow-y: auto;
+  padding-bottom: var(--grid-2);
+}
+
+.notif-group-label {
+  margin: 0;
+  padding: var(--grid-3) var(--grid-4) var(--grid-1);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  position: sticky;
+  top: 0;
+  background: var(--surface-card);
+  z-index: 1;
+}
+
+.notif-item {
+  /* A button, so the row is keyboard-reachable and announced as actionable. */
+  display: flex;
+  align-items: flex-start;
+  gap: var(--grid-3);
+  width: 100%;
+  padding: var(--grid-3) var(--grid-4);
+  border: none;
+  border-inline-start: 3px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  text-align: start;
+  font: inherit;
+  color: inherit;
+}
+
+.notif-item:hover {
+  background: var(--surface-sunken);
+}
+
+.notif-item-unread {
+  background: color-mix(in srgb, var(--color-primary, #2563eb) 5%, transparent);
+}
+
+/* Priority accent on the leading edge — respects RTL via the logical property. */
+.notif-priority-urgent { border-inline-start-color: var(--color-danger, #dc2626); }
+.notif-priority-high { border-inline-start-color: var(--color-warning, #f59e0b); }
+.notif-priority-normal { border-inline-start-color: transparent; }
+.notif-priority-low { border-inline-start-color: transparent; }
+
+.notif-item-icon {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--surface-sunken);
+  color: var(--text-muted);
+}
+
+.notif-item-icon mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.notif-item-unread .notif-item-icon {
+  background: color-mix(in srgb, var(--color-primary, #2563eb) 12%, transparent);
+  color: var(--color-primary, #2563eb);
+}
+
+.notif-item-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.notif-item-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.notif-item-unread .notif-item-title {
+  font-weight: 700;
+}
+
+.notif-item-message {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  /* Keeps rows uniform; the full text is available on the document itself. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.notif-item-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--grid-2);
+  margin-top: 2px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.notif-item-doc {
+  font-weight: 600;
+  color: var(--color-primary, #2563eb);
+}
+
+.notif-item-dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--color-primary, #2563eb);
+}
+
+/* ---------- loading ---------- */
+
+.notif-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--grid-2);
+  padding: var(--grid-8) var(--grid-6);
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.notif-spinner {
+  animation: notif-spin 1s linear infinite;
+}
+
+@keyframes notif-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notif-panel { animation: none; }
+  .notif-spinner { animation: none; }
 }
 
 .notif-empty {

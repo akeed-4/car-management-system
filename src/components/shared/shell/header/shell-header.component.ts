@@ -40,6 +40,8 @@ export class ShellHeaderComponent {
   @Input() currentLanguage = 'ar';
   @Input() isLoggingOut = false;
   @Input() railCollapsed = false;
+  /** Unread notification count rendered as the bell badge. Zero hides the badge. */
+  @Input() unreadCount = 0;
 
   @Output() toggleRail = new EventEmitter<void>();
   @Output() openSearch = new EventEmitter<void>();
