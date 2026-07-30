@@ -27,6 +27,17 @@ export class NavRailItemComponent {
 
   hasChildren = computed(() => (this.item.children?.length ?? 0) > 0);
 
+  /** Menu sources disagree on whether `route` already has a leading slash (the live
+   *  DynamicMenuService tree doesn't -- see ShellBreadcrumbComponent, which strips router.url's
+   *  own leading slash before comparing against item.route -- but the static MenuService
+   *  fallback's hardcoded data always includes one). Normalizing here means a routerLink is
+   *  correct either way instead of only for whichever convention happens to be live. */
+  resolvedRoute = computed<string[] | null>(() => {
+    const route = this.item.route;
+    if (!route) return null;
+    return ['/' + route.replace(/^\/+/, '')];
+  });
+
   toggleExpanded(event: Event): void {
     if (!this.hasChildren()) return;
     event.preventDefault();

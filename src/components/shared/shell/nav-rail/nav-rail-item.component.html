@@ -3,7 +3,7 @@
   class="rail-item"
   [class.rail-item--collapsed]="collapsed"
   [style.--depth]="depth"
-  [routerLink]="item.route ? ['/' + item.route] : null"
+  [routerLink]="resolvedRoute()"
   routerLinkActive="rail-item--active"
   [routerLinkActiveOptions]="{ exact: false }"
   (click)="onLeafClick()"
