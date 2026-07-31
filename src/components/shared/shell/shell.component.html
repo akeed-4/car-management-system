@@ -25,7 +25,7 @@
   <div class="shell-body">
     <app-shell-nav-rail
       *ngIf="isAuthenticated"
-      [menus]="menus"
+      [menus]="menus()"
       [collapsed]="railCollapsed()"
       (collapsedChange)="railCollapsed.set($event)"
     ></app-shell-nav-rail>
@@ -43,5 +43,5 @@
 
 </div>
 
-<app-global-search [menus]="menus" [open]="searchOpen()" (openChange)="searchOpen.set($event)"></app-global-search>
+<app-global-search [menus]="menus()" [open]="searchOpen()" (openChange)="searchOpen.set($event)"></app-global-search>
 <app-notification-center [open]="notificationsOpen()" (openChange)="notificationsOpen.set($event)"></app-notification-center>

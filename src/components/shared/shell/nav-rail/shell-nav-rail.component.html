@@ -1,3 +1,5 @@
+<div class="rail-backdrop" *ngIf="isMobile() && !collapsed" (click)="closeDrawer()"></div>
+
 <nav class="rail" [class.rail--collapsed]="collapsed" aria-label="Primary">
 
   <div class="rail-filter" *ngIf="!collapsed">

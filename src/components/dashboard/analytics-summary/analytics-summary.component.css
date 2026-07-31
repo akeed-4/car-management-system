@@ -117,7 +117,8 @@
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+/* keep in sync with ResponsiveService's compact breakpoint (840px) */
+@media (max-width: 840px) {
   .summary-grid,
   .loading-state {
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));

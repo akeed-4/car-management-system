@@ -144,9 +144,14 @@
   padding: 16px 0;
 }
 
-@media (max-width: 768px) {
+/* keep in sync with ResponsiveService's compact breakpoint (840px) */
+@media (max-width: 840px) {
   .stat-grid,
   .loading-state {
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+
+  .dashboard-panels {
+    grid-template-columns: 1fr;
   }
 }

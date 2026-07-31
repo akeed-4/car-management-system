@@ -205,6 +205,7 @@ export class RegistrationComponent {
       error: (error) => {
         this.errorMessage = error?.error?.message || this.translate.instant('REGISTRATION.REGISTER_ERROR');
         this.isSubmitting.set(false);
+        console.log(error)
       },
     });
   }

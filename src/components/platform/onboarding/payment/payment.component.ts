@@ -52,7 +52,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
       return;
     }
     this.planId = Number(planIdParam);
-    this.billingCycle = Number(cycleParam) as BillingCycle;
+    this.billingCycle = cycleParam as BillingCycle;
 
     this.platformService.getPublicPlans().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (plans) => {

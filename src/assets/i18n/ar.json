@@ -2043,7 +2043,8 @@
     "noNotificationsTitle": "لا توجد إشعارات جديدة",
     "noNotificationsText": "لا توجد إشعارات في الوقت الحالي.",
     "aiAssistant": "المساعد الذكي",
-    "language": "اللغة"
+    "language": "اللغة",
+    "more": "المزيد"
   },
   "notifications": {
     "today": "اليوم",

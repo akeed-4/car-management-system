@@ -23,7 +23,7 @@
   <span class="header-spacer"></span>
 
   <ng-container *ngIf="isAuthenticated">
-    <button type="button" class="header-icon-btn" [matTooltip]="'shell.aiAssistant' | translate">
+    <button type="button" class="header-icon-btn header-ai-btn" [matTooltip]="'shell.aiAssistant' | translate">
       <mat-icon>auto_awesome</mat-icon>
     </button>
 
@@ -38,7 +38,7 @@
       </span>
     </button>
 
-    <button type="button" class="header-icon-btn" (click)="toggleTheme.emit()"
+    <button type="button" class="header-icon-btn header-theme-btn" (click)="toggleTheme.emit()"
       [matTooltip]="(currentTheme === 'dark' ? 'layout.lightMode' : 'layout.darkMode') | translate">
       <mat-icon>{{ currentTheme === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
     </button>
@@ -50,6 +50,27 @@
     <mat-menu #langMenu="matMenu">
       <button mat-menu-item (click)="changeLanguage.emit('en')" [disabled]="currentLanguage === 'en'">English</button>
       <button mat-menu-item (click)="changeLanguage.emit('ar')" [disabled]="currentLanguage === 'ar'">العربية</button>
+    </mat-menu>
+
+    <!-- Consolidates the AI assistant, theme toggle, and language switcher below the compact
+         breakpoint, where there isn't room for every icon button -- see header-overflow-btn CSS. -->
+    <button type="button" class="header-icon-btn header-overflow-btn" [matMenuTriggerFor]="overflowMenu"
+      [matTooltip]="'shell.more' | translate">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #overflowMenu="matMenu" xPosition="before">
+      <button mat-menu-item (click)="toggleTheme.emit()">
+        <mat-icon>{{ currentTheme === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+        <span>{{ (currentTheme === 'dark' ? 'layout.lightMode' : 'layout.darkMode') | translate }}</span>
+      </button>
+      <button mat-menu-item [matMenuTriggerFor]="langMenu">
+        <mat-icon>translate</mat-icon>
+        <span>{{ 'shell.language' | translate }}</span>
+      </button>
+      <button mat-menu-item>
+        <mat-icon>auto_awesome</mat-icon>
+        <span>{{ 'shell.aiAssistant' | translate }}</span>
+      </button>
     </mat-menu>
 
     <app-company-switcher></app-company-switcher>
