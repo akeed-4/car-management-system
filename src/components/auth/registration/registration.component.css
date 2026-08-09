@@ -18,6 +18,7 @@
 
 .registration-page {
   min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   grid-template-columns: 40% 60%;
   background: var(--page-bg);
@@ -540,6 +541,73 @@
 
   .trust-badges {
     display: none;
+  }
+
+  /* Larger tap targets for the show/hide-password icon buttons on touch screens. */
+  ::ng-deep .registration-form .mat-mdc-icon-button.mat-mdc-button-base {
+    --mdc-icon-button-state-layer-size: 44px;
+    width: 44px;
+    height: 44px;
+    padding: 10px;
+  }
+}
+
+/* Very small phones (e.g. 320-380px devices). */
+@media (max-width: 400px) {
+  .form-panel {
+    padding: 16px 10px;
+  }
+
+  .form-card {
+    padding: 22px 16px;
+  }
+
+  .form-header h2 {
+    font-size: 21px;
+  }
+
+  .brand-welcome {
+    font-size: 20px;
+  }
+
+  .brand-tagline {
+    font-size: 13.5px;
+  }
+
+  .brand-logo {
+    margin-bottom: 24px;
+  }
+}
+
+/* Short/landscape viewports (e.g. phones rotated) -- the brand panel's decorative content would
+   otherwise force the form below the fold, so it's dropped and the page becomes scrollable. */
+@media (max-height: 500px) and (orientation: landscape) {
+  .registration-page {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .brand-panel {
+    display: none;
+  }
+
+  .form-panel {
+    padding: 20px 16px;
+  }
+
+  .form-card {
+    max-width: 640px;
+  }
+}
+
+/* Ultra-wide desktops/monitors -- caps the layout so the brand panel doesn't stretch into a wall
+   of color and the form doesn't drift far from it. */
+@media (min-width: 1600px) {
+  .registration-page {
+    max-width: 1800px;
+    margin: 0 auto;
+    grid-template-columns: 34% 66%;
+    box-shadow: 0 0 60px rgba(16, 24, 40, 0.08);
   }
 }
 

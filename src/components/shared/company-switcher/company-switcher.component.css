@@ -26,3 +26,11 @@
   height: 36px;
   color: inherit;
 }
+
+/* Same cosmetic tier as the header's search-label/brand-name hiding -- frees space for the
+   icon-heavy actions once labels start competing for room. */
+@media (max-width: 960px) {
+  .company-name {
+    display: none;
+  }
+}

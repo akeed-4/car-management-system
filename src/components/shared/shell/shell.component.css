@@ -1,6 +1,10 @@
 :host {
   display: block;
   height: 100vh;
+  /* Fallback for iOS Safari's collapsing address bar -- 100vh doesn't shrink with the toolbar,
+     causing content to jump/clip; 100dvh tracks the actual visible viewport. Browsers that don't
+     support dvh simply ignore this line and keep the vh value above. */
+  height: 100dvh;
 }
 
 .shell {
@@ -37,7 +41,8 @@
   border-top: 1px solid var(--border-default);
 }
 
-@media (max-width: 768px) {
+/* keep in sync with ResponsiveService's compact breakpoint (840px) */
+@media (max-width: 840px) {
   .shell-content {
     padding: var(--grid-3) var(--grid-4);
   }

@@ -2043,7 +2043,8 @@
     "noNotificationsTitle": "لا توجد إشعارات جديدة",
     "noNotificationsText": "لا توجد إشعارات في الوقت الحالي.",
     "aiAssistant": "المساعد الذكي",
-    "language": "اللغة"
+    "language": "اللغة",
+    "more": "المزيد"
   },
   "notifications": {
     "today": "اليوم",
@@ -2208,7 +2209,7 @@
         "CUSTOMER_TYPE_COMPANY": "الشركة",
         "CUSTOMER_SELECT": "بيانات العميل من النظام",
         "CUSTOMER_SELECT_EMPTY": "بدون اختيار من النظام",
-        "CUSTOMER_NAME": "الاسم الكامل",
+        "CUSTOMER_NAME": "الاسم",
         "CUSTOMER": "العميل",
         "PHONE": "رقم الهاتف",
         "NATIONAL_ID": "رقم الهوية / الإقامة",

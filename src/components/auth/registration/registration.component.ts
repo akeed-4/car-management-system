@@ -212,6 +212,7 @@ export class RegistrationComponent {
         this.isSubmitting.set(false);
         console.log('error loading memberships after registration, proceeding to onboarding destination', error);
 
+        console.log(error)
       },
     });
   }

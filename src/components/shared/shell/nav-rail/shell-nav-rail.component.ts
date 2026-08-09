@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, computed, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, computed, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { TranslateModule } from '@ngx-translate/core';
 import { MenuItem } from '../../../../models/menu.model';
+import { ResponsiveService } from '../../../../services/responsive.service';
 import { NavRailItemComponent } from './nav-rail-item.component';
 
 const PINNED_STORAGE_KEY = 'shell_pinned_routes';
@@ -24,22 +25,32 @@ const RECENT_MAX = 6;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShellNavRailComponent {
-  @Input({ required: true }) menus: MenuItem[] = [];
+  // Signal input, not a plain @Input(): filteredMenus/flatItems below are computed()s, which only
+  // re-run when a tracked *signal* read changes. A plain @Input property read inside a computed()
+  // is invisible to its dependency tracking, so the computed would keep returning its first
+  // (empty) memoized result forever, until some unrelated signal (e.g. filterQuery) happened to
+  // change and force a recompute -- exactly the "menu stays empty until you interact with
+  // something" bug already diagnosed and fixed the same way in GlobalSearchComponent.
+  menus = input.required<MenuItem[]>();
   @Input() collapsed = false;
   @Output() collapsedChange = new EventEmitter<boolean>();
   @Output() itemActivated = new EventEmitter<MenuItem>();
+
+  private responsive = inject(ResponsiveService);
+  /** Drives the off-canvas drawer + backdrop on phones/tablet-portrait. */
+  isMobile = this.responsive.isMobile;
 
   filterQuery = signal('');
 
   pinnedRoutes = signal<string[]>(this.readStoredRoutes(PINNED_STORAGE_KEY));
   recentRoutes = signal<string[]>(this.readStoredRoutes(RECENT_STORAGE_KEY));
 
-  private flatItems = computed(() => this.flatten(this.menus));
+  private flatItems = computed(() => this.flatten(this.menus()));
 
   filteredMenus = computed<MenuItem[]>(() => {
     const term = this.filterQuery().trim().toLowerCase();
-    if (!term) return this.menus;
-    return this.filterTree(this.menus, term);
+    if (!term) return this.menus();
+    return this.filterTree(this.menus(), term);
   });
 
   pinnedItems = computed<MenuItem[]>(() => {
@@ -55,6 +66,10 @@ export class ShellNavRailComponent {
 
   toggleCollapsed(): void {
     this.collapsedChange.emit(!this.collapsed);
+  }
+
+  closeDrawer(): void {
+    this.collapsedChange.emit(true);
   }
 
   onItemActivated(item: MenuItem): void {

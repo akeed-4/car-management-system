@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Inject, NgZone, OnDestroy, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, NgZone, OnDestroy, OnInit, effect, signal } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { Router, RouterLink, RouterOutlet, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
@@ -53,13 +53,19 @@ const RAIL_COLLAPSED_STORAGE_KEY = 'shell_rail_collapsed';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShellComponent implements OnInit, OnDestroy {
-  menus: MenuItem[] = [];
+  // Signal (not a plain field) so the OnPush view is marked dirty when the async menu load
+  // resolves -- a bare field assigned inside .subscribe() would sit unpainted until an unrelated
+  // DOM event (e.g. a click) happened to dirty this component's ancestor chain.
+  private readonly menusSignal = signal<MenuItem[]>([]);
+  readonly menus = this.menusSignal.asReadonly();
   currentLanguage = this.languageService.getCurrentLanguage();
   currentTheme: AppTheme = this.themeService.getCurrentTheme();
   isLoggingOut = false;
   searchOpen = signal(false);
   notificationsOpen = signal(false);
-  railCollapsed = signal(this.readStoredCollapsed());
+  // On phones/tablets the rail is an off-canvas drawer, not the desktop icon-rail -- always boot
+  // closed there regardless of the desktop collapse preference stored under the same key.
+  railCollapsed = signal(this.responsiveService.isMobile() ? true : this.readStoredCollapsed());
   year = new Date().getFullYear();
 
   isMobile = this.responsiveService.isMobile;
@@ -126,6 +132,16 @@ export class ShellComponent implements OnInit, OnDestroy {
       this.currentTheme = theme;
       this.applyTheme();
     });
+    // The route-change auto-collapse in ngOnInit only fires on navigation -- resizing an already-
+    // open desktop window down (or rotating a tablet) with no navigation in between wouldn't
+    // otherwise collapse the rail, leaving the mobile drawer stuck open as a full-screen overlay.
+    // Sets the signal directly (not setRailCollapsed(), which persists to localStorage) since this
+    // is the mobile drawer's own state, not a change to the user's desktop icon-rail preference.
+    effect(() => {
+      if (this.responsiveService.isMobile()) {
+        this.railCollapsed.set(true);
+      }
+    }, { allowSignalWrites: true });
   }
 
   ngOnInit(): void {
@@ -170,12 +186,12 @@ export class ShellComponent implements OnInit, OnDestroy {
 
   private loadMenus(): void {
     this.dynamicMenuService.menu$.subscribe({
-      next: menus => { this.menus = menus; },
+      next: menus => this.menusSignal.set(menus),
     });
     this.dynamicMenuService.loadMenus().subscribe({
       error: () => {
         this.menuService.getMenus().subscribe({
-          next: staticMenus => { this.menus = this.transformStaticMenus(staticMenus); },
+          next: staticMenus => this.menusSignal.set(this.transformStaticMenus(staticMenus)),
         });
       },
     });
@@ -184,10 +200,10 @@ export class ShellComponent implements OnInit, OnDestroy {
   private updateMenusForLanguage(): void {
     const current = this.dynamicMenuService.getCurrentMenus();
     if (current?.length) {
-      this.menus = current;
+      this.menusSignal.set(current);
     } else {
       this.menuService.getMenus().subscribe({
-        next: staticMenus => { this.menus = this.transformStaticMenus(staticMenus); },
+        next: staticMenus => this.menusSignal.set(this.transformStaticMenus(staticMenus)),
       });
     }
   }

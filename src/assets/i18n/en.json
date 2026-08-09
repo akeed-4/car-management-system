@@ -2001,7 +2001,8 @@
     "noNotificationsTitle": "You're all caught up",
     "noNotificationsText": "There are no notifications right now.",
     "aiAssistant": "AI Assistant",
-    "language": "Language"
+    "language": "Language",
+    "more": "More"
   },
   "notifications": {
     "today": "Today",

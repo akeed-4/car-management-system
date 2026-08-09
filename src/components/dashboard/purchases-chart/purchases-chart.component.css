@@ -110,7 +110,8 @@
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+/* keep in sync with ResponsiveService's compact breakpoint (840px) */
+@media (max-width: 840px) {
   .chart-container {
     height: 300px;
   }

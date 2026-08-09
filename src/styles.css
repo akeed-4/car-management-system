@@ -878,7 +878,7 @@ mat-form-field {
   background-color: white;
 }
 
-@media (max-width: 360) {
+@media (max-width: 360px) {
   .componentTitle-DropDown-Account-isMobile {
     font-size: 10px;
     /* Adjust font size */

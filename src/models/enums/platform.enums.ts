@@ -1,49 +1,51 @@
 /**
- * Platform/SaaS enums. Numeric values must stay in sync with the backend
- * (CarERP.Core/Enums/PlatformEnums.cs) since they're serialized as plain integers over the wire.
+ * Platform/SaaS enums. Member names must stay in sync with the backend
+ * (CarERP.Core/Enums/PlatformEnums.cs) -- the API's global JsonStringEnumConverter (see
+ * CarERP.Api/Program.cs) serializes every enum as its name ("Active"), not its underlying number,
+ * so these have to be string enums with matching values rather than numeric ones.
  */
 export enum TenantStatus {
-  Provisioning = 1,
-  Active = 2,
-  Suspended = 3,
-  Blocked = 4,
+  Provisioning = 'Provisioning',
+  Active = 'Active',
+  Suspended = 'Suspended',
+  Blocked = 'Blocked',
 }
 
 export enum SubscriptionStatus {
-  Trial = 1,
-  PendingPayment = 2,
-  Active = 3,
-  RenewalPending = 4,
-  GracePeriod = 5,
-  Suspended = 6,
-  Expired = 7,
-  Cancelled = 8,
-  Blocked = 9,
+  Trial = 'Trial',
+  PendingPayment = 'PendingPayment',
+  Active = 'Active',
+  RenewalPending = 'RenewalPending',
+  GracePeriod = 'GracePeriod',
+  Suspended = 'Suspended',
+  Expired = 'Expired',
+  Cancelled = 'Cancelled',
+  Blocked = 'Blocked',
   /** Tenant provisioned, no plan ever chosen yet -- the initial state a self-registered tenant's
    * placeholder subscription is created in. Not a usable status (see resolveOnboardingDestination),
    * so it routes to the plan picker rather than the dashboard. */
-  PendingSelection = 10,
+  PendingSelection = 'PendingSelection',
 }
 
 export enum BillingCycle {
-  Monthly = 1,
-  Quarterly = 2,
-  SemiAnnual = 3,
-  Yearly = 4,
-  Lifetime = 5,
+  Monthly = 'Monthly',
+  Quarterly = 'Quarterly',
+  SemiAnnual = 'SemiAnnual',
+  Yearly = 'Yearly',
+  Lifetime = 'Lifetime',
 }
 
 export enum PaymentStatus {
-  Pending = 1,
-  Success = 2,
-  Failed = 3,
-  Refunded = 4,
+  Pending = 'Pending',
+  Success = 'Success',
+  Failed = 'Failed',
+  Refunded = 'Refunded',
 }
 
 export enum PaymentType {
-  Initial = 1,
-  Renewal = 2,
-  Retry = 3,
+  Initial = 'Initial',
+  Renewal = 'Renewal',
+  Retry = 'Retry',
 }
 
 export class TenantStatusHelper {
@@ -69,7 +71,6 @@ export class TenantStatusHelper {
 
   static getAll(): Array<{ value: TenantStatus; label: string }> {
     return Object.values(TenantStatus)
-      .filter((v): v is TenantStatus => typeof v === 'number')
       .map(value => ({ value, label: this.getLabel(value) }));
   }
 }
@@ -109,7 +110,6 @@ export class SubscriptionStatusHelper {
 
   static getAll(): Array<{ value: SubscriptionStatus; label: string }> {
     return Object.values(SubscriptionStatus)
-      .filter((v): v is SubscriptionStatus => typeof v === 'number')
       .map(value => ({ value, label: this.getLabel(value) }));
   }
 }
@@ -128,7 +128,6 @@ export class BillingCycleHelper {
 
   static getAll(): Array<{ value: BillingCycle; label: string }> {
     return Object.values(BillingCycle)
-      .filter((v): v is BillingCycle => typeof v === 'number')
       .map(value => ({ value, label: this.getLabel(value) }));
   }
 }

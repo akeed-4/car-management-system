@@ -197,3 +197,19 @@
     display: none;
   }
 }
+
+.header-overflow-btn {
+  display: none;
+}
+
+/* keep in sync with ResponsiveService's compact breakpoint (840px) */
+@media (max-width: 840px) {
+  .header-ai-btn,
+  .header-theme-btn,
+  .header-lang-btn {
+    display: none;
+  }
+  .header-overflow-btn {
+    display: grid;
+  }
+}
