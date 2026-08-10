@@ -144,3 +144,22 @@
   min-width: 100px;
   justify-content: center;
 }
+
+/* This form had no mobile breakpoint at all before this rule -- .form-grid's
+   220px column minimum already collapses to one column near phone widths on
+   its own, but .domain-input's hard `width: 320px` (not max-width) doesn't
+   shrink with its flex row, so it alone forces horizontal overflow on any
+   phone under ~350px of usable width. */
+@media (max-width: 768px) {
+  .page-container {
+    padding: 12px 12px 24px;
+  }
+
+  .domain-add-row {
+    flex-wrap: wrap;
+  }
+
+  .domain-input {
+    width: 100%;
+  }
+}

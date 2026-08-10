@@ -1,44 +1,112 @@
-<div class="login-container">
-  <h2>{{ 'LOGIN.TITLE' | translate }}</h2>
+<div class="login-page">
+  <!-- Brand panel (40%) -->
+  <div class="brand-panel">
+    <div class="brand-content">
+      <div class="brand-logo">
+        <span class="brand-logo-icon"><mat-icon>directions_car</mat-icon></span>
+        <span class="brand-name">{{ 'REGISTRATION.PRODUCT_NAME' | translate }}</span>
+      </div>
 
-  <p class="success" *ngIf="passwordWasReset">{{ 'LOGIN.PASSWORD_RESET_SUCCESS' | translate }}</p>
+      <h1 class="brand-welcome">{{ 'LOGIN.WELCOME_TITLE' | translate }}</h1>
+      <p class="brand-tagline">{{ 'LOGIN.WELCOME_SUBTITLE' | translate }}</p>
 
-  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-    <div class="form-group">
-      <label for="email">{{ 'LOGIN.EMAIL' | translate }}</label>
-      <input id="email" type="string" formControlName="name" />
-      <div class="error" *ngIf="loginForm.get('name')?.invalid && loginForm.get('name')?.touched">
-        {{ 'LOGIN.EMAIL_ERROR' | translate }}
+      <ul class="feature-list">
+        @for (feature of features; track feature.titleKey) {
+          <li>
+            <span class="feature-icon"><mat-icon>{{ feature.icon }}</mat-icon></span>
+            <span class="feature-text">
+              <span class="feature-title">{{ feature.titleKey | translate }}</span>
+              <span class="feature-desc">{{ feature.descKey | translate }}</span>
+            </span>
+          </li>
+        }
+      </ul>
+
+      <div class="trust-badges">
+        <span class="trust-badge">
+          <mat-icon>verified_user</mat-icon>
+          {{ 'REGISTRATION.TRUST.SECURE' | translate }}
+        </span>
+        <span class="trust-badge">
+          <mat-icon>cloud_done</mat-icon>
+          {{ 'REGISTRATION.TRUST.UPTIME' | translate }}
+        </span>
+        <span class="trust-badge">
+          <mat-icon>support_agent</mat-icon>
+          {{ 'REGISTRATION.TRUST.SUPPORT' | translate }}
+        </span>
       </div>
     </div>
+  </div>
 
-    <div class="form-group">
-      <label for="password">{{ 'LOGIN.PASSWORD' | translate }}</label>
-      <input id="password" type="password" formControlName="password" />
-      <div class="error" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
-        {{ 'LOGIN.PASSWORD_ERROR' | translate }}
+  <!-- Form panel (60%) -->
+  <div class="form-panel">
+    <div class="form-card">
+      <div class="form-header">
+        <h2>{{ 'LOGIN.TITLE' | translate }}</h2>
       </div>
+
+      @if (passwordWasReset) {
+        <div class="alert success-alert">
+          <mat-icon>check_circle</mat-icon>
+          <span>{{ 'LOGIN.PASSWORD_RESET_SUCCESS' | translate }}</span>
+        </div>
+      }
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form" autocomplete="on">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'LOGIN.EMAIL' | translate }}</mat-label>
+          <mat-icon matPrefix>person</mat-icon>
+          <input matInput formControlName="name" autocomplete="username" />
+          <mat-error *ngIf="loginForm.get('name')?.invalid && loginForm.get('name')?.touched">
+            {{ 'LOGIN.EMAIL_ERROR' | translate }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'LOGIN.PASSWORD' | translate }}</mat-label>
+          <mat-icon matPrefix>lock</mat-icon>
+          <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password" autocomplete="current-password" />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="(hidePassword() ? 'REGISTRATION.SHOW_PASSWORD' : 'REGISTRATION.HIDE_PASSWORD') | translate"
+            [matTooltip]="(hidePassword() ? 'REGISTRATION.SHOW_PASSWORD' : 'REGISTRATION.HIDE_PASSWORD') | translate">
+            <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
+          </button>
+          <mat-error *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+            {{ 'LOGIN.PASSWORD_ERROR' | translate }}
+          </mat-error>
+        </mat-form-field>
+
+        <div class="form-row">
+          <mat-checkbox formControlName="rememberMe">{{ 'LOGIN.REMEMBER_ME' | translate }}</mat-checkbox>
+          <a routerLink="/forgot-password" class="forgot-link">{{ 'LOGIN.FORGOT_PASSWORD' | translate }}</a>
+        </div>
+
+        @if (errorMessage) {
+          <div class="alert error-alert">
+            <mat-icon>error</mat-icon>
+            <span>{{ errorMessage }}</span>
+          </div>
+        }
+
+        <button mat-flat-button color="primary" type="submit" class="submit-button" [disabled]="loggingIn()">
+          @if (loggingIn()) {
+            <mat-spinner diameter="20"></mat-spinner>
+            <span>{{ 'LOGIN.SIGNING_IN' | translate }}</span>
+          } @else {
+            <span>{{ 'LOGIN.SUBMIT' | translate }}</span>
+          }
+        </button>
+      </form>
+
+      <p class="alt-action">
+        {{ 'LOGIN.NO_ACCOUNT' | translate }}
+        <a routerLink="/registration">{{ 'LOGIN.SIGN_UP' | translate }}</a>
+      </p>
     </div>
-
-    <div class="form-row">
-      <label class="remember-me">
-        <input type="checkbox" formControlName="rememberMe" />
-        {{ 'LOGIN.REMEMBER_ME' | translate }}
-      </label>
-      <a routerLink="/forgot-password" class="forgot-link">{{ 'LOGIN.FORGOT_PASSWORD' | translate }}</a>
-    </div>
-
-    <div class="error" *ngIf="errorMessage">
-      {{ errorMessage }}
-    </div>
-
-    <button type="submit" [disabled]="loggingIn()">
-      {{ (loggingIn() ? 'LOGIN.SIGNING_IN' : 'LOGIN.SUBMIT') | translate }}
-    </button>
-  </form>
-
-  <p class="alt-action">
-    {{ 'LOGIN.NO_ACCOUNT' | translate }}
-    <a routerLink="/registration">{{ 'LOGIN.SIGN_UP' | translate }}</a>
-  </p>
+  </div>
 </div>
