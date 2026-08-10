@@ -154,7 +154,7 @@ export class RequestedCarFormComponent implements OnInit {
   }
 
   openCustomerLookup(): void {
-    const ref = this.dialog.open(CustomerLookupModalComponent, { width: '900px' });
+    const ref = this.dialog.open(CustomerLookupModalComponent, { width: '900px', panelClass: 'responsive-dialog-panel' });
     ref.afterClosed().subscribe((customer: Customer | null) => {
       if (customer) {
         this.selectedCustomer.set(customer);
@@ -164,7 +164,7 @@ export class RequestedCarFormComponent implements OnInit {
   }
 
   openVehicleLookup(): void {
-    const ref = this.dialog.open(VehicleLookupDialogComponent, { width: '1200px' });
+    const ref = this.dialog.open(VehicleLookupDialogComponent, { width: '1200px', panelClass: 'responsive-dialog-panel' });
     ref.afterClosed().subscribe((vehicle: Car | null) => {
       if (vehicle) {
         this.selectedVehicle.set(vehicle);
@@ -275,6 +275,7 @@ export class RequestedCarFormComponent implements OnInit {
     this.dialog.open(AuditHistoryPanelComponent, {
       data: { entityName: 'RequestedCar', entityId: id },
       width: '600px',
+      panelClass: 'responsive-dialog-panel',
     });
   }
 
@@ -293,6 +294,7 @@ export class RequestedCarFormComponent implements OnInit {
     this.dialog.open(RequestedCarAiPanelComponent, {
       data: { requestedCar: rc },
       width: '600px',
+      panelClass: 'responsive-dialog-panel',
     });
   }
 

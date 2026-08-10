@@ -53,7 +53,8 @@ export class FloorPlanFormComponent {
         width: '900px',
         data: {},
         autoFocus: true,
-        disableClose: false
+        disableClose: false,
+        panelClass: 'responsive-dialog-panel'
       });
       dialogRef.afterClosed().subscribe((selectedCar: SalesCarSelectionCard | undefined) => {
         if (selectedCar?.carId) {

@@ -69,7 +69,8 @@ constructor(){
     const dialogRef = this.dialog.open(StoreFormComponent, {
     width: '1400px',
       height: '80%',
-      data: null
+      data: null,
+      panelClass: 'responsive-dialog-panel'
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -83,7 +84,8 @@ constructor(){
     const dialogRef = this.dialog.open(StoreFormComponent, {
       width: '1400px',
       height: '90%',
-      data: store.row.data.id
+      data: store.row.data.id,
+      panelClass: 'responsive-dialog-panel'
     });
 
     dialogRef.afterClosed().subscribe(result => {

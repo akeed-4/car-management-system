@@ -100,7 +100,7 @@ export class DailyEntryFormComponent implements OnInit {
   }
 
   openVehicleLookup(): void {
-    const ref = this.dialog.open(VehicleLookupModalComponent, { width: '1000px' });
+    const ref = this.dialog.open(VehicleLookupModalComponent, { width: '1000px', panelClass: 'responsive-dialog-panel' });
     ref.afterClosed().subscribe((car: Car | null) => {
       if (car) {
         this.selectedCar.set(car);
@@ -143,6 +143,7 @@ export class DailyEntryFormComponent implements OnInit {
     this.dialog.open(AuditHistoryPanelComponent, {
       data: { entityName: 'DailyEntry', entityId: id },
       width: '600px',
+      panelClass: 'responsive-dialog-panel',
     });
   }
 

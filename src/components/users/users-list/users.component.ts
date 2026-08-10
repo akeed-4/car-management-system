@@ -168,7 +168,8 @@ export class UsersComponent implements OnInit {
     const user: User = e.row.data;
     this.dialog.open(ResetPasswordDialogComponent, {
       width: '420px',
-      data: { userId: user.id, userName: user.name }
+      data: { userId: user.id, userName: user.name },
+      panelClass: 'responsive-dialog-panel'
     });
   }
 
@@ -176,7 +177,8 @@ export class UsersComponent implements OnInit {
     const user: User = e.row.data;
     this.dialog.open(AssignRoleDialogComponent, {
       width: '420px',
-      data: { userId: user.id, userName: user.name, currentRoleId: user.roleId || null }
+      data: { userId: user.id, userName: user.name, currentRoleId: user.roleId || null },
+      panelClass: 'responsive-dialog-panel'
     });
   }
 

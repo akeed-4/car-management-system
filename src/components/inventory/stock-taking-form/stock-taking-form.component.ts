@@ -211,7 +211,8 @@ get stores() {
       width: '90vw',
       maxWidth: '1200px',
       height: '80vh',
-      data: {}
+      data: {},
+      panelClass: 'responsive-dialog-panel'
     });
 
     dialogRef.afterClosed().subscribe(result => {

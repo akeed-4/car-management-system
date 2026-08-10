@@ -92,7 +92,8 @@ export class BankQuotationContainerComponent implements OnInit {
       width: '90vw',
       maxWidth: '1200px',
       height: '80vh',
-      data: { storeId }
+      data: { storeId },
+      panelClass: 'responsive-dialog-panel'
     });
 
     dialogRef.afterClosed().subscribe(selectedCar => {

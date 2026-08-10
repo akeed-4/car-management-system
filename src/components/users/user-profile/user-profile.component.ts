@@ -156,6 +156,6 @@ export class UserProfileComponent implements OnInit {
   }
 
   openChangePassword(): void {
-    this.dialog.open(ChangePasswordDialogComponent, { width: '440px' });
+    this.dialog.open(ChangePasswordDialogComponent, { width: '440px', panelClass: 'responsive-dialog-panel' });
   }
 }

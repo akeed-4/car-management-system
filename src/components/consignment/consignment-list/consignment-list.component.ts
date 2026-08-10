@@ -197,6 +197,7 @@ export class ConsignmentListComponent {
     this.dialog.open(AuditHistoryPanelComponent, {
       data: { entityName: 'ConsignmentCar', entityId: id },
       width: '600px',
+      panelClass: 'responsive-dialog-panel',
     });
   }
 
@@ -211,6 +212,7 @@ export class ConsignmentListComponent {
       width: '520px',
       maxWidth: '95vw',
       data: { car },
+      panelClass: 'responsive-dialog-panel',
     });
     ref.afterClosed().subscribe((result) => {
       if (result) {

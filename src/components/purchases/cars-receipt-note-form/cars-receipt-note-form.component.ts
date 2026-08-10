@@ -181,7 +181,8 @@ export class CarsReceiptNoteFormComponent implements OnInit {
       width: '90vw',
       maxWidth: '1200px',
       height: '80vh',
-      data: {}
+      data: {},
+      panelClass: 'responsive-dialog-panel'
     });
 
     dialogRef.afterClosed().subscribe(car => {
@@ -244,7 +245,8 @@ export class CarsReceiptNoteFormComponent implements OnInit {
     if (!this.grnId) return;
     this.dialog.open(DocumentAuditTrailViewerComponent, {
       width: '600px',
-      data: { entityName: 'CarsReceiptNote', entityId: this.grnId }
+      data: { entityName: 'CarsReceiptNote', entityId: this.grnId },
+      panelClass: 'responsive-dialog-panel'
     });
   }
 
@@ -254,7 +256,8 @@ export class CarsReceiptNoteFormComponent implements OnInit {
     const requireReason = action === 'reject' || action === 'cancel';
     const dialogRef = this.dialog.open(ApprovalActionDialogComponent, {
       width: '480px',
-      data: { action, documentNumber: this.loadedGrn.documentNumber, requireReason }
+      data: { action, documentNumber: this.loadedGrn.documentNumber, requireReason },
+      panelClass: 'responsive-dialog-panel'
     });
 
     dialogRef.afterClosed().subscribe((result?: ApprovalActionDialogResult) => {
