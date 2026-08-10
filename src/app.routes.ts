@@ -65,8 +65,6 @@ import { DeliveryScheduleComponent } from './components/delivery/delivery-schedu
 import { DeliveryFormComponent } from './components/delivery/delivery-form/delivery-form.component';
 import { ConsignmentListComponent } from './components/consignment/consignment-list/consignment-list.component';
 import { ConsignmentFormComponent } from './components/consignment/consignment-form/consignment-form.component';
-import { PurchaseAdditionalCostListComponent } from './components/purchases/purchase-additional-cost-list/purchase-additional-cost-list.component';
-import { PurchaseAdditionalCostFormComponent } from './components/purchases/purchase-additional-cost-form/purchase-additional-cost-form.component';
 import { DailyEntriesListComponent } from './components/daily-entries/daily-entries-list/daily-entries-list.component';
 import { DailyEntryFormComponent } from './components/daily-entries/daily-entry-form/daily-entry-form.component';
 import { DepositListComponent } from './components/accounts/deposits/deposit-list/deposit-list.component';
@@ -262,9 +260,6 @@ export const APP_ROUTES: Routes = [
   { path: 'consignment-cars', component: ConsignmentListComponent },
   { path: 'consignment-cars/new', component: ConsignmentFormComponent },
   { path: 'consignment-cars/edit/:id', component: ConsignmentFormComponent },
-  { path: 'purchase-additional-costs', component: PurchaseAdditionalCostListComponent },
-  { path: 'purchase-additional-costs/new', component: PurchaseAdditionalCostFormComponent },
-  { path: 'purchase-additional-costs/edit/:id', component: PurchaseAdditionalCostFormComponent },
   { path: 'daily-entries', component: DailyEntriesListComponent },
   { path: 'daily-entries/new', component: DailyEntryFormComponent },
   { path: 'daily-entries/:id/edit', component: DailyEntryFormComponent },

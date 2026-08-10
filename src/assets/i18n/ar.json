@@ -135,6 +135,9 @@
   "PURCHASE_INVOICE": {
     "CREATE_TITLE": "إنشاء فاتورة شراء",
     "BACK_TO_PURCHASES": "العودة إلى المشتريات",
+    "TAB_DETAILS": "تفاصيل الفاتورة",
+    "TAB_ADDITIONAL_COSTS": "التكاليف الإضافية",
+    "ADDITIONAL_COSTS_SAVE_FIRST": "يرجى حفظ الفاتورة أولاً لإضافة تكاليف إضافية.",
     "MAIN_DATA": "البيانات الرئيسية للفاتورة",
     "SUPPLIER": "المورد",
     "DEBIT_ACCOUNT": "الحساب المدين",
@@ -203,6 +206,7 @@
       "NOT_AVAILABLE": "غير متوفر"
     },
     "ERROR_SELECT_SUPPLIER": "الرجاء اختيار المورد",
+    "ERROR_SELECT_STORE": "الرجاء اختيار المخزن قبل حفظ الفاتورة",
     "ERROR_SAME_ACCOUNT": "لا يمكن أن يكون الحساب المدين والدائن نفس الحساب",
     "ERROR_NO_ITEMS": "الرجاء إضافة عنصر واحد على الأقل للفاتورة",
     "ERROR_ALREADY_ADDED": "هذه السيارة مضافة بالفعل إلى الفاتورة",
@@ -321,6 +325,7 @@
     "CATEGORY_HANDLING": "مناولة",
     "CATEGORY_REGISTRATION": "تسجيل",
     "CATEGORY_OTHER": "أخرى",
+    "METHOD_EQUAL": "توزيع بالتساوي",
     "METHOD_QUANTITY": "حسب الكمية",
     "METHOD_COST": "حسب التكلفة",
     "METHOD_WEIGHT": "حسب الوزن",

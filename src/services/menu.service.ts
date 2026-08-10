@@ -44,6 +44,19 @@ export const menuData = [
   },
 
   {
+    id: 2,
+    name: 'التأسيس',
+    englishName: 'Setup',
+    submenu: [
+      { id: 24, name: 'السيارات', englishName: 'Cars', route: '/setup/cars' },
+      { id: 25, name: 'الشركات المصنعة', englishName: 'Manufacturers', route: '/setup/manufacturers' },
+      { id: 26, name: 'موديلات السيارات', englishName: 'Car Models', route: '/setup/models' },
+      { id: 28, name: 'فئات السيارات', englishName: 'Car Categories', route: '/setup/car-categories' },
+      { id: 27, name: 'سنة الصنع', englishName: 'Manufacture Year', route: '/setup/year' },
+      { id: 29, name: 'بطاقة السيارة', englishName: 'Car Card', route: '/setup/card' },
+    ]
+  },
+  {
     id: 8,
     name: 'المعاملات المحاسبية',
     englishName: 'Accounts',
@@ -56,19 +69,6 @@ export const menuData = [
       { id: 86, name: 'سندات الصرف', englishName: 'Payment Vouchers', route: '/accounts/payments' },
       { id: 87, name: 'سندات العربون', englishName: 'Deposit Vouchers', route: '/accounts/deposits' },
       { id: 88, name: 'تمويل المخزون', englishName: 'Floor Plan Financing', route: '/accounts/floor-plan-financing' }
-    ]
-  },
-  {
-    id: 2,
-    name: 'التأسيس',
-    englishName: 'Setup',
-    submenu: [
-      { id: 24, name: 'السيارات', englishName: 'Cars', route: '/setup/cars' },
-      { id: 25, name: 'الشركات المصنعة', englishName: 'Manufacturers', route: '/setup/manufacturers' },
-      { id: 26, name: 'موديلات السيارات', englishName: 'Car Models', route: '/setup/models' },
-      { id: 28, name: 'فئات السيارات', englishName: 'Car Categories', route: '/setup/car-categories' },
-      { id: 27, name: 'سنة الصنع', englishName: 'Manufacture Year', route: '/setup/year' },
-      { id: 29, name: 'بطاقة السيارة', englishName: 'Car Card', route: '/setup/card' },
     ]
   },
 
@@ -141,17 +141,16 @@ export const menuData = [
     name: 'المشتريات',
     englishName: 'Purchases',
     submenu: [
-      { id: 603, name: 'طلبات الشراء', englishName: 'Purchase Requisitions', route: '/purchases/requisitions' },
-      { id: 606, name: 'اعتماد طلبات الشراء', englishName: 'Purchase Requisition Approvals', route: '/purchases/requisition-approvals' },
-      { id: 600, name: 'طلبات أسعار الموردين', englishName: 'Requests for Quotation (RFQ)', route: '/purchases/requests' },
-      { id: 602, name: 'اعتماد عروض الأسعار', englishName: 'Supplier Quote Approval', route: '/purchases/offers' },
+      { id: 603, name: 'طلبات الشراء', englishName: 'Purchase Requests', route: '/purchases/requisitions' },
+      { id: 606, name: 'اعتماد طلبات الشراء', englishName: 'Purchase Request Approvals', route: '/purchases/requisition-approvals' },
+      { id: 600, name: 'عروض أسعار الموردين', englishName: 'Supplier Quotations', route: '/purchases/requests' },
+      { id: 602, name: 'اعتماد عروض أسعار الموردين', englishName: 'Supplier Quotation Approvals', route: '/purchases/offers' },
       { id: 604, name: 'أوامر الشراء', englishName: 'Purchase Orders', route: '/purchases/orders' },
-      { id: 62, name: 'استلام السيارات (GRN)', englishName: 'Car Receipt Notes (GRN)', route: '/purchases/receipt-notes' },
+      { id: 62, name: 'استلام المركبات', englishName: 'Vehicle Receiving', route: '/purchases/receipt-notes' },
       { id: 64, name: 'فواتير المشتريات النقدية', englishName: 'Cash Purchase Invoices', route: '/purchases/invoice/cash' },
       { id: 65, name: 'فواتير المشتريات الآجلة', englishName: 'Credit Purchase Invoices', route: '/purchases/invoice/credit' },
       { id: 66, name: 'مرتجعات المشتريات النقدية', englishName: 'Cash Purchase Returns', route: '/purchases/return/cash' },
-      { id: 67, name: 'مرتجعات المشتريات الآجلة', englishName: 'Credit Purchase Returns', route: '/purchases/return/credit' },
-      { id: 68, name: 'التكاليف الإضافية للمشتريات', englishName: 'Purchase Additional Costs', route: '/purchase-additional-costs' }
+      { id: 67, name: 'مرتجعات المشتريات الآجلة', englishName: 'Credit Purchase Returns', route: '/purchases/return/credit' }
     ]
   },
   {

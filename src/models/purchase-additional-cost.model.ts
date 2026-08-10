@@ -1,5 +1,5 @@
 export type ExpenseCategory = 'Insurance' | 'Customs' | 'Shipping' | 'Freight' | 'Handling' | 'Registration' | 'Other';
-export type AllocationMethod = 'Quantity' | 'Cost' | 'Weight' | 'Manual';
+export type AllocationMethod = 'Equal' | 'Quantity' | 'Cost' | 'Weight' | 'Manual';
 export type PurchaseAdditionalCostStatus = 'Draft' | 'Posted' | 'Cancelled';
 
 export interface PurchaseAdditionalCostLine {

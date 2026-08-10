@@ -74,7 +74,7 @@
       <thead>
         <tr>
           <th>{{ 'PURCHASE_ADDITIONAL_COST.DOCUMENT_NUMBER' | translate }}</th>
-          <th>{{ 'PURCHASE_ADDITIONAL_COST.PURCHASE_INVOICE' | translate }}</th>
+          <th *ngIf="!purchaseInvoiceId">{{ 'PURCHASE_ADDITIONAL_COST.PURCHASE_INVOICE' | translate }}</th>
           <th>{{ 'PURCHASE_ADDITIONAL_COST.EXPENSE_CATEGORY' | translate }}</th>
           <th>{{ 'PURCHASE_ADDITIONAL_COST.COST_DATE' | translate }}</th>
           <th>{{ 'PURCHASE_ADDITIONAL_COST.AMOUNT' | translate }}</th>
@@ -86,7 +86,7 @@
       <tbody>
         <tr *ngFor="let item of filteredItems()">
           <td>{{ item.documentNumber }}</td>
-          <td>{{ item.purchaseInvoiceNumber }}</td>
+          <td *ngIf="!purchaseInvoiceId">{{ item.purchaseInvoiceNumber }}</td>
           <td>{{ ('PURCHASE_ADDITIONAL_COST.CATEGORY_' + item.expenseCategory.toUpperCase()) | translate }}</td>
           <td>{{ item.costDate | date:'yyyy-MM-dd' }}</td>
           <td>{{ item.amount | number:'1.2-2' }}</td>
@@ -120,7 +120,7 @@
           </td>
         </tr>
         <tr *ngIf="!loading() && filteredItems().length === 0">
-          <td colspan="8" class="empty-row">{{ 'COMMON.NO_DATA' | translate }}</td>
+          <td [attr.colspan]="purchaseInvoiceId ? 7 : 8" class="empty-row">{{ 'COMMON.NO_DATA' | translate }}</td>
         </tr>
       </tbody>
     </table>

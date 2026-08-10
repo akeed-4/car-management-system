@@ -14,6 +14,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatTabsModule } from '@angular/material/tabs';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { DxDataGridModule } from 'devextreme-angular';
 import { InventoryService } from '../../../services/inventory.service';
@@ -60,6 +61,8 @@ import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { CarsReceiptNoteService } from '@/src/services/cars-receipt-note.service';
 import { CarsReceiptNoteDto } from '@/src/models/cars-receipt-note.model';
 import { CashAmountCalculatorComponent } from '../../shared/cash-amount-calculator/cash-amount-calculator.component';
+import { PurchaseAdditionalCostListComponent } from '../purchase-additional-cost-list/purchase-additional-cost-list.component';
+import { PurchaseAdditionalCostFormComponent } from '../purchase-additional-cost-form/purchase-additional-cost-form.component';
 
 @Component({
   selector: 'app-purchase-invoice',
@@ -81,9 +84,12 @@ import { CashAmountCalculatorComponent } from '../../shared/cash-amount-calculat
     MatTableModule,
     MatCardModule,
     MatDatepickerModule,
+    MatTabsModule,
     MatDialogModule,
     DxDataGridModule,
     NgxMatSelectSearchModule,
+    PurchaseAdditionalCostListComponent,
+    PurchaseAdditionalCostFormComponent,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './purchase-invoice.component.html',
@@ -209,6 +215,29 @@ export class PurchaseInvoiceComponent implements OnInit {
   isEditMode = signal(false);
   currentInvoiceId = signal<number | null>(null);
   invoiceNumberSignal = signal<string>('');
+
+  // Additional Costs tab state -- the tab embeds the standalone list/form components (see
+  // purchase-additional-cost-list/-form) instead of routing to them; toggling between the two
+  // mirrors what routing between /purchase-additional-costs and /purchase-additional-costs/new
+  // used to do, including relying on the list's own constructor-time refresh() when it's
+  // recreated by *ngIf after the form closes.
+  showAdditionalCostForm = signal(false);
+  editingAdditionalCostId = signal<number | null>(null);
+
+  onAdditionalCostAddRequested(): void {
+    this.editingAdditionalCostId.set(null);
+    this.showAdditionalCostForm.set(true);
+  }
+
+  onAdditionalCostEditRequested(id: number): void {
+    this.editingAdditionalCostId.set(id);
+    this.showAdditionalCostForm.set(true);
+  }
+
+  onAdditionalCostFormClosed(): void {
+    this.showAdditionalCostForm.set(false);
+    this.editingAdditionalCostId.set(null);
+  }
 
   /** Snapshot of invoice.amountPaid as it was when this edit session was opened -- frozen so the
    *  totals preview can separate "already paid before now" from "being paid in this edit", the
@@ -657,6 +686,7 @@ export class PurchaseInvoiceComponent implements OnInit {
   private initForm(): void {
     this.purchaseInvoiceForm = this.fb.group({
       supplierId: [null, Validators.required],
+      storeId: [null, Validators.required],
       debitAccountId: [null, Validators.required],
       creditAccountId: [null, Validators.required],
       invoiceDate: [new Date(), Validators.required],
@@ -731,6 +761,7 @@ export class PurchaseInvoiceComponent implements OnInit {
         // Initialize form with existing invoice data
         this.purchaseInvoiceForm = this.fb.group({
           supplierId: [invoice.supplierId, Validators.required],
+          storeId: [invoice.storeId, Validators.required],
           debitAccountId: [invoice.debitAccountId, Validators.required],
           creditAccountId: [invoice.creditAccountId, Validators.required],
           invoiceDate: [new Date(invoice.invoiceDate), Validators.required],
@@ -969,10 +1000,21 @@ export class PurchaseInvoiceComponent implements OnInit {
     const formValue = this.purchaseInvoiceForm.getRawValue();
     const supplierId = formValue.supplierId;
     const supplier = this.suppliers().find(s => s.id === supplierId);
+    const storeId = formValue.storeId;
     const items = this.invoiceItems();
 
     if (!supplierId || !supplier) {
       this.notificationService.showError(this.translate.instant('PURCHASE_INVOICE.ERROR_SELECT_SUPPLIER'));
+      return;
+    }
+    // storeId used to come from CurrentSettingService.getStoreId(), which nothing in the app
+    // ever set -- it always returned 0, so a "|| 1" fallback silently targeted store 1. Store
+    // ids are per-tenant identity values behind a tenant query filter, so store 1 belongs to
+    // whichever tenant owns it and is invisible to everyone else, making every other tenant's
+    // Create fail with "Store with ID 1 not found". Now storeId comes from an explicit,
+    // required field on this form, like every other invoice form in the app.
+    if (!storeId) {
+      this.notificationService.showError(this.translate.instant('PURCHASE_INVOICE.ERROR_SELECT_STORE'));
       return;
     }
     if (items.length === 0) {
@@ -987,8 +1029,7 @@ export class PurchaseInvoiceComponent implements OnInit {
     const newInvoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue' | 'createdAt' | 'updatedAt' | 'supplier' | 'debitAccount' | 'creditAccount'> = {
       invoiceNumber: this.invoiceNumberSignal() || '',
       invoiceDate: formValue.invoiceDate.toISOString(),
-      storeId:this.currentSettingService.getStoreId() || 1,
-      branchId:this.currentSettingService.getBranchId()||1,
+      storeId,
       supplierId: supplierId,
       debitAccountId: formValue.debitAccountId,
       creditAccountId: formValue.creditAccountId,
@@ -1036,6 +1077,12 @@ export class PurchaseInvoiceComponent implements OnInit {
       this.procurementService.addInvoice(newInvoice).subscribe({
         next: (savedInvoice) => {
             this.notificationService.showSuccess(this.translate.instant('TOAST.ADD_SUCCESS'));
+            // Switch into edit mode for the invoice just created -- without this, currentInvoiceId()
+            // stays null after a fresh save, so the Additional Costs tab (which requires an existing
+            // PurchaseInvoiceId, same as PurchaseAdditionalCost's backend FK) would stay disabled
+            // forever in the same session instead of unlocking right after Save like it should.
+            this.currentInvoiceId.set(savedInvoice.id);
+            this.isEditMode.set(true);
         },
         error: (error) => {
           console.error('Error saving purchase invoice:', error);

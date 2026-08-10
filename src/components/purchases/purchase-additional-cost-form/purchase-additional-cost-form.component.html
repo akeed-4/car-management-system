@@ -2,7 +2,7 @@
   <mat-toolbar-row>
     <span>{{ editMode() ? ('PURCHASE_ADDITIONAL_COST.FORM.EDIT_TITLE' | translate) : ('PURCHASE_ADDITIONAL_COST.FORM.NEW_TITLE' | translate) }}</span>
     <span class="spacer"></span>
-    <button mat-icon-button routerLink="/purchase-additional-costs" [matTooltip]="'REQUESTED_CARS.FORM.BACK_TO_LIST' | translate">
+    <button mat-icon-button (click)="cancelled.emit()" [matTooltip]="'REQUESTED_CARS.FORM.BACK_TO_LIST' | translate">
       <mat-icon>arrow_back</mat-icon>
     </button>
   </mat-toolbar-row>
@@ -22,7 +22,7 @@
         <div class="form-section">
           <h3 class="section-title">{{ 'PURCHASE_ADDITIONAL_COST.FORM.DOCUMENT_DETAILS' | translate }}</h3>
           <div class="form-grid cols-3">
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" *ngIf="!purchaseInvoiceId">
               <mat-label>{{ 'PURCHASE_ADDITIONAL_COST.PURCHASE_INVOICE' | translate }}</mat-label>
               <mat-select formControlName="purchaseInvoiceId">
                 <mat-option *ngFor="let inv of invoices()" [value]="inv.id">{{ inv.invoiceNumber }}</mat-option>
@@ -127,7 +127,7 @@
         </div>
 
         <div class="form-actions">
-          <button mat-button routerLink="/purchase-additional-costs" type="button">
+          <button mat-button (click)="cancelled.emit()" type="button">
             {{ 'REQUESTED_CARS.FORM.CANCEL' | translate }}
           </button>
           <button mat-raised-button color="primary" type="submit" [disabled]="costForm.invalid || saving() || locked()">

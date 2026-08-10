@@ -126,6 +126,9 @@
   "PURCHASE_INVOICE": {
     "CREATE_TITLE": "Create Purchase Invoice",
     "BACK_TO_PURCHASES": "Back to Purchases",
+    "TAB_DETAILS": "Invoice Details",
+    "TAB_ADDITIONAL_COSTS": "Additional Costs",
+    "ADDITIONAL_COSTS_SAVE_FIRST": "Save the invoice first to add additional costs.",
     "MAIN_DATA": "Main Invoice Data",
     "SUPPLIER": "Supplier",
     "DEBIT_ACCOUNT": "Debit Account",
@@ -201,6 +204,7 @@
       "NOT_AVAILABLE": "Not available"
     },
     "ERROR_SELECT_SUPPLIER": "Please select a supplier",
+    "ERROR_SELECT_STORE": "Please select a store before saving the invoice",
     "ERROR_SAME_ACCOUNT": "Debit and credit accounts cannot be the same",
     "ERROR_NO_ITEMS": "Please add at least one item to the invoice",
     "ERROR_ALREADY_ADDED": "This car is already added to the invoice",
@@ -319,6 +323,7 @@
     "CATEGORY_HANDLING": "Handling",
     "CATEGORY_REGISTRATION": "Registration",
     "CATEGORY_OTHER": "Other",
+    "METHOD_EQUAL": "Equal Distribution",
     "METHOD_QUANTITY": "By Quantity",
     "METHOD_COST": "By Cost",
     "METHOD_WEIGHT": "By Weight",

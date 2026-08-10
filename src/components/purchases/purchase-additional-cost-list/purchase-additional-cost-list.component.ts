@@ -1,6 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -40,9 +39,14 @@ import { PurchaseAdditionalCost } from '../../../models/purchase-additional-cost
 })
 export class PurchaseAdditionalCostListComponent {
   private service = inject(PurchaseAdditionalCostService);
-  private router = inject(Router);
   private notificationService = inject(NotificationService);
   private authService = inject(AuthService);
+
+  /** When set, this list is embedded in a Purchase Invoice's "Additional Costs" tab: only that
+   * invoice's costs are shown and the "Purchase Invoice" column is hidden. */
+  @Input() purchaseInvoiceId: number | null = null;
+  @Output() addRequested = new EventEmitter<void>();
+  @Output() editRequested = new EventEmitter<number>();
 
   items = signal<PurchaseAdditionalCost[]>([]);
   loading = signal(false);
@@ -53,14 +57,20 @@ export class PurchaseAdditionalCostListComponent {
   isDeleteModalOpen = signal(false);
   itemToDeleteId = signal<number | null>(null);
 
+  /** Rows scoped to purchaseInvoiceId when embedded in a Purchase Invoice tab, otherwise every row. */
+  private invoiceRows = computed(() => {
+    const invoiceId = this.purchaseInvoiceId;
+    return invoiceId ? this.items().filter(r => r.purchaseInvoiceId === invoiceId) : this.items();
+  });
+
   filteredItems = computed(() => {
     const filter = this.statusFilter();
-    const rows = this.items();
+    const rows = this.invoiceRows();
     return filter ? rows.filter(r => r.status === filter) : rows;
   });
 
   summary = computed(() => {
-    const rows = this.items();
+    const rows = this.invoiceRows();
     return {
       total: rows.length,
       draft: rows.filter(r => r.status === 'Draft').length,
@@ -88,11 +98,11 @@ export class PurchaseAdditionalCostListComponent {
   }
 
   newCost(): void {
-    this.router.navigate(['/purchase-additional-costs/new']);
+    this.addRequested.emit();
   }
 
   editCost(id: number): void {
-    this.router.navigate(['/purchase-additional-costs/edit', id]);
+    this.editRequested.emit(id);
   }
 
   canEdit(item: PurchaseAdditionalCost): boolean {

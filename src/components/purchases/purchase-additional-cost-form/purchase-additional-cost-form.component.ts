@@ -1,7 +1,6 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -34,7 +33,6 @@ import {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    RouterLink,
     MatButtonModule,
     MatIconModule,
     MatCardModule,
@@ -51,14 +49,20 @@ import {
   styleUrl: './purchase-additional-cost-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PurchaseAdditionalCostFormComponent implements OnInit {
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
+export class PurchaseAdditionalCostFormComponent implements OnInit, OnChanges {
   private service = inject(PurchaseAdditionalCostService);
   private purchasesService = inject(PurchasesService);
   private accountingService = inject(AccountingService);
   private notificationService = inject(NotificationService);
   private authService = inject(AuthService);
+
+  /** Set when embedded in a Purchase Invoice's "Additional Costs" tab: locks the invoice field
+   * to this invoice and hides the invoice picker. */
+  @Input() purchaseInvoiceId: number | null = null;
+  /** Set to edit an existing cost record; null/undefined creates a new one. */
+  @Input() costId: number | null = null;
+  @Output() saved = new EventEmitter<void>();
+  @Output() cancelled = new EventEmitter<void>();
 
   editMode = signal(false);
   currentId = signal<number | null>(null);
@@ -75,7 +79,7 @@ export class PurchaseAdditionalCostFormComponent implements OnInit {
   previewLoading = signal(false);
 
   expenseCategories: ExpenseCategory[] = ['Insurance', 'Customs', 'Shipping', 'Freight', 'Handling', 'Registration', 'Other'];
-  allocationMethods: AllocationMethod[] = ['Quantity', 'Cost', 'Weight', 'Manual'];
+  allocationMethods: AllocationMethod[] = ['Equal', 'Quantity', 'Cost', 'Weight', 'Manual'];
 
   costForm = new FormGroup({
     purchaseInvoiceId: new FormControl<number | null>(null, Validators.required),
@@ -103,15 +107,38 @@ export class PurchaseAdditionalCostFormComponent implements OnInit {
     this.accountingService.getPostableAccounts('debit').subscribe((accounts) => this.debitAccounts.set(accounts));
     this.accountingService.getPostableAccounts().subscribe((accounts) => this.payableAccounts.set(accounts));
 
-    const idParam = this.route.snapshot.params['id'];
-    if (idParam) {
-      const id = Number(idParam);
+    // Set up exactly once (not per loadCost() call) so switching this same instance between
+    // new/edit/new again (embedded in a Purchase Invoice tab) never stacks subscriptions;
+    // refreshPreview() itself no-ops while locked() so this is safe for a loaded Posted/Cancelled
+    // record too.
+    this.setupLivePreview();
+    this.loadCost(this.costId);
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['costId'] && !changes['costId'].firstChange) {
+      this.loadCost(this.costId);
+    }
+  }
+
+  /** Loads an existing cost for editing, or resets to a blank draft (pre-filled with
+   * purchaseInvoiceId when embedded) when id is null. Callable more than once on the same
+   * instance since the embedded form is reused across New/Edit clicks in the tab. */
+  private loadCost(id: number | null): void {
+    this.costForm.enable();
+    this.locked.set(false);
+    this.previewError.set(null);
+    this.previewLines.set([]);
+    this.previewTotal.set(0);
+    this.manualAmounts.set({});
+
+    if (id) {
       this.currentId.set(id);
       this.editMode.set(true);
       this.service.getById(id).subscribe({
         next: (response) => {
           if (!response.success) {
-            this.router.navigate(['/purchase-additional-costs']);
+            this.cancelled.emit();
             return;
           }
           const cost = response.data;
@@ -136,10 +163,21 @@ export class PurchaseAdditionalCostFormComponent implements OnInit {
             this.costForm.disable();
           }
         },
-        error: () => this.router.navigate(['/purchase-additional-costs']),
+        error: () => this.cancelled.emit(),
       });
     } else {
-      this.setupLivePreview();
+      this.currentId.set(null);
+      this.editMode.set(false);
+      this.costForm.reset({
+        purchaseInvoiceId: this.purchaseInvoiceId,
+        costDate: new Date().toISOString().split('T')[0],
+        expenseCategory: 'Other',
+        description: '',
+        amount: null,
+        allocationMethod: 'Cost',
+        debitAccountId: null,
+        creditAccountId: null,
+      });
     }
   }
 
@@ -151,6 +189,8 @@ export class PurchaseAdditionalCostFormComponent implements OnInit {
   }
 
   refreshPreview(): void {
+    if (this.locked()) return;
+
     const invoiceId = this.costForm.get('purchaseInvoiceId')?.value;
     const method = this.costForm.get('allocationMethod')?.value;
     const amount = this.costForm.get('amount')?.value;
@@ -237,7 +277,7 @@ export class PurchaseAdditionalCostFormComponent implements OnInit {
           this.saving.set(false);
           if (response.success) {
             this.notificationService.showSuccess('PURCHASE_ADDITIONAL_COST.SAVED');
-            this.router.navigate(['/purchase-additional-costs']);
+            this.saved.emit();
           } else {
             this.notificationService.showError(response.message);
           }
@@ -264,7 +304,7 @@ export class PurchaseAdditionalCostFormComponent implements OnInit {
           this.saving.set(false);
           if (response.success) {
             this.notificationService.showSuccess('PURCHASE_ADDITIONAL_COST.SAVED');
-            this.router.navigate(['/purchase-additional-costs']);
+            this.saved.emit();
           } else {
             this.notificationService.showError(response.message);
           }
