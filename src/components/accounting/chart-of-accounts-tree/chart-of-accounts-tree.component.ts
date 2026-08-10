@@ -56,7 +56,6 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
     let filteredAccounts = accounts
       // Auto-generated Customer/Supplier accounts are accounting-only linkage records,
       // not meant to be browsed or manually selected in the tree.
-      .filter(account => !account.isSystemGenerated)
       .map(account => ({
         ...account,
         level: account.accountLevel,

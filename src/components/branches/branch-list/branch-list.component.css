@@ -216,6 +216,10 @@
     margin: 0.25rem;
   }
 
+  .header {
+    flex-wrap: wrap;
+  }
+
   .header h2 {
     font-size: 1.3rem;
   }
@@ -223,6 +227,15 @@
   .header button {
     padding: 0.5rem 1rem;
     font-size: 0.9rem;
+  }
+
+  .actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .search-input {
+    width: 100%;
   }
 
   ::ng-deep .dx-datagrid-headers {

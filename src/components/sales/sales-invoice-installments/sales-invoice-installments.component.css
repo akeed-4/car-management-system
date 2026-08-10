@@ -339,6 +339,10 @@
     grid-template-columns: 1fr;
   }
 
+  .down-payment-field {
+    width: 100%;
+  }
+
   .summary-section {
     flex-direction: column;
   }
