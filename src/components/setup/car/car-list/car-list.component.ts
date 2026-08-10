@@ -124,7 +124,7 @@ export class CarListComponent {
       maxWidth: '900px',
       height: '90vh',
       maxHeight: '800px',
-      panelClass: 'car-details-dialog-panel'
+      panelClass: ['car-details-dialog-panel', 'responsive-dialog-panel']
     });
   }
 

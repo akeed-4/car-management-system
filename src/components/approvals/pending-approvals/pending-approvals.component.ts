@@ -84,7 +84,8 @@ export class PendingApprovalsComponent implements OnInit {
     const dialogRef = this.dialog.open(ApprovalActionDialogComponent, {
       width: '600px',
       maxWidth: '95vw',
-      data: { approval }
+      data: { approval },
+      panelClass: 'responsive-dialog-panel'
     });
 
     dialogRef.afterClosed().subscribe(result => {

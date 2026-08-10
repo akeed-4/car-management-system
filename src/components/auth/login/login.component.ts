@@ -1,19 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatDividerModule } from '@angular/material/divider';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DxDataGridModule } from 'devextreme-angular';
 import { AuthService } from '../../../services/AuthService.service';
 import { PlatformService } from '../../../services/platform.service';
 import { TenantContextService } from '../../../services/tenant-context.service';
@@ -24,25 +20,21 @@ import { login } from './login.model';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-    styleUrls: ['./login.component.css'],
-    standalone: true,
-      imports: [
-      CommonModule,
-      ReactiveFormsModule,
-      FormsModule,
-      MatFormFieldModule,
-      MatInputModule,
-      MatSelectModule,
-      MatButtonModule,
-      MatIconModule,
-      MatCardModule,
-      MatGridListModule,
-      MatTableModule,
-      MatDatepickerModule,
-      MatDividerModule,
-      DxDataGridModule,
-      RouterLink,
-      TranslateModule,]
+  styleUrls: ['./login.component.css'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCheckboxModule,
+    MatProgressSpinnerModule,
+    MatTooltipModule,
+    RouterLink,
+    TranslateModule,
+  ]
 })
 export class LoginComponent {
   loginForm: FormGroup;
@@ -53,6 +45,17 @@ export class LoginComponent {
    *  itself -- guards against a double-click firing a second full chain while the first is
    *  still resolving its multi-step redirect. */
   loggingIn = signal(false);
+
+  hidePassword = signal(true);
+
+  readonly features: Array<{ icon: string; titleKey: string; descKey: string }> = [
+    { icon: 'directions_car', titleKey: 'REGISTRATION.FEATURES.INVENTORY.TITLE', descKey: 'REGISTRATION.FEATURES.INVENTORY.DESC' },
+    { icon: 'point_of_sale', titleKey: 'REGISTRATION.FEATURES.SALES.TITLE', descKey: 'REGISTRATION.FEATURES.SALES.DESC' },
+    { icon: 'bar_chart', titleKey: 'REGISTRATION.FEATURES.REPORTS.TITLE', descKey: 'REGISTRATION.FEATURES.REPORTS.DESC' },
+    { icon: 'store', titleKey: 'REGISTRATION.FEATURES.BRANCHES.TITLE', descKey: 'REGISTRATION.FEATURES.BRANCHES.DESC' },
+    { icon: 'translate', titleKey: 'REGISTRATION.FEATURES.LANGUAGES.TITLE', descKey: 'REGISTRATION.FEATURES.LANGUAGES.DESC' },
+    { icon: 'lock', titleKey: 'REGISTRATION.FEATURES.SECURITY.TITLE', descKey: 'REGISTRATION.FEATURES.SECURITY.DESC' },
+  ];
 
   constructor(
     private fb: FormBuilder,
@@ -71,7 +74,11 @@ export class LoginComponent {
     this.passwordWasReset = this.route.snapshot.queryParamMap.get('passwordReset') === '1';
   }
 
- onSubmit(): void {
+  togglePasswordVisibility(): void {
+    this.hidePassword.set(!this.hidePassword());
+  }
+
+  onSubmit(): void {
   if (this.loggingIn()) return;
 
   if (this.loginForm.valid) {

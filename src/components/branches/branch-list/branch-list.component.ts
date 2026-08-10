@@ -75,7 +75,8 @@ export class BranchListComponent {
     const dialogRef = this.dialog.open(BranchFormComponent, {
       width: '1400px',
       height: '80%',
-      data: null
+      data: null,
+      panelClass: 'responsive-dialog-panel'
     });
     dialogRef.afterClosed().subscribe(() => this.loadBranches());
   }
@@ -86,7 +87,8 @@ export class BranchListComponent {
       const dialogRef = this.dialog.open(BranchFormComponent, {
         width: '1400px',
         height: '80%',
-        data: { branch }
+        data: { branch },
+        panelClass: 'responsive-dialog-panel'
       });
       dialogRef.afterClosed().subscribe(() => this.loadBranches());
     } else {

@@ -53,7 +53,8 @@ export class InstallmentDashboardComponent implements OnInit {
   openRescheduleDialog(schedule: InstallmentSchedule): void {
     const dialogRef = this.dialog.open(InstallmentRescheduleDialogComponent, {
       width: '600px',
-      data: { schedule }
+      data: { schedule },
+      panelClass: 'responsive-dialog-panel'
     });
 
     dialogRef.afterClosed().subscribe(result => {

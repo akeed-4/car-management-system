@@ -196,6 +196,94 @@
 }
 
 /* --------------------------------------------------------------------------
+   DevExtreme grid/tree-list overflow fix — global, not opt-in (unlike the
+   .dx-mobile-optimized block below).
+   Root cause of "app only fills ~50-70% of the phone width, with dead space"
+   on any screen with a dx-data-grid/dx-tree-list that hasn't been converted
+   to app-mobile-card-list yet: the control's columns need more horizontal
+   room than a phone viewport has (confirmed: a 3-column grid computed a
+   ~982px table on a 390px screen), which is expected and fine -- DevExtreme
+   is *supposed* to make that scrollable. The actual bug is that the
+   control's own wrapper CSS (widely copy-pasted across ~20+ list screens,
+   e.g. suppliers.component.css's `.card`, chart-of-accounts-tree.component
+   .css's `.tree-section`) sets `overflow: hidden` purely to clip the
+   card/section's rounded corners, and `::ng-deep .dx-datagrid`/`.dx-treelist
+   { overflow: hidden }` alongside it. Neither of those was written with
+   "this box might need to scroll" in mind. In this app's RTL layout,
+   overflowing content spills toward the *start* of the reading direction
+   (left, for Arabic) -- so instead of a visible scrollbar or clipped-on-
+   the-right column, the left-hand columns simply vanish under `overflow:
+   hidden` with no indication anything is cut off. Width-forcing the control
+   itself (tried and reverted on dx-data-grid: CSS min-width, JS style
+   mutation, even DevExtreme's own [width]="'100%'" input) can't fix this,
+   because it was never too narrow -- its container was hiding the part
+   that didn't fit. overflow-x: auto (not visible/scroll) so desktop --
+   where content already fits and this is a no-op -- keeps its rounded-
+   corner clip on the axis that still matters (vertical), and phones get a
+   real scrollbar instead of silently losing columns. Applied
+   unconditionally to .card/.table-wrapper/.tree-section (not scoped via
+   :has(dx-data-grid), to avoid depending on a CSS feature that's still
+   fairly recent in some Android WebViews) -- harmless on a container with
+   nothing to overflow, since overflow-x: auto only ever shows a scrollbar
+   when content actually exceeds the box.
+   `.dx-treelist-scrollable-simulated.dx-treelist-content` (and its grid
+   equivalent) also needs its own explicit overflow-x: auto -- confirmed via
+   a live pointer-drag test that fixing only the outer `.tree-section`/
+   `.dx-treelist` wrapper wasn't enough for tree-list specifically (unlike
+   dx-data-grid, where the equivalent inner div apparently already responds
+   to pointer/touch drag regardless of its own CSS overflow value); this
+   inner div is DevExtreme's actual "simulated scrollable" content area
+   (transform-driven, not native-scroll-driven) and is where scrollWidth
+   was confirmed to exceed clientWidth (682px content in a 324px box).
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .card,
+  .table-wrapper,
+  .tree-section,
+  .grid-container,
+  .table-container,
+  .datagrid-container,
+  .details-grid-wrapper,
+  .styled-card {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  dx-data-grid,
+  dx-data-grid .dx-datagrid,
+  dx-tree-list .dx-treelist,
+  .dx-datagrid-scrollable-simulated.dx-datagrid-content,
+  .dx-treelist-scrollable-simulated.dx-treelist-content {
+    overflow-x: auto !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Add/Create form field-grid safety net — global, not opt-in.
+   `.form-grid { grid-template-columns: repeat(auto-fit, minmax(NNNpx, 1fr)) }`
+   is this app's dominant pattern for laying out form fields (32 component
+   stylesheets use the exact `.form-grid` class name; the minmax floor varies
+   from 80px to 350px across them). Most of those files already carry their
+   own `@media (max-width: 768px) { .form-grid { grid-template-columns: 1fr }
+   }` override, and a representative sample of forms (customer, supplier
+   quotation, cost center) confirmed that pattern already collapses to a
+   clean single column with no clipping. This rule exists purely as a safety
+   net for the forms that DON'T carry that override themselves (found on
+   tenant-form, fixed directly in its own CSS since it also had a hard
+   `width: 320px` field needing a component-specific fix) or that use a
+   minmax floor wide enough to still overflow a narrow phone even after
+   auto-fit collapses to one column. A form whose own CSS already sets this
+   correctly is unaffected (same value, same specificity tier — this isn't
+   `!important`, so a component's own more-specific or later-loaded rule for
+   the same breakpoint still wins if one exists).
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
    DevExtreme mobile overrides — scoped to an opt-in wrapper class
    (.dx-mobile-optimized) applied by a screen's host/container, never
    globally, so existing grids/forms/popups elsewhere are unaffected.

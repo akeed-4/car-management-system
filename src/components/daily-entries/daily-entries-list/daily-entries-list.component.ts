@@ -195,6 +195,7 @@ export class DailyEntriesListComponent {
     this.dialog.open(AuditHistoryPanelComponent, {
       data: { entityName: 'DailyEntry', entityId: id },
       width: '600px',
+      panelClass: 'responsive-dialog-panel',
     });
   }
 }

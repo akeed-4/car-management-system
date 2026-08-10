@@ -74,6 +74,7 @@ constructor() {
     const dialogRef = this.dialog.open(CompanyFormComponent, {
       width: '1400px',
       height: '80%',
+      panelClass: 'responsive-dialog-panel'
     });
   }
 
@@ -83,7 +84,8 @@ constructor() {
       const dialogRef = this.dialog.open(CompanyFormComponent, {
         width: '1400px',
         height: '80%',
-        data: { company }
+        data: { company },
+        panelClass: 'responsive-dialog-panel'
       });}
   }
 

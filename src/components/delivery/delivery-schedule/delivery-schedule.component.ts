@@ -227,6 +227,7 @@ export class DeliveryScheduleComponent implements OnInit {
     this.dialog.open(AuditHistoryPanelComponent, {
       data: { entityName: 'DeliverySchedule', entityId: id },
       width: '600px',
+      panelClass: 'responsive-dialog-panel',
     });
   }
 }

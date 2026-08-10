@@ -122,7 +122,7 @@ export class ConsignmentSaleDialogComponent {
   }
 
   openCustomerLookup(): void {
-    const ref = this.dialog.open(CustomerLookupModalComponent, { width: '900px' });
+    const ref = this.dialog.open(CustomerLookupModalComponent, { width: '900px', panelClass: 'responsive-dialog-panel' });
     ref.afterClosed().subscribe((customer: Customer | null) => {
       if (customer) {
         this.selectedCustomer.set(customer);

@@ -132,7 +132,7 @@ export class ConsignmentFormComponent implements OnInit {
   }
 
   openSupplierLookup(): void {
-    const ref = this.dialog.open(SupplierLookupModalComponent, { width: '900px' });
+    const ref = this.dialog.open(SupplierLookupModalComponent, { width: '900px', panelClass: 'responsive-dialog-panel' });
     ref.afterClosed().subscribe((supplier: Supplier | null) => {
       if (supplier) {
         this.selectedSupplier.set(supplier);
@@ -146,7 +146,7 @@ export class ConsignmentFormComponent implements OnInit {
    * consignment-car-form design notes) that only duplicates a subset of Car's fields, so only
    * those overlapping fields are populated here; nothing is silently invented on the form. */
   openVehicleLookup(): void {
-    const ref = this.dialog.open(VehicleLookupDialogComponent, { width: '1200px', maxWidth: '95vw' });
+    const ref = this.dialog.open(VehicleLookupDialogComponent, { width: '1200px', maxWidth: '95vw', panelClass: 'responsive-dialog-panel' });
     ref.afterClosed().subscribe((car: Car | null) => {
       if (!car) return;
 
@@ -246,6 +246,7 @@ export class ConsignmentFormComponent implements OnInit {
     this.dialog.open(AuditHistoryPanelComponent, {
       data: { entityName: 'ConsignmentCar', entityId: id },
       width: '600px',
+      panelClass: 'responsive-dialog-panel',
     });
   }
 }

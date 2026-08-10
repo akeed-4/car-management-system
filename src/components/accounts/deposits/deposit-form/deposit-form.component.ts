@@ -71,7 +71,8 @@ private notificationService = inject(NotificationService);
           cars: this.availableVehicles(),
         },
         autoFocus: true,
-        disableClose: false
+        disableClose: false,
+        panelClass: 'responsive-dialog-panel'
       });
       // Dialog result is normalized to StoreCarStockDto shape (carId), even though this caller
       // supplied plain Car[] -- see CarSelectionDialogComponent.normalize().

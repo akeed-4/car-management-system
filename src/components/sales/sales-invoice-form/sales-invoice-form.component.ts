@@ -757,7 +757,8 @@ export class SalesInvoiceFormComponent implements OnInit {
         quantity: 1,
         unitPrice: car.salesPrice || 0,
         maxQuantity: car.availableQuantity
-      }
+      },
+      panelClass: 'responsive-dialog-panel'
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -862,7 +863,8 @@ export class SalesInvoiceFormComponent implements OnInit {
       data: {
         storeId: storeId,
         fromSales: true // Flag to indicate opened from sales
-      }
+      },
+      panelClass: 'responsive-dialog-panel'
     });
 
     dialogRef.afterClosed().subscribe(selectedCar => {

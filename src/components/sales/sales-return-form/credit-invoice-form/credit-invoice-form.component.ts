@@ -215,7 +215,8 @@ export class CreditInvoiceFormComponent {
           quantity: 1,
           unitPrice: car.salePrice || 0,
           maxQuantity: car.availableQuantity
-        }
+        },
+        panelClass: 'responsive-dialog-panel'
       });
   
       dialogRef.afterClosed().subscribe(result => {
@@ -255,7 +256,8 @@ export class CreditInvoiceFormComponent {
     openCarSelectionDialog(): void {
       const dialogRef = this.dialog.open(CarSelectionDialogComponent, {
         width: '800px',
-        data: { cars: this.carCards() }
+        data: { cars: this.carCards() },
+        panelClass: 'responsive-dialog-panel'
       });
   
       dialogRef.afterClosed().subscribe(selectedCar => {

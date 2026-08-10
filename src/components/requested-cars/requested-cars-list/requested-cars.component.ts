@@ -215,6 +215,7 @@ export class RequestedCarsComponent {
     this.dialog.open(AuditHistoryPanelComponent, {
       data: { entityName: 'RequestedCar', entityId: id },
       width: '600px',
+      panelClass: 'responsive-dialog-panel',
     });
   }
 
@@ -222,6 +223,7 @@ export class RequestedCarsComponent {
     this.dialog.open(RequestedCarAiPanelComponent, {
       data: { requestedCar: row },
       width: '600px',
+      panelClass: 'responsive-dialog-panel',
     });
   }
 }

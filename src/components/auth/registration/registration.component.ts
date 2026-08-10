@@ -15,6 +15,7 @@ import { PlatformService } from '../../../services/platform.service';
 import { TenantContextService } from '../../../services/tenant-context.service';
 import { SelfRegisterTenantDto } from '../../../models/platform/onboarding.model';
 import { resolveOnboardingDestination } from '../../../models/platform/onboarding-routing.util';
+import { error } from 'console';
 
 /** Purely a visual/UX aid -- the actual submit validator only requires Validators.minLength(6)
  *  (matches the backend's ASP.NET Identity password policy). These extra criteria just drive the
@@ -197,14 +198,20 @@ export class RegistrationComponent {
               });
             } else {
               this.goToOnboardingDestination();
+
             }
           },
-          error: () => this.goToOnboardingDestination(),
+          error: (error) => {
+            console.log('error loading memberships after registration, proceeding to onboarding destination', error);
+            this.goToOnboardingDestination();
+          }
         });
       },
       error: (error) => {
         this.errorMessage = error?.error?.message || this.translate.instant('REGISTRATION.REGISTER_ERROR');
         this.isSubmitting.set(false);
+        console.log('error loading memberships after registration, proceeding to onboarding destination', error);
+
         console.log(error)
       },
     });

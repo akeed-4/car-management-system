@@ -114,7 +114,7 @@ export class DeliveryFormComponent implements OnInit {
   }
 
   openCustomerLookup(): void {
-    const ref = this.dialog.open(CustomerLookupModalComponent, { width: '900px' });
+    const ref = this.dialog.open(CustomerLookupModalComponent, { width: '900px', panelClass: 'responsive-dialog-panel' });
     ref.afterClosed().subscribe((customer: Customer | null) => {
       if (customer) {
         this.selectedCustomer.set(customer);
@@ -124,7 +124,7 @@ export class DeliveryFormComponent implements OnInit {
   }
 
   openVehicleLookup(): void {
-    const ref = this.dialog.open(VehicleLookupModalComponent, { width: '1000px' });
+    const ref = this.dialog.open(VehicleLookupModalComponent, { width: '1000px', panelClass: 'responsive-dialog-panel' });
     ref.afterClosed().subscribe((car: Car | null) => {
       if (car) {
         this.selectedCar.set(car);
@@ -167,6 +167,7 @@ export class DeliveryFormComponent implements OnInit {
     this.dialog.open(AuditHistoryPanelComponent, {
       data: { entityName: 'DeliverySchedule', entityId: id },
       width: '600px',
+      panelClass: 'responsive-dialog-panel',
     });
   }
 
