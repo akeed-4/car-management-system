@@ -11,7 +11,7 @@ import { creditInvoiceLanguageData, creditInvoiceList } from './invoice-credit-l
 export class InvoiceCreditListService {
   constructor(private http: HttpClient) {}
 
-  private apiURL = environment.origin + '/Stores';
+  private apiURL = environment.origin + 'Stores';
 
   getcreditInvoiceListDictionary() {
     return creditInvoiceLanguageData.InvoiceCreditListDictionary;

@@ -8,7 +8,7 @@ import { environment } from '../environments/environment';
   providedIn: 'root',
 })
 export class FloorPlanService {
-  private apiUrl = `${environment.origin}/api/FloorPlanFinancings`;
+  private apiUrl = `${environment.origin}api/FloorPlanFinancings`;
 
   private floorPlans = signal<FloorPlan[]>([]);
   public floorPlans$ = this.floorPlans.asReadonly();

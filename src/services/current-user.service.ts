@@ -10,8 +10,8 @@ import { environment } from '../environments/environment';
 export class CurrentUserService {
 
   constructor(private http: HttpClient,private oidcSecurityService:OidcSecurityService) {}
-  private apiURL = environment.origin;
-  private adminURL = environment.origin ;
+  private apiURL = environment.origin.replace(/\/+$/, '');
+  private adminURL = environment.origin.replace(/\/+$/, '');
   private userRole = null;
 
 

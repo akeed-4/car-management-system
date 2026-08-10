@@ -11,9 +11,9 @@ export class SettingService {
 
   constructor(private http: HttpClient) {}
 
-  private apiURL = environment.origin + '/ApplicationSettings';
-  private printSetting = environment.origin + '/ReportPrintSettings';
-  private costPriceApiURL = environment.origin + '/CostPriceCalculationSettings';
+  private apiURL = environment.origin + 'ApplicationSettings';
+  private printSetting = environment.origin + 'ReportPrintSettings';
+  private costPriceApiURL = environment.origin + 'CostPriceCalculationSettings';
 
   getSettingTabs() {
     return this.http.get<any[]>(`${this.apiURL}/GetSettingTabs`);

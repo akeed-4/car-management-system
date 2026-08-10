@@ -18,7 +18,7 @@ export class PaymentGatewayService {
   private http = inject(HttpClient);
 
   // رابط API الخاص ببوابة الدفع
-  private paymentApiUrl = environment.origin+'/api/payment-gateway/process-payment';
+  private paymentApiUrl = environment.origin+'api/payment-gateway/process-payment';
 
   async initiatePosPayment(invoice: SalesInvoice): Promise<PosPaymentStatus> {
     try {

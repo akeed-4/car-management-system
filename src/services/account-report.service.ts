@@ -8,7 +8,7 @@ import { ReportFilter, AccountBalanceReport, BalanceSheetReport, TrialBalanceRep
   providedIn: 'root'
 })
 export class AccountReportService {
-  private apiUrl = `${environment.origin}/reports`;
+  private apiUrl = `${environment.origin}reports`;
 
   constructor(private http: HttpClient) {}
 
