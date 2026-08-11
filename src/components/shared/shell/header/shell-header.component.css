@@ -212,4 +212,14 @@
   .header-overflow-btn {
     display: grid;
   }
+
+  /* 38px desktop icon buttons are fine for a mouse but sit under the 48px
+     touch-target minimum -- the remaining buttons on mobile (menu toggle,
+     search, notifications, overflow, avatar) are exactly the ones a thumb
+     has to hit reliably, so grow them here rather than everywhere. */
+  .header-icon-btn,
+  .header-avatar {
+    width: var(--mobile-touch-target, 48px);
+    height: var(--mobile-touch-target, 48px);
+  }
 }

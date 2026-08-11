@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
@@ -8,6 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { SupplierRfqService } from '../../../services/supplier-rfq.service';
 import { NotificationService } from '../../../services/notification.service';
 import { SupplierRfqDto } from '../../../models/supplier-rfq.model';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
 
 @Component({
   selector: 'app-supplier-rfq-list',
@@ -20,13 +22,16 @@ import { SupplierRfqDto } from '../../../models/supplier-rfq.model';
     DxTemplateModule,
     TranslateModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    MobileCardListComponent
   ],
   templateUrl: './supplier-rfq-list.component.html',
   styleUrls: ['./supplier-rfq-list.component.css']
 })
 export class SupplierRfqListComponent implements OnInit {
   quotations: SupplierRfqDto[] = [];
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   constructor(
     private supplierRfqService: SupplierRfqService,
@@ -114,5 +119,42 @@ export class SupplierRfqListComponent implements OnInit {
         this.notificationService.showError(this.translateService.instant('SUPPLIER_RFQ.REJECT_ERROR') + ': ' + (err?.message || 'Unknown error'));
       }
     });
+  }
+
+  // --- Mobile card-list rendering ---
+  mobileTitleOf = (q: SupplierRfqDto) => q.quotationNumber;
+  mobileTrackBy = (_index: number, q: SupplierRfqDto) => q.id;
+
+  mobileFields: MobileCardField<SupplierRfqDto>[] = [
+    { label: 'SUPPLIER_RFQ.QUOTATION_DATE', value: (q) => q.quotationDate ? new Date(q.quotationDate).toLocaleDateString() : '' },
+    { label: 'SUPPLIER_RFQ.VENDOR', value: (q) => q.vendorName },
+    { label: 'SUPPLIER_RFQ.REQUISITION_NUMBER', value: (q) => q.requisitionNumber },
+    { label: 'SUPPLIER_RFQ.ITEMS_COUNT', value: (q) => this.getItemsCount(q) },
+    { label: 'SUPPLIER_RFQ.TOTAL_AMOUNT', value: (q) => q.totalAmount },
+    { label: 'SUPPLIER_RFQ.STATUS', value: (q) => this.translateService.instant('SUPPLIER_RFQ.STATUS_' + q.status?.toUpperCase()) },
+  ];
+
+  mobileCanSubmit(q: SupplierRfqDto): boolean {
+    return this.isDraft({ row: { data: q } });
+  }
+
+  mobileCanApproveReject(q: SupplierRfqDto): boolean {
+    return this.isPendingApproval({ row: { data: q } });
+  }
+
+  mobileEdit(q: SupplierRfqDto): void {
+    this.onEdit({ row: { data: { id: q.id } } });
+  }
+
+  mobileSubmit(q: SupplierRfqDto): void {
+    this.onSubmit({ row: { data: q } });
+  }
+
+  mobileApprove(q: SupplierRfqDto): void {
+    this.onApprove({ row: { data: q } });
+  }
+
+  mobileReject(q: SupplierRfqDto): void {
+    this.onReject({ row: { data: q } });
   }
 }

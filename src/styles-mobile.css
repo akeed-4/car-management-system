@@ -68,6 +68,15 @@
     min-width: var(--mobile-touch-target) !important;
     min-height: var(--mobile-touch-target) !important;
   }
+
+  /* .btn (styles.css) has no min-height of its own at any breakpoint --
+     global, not opt-in, since every .btn on every screen is a real tap
+     target and none of them should ship under the 48px minimum on mobile.
+     btn-small is exempted: it's a deliberately compact variant used inside
+     dense rows/cells where 48px would break the layout it's meant for. */
+  .btn:not(.btn-small) {
+    min-height: var(--mobile-touch-target);
+  }
 }
 
 /* Material Design mobile card: 16px radius + soft shadow, opt-in via class. */
@@ -284,70 +293,130 @@
 }
 
 /* --------------------------------------------------------------------------
-   DevExtreme mobile overrides — scoped to an opt-in wrapper class
-   (.dx-mobile-optimized) applied by a screen's host/container, never
-   globally, so existing grids/forms/popups elsewhere are unaffected.
+   DevExtreme mobile overrides — global subset.
+   Everything below is unconditional (not gated behind .dx-mobile-optimized)
+   because adoption of that opt-in wrapper class turned out to be 0% across
+   the app's ~99 dx-data-grid usages: nothing was ever actually wrapped in
+   it, so the block below it (still opt-in, further down) was dead CSS in
+   practice. These specific rules are safe to make global because none of
+   them assume a card-mode replacement exists for the grid rows — they only
+   fix things that are unconditionally true problems on any DevExtreme
+   control at phone width: inputs too small to tap, a toolbar that clips
+   buttons instead of wrapping them, a tabstrip whose overflow tabs vanish,
+   a slide-out drawer/popup wider than the screen. (Contrast with the
+   header-row hide below, which stays opt-in — hiding column headers is only
+   correct once rows are rendered as cards, which no adoption anywhere in
+   the app currently does.)
    -------------------------------------------------------------------------- */
 @media (max-width: 768px) {
-  .dx-mobile-optimized .dx-datagrid .dx-datagrid-headers {
-    display: none; /* header row is redundant once rows render as cards */
-  }
-
-  .dx-mobile-optimized .dx-form .dx-field-item {
+  .dx-form .dx-field-item {
     padding-bottom: var(--space-2);
   }
 
-  .dx-mobile-optimized .dx-form .dx-field-item-label {
+  .dx-form .dx-field-item-label {
     font-size: 13px;
   }
 
-  .dx-mobile-optimized .dx-texteditor-input,
-  .dx-mobile-optimized .dx-selectbox,
-  .dx-mobile-optimized .dx-datebox,
-  .dx-mobile-optimized .dx-dropdowneditor-input-wrapper input {
+  .dx-texteditor-input,
+  .dx-selectbox,
+  .dx-datebox,
+  .dx-dropdowneditor-input-wrapper input {
     min-height: var(--mobile-control-height) !important;
     font-size: var(--mobile-control-font-size) !important;
   }
 
-  .dx-mobile-optimized .dx-popup-content {
+  .dx-popup-content {
     padding: var(--mobile-gutter);
   }
 
   /* Fullscreen slide-up dialogs on mobile. Popup must also set
      fullScreen or width/height via its component API — this only
      ensures no rounded corners / margins remain when it does. */
-  .dx-mobile-optimized.dx-popup-fullscreen .dx-popup-content {
+  .dx-popup-fullscreen .dx-popup-content {
     border-radius: 0;
   }
 
-  .dx-mobile-optimized .dx-tabpanel .dx-tabs {
+  .dx-tabpanel .dx-tabs,
+  .dx-tabs {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
 
-  .dx-mobile-optimized .dx-toolbar {
+  /* Toolbar (grid header-panel, form toolbar, popup toolbar) wraps to a
+     second line on overflow instead of clipping/hiding buttons — the
+     "some controls disappear until horizontal scrolling" failure mode.
+     Search panel and command buttons are dx-toolbar items too, so this
+     alone fixes their mobile overflow without per-grid changes. */
+  .dx-toolbar {
     flex-wrap: wrap;
     height: auto;
     min-height: var(--mobile-header-height);
   }
 
-  .dx-mobile-optimized .dx-drawer-panel-content {
+  .dx-toolbar .dx-toolbar-items-container {
+    height: auto;
+  }
+
+  .dx-drawer-panel-content {
     width: 85vw !important;
     max-width: 320px;
+  }
+
+  /* DataGrid/TreeList toolbar buttons (add/refresh/export/column-chooser)
+     and grid command-column buttons (edit/delete) are the densest touch
+     targets in the app — undersized by default on every unconverted grid. */
+  .dx-datagrid-header-panel .dx-button,
+  .dx-treelist-header-panel .dx-button,
+  .dx-datagrid-rowsview .dx-command-edit .dx-link,
+  .dx-datagrid-rowsview .dx-command-edit .dx-button {
+    min-width: var(--mobile-touch-target);
+    min-height: var(--mobile-touch-target);
   }
 }
 
 /* --------------------------------------------------------------------------
-   Responsive Angular Material dialogs — opt-in via `panelClass:
-   'responsive-dialog-panel'` on the `MatDialog.open(...)` config. Desktop
-   sizing (whatever `width`/`height`/`maxWidth` the call site already passes)
+   DevExtreme mobile overrides — card-mode-dependent, opt-in via
+   .dx-mobile-optimized applied by a screen's host/container. Only rules
+   that require rows to already render as cards elsewhere (i.e. hiding the
+   header row) stay gated: applying them to a grid with no card replacement
+   would remove column labels entirely and make it unreadable.
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .dx-mobile-optimized .dx-datagrid .dx-datagrid-headers {
+    display: none; /* header row is redundant once rows render as cards */
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Angular Material dialogs.
+   Was opt-in only via `panelClass: 'responsive-dialog-panel'` on the
+   `MatDialog.open(...)` config -- but MatDialog merges its DI-level default
+   config with each call's config via a shallow spread (`{...defaultOptions,
+   ...config}`, see @angular/material/dialog.mjs MatDialog.open()), so a
+   global default `panelClass` set via MAT_DIALOG_DEFAULT_OPTIONS would be
+   silently *replaced*, not merged, by any call site that already passes its
+   own panelClass (~33 of them do). That made a DI-level fix a dead end, and
+   left the other ~60% of this app's 54 `dialog.open()` call sites (no
+   panelClass at all, or an unrelated one) with no mobile treatment.
+   Fix: target Angular Material's own dialog container classes directly
+   (`.cdk-overlay-pane:has(.mat-mdc-dialog-container)`), which every
+   MatDialog-opened panel gets unconditionally regardless of panelClass --
+   so this now applies globally with no call-site changes required.
+   `.responsive-dialog-panel` is kept below as a documented opt-in for a
+   dialog that needs a *different* breakpoint/sizing than this default (same
+   specificity tier, so it wins by source order over the global rule above
+   it). Desktop sizing (whatever width/height/maxWidth the call site passes)
    is untouched above 992px; below that, CSS takes over and overrides those
-   inline styles with `!important` -- this is deliberately CSS-driven rather
-   than computed once in TS at open time, so an in-progress dialog also
-   reflows correctly on an orientation change or a resized browser window.
-   Reference adoption: CarGridListComponent's onViewCar/showDeclarationDialog.
+   inline styles with !important -- deliberately CSS-driven rather than
+   computed once in TS at open time, so an in-progress dialog also reflows
+   correctly on an orientation change or a resized browser window.
+   :has() support: Chrome/Edge 105+, Safari 15.4+, Firefox 121+ -- all
+   comfortably below this app's supported baseline; browsers without it just
+   keep pre-existing (unconstrained) dialog sizing on mobile, same as before
+   this change, so this degrades safely rather than breaking anything.
    -------------------------------------------------------------------------- */
 @media (max-width: 480px) {
+  .cdk-overlay-pane:has(.mat-mdc-dialog-container),
   .responsive-dialog-panel {
     width: 100vw !important;
     max-width: 100vw !important;
@@ -355,13 +424,39 @@
     max-height: 100vh !important;
   }
 
+  .cdk-overlay-pane:has(.mat-mdc-dialog-container) .mat-mdc-dialog-container,
+  .cdk-overlay-pane:has(.mat-mdc-dialog-container) .mdc-dialog__surface,
   .responsive-dialog-panel .mat-mdc-dialog-container,
   .responsive-dialog-panel .mdc-dialog__surface {
     border-radius: 0 !important;
   }
+
+  /* Dialog body itself must scroll internally rather than growing past the
+     fullscreen frame above -- otherwise a tall form/grid inside just
+     overflows the viewport with no way to reach its own footer buttons. */
+  .cdk-overlay-pane:has(.mat-mdc-dialog-container) .mat-mdc-dialog-surface,
+  .responsive-dialog-panel .mat-mdc-dialog-surface {
+    max-height: 100vh !important;
+    overflow-y: auto;
+  }
 }
 
-@media (min-width: 481px) and (max-width: 992px) {
+@media (min-width: 481px) and (max-width: 768px) {
+  .cdk-overlay-pane:has(.mat-mdc-dialog-container),
+  .responsive-dialog-panel {
+    width: 90vw !important;
+    max-width: 90vw !important;
+    max-height: 90vh !important;
+  }
+
+  .cdk-overlay-pane:has(.mat-mdc-dialog-container) .mat-mdc-dialog-surface,
+  .responsive-dialog-panel .mat-mdc-dialog-surface {
+    max-height: 90vh !important;
+    overflow-y: auto;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 992px) {
   .responsive-dialog-panel {
     width: 90vw !important;
     max-width: 90vw !important;

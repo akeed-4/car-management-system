@@ -11,6 +11,19 @@
     </div>
   </div>
 
+  @if (isMobile()) {
+    <app-mobile-card-list
+      [items]="receiptNotes"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      emptyMessage="CARS_RECEIPT_NOTE.NO_RECEIPT_NOTES"
+    >
+      <ng-template let-note>
+        <button type="button" class="btn btn-light" (click)="mobileView(note)">{{ 'COMMON.VIEW' | translate }}</button>
+      </ng-template>
+    </app-mobile-card-list>
+  } @else {
   <dx-data-grid
     [dataSource]="receiptNotes"
     [showBorders]="true"
@@ -46,4 +59,5 @@
       </dxi-button>
     </dxi-column>
   </dx-data-grid>
+  }
 </div>

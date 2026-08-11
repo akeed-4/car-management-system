@@ -170,4 +170,19 @@
     overflow: hidden;
     border-inline-end: none;
   }
+
+  /* Pin button is opacity:0 until :hover on desktop (a mouse-only
+     affordance) -- on a touch drawer there's no hover state to reveal it,
+     so it would be permanently invisible and unreachable. Also grown to
+     the 48px touch target, same reasoning as the header icon buttons. */
+  .rail-pin-btn {
+    opacity: 1;
+    width: var(--mobile-touch-target, 48px);
+    height: var(--mobile-touch-target, 48px);
+  }
+
+  .rail-filter-input {
+    min-height: var(--mobile-control-height, 52px);
+    font-size: var(--mobile-control-font-size, 16px);
+  }
 }

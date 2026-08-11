@@ -6,11 +6,13 @@ import { SalesInvoice } from '../../../models/sales-invoice.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { CreditInvoiceListItem, creditInvoiceLanguageData } from './invoice-credit-list.model';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
 
 @Component({
   selector: 'app-invoice-credit-list',
   standalone: true,
-  imports: [CommonModule, DxDataGridModule, DxButtonModule, TranslateModule],
+  imports: [CommonModule, DxDataGridModule, DxButtonModule, TranslateModule, MobileCardListComponent],
   templateUrl: './invoice-credit-list.component.html',
   styleUrls: ['./invoice-credit-list.component.css']
 })
@@ -18,11 +20,34 @@ export class InvoiceCreditListComponent implements OnInit {
   private salesService = inject(SalesService);
   private router = inject(Router);
   private translateService = inject(TranslateService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   creditInvoices = signal<SalesInvoice[]>([]);
 
   // Local translations
   translations = creditInvoiceLanguageData.InvoiceCreditListDictionary;
+
+  // --- Mobile card-list rendering ---
+  mobileTitleOf = (item: SalesInvoice) => item.invoiceNumber;
+  mobileTrackBy = (_index: number, item: SalesInvoice) => item.id;
+
+  mobileFields: MobileCardField<SalesInvoice>[] = [
+    { label: 'INVOICE.CUSTOMER', value: (item) => item.customerName },
+    { label: 'INVOICE.INVOICE_DATE', value: (item) => item.invoiceDate },
+    { label: 'INVOICE.DUE_DATE', value: (item) => item.dueDate },
+    { label: 'INVOICE.TOTAL', value: (item) => item.totalAmount },
+    { label: 'INVOICE.PAYMENT_METHOD', value: (item) => item.paymentMethod },
+    { label: 'INVOICE.STATUS', value: (item) => item.status },
+  ];
+
+  mobileEditClick(item: SalesInvoice): void {
+    this.onEditClick({ row: { data: item } });
+  }
+
+  mobileDeleteClick(item: SalesInvoice): void {
+    this.onDeleteClick({ row: { data: item } });
+  }
 
   ngOnInit() {
     this.loadCreditInvoices();

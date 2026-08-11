@@ -9,6 +9,22 @@
 
 <mat-card>
   <mat-card-content>
+    <!-- Mobile (<=768px): rows render as full-width cards instead of the grid's
+         clipped/scrolling columns -- same data, same edit/delete actions. -->
+    @if (isMobile()) {
+      <app-mobile-card-list
+        [items]="stockTakes()"
+        [fields]="mobileFields"
+        [titleOf]="mobileTitleOf"
+        [trackByFn]="mobileTrackBy"
+        emptyMessage="COMMON.NO_DATA"
+      >
+        <ng-template let-item>
+          <button type="button" class="btn btn-light" (click)="mobileEdit(item)">{{ 'COMMON.EDIT' | translate }}</button>
+          <button type="button" class="btn btn-light" (click)="mobileDelete(item)">{{ 'COMMON.DELETE' | translate }}</button>
+        </ng-template>
+      </app-mobile-card-list>
+    } @else {
     <dx-data-grid
       [dataSource]="stockTakes()"
       [showBorders]="true"
@@ -43,6 +59,7 @@
       <dxo-editing mode="popup" [allowUpdating]="false" [allowDeleting]="false" [allowAdding]="false"></dxo-editing>
 
     </dx-data-grid>
+    }
   </mat-card-content>
 </mat-card>
 

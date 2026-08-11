@@ -45,6 +45,23 @@
     </button>
   </mat-toolbar>
 
+  <!-- Mobile (<=840px): rows render as full-width cards instead of the grid's
+       clipped/scrolling 6 columns -- same data, same approval action. -->
+  @if (isMobile()) {
+    <app-mobile-card-list
+      [items]="quotations()"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      emptyMessage="BANK_FINANCING.NO_APPROVALS"
+    >
+      <ng-template let-item>
+        @if (mobileIsLocked(item)) {
+          <button type="button" class="btn btn-light" (click)="mobileCreateApproval(item)">{{ 'BANK_FINANCING.RECORD_APPROVAL' | translate }}</button>
+        }
+      </ng-template>
+    </app-mobile-card-list>
+  } @else {
   <div class="grid-container">
     <dx-data-grid
       [dataSource]="quotations()"
@@ -91,4 +108,5 @@
       </dxi-column>
     </dx-data-grid>
   </div>
+  }
 </div>

@@ -7,6 +7,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DxDataGridModule } from 'devextreme-angular';
 import { PurchaseInvoice } from '../../../../models/purchase-invoice.model';
 import { PurchasesService } from '../../../../services/purchases.service';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { MobileCardListComponent, MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
 
 type SortColumn = keyof PurchaseInvoice | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -14,7 +16,7 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-cash-purchase-invoice-list',
   standalone: true,
-  imports: [RouterLink, FormsModule, TranslateModule, DxDataGridModule],
+  imports: [RouterLink, FormsModule, TranslateModule, DxDataGridModule, MobileCardListComponent],
   templateUrl: './cash-purchase-invoice-list.component.html',
   styleUrl: './cash-purchase-invoice-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,6 +25,8 @@ export class CashPurchaseInvoiceListComponent {
     private procurementService = inject(PurchasesService);
   private translate = inject(TranslateService);
   private router = inject(Router);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
     invoices = toSignal(this.procurementService.getInvoices(), { initialValue: [] });
 constructor() {
   this.onFilter = this.onFilter.bind(this);
@@ -104,6 +108,41 @@ constructor() {
 
       return invoices;
     });
+
+    // --- Mobile card-list rendering (see `isMobile` field comment above) ---
+    mobileTitleOf = (inv: PurchaseInvoice) => inv.invoiceNumber;
+    mobileTrackBy = (_index: number, inv: PurchaseInvoice) => inv.id;
+
+    private formatCurrency = (value: number) => `${(value ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SAR`;
+
+    mobileFields: MobileCardField<PurchaseInvoice>[] = [
+      { label: 'PURCHASES.SUPPLIER', value: (inv) => inv.supplier?.name || 'N/A' },
+      { label: 'PURCHASES.INVOICE_DATE', value: (inv) => new Date(inv.invoiceDate).toLocaleDateString() },
+      { label: 'PURCHASES.TOTAL_COST', value: (inv) => this.formatCurrency(inv.totalAmount) },
+      { label: 'PURCHASES.AMOUNT_PAID', value: (inv) => this.formatCurrency(inv.amountPaid) },
+      { label: 'PURCHASES.AMOUNT_DUE', value: (inv) => this.formatCurrency(inv.amountDue) },
+      { label: 'PURCHASES.STATUS', value: (inv) => inv.status },
+    ];
+
+    mobilePrint(inv: PurchaseInvoice): void {
+      window.open(`/purchases/invoice/print/${inv.id}`, '_blank');
+    }
+
+    mobileEdit(inv: PurchaseInvoice): void {
+      this.router.navigate(['/purchases/invoice/edit', inv.id]);
+    }
+
+    mobileDelete(inv: PurchaseInvoice): void {
+      this.deleteInvoice(inv.id);
+    }
+
+    mobileArchive(inv: PurchaseInvoice): void {
+      this.archiveInvoice(inv.id);
+    }
+
+    mobileCanArchive(inv: PurchaseInvoice): boolean {
+      return !this.showArchived() && inv.status === 'Paid';
+    }
 
     onFilter(event: Event) {
       const input = event.target as HTMLInputElement;

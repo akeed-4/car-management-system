@@ -14,6 +14,22 @@
 
   <mat-card class="data-grid-card">
     <mat-card-content>
+      <!-- Mobile (<=768px): the 9-column grid doesn't fit a phone width, so rows render as
+           full-width cards instead -- same data, same edit/delete actions. -->
+      @if (isMobile()) {
+        <app-mobile-card-list
+          [items]="openingBalances()"
+          [fields]="mobileFields"
+          [titleOf]="mobileTitleOf"
+          [trackByFn]="mobileTrackBy"
+          emptyMessage="ACCOUNTING.NO_OPENING_BALANCES"
+        >
+          <ng-template let-item>
+            <button type="button" class="btn btn-light" (click)="mobileEdit(item)">{{ 'ACCOUNTING.EDIT' | translate }}</button>
+            <button type="button" class="btn btn-light" (click)="mobileDelete(item)">{{ 'ACCOUNTING.DELETE' | translate }}</button>
+          </ng-template>
+        </app-mobile-card-list>
+      } @else {
       <div class="data-grid-container">
         <dx-data-grid
           [dataSource]="openingBalances()"
@@ -115,6 +131,7 @@
           </dxo-editing>
         </dx-data-grid>
       </div>
+      }
     </mat-card-content>
   </mat-card>
 </div>

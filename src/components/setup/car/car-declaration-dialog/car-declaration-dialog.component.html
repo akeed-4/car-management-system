@@ -27,12 +27,14 @@
           <canvas
             #signatureCanvas
             class="signature-canvas"
-            width="400"
-            height="150"
             (mousedown)="startDrawing($event)"
             (mousemove)="draw($event)"
             (mouseup)="stopDrawing()"
-            (mouseout)="stopDrawing()">
+            (mouseout)="stopDrawing()"
+            (touchstart)="startDrawing($event)"
+            (touchmove)="draw($event)"
+            (touchend)="stopDrawing()"
+            (touchcancel)="stopDrawing()">
           </canvas>
           <button mat-button type="button" (click)="clearSignature()" class="clear-btn">
             <mat-icon>clear</mat-icon>

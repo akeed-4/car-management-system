@@ -396,7 +396,8 @@
     "COLUMN_CHOOSER": "Column Chooser",
     "RECORD_COUNT": "Record Count",
     "ACTIVE": "Active",
-    "INACTIVE": "Inactive"
+    "INACTIVE": "Inactive",
+    "NO_DATA": "No records found"
   },
   "VALIDATION": {
     "REQUIRED": "This field is required"

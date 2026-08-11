@@ -17,7 +17,7 @@ import {
   DxDataGridModule,
   DxDataGridComponent,
 } from 'devextreme-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { DailyEntryService } from '../../../services/daily-entry.service';
 import { HasPermissionDirective } from '../../shared/permission.directive';
@@ -25,6 +25,8 @@ import { ModalComponent } from '../../shared/modal/modal.component';
 import { AuditHistoryPanelComponent } from '../../shared/audit-history-panel/audit-history-panel.component';
 import { DailyEntry } from '../../../models/daily-entry.model';
 import { getDailyEntryStatusClass, getDailyEntryTypeClass } from '../daily-entry-status.util';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
 
 @Component({
   selector: 'app-daily-entries-list',
@@ -45,6 +47,7 @@ import { getDailyEntryStatusClass, getDailyEntryTypeClass } from '../daily-entry
     MatInputModule,
     DxDataGridModule,
     TranslateModule,
+    MobileCardListComponent,
   ],
   templateUrl: './daily-entries-list.component.html',
   styleUrl: './daily-entries-list.component.css',
@@ -56,6 +59,9 @@ export class DailyEntriesListComponent {
   private dailyEntryService = inject(DailyEntryService);
   private router = inject(Router);
   private dialog = inject(MatDialog);
+  private responsiveService = inject(ResponsiveService);
+  private translateService = inject(TranslateService);
+  isMobile = this.responsiveService.isMobile;
 
   typeFilter = signal<string>('');
   statusFilter = signal<string>('');
@@ -93,6 +99,14 @@ export class DailyEntriesListComponent {
     },
   });
 
+  constructor() {
+    // dataSource.load() previously only ever fired via the grid's own [dataSource] binding --
+    // fine when the grid always mounts, but on mobile it doesn't (see @if(isMobile()) in the
+    // template), which would leave lastLoadedRows (and the mobile card list built on it) empty.
+    // Force an initial load unconditionally so both views work regardless of which one renders.
+    this.dataSource.load();
+  }
+
   summary = computed(() => {
     const rows = this.lastLoadedRows();
     const today = new Date().toISOString().split('T')[0];
@@ -106,6 +120,31 @@ export class DailyEntriesListComponent {
 
   getDailyEntryStatusClass = getDailyEntryStatusClass;
   getDailyEntryTypeClass = getDailyEntryTypeClass;
+
+  // --- Mobile card-list rendering ---
+  mobileTitleOf = (item: DailyEntry) => item.referenceNumber;
+  mobileTrackBy = (_index: number, item: DailyEntry) => item.id;
+
+  mobileFields: MobileCardField<DailyEntry>[] = [
+    { label: 'DAILY_ENTRIES.ENTRY_TYPE', value: (item) => this.translateService.instant('DAILY_ENTRIES.TYPE_' + item.entryType?.toUpperCase()) },
+    { label: 'DAILY_ENTRIES.VEHICLE', value: (item) => item.carDescription },
+    { label: 'DAILY_ENTRIES.WAREHOUSE', value: (item) => item.storeName },
+    { label: 'DAILY_ENTRIES.EMPLOYEE', value: (item) => item.employeeName },
+    { label: 'DAILY_ENTRIES.ENTRY_DATE', value: (item) => item.entryDate ? new Date(item.entryDate).toLocaleDateString() : '' },
+    { label: 'DAILY_ENTRIES.STATUS', value: (item) => this.translateService.instant('DAILY_ENTRIES.STATUS_' + item.status?.toUpperCase()) },
+  ];
+
+  mobileEdit(item: DailyEntry): void {
+    this.editEntry(item.id);
+  }
+
+  mobileHistory(item: DailyEntry): void {
+    this.openHistory(item.id);
+  }
+
+  mobileDelete(item: DailyEntry): void {
+    this.requestDelete(item.id);
+  }
 
   newEntry(): void {
     this.router.navigate(['/daily-entries/new']);

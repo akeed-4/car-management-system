@@ -45,6 +45,19 @@
     </button>
   </mat-toolbar>
 
+  @if (isMobile()) {
+    <app-mobile-card-list
+      [items]="invoices()"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      emptyMessage="CORPORATE.NO_INVOICES"
+    >
+      <ng-template let-inv>
+        <button type="button" class="btn btn-light" (click)="mobileEdit(inv)">{{ 'COMMON.EDIT' | translate }}</button>
+      </ng-template>
+    </app-mobile-card-list>
+  } @else {
   <div class="grid-container">
     <dx-data-grid
       [dataSource]="invoices()"
@@ -92,4 +105,5 @@
       </dxi-column>
     </dx-data-grid>
   </div>
+  }
 </div>

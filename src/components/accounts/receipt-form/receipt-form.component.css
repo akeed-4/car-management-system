@@ -202,7 +202,8 @@
   .header-section,
   .customer-invoice-section,
   .invoice-details-grid,
-  .payment-details-section {
+  .payment-details-section,
+  .accounting-grid {
     grid-template-columns: 1fr;
   }
 

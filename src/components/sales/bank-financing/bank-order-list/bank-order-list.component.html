@@ -11,6 +11,21 @@
     </div>
   </div>
 
+  <!-- Mobile (<=840px): rows render as full-width cards instead of the grid's
+       clipped/scrolling 8 columns -- same data, same view action. -->
+  @if (isMobile()) {
+    <app-mobile-card-list
+      [items]="orders()"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      emptyMessage="BANK_FINANCING.NO_ORDERS"
+    >
+      <ng-template let-item>
+        <button type="button" class="btn btn-light" (click)="mobileView(item)">{{ 'COMMON.VIEW' | translate }}</button>
+      </ng-template>
+    </app-mobile-card-list>
+  } @else {
   <dx-data-grid
     [dataSource]="orders()"
     [showBorders]="true"
@@ -48,4 +63,5 @@
       </dxi-button>
     </dxi-column>
   </dx-data-grid>
+  }
 </div>

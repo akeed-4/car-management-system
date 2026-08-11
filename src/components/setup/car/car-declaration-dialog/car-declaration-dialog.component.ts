@@ -40,7 +40,19 @@ export class CarDeclarationDialogComponent {
     setTimeout(() => {
       this.canvas = document.querySelector('.signature-canvas') as HTMLCanvasElement;
       if (this.canvas) {
+        // The canvas previously had a hardcoded width="400" HTML attribute, which doesn't shrink
+        // with its container -- on a ~360px phone that overflowed the dialog and forced
+        // horizontal scroll. Size the backing bitmap to the element's actual (CSS-driven, see
+        // .signature-canvas { width: 100% } below) layout width instead, scaled by
+        // devicePixelRatio so strokes stay crisp on high-DPI phone screens.
+        const dpr = window.devicePixelRatio || 1;
+        const cssWidth = this.canvas.clientWidth;
+        const cssHeight = this.canvas.clientHeight;
+        this.canvas.width = cssWidth * dpr;
+        this.canvas.height = cssHeight * dpr;
+
         this.ctx = this.canvas.getContext('2d')!;
+        this.ctx.scale(dpr, dpr);
         this.ctx.strokeStyle = '#000';
         this.ctx.lineWidth = 2;
         this.ctx.lineCap = 'round';
@@ -49,19 +61,27 @@ export class CarDeclarationDialogComponent {
     });
   }
 
-  startDrawing(event: MouseEvent) {
-    if (!this.canvas) return;
-    this.isDrawing = true;
+  private pointFromEvent(event: MouseEvent | TouchEvent): { x: number; y: number } {
     const rect = this.canvas.getBoundingClientRect();
+    const point = 'touches' in event ? (event.touches[0] ?? event.changedTouches[0]) : event;
+    return { x: point.clientX - rect.left, y: point.clientY - rect.top };
+  }
+
+  startDrawing(event: MouseEvent | TouchEvent) {
+    if (!this.canvas) return;
+    event.preventDefault(); // touchstart also fires a synthetic mousedown -- prevent double-handling and page scroll while signing
+    this.isDrawing = true;
+    const { x, y } = this.pointFromEvent(event);
     this.ctx.beginPath();
-    this.ctx.moveTo(event.clientX - rect.left, event.clientY - rect.top);
+    this.ctx.moveTo(x, y);
     this.hasSignature = true;
   }
 
-  draw(event: MouseEvent) {
+  draw(event: MouseEvent | TouchEvent) {
     if (!this.isDrawing || !this.canvas) return;
-    const rect = this.canvas.getBoundingClientRect();
-    this.ctx.lineTo(event.clientX - rect.left, event.clientY - rect.top);
+    event.preventDefault();
+    const { x, y } = this.pointFromEvent(event);
+    this.ctx.lineTo(x, y);
     this.ctx.stroke();
   }
 
@@ -71,7 +91,10 @@ export class CarDeclarationDialogComponent {
 
   clearSignature() {
     if (this.ctx && this.canvas) {
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      // ctx is scale(dpr, dpr)'d (see ngAfterViewInit), so clearRect must use the logical
+      // (CSS/client) size, not the DPR-scaled backing-store canvas.width/height -- otherwise at
+      // 2x DPR this only clears the top-left quarter of what's visible.
+      this.ctx.clearRect(0, 0, this.canvas.clientWidth, this.canvas.clientHeight);
       this.hasSignature = false;
     }
   }

@@ -11,6 +11,22 @@
     </div>
   </div>
 
+  <!-- Mobile (<=840px): rows render as full-width cards instead of the grid's
+       clipped/scrolling 7 columns -- same data, same view action. -->
+  @if (isMobile()) {
+    <app-mobile-card-list
+      [items]="deliveries()"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      emptyMessage="BANK_FINANCING.NO_DELIVERIES"
+    >
+      <ng-template let-item>
+        <button type="button" class="btn btn-light" (click)="mobileView(item)">{{ 'COMMON.VIEW' | translate }}</button>
+      </ng-template>
+    </app-mobile-card-list>
+  } @else {
+  <div class="grid-container">
   <dx-data-grid
     [dataSource]="deliveries()"
     [showBorders]="true"
@@ -47,4 +63,6 @@
       </dxi-button>
     </dxi-column>
   </dx-data-grid>
+  </div>
+  }
 </div>

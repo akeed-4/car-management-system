@@ -11,6 +11,15 @@ describe('NotificationFeedService', () => {
   let service: NotificationFeedService;
   let httpMock: HttpTestingController;
 
+  const originalUserAgent = navigator.userAgent;
+  const originalPlatform = navigator.platform;
+  const originalMaxTouchPoints = navigator.maxTouchPoints;
+  const originalStandalone = (navigator as Navigator & { standalone?: boolean }).standalone;
+  const originalPushManager = (window as Window & { PushManager?: unknown }).PushManager;
+  const originalNotification = (window as Window & { Notification?: unknown }).Notification;
+  const originalServiceWorker = (navigator as Navigator & { serviceWorker?: unknown }).serviceWorker;
+  const originalMatchMedia = window.matchMedia;
+
   const apiUrl = `${environment.origin}api/Notifications`;
 
   const makeNotification = (overrides: Partial<AppNotification> = {}): AppNotification => ({
@@ -53,7 +62,17 @@ describe('NotificationFeedService', () => {
     httpMock = TestBed.inject(HttpTestingController);
   });
 
-  afterEach(() => httpMock.verify());
+  afterEach(() => {
+    httpMock.verify();
+    Object.defineProperty(navigator, 'userAgent', { configurable: true, value: originalUserAgent });
+    Object.defineProperty(navigator, 'platform', { configurable: true, value: originalPlatform });
+    Object.defineProperty(navigator, 'maxTouchPoints', { configurable: true, value: originalMaxTouchPoints });
+    Object.defineProperty(navigator, 'standalone', { configurable: true, value: originalStandalone });
+    Object.defineProperty(window, 'PushManager', { configurable: true, value: originalPushManager });
+    Object.defineProperty(window, 'Notification', { configurable: true, value: originalNotification });
+    Object.defineProperty(navigator, 'serviceWorker', { configurable: true, value: originalServiceWorker });
+    Object.defineProperty(window, 'matchMedia', { configurable: true, value: originalMatchMedia });
+  });
 
   describe('loadNotifications', () => {
     it('populates the list and unread count from the response envelope', () => {
@@ -197,6 +216,48 @@ describe('NotificationFeedService', () => {
     it('does nothing while signed out', async () => {
       await service.startRealtime();
       expect(service.connected()).toBe(false);
+    });
+  });
+
+  describe('registerPush', () => {
+    it('silently skips on iOS Safari when not installed as a PWA', async () => {
+      Object.defineProperty(navigator, 'userAgent', {
+        configurable: true,
+        value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1',
+      });
+      Object.defineProperty(navigator, 'platform', { configurable: true, value: 'iPhone' });
+      Object.defineProperty(navigator, 'maxTouchPoints', { configurable: true, value: 5 });
+      Object.defineProperty(navigator, 'standalone', { configurable: true, value: false });
+      Object.defineProperty(window, 'matchMedia', {
+        configurable: true,
+        value: () => ({ matches: false, media: '', onchange: null, addListener: () => undefined, removeListener: () => undefined, addEventListener: () => undefined, removeEventListener: () => undefined, dispatchEvent: () => false }),
+      });
+
+      Object.defineProperty(window, 'PushManager', { configurable: true, value: class {} });
+      Object.defineProperty(window, 'Notification', {
+        configurable: true,
+        value: { permission: 'default', requestPermission: () => Promise.resolve('granted') },
+      });
+      Object.defineProperty(navigator, 'serviceWorker', {
+        configurable: true,
+        value: { register: () => Promise.resolve(undefined), ready: Promise.resolve(undefined) },
+      });
+
+      const result = await service.registerPush();
+
+      expect(result).toBe(false);
+      httpMock.expectNone(`${apiUrl}/vapid-public-key`);
+      httpMock.expectNone(`${apiUrl}/push-subscription`);
+    });
+
+    it('skips when Notification API is unavailable', async () => {
+      Object.defineProperty(window, 'PushManager', { configurable: true, value: class {} });
+      Object.defineProperty(window, 'Notification', { configurable: true, value: undefined });
+
+      const result = await service.registerPush();
+
+      expect(result).toBe(false);
+      httpMock.expectNone(`${apiUrl}/vapid-public-key`);
     });
   });
 });

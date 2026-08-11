@@ -8,6 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { CorporateFleetService } from '../../../../services/corporate-fleet.service';
 import { NotificationService } from '@/src/services/notification.service';
 import { DeliveryNoteResult } from '../../../../models/corporate/corporate-dispatch.model';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { MobileCardListComponent, MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
 
 @Component({
   selector: 'app-corporate-delivery-list',
@@ -18,7 +20,8 @@ import { DeliveryNoteResult } from '../../../../models/corporate/corporate-dispa
     DxDataGridModule,
     TranslateModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    MobileCardListComponent
   ],
   templateUrl: './corporate-delivery-list.component.html',
   styleUrls: ['./corporate-delivery-list.component.css'],
@@ -28,6 +31,8 @@ export class CorporateDeliveryListComponent implements OnInit {
   private corporateFleetService = inject(CorporateFleetService);
   private notificationService = inject(NotificationService);
   private router = inject(Router);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   deliveryNotes = signal<DeliveryNoteResult[]>([]);
   loading = signal(false);
@@ -58,4 +63,20 @@ export class CorporateDeliveryListComponent implements OnInit {
     const id = e.row.data.id;
     this.router.navigate(['/sales/corporate/deliveries/view', id]);
   };
+
+  // --- Mobile card-list rendering ---
+  mobileTitleOf = (note: DeliveryNoteResult) => note.deliveryNoteNumber;
+  mobileTrackBy = (_index: number, note: DeliveryNoteResult) => note.id;
+
+  mobileFields: MobileCardField<DeliveryNoteResult>[] = [
+    { label: 'VIN', value: (note) => note.vin },
+    { label: 'CORPORATE.GATE_PASS_SERIAL', value: (note) => note.gatePassSerial },
+    { label: 'CORPORATE.DELIVERY_DATE', value: (note) => note.deliveryDate ? new Date(note.deliveryDate).toLocaleDateString() : '' },
+    { label: 'CORPORATE.RECEIVER_NAME', value: (note) => note.deliveredToName },
+    { label: 'CORPORATE.DRIVER_NAME', value: (note) => note.driverName },
+  ];
+
+  mobileView(note: DeliveryNoteResult): void {
+    this.onView({ row: { data: { id: note.id } } });
+  }
 }

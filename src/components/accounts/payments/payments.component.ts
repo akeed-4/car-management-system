@@ -19,6 +19,8 @@ import CustomStore from 'devextreme/data/custom_store';
 import { firstValueFrom, map } from 'rxjs';
 import { ToastService } from '@/src/services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
 
 @Component({
   selector: 'app-payments',
@@ -36,17 +38,22 @@ import { NotificationService } from '@/src/services/notification.service';
     DxDataGridModule,
     DxButtonModule,
     DxTemplateModule,
+    MobileCardListComponent,
   ],
   templateUrl: './payments.component.html',
   styleUrl: './payments.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PaymentsComponent implements OnDestroy, AfterViewInit {
+export class PaymentsComponent implements OnDestroy, AfterViewInit, OnInit {
   private paymentService = inject(PaymentService);
   private router = inject(Router);
   private translate = inject(TranslateService);
   private accountingService = inject(AccountingService);
   private toastService = inject(NotificationService);
+  private responsiveService = inject(ResponsiveService);
+  private datePipe = inject(DatePipe);
+  private currencyPipe = inject(CurrencyPipe);
+  isMobile = this.responsiveService.isMobile;
 
   @ViewChild('toastContainer') toastContainer!: ElementRef;
   
@@ -84,12 +91,28 @@ export class PaymentsComponent implements OnDestroy, AfterViewInit {
   payments = toSignal(this.paymentService.payments$, {initialValue: []});
   accounts = signal<Account[]>([]);
 
+  // Mirrors the same rows the grid's CustomStore loads, kept as a plain signal so the mobile
+  // card list (which needs a concrete array, not a DevExtreme data source) can render/refresh
+  // independently of payments$ (a one-shot Observable captured at service construction time,
+  // never re-emitting after a delete).
+  mobilePayments = signal<Payment[]>([]);
+
   dataSource = new CustomStore({
     key: 'id',
     load: (loadOptions) => {
-      return firstValueFrom(this.paymentService.getPayments());
+      return firstValueFrom(this.paymentService.getPayments()).then(data => {
+        this.mobilePayments.set(data);
+        return data;
+      });
     }
   });
+
+  ngOnInit(): void {
+    // Populates mobilePayments regardless of which view (grid vs. card list) actually renders --
+    // the dx-data-grid's own [dataSource] binding would otherwise be the only thing triggering
+    // this load, and on mobile the grid never mounts.
+    this.dataSource.load();
+  }
 
   ngAfterViewInit(): void {
     // Set the toast container for this component
@@ -101,5 +124,26 @@ export class PaymentsComponent implements OnDestroy, AfterViewInit {
   ngOnDestroy(): void {
     // Clear the container when component is destroyed
     // this.toastService.clearContainer();
+  }
+
+  // --- Mobile card-list rendering ---
+  mobileTitleOf = (item: Payment) => item.voucherNumber;
+  mobileTrackBy = (_index: number, item: Payment) => item.id!;
+
+  mobileFields: MobileCardField<Payment>[] = [
+    { label: 'ACCOUNTS.PAYMENTS.COL_DATE', value: (item) => item.voucherDate ? this.datePipe.transform(item.voucherDate, 'yyyy-MM-dd') : '' },
+    { label: 'ACCOUNTS.PAYMENTS.COL_SUPPLIER', value: (item) => (item as any).supplierName },
+    { label: 'ACCOUNTS.PAYMENTS.COL_INVOICE', value: (item) => (item as any).purchaseInvoiceNumber },
+    { label: 'ACCOUNTS.PAYMENTS.COL_AMOUNT', value: (item) => this.currencyPipe.transform(item.amount, 'SAR') },
+  ];
+
+  mobileEdit(item: Payment): void {
+    if (item.id) {
+      this.router.navigate(['/accounts/payments/edit', item.id]);
+    }
+  }
+
+  mobileDelete(item: Payment): void {
+    this.deletePayment({ row: { data: item } });
   }
 }

@@ -13,6 +13,17 @@ import {
   NotificationPushPayload,
 } from '../models/notification.model';
 
+type RuntimePlatform = 'ios-safari' | 'ios-pwa' | 'android' | 'desktop' | 'unknown';
+
+interface PushRuntimeContext {
+  platform: RuntimePlatform;
+  isIOS: boolean;
+  isStandalone: boolean;
+  hasServiceWorker: boolean;
+  hasPushManager: boolean;
+  hasNotificationsApi: boolean;
+}
+
 /**
  * The persisted notification feed behind the header bell: REST reads, a live SignalR stream, and
  * Web Push registration.
@@ -232,7 +243,8 @@ export class NotificationFeedService {
   async registerPush(): Promise<boolean> {
     if (this.pushSubscribed) return true;
 
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    const runtime = this.getPushRuntimeContext();
+    if (!this.canRegisterPush(runtime)) {
       return false;
     }
 
@@ -246,11 +258,16 @@ export class NotificationFeedService {
       // Push is switched off server-side (no VAPID keys configured).
       if (!publicKey) return false;
 
-      const registration = await navigator.serviceWorker.register('/notification-sw.js');
+      const registration =
+        (await navigator.serviceWorker.getRegistration('/notification-sw.js')) ??
+        (await navigator.serviceWorker.register('/notification-sw.js'));
       await navigator.serviceWorker.ready;
 
-      // Never re-prompt: 'denied' is sticky and calling subscribe() again would just throw.
-      const permission = await Notification.requestPermission();
+      // Never re-prompt if the browser has already persisted a decision.
+      const permission =
+        Notification.permission === 'default'
+          ? await Notification.requestPermission()
+          : Notification.permission;
       if (permission !== 'granted') return false;
 
       const existing = await registration.pushManager.getSubscription();
@@ -277,6 +294,59 @@ export class NotificationFeedService {
       // Push is a progressive enhancement — a failure here must never break the shell.
       return false;
     }
+  }
+
+  private canRegisterPush(runtime: PushRuntimeContext): boolean {
+    if (!runtime.hasServiceWorker || !runtime.hasPushManager || !runtime.hasNotificationsApi) {
+      return false;
+    }
+
+    // iOS allows Web Push only from an installed standalone web app.
+    if (runtime.isIOS && !runtime.isStandalone) {
+      return false;
+    }
+
+    return true;
+  }
+
+  private getPushRuntimeContext(): PushRuntimeContext {
+    if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+      return {
+        platform: 'unknown',
+        isIOS: false,
+        isStandalone: false,
+        hasServiceWorker: false,
+        hasPushManager: false,
+        hasNotificationsApi: false,
+      };
+    }
+
+    const nav = navigator as Navigator & { standalone?: boolean };
+    const userAgent = nav.userAgent ?? '';
+    const isTouchMac = nav.platform === 'MacIntel' && nav.maxTouchPoints > 1;
+    const isIOS = /iPad|iPhone|iPod/i.test(userAgent) || isTouchMac;
+    const isAndroid = /Android/i.test(userAgent);
+    const standaloneByNavigator = nav.standalone === true;
+    const standaloneByDisplayMode =
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(display-mode: standalone)').matches;
+    const isStandalone = standaloneByNavigator || standaloneByDisplayMode;
+
+    let platform: RuntimePlatform = 'desktop';
+    if (isIOS) {
+      platform = isStandalone ? 'ios-pwa' : 'ios-safari';
+    } else if (isAndroid) {
+      platform = 'android';
+    }
+
+    return {
+      platform,
+      isIOS,
+      isStandalone,
+      hasServiceWorker: typeof nav.serviceWorker !== 'undefined',
+      hasPushManager: typeof (window as Window & { PushManager?: unknown }).PushManager !== 'undefined',
+      hasNotificationsApi: typeof (window as Window & { Notification?: unknown }).Notification !== 'undefined',
+    };
   }
 
   /** Unregisters this browser's push endpoint. Best-effort. */

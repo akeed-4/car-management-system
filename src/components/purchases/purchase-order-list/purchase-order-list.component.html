@@ -11,6 +11,19 @@
     </div>
   </div>
 
+  @if (isMobile()) {
+    <app-mobile-card-list
+      [items]="purchaseOrders"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      emptyMessage="PURCHASE_ORDER.NO_ORDERS"
+    >
+      <ng-template let-po>
+        <button type="button" class="btn btn-light" (click)="mobileEdit(po)">{{ 'COMMON.EDIT' | translate }}</button>
+      </ng-template>
+    </app-mobile-card-list>
+  } @else {
   <dx-data-grid
     [dataSource]="purchaseOrders"
     [showBorders]="true"
@@ -55,4 +68,5 @@
       </dxi-button>
     </dxi-column>
   </dx-data-grid>
+  }
 </div>

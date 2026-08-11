@@ -32,6 +32,26 @@
       </mat-slide-toggle>
     </div>
 
+    <!-- Mobile (<=768px): rows render as full-width cards instead of the grid's
+         clipped/scrolling columns -- same data, same edit/delete/archive/deposit
+         actions with the same visibility guards as the desktop grid buttons. -->
+    @if (isMobile()) {
+      <app-mobile-card-list
+        [items]="filteredAndSortedCars()"
+        [fields]="mobileFields"
+        [titleOf]="mobileTitleOf"
+        [trackByFn]="mobileTrackBy"
+        emptyMessage="COMMON.NO_DATA"
+      >
+        <ng-template let-item>
+          <button *ngIf="mobileIsEditVisible(item)" type="button" class="btn btn-light" (click)="mobileEdit(item)">{{ 'INVENTORY.EDIT' | translate }}</button>
+          <button *ngIf="mobileIsDeleteVisible(item)" type="button" class="btn btn-light" (click)="mobileDelete(item)">{{ 'INVENTORY.DELETE' | translate }}</button>
+          <button *ngIf="mobileIsArchiveVisible(item)" type="button" class="btn btn-light" (click)="mobileArchive(item)">{{ 'INVENTORY.ARCHIVE' | translate }}</button>
+          <button *ngIf="mobileIsUnarchiveVisible(item)" type="button" class="btn btn-light" (click)="mobileUnarchive(item)">{{ 'INVENTORY.UNARCHIVE' | translate }}</button>
+          <button *ngIf="mobileIsDepositVisible(item)" type="button" class="btn btn-light" (click)="mobileDeposit(item)">{{ 'INVENTORY.DEPOSIT_VOUCHER' | translate }}</button>
+        </ng-template>
+      </app-mobile-card-list>
+    } @else {
     <dx-data-grid
       [dataSource]="filteredAndSortedCars()"
       [showBorders]="true"
@@ -74,6 +94,7 @@
       <dxo-editing mode="cell" [allowUpdating]="!showArchived()" [allowDeleting]="false" [allowAdding]="false"></dxo-editing>
 
     </dx-data-grid>
+    }
   </mat-card-content>
 </mat-card>
 

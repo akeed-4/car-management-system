@@ -15,6 +15,22 @@
       <!-- Search is now handled by the grid -->
     </div>
 
+    <!-- Mobile (<=840px): rows render as full-width cards instead of the grid's
+         clipped/scrolling columns -- same data, same edit/delete actions. -->
+    @if (isMobile()) {
+      <app-mobile-card-list
+        [items]="mobileReceipts()"
+        [fields]="mobileFields"
+        [titleOf]="mobileTitleOf"
+        [trackByFn]="mobileTrackBy"
+        emptyMessage="COMMON.NO_DATA"
+      >
+        <ng-template let-item>
+          <button type="button" class="btn btn-light" (click)="mobileEdit(item)">{{ 'COMMON.EDIT' | translate }}</button>
+          <button type="button" class="btn btn-light" (click)="mobileDelete(item)">{{ 'COMMON.DELETE' | translate }}</button>
+        </ng-template>
+      </app-mobile-card-list>
+    } @else {
     <dx-data-grid
       [dataSource]="dataSource"
       [remoteOperations]="true"
@@ -119,5 +135,6 @@
       </dxo-summary>
 
     </dx-data-grid>
+    }
   </mat-card-content>
 </mat-card>

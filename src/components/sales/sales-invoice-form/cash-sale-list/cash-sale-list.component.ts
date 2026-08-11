@@ -7,12 +7,14 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DxDataGridModule, DxDataGridComponent, DxTemplateModule } from 'devextreme-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SalesService } from '../../../../services/sales.service';
 import { NotificationService } from '@/src/services/notification.service';
 import { SalesInvoice } from '../../../../models/sales-invoice.model';
 import { SaleType } from '../../../../models/sales-enhancements.model';
 import { SalesChannel } from '../../../../models/enums/sales-channel.enum';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { MobileCardListComponent, MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
 
 @Component({
   selector: 'app-cash-sale-list',
@@ -26,7 +28,8 @@ import { SalesChannel } from '../../../../models/enums/sales-channel.enum';
     MatTooltipModule,
     DxDataGridModule,
     DxTemplateModule,
-    TranslateModule
+    TranslateModule,
+    MobileCardListComponent
   ],
   templateUrl: './cash-sale-list.component.html',
   styleUrls: ['./cash-sale-list.component.css'],
@@ -38,9 +41,28 @@ export class CashSaleListComponent implements OnInit {
   private salesService = inject(SalesService);
   private notificationService = inject(NotificationService);
   private router = inject(Router);
+  private translate = inject(TranslateService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   invoices = signal<SalesInvoice[]>([]);
   loading = signal(false);
+
+  // --- Mobile card-list rendering ---
+  mobileTitleOf = (item: SalesInvoice) => item.invoiceNumber;
+  mobileTrackBy = (_index: number, item: SalesInvoice) => item.id;
+
+  mobileFields: MobileCardField<SalesInvoice>[] = [
+    { label: 'INVOICE.CUSTOMER', value: (item) => item.customerName },
+    { label: 'INVOICE.INVOICE_DATE', value: (item) => item.invoiceDate },
+    { label: 'INVOICE.TOTAL', value: (item) => item.totalAmount },
+    { label: 'INVOICE.AMOUNT_PAID', value: (item) => item.amountPaid },
+    { label: 'INVOICE.STATUS', value: (item) => this.translate.instant('INVOICE.STATUS_' + item.status?.toUpperCase()) },
+  ];
+
+  mobileEdit(item: SalesInvoice): void {
+    this.onEdit({ row: { data: item } });
+  }
 
   ngOnInit(): void {
     this.loadInvoices();

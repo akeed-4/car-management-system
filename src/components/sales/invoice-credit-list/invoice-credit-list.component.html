@@ -12,6 +12,20 @@
   
   </div>
 
+  @if (isMobile()) {
+    <app-mobile-card-list
+      [items]="creditInvoices()"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      emptyMessage="COMMON.NO_DATA"
+    >
+      <ng-template let-item>
+        <button type="button" class="btn btn-light" (click)="mobileEditClick(item)">{{ 'COMMON.EDIT' | translate }}</button>
+        <button type="button" class="btn btn-light" (click)="mobileDeleteClick(item)">{{ 'COMMON.DELETE' | translate }}</button>
+      </ng-template>
+    </app-mobile-card-list>
+  } @else {
   <div class="card">
     <div class="table-wrapper premium-table">
       <dx-data-grid
@@ -45,4 +59,5 @@
       </dx-data-grid>
     </div>
   </div>
+  }
 </div>

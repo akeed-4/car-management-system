@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
@@ -6,6 +6,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PurchaseRequisitionService } from '../../../services/purchase-requisition.service';
 import { NotificationService } from '../../../services/notification.service';
 import { PurchaseRequisitionDto } from '../../../models/purchase-requisition.model';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
 
 @Component({
   selector: 'app-purchase-requisition-approval-list',
@@ -16,13 +18,16 @@ import { PurchaseRequisitionDto } from '../../../models/purchase-requisition.mod
     DxDataGridModule,
     DxButtonModule,
     DxTemplateModule,
-    TranslateModule
+    TranslateModule,
+    MobileCardListComponent
   ],
   templateUrl: './purchase-requisition-approval-list.component.html',
   styleUrls: ['./purchase-requisition-approval-list.component.css']
 })
 export class PurchaseRequisitionApprovalListComponent implements OnInit {
   requisitions: PurchaseRequisitionDto[] = [];
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   constructor(
     private purchaseRequisitionService: PurchaseRequisitionService,
@@ -92,5 +97,28 @@ export class PurchaseRequisitionApprovalListComponent implements OnInit {
         this.notificationService.showError(this.translateService.instant('PURCHASE_REQUISITION.REJECT_ERROR') + ': ' + (err?.message || 'Unknown error'));
       }
     });
+  }
+
+  // --- Mobile card-list rendering ---
+  mobileTitleOf = (req: PurchaseRequisitionDto) => req.requisitionNumber;
+  mobileTrackBy = (_index: number, req: PurchaseRequisitionDto) => req.id;
+
+  mobileFields: MobileCardField<PurchaseRequisitionDto>[] = [
+    { label: 'PURCHASE_REQUISITION.REQUISITION_DATE', value: (req) => req.requisitionDate ? new Date(req.requisitionDate).toLocaleDateString() : '' },
+    { label: 'PURCHASE_REQUISITION.DEPARTMENT', value: (req) => req.departmentName },
+    { label: 'PURCHASE_REQUISITION.ITEMS_COUNT', value: (req) => this.getItemsCount(req) },
+    { label: 'PURCHASE_REQUISITION.STATUS', value: (req) => this.translateService.instant('PURCHASE_REQUISITION.STATUS_' + req.status?.toUpperCase()) },
+  ];
+
+  mobileView(req: PurchaseRequisitionDto): void {
+    this.onView({ row: { data: { id: req.id } } });
+  }
+
+  mobileApprove(req: PurchaseRequisitionDto): void {
+    this.onApprove({ row: { data: req } });
+  }
+
+  mobileReject(req: PurchaseRequisitionDto): void {
+    this.onReject({ row: { data: req } });
   }
 }

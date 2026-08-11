@@ -2,7 +2,7 @@
 
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { CurrencyPipe, DecimalPipe } from '@angular/common';
+import { CommonModule, CurrencyPipe, DecimalPipe } from '@angular/common';
 import { ModalComponent } from '../../shared/modal/modal.component';
 import { Car, CarCondition, CarLocation } from '../../../models/car.model';
 import { FormsModule } from '@angular/forms'; // Import FormsModule for filter input
@@ -19,6 +19,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
 
 type SortColumn = keyof Car | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -27,6 +29,7 @@ type SortDirection = 'asc' | 'desc' | '';
   selector: 'app-inventory-list',
   standalone: true,
   imports: [
+    CommonModule,
     RouterLink,
     ModalComponent,
     FormsModule,
@@ -43,7 +46,8 @@ type SortDirection = 'asc' | 'desc' | '';
     MatTooltipModule,
     DxDataGridModule,
     DxButtonModule,
-    DxTemplateModule
+    DxTemplateModule,
+    MobileCardListComponent
   ],
   templateUrl: './inventory-list.component.html',
   styleUrl: './inventory-list.component.css',
@@ -53,6 +57,8 @@ export class InventoryListComponent {
   private inventoryService = inject(InventoryService);
   // Fix: Injected Router service
   private router = inject(Router);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   cars = this.inventoryService.cars$;
   filter = signal('');
@@ -256,4 +262,45 @@ export class InventoryListComponent {
   getConditionDisplayValue = (rowData: any) => {
     return rowData.condition === 'New' ? 'جديدة' : 'مستعملة';
   };
+
+  // --- Mobile card-list rendering ---
+  mobileTitleOf = (item: Car) => this.getCarDisplayValue(item);
+  mobileTrackBy = (_index: number, item: Car) => item.id;
+
+  mobileFields: MobileCardField<Car>[] = [
+    { label: 'INVENTORY.VIN', value: (item) => item.vin },
+    { label: 'INVENTORY.SALE_PRICE', value: (item) => item.salePrice },
+    { label: 'INVENTORY.STATUS', value: (item) => this.getStatusDisplayValue(item) },
+    { label: 'INVENTORY.CURRENT_LOCATION', value: (item) => item.currentLocation },
+  ];
+
+  // Mirrors the desktop grid's isEditVisible/isDeleteVisible/isArchiveVisible/
+  // isUnarchiveVisible/isDepositVisible guards, which only read
+  // showArchived()/row status -- adapted here to take the Car directly
+  // instead of a DevExtreme `{row:{data:...}}` event.
+  mobileIsEditVisible = (item: Car) => !this.showArchived();
+  mobileIsDeleteVisible = (item: Car) => !this.showArchived();
+  mobileIsArchiveVisible = (item: Car) => !this.showArchived() && item.status === 'Sold';
+  mobileIsUnarchiveVisible = (item: Car) => this.showArchived();
+  mobileIsDepositVisible = (item: Car) => !this.showArchived() && item.status === 'Reserved';
+
+  mobileEdit(item: Car): void {
+    this.editCar(item.id);
+  }
+
+  mobileDelete(item: Car): void {
+    this.requestDelete(item.id);
+  }
+
+  mobileArchive(item: Car): void {
+    this.archiveCar(item.id);
+  }
+
+  mobileUnarchive(item: Car): void {
+    this.unarchiveCar(item.id);
+  }
+
+  mobileDeposit(item: Car): void {
+    this.router.navigate(['/accounts/deposits/new', item.id]);
+  }
 }

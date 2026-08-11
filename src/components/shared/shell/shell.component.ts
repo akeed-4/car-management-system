@@ -208,13 +208,24 @@ export class ShellComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Static fallback path (menu.service.ts's menuData) has no `order`/`parentId` fields like the
+   * API response does -- it's nested `submenu` arrays instead. Stamping `order` from array
+   * position here (recursively) keeps this path's ordering rule identical in spirit to
+   * DynamicMenuService.sortMenuItems (sort by `order`), so both paths are driven by "position in
+   * the single source-of-truth array" rather than one being implicit declaration order and the
+   * other explicit.
+   */
   private transformStaticMenus(menus: any[]): MenuItem[] {
     const useEnglish = this.currentLanguage === 'en';
-    return menus.map(menu => ({
-      ...menu,
-      name: useEnglish ? menu.englishName : menu.name,
-      children: menu.submenu?.map((sub: any) => ({ ...sub, name: useEnglish ? sub.englishName : sub.name })),
-    }));
+    const withOrder = (items: any[]): MenuItem[] =>
+      items.map((item, index) => ({
+        ...item,
+        order: index,
+        name: useEnglish ? item.englishName : item.name,
+        children: item.submenu?.length ? withOrder(item.submenu) : undefined,
+      }));
+    return withOrder(menus);
   }
 
   toggleRail(): void {

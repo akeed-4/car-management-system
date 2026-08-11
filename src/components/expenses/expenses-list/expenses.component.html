@@ -19,6 +19,25 @@
         <input type="checkbox" id="showArchived" [checked]="showArchived()" (change)="showArchived.set(!showArchived())">
       </div>
     </div>
+    @if (isMobile()) {
+      <app-mobile-card-list
+        [items]="filteredAndSortedExpenses()"
+        [fields]="mobileFields"
+        [titleOf]="mobileTitleOf"
+        [trackByFn]="mobileTrackBy"
+        emptyMessage="COMMON.NO_DATA"
+      >
+        <ng-template let-expense>
+          @if (!showArchived()) {
+            <button type="button" class="btn btn-light" (click)="editExpense(expense.id)">تعديل</button>
+            <button type="button" class="btn btn-light" (click)="requestDelete(expense.id)">حذف</button>
+            <button type="button" class="btn btn-light" (click)="archiveExpense(expense.id)">أرشفة</button>
+          } @else {
+            <button type="button" class="btn btn-light" (click)="unarchiveExpense(expense.id)">إلغاء الأرشفة</button>
+          }
+        </ng-template>
+      </app-mobile-card-list>
+    } @else {
     <div class="table-wrapper">
       <table class="table">
         <thead>
@@ -65,6 +84,7 @@
         </tbody>
       </table>
     </div>
+    }
   </div>
 </div>
 <app-modal 

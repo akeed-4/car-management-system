@@ -7,12 +7,26 @@
     </a>
   </div>
 
+  @if (isMobile()) {
+    <app-mobile-card-list
+      [items]="categories()"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      emptyMessage="CAR_CATEGORY.NO_CATEGORIES"
+    >
+      <ng-template let-cat>
+        <button type="button" class="btn btn-light" (click)="mobileEdit(cat)">{{ 'CAR_CATEGORY.EDIT' | translate }}</button>
+        <button type="button" class="btn btn-light" (click)="mobileDelete(cat)">{{ 'CAR_CATEGORY.DELETE' | translate }}</button>
+      </ng-template>
+    </app-mobile-card-list>
+  } @else {
   <dx-data-grid
     [dataSource]="categories()"
     [showBorders]="true"
     [showRowLines]="true"
      [rtlEnabled]="true">
-    
+
     <dxo-filter-row [visible]="true"></dxo-filter-row>
     <dxo-header-filter [visible]="true"></dxo-header-filter>
     <dxo-search-panel [visible]="true" [width]="240" placeholder="{{ 'CAR_CATEGORY.SEARCH_PLACEHOLDER' | translate }}"></dxo-search-panel>
@@ -22,10 +36,10 @@
     <dxi-column dataField="id" [caption]="getCaption('ID')" [width]="80" alignment="center"></dxi-column>
     <dxi-column dataField="name" [caption]="getCaption('NAME')" [minWidth]="200"></dxi-column>
     <dxi-column dataField="description" [caption]="getCaption('DESCRIPTION')" [minWidth]="300"></dxi-column>
-    
-    <dxi-column 
-      type="buttons" 
-      [caption]="getCaption('ACTIONS')" 
+
+    <dxi-column
+      type="buttons"
+      [caption]="getCaption('ACTIONS')"
       [width]="120"
       alignment="center">
       <dxi-button
@@ -47,4 +61,5 @@
       </div>
     </div>
   </dx-data-grid>
+  }
 </div>

@@ -11,6 +11,26 @@
     </div>
   </div>
 
+  @if (isMobile()) {
+    <app-mobile-card-list
+      [items]="quotations"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      emptyMessage="SUPPLIER_RFQ.NO_QUOTATIONS"
+    >
+      <ng-template let-q>
+        <button type="button" class="btn btn-light" (click)="mobileEdit(q)">{{ 'COMMON.EDIT' | translate }}</button>
+        @if (mobileCanSubmit(q)) {
+          <button type="button" class="btn btn-light" (click)="mobileSubmit(q)">{{ 'SUPPLIER_RFQ.SUBMIT' | translate }}</button>
+        }
+        @if (mobileCanApproveReject(q)) {
+          <button type="button" class="btn btn-light" (click)="mobileApprove(q)">{{ 'SUPPLIER_RFQ.APPROVE' | translate }}</button>
+          <button type="button" class="btn btn-light" (click)="mobileReject(q)">{{ 'SUPPLIER_RFQ.REJECT' | translate }}</button>
+        }
+      </ng-template>
+    </app-mobile-card-list>
+  } @else {
   <dx-data-grid
     [dataSource]="quotations"
     [showBorders]="true"
@@ -72,4 +92,5 @@
       </dxi-button>
     </dxi-column>
   </dx-data-grid>
+  }
 </div>

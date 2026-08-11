@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
@@ -9,6 +9,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { PurchaseOfferDto } from '@/src/models/purchase-offer.model';
 import { NotificationService } from '@/src/services/notification.service';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
 
 @Component({
   selector: 'app-purchase-offers',
@@ -21,13 +23,16 @@ import { NotificationService } from '@/src/services/notification.service';
     DxTemplateModule,
     TranslateModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    MobileCardListComponent
   ],
   templateUrl: './purchase-offers.component.html',
   styleUrls: ['./purchase-offers.component.css']
 })
 export class PurchaseOffersComponent implements OnInit {
   purchaseOffers: PurchaseOfferDto[] = [];
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   constructor(
     private purchaseCycleService: PurchaseCycleService,
@@ -104,5 +109,33 @@ export class PurchaseOffersComponent implements OnInit {
         this.notificationService.showError(this.translateService.instant('PURCHASE_OFFERS.REJECT_ERROR') + ': ' + (err?.message || 'Unknown error'));
       }
     });
+  }
+
+  // --- Mobile card-list rendering ---
+  mobileTitleOf = (offer: PurchaseOfferDto) => offer.offerNumber;
+  mobileTrackBy = (_index: number, offer: PurchaseOfferDto) => offer.id;
+
+  mobileFields: MobileCardField<PurchaseOfferDto>[] = [
+    { label: 'PURCHASE_OFFER.SUPPLIER', value: (offer) => offer.supplierName },
+    { label: 'PURCHASE_OFFER.OFFER_DATE', value: (offer) => offer.offerDate ? new Date(offer.offerDate).toLocaleDateString() : '' },
+    { label: 'PURCHASE_OFFERS.ITEMS_COUNT', value: (offer) => this.getItemsCount(offer) },
+    { label: 'PURCHASE_OFFERS.TOTAL_AMOUNT', value: (offer) => offer.totalAmount },
+    { label: 'PURCHASE_OFFER.STATUS', value: (offer) => this.translateService.instant('PURCHASE_OFFER.STATUS_' + offer.status?.toUpperCase()) },
+  ];
+
+  mobileCanApproveReject(offer: PurchaseOfferDto): boolean {
+    return this.isPending({ row: { data: offer } });
+  }
+
+  mobileEdit(offer: PurchaseOfferDto): void {
+    this.onEdit({ row: { data: { id: offer.id } } });
+  }
+
+  mobileApprove(offer: PurchaseOfferDto): void {
+    this.onApprove({ row: { data: offer } });
+  }
+
+  mobileReject(offer: PurchaseOfferDto): void {
+    this.onReject({ row: { data: offer } });
   }
 }

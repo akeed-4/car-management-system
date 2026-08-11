@@ -8,13 +8,15 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PurchaseAdditionalCostService } from '../../../services/purchase-additional-cost.service';
 import { NotificationService } from '../../../services/notification.service';
 import { AuthService } from '../../../services/AuthService.service';
 import { HasPermissionDirective } from '../../shared/permission.directive';
 import { ModalComponent } from '../../shared/modal/modal.component';
 import { PurchaseAdditionalCost } from '../../../models/purchase-additional-cost.model';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
 
 @Component({
   selector: 'app-purchase-additional-cost-list',
@@ -32,6 +34,7 @@ import { PurchaseAdditionalCost } from '../../../models/purchase-additional-cost
     MatFormFieldModule,
     MatSelectModule,
     TranslateModule,
+    MobileCardListComponent,
   ],
   templateUrl: './purchase-additional-cost-list.component.html',
   styleUrl: './purchase-additional-cost-list.component.css',
@@ -41,6 +44,9 @@ export class PurchaseAdditionalCostListComponent {
   private service = inject(PurchaseAdditionalCostService);
   private notificationService = inject(NotificationService);
   private authService = inject(AuthService);
+  private responsiveService = inject(ResponsiveService);
+  private translateService = inject(TranslateService);
+  isMobile = this.responsiveService.isMobile;
 
   /** When set, this list is embedded in a Purchase Invoice's "Additional Costs" tab: only that
    * invoice's costs are shown and the "Purchase Invoice" column is hidden. */
@@ -158,4 +164,16 @@ export class PurchaseAdditionalCostListComponent {
   }
 
   onStatusFilterChange(): void {}
+
+  // --- Mobile card-list rendering ---
+  mobileTitleOf = (item: PurchaseAdditionalCost) => item.documentNumber;
+  mobileTrackBy = (_index: number, item: PurchaseAdditionalCost) => item.id;
+
+  mobileFields: MobileCardField<PurchaseAdditionalCost>[] = [
+    { label: 'PURCHASE_ADDITIONAL_COST.EXPENSE_CATEGORY', value: (item) => this.translateService.instant('PURCHASE_ADDITIONAL_COST.CATEGORY_' + item.expenseCategory.toUpperCase()) },
+    { label: 'PURCHASE_ADDITIONAL_COST.COST_DATE', value: (item) => new Date(item.costDate).toLocaleDateString() },
+    { label: 'PURCHASE_ADDITIONAL_COST.AMOUNT', value: (item) => item.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) },
+    { label: 'PURCHASE_ADDITIONAL_COST.ALLOCATION_METHOD', value: (item) => this.translateService.instant('PURCHASE_ADDITIONAL_COST.METHOD_' + item.allocationMethod.toUpperCase()) },
+    { label: 'PURCHASE_ADDITIONAL_COST.STATUS', value: (item) => this.translateService.instant('PURCHASE_ADDITIONAL_COST.STATUS_' + item.status.toUpperCase()) },
+  ];
 }

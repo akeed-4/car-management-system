@@ -11,6 +11,25 @@
     </div>
   </div>
 
+  @if (isMobile()) {
+    <app-mobile-card-list
+      [items]="requisitions"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      emptyMessage="PURCHASE_REQUISITION.NO_REQUISITIONS"
+    >
+      <ng-template let-req>
+        <button type="button" class="btn btn-light" (click)="mobileView(req)">{{ 'COMMON.VIEW' | translate }}</button>
+        <button type="button" class="btn btn-light" (click)="mobileEdit(req)">{{ 'COMMON.EDIT' | translate }}</button>
+        <button type="button" class="btn btn-light" (click)="mobileSubmit(req)">{{ 'PURCHASE_REQUISITION.SUBMIT' | translate }}</button>
+        @if (mobileCanApproveReject(req)) {
+          <button type="button" class="btn btn-light" (click)="mobileApprove(req)">{{ 'PURCHASE_REQUISITION.APPROVE' | translate }}</button>
+          <button type="button" class="btn btn-light" (click)="mobileReject(req)">{{ 'PURCHASE_REQUISITION.REJECT' | translate }}</button>
+        }
+      </ng-template>
+    </app-mobile-card-list>
+  } @else {
   <dx-data-grid
     [dataSource]="requisitions"
     [showBorders]="true"
@@ -75,4 +94,5 @@
       </dxi-button>
     </dxi-column>
   </dx-data-grid>
+  }
 </div>

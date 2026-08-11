@@ -10,6 +10,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
+import { StockTake } from '../../../models/stock-take.model';
 
 @Component({
   selector: 'app-stock-taking',
@@ -23,7 +26,8 @@ import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
     MatCardModule,
     MatToolbarModule,
     DxDataGridModule,
-    DxButtonModule
+    DxButtonModule,
+    MobileCardListComponent
   ],
   templateUrl: './stock-taking.component.html',
   styleUrl: './stock-taking.component.css',
@@ -32,6 +36,8 @@ import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
 export class StockTakingComponent {
   private stockTakeService = inject(StockTakeService);
   private router = inject(Router);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   stockTakes = toSignal(this.stockTakeService.getStockTakesByStore(1), { initialValue: [] });
 constructor() {
@@ -65,6 +71,26 @@ constructor() {
 
   editStockTake(id: number) {
     this.router.navigate(['/inventory/stock-taking/edit', id]);
+  }
+
+  // --- Mobile card-list rendering ---
+  mobileTitleOf = (item: StockTake) => item.documentName;
+  mobileTrackBy = (_index: number, item: StockTake) => item.id;
+
+  private statusDisplay = (status: string) => this.statusLookup.find(s => s.value === status)?.display ?? status;
+
+  mobileFields: MobileCardField<StockTake>[] = [
+    { label: 'INVENTORY.STOCK_TAKING.DATE', value: (item) => item.documentDate ? new Date(item.documentDate).toLocaleDateString() : '' },
+    { label: 'INVENTORY.STOCK_TAKING.CONDUCTED_BY', value: (item) => item.createdBy },
+    { label: 'INVENTORY.STOCK_TAKING.STATUS', value: (item) => this.statusDisplay(item.status) },
+  ];
+
+  mobileEdit(item: StockTake): void {
+    this.editStockTake(item.id);
+  }
+
+  mobileDelete(item: StockTake): void {
+    this.requestDelete(item.id);
   }
 
   requestDelete(id: number) {

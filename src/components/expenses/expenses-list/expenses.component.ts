@@ -5,6 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { ExpenseService } from '../../../services/expense.service';
 import { Expense } from '../../../models/expense.model';
 import { ModalComponent } from '../../shared/modal/modal.component';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
 
 type SortColumn = keyof Expense | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -12,7 +14,7 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-expenses',
   standalone: true,
-  imports: [RouterLink, CurrencyPipe, DatePipe, FormsModule, ModalComponent],
+  imports: [RouterLink, CurrencyPipe, DatePipe, FormsModule, ModalComponent, MobileCardListComponent],
   templateUrl: './expenses.component.html',
   styleUrl: './expenses.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -20,6 +22,8 @@ type SortDirection = 'asc' | 'desc' | '';
 export class ExpensesComponent {
   private expenseService = inject(ExpenseService);
   private router = inject(Router);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   expenses = this.expenseService.expenses$;
   filter = signal('');
@@ -115,4 +119,14 @@ export class ExpensesComponent {
   unarchiveExpense(id: number) {
     this.expenseService.unarchiveExpense(id);
   }
+
+  // --- Mobile card-list rendering ---
+  mobileTitleOf = (exp: Expense) => exp.description;
+  mobileTrackBy = (_index: number, exp: Expense) => exp.id;
+
+  mobileFields: MobileCardField<Expense>[] = [
+    { label: 'ACCOUNTING.DATE', value: (exp) => new Date(exp.date).toLocaleDateString() },
+    { label: 'ACCOUNTING.CATEGORY', value: (exp) => exp.category },
+    { label: 'ACCOUNTING.AMOUNT', value: (exp) => `${exp.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SAR` },
+  ];
 }

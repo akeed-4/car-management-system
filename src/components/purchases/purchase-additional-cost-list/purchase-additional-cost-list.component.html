@@ -69,6 +69,24 @@
     </mat-form-field>
   </mat-toolbar>
 
+  <!-- Mobile (<=768px): the table's columns don't fit a phone width, so rows render as
+       full-width cards instead -- same data, same permission-gated actions. -->
+  @if (isMobile()) {
+    <app-mobile-card-list
+      [items]="filteredItems()"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      emptyMessage="COMMON.NO_DATA"
+    >
+      <ng-template let-item>
+        <button type="button" class="btn btn-light" *ngIf="canEdit(item)" appHasPermission="purchaseAdditionalCost.edit" (click)="editCost(item.id)">{{ 'COMMON.EDIT' | translate }}</button>
+        <button type="button" class="btn btn-light" *ngIf="item.status === 'Draft'" appHasPermission="purchaseAdditionalCost.post" (click)="postCost(item)">{{ 'PURCHASE_ADDITIONAL_COST.POST' | translate }}</button>
+        <button type="button" class="btn btn-light" *ngIf="item.status === 'Posted'" appHasPermission="purchaseAdditionalCost.post" (click)="cancelCost(item)">{{ 'PURCHASE_ADDITIONAL_COST.CANCEL' | translate }}</button>
+        <button type="button" class="btn btn-light" *ngIf="canEdit(item)" appHasPermission="purchaseAdditionalCost.delete" (click)="requestDelete(item.id)">{{ 'COMMON.DELETE' | translate }}</button>
+      </ng-template>
+    </app-mobile-card-list>
+  } @else {
   <div class="table-wrapper">
     <table class="table">
       <thead>
@@ -125,6 +143,7 @@
       </tbody>
     </table>
   </div>
+  }
 
   <app-modal
     [isOpen]="isDeleteModalOpen()"

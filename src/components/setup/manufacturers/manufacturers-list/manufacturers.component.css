@@ -242,3 +242,51 @@
 mat-form-field {
   width: 60%;
 }
+
+/* Responsive Design -- this screen had no component-level breakpoints at
+   all: the fixed 2rem container padding plus a 280px grid-item floor
+   (.manufacturers-grid) will overflow a narrow phone, and .btn-icon-* /
+   .btn-mat-height aren't covered by the global .btn touch-target rule in
+   styles-mobile.css since they don't use the .btn class. */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+
+  .add-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  mat-form-field {
+    width: 100%;
+  }
+
+  .btn-mat-height {
+    width: 100%;
+    justify-content: center;
+    min-height: 48px;
+  }
+
+  .manufacturers-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .manufacturer-card {
+    padding: 1rem;
+  }
+
+  .btn-icon-primary,
+  .btn-icon-danger {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}

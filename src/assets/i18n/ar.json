@@ -398,7 +398,8 @@
     "COLUMN_CHOOSER": "اختيار الأعمدة",
     "RECORD_COUNT": "عدد السجلات",
     "ACTIVE": "نشط",
-    "INACTIVE": "غير نشط"
+    "INACTIVE": "غير نشط",
+    "NO_DATA": "لا توجد بيانات"
   },
   "VALIDATION": {
     "REQUIRED": "هذا الحقل مطلوب"

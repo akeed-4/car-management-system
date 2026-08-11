@@ -7,6 +7,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DxDataGridModule } from 'devextreme-angular';
 import { CarCategoryService } from '../../../../services/car-category.service';
 import { CarCategory } from '../../../../types/car-category.model';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { MobileCardListComponent, MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
 
 @Component({
   selector: 'app-car-category-list',
@@ -17,7 +19,8 @@ import { CarCategory } from '../../../../types/car-category.model';
     MatButtonModule,
     MatIconModule,
     DxDataGridModule,
-    TranslateModule
+    TranslateModule,
+    MobileCardListComponent
   ],
   templateUrl: './car-category-list.component.html',
   styleUrl: './car-category-list.component.css'
@@ -26,6 +29,8 @@ export class CarCategoryListComponent {
   private carCategoryService = inject(CarCategoryService);
   private router = inject(Router);
   private translate = inject(TranslateService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   categories = this.carCategoryService.categories$;
 
@@ -48,5 +53,22 @@ export class CarCategoryListComponent {
         }
       });
     }
+  }
+
+  // --- Mobile card-list rendering ---
+  mobileTitleOf = (cat: CarCategory) => cat.name;
+  mobileTrackBy = (_index: number, cat: CarCategory) => cat.id;
+
+  mobileFields: MobileCardField<CarCategory>[] = [
+    { label: 'CAR_CATEGORY.COLUMNS.ID', value: (cat) => cat.id },
+    { label: 'CAR_CATEGORY.COLUMNS.DESCRIPTION', value: (cat) => cat.description },
+  ];
+
+  mobileEdit(cat: CarCategory): void {
+    this.onEdit({ row: { data: { id: cat.id } } });
+  }
+
+  mobileDelete(cat: CarCategory): void {
+    this.deleteCategory(cat.id);
   }
 }

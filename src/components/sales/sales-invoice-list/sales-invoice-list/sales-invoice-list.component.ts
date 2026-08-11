@@ -9,11 +9,14 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { SalesService } from '../../../../services/sales.service';
 import { ToastService } from '../../../../services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
+import { SalesInvoice } from '../../../../models/sales-invoice.model';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { MobileCardListComponent, MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
 
 @Component({
   selector: 'app-sales-invoice-list',
   standalone: true,
-  imports: [RouterLink, TranslateModule, DxDataGridModule, MatIconModule, MatButtonModule, MatTooltipModule],
+  imports: [RouterLink, TranslateModule, DxDataGridModule, MatIconModule, MatButtonModule, MatTooltipModule, MobileCardListComponent],
   templateUrl: './sales-invoice-list.component.html',
   styleUrl: './sales-invoice-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,7 +30,28 @@ export class SalesInvoiceListComponent {
   private router = inject(Router);
   private toastService = inject(NotificationService);
   private translate = inject(TranslateService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
   allInvoices = toSignal(this.salesService.getInvoices(), { initialValue: [] });
+
+  // --- Mobile card-list rendering ---
+  mobileTitleOf = (item: SalesInvoice) => item.invoiceNumber;
+  mobileTrackBy = (_index: number, item: SalesInvoice) => item.id;
+
+  mobileFields: MobileCardField<SalesInvoice>[] = [
+    { label: 'SALES.COL_DATE', value: (item) => item.invoiceDate },
+    { label: 'SALES.COL_CUSTOMER', value: (item) => item.customerName },
+    { label: 'SALES.COL_TOTAL', value: (item) => item.totalAmount },
+    { label: 'SALES.COL_STATUS', value: (item) => (item as any).paymentStatus },
+  ];
+
+  mobileEditClick(item: SalesInvoice): void {
+    this.onEditClick({ row: { data: item } });
+  }
+
+  mobilePrintClick(item: SalesInvoice): void {
+    this.onPrintClick({ row: { data: item } });
+  }
 
   invoices = computed(() => {
     // If dataSource is provided, use it directly

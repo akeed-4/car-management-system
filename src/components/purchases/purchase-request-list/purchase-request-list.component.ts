@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
@@ -11,6 +11,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { PurchaseRequestDto } from '../../../models/purchase-request.model';
 import { HasPermissionDirective } from '../../shared/permission.directive';
 import { PermissionService } from '../../../services/permission.service';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
 
 @Component({
   selector: 'app-purchase-request-list',
@@ -25,13 +27,16 @@ import { PermissionService } from '../../../services/permission.service';
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
-    HasPermissionDirective
+    HasPermissionDirective,
+    MobileCardListComponent
   ],
   templateUrl: './purchase-request-list.component.html',
   styleUrls: ['./purchase-request-list.component.css']
 })
 export class PurchaseRequestListComponent implements OnInit {
   purchaseRequests: PurchaseRequestDto[] = [];
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   constructor(
     private purchaseCycleService: PurchaseCycleService,
@@ -142,5 +147,49 @@ export class PurchaseRequestListComponent implements OnInit {
         this.notificationService.showError(this.translateService.instant('PURCHASE_REQUESTS.DELETE_ERROR') + ': ' + this.describeError(err));
       }
     });
+  }
+
+  // --- Mobile card-list rendering ---
+  mobileTitleOf = (req: PurchaseRequestDto) => req.requestNumber;
+  mobileTrackBy = (_index: number, req: PurchaseRequestDto) => req.id;
+
+  mobileFields: MobileCardField<PurchaseRequestDto>[] = [
+    { label: 'PURCHASE_REQUESTS.REQUEST_DATE', value: (req) => req.requestDate ? new Date(req.requestDate).toLocaleDateString() : '' },
+    { label: 'PURCHASE_REQUESTS.SUPPLIER', value: (req) => req.supplierName },
+    { label: 'PURCHASE_REQUESTS.ITEMS_COUNT', value: (req) => this.getItemsCount(req) },
+    { label: 'PURCHASE_OFFERS.TOTAL_AMOUNT', value: (req) => req.totalAmount },
+    { label: 'PURCHASE_REQUESTS.STATUS', value: (req) => this.translateService.instant('PURCHASE_REQUESTS.STATUS_' + req.status?.toUpperCase()) },
+  ];
+
+  mobileCanEdit(req: PurchaseRequestDto): boolean {
+    return this.canEdit({ row: { data: req } });
+  }
+
+  mobileCanApprove(req: PurchaseRequestDto): boolean {
+    return this.canApprove({ row: { data: req } });
+  }
+
+  mobileCanReject(req: PurchaseRequestDto): boolean {
+    return this.canReject({ row: { data: req } });
+  }
+
+  mobileCanDelete(req: PurchaseRequestDto): boolean {
+    return this.canDelete({ row: { data: req } });
+  }
+
+  mobileEdit(req: PurchaseRequestDto): void {
+    this.onEdit({ row: { data: { id: req.id } } });
+  }
+
+  mobileApprove(req: PurchaseRequestDto): void {
+    this.onApprove({ row: { data: req } });
+  }
+
+  mobileReject(req: PurchaseRequestDto): void {
+    this.onReject({ row: { data: req } });
+  }
+
+  mobileDelete(req: PurchaseRequestDto): void {
+    this.onDelete({ row: { data: req } });
   }
 }

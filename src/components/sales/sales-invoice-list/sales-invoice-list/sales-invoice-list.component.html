@@ -11,6 +11,20 @@
     </a>
   </div>
 
+  @if (isMobile()) {
+    <app-mobile-card-list
+      [items]="invoices()"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      emptyMessage="SALES.NO_INVOICES"
+    >
+      <ng-template let-item>
+        <button type="button" class="btn btn-light" (click)="mobilePrintClick(item)">{{ 'SALES.PRINT_INVOICE' | translate }}</button>
+        <button type="button" class="btn btn-light" (click)="mobileEditClick(item)">{{ 'SALES.EDIT_INVOICE' | translate }}</button>
+      </ng-template>
+    </app-mobile-card-list>
+  } @else {
   <div class="datagrid-container">
     <dx-data-grid
       [dataSource]="dataSource"
@@ -69,4 +83,5 @@
 
     </dx-data-grid>
   </div>
+  }
 </div>

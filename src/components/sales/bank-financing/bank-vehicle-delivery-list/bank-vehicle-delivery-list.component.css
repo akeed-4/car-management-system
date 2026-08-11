@@ -9,7 +9,11 @@
   white-space: nowrap;
 }
 
-@media (max-width: 576px) {
+.grid-container {
+  overflow-x: auto;
+}
+
+@media (max-width: 768px) {
   .header-row {
     flex-direction: column;
     align-items: stretch;
