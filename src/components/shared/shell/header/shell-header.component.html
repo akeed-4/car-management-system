@@ -59,7 +59,7 @@
       <mat-icon>more_vert</mat-icon>
     </button>
     <mat-menu #overflowMenu="matMenu" xPosition="before">
-      <button mat-menu-item (click)="toggleTheme.emit()">
+      <button mat-menu-item class="overflow-theme-item" (click)="toggleTheme.emit()">
         <mat-icon>{{ currentTheme === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
         <span>{{ (currentTheme === 'dark' ? 'layout.lightMode' : 'layout.darkMode') | translate }}</span>
       </button>

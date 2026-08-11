@@ -161,6 +161,22 @@
   margin-inline-start: var(--grid-1);
 }
 
+/* Theme switcher and notifications bell hidden from the UI (kept fully wired -- outputs,
+   ShellComponent handlers, ThemeService/NotificationFeedService, and the overflow-menu entry all
+   still work; re-enable by deleting this rule). display:none on flex items removes them cleanly
+   from the .shell-header flex row with no gap, so no other layout adjustment is needed.
+   The overflow-menu's theme entry (.overflow-theme-item) is targeted separately below --
+   mat-menu panels render via CDK overlay outside this component's own DOM, so ::ng-deep is
+   required to reach it from a component-scoped stylesheet. */
+.header-notif-btn,
+.header-theme-btn {
+  display: none;
+}
+
+:host ::ng-deep .overflow-theme-item {
+  display: none;
+}
+
 .header-login-btn {
   border: none;
   background: var(--color-primary-600);
@@ -211,6 +227,19 @@
   }
   .header-overflow-btn {
     display: grid;
+  }
+
+  /* Mobile nav declutter: only the hamburger (rail toggle) and the user avatar menu stay
+     visible below the compact breakpoint. Brand mark, search trigger, the AI/theme/language
+     overflow menu, and the company switcher are all secondary chrome that competes for space
+     on a phone -- none of them lose functionality (the overflow button/menu still exists and
+     is still reachable via the desktop layout above 840px; this only hides its mobile trigger,
+     same pattern as the .header-notif-btn/.header-theme-btn hide above). */
+  .header-brand,
+  .header-search-trigger,
+  .header-overflow-btn,
+  app-company-switcher {
+    display: none;
   }
 
   /* 38px desktop icon buttons are fine for a mouse but sit under the 48px
