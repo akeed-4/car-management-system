@@ -315,9 +315,9 @@ backToCard(): void {
   // /setup/car-categories/new as a MatDialog (see their @Optional() MatDialogRef support), instead
   // of a separate dialog-only component -- no duplicated form markup or duplicated API calls.
 
-  canAddManufacturer = computed(() => this.permissionService.hasPermission('manufacturer.create'));
-  canAddCarModel = computed(() => this.permissionService.hasPermission('carModel.create'));
-  canAddCarCategory = computed(() => this.permissionService.hasPermission('carCategory.create'));
+  canAddManufacturer = computed(() => true); // Always allow adding a new manufacturer
+  canAddCarModel = computed(() => true);
+  canAddCarCategory = computed(() => true);
 
   openAddManufacturerDialog(): void {
     const dialogRef = this.dialog.open(ManufacturersComponent, {
