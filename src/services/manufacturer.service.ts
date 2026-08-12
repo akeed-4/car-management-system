@@ -27,12 +27,13 @@ export class ManufacturerService {
     }
   }
 
-  async addManufacturer(manufacturer: Omit<Manufacturer, 'id'>): Promise<void> {
+  async addManufacturer(manufacturer: Omit<Manufacturer, 'id'>): Promise<Manufacturer> {
     try {
       // Send to API
-      await firstValueFrom(this.http.post(this.apiUrl + '/Create', manufacturer));
+      const created = await firstValueFrom(this.http.post<Manufacturer>(this.apiUrl + '/Create', manufacturer));
       // Reload the list from API
       await this.loadManufacturersFromApi();
+      return created;
     } catch (error) {
       console.error('Failed to add manufacturer', error);
       throw error;

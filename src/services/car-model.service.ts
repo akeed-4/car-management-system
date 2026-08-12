@@ -28,10 +28,11 @@ export class CarModelService {
     return this.http.get<CarModel[]>(this.apiUrl+'/GetAll');
   }
 
- async addCarModel(model: Omit<CarModel, 'id'>): Promise<void> {
-     await firstValueFrom(this.http.post<CarModel>(this.apiUrl+'/create', model));
+ async addCarModel(model: Omit<CarModel, 'id'>): Promise<CarModel> {
+     const created = await firstValueFrom(this.http.post<CarModel>(this.apiUrl+'/create', model));
      // Reload the list from API
      await this.loadCarModelsFromApi();
+     return created;
   }
 
   async updateCarModel(id: number, model: Omit<CarModel, 'id'>): Promise<void> {

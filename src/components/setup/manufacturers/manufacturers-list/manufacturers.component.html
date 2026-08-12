@@ -1,9 +1,15 @@
 <div class="container">
-  <h2 class="page-title">{{ 'MANUFACTURERS.TITLE' | translate }}</h2>
+  @if (!isQuickAddDialog) {
+    <h2 class="page-title">{{ 'MANUFACTURERS.TITLE' | translate }}</h2>
+  } @else {
+    <h2 mat-dialog-title>{{ 'MANUFACTURERS.ADD_NEW' | translate }}</h2>
+  }
 
   <div class="card">
-    <div class="form-section" >
-      <h3 class="form-section-title">{{ isEditMode() ? ('MANUFACTURERS.EDIT_TITLE' | translate) : ('MANUFACTURERS.ADD_NEW' | translate) }}</h3>
+    <div class="form-section" [class.mat-dialog-content]="isQuickAddDialog">
+      @if (!isQuickAddDialog) {
+        <h3 class="form-section-title">{{ isEditMode() ? ('MANUFACTURERS.EDIT_TITLE' | translate) : ('MANUFACTURERS.ADD_NEW' | translate) }}</h3>
+      }
       <form [formGroup]="manufacturerForm"  class="add-form-grid">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ 'MANUFACTURERS.NAME_LABEL' | translate }}</mat-label>
@@ -15,16 +21,23 @@
             placeholder="{{ 'MANUFACTURERS.NAME_PLACEHOLDER' | translate }}"
             name="manufacturerName"
             required
+            cdkFocusInitial
           />
         </mat-form-field>
-     
+
       </form>
-        <div class="form-actions">
+        <div class="form-actions" [class.mat-dialog-actions]="isQuickAddDialog">
+          @if (isQuickAddDialog) {
+            <button mat-stroked-button (click)="cancelDialog()" class="btn-mat-height">
+              <mat-icon>cancel</mat-icon>
+              {{ 'MANUFACTURERS.CANCEL_BUTTON' | translate }}
+            </button>
+          }
           <button mat-raised-button color="primary" (click)="addManufacturer()" [disabled]="manufacturerForm.invalid" class="btn-mat-height">
             <mat-icon>{{ isEditMode() ? 'update' : 'save' }}</mat-icon>
             {{ isEditMode() ? ('MANUFACTURERS.UPDATE_BUTTON' | translate) : ('MANUFACTURERS.ADD_BUTTON' | translate) }}
           </button>
-          @if (isEditMode()) {
+          @if (isEditMode() && !isQuickAddDialog) {
             <button mat-stroked-button (click)="cancelEdit()" class="btn-mat-height">
               <mat-icon>cancel</mat-icon>
               {{ 'MANUFACTURERS.CANCEL_BUTTON' | translate }}
@@ -33,8 +46,9 @@
         </div>
     </div>
 
+    @if (!isQuickAddDialog) {
     <h3 class="card-header">{{ 'MANUFACTURERS.LIST_TITLE' | translate }}</h3>
-    
+
     @if (filteredAndSortedManufacturers().length === 0) {
       <div class="empty-state">
         {{ 'MANUFACTURERS.NO_MANUFACTURERS' | translate }}
@@ -71,8 +85,10 @@
         }
       </div>
     }
+    }
   </div>
 
+  @if (!isQuickAddDialog) {
   <app-modal
     [isOpen]="isDeleteModalOpen()"
     title="{{ 'MANUFACTURERS.DELETE_CONFIRM_TITLE' | translate }}"
@@ -80,4 +96,5 @@
     (confirm)="confirmDelete()"
     (cancel)="closeDeleteModal()"
   ></app-modal>
+  }
 </div>

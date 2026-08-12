@@ -4,6 +4,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { ManufacturerService } from '../../../../services/manufacturer.service';
 import { Manufacturer } from '../../../../models/manufacturer.model';
 import { ModalComponent } from '../../../shared/modal/modal.component'; // Corrected import path
@@ -18,7 +19,7 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-manufacturers',
   standalone: true,
-  imports: [ReactiveFormsModule, ModalComponent, TranslateModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule],
+  imports: [ReactiveFormsModule, ModalComponent, TranslateModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatDialogModule],
   templateUrl: './manufacturers.component.html',
   styleUrl: './manufacturers.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,10 +29,18 @@ export class ManufacturersComponent implements OnInit {
   private fb = inject(FormBuilder);
   private toastService = inject(NotificationService);
   private translate = inject(TranslateService);
+  /** Present only when this component is opened via MatDialog.open(ManufacturersComponent, ...)
+   * (see CarCardComponent's "+" button next to the Manufacturer dropdown) -- absent when it's
+   * loaded as the routed /setup/manufacturers page, which is the existing behavior. */
+  private dialogRef = inject(MatDialogRef<ManufacturersComponent, Manufacturer | undefined>, { optional: true });
+
+  /** True only in dialog mode -- hides the list/search/sort table so the popup is just the
+   * quick-add form, without touching how the routed page renders. */
+  isQuickAddDialog = !!this.dialogRef;
 
   manufacturers = this.manufacturerService.manufacturers$;
   manufacturerForm!: FormGroup;
-  
+
   filter = signal('');
   sortColumn = signal<SortColumn>('');
   sortDirection = signal<SortDirection>('');
@@ -43,7 +52,7 @@ export class ManufacturersComponent implements OnInit {
   // Edit mode
   isEditMode = signal(false);
   editingManufacturer = signal<Manufacturer | null>(null);
-  constructor() { 
+  constructor() {
     this.doDelete=this.doDelete.bind(this);
   }
 
@@ -111,9 +120,16 @@ export class ManufacturersComponent implements OnInit {
             }
           } else {
             // Add new manufacturer
-            await this.manufacturerService.addManufacturer({ name });
+            const created = await this.manufacturerService.addManufacturer({ name });
             this.toastService.showSuccess('TOAST.ADD_SUCCESS');
             this.manufacturerForm.reset();
+            // Quick-add dialog mode: hand the newly created manufacturer back to the caller
+            // (CarCardComponent) instead of staying open on the list -- routed page usage is
+            // unaffected since dialogRef is undefined there.
+            if (this.dialogRef) {
+              this.dialogRef.close(created);
+              return;
+            }
           }
         } catch (error) {
           console.error('Failed to add/update manufacturer', error);
@@ -123,6 +139,12 @@ export class ManufacturersComponent implements OnInit {
     } else {
       this.toastService.showWarning('TOAST.VALIDATION_ERROR');
     }
+  }
+
+  /** No-op unless opened as a dialog -- cancels without creating anything, per the
+   * "cancel does nothing" requirement. */
+  cancelDialog(): void {
+    this.dialogRef?.close();
   }
 
   editManufacturer(manufacturer: Manufacturer): void {

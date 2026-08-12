@@ -170,6 +170,28 @@
   grid-column: span 2;
 }
 
+/* --- Dropdown + inline "Add New" button, visually attached (Manufacturer/Model/Category) --- */
+.field-with-add {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
+.field-with-add-select {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.field-add-btn {
+  flex: 0 0 auto;
+  margin-top: 4px;
+  color: #4338ca;
+}
+
+.field-add-btn:disabled {
+  color: rgba(0, 0, 0, 0.26);
+}
+
 .sale-price-block {
   display: flex;
   flex-direction: column;

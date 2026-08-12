@@ -8,6 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CarModelService } from '../../../../services/car-model.service';
 import { ManufacturerService } from '../../../../services/manufacturer.service';
@@ -20,10 +21,18 @@ import { NotificationService } from '@/src/services/notification.service';
 type SortColumn = keyof CarModel | '';
 type SortDirection = 'asc' | 'desc' | '';
 
+/** Passed in when CarModelsComponent is opened via MatDialog.open(...) from CarCardComponent's
+ * Model "+" button -- Model depends on Manufacturer (CarModel.manufacturerId is required), so the
+ * currently selected manufacturer on the vehicle form is forwarded and pre-locked here rather than
+ * left for the user to re-pick. */
+export interface CarModelQuickAddData {
+  manufacturerId: number;
+}
+
 @Component({
   selector: 'app-car-models',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule, MatGridListModule, MatIconModule, TranslateModule, ModalComponent],
+  imports: [CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule, MatGridListModule, MatIconModule, TranslateModule, ModalComponent, MatDialogModule],
   templateUrl: './car-models.component.html',
   styleUrl: './car-models.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,6 +44,15 @@ export class CarModelsComponent implements OnInit {
   private fb = inject(FormBuilder);
   private toastService = inject(NotificationService);
   private translate = inject(TranslateService);
+  private dialogRef = inject(MatDialogRef<CarModelsComponent, CarModel | undefined>, { optional: true });
+  private data = inject<CarModelQuickAddData | null>(MAT_DIALOG_DATA, { optional: true });
+
+  /** True only in dialog mode -- hides the list/search/sort table so the popup is just the
+   * quick-add form, without touching how the routed page renders. */
+  isQuickAddDialog = !!this.dialogRef;
+  /** When set (quick-add from CarCardComponent), the Manufacturer field is pre-filled and locked
+   * instead of left as a free choice -- the new model must belong to the vehicle's manufacturer. */
+  lockedManufacturerId = this.data?.manufacturerId ?? null;
 
   carModels = toSignal(this.carModelService.getCarModels(), { initialValue: [] });
   manufacturers = this.manufacturerService.manufacturers$;
@@ -56,14 +74,16 @@ export class CarModelsComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
-    console.log(this.manufacturers());
   }
 
   private initForm(): void {
     this.carModelForm = this.fb.group({
-      manufacturerId: [null, Validators.required],
+      manufacturerId: [this.lockedManufacturerId, Validators.required],
       modelName: ['', [Validators.required, Validators.minLength(1)]]
     });
+    if (this.lockedManufacturerId) {
+      this.carModelForm.get('manufacturerId')?.disable();
+    }
   }
 
   filteredAndSortedModels = computed(() => {
@@ -129,8 +149,11 @@ export class CarModelsComponent implements OnInit {
 
   async addCarModel(): Promise<void> {
     if (this.carModelForm.valid) {
-      const name = this.carModelForm.value.modelName?.trim();
-      const manufacturerId = this.carModelForm.value.manufacturerId;
+      // getRawValue(), not .value -- manufacturerId is a disabled control in quick-add-with-locked-
+      // manufacturer mode, and disabled controls are omitted from .value.
+      const rawValue = this.carModelForm.getRawValue();
+      const name = rawValue.modelName?.trim();
+      const manufacturerId = rawValue.manufacturerId;
       const manufacturer = this.manufacturers().find(m => m.id === manufacturerId);
 
       if (name && manufacturerId && manufacturer) {
@@ -139,23 +162,29 @@ export class CarModelsComponent implements OnInit {
             // Update existing model
             const editingModel = this.editingModel();
             if (editingModel) {
-              await this.carModelService.updateCarModel(editingModel.id, { 
-                name, 
+              await this.carModelService.updateCarModel(editingModel.id, {
+                name,
                 manufacturerId,
-                manufacturerName: manufacturer.name 
+                manufacturerName: manufacturer.name
               });
               this.toastService.showSuccess(this.translate.instant('TOAST.EDIT_SUCCESS'));
               this.cancelEdit();
             }
           } else {
             // Add new model
-            await this.carModelService.addCarModel({ 
-              name, 
+            const created = await this.carModelService.addCarModel({
+              name,
               manufacturerId,
-              manufacturerName: manufacturer.name 
+              manufacturerName: manufacturer.name
             });
             this.toastService.showSuccess(this.translate.instant('TOAST.ADD_SUCCESS'));
-            this.carModelForm.reset();
+            this.carModelForm.reset({ manufacturerId: this.lockedManufacturerId, modelName: '' });
+            // Quick-add dialog mode: hand the newly created model back to CarCardComponent
+            // instead of staying open on the list.
+            if (this.dialogRef) {
+              this.dialogRef.close(created);
+              return;
+            }
           }
         } catch (error) {
           console.error('Failed to add/update car model', error);
@@ -180,6 +209,12 @@ export class CarModelsComponent implements OnInit {
     this.isEditMode.set(false);
     this.editingModel.set(null);
     this.carModelForm.reset();
+  }
+
+  /** No-op unless opened as a dialog -- cancels without creating anything, per the
+   * "cancel does nothing" requirement. */
+  cancelDialog(): void {
+    this.dialogRef?.close();
   }
 
   requestDelete(id: number): void {

@@ -1,14 +1,18 @@
 <div class="container">
   <div class="card">
     <div class="card-header">
-      <h2>{{ pageTitle() | translate }}</h2>
-      <a routerLink="/setup/car-category" class="back-link">
-        <mat-icon>arrow_back</mat-icon>
-        {{ 'CAR_CATEGORY.FORM.BACK_TO_LIST' | translate }}
-      </a>
+      @if (!isQuickAddDialog) {
+        <h2>{{ pageTitle() | translate }}</h2>
+        <a routerLink="/setup/car-category" class="back-link">
+          <mat-icon>arrow_back</mat-icon>
+          {{ 'CAR_CATEGORY.FORM.BACK_TO_LIST' | translate }}
+        </a>
+      } @else {
+        <h2 mat-dialog-title>{{ 'CAR_CATEGORY.ADD_NEW' | translate }}</h2>
+      }
     </div>
 
-    <form [formGroup]="categoryForm" class="card-body">
+    <form [formGroup]="categoryForm" class="card-body" [class.mat-dialog-content]="isQuickAddDialog">
       <div class="form-grid">
         <mat-form-field appearance="outline" class="field-span-2">
           <mat-label>{{ 'CAR_CATEGORY.FORM.MODELS' | translate }}</mat-label>
@@ -50,10 +54,16 @@
       </div>
     </form>
 
-    <div class="form-actions">
-      <a routerLink="/setup/car-category" class="btn btn-light">
-        {{ 'CAR_CATEGORY.FORM.CANCEL' | translate }}
-      </a>
+    <div class="form-actions" [class.mat-dialog-actions]="isQuickAddDialog">
+      @if (isQuickAddDialog) {
+        <button type="button" class="btn btn-light" (click)="cancelDialog()">
+          {{ 'CAR_CATEGORY.FORM.CANCEL' | translate }}
+        </button>
+      } @else {
+        <a routerLink="/setup/car-category" class="btn btn-light">
+          {{ 'CAR_CATEGORY.FORM.CANCEL' | translate }}
+        </a>
+      }
       <button type="button" (click)="saveCategory()" class="btn btn-primary">
         {{ editMode() ? ('CAR_CATEGORY.FORM.SAVE_CHANGES' | translate) : ('CAR_CATEGORY.FORM.SAVE' | translate) }}
       </button>

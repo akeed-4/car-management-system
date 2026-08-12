@@ -11,6 +11,8 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog } from '@angular/material/dialog';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
@@ -25,15 +27,21 @@ import { CurrentSettingService } from '../../../../services/current-setting.serv
 import { ExpenseService } from '../../../../services/expense.service';
 import { ToastService } from '../../../../services/toast.service';
 import { CarCategoryService } from '../../../../services/car-category.service';
+import { PermissionService } from '../../../../services/permission.service';
 
 import { Car, CarCondition } from '../../../../models/car.model';
 import { PriceSuggestion } from '../../../../models/price-suggestion.model';
 import { CarCategory } from '../../../../types/car-category.model';
+import { Manufacturer } from '../../../../models/manufacturer.model';
+import { CarModel } from '../../../../models/car-model.model';
 
 import { ModalComponent } from '../../../shared/modal/modal.component';
 import { VinScannerComponent } from '../../../shared/vin-scanner/vin-scanner.component';
 import { PublishModalComponent } from '../../../shared/publish-modal/publish-modal.component';
 import { NotificationService } from '@/src/services/notification.service';
+import { ManufacturersComponent } from '../../manufacturers/manufacturers-list/manufacturers.component';
+import { CarModelsComponent, CarModelQuickAddData } from '../../car-models/car-models-list/car-models.component';
+import { CarCategoryFormComponent, CarCategoryQuickAddData } from '../../car-category/car-category-form/car-category-form.component';
 
 @Component({
   selector: 'app-car-card',
@@ -51,6 +59,7 @@ import { NotificationService } from '@/src/services/notification.service';
     MatRadioModule,
     MatSlideToggleModule,
     MatExpansionModule,
+    MatTooltipModule,
     TranslateModule,
     VinScannerComponent,
     PublishModalComponent
@@ -74,6 +83,8 @@ export class CarCardComponent implements OnInit {
   private toastService = inject(NotificationService);
   private carCategoryService = inject(CarCategoryService);
   private notificationService = inject(NotificationService);
+  private permissionService = inject(PermissionService);
+  private dialog = inject(MatDialog);
 private translate = inject(TranslateService);
   layout$ = this.currentSettingService.getCardLayout(3);
   private fb = inject(FormBuilder);
@@ -299,7 +310,76 @@ backToCard(): void {
     // Model name is computed in selectedModel signal
   }
 
- 
+  // --- Inline "+" quick-add for the Manufacturer/Model/Category lookup dropdowns -----------------
+  // Each opens the SAME create screen already used by /setup/manufacturers, /setup/car-models and
+  // /setup/car-categories/new as a MatDialog (see their @Optional() MatDialogRef support), instead
+  // of a separate dialog-only component -- no duplicated form markup or duplicated API calls.
+
+  canAddManufacturer = computed(() => this.permissionService.hasPermission('manufacturer.create'));
+  canAddCarModel = computed(() => this.permissionService.hasPermission('carModel.create'));
+  canAddCarCategory = computed(() => this.permissionService.hasPermission('carCategory.create'));
+
+  openAddManufacturerDialog(): void {
+    const dialogRef = this.dialog.open(ManufacturersComponent, {
+      width: '480px',
+      autoFocus: false
+    });
+
+    dialogRef.afterClosed().subscribe((created?: Manufacturer) => {
+      if (!created) return; // cancelled, or an error kept the dialog data unset -- leave the form untouched
+      this.selectedManufacturerId.set(created.id);
+      // "make" (not manufacturerId) is the control the Manufacturer <mat-select> is actually bound
+      // to -- see the constructor's effect() that derives manufacturerId from it. Patching only
+      // manufacturerId would leave the select showing its previous value.
+      this.carForm.patchValue({
+        make: created.name,
+        manufacturerId: created.id,
+        modelId: null
+      }, { emitEvent: true });
+      this.filteredCategories.set([]);
+      this.cdr.markForCheck();
+    });
+  }
+
+  openAddCarModelDialog(): void {
+    const manufacturerId = this.selectedManufacturerId();
+    if (!manufacturerId) return; // Model depends on Manufacturer -- button is disabled in the template for this case too
+
+    const data: CarModelQuickAddData = { manufacturerId };
+    const dialogRef = this.dialog.open(CarModelsComponent, {
+      width: '480px',
+      autoFocus: false,
+      data
+    });
+
+    dialogRef.afterClosed().subscribe((created?: CarModel) => {
+      if (!created) return;
+      this.carForm.patchValue({ modelId: created.id }, { emitEvent: true });
+      this.onModelChange(created.id);
+      this.cdr.markForCheck();
+    });
+  }
+
+  openAddCarCategoryDialog(): void {
+    const modelId = this.carForm.value.modelId;
+    if (!modelId) return; // Category depends on Model -- button is disabled in the template for this case too
+
+    const data: CarCategoryQuickAddData = { modelId };
+    const dialogRef = this.dialog.open(CarCategoryFormComponent, {
+      width: '600px',
+      autoFocus: false,
+      data
+    });
+
+    dialogRef.afterClosed().subscribe((created?: CarCategory) => {
+      if (!created) return;
+      this.filteredCategories.update(list =>
+        list.some(c => c.id === created.id) ? list : [...list, created]
+      );
+      this.carForm.patchValue({ categoryId: created.id }, { emitEvent: true });
+      this.cdr.markForCheck();
+    });
+  }
 
 
 

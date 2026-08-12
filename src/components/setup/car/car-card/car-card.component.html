@@ -22,40 +22,69 @@
                     </mat-expansion-panel-header>
 
                     <div class="form-grid">
-                        <mat-form-field appearance="outline" class="field-span-1">
-                            <mat-label>{{ 'INVENTORY.FORM.MANUFACTURER' | translate }}</mat-label>
-                            <mat-select formControlName="make" required
-                                (selectionChange)="onManufacturerChange($event.value)">
-                                <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_MANUFACTURER' |
-                                    translate }}</mat-option>
-                                @for (manufacturer of manufacturers(); track manufacturer.id) {
-                                <mat-option [value]="manufacturer.name">{{ manufacturer.name }}</mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
+                        <div class="field-span-1 field-with-add">
+                            <mat-form-field appearance="outline" class="field-with-add-select">
+                                <mat-label>{{ 'INVENTORY.FORM.MANUFACTURER' | translate }}</mat-label>
+                                <mat-select formControlName="make" required
+                                    (selectionChange)="onManufacturerChange($event.value)">
+                                    <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_MANUFACTURER' |
+                                        translate }}</mat-option>
+                                    @for (manufacturer of manufacturers(); track manufacturer.id) {
+                                    <mat-option [value]="manufacturer.name">{{ manufacturer.name }}</mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                            @if (canAddManufacturer()) {
+                            <button mat-icon-button type="button" class="field-add-btn"
+                                (click)="openAddManufacturerDialog()"
+                                [matTooltip]="'MANUFACTURERS.ADD_NEW' | translate">
+                                <mat-icon>add</mat-icon>
+                            </button>
+                            }
+                        </div>
 
-                        <mat-form-field appearance="outline" class="field-span-1">
-                            <mat-label>{{ 'INVENTORY.FORM.MODEL' | translate }}</mat-label>
-                            <mat-select formControlName="modelId" required
-                                (selectionChange)="onModelChange($event.value)">
-                                <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_MODEL' | translate
-                                    }}</mat-option>
-                                @for (carModel of filteredModels(); track carModel.id) {
-                                <mat-option [value]="carModel.id">{{ carModel.name }}</mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
+                        <div class="field-span-1 field-with-add">
+                            <mat-form-field appearance="outline" class="field-with-add-select">
+                                <mat-label>{{ 'INVENTORY.FORM.MODEL' | translate }}</mat-label>
+                                <mat-select formControlName="modelId" required
+                                    (selectionChange)="onModelChange($event.value)">
+                                    <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_MODEL' | translate
+                                        }}</mat-option>
+                                    @for (carModel of filteredModels(); track carModel.id) {
+                                    <mat-option [value]="carModel.id">{{ carModel.name }}</mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                            @if (canAddCarModel()) {
+                            <button mat-icon-button type="button" class="field-add-btn"
+                                (click)="openAddCarModelDialog()"
+                                [disabled]="!selectedManufacturerId()"
+                                [matTooltip]="!selectedManufacturerId() ? ('INVENTORY.FORM.SELECT_MANUFACTURER' | translate) : ('CAR_MODELS.ADD_NEW' | translate)">
+                                <mat-icon>add</mat-icon>
+                            </button>
+                            }
+                        </div>
 
-                        <mat-form-field appearance="outline" class="field-span-1">
-                            <mat-label>{{ 'INVENTORY.FORM.CATEGORY' | translate }}</mat-label>
-                            <mat-select formControlName="categoryId">
-                                <mat-option [value]="null">{{ 'INVENTORY.FORM.SELECT_CATEGORY' | translate
-                                    }}</mat-option>
-                                @for (cat of filteredCategories(); track cat.id) {
-                                <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
+                        <div class="field-span-1 field-with-add">
+                            <mat-form-field appearance="outline" class="field-with-add-select">
+                                <mat-label>{{ 'INVENTORY.FORM.CATEGORY' | translate }}</mat-label>
+                                <mat-select formControlName="categoryId">
+                                    <mat-option [value]="null">{{ 'INVENTORY.FORM.SELECT_CATEGORY' | translate
+                                        }}</mat-option>
+                                    @for (cat of filteredCategories(); track cat.id) {
+                                    <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                            @if (canAddCarCategory()) {
+                            <button mat-icon-button type="button" class="field-add-btn"
+                                (click)="openAddCarCategoryDialog()"
+                                [disabled]="!carForm.value.modelId"
+                                [matTooltip]="!carForm.value.modelId ? ('INVENTORY.FORM.SELECT_MODEL' | translate) : ('CAR_CATEGORY.ADD_NEW' | translate)">
+                                <mat-icon>add</mat-icon>
+                            </button>
+                            }
+                        </div>
 
                         <mat-form-field appearance="outline" class="field-span-1">
                             <mat-label>{{ 'INVENTORY.FORM.YEAR' | translate }}</mat-label>

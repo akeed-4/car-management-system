@@ -1,9 +1,15 @@
 <div class="container">
-  <h2 class="page-title">{{ 'CAR_MODELS.TITLE' | translate }}</h2>
+  @if (!isQuickAddDialog) {
+    <h2 class="page-title">{{ 'CAR_MODELS.TITLE' | translate }}</h2>
+  } @else {
+    <h2 mat-dialog-title>{{ 'CAR_MODELS.ADD_NEW' | translate }}</h2>
+  }
 
   <div class="card">
-    <div class="form-section">
-      <h3 class="form-section-title">{{ isEditMode() ? ('CAR_MODELS.EDIT_TITLE' | translate) : ('CAR_MODELS.ADD_NEW' | translate) }}</h3>
+    <div class="form-section" [class.mat-dialog-content]="isQuickAddDialog">
+      @if (!isQuickAddDialog) {
+        <h3 class="form-section-title">{{ isEditMode() ? ('CAR_MODELS.EDIT_TITLE' | translate) : ('CAR_MODELS.ADD_NEW' | translate) }}</h3>
+      }
       <form [formGroup]="carModelForm"  class="add-form-grid">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ 'CAR_MODELS.MANUFACTURER_LABEL' | translate }}</mat-label>
@@ -24,16 +30,23 @@
             formControlName="modelName"
             placeholder="{{ 'CAR_MODELS.MODEL_PLACEHOLDER' | translate }}"
             name="modelName"
-            required>
+            required
+            [attr.autofocus]="isQuickAddDialog ? true : null">
         </mat-form-field>
-     
+
       </form>
-        <div class="form-actions">
+        <div class="form-actions" [class.mat-dialog-actions]="isQuickAddDialog">
+          @if (isQuickAddDialog) {
+            <button mat-stroked-button (click)="cancelDialog()" class="btn-mat-height">
+              <mat-icon>cancel</mat-icon>
+              {{ 'CAR_MODELS.CANCEL_BUTTON' | translate }}
+            </button>
+          }
           <button mat-raised-button color="primary" (click)="addCarModel()" [disabled]="carModelForm.invalid" class="btn-mat-height">
             <mat-icon>{{ isEditMode() ? 'update' : 'save' }}</mat-icon>
             {{ isEditMode() ? ('CAR_MODELS.UPDATE_BUTTON' | translate) : ('CAR_MODELS.ADD_BUTTON' | translate) }}
           </button>
-          @if (isEditMode()) {
+          @if (isEditMode() && !isQuickAddDialog) {
             <button mat-stroked-button (click)="cancelEdit()" class="btn-mat-height">
               <mat-icon>cancel</mat-icon>
               {{ 'CAR_MODELS.CANCEL_BUTTON' | translate }}
@@ -42,8 +55,9 @@
         </div>
     </div>
 
+    @if (!isQuickAddDialog) {
     <h3 class="card-header">{{ 'CAR_MODELS.LIST_TITLE' | translate }}</h3>
-    
+
     @if (filteredAndSortedModels().length === 0) {
       <div class="empty-state">
         {{ 'CAR_MODELS.NO_MODELS' | translate }}
@@ -80,13 +94,16 @@
         </mat-grid-list>
       </ng-container>
     }
+    }
   </div>
 </div>
 
-<app-modal 
-  [isOpen]="isDeleteModalOpen()" 
-  title="{{ 'CAR_MODELS.DELETE_CONFIRM_TITLE' | translate }}" 
+@if (!isQuickAddDialog) {
+<app-modal
+  [isOpen]="isDeleteModalOpen()"
+  title="{{ 'CAR_MODELS.DELETE_CONFIRM_TITLE' | translate }}"
   message="{{ 'CAR_MODELS.DELETE_CONFIRM_MESSAGE' | translate }}"
-  (confirm)="confirmDelete()" 
+  (confirm)="confirmDelete()"
   (cancel)="closeDeleteModal()">
 </app-modal>
+}
