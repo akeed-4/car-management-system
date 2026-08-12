@@ -9,7 +9,7 @@
 .container {
   max-width: 1600px;
   margin: 0 auto;
-  padding: var(--space-3, 0.75rem) var(--space-6, 1.5rem) var(--space-4, 1rem);
+  /* padding: var(--space-3, 0.75rem) var(--space-6, 1.5rem) var(--space-4, 1rem); */
   font-family: var(--font-family-sans, 'Roboto', sans-serif);
   color: var(--color-gray-800, #1f2937);
 }
