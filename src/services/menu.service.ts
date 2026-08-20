@@ -199,18 +199,6 @@ export const menuData = [
   },
 
   {
-    id: 7,
-    name: 'العمليات',
-    englishName: 'Operations',
-    submenu: [
-      { id: 71, name: 'المصروفات', englishName: 'Expenses', route: '/expenses' },
-      { id: 72, name: 'إدارة الصيانة', englishName: 'Maintenance Management', route: '/maintenance' }
-    ]
-  },
-
-
-
-  {
     id: 11,
     name: 'المستخدمون ',
     englishName: 'Users',
