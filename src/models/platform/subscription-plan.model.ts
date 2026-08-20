@@ -39,8 +39,7 @@ export const PLAN_METRIC_KEYS = [
 ] as const;
 
 export const PLAN_FEATURE_KEYS = [
-  'Accounting', 'Inventory', 'Sales', 'Purchases', 'POS', 'CRM', 'Payroll', 'HR', 'Assets',
-  'Manufacturing', 'Reports', 'AI', 'Notifications', 'MobileApp', 'Api',
+  'Accounting', 'Inventory', 'Sales', 'Purchases', 'POS', 'CRM', 'Reports', 'Notifications',
 ] as const;
 
 /** FeatureKey -> (nameEn, nameAr) -- mirrors FeatureNames in SubscriptionPlanSeeder.cs. Used to
@@ -52,13 +51,6 @@ export const PLAN_FEATURE_NAMES: Record<string, { nameEn: string; nameAr: string
   Purchases: { nameEn: 'Purchases', nameAr: 'المشتريات' },
   POS: { nameEn: 'Point of Sale', nameAr: 'نقطة البيع' },
   CRM: { nameEn: 'CRM', nameAr: 'إدارة علاقات العملاء' },
-  Payroll: { nameEn: 'Payroll', nameAr: 'الرواتب' },
-  HR: { nameEn: 'HR', nameAr: 'الموارد البشرية' },
-  Assets: { nameEn: 'Assets', nameAr: 'الأصول' },
-  Manufacturing: { nameEn: 'Manufacturing', nameAr: 'التصنيع' },
   Reports: { nameEn: 'Reports', nameAr: 'التقارير' },
-  AI: { nameEn: 'AI', nameAr: 'الذكاء الاصطناعي' },
   Notifications: { nameEn: 'Notifications', nameAr: 'الإشعارات' },
-  MobileApp: { nameEn: 'Mobile App', nameAr: 'تطبيق الجوال' },
-  Api: { nameEn: 'API Access', nameAr: 'واجهة برمجة التطبيقات' },
 };

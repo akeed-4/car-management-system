@@ -31,16 +31,14 @@ const FEATURE_LABEL_KEYS: Record<string, string> = {
   Purchases: 'ONBOARDING.PLANS.FEATURES.PURCHASES',
   POS: 'ONBOARDING.PLANS.FEATURES.POS',
   CRM: 'ONBOARDING.PLANS.FEATURES.CRM',
-  Payroll: 'ONBOARDING.PLANS.FEATURES.PAYROLL',
-  HR: 'ONBOARDING.PLANS.FEATURES.HR',
-  Assets: 'ONBOARDING.PLANS.FEATURES.ASSETS',
-  Manufacturing: 'ONBOARDING.PLANS.FEATURES.MANUFACTURING',
   Reports: 'ONBOARDING.PLANS.FEATURES.REPORTS',
-  AI: 'ONBOARDING.PLANS.FEATURES.AI',
   Notifications: 'ONBOARDING.PLANS.FEATURES.NOTIFICATIONS',
-  MobileApp: 'ONBOARDING.PLANS.FEATURES.MOBILE_APP',
-  Api: 'ONBOARDING.PLANS.FEATURES.API',
 };
+
+/** Feature keys that must never be shown in the Plan Selection UI, even if an older/unmigrated
+ *  backend still returns a PlanFeature row for them (e.g. a not-yet-cleaned-up database). These
+ *  modules are not offered in any subscription plan. */
+const HIDDEN_FEATURE_KEYS = new Set(['Payroll', 'HR', 'Assets', 'Manufacturing', 'AI', 'MobileApp', 'Api']);
 
 @Component({
   selector: 'app-plan-selection',
@@ -99,7 +97,11 @@ export class PlanSelectionComponent {
     this.loadError.set(false);
     this.platformService.getPublicPlans().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (plans) => {
-        this.plans.set([...plans].filter(p => p.isActive).sort((a, b) => a.sortOrder - b.sortOrder));
+        const visiblePlans = plans
+          .filter(p => p.isActive)
+          .map(p => ({ ...p, features: p.features.filter(f => !HIDDEN_FEATURE_KEYS.has(f.featureKey)) }))
+          .sort((a, b) => a.sortOrder - b.sortOrder);
+        this.plans.set(visiblePlans);
         this.loading.set(false);
         this.loadInProgress = false;
       },

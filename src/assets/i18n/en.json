@@ -2469,15 +2469,8 @@
         "PURCHASES": "Purchases",
         "POS": "Point of Sale",
         "CRM": "CRM",
-        "PAYROLL": "Payroll",
-        "HR": "HR",
-        "ASSETS": "Assets",
-        "MANUFACTURING": "Manufacturing",
         "REPORTS": "Reports",
-        "AI": "AI",
-        "NOTIFICATIONS": "Notifications",
-        "MOBILE_APP": "Mobile App",
-        "API": "API Access"
+        "NOTIFICATIONS": "Notifications"
       }
     },
     "PAYMENT": {
