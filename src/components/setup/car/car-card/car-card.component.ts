@@ -267,7 +267,7 @@ private translate = inject(TranslateService);
       },
       error: (error) => {
         console.error('Error loading car:', error);
-        this.router.navigate(['/setup/card']);
+        this.router.navigate(['/setup/car-card']);
       }
     });
   }

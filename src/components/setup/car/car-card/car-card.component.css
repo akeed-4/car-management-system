@@ -185,11 +185,37 @@
 .field-add-btn {
   flex: 0 0 auto;
   margin-top: 4px;
+  width: 36px;
+  height: 36px;
+  padding: 6px;
+  border-radius: 8px;
+  background: #ede9fe;
   color: #4338ca;
+  --mdc-icon-button-state-layer-size: 36px;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.field-add-btn .mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.field-add-btn:hover:not(:disabled) {
+  background: #ddd6fe;
+  box-shadow: 0 3px 8px rgba(67, 56, 202, 0.25);
+  transform: translateY(-1px);
+}
+
+.field-add-btn:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .field-add-btn:disabled {
+  background: #f1f2f6;
   color: rgba(0, 0, 0, 0.26);
+  box-shadow: none;
+  transform: none;
 }
 
 .sale-price-block {

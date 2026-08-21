@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container" [class.dialog-mode]="isQuickAddDialog">
   <div class="card">
     <div class="card-header">
       @if (!isQuickAddDialog) {
@@ -9,6 +9,14 @@
         </a>
       } @else {
         <h2 mat-dialog-title>{{ 'CAR_CATEGORY.ADD_NEW' | translate }}</h2>
+        <button
+          type="button"
+          class="dialog-close-btn"
+          (click)="cancelDialog()"
+          [attr.aria-label]="'CAR_CATEGORY.FORM.CANCEL' | translate"
+          [title]="'CAR_CATEGORY.FORM.CANCEL' | translate">
+          <mat-icon>close</mat-icon>
+        </button>
       }
     </div>
 
@@ -55,11 +63,7 @@
     </form>
 
     <div class="form-actions" [class.mat-dialog-actions]="isQuickAddDialog">
-      @if (isQuickAddDialog) {
-        <button type="button" class="btn btn-light" (click)="cancelDialog()">
-          {{ 'CAR_CATEGORY.FORM.CANCEL' | translate }}
-        </button>
-      } @else {
+      @if (!isQuickAddDialog) {
         <a routerLink="/setup/car-category" class="btn btn-light">
           {{ 'CAR_CATEGORY.FORM.CANCEL' | translate }}
         </a>

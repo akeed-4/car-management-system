@@ -97,11 +97,11 @@ export class CarListComponent {
   }
 
   onCreate(): void {
-    this.router.navigate(['/setup/card']);
+    this.router.navigate(['/setup/car-card']);
   }
 
   onEdit(car: Car): void {
-    this.router.navigate(['/setup/card'], { queryParams: { id: car.id } });
+    this.router.navigate(['/setup/car-card'], { queryParams: { id: car.id } });
   }
 
   onDelete(car: Car): void {

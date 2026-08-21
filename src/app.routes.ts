@@ -222,7 +222,7 @@ export const APP_ROUTES: Routes = [
       { path: 'setup/car-categories/new', component: CarCategoryFormComponent },
       { path: 'setup/car-categories/edit/:id', component: CarCategoryFormComponent },
       { path: 'setup/year', component: ManufactureYearComponent },
-      { path: 'setup/card', component :CarCardComponent },
+      { path: 'setup/car-card', component :CarCardComponent },
       { path: 'setup/cars', component :CarListComponent },
       { path: 'setup/cars-grid', component :CarGridListComponent },
       { path: 'setup/branches', component: BranchListComponent },

@@ -224,3 +224,64 @@ mat-grid-tile:hover {
   padding: 2rem;
   color: var(--color-gray-500);
 }
+
+/* Quick-add dialog mode (opened via MatDialog from CarCardComponent's "+" button) -- the
+   page-level .container rules above (min-height:100vh gradient background, 2rem padding)
+   leave a large empty area below the compact form when reused as a dialog body, and
+   .add-form-grid's >=768px breakpoint squeezes the Manufacturer/Model Name fields into a
+   cramped 2-up row inside the narrow dialog since it reacts to viewport width, not the
+   dialog's own width. This strips both back down to a single-column form sized to its
+   content. */
+.container.dialog-mode {
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  background: none;
+  min-height: 0;
+}
+
+.container.dialog-mode .card {
+  box-shadow: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+}
+
+.container.dialog-mode .add-form-grid {
+  grid-template-columns: 1fr !important;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.dialog-close-btn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.04);
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dialog-close-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: #111827;
+}
+
+.dialog-close-btn mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}

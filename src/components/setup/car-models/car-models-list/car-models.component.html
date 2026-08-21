@@ -1,8 +1,18 @@
-<div class="container">
+<div class="container" [class.dialog-mode]="isQuickAddDialog">
   @if (!isQuickAddDialog) {
     <h2 class="page-title">{{ 'CAR_MODELS.TITLE' | translate }}</h2>
   } @else {
-    <h2 mat-dialog-title>{{ 'CAR_MODELS.ADD_NEW' | translate }}</h2>
+    <div class="dialog-header" mat-dialog-title>
+      <h2>{{ 'CAR_MODELS.ADD_NEW' | translate }}</h2>
+      <button
+        type="button"
+        class="dialog-close-btn"
+        (click)="cancelDialog()"
+        [attr.aria-label]="'CAR_MODELS.CANCEL_BUTTON' | translate"
+        [title]="'CAR_MODELS.CANCEL_BUTTON' | translate">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
   }
 
   <div class="card">
@@ -36,12 +46,6 @@
 
       </form>
         <div class="form-actions" [class.mat-dialog-actions]="isQuickAddDialog">
-          @if (isQuickAddDialog) {
-            <button mat-stroked-button (click)="cancelDialog()" class="btn-mat-height">
-              <mat-icon>cancel</mat-icon>
-              {{ 'CAR_MODELS.CANCEL_BUTTON' | translate }}
-            </button>
-          }
           <button mat-raised-button color="primary" (click)="addCarModel()" [disabled]="carModelForm.invalid" class="btn-mat-height">
             <mat-icon>{{ isEditMode() ? 'update' : 'save' }}</mat-icon>
             {{ isEditMode() ? ('CAR_MODELS.UPDATE_BUTTON' | translate) : ('CAR_MODELS.ADD_BUTTON' | translate) }}

@@ -178,3 +178,55 @@ mat-form-field.mat-form-field {
     font-size: 16px !important;
   }
 }
+
+/* Quick-add dialog mode (opened via MatDialog from CarCardComponent's "+" button) -- MatDialog
+   already provides the elevated paper surface and backdrop, so the page-level .card
+   shadow/border/margin here would double up around it. Also forces the field grid to a single
+   column regardless of viewport width, since the 2-up breakpoint below is sized for the routed
+   /setup/car-categories/new page, not this narrower popup. */
+.container.dialog-mode {
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.container.dialog-mode .card {
+  box-shadow: none;
+  border: none;
+  border-radius: 0;
+}
+
+.container.dialog-mode .form-grid {
+  grid-template-columns: 1fr;
+}
+
+.container.dialog-mode .field-span-1,
+.container.dialog-mode .field-span-2 {
+  grid-column: span 1;
+}
+
+.dialog-close-btn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.2s ease;
+}
+
+.dialog-close-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.dialog-close-btn mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}

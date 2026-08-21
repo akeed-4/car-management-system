@@ -154,7 +154,7 @@ export class CarGridListComponent implements OnInit {
   }
 
   onEdit(car: Car): void {
-    this.router.navigate(['/setup/card'], {
+    this.router.navigate(['/setup/car-card'], {
       queryParams: { id: car.id, mode: 'edit' }
     });
   }

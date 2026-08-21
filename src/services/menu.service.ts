@@ -53,7 +53,7 @@ export const menuData = [
       { id: 26, name: 'موديلات السيارات', englishName: 'Car Models', route: '/setup/models' },
       { id: 28, name: 'فئات السيارات', englishName: 'Car Categories', route: '/setup/car-categories' },
       { id: 27, name: 'سنة الصنع', englishName: 'Manufacture Year', route: '/setup/year' },
-      { id: 29, name: 'بطاقة السيارة', englishName: 'Car Card', route: '/setup/card' },
+      { id: 29, name: 'بطاقة السيارة', englishName: 'Car Card', route: '/setup/car-card' },
     ]
   },
   {
