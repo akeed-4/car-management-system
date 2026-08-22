@@ -1,0 +1,63 @@
+<div class="page-container">
+  <div class="page-header header-row">
+    <h1>{{ (mode === 'edit' ? 'EXCHANGE_RATE.EDIT_TITLE' : 'EXCHANGE_RATE.CREATE_TITLE') | translate }}</h1>
+  </div>
+
+  <div class="loading-overlay" *ngIf="isLoading()">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="save()" *ngIf="!isLoading()">
+    <mat-card class="form-card">
+      <mat-card-content>
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'EXCHANGE_RATE.FROM_CURRENCY' | translate }}</mat-label>
+            <mat-select formControlName="fromCurrencyId" required>
+              <mat-option *ngFor="let c of currencies()" [value]="c.id">{{ c.code }} - {{ c.nameEn }}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('fromCurrencyId')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'EXCHANGE_RATE.TO_CURRENCY' | translate }}</mat-label>
+            <mat-select formControlName="toCurrencyId" required>
+              <mat-option *ngFor="let c of currencies()" [value]="c.id">{{ c.code }} - {{ c.nameEn }}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('toCurrencyId')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'EXCHANGE_RATE.RATE' | translate }}</mat-label>
+            <input matInput type="number" step="0.000001" formControlName="rate" required>
+            <mat-error *ngIf="form.get('rate')?.invalid">{{ 'EXCHANGE_RATE.RATE_ERROR' | translate }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'EXCHANGE_RATE.EFFECTIVE_DATE' | translate }}</mat-label>
+            <input matInput type="date" formControlName="effectiveDate" required>
+            <mat-error *ngIf="form.get('effectiveDate')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-error" *ngIf="form.hasError('sameCurrency') && (form.touched || form.dirty)">
+          {{ 'EXCHANGE_RATE.SAME_CURRENCY_ERROR' | translate }}
+        </div>
+
+        <div class="toggle-row">
+          <mat-checkbox formControlName="isActive">{{ 'COMMON.ACTIVE' | translate }}</mat-checkbox>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <div class="form-actions">
+      <button mat-raised-button color="primary" type="submit" [disabled]="isSaving()">
+        <mat-icon>save</mat-icon>
+        {{ 'COMMON.SAVE' | translate }}
+      </button>
+      <button mat-stroked-button type="button" (click)="cancel()">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+    </div>
+  </form>
+</div>

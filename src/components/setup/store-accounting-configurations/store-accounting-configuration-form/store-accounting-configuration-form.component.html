@@ -1,0 +1,63 @@
+<div class="page-container">
+  <div class="page-header header-row">
+    <h1>{{ (mode === 'edit' ? 'STORE_ACCOUNTING_CONFIG.EDIT_TITLE' : 'STORE_ACCOUNTING_CONFIG.CREATE_TITLE') | translate }}</h1>
+  </div>
+
+  <div class="loading-overlay" *ngIf="isLoading()">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="save()" *ngIf="!isLoading()">
+    <mat-card class="form-card">
+      <mat-card-content>
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'STORE_ACCOUNTING_CONFIG.STORE' | translate }}</mat-label>
+            <mat-select formControlName="storeId" required>
+              <mat-option *ngFor="let store of stores()" [value]="store.id">{{ store.nameEn }}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('storeId')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'STORE_ACCOUNTING_CONFIG.INVENTORY_ACCOUNT' | translate }}</mat-label>
+            <mat-select formControlName="inventoryAccountId" required>
+              <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameEn }}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('inventoryAccountId')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'STORE_ACCOUNTING_CONFIG.COGS_ACCOUNT' | translate }}</mat-label>
+            <mat-select formControlName="cogsAccountId" required>
+              <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameEn }}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('cogsAccountId')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'STORE_ACCOUNTING_CONFIG.ADJUSTMENT_ACCOUNT' | translate }}</mat-label>
+            <mat-select formControlName="inventoryAdjustmentAccountId" required>
+              <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameEn }}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('inventoryAdjustmentAccountId')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="toggle-row">
+          <mat-checkbox formControlName="isActive">{{ 'COMMON.ACTIVE' | translate }}</mat-checkbox>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <div class="form-actions">
+      <button mat-raised-button color="primary" type="submit" [disabled]="isSaving()">
+        <mat-icon>save</mat-icon>
+        {{ 'COMMON.SAVE' | translate }}
+      </button>
+      <button mat-stroked-button type="button" (click)="cancel()">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+    </div>
+  </form>
+</div>

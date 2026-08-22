@@ -43,6 +43,8 @@ export interface Company {
     country: string;
     zipCode: string;
   };
+  /** The accounting/reporting currency for every document scoped to this Company. */
+  baseCurrencyId?: number | null;
 }
 
 export interface Store {

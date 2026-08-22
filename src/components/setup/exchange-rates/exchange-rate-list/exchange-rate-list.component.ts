@@ -1,0 +1,113 @@
+import { ChangeDetectionStrategy, Component, OnInit, ViewChild, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { DxDataGridModule, DxDataGridComponent, DxTemplateModule } from 'devextreme-angular';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { ExchangeRateService } from '../../../../services/exchange-rate.service';
+import { NotificationService } from '../../../../services/notification.service';
+import { CurrencyExchangeRate } from '../../../../models/exchange-rate.model';
+
+@Component({
+  selector: 'app-exchange-rate-list',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterLink,
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
+    MatToolbarModule,
+    MatTooltipModule,
+    DxDataGridModule,
+    DxTemplateModule,
+    TranslateModule
+  ],
+  templateUrl: './exchange-rate-list.component.html',
+  styleUrls: ['./exchange-rate-list.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class ExchangeRateListComponent implements OnInit {
+  @ViewChild(DxDataGridComponent, { static: false }) grid!: DxDataGridComponent;
+
+  private exchangeRateService = inject(ExchangeRateService);
+  private notificationService = inject(NotificationService);
+  private router = inject(Router);
+  private translate = inject(TranslateService);
+
+  rates = signal<CurrencyExchangeRate[]>([]);
+  loading = signal(false);
+
+  ngOnInit(): void {
+    this.loadRates();
+  }
+
+  loadRates(): void {
+    this.loading.set(true);
+    this.exchangeRateService.getAll().subscribe({
+      next: (data) => {
+        this.rates.set(data || []);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loading.set(false);
+        this.notificationService.showError(this.translate.instant('EXCHANGE_RATE.LOAD_ERROR'));
+      }
+    });
+  }
+
+  refresh(): void {
+    this.loadRates();
+  }
+
+  onCreate(): void {
+    this.router.navigate(['/setup/exchange-rates/new']);
+  }
+
+  onEdit = (e: any): void => {
+    this.router.navigate(['/setup/exchange-rates/edit', e.row.data.id]);
+  };
+
+  onDelete = (e: any): void => {
+    const rate: CurrencyExchangeRate = e.row.data;
+    const message = this.translate.instant('EXCHANGE_RATE.CONFIRM_DELETE', {
+      pair: `${rate.fromCurrencyCode} -> ${rate.toCurrencyCode}`
+    });
+    if (!confirm(message)) return;
+
+    this.exchangeRateService.delete(rate.id).subscribe({
+      next: () => {
+        this.notificationService.showSuccess(this.translate.instant('EXCHANGE_RATE.DELETE_SUCCESS'));
+        this.loadRates();
+      },
+      error: (err) => {
+        const msg = err?.error?.message || err?.error || this.translate.instant('EXCHANGE_RATE.DELETE_ERROR');
+        this.notificationService.showError(msg);
+      }
+    });
+  };
+
+  exportExcel(): void {
+    import('devextreme/excel_exporter').then(({ exportDataGrid }) => {
+      import('exceljs').then(async (ExcelJS) => {
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('ExchangeRates');
+        exportDataGrid({ component: this.grid.instance, worksheet }).then(() => {
+          workbook.xlsx.writeBuffer().then((buffer: BlobPart) => {
+            import('file-saver').then(({ saveAs }) => {
+              saveAs(new Blob([buffer], { type: 'application/octet-stream' }), 'ExchangeRates.xlsx');
+            });
+          });
+        });
+      });
+    });
+  }
+
+  printGrid(): void {
+    window.print();
+  }
+}

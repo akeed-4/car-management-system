@@ -13,7 +13,9 @@ export interface Account {
   mainAccountCode: string;
   mainAccountName: string;
   parentId?: number;
-  currencyId: number;
+  /** Null = multi-currency account (postable in any active currency). Non-null = locked to that
+   * single currency, e.g. "Bank USD". */
+  currencyId: number | null;
   hasCostCenter: boolean;
   costCenterId: number;
   isRetired: boolean;
@@ -117,7 +119,9 @@ export interface CreateAccountDto {
   mainAccountCode: string;
   mainAccountName: string;
   parentId?: number;
-  currencyId: number;
+  /** Null = multi-currency account (postable in any active currency). Non-null = locked to that
+   * single currency, e.g. "Bank USD". */
+  currencyId: number | null;
   hasCostCenter: boolean;
   costCenterId: number;
   isRetired: boolean;
@@ -157,7 +161,9 @@ export interface UpdateAccountDto {
   mainAccountCode: string;
   mainAccountName: string;
   parentId?: number;
-  currencyId: number;
+  /** Null = multi-currency account (postable in any active currency). Non-null = locked to that
+   * single currency, e.g. "Bank USD". */
+  currencyId: number | null;
   hasCostCenter: boolean;
   costCenterId: number;
   isRetired: boolean;

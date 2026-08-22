@@ -1,0 +1,67 @@
+<div class="page-container">
+  <div class="page-header header-row">
+    <h1>{{ 'STORE_ACCOUNTING_CONFIG.LIST_TITLE' | translate }}</h1>
+    <a routerLink="/setup/store-accounting-configurations/new" mat-raised-button color="primary">
+      <mat-icon>add</mat-icon>
+      {{ 'STORE_ACCOUNTING_CONFIG.CREATE_TITLE' | translate }}
+    </a>
+  </div>
+
+  <mat-toolbar class="page-toolbar">
+    <button mat-stroked-button (click)="refresh()">
+      <mat-icon>refresh</mat-icon>
+      {{ 'COMMON.REFRESH' | translate }}
+    </button>
+
+    <span class="toolbar-spacer"></span>
+
+    <button mat-icon-button (click)="printGrid()" [matTooltip]="'COMMON.PRINT' | translate">
+      <mat-icon>print</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <div class="grid-container">
+    <dx-data-grid
+      [dataSource]="configurations()"
+      [showBorders]="true"
+      [columnAutoWidth]="true"
+      [rowAlternationEnabled]="true"
+      [rtlEnabled]="true"
+      height="600px"
+      [showRowLines]="true"
+      [allowColumnReordering]="true"
+      [allowColumnResizing]="true"
+      [noDataText]="'STORE_ACCOUNTING_CONFIG.NO_CONFIGURATIONS' | translate"
+      keyExpr="id"
+      rtlEnabled="true">
+
+      <dxo-search-panel [visible]="true" [width]="240"></dxo-search-panel>
+      <dxo-filter-row [visible]="true"></dxo-filter-row>
+      <dxo-header-filter [visible]="true"></dxo-header-filter>
+      <dxo-paging [pageSize]="10"></dxo-paging>
+      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]" [showInfo]="true"></dxo-pager>
+
+      <dxi-column dataField="storeName" [caption]="'STORE_ACCOUNTING_CONFIG.STORE' | translate"></dxi-column>
+      <dxi-column dataField="inventoryAccountCode" [caption]="'STORE_ACCOUNTING_CONFIG.INVENTORY_ACCOUNT' | translate" [width]="150"></dxi-column>
+      <dxi-column dataField="cogsAccountCode" [caption]="'STORE_ACCOUNTING_CONFIG.COGS_ACCOUNT' | translate" [width]="150"></dxi-column>
+      <dxi-column dataField="inventoryAdjustmentAccountCode" [caption]="'STORE_ACCOUNTING_CONFIG.ADJUSTMENT_ACCOUNT' | translate" [width]="180"></dxi-column>
+      <dxi-column dataField="isActive" dataType="boolean" [caption]="'COMMON.ACTIVE' | translate" [width]="110" cellTemplate="statusTemplate"></dxi-column>
+
+      <div *dxTemplate="let cell of 'statusTemplate'">
+        <span class="status-badge" [class.status-active]="cell.data.isActive" [class.status-inactive]="!cell.data.isActive">
+          {{ (cell.data.isActive ? 'COMMON.ACTIVE' : 'COMMON.INACTIVE') | translate }}
+        </span>
+      </div>
+
+      <dxi-column type="buttons" [caption]="'COMMON.ACTIONS' | translate" [width]="120" cellTemplate="actionsTemplate"></dxi-column>
+      <div *dxTemplate="let cell of 'actionsTemplate'">
+        <button mat-icon-button [matTooltip]="'COMMON.EDIT' | translate" (click)="onEdit({ row: { data: cell.data } })">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" [matTooltip]="'COMMON.DELETE' | translate" (click)="onDelete({ row: { data: cell.data } })">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </dx-data-grid>
+  </div>
+</div>

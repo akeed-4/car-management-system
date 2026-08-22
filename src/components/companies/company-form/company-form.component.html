@@ -55,6 +55,14 @@
       <input matInput formControlName="crNumber" [placeholder]="'COMPANIES.FORM.CR_NUMBER_PLACEHOLDER' | translate">
     </mat-form-field>
 
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'COMPANIES.FORM.BASE_CURRENCY' | translate }}</mat-label>
+      <mat-select formControlName="baseCurrencyId">
+        <mat-option *ngFor="let currency of currencies" [value]="currency.id">{{ currency.code }} - {{ currency.nameEn }}</mat-option>
+      </mat-select>
+      <mat-hint>{{ 'COMPANIES.FORM.BASE_CURRENCY_HINT' | translate }}</mat-hint>
+    </mat-form-field>
+
     <!-- Geographic Information -->
     <mat-form-field appearance="outline">
       <mat-label>{{ 'COMPANIES.FORM.LATITUDE' | translate }}</mat-label>

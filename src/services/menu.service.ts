@@ -68,7 +68,10 @@ export const menuData = [
       { id: 85, name: 'سندات القبض', englishName: 'Receipt Vouchers', route: '/accounts/receipts' },
       { id: 86, name: 'سندات الصرف', englishName: 'Payment Vouchers', route: '/accounts/payments' },
       { id: 87, name: 'سندات العربون', englishName: 'Deposit Vouchers', route: '/accounts/deposits' },
-      { id: 88, name: 'تمويل المخزون', englishName: 'Floor Plan Financing', route: '/accounts/floor-plan-financing' }
+      { id: 88, name: 'تمويل المخزون', englishName: 'Floor Plan Financing', route: '/accounts/floor-plan-financing' },
+      { id: 89, name: 'العملات', englishName: 'Currencies', route: '/setup/currencies' },
+      { id: 90, name: 'أسعار الصرف', englishName: 'Exchange Rates', route: '/setup/exchange-rates' },
+      { id: 91, name: 'إعدادات محاسبة المخازن', englishName: 'Store Accounting Configurations', route: '/setup/store-accounting-configurations' }
     ]
   },
 
@@ -79,7 +82,8 @@ export const menuData = [
     submenu: [
       { id: 31, name: 'الرصيد الافتتاحية للمخزون', englishName: 'Opening Balance Inventory', route: '/inventory/opening-balances' },
       { id: 32, name: 'جرد بضاعة', englishName: 'Stock Taking', route: '/inventory/stock-taking' },
-      { id: 33, name: 'اعتماد جرد بضاعة', englishName: 'Stock Taking Approval', route: '/inventory/stock-taking-approval' }
+      { id: 33, name: 'اعتماد جرد بضاعة', englishName: 'Stock Taking Approval', route: '/inventory/stock-taking-approval' },
+      { id: 34, name: 'تحويلات المخازن', englishName: 'Store Transfers', route: '/setup/store-transfers' }
     ]
   },
   {

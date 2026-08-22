@@ -20,6 +20,14 @@ import { FinancialReportsComponent } from './components/reports/financial-report
 import { TaxReportsComponent } from './components/reports/tax-reports/tax-reports.component';
 import { AdministrativeReportsComponent } from './components/reports/administrative-reports/administrative-reports.component';
 import { ManufacturersComponent } from './components/setup/manufacturers/manufacturers-list/manufacturers.component';
+import { CurrencyListComponent } from './components/setup/currencies/currency-list/currency-list.component';
+import { CurrencyFormComponent } from './components/setup/currencies/currency-form/currency-form.component';
+import { ExchangeRateListComponent } from './components/setup/exchange-rates/exchange-rate-list/exchange-rate-list.component';
+import { ExchangeRateFormComponent } from './components/setup/exchange-rates/exchange-rate-form/exchange-rate-form.component';
+import { StoreAccountingConfigurationListComponent } from './components/setup/store-accounting-configurations/store-accounting-configuration-list/store-accounting-configuration-list.component';
+import { StoreAccountingConfigurationFormComponent } from './components/setup/store-accounting-configurations/store-accounting-configuration-form/store-accounting-configuration-form.component';
+import { StoreTransferListComponent } from './components/setup/store-transfers/store-transfer-list/store-transfer-list.component';
+import { StoreTransferFormComponent } from './components/setup/store-transfers/store-transfer-form/store-transfer-form.component';
 import { CarModelsComponent } from './components/setup/car-models/car-models-list/car-models.component';
 import { ManufactureYearComponent } from './components/setup/manufacture-year/manufacture-year-list/manufacture-year.component';
 import { CustomerFormComponent } from './components/entities/customers/customer-form/customer-form.component';
@@ -237,6 +245,17 @@ export const APP_ROUTES: Routes = [
       { path: 'cost-centers', component: CostCenterListComponent },
       { path: 'cost-centers/new', component: CostCenterFormComponent },
       { path: 'cost-centers/edit/:id', component: CostCenterFormComponent },
+      { path: 'setup/currencies', component: CurrencyListComponent },
+      { path: 'setup/currencies/new', component: CurrencyFormComponent },
+      { path: 'setup/currencies/edit/:id', component: CurrencyFormComponent },
+      { path: 'setup/exchange-rates', component: ExchangeRateListComponent },
+      { path: 'setup/exchange-rates/new', component: ExchangeRateFormComponent },
+      { path: 'setup/exchange-rates/edit/:id', component: ExchangeRateFormComponent },
+      { path: 'setup/store-accounting-configurations', component: StoreAccountingConfigurationListComponent },
+      { path: 'setup/store-accounting-configurations/new', component: StoreAccountingConfigurationFormComponent },
+      { path: 'setup/store-accounting-configurations/edit/:id', component: StoreAccountingConfigurationFormComponent },
+      { path: 'setup/store-transfers', component: StoreTransferListComponent },
+      { path: 'setup/store-transfers/new', component: StoreTransferFormComponent },
       { path: 'setup/cost-price-settings', component: CostPriceCalculationSettingsComponent },
       { path: 'setup/document-numbering-settings', component: DocumentNumberingSettingsComponent },
       { path: 'setup/document-lifecycle-settings', component: DocumentLifecycleSettingsComponent },

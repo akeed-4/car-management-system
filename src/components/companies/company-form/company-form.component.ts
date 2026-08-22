@@ -10,6 +10,8 @@ import { BranchService } from '@/src/services/branch.service';
 import { CompanyService } from '@/src/services/company.service';
 import { ToastService } from '@/src/services/toast.service';
 import { Branch, Company } from '@/src/models/branch.model';
+import { CurrencyService } from '@/src/services/currency.service';
+import { Currency } from '@/src/models/currency.model';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -37,6 +39,7 @@ export class CompanyFormComponent implements OnInit {
   isEdit = false;
   isLoading = signal(false);
   branches: Branch[] = [];
+  currencies: Currency[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -46,6 +49,7 @@ export class CompanyFormComponent implements OnInit {
     private route: ActivatedRoute,
     private translateService: TranslateService,
     private router: Router,
+    private currencyService: CurrencyService,
     @Optional() public dialogRef: MatDialogRef<CompanyFormComponent>,
     @Optional() @Inject(MAT_DIALOG_DATA) public data: { company?: Company }
   ) {}
@@ -58,6 +62,7 @@ export class CompanyFormComponent implements OnInit {
       status: ['active', Validators.required],
       vatRegistrationNumber: [''],
       crNumber: [''],
+      baseCurrencyId: [null],
       lat: [0],
       lng: [0],
       street: [''],
@@ -65,6 +70,13 @@ export class CompanyFormComponent implements OnInit {
       state: [''],
       country: [''],
       zipCode: ['']
+    });
+  }
+
+  private loadCurrencies(): void {
+    this.currencyService.getActive().subscribe({
+      next: (currencies) => (this.currencies = currencies),
+      error: (error) => console.error('Error loading currencies:', error)
     });
   }
 
@@ -76,6 +88,7 @@ export class CompanyFormComponent implements OnInit {
       status: company.status || 'active',
       vatRegistrationNumber: company.vatRegistrationNumber || '',
       crNumber: company.crNumber || '',
+      baseCurrencyId: company.baseCurrencyId ?? null,
       lat: company.geo?.lat || 0,
       lng: company.geo?.lng || 0,
       street: company.address?.street || '',
@@ -109,6 +122,7 @@ export class CompanyFormComponent implements OnInit {
         status: formValue.status,
         vatRegistrationNumber: formValue.vatRegistrationNumber || undefined,
         crNumber: formValue.crNumber || undefined,
+        baseCurrencyId: formValue.baseCurrencyId || null,
         createdBy: 'currentUser',
         permissions: [],
         tags: [],
@@ -178,6 +192,7 @@ export class CompanyFormComponent implements OnInit {
   ngOnInit(): void {
     this.initForm();
     this.loadBranches();
+    this.loadCurrencies();
 
     // Check if we're in edit mode via route or dialog
     const routeId = this.route.snapshot.params['id'];

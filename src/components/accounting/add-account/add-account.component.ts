@@ -21,6 +21,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NotificationService } from '@/src/services/notification.service';
 import { CustomerService } from '../../../services/customer.service';
 import { SupplierService } from '../../../services/supplier.service';
+import { CurrencyService } from '../../../services/currency.service';
+import { Currency } from '../../../models/currency.model';
 
 @Component({
   selector: 'app-add-account',
@@ -63,7 +65,8 @@ export class AddAccountComponent implements OnChanges, OnInit {
   isMainAccount = false;
   accountId = 0;
   accountCode = '';
-  currencyId = 1;
+  /** Null = multi-currency account -- see Account.currencyId doc comment in models.ts. */
+  currencyId: number | null = null;
   costCenterId = 0;
 
   // Client/Supplier/Bank properties
@@ -79,6 +82,7 @@ export class AddAccountComponent implements OnChanges, OnInit {
 
   accountForm: FormGroup;
   costCenters: CostCenter[] = [];
+  currencies: Currency[] = [];
   isSaving = false;
 
   customers = this.customerService.customers$;
@@ -93,7 +97,8 @@ export class AddAccountComponent implements OnChanges, OnInit {
     private toastService: NotificationService,
     private router: Router,
     private customerService: CustomerService,
-    private supplierService: SupplierService
+    private supplierService: SupplierService,
+    private currencyService: CurrencyService
   ) {
     this.accountForm = this.fb.group({
       accountTypeSelection: ['main'], // Default to main account
@@ -211,6 +216,7 @@ export class AddAccountComponent implements OnChanges, OnInit {
   ngOnInit() {
     // Load cost centers
     this.loadCostCenters();
+    this.loadCurrencies();
 
     // Handle route parameters for editing
     this.route.params.subscribe(params => {
@@ -267,6 +273,17 @@ export class AddAccountComponent implements OnChanges, OnInit {
       error: (error) => {
         console.error('Error loading cost centers:', error);
         this.toastService.showError(this.translate.instant('Failed to load cost centers'));
+      }
+    });
+  }
+
+  private loadCurrencies() {
+    this.currencyService.getActive().subscribe({
+      next: (currencies) => {
+        this.currencies = currencies;
+      },
+      error: (error) => {
+        console.error('Error loading currencies:', error);
       }
     });
   }

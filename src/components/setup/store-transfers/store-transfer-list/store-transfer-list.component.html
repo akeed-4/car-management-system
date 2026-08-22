@@ -1,0 +1,72 @@
+<div class="page-container">
+  <div class="page-header header-row">
+    <h1>{{ 'STORE_TRANSFER.LIST_TITLE' | translate }}</h1>
+    <a routerLink="/setup/store-transfers/new" mat-raised-button color="primary">
+      <mat-icon>add</mat-icon>
+      {{ 'STORE_TRANSFER.CREATE_TITLE' | translate }}
+    </a>
+  </div>
+
+  <mat-toolbar class="page-toolbar">
+    <button mat-stroked-button (click)="refresh()">
+      <mat-icon>refresh</mat-icon>
+      {{ 'COMMON.REFRESH' | translate }}
+    </button>
+
+    <span class="toolbar-spacer"></span>
+
+    <button mat-icon-button (click)="printGrid()" [matTooltip]="'COMMON.PRINT' | translate">
+      <mat-icon>print</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <div class="grid-container">
+    <dx-data-grid
+      [dataSource]="transfers()"
+      [showBorders]="true"
+      [columnAutoWidth]="true"
+      [rowAlternationEnabled]="true"
+      [rtlEnabled]="true"
+      height="600px"
+      [showRowLines]="true"
+      [allowColumnReordering]="true"
+      [allowColumnResizing]="true"
+      [noDataText]="'STORE_TRANSFER.NO_TRANSFERS' | translate"
+      keyExpr="id"
+      rtlEnabled="true">
+
+      <dxo-search-panel [visible]="true" [width]="240"></dxo-search-panel>
+      <dxo-filter-row [visible]="true"></dxo-filter-row>
+      <dxo-header-filter [visible]="true"></dxo-header-filter>
+      <dxo-paging [pageSize]="10"></dxo-paging>
+      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]" [showInfo]="true"></dxo-pager>
+
+      <dxi-column dataField="transferNumber" [caption]="'STORE_TRANSFER.TRANSFER_NUMBER' | translate" [width]="150"></dxi-column>
+      <dxi-column dataField="transferDate" dataType="date" [caption]="'STORE_TRANSFER.TRANSFER_DATE' | translate" [width]="130"></dxi-column>
+      <dxi-column dataField="fromStoreName" [caption]="'STORE_TRANSFER.FROM_STORE' | translate"></dxi-column>
+      <dxi-column dataField="toStoreName" [caption]="'STORE_TRANSFER.TO_STORE' | translate"></dxi-column>
+      <dxi-column dataField="status" [caption]="'COMMON.STATUS' | translate" [width]="120" cellTemplate="statusTemplate"></dxi-column>
+
+      <div *dxTemplate="let cell of 'statusTemplate'">
+        <span class="status-badge"
+              [class.status-active]="cell.data.status === 'Approved'"
+              [class.status-pending]="cell.data.status === 'Pending'"
+              [class.status-inactive]="cell.data.status === 'Rejected'">
+          {{ cell.data.status }}
+        </span>
+      </div>
+
+      <dxi-column type="buttons" [caption]="'COMMON.ACTIONS' | translate" [width]="130" cellTemplate="actionsTemplate"></dxi-column>
+      <div *dxTemplate="let cell of 'actionsTemplate'">
+        <ng-container *ngIf="cell.data.status === 'Pending'">
+          <button mat-icon-button color="primary" [matTooltip]="'STORE_TRANSFER.APPROVE' | translate" (click)="onApprove({ row: { data: cell.data } })">
+            <mat-icon>check_circle</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" [matTooltip]="'STORE_TRANSFER.REJECT' | translate" (click)="onReject({ row: { data: cell.data } })">
+            <mat-icon>cancel</mat-icon>
+          </button>
+        </ng-container>
+      </div>
+    </dx-data-grid>
+  </div>
+</div>

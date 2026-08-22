@@ -1,0 +1,68 @@
+.page-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 16px 20px 32px;
+}
+
+.page-header {
+  margin-bottom: 16px;
+}
+
+.header-row h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.form-card {
+  position: relative;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0 16px;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-error {
+  color: #c62828;
+  font-size: 13px;
+  margin: -8px 0 12px;
+}
+
+.item-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.item-car {
+  flex: 2;
+}
+
+.item-qty {
+  flex: 1;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .item-row {
+    flex-direction: column;
+  }
+}
