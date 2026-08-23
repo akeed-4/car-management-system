@@ -1,19 +1,18 @@
-<div class="journal-entries-list-container">
-  <div class="page-header">
-    <div class="header-info">
-      <h2 class="page-title">{{ 'ACCOUNTING.JOURNAL_ENTRIES_LIST' | translate }}</h2>
-      <p class="page-subtitle">{{ 'ACCOUNTING.JOURNAL_ENTRIES_LIST_SUBTITLE' | translate }}</p>
+<div class="erp-page">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ 'ACCOUNTING.JOURNAL_ENTRIES_LIST' | translate }}</h2>
+      <p class="erp-page-subtitle">{{ 'ACCOUNTING.JOURNAL_ENTRIES_LIST_SUBTITLE' | translate }}</p>
     </div>
-    <div class="header-actions">
-      <button mat-raised-button color="primary" (click)="onAddNew()" class="add-button">
+    <div class="erp-page-actions">
+      <button mat-raised-button color="primary" (click)="onAddNew()">
         <mat-icon>add</mat-icon>
         <span>{{ 'ACCOUNTING.ADD_NEW_ENTRY' | translate }}</span>
       </button>
     </div>
   </div>
 
-  <div class="content-card">
-    <div class="data-grid-container">
+  <div class="erp-grid-card">
       <dx-data-grid
         [dataSource]="journalEntries()"
         [showBorders]="true"
@@ -68,6 +67,5 @@
         <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]" [showInfo]="true"></dxo-pager>
         <dxo-export [enabled]="true" [fileName]="'journal-entries'"></dxo-export>
       </dx-data-grid>
-    </div>
   </div>
 </div>
