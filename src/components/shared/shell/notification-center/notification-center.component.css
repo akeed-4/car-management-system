@@ -138,12 +138,12 @@
 }
 
 .notif-item-unread {
-  background: color-mix(in srgb, var(--color-primary, #2563eb) 5%, transparent);
+  background: color-mix(in srgb, var(--color-primary, var(--color-primary-600)) 5%, transparent);
 }
 
 /* Priority accent on the leading edge — respects RTL via the logical property. */
 .notif-priority-urgent { border-inline-start-color: var(--color-danger, #dc2626); }
-.notif-priority-high { border-inline-start-color: var(--color-warning, #f59e0b); }
+.notif-priority-high { border-inline-start-color: var(--color-warning, var(--color-warning-500)); }
 .notif-priority-normal { border-inline-start-color: transparent; }
 .notif-priority-low { border-inline-start-color: transparent; }
 
@@ -165,8 +165,8 @@
 }
 
 .notif-item-unread .notif-item-icon {
-  background: color-mix(in srgb, var(--color-primary, #2563eb) 12%, transparent);
-  color: var(--color-primary, #2563eb);
+  background: color-mix(in srgb, var(--color-primary, var(--color-primary-600)) 12%, transparent);
+  color: var(--color-primary, var(--color-primary-600));
 }
 
 .notif-item-body {
@@ -209,7 +209,7 @@
 
 .notif-item-doc {
   font-weight: 600;
-  color: var(--color-primary, #2563eb);
+  color: var(--color-primary, var(--color-primary-600));
 }
 
 .notif-item-dot {
@@ -218,7 +218,7 @@
   height: 8px;
   margin-top: 6px;
   border-radius: 50%;
-  background: var(--color-primary, #2563eb);
+  background: var(--color-primary, var(--color-primary-600));
 }
 
 /* ---------- loading ---------- */

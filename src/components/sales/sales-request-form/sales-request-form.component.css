@@ -20,7 +20,7 @@
 }
 
 .card {
-  background: white;
+  background: var(--surface-card);
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -61,12 +61,12 @@
 }
 
 .btn-primary {
-  background-color: #1976d2;
+  background-color: var(--color-primary-600);
   color: white;
 }
 
 .btn-secondary {
-  color: #1976d2;
+  color: var(--color-primary-600);
 }
 
 .btn-small {
@@ -75,7 +75,7 @@
 }
 
 .strong-header {
-  border-bottom: 2px solid #e0e0e0;
+  border-bottom: 2px solid var(--border-default);
   padding-bottom: 10px;
 }
 

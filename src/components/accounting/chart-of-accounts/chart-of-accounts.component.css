@@ -1,8 +1,12 @@
+/* Chart of accounts -- tokenized for the Phase 5 design system. Layout and
+   structure preserved; all colors use semantic tokens so dark mode works
+   automatically. Directional properties are logical for RTL/LTR parity. */
+
 /* Main Container */
 .accounting-container {
   padding: 20px;
   margin: 0 auto;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: var(--surface-page);
   min-height: 100vh;
   font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -14,15 +18,15 @@
   align-items: center;
   margin-bottom: 32px;
   padding: 20px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  background: var(--surface-card);
+  border-radius: var(--rounded-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-default);
 }
 
 .header h2 {
   margin: 0;
-  color: #1976d2;
+  color: var(--color-primary-600);
   font-weight: 600;
   font-size: 28px;
   display: flex;
@@ -44,22 +48,22 @@
 
 /* Operation Card */
 .operation-card {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  background: var(--surface-card);
+  border-radius: var(--rounded-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-default);
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .operation-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
 }
 
 .operation-card mat-card-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: var(--color-primary-600);
+  color: #fff;
   padding: 20px 24px;
 }
 
@@ -90,26 +94,26 @@
 
 .radio-button {
   padding: 16px 20px;
-  border: 2px solid #e0e0e0;
-  border-radius: 12px;
+  border: 2px solid var(--border-default);
+  border-radius: var(--rounded-lg);
   transition: all 0.3s ease;
-  background: #fafafa;
+  background: var(--surface-sunken);
 }
 
 .radio-button:hover {
-  border-color: #1976d2;
-  background: #f0f8ff;
+  border-color: var(--color-primary-600);
+  background: var(--color-primary-100);
 }
 
 .radio-button.mat-radio-checked {
-  border-color: #1976d2;
-  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.2);
+  border-color: var(--color-primary-600);
+  background: var(--color-primary-100);
+  box-shadow: var(--shadow-sm);
 }
 
 .radio-button .mat-icon {
-  margin-left: 12px;
-  color: #1976d2;
+  margin-inline-start: 12px;
+  color: var(--color-primary-600);
 }
 
 /* Form Sections */
@@ -118,18 +122,18 @@
 }
 
 .form-section mat-card {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  background: var(--surface-card);
+  border-radius: var(--rounded-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-default);
   overflow: hidden;
   width: 100%;
   max-width: 1500px;
 }
 
 .form-section mat-card-header {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  color: white;
+  background: var(--color-primary-600);
+  color: #fff;
   padding: 20px 24px;
 }
 
@@ -170,15 +174,15 @@ dx-autocomplete {
 
 dx-autocomplete .dx-texteditor-input {
   padding: 12px 16px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
+  border-radius: var(--rounded-md);
+  border: 1px solid var(--border-default);
   font-size: 16px;
   transition: border-color 0.3s ease;
 }
 
 dx-autocomplete .dx-texteditor-input:focus {
-  border-color: #1976d2;
-  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+  border-color: var(--color-primary-600);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
 }
 
 /* Material Form Fields */
@@ -187,18 +191,18 @@ dx-autocomplete .dx-texteditor-input:focus {
 }
 
 .mat-mdc-form-field .mat-mdc-text-field-wrapper {
-  background: #fafafa;
-  border-radius: 8px;
+  background: var(--surface-sunken);
+  border-radius: var(--rounded-md);
   transition: background-color 0.3s ease;
 }
 
 .mat-mdc-form-field:hover .mat-mdc-text-field-wrapper {
-  background: #f0f0f0;
+  background: var(--surface-page);
 }
 
 .mat-mdc-form-field.mat-focused .mat-mdc-text-field-wrapper {
-  background: white;
-  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+  background: var(--surface-card);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
 }
 
 /* Form Actions */
@@ -208,12 +212,12 @@ dx-autocomplete .dx-texteditor-input:focus {
   margin-top: 32px;
   justify-content: flex-end;
   padding-top: 24px;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--border-default);
 }
 
 .form-actions button {
   padding: 12px 24px;
-  border-radius: 8px;
+  border-radius: var(--rounded-md);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -228,25 +232,25 @@ dx-autocomplete .dx-texteditor-input:focus {
 }
 
 .form-actions button[color="primary"] {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  background: var(--color-primary-600);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
 }
 
 .form-actions button[color="primary"]:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: var(--shadow-md);
 }
 
 .form-actions button[color="primary"]:disabled {
-  background: #ccc;
+  background: var(--border-default);
   box-shadow: none;
   transform: none;
 }
 
 /* Error Messages */
 .mat-mdc-form-field-error {
-  color: #f44336;
+  color: var(--status-danger-fg);
   font-size: 12px;
   margin-top: 4px;
 }
@@ -286,7 +290,6 @@ dx-autocomplete .dx-texteditor-input:focus {
 @media (max-width: 768px) {
   .accounting-container {
     padding: 12px;
-    background: white;
   }
 
   .header {
@@ -334,7 +337,7 @@ dx-autocomplete .dx-texteditor-input:focus {
 
   .operation-card,
   .form-section mat-card {
-    border-radius: 8px;
+    border-radius: var(--rounded-md);
   }
 
   .operation-card mat-card-header,
@@ -386,7 +389,7 @@ dx-autocomplete .dx-texteditor-input:focus {
 
 /* Focus states for better accessibility */
 .radio-button:focus-within {
-  outline: 2px solid #1976d2;
+  outline: 2px solid var(--color-primary-600);
   outline-offset: 2px;
 }
 
@@ -396,15 +399,15 @@ dx-autocomplete .dx-texteditor-input:focus {
 }
 
 .accounting-container ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--surface-sunken);
   border-radius: 4px;
 }
 
 .accounting-container ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: var(--border-default);
   border-radius: 4px;
 }
 
 .accounting-container ::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: var(--text-secondary);
 }

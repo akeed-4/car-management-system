@@ -13,12 +13,14 @@
 }
 
 .modal-content {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: var(--surface-overlay);
+  color: var(--text-primary);
+  padding: 24px;
+  border-radius: var(--rounded-lg);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-lg);
   max-width: 400px;
-  width: 90%;
+  width: min(90%, 400px);
 }
 
 .modal-header {
@@ -38,7 +40,16 @@
   background: none;
   border: none;
   font-size: 20px;
+  line-height: 1;
+  color: var(--text-muted);
   cursor: pointer;
+  border-radius: var(--rounded-full);
+  padding: 2px 8px;
+}
+
+.modal-close:hover {
+  color: var(--text-primary);
+  background-color: var(--surface-sunken);
 }
 
 .modal-body {
@@ -59,11 +70,26 @@
 }
 
 .modal-footer .cancel-btn {
-  background-color: #f3f4f6;
-  color: #374151;
+  background-color: var(--surface-sunken);
+  color: var(--text-secondary);
 }
 
 .modal-footer .confirm-btn {
-  background-color: #dc2626;
+  background-color: var(--color-danger-600);
   color: white;
+}
+
+.modal-footer .confirm-btn:hover {
+  background-color: var(--color-danger-800);
+}
+
+@media (max-width: 600px) {
+  .modal-content {
+    width: 94%;
+    padding: 18px;
+  }
+
+  .modal-footer button {
+    flex: 1;
+  }
 }

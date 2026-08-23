@@ -17,6 +17,6 @@ h1 {
 }
 
 .reason {
-  color: #666;
+  color: var(--text-secondary);
   margin: 0 0 20px;
 }

@@ -12,7 +12,7 @@
   justify-content: space-between;
   margin-bottom: 1.5rem;
   padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary-600);
   color: white;
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -76,7 +76,7 @@
 
 /* Data Grid Container */
 .datagrid-container {
-  background: white;
+  background: var(--surface-card);
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -117,20 +117,20 @@
 }
 
 .professional-datagrid .dx-texteditor-input {
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-default);
   border-radius: 4px;
   padding: 4px 8px;
 }
 
 .professional-datagrid .dx-texteditor-input:focus {
-  border-color: #667eea;
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+  border-color: var(--color-primary-600);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
 }
 
 /* Summary styling */
 .professional-datagrid .dx-datagrid-summary-item {
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text-primary);
   background: #f8fafc;
   padding: 12px;
 }

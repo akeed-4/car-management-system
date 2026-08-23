@@ -1,12 +1,14 @@
-<div class="store-list-container">
-  <div class="header">
-    <h2>{{ 'STORES.LIST_TITLE' | translate }}</h2>
-    <div class="actions">
+<div class="erp-page">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ 'STORES.LIST_TITLE' | translate }}</h2>
+    </div>
+    <div class="erp-page-actions">
       <input
         type="text"
         [(ngModel)]="filter"
         placeholder="{{ 'STORES.SEARCH_PLACEHOLDER' | translate }}"
-        class="search-input"
+        class="erp-search-input"
       />
       <button
         mat-raised-button
@@ -19,113 +21,115 @@
     </div>
   </div>
 
-  <dx-data-grid
-    [dataSource]="filteredStores()"
-    [showBorders]="true"
-    keyexpr="id"
-    [showRowLines]="true"
-    [showColumnLines]="true"
-    [rowAlternationEnabled]="true"
-    [allowColumnReordering]="true"
-    [allowColumnResizing]="true"
-    [columnAutoWidth]="true"
-    [wordWrapEnabled]="true"
-    [rtlEnabled]="true"
-    [hoverStateEnabled]="true"
-    [selection]="{ mode: 'single' }"
-    (onRowClick)="onRowClick($event)"
-    height="70vh">
+  <div class="erp-grid-card">
+    <dx-data-grid
+      [dataSource]="filteredStores()"
+      [showBorders]="true"
+      keyexpr="id"
+      [showRowLines]="true"
+      [showColumnLines]="true"
+      [rowAlternationEnabled]="true"
+      [allowColumnReordering]="true"
+      [allowColumnResizing]="true"
+      [columnAutoWidth]="true"
+      [wordWrapEnabled]="true"
+      [rtlEnabled]="true"
+      [hoverStateEnabled]="true"
+      [selection]="{ mode: 'single' }"
+      (onRowClick)="onRowClick($event)"
+      height="70vh">
 
-    <dxo-load-panel [enabled]="true"></dxo-load-panel>
-    <dxo-scrolling mode="virtual"></dxo-scrolling>
-    <dxo-paging [pageSize]="10"></dxo-paging>
-    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
-    <dxo-filter-row [visible]="true"></dxo-filter-row>
-    <dxo-header-filter [visible]="true"></dxo-header-filter>
-    <dxo-search-panel [visible]="true" [placeholder]="'STORES.SEARCH_PLACEHOLDER' | translate"></dxo-search-panel>
-    <dxo-export [enabled]="true" fileName="stores"></dxo-export>
-    <dxo-grouping [autoExpandAll]="false"></dxo-grouping>
-    <dxo-sorting mode="multiple"></dxo-sorting>
+      <dxo-load-panel [enabled]="true"></dxo-load-panel>
+      <dxo-scrolling mode="virtual"></dxo-scrolling>
+      <dxo-paging [pageSize]="10"></dxo-paging>
+      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
+      <dxo-filter-row [visible]="true"></dxo-filter-row>
+      <dxo-header-filter [visible]="true"></dxo-header-filter>
+      <dxo-search-panel [visible]="true" [placeholder]="'STORES.SEARCH_PLACEHOLDER' | translate"></dxo-search-panel>
+      <dxo-export [enabled]="true" fileName="stores"></dxo-export>
+      <dxo-grouping [autoExpandAll]="false"></dxo-grouping>
+      <dxo-sorting mode="multiple"></dxo-sorting>
 
-    <dxi-column
-      dataField="nameAr"
-      [caption]="'STORES.COLUMNS.NAME_AR' | translate"
-      [allowFiltering]="true"
-      [allowSorting]="true"
-      [allowGrouping]="true"
-     >
-    </dxi-column>
+      <dxi-column
+        dataField="nameAr"
+        [caption]="'STORES.COLUMNS.NAME_AR' | translate"
+        [allowFiltering]="true"
+        [allowSorting]="true"
+        [allowGrouping]="true"
+       >
+      </dxi-column>
 
 
-    <dxi-column
-      dataField="description"
-      [caption]="'STORES.COLUMNS.DESCRIPTION' | translate"
-      [allowFiltering]="true"
-      [allowSorting]="false"
-      [allowGrouping]="true"
-    >
-    </dxi-column>
-
-    <dxi-column
-      dataField="activityName"
-      [caption]="'STORES.COLUMNS.ACTIVITY' | translate"
-      [allowFiltering]="true"
-      [allowSorting]="true"
-      [allowGrouping]="true"
+      <dxi-column
+        dataField="description"
+        [caption]="'STORES.COLUMNS.DESCRIPTION' | translate"
+        [allowFiltering]="true"
+        [allowSorting]="false"
+        [allowGrouping]="true"
       >
-    </dxi-column>
+      </dxi-column>
 
-    <dxi-column
-      dataField="branchName"
-      [caption]="'STORES.COLUMNS.BRANCH' | translate"
-      [allowFiltering]="true"
-      [allowSorting]="true"
-      [allowGrouping]="true"
-    >
-    </dxi-column>
-
-    <dxi-column
-      dataField="status"
-      [caption]="'STORES.COLUMNS.STATUS' | translate"
-      [allowFiltering]="true"
-      [allowSorting]="true"
-      [allowGrouping]="true"
-      [dataType]="'string'"
-      [lookup]="{
-        dataSource: [
-          { value: 'active', displayExpr: 'STORES.STATUS.ACTIVE' | translate },
-          { value: 'inactive', displayExpr: 'STORES.STATUS.INACTIVE' | translate },
-          { value: 'suspended', displayExpr: 'STORES.STATUS.SUSPENDED' | translate }
-        ],
-        valueExpr: 'value',
-        displayExpr: 'displayExpr'
-      }"
-   >
-    </dxi-column>
-
-    <dxi-column
-      dataField="createdAt"
-      [caption]="'STORES.COLUMNS.CREATED' | translate"
-      dataType="date"
-      format="yyyy-MM-dd"
-     >
-    </dxi-column>
-
-    <dxi-column
-      type="buttons"
-      [caption]="'STORES.COLUMNS.ACTIONS' | translate">
-      <dxi-button
-        [hint]="'STORES.ACTIONS.EDIT' | translate"
-        [icon]="'edit'"
-        [onClick]="onEdit"
+      <dxi-column
+        dataField="activityName"
+        [caption]="'STORES.COLUMNS.ACTIVITY' | translate"
+        [allowFiltering]="true"
+        [allowSorting]="true"
+        [allowGrouping]="true"
         >
-      </dxi-button>
-      <dxi-button
-        [hint]="'STORES.ACTIONS.DELETE' | translate"
-        [icon]="'trash'"
-        [onClick]="onDelete"
-        >
-      </dxi-button>
-    </dxi-column>
-  </dx-data-grid>
+      </dxi-column>
+
+      <dxi-column
+        dataField="branchName"
+        [caption]="'STORES.COLUMNS.BRANCH' | translate"
+        [allowFiltering]="true"
+        [allowSorting]="true"
+        [allowGrouping]="true"
+      >
+      </dxi-column>
+
+      <dxi-column
+        dataField="status"
+        [caption]="'STORES.COLUMNS.STATUS' | translate"
+        [allowFiltering]="true"
+        [allowSorting]="true"
+        [allowGrouping]="true"
+        [dataType]="'string'"
+        [lookup]="{
+          dataSource: [
+            { value: 'active', displayExpr: 'STORES.STATUS.ACTIVE' | translate },
+            { value: 'inactive', displayExpr: 'STORES.STATUS.INACTIVE' | translate },
+            { value: 'suspended', displayExpr: 'STORES.STATUS.SUSPENDED' | translate }
+          ],
+          valueExpr: 'value',
+          displayExpr: 'displayExpr'
+        }"
+       >
+      </dxi-column>
+
+      <dxi-column
+        dataField="createdAt"
+        [caption]="'STORES.COLUMNS.CREATED' | translate"
+        dataType="date"
+        format="yyyy-MM-dd"
+       >
+      </dxi-column>
+
+      <dxi-column
+        type="buttons"
+        [caption]="'STORES.COLUMNS.ACTIONS' | translate">
+        <dxi-button
+          [hint]="'STORES.ACTIONS.EDIT' | translate"
+          [icon]="'edit'"
+          [onClick]="onEdit"
+          >
+        </dxi-button>
+        <dxi-button
+          [hint]="'STORES.ACTIONS.DELETE' | translate"
+          [icon]="'trash'"
+          [onClick]="onDelete"
+          >
+        </dxi-button>
+      </dxi-column>
+    </dx-data-grid>
+  </div>
 </div>

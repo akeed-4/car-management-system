@@ -6,7 +6,7 @@
 }
 
 ::ng-deep .dx-datagrid .dx-data-row:has(td[aria-colindex="6"]:contains("(")) {
-  color: #d32f2f;
+  color: var(--color-danger-600);
 }
 
 /* Print Styles */
@@ -35,5 +35,5 @@
 ::ng-deep .dx-datagrid .dx-row td[aria-colindex="6"] {
   font-family: 'Courier New', monospace;
   font-weight: 700;
-  background-color: #f8f9fa;
+  background-color: var(--surface-sunken);
 }

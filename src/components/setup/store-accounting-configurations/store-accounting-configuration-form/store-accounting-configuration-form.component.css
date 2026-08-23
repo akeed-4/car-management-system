@@ -72,7 +72,7 @@
   padding: 6px;
   border-radius: 8px;
   background: #ede9fe;
-  color: #4338ca;
+  color: var(--color-primary-600);
   --mdc-icon-button-state-layer-size: 36px;
   transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
 }

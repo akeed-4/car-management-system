@@ -28,13 +28,13 @@
 
 .customers-table {
   width: 100%;
-  background: white;
+  background: var(--surface-card);
 }
 
 .customers-table th {
-  background: #f5f5f5;
+  background: var(--surface-sunken);
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   padding: 16px;
 }
 
@@ -48,7 +48,7 @@
 }
 
 .customer-row:hover {
-  background-color: #f5f5f5;
+  background-color: var(--surface-sunken);
 }
 
 /* Rank Badge */
@@ -59,14 +59,14 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #e0e0e0;
+  background: var(--border-default);
   font-weight: 600;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .rank-badge.top-3 {
   background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-  color: #333;
+  color: var(--text-primary);
   box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
 }
 
@@ -97,12 +97,12 @@
 
 .customer-details .name {
   font-weight: 500;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .customer-details .email {
   font-size: 12px;
-  color: #999;
+  color: var(--text-secondary);
 }
 
 /* Purchase Count */
@@ -110,7 +110,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #2196f3;
+  color: var(--color-primary-600);
 }
 
 .purchase-count mat-icon {
@@ -122,13 +122,13 @@
 /* Amount */
 .amount {
   font-weight: 600;
-  color: #4caf50;
+  color: var(--color-success-500);
   font-size: 15px;
 }
 
 /* Date */
 .date {
-  color: #666;
+  color: var(--text-secondary);
   font-size: 14px;
 }
 
@@ -148,7 +148,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, var(--surface-sunken) 25%, var(--border-default) 50%, var(--surface-sunken) 75%);
   background-size: 200% 100%;
   animation: loading 1.5s ease-in-out infinite;
 }
@@ -157,7 +157,7 @@
   flex: 1;
   height: 20px;
   border-radius: 4px;
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, var(--surface-sunken) 25%, var(--border-default) 50%, var(--surface-sunken) 75%);
   background-size: 200% 100%;
   animation: loading 1.5s ease-in-out infinite;
 }
@@ -182,7 +182,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #999;
+  color: var(--text-secondary);
 }
 
 .no-data mat-icon {

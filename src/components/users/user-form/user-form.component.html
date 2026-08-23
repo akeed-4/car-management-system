@@ -1,70 +1,80 @@
-<div class="container">
-  <div class="page-header">
-    <h2>{{ pageTitle() | translate }}</h2>
-    <a routerLink="/users" class="back-link">&larr; {{ 'USERS.FORM.BACK_TO_USERS' | translate }}</a>
+<div class="erp-page">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <span class="erp-page-eyebrow">{{ 'USERS.LIST.TITLE' | translate }}</span>
+      <h2 class="erp-page-title">{{ pageTitle() | translate }}</h2>
+    </div>
+    <div class="erp-page-actions">
+      <a routerLink="/users" mat-stroked-button>
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'USERS.FORM.BACK_TO_USERS' | translate }}
+      </a>
+    </div>
   </div>
 
-  <mat-card class="form-container">
+  <div class="erp-card">
     <form [formGroup]="userForm" (ngSubmit)="saveUser()">
-      <div class="form-fields">
-        <mat-form-field appearance="outline" class="form-field">
-          <mat-label>{{ 'USERS.FORM.USERNAME' | translate }}</mat-label>
-          <input matInput formControlName="name" required>
-          <mat-error *ngIf="userForm.get('name')?.invalid && userForm.get('name')?.touched">
-            {{ 'USERS.VALIDATION.USERNAME_REQUIRED' | translate }}
-          </mat-error>
-        </mat-form-field>
+      <div class="erp-section">
+        <div class="erp-form-grid">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'USERS.FORM.USERNAME' | translate }}</mat-label>
+            <input matInput formControlName="name" required>
+            <mat-error *ngIf="userForm.get('name')?.invalid && userForm.get('name')?.touched">
+              {{ 'USERS.VALIDATION.USERNAME_REQUIRED' | translate }}
+            </mat-error>
+          </mat-form-field>
 
-        <mat-form-field appearance="outline" class="form-field">
-          <mat-label>{{ 'USERS.FORM.PASSWORD' | translate }}</mat-label>
-          <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password"
-                 [required]="!editMode()"
-                 [placeholder]="editMode() ? ('USERS.FORM.PASSWORD_PLACEHOLDER' | translate) : ''"
-                 autocomplete="new-password">
-          <button mat-icon-button matSuffix type="button" (click)="hidePassword.set(!hidePassword())">
-            <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
-          </button>
-          <mat-hint *ngIf="!userForm.get('password')?.touched || userForm.get('password')?.valid">
-            {{ 'USERS.VALIDATION.PASSWORD_POLICY_HINT' | translate }}
-          </mat-hint>
-          <mat-error *ngIf="userForm.get('password')?.hasError('requiresDigit')">
-            {{ 'USERS.VALIDATION.PASSWORD_REQUIRES_DIGIT' | translate }}
-          </mat-error>
-          <mat-error *ngIf="!userForm.get('password')?.hasError('requiresDigit') && userForm.get('password')?.hasError('minLength')">
-            {{ 'USERS.VALIDATION.PASSWORD_MIN_LENGTH' | translate }}
-          </mat-error>
-          <mat-error *ngIf="!editMode() && userForm.get('password')?.hasError('required')">
-            {{ 'USERS.VALIDATION.PASSWORD_REQUIRED' | translate }}
-          </mat-error>
-        </mat-form-field>
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'USERS.FORM.PASSWORD' | translate }}</mat-label>
+            <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password"
+                   [required]="!editMode()"
+                   [placeholder]="editMode() ? ('USERS.FORM.PASSWORD_PLACEHOLDER' | translate) : ''"
+                   autocomplete="new-password">
+            <button mat-icon-button matSuffix type="button" (click)="hidePassword.set(!hidePassword())">
+              <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            <mat-hint *ngIf="!userForm.get('password')?.touched || userForm.get('password')?.valid">
+              {{ 'USERS.VALIDATION.PASSWORD_POLICY_HINT' | translate }}
+            </mat-hint>
+            <mat-error *ngIf="userForm.get('password')?.hasError('requiresDigit')">
+              {{ 'USERS.VALIDATION.PASSWORD_REQUIRES_DIGIT' | translate }}
+            </mat-error>
+            <mat-error *ngIf="!userForm.get('password')?.hasError('requiresDigit') && userForm.get('password')?.hasError('minLength')">
+              {{ 'USERS.VALIDATION.PASSWORD_MIN_LENGTH' | translate }}
+            </mat-error>
+            <mat-error *ngIf="!editMode() && userForm.get('password')?.hasError('required')">
+              {{ 'USERS.VALIDATION.PASSWORD_REQUIRED' | translate }}
+            </mat-error>
+          </mat-form-field>
 
-        <mat-form-field appearance="outline" class="form-field">
-          <mat-label>{{ 'USERS.FORM.ROLE' | translate }}</mat-label>
-          <mat-select formControlName="roleId" required>
-            <mat-option [value]="null" disabled>{{ 'USERS.FORM.SELECT_ROLE' | translate }}</mat-option>
-            @for(role of roles(); track role.id) {
-              <mat-option [value]="role.id">{{ role.name }}</mat-option>
-            }
-          </mat-select>
-          <mat-error *ngIf="userForm.get('roleId')?.invalid && userForm.get('roleId')?.touched">
-            {{ 'USERS.VALIDATION.ROLE_REQUIRED' | translate }}
-          </mat-error>
-        </mat-form-field>
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'USERS.FORM.ROLE' | translate }}</mat-label>
+            <mat-select formControlName="roleId" required>
+              <mat-option [value]="null" disabled>{{ 'USERS.FORM.SELECT_ROLE' | translate }}</mat-option>
+              @for(role of roles(); track role.id) {
+                <mat-option [value]="role.id">{{ role.name }}</mat-option>
+              }
+            </mat-select>
+            <mat-error *ngIf="userForm.get('roleId')?.invalid && userForm.get('roleId')?.touched">
+              {{ 'USERS.VALIDATION.ROLE_REQUIRED' | translate }}
+            </mat-error>
+          </mat-form-field>
 
-        <mat-form-field appearance="outline" class="form-field">
-          <mat-label>{{ 'USERS.FORM.STATUS' | translate }}</mat-label>
-          <mat-select formControlName="status" required>
-            <mat-option value="Active">{{ 'USERS.STATUS.ACTIVE' | translate }}</mat-option>
-            <mat-option value="Inactive">{{ 'USERS.STATUS.INACTIVE' | translate }}</mat-option>
-          </mat-select>
-          <mat-error *ngIf="userForm.get('status')?.invalid && userForm.get('status')?.touched">
-            {{ 'USERS.VALIDATION.STATUS_REQUIRED' | translate }}
-          </mat-error>
-        </mat-form-field>
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'USERS.FORM.STATUS' | translate }}</mat-label>
+            <mat-select formControlName="status" required>
+              <mat-option value="Active">{{ 'USERS.STATUS.ACTIVE' | translate }}</mat-option>
+              <mat-option value="Inactive">{{ 'USERS.STATUS.INACTIVE' | translate }}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="userForm.get('status')?.invalid && userForm.get('status')?.touched">
+              {{ 'USERS.VALIDATION.STATUS_REQUIRED' | translate }}
+            </mat-error>
+          </mat-form-field>
+        </div>
       </div>
 
-      <div class="form-actions">
-        <a routerLink="/users" mat-stroked-button color="accent">{{ 'USERS.FORM.CANCEL' | translate }}</a>
+      <div class="erp-actions-bar">
+        <a routerLink="/users" mat-stroked-button>{{ 'USERS.FORM.CANCEL' | translate }}</a>
         <button mat-raised-button color="primary" type="submit" [disabled]="saving()">
           @if (saving()) {
             <mat-icon class="spin">refresh</mat-icon>
@@ -73,5 +83,5 @@
         </button>
       </div>
     </form>
-  </mat-card>
+  </div>
 </div>

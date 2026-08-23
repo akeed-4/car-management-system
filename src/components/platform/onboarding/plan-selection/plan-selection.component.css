@@ -16,7 +16,7 @@
 }
 
 .subtitle {
-  color: #666;
+  color: var(--text-secondary);
   margin: 0 0 20px;
 }
 
@@ -37,14 +37,14 @@
   gap: 12px;
   padding: 48px 20px;
   text-align: center;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .plan-load-error mat-icon {
   font-size: 40px;
   width: 40px;
   height: 40px;
-  color: #d32f2f;
+  color: var(--color-danger-600);
 }
 
 .plan-card {
@@ -74,18 +74,18 @@
 }
 
 .plan-price-na {
-  color: #999;
+  color: var(--text-secondary);
 }
 
 .price-value {
   font-size: 34px;
   font-weight: 700;
-  color: #1976d2;
+  color: var(--color-primary-600);
 }
 
 .price-cycle {
   font-size: 13px;
-  color: #888;
+  color: var(--text-secondary);
 }
 
 .plan-features {
@@ -108,11 +108,11 @@
   font-size: 18px;
   width: 18px;
   height: 18px;
-  color: #ccc;
+  color: var(--border-default);
 }
 
 .feature-item mat-icon.enabled {
-  color: #2e7d32;
+  color: var(--color-success-600);
 }
 
 .plan-actions {

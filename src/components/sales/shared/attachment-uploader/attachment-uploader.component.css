@@ -13,7 +13,7 @@
 .uploader-label {
   font-size: 0.72rem;
   font-weight: 700;
-  color: var(--color-gray-500, #6b7280);
+  color: var(--color-gray-500, var(--text-secondary));
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -23,7 +23,7 @@
 }
 
 .no-attachments {
-  color: var(--color-gray-400, #9ca3af);
+  color: var(--color-gray-400, var(--text-secondary));
   font-size: 0.82rem;
   font-style: italic;
   margin: 0.25rem 0;

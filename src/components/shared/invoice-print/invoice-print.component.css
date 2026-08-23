@@ -1,0 +1,588 @@
+/* ============================================================================
+   INVOICE PRINT — TEMPLATE LAYER STYLES
+   Professional, print-ready A4 invoice sheet.
+   - Screen: gray backdrop, centered sheet, action toolbar visible.
+   - Print (@media print): toolbar/nav hidden, exact A4 page, backdrop removed
+     so the printed output differs from the on-screen preview by design.
+   ========================================================================== */
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #eef1f5;
+  font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+  color: #1a2233;
+}
+
+.invoice-page {
+  padding: 24px 16px 48px;
+}
+
+/* ------------------------------------------------------------ action bar */
+
+.invoice-toolbar {
+  max-width: 820px;
+  margin: 0 auto 16px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.invoice-toolbar-spacer {
+  flex: 1;
+}
+
+.ip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #c9d2de;
+  background: #ffffff;
+  color: #1a2233;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.ip-btn:hover:not(:disabled) {
+  background: #f3f6fa;
+  border-color: #9fb0c5;
+}
+
+.ip-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.ip-btn-primary {
+  background: #0f4c81;
+  border-color: #0f4c81;
+  color: #ffffff;
+}
+
+.ip-btn-primary:hover:not(:disabled) {
+  background: #0c3d69;
+  border-color: #0c3d69;
+}
+
+.ip-btn mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+/* ----------------------------------------------------------- A4 sheet */
+
+.invoice-sheet {
+  position: relative;
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 14mm 14mm 12mm;
+  background: #ffffff;
+  box-shadow: 0 2px 12px rgba(15, 40, 80, 0.14);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* --------------------------------------------------------- watermark */
+
+.invoice-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-32deg);
+  font-size: 92px;
+  font-weight: 800;
+  letter-spacing: 10px;
+  opacity: 0.08;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 0;
+  text-transform: uppercase;
+}
+
+.watermark-paid .invoice-watermark { color: #1c7c3c; }
+.watermark-unpaid .invoice-watermark { color: #b3261e; }
+.watermark-draft .invoice-watermark { color: #8a6d00; }
+.watermark-copy .invoice-watermark { color: #44546a; }
+
+.invoice-sheet > *:not(.invoice-watermark) {
+  position: relative;
+  z-index: 1;
+}
+
+/* ------------------------------------------------------------ header */
+
+.inv-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 3px solid #0f4c81;
+}
+
+.inv-header-company {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.inv-logo {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  background: #0f4c81;
+  color: #ffffff;
+  font-size: 26px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.inv-company-name {
+  margin: 0 0 2px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f2b4c;
+}
+
+.inv-company-meta {
+  margin: 0;
+  font-size: 11px;
+  color: #51617a;
+  line-height: 1.5;
+}
+
+.inv-header-title {
+  text-align: end;
+}
+
+.inv-title {
+  margin: 0 0 6px;
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f4c81;
+  letter-spacing: 0.5px;
+}
+
+.inv-number-box {
+  display: inline-block;
+  border: 1.5px solid #0f4c81;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f2b4c;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------- meta strip */
+
+.inv-meta-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.inv-meta-cell {
+  flex: 1 1 0;
+  min-width: 110px;
+  background: #f4f7fb;
+  border: 1px solid #e2e9f2;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.inv-meta-label {
+  margin: 0 0 2px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #7a8aa0;
+}
+
+.inv-meta-value {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a2233;
+  font-variant-numeric: tabular-nums;
+}
+
+.inv-status-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.inv-status-badge.is-paid { background: #e2f4e8; color: #1c7c3c; }
+.inv-status-badge.is-unpaid { background: #fbe7e5; color: #b3261e; }
+.inv-status-badge.is-partial { background: #fdf3d7; color: #8a6d00; }
+
+/* ------------------------------------------------------------ parties */
+
+.inv-parties {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 12px 0;
+}
+
+.inv-party {
+  border: 1px solid #e2e9f2;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #ffffff;
+}
+
+.inv-party-heading {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #0f4c81;
+  border-bottom: 1px solid #e2e9f2;
+  padding-bottom: 4px;
+}
+
+.inv-party-name {
+  margin: 0 0 2px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a2233;
+}
+
+.inv-party-line {
+  margin: 0;
+  font-size: 11.5px;
+  color: #51617a;
+  line-height: 1.6;
+}
+
+.inv-party-po {
+  margin-top: 4px;
+  font-weight: 700;
+  color: #0f2b4c;
+}
+
+/* ------------------------------------------------------------- tables */
+
+.inv-section {
+  margin: 14px 0;
+}
+
+.inv-section-title {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #0f2b4c;
+}
+
+.inv-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+}
+
+.inv-table th {
+  background: #0f4c81;
+  color: #ffffff;
+  font-weight: 600;
+  padding: 7px 8px;
+  text-align: start;
+  border: 1px solid #0f4c81;
+}
+
+.inv-table td {
+  padding: 6px 8px;
+  border: 1px solid #dbe3ee;
+  vertical-align: top;
+}
+
+.inv-table tbody tr:nth-child(even) td {
+  background: #f7fafd;
+}
+
+.inv-col-center { text-align: center; }
+.inv-col-end { text-align: end; }
+.inv-mono { font-variant-numeric: tabular-nums; }
+.inv-strong { font-weight: 700; color: #1a2233; }
+
+.inv-item-detail {
+  display: block;
+  font-size: 10px;
+  color: #7a8aa0;
+  font-family: Consolas, monospace;
+  direction: ltr;
+  text-align: start;
+}
+
+/* ------------------------------------------------------------- totals */
+
+.inv-totals-wrap {
+  display: flex;
+  justify-content: flex-end;
+  margin: 14px 0;
+}
+
+.inv-totals-box {
+  width: 320px;
+  border: 1px solid #dbe3ee;
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: #ffffff;
+}
+
+.inv-totals-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 3px 0;
+  font-size: 12px;
+}
+
+.inv-totals-label { color: #51617a; }
+.inv-totals-value { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.inv-totals-row.is-grand {
+  border-top: 2px solid #0f4c81;
+  margin-top: 6px;
+  padding-top: 7px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f2b4c;
+}
+
+.inv-totals-row.is-grand .inv-totals-label,
+.inv-totals-row.is-grand .inv-totals-value {
+  color: #0f2b4c;
+  font-weight: 800;
+}
+
+.inv-totals-row.is-due {
+  border-top: 1px dashed #dbe3ee;
+  margin-top: 4px;
+  padding-top: 6px;
+}
+
+.inv-totals-value.is-outstanding { color: #b3261e; }
+.inv-totals-value.is-settled { color: #1c7c3c; }
+
+/* -------------------------------------------------------- footer grid */
+
+.inv-footer-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin: 14px 0;
+}
+
+.inv-footer-heading {
+  margin: 0 0 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #0f4c81;
+}
+
+.inv-terms-list {
+  margin: 0;
+  padding-inline-start: 16px;
+  font-size: 10.5px;
+  color: #51617a;
+  line-height: 1.7;
+}
+
+.inv-payment-method {
+  margin: 6px 0 0;
+  font-size: 11px;
+  color: #51617a;
+}
+
+.inv-notes-box {
+  margin: 0;
+  font-size: 10.5px;
+  color: #51617a;
+  line-height: 1.6;
+  background: #f4f7fb;
+  border: 1px solid #e2e9f2;
+  border-radius: 6px;
+  padding: 6px 8px;
+  white-space: pre-line;
+}
+
+/* ----------------------------------------------------------------- qr */
+
+.inv-qr-section {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
+}
+
+/* ---------------------------------------------------------- signatures */
+
+.inv-signature-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin: 26px 0 10px;
+}
+
+.inv-signature-box {
+  text-align: center;
+}
+
+.inv-signature-line {
+  border-bottom: 1.5px dotted #9fb0c5;
+  height: 42px;
+  margin-bottom: 6px;
+}
+
+.inv-signature-role {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1a2233;
+}
+
+.inv-signature-sub {
+  margin: 2px 0 0;
+  font-size: 10px;
+  color: #7a8aa0;
+}
+
+/* -------------------------------------------------------------- footer */
+
+.inv-footer {
+  margin-top: 14px;
+  padding-top: 8px;
+  border-top: 1px solid #dbe3ee;
+  text-align: center;
+}
+
+.inv-footer-thanks {
+  margin: 0 0 2px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #0f2b4c;
+}
+
+.inv-footer-line {
+  margin: 0;
+  font-size: 9.5px;
+  color: #7a8aa0;
+}
+
+.inv-footer-page {
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------- load/error */
+
+.invoice-state {
+  max-width: 420px;
+  margin: 80px auto;
+  text-align: center;
+  color: #51617a;
+}
+
+.invoice-state mat-icon {
+  font-size: 44px;
+  width: 44px;
+  height: 44px;
+  color: #9fb0c5;
+}
+
+.invoice-state h3 {
+  margin: 8px 0 4px;
+  color: #1a2233;
+}
+
+.invoice-state .ip-btn {
+  margin-top: 12px;
+}
+
+.spin {
+  animation: ip-spin 1s linear infinite;
+}
+
+@keyframes ip-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================================
+   PRINT RULES — the printed output intentionally differs from the preview:
+   toolbar, backdrop and shadows are removed; the sheet fills the exact A4 page.
+   ========================================================================== */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm;
+  }
+
+  :host,
+  .invoice-page {
+    background: #ffffff !important;
+    padding: 0 !important;
+    min-height: auto !important;
+  }
+
+  /* Hide all screen chrome: toolbar, buttons, nav. */
+  .no-print,
+  .invoice-toolbar {
+    display: none !important;
+  }
+
+  .invoice-sheet {
+    width: auto !important;
+    min-height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  .inv-table th {
+    background: #0f4c81 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .invoice-watermark {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Keep rows and blocks from splitting awkwardly across pages. */
+  .inv-table tr,
+  .inv-totals-box,
+  .inv-signature-box,
+  .inv-meta-cell {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .inv-header,
+  .inv-parties,
+  .inv-footer {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}

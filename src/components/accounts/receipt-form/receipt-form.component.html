@@ -1,22 +1,26 @@
-<mat-toolbar color="primary" class="mb-4 mr-3">
-  <mat-toolbar-row>
-    <span>{{ 'ACCOUNTS.FORM.RECEIPT_TITLE' | translate }}</span>
-    <span class="spacer"></span>
-    <a mat-button routerLink="/accounts/receipts" class="back-link">
-      <mat-icon>arrow_back</mat-icon>
-      {{ 'ACCOUNTS.FORM.RECEIPT_BACK' | translate }}
-    </a>
-  </mat-toolbar-row>
-</mat-toolbar>
+<div class="erp-page">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ 'ACCOUNTS.FORM.RECEIPT_TITLE' | translate }}</h2>
+    </div>
+    <div class="erp-page-actions">
+      <a mat-stroked-button routerLink="/accounts/receipts">
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'ACCOUNTS.FORM.RECEIPT_BACK' | translate }}
+      </a>
+    </div>
+  </div>
 
-<mat-card class="form-card">
-  <mat-card-content>
+  <div class="erp-card">
     <form [formGroup]="receiptForm" (ngSubmit)="saveReceipt()">
       <div class="form-container">
 
         <!-- Header Section -->
-        <div class="form-section header-section">
-          <h3>{{ 'ACCOUNTS.FORM.RECEIPT_DETAILS' | translate }}</h3>
+        <div class="erp-section header-section">
+          <h3 class="erp-section-title">
+            <mat-icon class="erp-section-icon">receipt_long</mat-icon>
+            {{ 'ACCOUNTS.FORM.RECEIPT_DETAILS' | translate }}
+          </h3>
 
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
@@ -105,8 +109,11 @@
         </div>
 
         <!-- Customer Selection -->
-        <div class="form-section customer-section" *ngIf="isCustomerReceipt()">
-          <h3>{{ 'ACCOUNTS.FORM.CUSTOMER_SELECTION' | translate }}</h3>
+        <div class="erp-section customer-section" *ngIf="isCustomerReceipt()">
+          <h3 class="erp-section-title">
+            <mat-icon class="erp-section-icon">person</mat-icon>
+            {{ 'ACCOUNTS.FORM.CUSTOMER_SELECTION' | translate }}
+          </h3>
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'ACCOUNTS.FORM.CUSTOMER' | translate }}</mat-label>
@@ -135,8 +142,11 @@
         </div>
 
         <!-- Invoice Allocation Grid -->
-        <div class="form-section allocation-section" *ngIf="requiresAllocation()">
-          <h3>{{ 'ACCOUNTS.FORM.ALLOCATION_TABLE' | translate }}</h3>
+        <div class="erp-section allocation-section" *ngIf="requiresAllocation()">
+          <h3 class="erp-section-title">
+            <mat-icon class="erp-section-icon">fact_check</mat-icon>
+            {{ 'ACCOUNTS.FORM.ALLOCATION_TABLE' | translate }}
+          </h3>
           <app-invoice-allocation-grid
             [invoiceOptions]="customerInvoices()"
             [rows]="allocationRows()"
@@ -146,16 +156,16 @@
         </div>
 
         <!-- Accounting Preview / Journal Balance -->
-        <div class="form-section accounting-section">
-          <div class="accounting-header">
-            <h3>{{ 'ACCOUNTS.FORM.ACCOUNTING_PREVIEW' | translate }}</h3>
-            <span class="balance-badge" [ngClass]="{
-              'balance-balanced': isJournalBalanced(),
-              'balance-unbalanced': !isJournalBalanced()
-            }">
+        <div class="erp-section accounting-section">
+          <h3 class="erp-section-title">
+            <mat-icon class="erp-section-icon">balance</mat-icon>
+            {{ 'ACCOUNTS.FORM.ACCOUNTING_PREVIEW' | translate }}
+            <span class="erp-status-badge balance-badge"
+                  [class.success]="isJournalBalanced()"
+                  [class.danger]="!isJournalBalanced()">
               {{ (isJournalBalanced() ? 'ACCOUNTING.BALANCED' : 'ACCOUNTING.UNBALANCED') | translate }}
             </span>
-          </div>
+          </h3>
           <div class="accounting-grid">
 
             <div class="accounting-card debit-card">
@@ -198,7 +208,7 @@
         </div>
 
         <!-- Notes -->
-        <div class="form-section notes-section">
+        <div class="erp-section notes-section">
           <mat-form-field appearance="outline" class="notes-field">
             <mat-label>{{ 'ACCOUNTS.FORM.NOTES' | translate }}</mat-label>
             <textarea matInput formControlName="notes" rows="3"></textarea>
@@ -207,15 +217,15 @@
 
       </div>
 
-      <mat-card-actions align="end" class="form-actions">
+      <div class="erp-actions-bar form-actions">
         <a mat-stroked-button routerLink="/accounts/receipts">
           {{ 'ACCOUNTS.FORM.CANCEL' | translate }}
         </a>
         <button mat-raised-button color="primary" type="submit">
           {{ (isEditMode() ? 'ACCOUNTS.FORM.UPDATE' : 'ACCOUNTS.FORM.SAVE_RECEIPT') | translate }}
         </button>
-      </mat-card-actions>
+      </div>
 
     </form>
-  </mat-card-content>
-</mat-card>
+  </div>
+</div>

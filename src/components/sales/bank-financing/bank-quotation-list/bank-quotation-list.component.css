@@ -13,7 +13,7 @@
   align-items: center;
   gap: 4px;
   font-size: 13px;
-  color: #888;
+  color: var(--text-secondary);
   margin-bottom: 6px;
 }
 
@@ -24,7 +24,7 @@
 }
 
 .breadcrumb .current {
-  color: #333;
+  color: var(--text-primary);
   font-weight: 500;
 }
 
@@ -36,7 +36,7 @@
 
 .header-row .subtitle {
   margin: 4px 0 0 0;
-  color: #777;
+  color: var(--text-secondary);
   font-size: 14px;
 }
 
@@ -45,8 +45,8 @@
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  background: #fff;
-  border: 1px solid #e0e0e0;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
   border-radius: 8px;
   padding: 8px 12px !important;
   margin-bottom: 12px;
@@ -61,13 +61,13 @@
 }
 
 .grid-container {
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-default);
   border-radius: 8px;
   overflow: hidden;
 }
 
 ::ng-deep .dx-datagrid-headers {
-  background-color: #f5f5f5;
+  background-color: var(--surface-sunken);
   font-weight: 600;
 }
 
@@ -80,17 +80,17 @@
 }
 
 .status-pending {
-  background-color: #fff3cd;
-  color: #856404;
+  background-color: var(--status-warning-bg);
+  color: var(--status-warning-fg);
 }
 
 .status-accepted {
-  background-color: #d4edda;
-  color: #155724;
+  background-color: var(--status-success-bg);
+  color: var(--color-success-700);
 }
 
 .status-rejected {
-  background-color: #f8d7da;
+  background-color: var(--status-danger-bg);
   color: #721c24;
 }
 
@@ -116,6 +116,6 @@
 @media (prefers-color-scheme: dark) {
   .page-toolbar,
   .grid-container {
-    border-color: #333;
+    border-color: var(--text-primary);
   }
 }

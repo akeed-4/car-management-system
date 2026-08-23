@@ -25,8 +25,8 @@
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  background: #fff;
-  border: 1px solid #e0e0e0;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
   border-radius: 8px;
   padding: 8px 12px !important;
   margin-bottom: 12px;
@@ -38,13 +38,13 @@
 }
 
 .grid-container {
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-default);
   border-radius: 8px;
   overflow: hidden;
 }
 
 ::ng-deep .dx-datagrid-headers {
-  background-color: #f5f5f5;
+  background-color: var(--surface-sunken);
   font-weight: 600;
 }
 
@@ -65,7 +65,7 @@
 
 .status-badge.status-inactive {
   background-color: #fdecea;
-  color: #c62828;
+  color: var(--color-danger-600);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -104,6 +104,6 @@
 @media (prefers-color-scheme: dark) {
   .page-toolbar,
   .grid-container {
-    border-color: #333;
+    border-color: var(--text-primary);
   }
 }

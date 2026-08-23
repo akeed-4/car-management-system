@@ -1,0 +1,365 @@
+/* ==========================================================================
+   Form & Info Screen Design System (Phase 5)
+   Reusable, token-based classes for Form / Save-Edit / Info screens.
+
+   Rules for consumers:
+   - Only semantic tokens from styles.css are used (--surface-*, --text-*,
+     --border-*, --color-primary-*, --status-*) so dark mode works with no
+     extra effort. Never hardcode colors in screen stylesheets.
+   - Only logical CSS properties are used (margin-inline, padding-inline,
+     border-inline-start, text-align: start) so RTL/LTR both work.
+   - Presentation only: these classes carry zero behavior.
+   ========================================================================== */
+
+/* ---- Page shell ---------------------------------------------------------- */
+.erp-page {
+  max-width: 1280px;
+  margin-inline: auto;
+  padding: var(--space-4);
+}
+
+/* ---- Page header: title block + trailing actions ------------------------- */
+.erp-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+}
+
+.erp-page-header-titles {
+  min-width: 0;
+}
+
+.erp-page-eyebrow {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.erp-page-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  line-height: 1.3;
+}
+
+.erp-page-subtitle {
+  margin: 2px 0 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.erp-page-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* ---- Card surface --------------------------------------------------------- */
+.erp-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--rounded-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+/* ---- Sections -------------------------------------------------------------- */
+.erp-section {
+  padding: var(--space-4);
+}
+
+.erp-section + .erp-section {
+  border-top: 1px solid var(--border-default);
+}
+
+.erp-section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.erp-section-title .erp-section-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--color-primary-600);
+}
+
+.erp-section-toolbar {
+  margin-inline-start: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* ---- Form grids ------------------------------------------------------------ */
+.erp-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2) var(--space-4);
+}
+
+.erp-form-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.erp-span-2 {
+  grid-column: span 2;
+}
+
+.erp-span-3 {
+  grid-column: span 3;
+}
+
+/* ---- Actions bar (form footer) ---------------------------------------------- */
+.erp-actions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--border-default);
+  background: var(--surface-sunken);
+}
+
+.erp-actions-bar .spacer {
+  flex: 1 1 auto;
+}
+
+/* ---- Info (read-only) presentation ------------------------------------------- */
+.erp-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-3) var(--space-4);
+}
+
+.erp-info-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.erp-info-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.erp-info-value {
+  font-size: 0.925rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+/* ---- Status badges ------------------------------------------------------------ */
+.erp-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: var(--rounded-full);
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.erp-status-badge.success {
+  background: var(--status-success-bg);
+  color: var(--status-success-fg);
+}
+
+.erp-status-badge.warning {
+  background: var(--status-warning-bg);
+  color: var(--status-warning-fg);
+}
+
+.erp-status-badge.danger {
+  background: var(--status-danger-bg);
+  color: var(--status-danger-fg);
+}
+
+.erp-status-badge.neutral {
+  background: var(--status-neutral-bg);
+  color: var(--status-neutral-fg);
+}
+
+.erp-status-badge.info {
+  background: var(--color-primary-100);
+  color: var(--color-primary-800);
+}
+
+/* ---- Lightweight data table (in-form grids) ------------------------------------ */
+.erp-table-wrapper {
+  border: 1px solid var(--border-default);
+  border-radius: var(--rounded-md);
+  overflow-x: auto;
+  background: var(--surface-card);
+}
+
+.erp-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.erp-table th,
+.erp-table td {
+  padding: 0.5rem 0.75rem;
+  text-align: start;
+  border-bottom: 1px solid var(--border-default);
+  vertical-align: middle;
+}
+
+.erp-table thead th {
+  background: var(--surface-sunken);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.erp-table tbody tr:last-child th,
+.erp-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ---- Totals row ------------------------------------------------------------------ */
+.erp-total-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-default);
+  border-radius: var(--rounded-md);
+}
+
+.erp-total-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.erp-total-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ---- List-screen helpers ------------------------------------------------------------ */
+
+/* Toolbar row for filters / search above a grid */
+.erp-list-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-default);
+  background: var(--surface-card);
+}
+
+.erp-list-toolbar .erp-toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+/* Token-based native search input (for screens using a plain <input> filter) */
+.erp-search-input {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--surface-card);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--rounded-md);
+  min-width: 220px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.erp-search-input:focus {
+  outline: none;
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 2px var(--color-primary-200);
+}
+
+.erp-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Card wrapper for a DataGrid */
+.erp-grid-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--rounded-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-3);
+  overflow-x: auto;
+}
+
+/* ---- Responsive -------------------------------------------------------------------- */
+@media (max-width: 960px) {
+  .erp-form-grid-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .erp-span-3 {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 720px) {
+  .erp-page {
+    padding: var(--space-2);
+  }
+
+  .erp-form-grid,
+  .erp-form-grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .erp-span-2,
+  .erp-span-3 {
+    grid-column: auto;
+  }
+
+  .erp-section {
+    padding: var(--space-3);
+  }
+
+  .erp-actions-bar {
+    justify-content: stretch;
+  }
+
+  .erp-actions-bar > * {
+    flex: 1 1 auto;
+  }
+}

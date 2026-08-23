@@ -13,7 +13,7 @@
   align-items: center;
   gap: 4px;
   font-size: 13px;
-  color: #888;
+  color: var(--text-secondary);
   margin-bottom: 6px;
 
   mat-icon {
@@ -23,7 +23,7 @@
   }
 
   .current {
-    color: #333;
+    color: var(--text-primary);
     font-weight: 500;
   }
 }
@@ -41,7 +41,7 @@
 
   .subtitle {
     margin: 4px 0 0 0;
-    color: #777;
+    color: var(--text-secondary);
     font-size: 14px;
   }
 }
@@ -75,12 +75,12 @@
 
   .summary-label {
     font-size: 12px;
-    color: #777;
+    color: var(--text-secondary);
     margin-top: 2px;
   }
 
-  &.total mat-icon { color: #1976d2; }
-  &.available mat-icon { color: #2e7d32; }
+  &.total mat-icon { color: var(--color-primary-600); }
+  &.available mat-icon { color: var(--color-success-600); }
   &.reserved mat-icon { color: #f57f17; }
   &.sold mat-icon { color: #7b1fa2; }
   &.value mat-icon { color: #00695c; }
@@ -91,8 +91,8 @@
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  background: #fff;
-  border: 1px solid #e0e0e0;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
   border-radius: 8px;
   padding: 8px 12px !important;
   margin-bottom: 12px;
@@ -115,13 +115,13 @@
 }
 
 .grid-container {
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-default);
   border-radius: 8px;
   overflow: hidden;
 }
 
 ::ng-deep .dx-datagrid-headers {
-  background-color: #f5f5f5;
+  background-color: var(--surface-sunken);
   font-weight: 600;
 }
 
@@ -133,11 +133,11 @@
   font-weight: 600;
 }
 
-.status-chip-available { background: #e8f5e9; color: #2e7d32; }
-.status-chip-reserved { background: #fff8e1; color: #f57f17; }
+.status-chip-available { background: var(--status-success-bg); color: var(--color-success-600); }
+.status-chip-reserved { background: var(--status-warning-bg); color: #f57f17; }
 .status-chip-sold { background: #f3e5f5; color: #7b1fa2; }
-.status-chip-returned { background: #f5f5f5; color: #616161; }
-.status-chip-default { background: #f5f5f5; color: #616161; }
+.status-chip-returned { background: var(--surface-sunken); color: #616161; }
+.status-chip-default { background: var(--surface-sunken); color: #616161; }
 
 @media (max-width: 768px) {
   .page-container {
@@ -166,6 +166,6 @@
   .page-toolbar,
   .grid-container {
     
-    border-color: #333;
+    border-color: var(--text-primary);
   }
 }

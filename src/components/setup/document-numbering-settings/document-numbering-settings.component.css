@@ -40,7 +40,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: #f5f5f5;
+  background: var(--surface-sunken);
   border-radius: 8px;
   padding: 12px 16px;
   margin: 12px 0;
@@ -56,7 +56,7 @@
   font-family: monospace;
   font-size: 1.1rem;
   font-weight: 700;
-  color: #1976d2;
+  color: var(--color-primary-600);
 }
 
 .form-actions {

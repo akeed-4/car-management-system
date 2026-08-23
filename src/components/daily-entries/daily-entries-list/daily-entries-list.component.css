@@ -13,7 +13,7 @@
   align-items: center;
   gap: 4px;
   font-size: 13px;
-  color: #888;
+  color: var(--text-secondary);
   margin-bottom: 6px;
 
   mat-icon {
@@ -23,7 +23,7 @@
   }
 
   .current {
-    color: #333;
+    color: var(--text-primary);
     font-weight: 500;
   }
 }
@@ -41,7 +41,7 @@
 
   .subtitle {
     margin: 4px 0 0 0;
-    color: #777;
+    color: var(--text-secondary);
     font-size: 14px;
   }
 }
@@ -75,14 +75,14 @@
 
   .summary-label {
     font-size: 12px;
-    color: #777;
+    color: var(--text-secondary);
     margin-top: 2px;
   }
 
-  &.total mat-icon { color: #1976d2; }
+  &.total mat-icon { color: var(--color-primary-600); }
   &.today mat-icon { color: #00695c; }
   &.pending mat-icon { color: #f57f17; }
-  &.completed mat-icon { color: #2e7d32; }
+  &.completed mat-icon { color: var(--color-success-600); }
 }
 
 .page-toolbar {
@@ -90,8 +90,8 @@
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  background: #fff;
-  border: 1px solid #e0e0e0;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
   border-radius: 8px;
   padding: 8px 12px !important;
   margin-bottom: 12px;
@@ -114,13 +114,13 @@
 }
 
 .grid-container {
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-default);
   border-radius: 8px;
   overflow: hidden;
 }
 
 ::ng-deep .dx-datagrid-headers {
-  background-color: #f5f5f5;
+  background-color: var(--surface-sunken);
   font-weight: 600;
 }
 
@@ -132,18 +132,18 @@
   font-weight: 600;
 }
 
-.status-chip-completed { background: #e8f5e9; color: #2e7d32; }
-.status-chip-pending { background: #fff8e1; color: #f57f17; }
-.status-chip-cancelled { background: #ffebee; color: #c62828; }
-.status-chip-default { background: #f5f5f5; color: #616161; }
+.status-chip-completed { background: var(--status-success-bg); color: var(--color-success-600); }
+.status-chip-pending { background: var(--status-warning-bg); color: #f57f17; }
+.status-chip-cancelled { background: var(--status-danger-bg); color: var(--color-danger-600); }
+.status-chip-default { background: var(--surface-sunken); color: #616161; }
 
-.type-chip-receiving { background: #e8f5e9; color: #2e7d32; }
-.type-chip-delivery { background: #e3f2fd; color: #1976d2; }
-.type-chip-transfer { background: #fff8e1; color: #f57f17; }
-.type-chip-return { background: #ffebee; color: #c62828; }
+.type-chip-receiving { background: var(--status-success-bg); color: var(--color-success-600); }
+.type-chip-delivery { background: var(--color-primary-100); color: var(--color-primary-600); }
+.type-chip-transfer { background: var(--status-warning-bg); color: #f57f17; }
+.type-chip-return { background: var(--status-danger-bg); color: var(--color-danger-600); }
 .type-chip-inspection { background: #f3e5f5; color: #7b1fa2; }
 .type-chip-maintenance { background: #e0f2f1; color: #00695c; }
-.type-chip-default { background: #f5f5f5; color: #616161; }
+.type-chip-default { background: var(--surface-sunken); color: #616161; }
 
 @media (max-width: 768px) {
   .page-container {
@@ -171,6 +171,6 @@
 @media (prefers-color-scheme: dark) {
   .page-toolbar,
   .grid-container {
-    border-color: #333;
+    border-color: var(--text-primary);
   }
 }

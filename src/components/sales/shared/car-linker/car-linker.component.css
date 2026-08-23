@@ -3,7 +3,7 @@
   flex-direction: column;
   gap: 16px;
   padding: 16px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-default);
   border-radius: 8px;
   background-color: #fafafa;
 }
@@ -20,5 +20,5 @@
 
 h3 {
   margin: 0;
-  color: #333;
+  color: var(--text-primary);
 }

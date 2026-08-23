@@ -1,10 +1,17 @@
-<div class="container">
-  <div class="page-header">
-    <h2>{{ pageTitle() }}</h2>
-    <a routerLink="/entities/suppliers" class="back-link">&larr; {{ 'SUPPLIERS.FORM.BACK_TO_LIST' | translate }}</a>
+<div class="erp-page">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ pageTitle() }}</h2>
+    </div>
+    <div class="erp-page-actions">
+      <a routerLink="/entities/suppliers" mat-stroked-button>
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'SUPPLIERS.FORM.BACK_TO_LIST' | translate }}
+      </a>
+    </div>
   </div>
 
-  <mat-card class="form-container">
+  <div class="erp-card">
     <form [formGroup]="supplierForm" (ngSubmit)="saveSupplier()">
       <mat-accordion multi="true" displayMode="flat" class="form-accordion">
 
@@ -307,12 +314,12 @@
       </mat-accordion>
 
       <!-- Form Actions -->
-      <div class="form-actions">
-        <a routerLink="/entities/suppliers" mat-stroked-button color="accent">{{ 'SUPPLIERS.FORM.CANCEL' | translate }}</a>
+      <div class="erp-actions-bar">
+        <a routerLink="/entities/suppliers" mat-stroked-button>{{ 'SUPPLIERS.FORM.CANCEL' | translate }}</a>
         <button mat-raised-button color="primary" type="submit">
           {{ editMode() ? ('SUPPLIERS.FORM.SAVE_CHANGES' | translate) : ('SUPPLIERS.FORM.ADD_SUPPLIER' | translate) }}
         </button>
       </div>
     </form>
-  </mat-card>
+  </div>
 </div>

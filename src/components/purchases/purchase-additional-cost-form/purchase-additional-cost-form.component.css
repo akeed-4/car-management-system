@@ -20,7 +20,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #fff8e1;
+  background: var(--status-warning-bg);
   color: #f57f17;
   border: 1px solid #ffe082;
   border-radius: 8px;
@@ -80,7 +80,7 @@
 }
 
 .no-preview {
-  color: #999;
+  color: var(--text-secondary);
   font-size: 13px;
   margin: 0;
 }
@@ -88,7 +88,7 @@
 .allocation-table {
   width: 100%;
   border-collapse: collapse;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-default);
   border-radius: 8px;
   overflow: hidden;
 
@@ -100,7 +100,7 @@
   }
 
   th {
-    background: #f5f5f5;
+    background: var(--surface-sunken);
     font-weight: 600;
   }
 
@@ -118,7 +118,7 @@
 .manual-amount-input {
   width: 120px;
   padding: 6px 8px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-default);
   border-radius: 4px;
   font-size: 13px;
 }
@@ -193,7 +193,7 @@
   padding: 6px;
   border-radius: 8px;
   background: #ede9fe;
-  color: #4338ca;
+  color: var(--color-primary-600);
   --mdc-icon-button-state-layer-size: 36px;
   transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
 }

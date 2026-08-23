@@ -1,10 +1,17 @@
-<div class="container">
-  <div class="page-header">
-    <h2>{{ pageTitle() }}</h2>
-    <a routerLink="/entities/customers" class="back-link">&larr; {{ 'CUSTOMERS.FORM.BACK_TO_LIST' | translate }}</a>
+<div class="erp-page">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ pageTitle() }}</h2>
+    </div>
+    <div class="erp-page-actions">
+      <a routerLink="/entities/customers" mat-stroked-button>
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'CUSTOMERS.FORM.BACK_TO_LIST' | translate }}
+      </a>
+    </div>
   </div>
 
-  <mat-card class="form-container">
+  <div class="erp-card">
     <form [formGroup]="customerForm" (ngSubmit)="saveCustomer()">
       <mat-accordion multi="true" displayMode="flat" class="form-accordion">
 
@@ -282,43 +289,45 @@
       </mat-accordion>
 
       <!-- Form Actions -->
-      <div class="form-actions">
-        <a routerLink="/entities/customers" mat-stroked-button color="accent">{{ 'CUSTOMERS.FORM.CANCEL' | translate }}</a>
+      <div class="erp-actions-bar">
+        <a routerLink="/entities/customers" mat-stroked-button>{{ 'CUSTOMERS.FORM.CANCEL' | translate }}</a>
         <button mat-raised-button color="primary" type="submit">
           {{ editMode() ? ('CUSTOMERS.FORM.SAVE_CHANGES' | translate) : ('CUSTOMERS.FORM.ADD_CUSTOMER' | translate) }}
         </button>
       </div>
     </form>
-  </mat-card>
+  </div>
 
   @if(editMode() && soldCars().length > 0) {
-    <div class="card form-container service-record-card">
-      <h3 class="form-section-title">سجل السيارات والخدمات</h3>
-      <div class="service-record-list">
-        @for(car of soldCars(); track car.id) {
-          <div class="service-record-item">
-            <p class="record-title">{{car.make}} {{car.model}} ({{car.year}}) - <span class="font-mono">{{car.plateNumber}}</span></p>
-            <p class="record-subtitle">تاريخ الشراء: {{car.saleDate | date: 'yyyy-MM-dd'}}</p>
-            <div class="record-details">
-              <div class="record-detail-item">
-                <p>انتهاء الاستمارة:</p>
-                @if(getDaysRemaining(car.istimaraExpiry) !== null && getDaysRemaining(car.istimaraExpiry)! <= 30) {
-                  <p class="detail-value alert">{{car.istimaraExpiry}} (باقي {{getDaysRemaining(car.istimaraExpiry)}} أيام)</p>
-                } @else {
-                  <p class="detail-value">{{car.istimaraExpiry}}</p>
-                }
-              </div>
-              <div class="record-detail-item">
-                <p>انتهاء الفحص الدوري (تقديري):</p>
-                 @if(getDaysRemaining(getFahasExpiry(car.saleDate)) !== null && getDaysRemaining(getFahasExpiry(car.saleDate))! <= 30) {
-                  <p class="detail-value alert">{{getFahasExpiry(car.saleDate)}} (باقي {{getDaysRemaining(getFahasExpiry(car.saleDate))}} أيام)</p>
-                } @else {
-                  <p class="detail-value">{{getFahasExpiry(car.saleDate)}}</p>
-                }
+    <div class="erp-card service-record-card">
+      <div class="erp-section">
+        <h3 class="erp-section-title">سجل السيارات والخدمات</h3>
+        <div class="service-record-list">
+          @for(car of soldCars(); track car.id) {
+            <div class="service-record-item">
+              <p class="record-title">{{car.make}} {{car.model}} ({{car.year}}) - <span class="font-mono">{{car.plateNumber}}</span></p>
+              <p class="record-subtitle">تاريخ الشراء: {{car.saleDate | date: 'yyyy-MM-dd'}}</p>
+              <div class="record-details">
+                <div class="record-detail-item">
+                  <p>انتهاء الاستمارة:</p>
+                  @if(getDaysRemaining(car.istimaraExpiry) !== null && getDaysRemaining(car.istimaraExpiry)! <= 30) {
+                    <p class="detail-value alert">{{car.istimaraExpiry}} (باقي {{getDaysRemaining(car.istimaraExpiry)}} أيام)</p>
+                  } @else {
+                    <p class="detail-value">{{car.istimaraExpiry}}</p>
+                  }
+                </div>
+                <div class="record-detail-item">
+                  <p>انتهاء الفحص الدوري (تقديري):</p>
+                   @if(getDaysRemaining(getFahasExpiry(car.saleDate)) !== null && getDaysRemaining(getFahasExpiry(car.saleDate))! <= 30) {
+                    <p class="detail-value alert">{{getFahasExpiry(car.saleDate)}} (باقي {{getDaysRemaining(getFahasExpiry(car.saleDate))}} أيام)</p>
+                  } @else {
+                    <p class="detail-value">{{getFahasExpiry(car.saleDate)}}</p>
+                  }
+                </div>
               </div>
             </div>
-          </div>
-        }
+          }
+        </div>
       </div>
     </div>
   }

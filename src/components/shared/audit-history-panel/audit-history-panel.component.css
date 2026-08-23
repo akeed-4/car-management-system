@@ -10,7 +10,7 @@
     margin: 0 0 20px 0;
     font-size: 20px;
     font-weight: 500;
-    color: #1976d2;
+    color: var(--color-primary-600);
   }
 
   .state-message {
@@ -20,17 +20,17 @@
     justify-content: center;
     gap: 12px;
     padding: 48px 0;
-    color: #999;
+    color: var(--text-secondary);
 
     mat-icon {
       font-size: 48px;
       width: 48px;
       height: 48px;
-      color: #ccc;
+      color: var(--border-default);
     }
 
     &.error mat-icon {
-      color: #d32f2f;
+      color: var(--color-danger-600);
     }
 
     p {
@@ -64,8 +64,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #e3f2fd;
-      color: #1976d2;
+      background: var(--color-primary-100);
+      color: var(--color-primary-600);
 
       mat-icon {
         font-size: 18px;
@@ -75,13 +75,13 @@
     }
 
     &.action-create .timeline-icon {
-      background: #e8f5e9;
-      color: #2e7d32;
+      background: var(--status-success-bg);
+      color: var(--color-success-600);
     }
 
     &.action-delete .timeline-icon {
-      background: #ffebee;
-      color: #c62828;
+      background: var(--status-danger-bg);
+      color: var(--color-danger-600);
     }
 
     .timeline-content {
@@ -101,7 +101,7 @@
 
         .timeline-date {
           font-size: 12px;
-          color: #999;
+          color: var(--text-secondary);
         }
       }
 
@@ -118,12 +118,12 @@
         }
 
         .old-value {
-          color: #c62828;
+          color: var(--color-danger-600);
           text-decoration: line-through;
         }
 
         .new-value {
-          color: #2e7d32;
+          color: var(--color-success-600);
           font-weight: 500;
         }
 
@@ -131,14 +131,14 @@
           font-size: 14px;
           width: 14px;
           height: 14px;
-          color: #999;
+          color: var(--text-secondary);
         }
       }
 
       .changed-by {
         margin-top: 4px;
         font-size: 12px;
-        color: #999;
+        color: var(--text-secondary);
       }
     }
   }
@@ -146,5 +146,5 @@
 
 .dialog-actions {
   padding: 16px 0 0 0;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--border-default);
 }

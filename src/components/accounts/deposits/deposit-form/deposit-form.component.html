@@ -1,11 +1,11 @@
-<div class="deposit-page">
-  <div class="page-header">
-    <div>
-      <h1>{{ 'ACCOUNTS.DEPOSITS.FORM.CREATE_TITLE' | translate }}</h1>
-      <p>{{ 'ACCOUNTS.DEPOSITS.FORM.SUBTITLE' | translate }}</p>
-      <p>{{ 'ACCOUNTS.DEPOSITS.FORM.VOUCHER_HINT' | translate }}: {{ existingDocNumber || ('CORPORATE.AUTO_GENERATED' | translate) }}</p>
+<div class="erp-page">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ 'ACCOUNTS.DEPOSITS.FORM.CREATE_TITLE' | translate }}</h2>
+      <p class="erp-page-subtitle">{{ 'ACCOUNTS.DEPOSITS.FORM.SUBTITLE' | translate }}</p>
+      <p class="erp-page-subtitle">{{ 'ACCOUNTS.DEPOSITS.FORM.VOUCHER_HINT' | translate }}: {{ existingDocNumber || ('CORPORATE.AUTO_GENERATED' | translate) }}</p>
     </div>
-    <div class="header-actions">
+    <div class="erp-page-actions">
       <a mat-stroked-button color="primary" routerLink="/accounts/deposits">
         <mat-icon>arrow_back</mat-icon>
         {{ 'ACCOUNTS.DEPOSITS.FORM.BACK' | translate }}
@@ -13,282 +13,170 @@
     </div>
   </div>
 
-  <mat-card class="sheet-card wide-card page-form">
-    <mat-card-content>
-      <form [formGroup]="depositForm" (ngSubmit)="saveDeposit()">
-        <div class="form-grid two-columns">
+  <div class="erp-card">
+    <form [formGroup]="depositForm" (ngSubmit)="saveDeposit()">
+      <div class="form-grid two-columns">
 
-          <!-- Left column: payment & accounts -->
-          <div class="sheet-card">
-            <div class="section-header">
-              <h2>{{ 'ACCOUNTS.DEPOSITS.FORM.PAYMENT_DETAILS' | translate }}</h2>
-              <span class="system-badge">{{ 'COMMON.REQUIRED' | translate }}</span>
-            </div>
+        <!-- Left column: payment & accounts -->
+        <div class="erp-section">
+          <h3 class="erp-section-title">
+            {{ 'ACCOUNTS.DEPOSITS.FORM.PAYMENT_DETAILS' | translate }}
+            <span class="erp-status-badge">{{ 'COMMON.REQUIRED' | translate }}</span>
+          </h3>
 
-            <div class="form-grid single-column">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.DATE' | translate }}</mat-label>
-                <input matInput type="date" formControlName="date" required>
-              </mat-form-field>
+          <div class="form-grid single-column">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.DATE' | translate }}</mat-label>
+              <input matInput type="date" formControlName="date" required>
+            </mat-form-field>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.AMOUNT' | translate }}</mat-label>
-                <input matInput type="number" formControlName="depositAmount" min="0.01" required>
-              </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.AMOUNT' | translate }}</mat-label>
+              <input matInput type="number" formControlName="depositAmount" min="0.01" required>
+            </mat-form-field>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.PAYMENT_METHOD' | translate }}</mat-label>
-                <mat-select formControlName="paymentMethod" required>
-                  <mat-option *ngFor="let method of paymentMethods" [value]="method.value">
-                    {{ method.label | translate }}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.PAYMENT_METHOD' | translate }}</mat-label>
+              <mat-select formControlName="paymentMethod" required>
+                <mat-option *ngFor="let method of paymentMethods" [value]="method.value">
+                  {{ method.label | translate }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
 
-              <div class="payment-grid">
-                <div class="field-with-add">
-                  <mat-form-field appearance="outline" class="field-with-add-select">
-                    <mat-label>
-                      <mat-icon class="field-icon">arrow_upward</mat-icon>
-                      {{ 'ACCOUNTS.DEPOSITS.FORM.DEBIT_ACCOUNT' | translate }}
-                    </mat-label>
-                    <mat-select formControlName="debitAccountId" required>
-                      <mat-option [value]="null" disabled>{{ 'ACCOUNTS.DEPOSITS.FORM.SELECT_DEBIT_ACCOUNT' | translate }}</mat-option>
-                      <mat-option *ngFor="let account of debitAccounts()" [value]="account.id">
-                        {{ account.accountCode }} - {{ account.accountNameAr }}
-                      </mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                  <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateDebitAccountDialog()">
-                    <mat-icon>add</mat-icon>
-                  </button>
-                </div>
+            <div class="payment-grid">
+              <div class="field-with-add">
+                <mat-form-field appearance="outline" class="field-with-add-select debit-field">
+                  <mat-label>
+                    <mat-icon class="field-icon">arrow_upward</mat-icon>
+                    {{ 'ACCOUNTS.DEPOSITS.FORM.DEBIT_ACCOUNT' | translate }}
+                  </mat-label>
+                  <mat-select formControlName="debitAccountId" required>
+                    <mat-option [value]="null" disabled>{{ 'ACCOUNTS.DEPOSITS.FORM.SELECT_DEBIT_ACCOUNT' | translate }}</mat-option>
+                    <mat-option *ngFor="let account of debitAccounts()" [value]="account.id">
+                      {{ account.accountCode }} - {{ account.accountNameAr }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateDebitAccountDialog()">
+                  <mat-icon>add</mat-icon>
+                </button>
+              </div>
 
-                <div class="field-with-add">
-                  <mat-form-field appearance="outline" class="field-with-add-select">
-                    <mat-label>
-                      <mat-icon class="field-icon">arrow_downward</mat-icon>
-                      {{ 'ACCOUNTS.DEPOSITS.FORM.CREDIT_ACCOUNT' | translate }}
-                    </mat-label>
-                    <mat-select formControlName="creditAccountId" required>
-                      <mat-option [value]="null" disabled>{{ 'ACCOUNTS.DEPOSITS.FORM.SELECT_CREDIT_ACCOUNT' | translate }}</mat-option>
-                      <mat-option *ngFor="let account of creditAccounts()" [value]="account.id">
-                        {{ account.accountCode }} - {{ account.accountNameAr }}
-                      </mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                  <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateCreditAccountDialog()">
-                    <mat-icon>add</mat-icon>
-                  </button>
-                </div>
+              <div class="field-with-add">
+                <mat-form-field appearance="outline" class="field-with-add-select credit-field">
+                  <mat-label>
+                    <mat-icon class="field-icon">arrow_downward</mat-icon>
+                    {{ 'ACCOUNTS.DEPOSITS.FORM.CREDIT_ACCOUNT' | translate }}
+                  </mat-label>
+                  <mat-select formControlName="creditAccountId" required>
+                    <mat-option [value]="null" disabled>{{ 'ACCOUNTS.DEPOSITS.FORM.SELECT_CREDIT_ACCOUNT' | translate }}</mat-option>
+                    <mat-option *ngFor="let account of creditAccounts()" [value]="account.id">
+                      {{ account.accountCode }} - {{ account.accountNameAr }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateCreditAccountDialog()">
+                  <mat-icon>add</mat-icon>
+                </button>
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Right column: customer & vehicle -->
-          <div class="sheet-card">
-            <div class="section-header">
-              <h2>{{ 'ACCOUNTS.DEPOSITS.FORM.CUSTOMER_VEHICLE' | translate }}</h2>
+        <!-- Right column: customer & vehicle -->
+        <div class="erp-section">
+          <h3 class="erp-section-title">{{ 'ACCOUNTS.DEPOSITS.FORM.CUSTOMER_VEHICLE' | translate }}</h3>
+
+          <div class="form-grid single-column">
+            <div class="customer-type-row">
+              <label class="label-inline">{{ 'ACCOUNTS.DEPOSITS.FORM.CUSTOMER_TYPE' | translate }}</label>
+              <mat-radio-group formControlName="customerType" class="customer-type-group">
+                <mat-radio-button value="INDIVIDUAL">{{ 'ACCOUNTS.DEPOSITS.FORM.CUSTOMER_TYPE_INDIVIDUAL' | translate }}</mat-radio-button>
+                <mat-radio-button value="COMPANY">{{ 'ACCOUNTS.DEPOSITS.FORM.CUSTOMER_TYPE_COMPANY' | translate }}</mat-radio-button>
+              </mat-radio-group>
             </div>
 
-            <div class="form-grid single-column">
-              <div class="customer-type-row">
-                <label class="label-inline">{{ 'ACCOUNTS.DEPOSITS.FORM.CUSTOMER_TYPE' | translate }}</label>
-                <mat-radio-group formControlName="customerType" class="customer-type-group">
-                  <mat-radio-button value="INDIVIDUAL">{{ 'ACCOUNTS.DEPOSITS.FORM.CUSTOMER_TYPE_INDIVIDUAL' | translate }}</mat-radio-button>
-                  <mat-radio-button value="COMPANY">{{ 'ACCOUNTS.DEPOSITS.FORM.CUSTOMER_TYPE_COMPANY' | translate }}</mat-radio-button>
-                </mat-radio-group>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.CUSTOMER_SELECT' | translate }}</mat-label>
+              <mat-select formControlName="customerId" required>
+                <mat-option [value]="null">{{ 'ACCOUNTS.DEPOSITS.FORM.CUSTOMER_SELECT_EMPTY' | translate }}</mat-option>
+                <mat-option *ngFor="let c of customers(); trackBy: trackByCustomer" [value]="c.id">
+                  {{ c.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.VEHICLE_SEARCH' | translate }}</mat-label>
+              <mat-icon matPrefix>search</mat-icon>
+              <input matInput formControlName="vehicleSearch">
+            </mat-form-field>
+
+            <div class="vehicle-grid">
+              <div>
+                <button mat-stroked-button color="primary" type="button" (click)="openCarSelectionDialog()">
+                  <mat-icon>directions_car</mat-icon>
+                  {{ selectedVehicle() ? getVehicleLabel(selectedVehicle()) : ('ACCOUNTS.DEPOSITS.FORM.SELECT_VEHICLE' | translate) }}
+                </button>
               </div>
 
               <mat-form-field appearance="outline">
-                <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.CUSTOMER_SELECT' | translate }}</mat-label>
-                <mat-select formControlName="customerId" required>
-                  <mat-option [value]="null">{{ 'ACCOUNTS.DEPOSITS.FORM.CUSTOMER_SELECT_EMPTY' | translate }}</mat-option>
-                  <mat-option *ngFor="let c of customers(); trackBy: trackByCustomer" [value]="c.id">
-                    <div class="deposit-page">
-                      <div class="page-header">
-                        <div>
-                          <h1>{{ 'ACCOUNTS.DEPOSITS.FORM.CREATE_TITLE' | translate }}</h1>
-                          <p>{{ 'ACCOUNTS.DEPOSITS.FORM.SUBTITLE' | translate }}</p>
-                          <p>{{ 'ACCOUNTS.DEPOSITS.FORM.VOUCHER_HINT' | translate }}: {{ existingDocNumber || ('CORPORATE.AUTO_GENERATED' | translate) }}</p>
-                        </div>
+                <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.MAKE_MODEL' | translate }}</mat-label>
+                <input matInput [value]="selectedVehicle() ? selectedVehicle()?.make + ' ' + selectedVehicle()?.model : ''" readonly>
+              </mat-form-field>
 
-                        <div class="header-actions">
-                          <a mat-stroked-button color="primary" routerLink="/accounts/deposits">
-                            <mat-icon>arrow_back</mat-icon>
-                            {{ 'ACCOUNTS.DEPOSITS.FORM.BACK' | translate }}
-                          </a>
-                        </div>
-                      </div>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.YEAR' | translate }}</mat-label>
+                <input matInput [value]="selectedVehicle()?.year || ''" readonly>
+              </mat-form-field>
 
-                      <mat-card class="sheet-card wide-card page-form">
-                        <mat-card-content>
-                          <form [formGroup]="depositForm" (ngSubmit)="saveDeposit()">
-                            <div class="form-grid two-columns">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.CHASSIS_NUMBER' | translate }}</mat-label>
+                <input matInput [value]="getVehicleIdentity(selectedVehicle())" readonly>
+              </mat-form-field>
 
-                              <!-- Left column: payment & accounts -->
-                              <div class="sheet-card">
-                                <div class="section-header">
-                                  <h2>{{ 'ACCOUNTS.DEPOSITS.FORM.PAYMENT_DETAILS' | translate }}</h2>
-                                  <span class="system-badge">{{ 'COMMON.REQUIRED' | translate }}</span>
-                                </div>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.COLOR' | translate }}</mat-label>
+                <input matInput [value]="selectedVehicle()?.exteriorColor || ''" readonly>
+              </mat-form-field>
 
-                                <div class="form-grid single-column">
-                                  <mat-form-field appearance="outline">
-                                    <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.DATE' | translate }}</mat-label>
-                                    <input matInput type="date" formControlName="date" required>
-                                  </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.AGREED_SELLING_PRICE' | translate }}</mat-label>
+                <input matInput type="number" formControlName="agreedSellingPrice" min="0">
+              </mat-form-field>
 
-                                  <mat-form-field appearance="outline">
-                                    <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.AMOUNT' | translate }}</mat-label>
-                                    <input matInput type="number" formControlName="depositAmount" min="0.01" required>
-                                  </mat-form-field>
+              <div class="checkbox-cell">
+                <mat-checkbox formControlName="finalInvoicePriceFixed">
+                  {{ 'ACCOUNTS.DEPOSITS.FORM.FINAL_INVOICE_FIXED' | translate }}
+                </mat-checkbox>
+              </div>
+            </div>
 
-                                  <mat-form-field appearance="outline">
-                                    <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.PAYMENT_METHOD' | translate }}</mat-label>
-                                    <mat-select formControlName="paymentMethod" required>
-                                      <mat-option *ngFor="let method of paymentMethods" [value]="method.value">
-                                        {{ method.label | translate }}
-                                      </mat-option>
-                                    </mat-select>
-                                  </mat-form-field>
+            <mat-form-field appearance="outline" class="full-span">
+              <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.NOTES' | translate }}</mat-label>
+              <textarea matInput formControlName="notes" rows="3"></textarea>
+            </mat-form-field>
 
-                                  <div class="payment-grid">
-                                    <div class="field-with-add">
-                                      <mat-form-field appearance="outline" class="field-with-add-select">
-                                        <mat-label>
-                                          <mat-icon class="field-icon">arrow_upward</mat-icon>
-                                          {{ 'ACCOUNTS.DEPOSITS.FORM.DEBIT_ACCOUNT' | translate }}
-                                        </mat-label>
-                                        <mat-select formControlName="debitAccountId" required>
-                                          <mat-option [value]="null" disabled>{{ 'ACCOUNTS.DEPOSITS.FORM.SELECT_DEBIT_ACCOUNT' | translate }}</mat-option>
-                                          <mat-option *ngFor="let account of debitAccounts()" [value]="account.id">
-                                            {{ account.accountCode }} - {{ account.accountNameAr }}
-                                          </mat-option>
-                                        </mat-select>
-                                      </mat-form-field>
-                                      <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateDebitAccountDialog()">
-                                        <mat-icon>add</mat-icon>
-                                      </button>
-                                    </div>
+            <div class="checkbox-row">
+              <mat-checkbox formControlName="isRefundable">
+                {{ 'ACCOUNTS.DEPOSITS.FORM.IS_REFUNDABLE' | translate }}
+              </mat-checkbox>
+            </div>
+          </div>
+        </div>
 
-                                    <div class="field-with-add">
-                                      <mat-form-field appearance="outline" class="field-with-add-select">
-                                        <mat-label>
-                                          <mat-icon class="field-icon">arrow_downward</mat-icon>
-                                          {{ 'ACCOUNTS.DEPOSITS.FORM.CREDIT_ACCOUNT' | translate }}
-                                        </mat-label>
-                                        <mat-select formControlName="creditAccountId" required>
-                                          <mat-option [value]="null" disabled>{{ 'ACCOUNTS.DEPOSITS.FORM.SELECT_CREDIT_ACCOUNT' | translate }}</mat-option>
-                                          <mat-option *ngFor="let account of creditAccounts()" [value]="account.id">
-                                            {{ account.accountCode }} - {{ account.accountNameAr }}
-                                          </mat-option>
-                                        </mat-select>
-                                      </mat-form-field>
-                                      <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateCreditAccountDialog()">
-                                        <mat-icon>add</mat-icon>
-                                      </button>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
+      </div>
 
-                              <!-- Right column: customer & vehicle -->
-                              <div class="sheet-card">
-                                <div class="section-header">
-                                  <h2>{{ 'ACCOUNTS.DEPOSITS.FORM.CUSTOMER_VEHICLE' | translate }}</h2>
-                                </div>
+      <div class="erp-actions-bar">
+        <a mat-stroked-button routerLink="/accounts/deposits">
+          {{ 'ACCOUNTS.DEPOSITS.FORM.CANCEL' | translate }}
+        </a>
+        <button mat-raised-button color="primary" type="submit" [disabled]="depositForm.invalid || isSaving()">
+          {{ isSaving() ? ('COMMON.SAVING' | translate) : ('ACCOUNTS.DEPOSITS.FORM.SAVE' | translate) }}
+        </button>
+      </div>
 
-                                <div class="form-grid single-column">
-                                  <div class="customer-type-row">
-                                    <label class="label-inline">{{ 'ACCOUNTS.DEPOSITS.FORM.CUSTOMER_TYPE' | translate }}</label>
-                                    <mat-radio-group formControlName="customerType" class="customer-type-group">
-                                      <mat-radio-button value="INDIVIDUAL">{{ 'ACCOUNTS.DEPOSITS.FORM.CUSTOMER_TYPE_INDIVIDUAL' | translate }}</mat-radio-button>
-                                      <mat-radio-button value="COMPANY">{{ 'ACCOUNTS.DEPOSITS.FORM.CUSTOMER_TYPE_COMPANY' | translate }}</mat-radio-button>
-                                    </mat-radio-group>
-                                  </div>
-
-                                  <mat-form-field appearance="outline">
-                                    <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.CUSTOMER_SELECT' | translate }}</mat-label>
-                                    <mat-select formControlName="customerId" required>
-                                      <mat-option [value]="null">{{ 'ACCOUNTS.DEPOSITS.FORM.CUSTOMER_SELECT_EMPTY' | translate }}</mat-option>
-                                      <mat-option *ngFor="let c of customers(); trackBy: trackByCustomer" [value]="c.id">
-                                        {{ c.name }}
-                                      </mat-option>
-                                    </mat-select>
-                                  </mat-form-field>
-
-                                  <mat-form-field appearance="outline">
-                                    <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.VEHICLE_SEARCH' | translate }}</mat-label>
-                                    <mat-icon matPrefix>search</mat-icon>
-                                    <input matInput formControlName="vehicleSearch">
-                                  </mat-form-field>
-
-                                  <div class="vehicle-grid">
-                                    <div>
-                                      <button mat-stroked-button color="primary" type="button" (click)="openCarSelectionDialog()">
-                                        <mat-icon>directions_car</mat-icon>
-                                        {{ selectedVehicle() ? getVehicleLabel(selectedVehicle()) : ('ACCOUNTS.DEPOSITS.FORM.SELECT_VEHICLE' | translate) }}
-                                      </button>
-                                    </div>
-
-                                    <mat-form-field appearance="outline">
-                                      <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.MAKE_MODEL' | translate }}</mat-label>
-                                      <input matInput [value]="selectedVehicle() ? selectedVehicle()?.make + ' ' + selectedVehicle()?.model : ''" readonly>
-                                    </mat-form-field>
-
-                                    <mat-form-field appearance="outline">
-                                      <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.YEAR' | translate }}</mat-label>
-                                      <input matInput [value]="selectedVehicle()?.year || ''" readonly>
-                                    </mat-form-field>
-
-                                    <mat-form-field appearance="outline">
-                                      <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.CHASSIS_NUMBER' | translate }}</mat-label>
-                                      <input matInput [value]="getVehicleIdentity(selectedVehicle())" readonly>
-                                    </mat-form-field>
-
-                                    <mat-form-field appearance="outline">
-                                      <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.COLOR' | translate }}</mat-label>
-                                      <input matInput [value]="selectedVehicle()?.exteriorColor || ''" readonly>
-                                    </mat-form-field>
-
-                                    <mat-form-field appearance="outline">
-                                      <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.AGREED_SELLING_PRICE' | translate }}</mat-label>
-                                      <input matInput type="number" formControlName="agreedSellingPrice" min="0">
-                                    </mat-form-field>
-
-                                    <div class="checkbox-cell">
-                                      <mat-checkbox formControlName="finalInvoicePriceFixed">
-                                        {{ 'ACCOUNTS.DEPOSITS.FORM.FINAL_INVOICE_FIXED' | translate }}
-                                      </mat-checkbox>
-                                    </div>
-                                  </div>
-
-                                  <mat-form-field appearance="outline" class="full-span">
-                                    <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.NOTES' | translate }}</mat-label>
-                                    <textarea matInput formControlName="notes" rows="3"></textarea>
-                                  </mat-form-field>
-
-                                  <div class="checkbox-row">
-                                    <mat-checkbox formControlName="isRefundable">
-                                      {{ 'ACCOUNTS.DEPOSITS.FORM.IS_REFUNDABLE' | translate }}
-                                    </mat-checkbox>
-                                  </div>
-                                </div>
-                              </div>
-
-                            </div>
-
-                            <div class="page-actions">
-                              <a mat-stroked-button routerLink="/accounts/deposits">
-                                {{ 'ACCOUNTS.DEPOSITS.FORM.CANCEL' | translate }}
-                              </a>
-                              <button mat-raised-button color="primary" type="submit" [disabled]="depositForm.invalid || isSaving()">
-                                {{ isSaving() ? ('COMMON.SAVING' | translate) : ('ACCOUNTS.DEPOSITS.FORM.SAVE' | translate) }}
-                              </button>
-                            </div>
-
-                          </form>
-                        </mat-card-content>
-                      </mat-card>
-                    </div>
+    </form>
+  </div>
+</div>

@@ -34,8 +34,7 @@ import { CustomerFormComponent } from './components/entities/customers/customer-
 import { SupplierFormComponent } from './components/entities/suppliers/supplier-form/supplier-form.component';
 import { SalesReturnInvoiceListComponent } from './components/sales/sales-return-invoice-list/sales-return-invoice-list/sales-return-invoice-list.component';
 import { PurchaseReturnInvoiceComponent } from './components/purchases/purchase-return-invoice/purchase-return-invoice.component';
-import { PrintableSalesInvoiceComponent } from './components/sales/printable-sales-invoice/printable-sales-invoice.component';
-import { PrintablePurchaseInvoiceComponent } from './components/purchases/printable-purchase-invoice/printable-purchase-invoice.component';
+import { InvoicePrintComponent } from './components/shared/invoice-print/invoice-print.component';
 import { StockTakingComponent } from './components/inventory/stock-taking/stock-taking.component';
 import { StockTakingApprovalComponent } from './components/inventory/stock-taking-approval/stock-taking-approval.component';
 import { SalesReturnFormComponent } from './components/sales/sales-return-form/sales-return-form.component';
@@ -198,8 +197,15 @@ export const APP_ROUTES: Routes = [
   // Print routes are deliberately siblings of `login`/`registration`, NOT children of
   // LayoutComponent. They render as bare, chrome-free pages (no sidebar/toolbar/menu) so
   // `window.print()` only ever rasterizes the invoice document itself.
-  { path: 'sales/invoice/print/:id', component: PrintableSalesInvoiceComponent },
-  { path: 'purchases/invoice/print/:id', component: PrintablePurchaseInvoiceComponent },
+  // Invoice printing — one unified professional print component for all three
+  // invoice types (see components/shared/invoice-print). The legacy
+  // /sales/invoice/print/:id and /purchases/invoice/print/:id URLs are kept
+  // verbatim so existing window.open() callers in the sales/purchase grids
+  // keep working unchanged; ?copy=true forces the COPY watermark.
+  { path: 'sales/invoice/print/:id', component: InvoicePrintComponent, data: { invoiceType: 'sales' } },
+  { path: 'purchases/invoice/print/:id', component: InvoicePrintComponent, data: { invoiceType: 'purchase' } },
+  { path: 'service/invoice/print/:id', component: InvoicePrintComponent, data: { invoiceType: 'service' } },
+  { path: 'invoices/print/:type/:id', component: InvoicePrintComponent },
   // Must come before the '' + children block below: that block's own wildcard ('**') child would
   // otherwise swallow /platform/* first, since Angular tries top-level routes in array order and
   // '' matches (as an empty prefix) before 'platform' is ever considered. Kept as its own

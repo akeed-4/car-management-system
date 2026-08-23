@@ -60,7 +60,7 @@
 
 .card-title {
   font-size: 12px;
-  color: #666;
+  color: var(--text-secondary);
   margin: 0 0 6px 0;
   font-weight: 500;
   text-transform: uppercase;
@@ -69,7 +69,7 @@
 .card-value {
   font-size: 24px;
   font-weight: 700;
-  color: #333;
+  color: var(--text-primary);
   margin: 0;
   line-height: 1;
 }
@@ -81,7 +81,7 @@
 
 .skeleton-content {
   height: 100%;
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, var(--surface-sunken) 25%, var(--border-default) 50%, var(--surface-sunken) 75%);
   background-size: 200% 100%;
   animation: loading 1.5s ease-in-out infinite;
 }
@@ -129,16 +129,16 @@
 
 .row-subtitle {
   font-size: 12px;
-  color: #777;
+  color: var(--text-secondary);
 }
 
 .row-date {
   font-size: 11px;
-  color: #999;
+  color: var(--text-secondary);
 }
 
 .empty-state {
-  color: #999;
+  color: var(--text-secondary);
   font-size: 13px;
   text-align: center;
   padding: 16px 0;

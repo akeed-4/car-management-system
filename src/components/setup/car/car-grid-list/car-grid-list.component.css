@@ -43,7 +43,7 @@
 
 /* Controls Section */
 .controls-section {
-  background: white;
+  background: var(--surface-card);
   border-radius: 16px;
   padding: 24px;
   margin-bottom: 24px;
@@ -120,7 +120,7 @@
   position: relative;
   height: 220px;
   overflow: hidden;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary-600);
 }
 
 .car-image {
@@ -148,7 +148,7 @@
 }
 
 .status-badge.success {
-  background: linear-gradient(135deg, #4caf50, #81c784);
+  background: linear-gradient(135deg, var(--color-success-500), #81c784);
 }
 
 .status-badge.warning {
@@ -160,7 +160,7 @@
 }
 
 .status-badge.info {
-  background: linear-gradient(135deg, #2196f3, #64b5f6);
+  background: linear-gradient(135deg, var(--color-primary-600), #64b5f6);
 }
 
 .condition-badge {
@@ -226,7 +226,7 @@
 }
 
 .price-section {
-  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  background: linear-gradient(135deg, var(--color-primary-100) 0%, #bbdefb 100%);
   border-radius: 12px;
   padding: 16px;
   margin: 16px 0;
@@ -236,7 +236,7 @@
 .price-label {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #1976d2;
+  color: var(--color-primary-600);
   text-transform: uppercase;
   margin-bottom: 4px;
 }
@@ -252,7 +252,7 @@
   gap: 8px;
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--border-default);
 }
 
 .action-btn {
@@ -294,7 +294,7 @@
   height: 120px;
   border-radius: 8px;
   overflow: hidden;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary-600);
 }
 
 .list-image {
@@ -376,7 +376,7 @@
 .empty-state {
   text-align: center;
   padding: 80px 20px;
-  background: white;
+  background: var(--surface-card);
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
@@ -519,26 +519,26 @@
 }
 
 .showroom-status {
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--border-default);
   padding-top: 8px;
   margin-top: 8px;
 }
 
 .showroom-status .info-icon.allowed {
-  color: #4caf50;
+  color: var(--color-success-500);
 }
 
 .showroom-status .info-icon.denied {
-  color: #f44336;
+  color: var(--color-danger-500);
 }
 
 .showroom-status .info-value.allowed {
-  color: #4caf50;
+  color: var(--color-success-500);
   font-weight: 600;
 }
 
 .showroom-status .info-value.denied {
-  color: #f44336;
+  color: var(--color-danger-500);
   font-weight: 600;
 }
 
@@ -557,7 +557,7 @@
 
 .info-icon {
   font-size: 16px;
-  color: #666;
+  color: var(--text-secondary);
   min-width: 16px;
 }
 
@@ -568,6 +568,6 @@
 }
 
 .info-value {
-  color: #333;
+  color: var(--text-primary);
   flex: 1;
 }

@@ -1,3 +1,8 @@
+/* Add account -- tokenized for the Phase 5 design system. Layout, account
+   type cards and locked-state behavior preserved; all colors use semantic
+   tokens so dark mode works automatically. Directional properties are
+   logical for RTL/LTR parity. */
+
 .full-width {
   width: 100%;
   margin-bottom: 16px;
@@ -26,18 +31,18 @@
 
 .form label.mat-form-field-label {
   font-weight: 600;
-  color: #37474f;
+  color: var(--text-primary);
 }
 
 .form-section {
   margin-top: 24px;
   padding-top: 16px;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--border-default);
 }
 
 .form-section h3 {
   margin-bottom: 16px;
-  color: #666;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
@@ -48,9 +53,9 @@
   flex-wrap: wrap;
   padding: 12px 16px;
   margin-bottom: 16px;
-  background: #f5f7fa;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-default);
+  border-radius: var(--rounded-sm, 4px);
 }
 
 .parent-account-summary-item {
@@ -64,24 +69,24 @@
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  color: #78909c;
+  color: var(--text-secondary);
   font-weight: 600;
 }
 
 .parent-account-summary-value {
   font-size: 15px;
   font-weight: 500;
-  color: #263238;
+  color: var(--text-primary);
 }
 
 .parent-account-summary-empty {
   font-weight: 400;
   font-style: italic;
-  color: #90a4ae;
+  color: var(--text-secondary);
 }
 
 .parent-account-summary-arrow {
-  color: #90a4ae;
+  color: var(--text-secondary);
 }
 
 @media (max-width: 600px) {
@@ -123,9 +128,9 @@ mat-card-header {
 .account-type-selection-section {
   margin-bottom: 32px;
   padding: 24px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-radius: 16px;
-  border: 1px solid #dee2e6;
+  background: var(--surface-sunken);
+  border-radius: var(--rounded-lg);
+  border: 1px solid var(--border-default);
 }
 
 .section-header {
@@ -141,11 +146,11 @@ mat-card-header {
   margin: 0 0 8px 0;
   font-size: 1.5rem;
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-primary);
 }
 
 .section-title mat-icon {
-  color: #3498db;
+  color: var(--color-primary-600);
   font-size: 28px;
   height: 28px;
   width: 28px;
@@ -154,7 +159,7 @@ mat-card-header {
 .section-subtitle {
   margin: 0;
   font-size: 1rem;
-  color: #6c757d;
+  color: var(--text-secondary);
   font-weight: 400;
 }
 
@@ -177,23 +182,22 @@ mat-card-header {
   content: '';
   position: absolute;
   top: 0;
-  left: 0;
-  right: 0;
+  inset-inline: 0;
   height: 4px;
-  background: linear-gradient(90deg, #3498db, #2980b9);
+  background: var(--color-primary-600);
   transform: scaleX(0);
   transition: transform 0.3s ease;
 }
 
 .account-type-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(52, 152, 219, 0.15);
-  border-color: #3498db;
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary-600);
 }
 
 .account-type-card.selected {
-  border-color: #3498db;
-  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.2);
+  border-color: var(--color-primary-600);
+  box-shadow: var(--shadow-md);
 }
 
 .account-type-card.selected::before {
@@ -219,18 +223,18 @@ mat-card-header {
   gap: 0.4rem;
   margin-top: 0.75rem;
   padding: 0.6rem 0.9rem;
-  background: #fff3e0;
-  border-left: 3px solid #f57c00;
-  border-radius: 0 6px 6px 0;
+  background: var(--status-warning-bg);
+  border-inline-start: 3px solid var(--status-warning-fg);
+  border-radius: 0 var(--rounded-sm, 6px) var(--rounded-sm, 6px) 0;
   font-size: 0.85rem;
-  color: #7a4a00;
+  color: var(--status-warning-fg);
 }
 
 .posted-transactions-hint mat-icon {
   font-size: 18px;
   width: 18px;
   height: 18px;
-  color: #f57c00;
+  color: var(--status-warning-fg);
 }
 
 .card-content {
@@ -248,8 +252,8 @@ mat-card-header {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3498db, #2980b9);
-  color: white;
+  background: var(--color-primary-600);
+  color: #fff;
   font-size: 24px;
   flex-shrink: 0;
   transition: all 0.3s ease;
@@ -257,7 +261,7 @@ mat-card-header {
 
 .account-type-card:hover .card-icon {
   transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+  box-shadow: var(--shadow-sm);
 }
 
 .card-text {
@@ -269,13 +273,13 @@ mat-card-header {
   margin: 0 0 8px 0;
   font-size: 1.2rem;
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-primary);
 }
 
 .card-text p {
   margin: 0;
   font-size: 0.9rem;
-  color: #6c757d;
+  color: var(--text-secondary);
   line-height: 1.4;
 }
 
@@ -284,15 +288,15 @@ mat-card-header {
 }
 
 .card-radio ::ng-deep .mat-radio-outer-circle {
-  border-color: #bdc3c7;
+  border-color: var(--border-default);
 }
 
 .card-radio ::ng-deep .mat-radio-inner-circle {
-  background-color: #3498db;
+  background-color: var(--color-primary-600);
 }
 
 .account-type-card.selected .card-radio ::ng-deep .mat-radio-outer-circle {
-  border-color: #3498db;
+  border-color: var(--color-primary-600);
 }
 
 /* Responsive design */
@@ -349,26 +353,5 @@ mat-card-header {
     width: 50px;
     height: 50px;
     font-size: 20px;
-  }
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  .form-row {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .form-field {
-    min-width: unset;
-  }
-
-  .form-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .form-actions button {
-    width: 100%;
   }
 }

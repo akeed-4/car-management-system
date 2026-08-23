@@ -1,16 +1,18 @@
 
-<mat-toolbar color="primary" class="page-header">
-  <span>{{ 'ACCOUNTS.DEPOSITS.LIST_TITLE' | translate }}</span>
-  <span class="spacer"></span>
-  <button mat-raised-button color="accent" routerLink="/accounts/deposits/new">
-    <mat-icon>add</mat-icon>
-    <span>{{ 'ACCOUNTS.DEPOSITS.NEW' | translate }}</span>
-  </button>
-</mat-toolbar>
+<div class="erp-page">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ 'ACCOUNTS.DEPOSITS.LIST_TITLE' | translate }}</h2>
+    </div>
+    <div class="erp-page-actions">
+      <button mat-raised-button color="primary" routerLink="/accounts/deposits/new">
+        <mat-icon>add</mat-icon>
+        <span>{{ 'ACCOUNTS.DEPOSITS.NEW' | translate }}</span>
+      </button>
+    </div>
+  </div>
 
-<div class="container">
-  <mat-card class="list-card">
-    <mat-card-content>
+  <div class="erp-grid-card">
       <dx-data-grid
         [dataSource]="deposits()"
         [showBorders]="true"
@@ -87,6 +89,5 @@
           </dxi-button>
         </dxi-column>
       </dx-data-grid>
-    </mat-card-content>
-  </mat-card>
+  </div>
 </div>

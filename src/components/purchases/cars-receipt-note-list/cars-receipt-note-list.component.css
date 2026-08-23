@@ -22,7 +22,7 @@
 }
 
 .container-fluid {
-  background-color: #f8f9fa;
+  background-color: var(--surface-sunken);
   min-height: 100vh;
 }
 
@@ -36,7 +36,7 @@ h2 {
   justify-content: space-between;
   margin-bottom: 1.5rem;
   padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary-600);
   color: white;
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -51,8 +51,8 @@ h2 {
 }
 
 .status-posted {
-  background-color: #d4edda;
-  color: #155724;
+  background-color: var(--status-success-bg);
+  color: var(--color-success-700);
 }
 
 .status-draft {
@@ -61,6 +61,6 @@ h2 {
 }
 
 .status-cancelled {
-  background-color: #f8d7da;
+  background-color: var(--status-danger-bg);
   color: #721c24;
 }

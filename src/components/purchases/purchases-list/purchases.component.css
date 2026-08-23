@@ -23,7 +23,7 @@
   justify-content: space-between;
   margin-bottom: 1.5rem;
   padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary-600);
   color: white;
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -63,23 +63,23 @@ mat-card {
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  background: #fff;
+  background: var(--surface-card);
   border: 1px solid #e8f4fd;
 }
 
 .form-section {
   margin-bottom: 2rem;
   padding: 1.5rem;
-  background: #f8f9fa;
+  background: var(--surface-sunken);
   border-radius: 8px;
-  border-left: 4px solid #1976d2;
+  border-left: 4px solid var(--color-primary-600);
 }
 
 .form-section-title {
   font-size: 1.1rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  color: #1976d2;
+  color: var(--color-primary-600);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -110,10 +110,10 @@ mat-form-field.mat-form-field {
 }
 
 .add-item-box {
-  background: #fff;
+  background: var(--surface-card);
   border-radius: 8px;
   padding: 1.5rem;
-  border: 2px solid #e9ecef;
+  border: 2px solid var(--border-default);
   margin-top: 1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
@@ -146,7 +146,7 @@ mat-form-field.mat-form-field {
 .summary-section mat-card {
   flex: 0 0 320px;
   padding: 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary-600);
   color: white;
   border-radius: 10px;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
@@ -193,7 +193,7 @@ mat-form-field.mat-form-field {
   gap: 1rem;
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 2px solid #e0e0e0;
+  border-top: 2px solid var(--border-default);
 }
 
 .form-actions a {
@@ -205,7 +205,7 @@ mat-form-field.mat-form-field {
 }
 
 .form-actions a:hover {
-  background: #f5f5f5;
+  background: var(--surface-sunken);
 }
 
 .form-actions button {
@@ -436,7 +436,7 @@ mat-form-field.mat-form-field {
   color: var(--color-gray-500);
 }
 ::ng-deep .dx-datagrid-headers {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary-600);
   color: white;
   font-weight: 600;
 }
@@ -454,15 +454,15 @@ mat-form-field.mat-form-field {
 }
 
 ::ng-deep .dx-datagrid-rowsview .dx-row {
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--surface-sunken);
 }
 
 ::ng-deep .dx-datagrid-rowsview .dx-row:hover {
-  background-color: #f8f9fa;
+  background-color: var(--surface-sunken);
 }
 
 ::ng-deep .dx-datagrid-rowsview .dx-row.dx-selection {
-  background-color: #e3f2fd;
+  background-color: var(--color-primary-100);
 }
 
 ::ng-deep .dx-datagrid-rowsview .dx-row-alt {
@@ -470,7 +470,7 @@ mat-form-field.mat-form-field {
 }
 
 ::ng-deep .dx-datagrid-rowsview .dx-row-alt:hover {
-  background-color: #f5f5f5;
+  background-color: var(--surface-sunken);
 }
 
 ::ng-deep .dx-datagrid-rowsview .dx-row-alt.dx-selection {
@@ -489,30 +489,30 @@ mat-form-field.mat-form-field {
 }
 
 ::ng-deep .dx-datagrid .dx-command-edit .dx-link:hover {
-  background-color: #f5f5f5;
+  background-color: var(--surface-sunken);
   transform: scale(1.1);
 }
 
 ::ng-deep .btn-danger {
-  color: #dc3545 !important;
+  color: var(--color-danger-500) !important;
 }
 
 ::ng-deep .btn-danger:hover {
-  background-color: #dc3545 !important;
+  background-color: var(--color-danger-500) !important;
   color: white !important;
 }
 
 /* Pager styling */
 ::ng-deep .dx-datagrid-pager {
-  background: #f8f9fa;
-  border-top: 1px solid #e9ecef;
+  background: var(--surface-sunken);
+  border-top: 1px solid var(--border-default);
   padding: 1rem;
 }
 
 /* Search panel styling */
 ::ng-deep .dx-datagrid-search-panel {
-  background: #f8f9fa;
-  border-bottom: 1px solid #e9ecef;
+  background: var(--surface-sunken);
+  border-bottom: 1px solid var(--border-default);
   padding: 1rem;
 }
 
@@ -522,13 +522,13 @@ mat-form-field.mat-form-field {
 }
 
 ::ng-deep .dx-datagrid-search-panel .dx-texteditor.dx-state-focused {
-  border-color: #667eea;
-  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+  border-color: var(--color-primary-600);
+  box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
 }
 
 /* Filter row styling */
 ::ng-deep .dx-datagrid-filter-row {
-  background: #f8f9fa;
+  background: var(--surface-sunken);
 }
 
 ::ng-deep .dx-datagrid-filter-row .dx-texteditor {

@@ -2,7 +2,7 @@
 /* Modern Dashboard Styles */
 .dashboard-container {
   padding: 24px;
-  background: #f5f5f5;
+  background: var(--surface-sunken);
   min-height: 100vh;
 }
 
@@ -12,7 +12,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 32px;
-  background: white;
+  background: var(--surface-card);
   padding: 20px 24px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -25,14 +25,14 @@
   margin: 0;
   font-size: 28px;
   font-weight: 700;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .dashboard-title mat-icon {
   font-size: 32px;
   width: 32px;
   height: 32px;
-  color: #2196f3;
+  color: var(--color-primary-600);
 }
 
 .dashboard-actions {
@@ -53,10 +53,10 @@
 .section-title {
   font-size: 22px;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 20px;
   padding-left: 8px;
-  border-left: 4px solid #2196f3;
+  border-left: 4px solid var(--color-primary-600);
 }
 
 /* Charts Grid */
@@ -86,7 +86,7 @@
 .legacy-section {
   margin-top: 48px;
   padding-top: 32px;
-  border-top: 2px solid #e0e0e0;
+  border-top: 2px solid var(--border-default);
 }
 
 /* Responsive Design */
@@ -192,7 +192,7 @@
   width: 1.5rem;
   height: 1.5rem;
 }
-.summary-card-icon.green { background-color: #dcfce7; color: #16a34a; }
+.summary-card-icon.green { background-color: #dcfce7; color: var(--color-success-600); }
 .summary-card-icon.orange { background-color: #ffedd5; color: #f97316; }
 .summary-card-icon.red { background-color: #fee2e2; color: #dc2626; }
 

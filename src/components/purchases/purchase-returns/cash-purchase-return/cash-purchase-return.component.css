@@ -1,6 +1,6 @@
 .cash-return-container {
   padding: 24px;
-  background-color: #f8f9fa;
+  background-color: var(--surface-sunken);
   min-height: 100vh;
 }
 

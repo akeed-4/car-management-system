@@ -2,11 +2,11 @@
 
 /* Category-based color coding */
 ::ng-deep .dx-datagrid .dx-data-row:has(td[aria-colindex="1"]:contains("Operating")) {
-  border-left: 4px solid #4caf50;
+  border-left: 4px solid var(--color-success-500);
 }
 
 ::ng-deep .dx-datagrid .dx-data-row:has(td[aria-colindex="1"]:contains("Investing")) {
-  border-left: 4px solid #2196f3;
+  border-left: 4px solid var(--color-primary-600);
 }
 
 ::ng-deep .dx-datagrid .dx-data-row:has(td[aria-colindex="1"]:contains("Financing")) {
@@ -15,7 +15,7 @@
 
 /* Highlight negative amounts */
 ::ng-deep .dx-datagrid .dx-data-row td[aria-colindex="4"]:contains("(") {
-  color: #d32f2f;
+  color: var(--color-danger-600);
   font-weight: 600;
 }
 

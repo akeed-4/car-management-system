@@ -17,7 +17,7 @@
     margin: 0 0 10px 0;
     font-size: 13px;
     font-weight: 600;
-    color: #666;
+    color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.4px;
   }
@@ -33,17 +33,17 @@
     justify-content: center;
     gap: 8px;
     padding: 24px 0;
-    color: #999;
+    color: var(--text-secondary);
 
     mat-icon {
       font-size: 32px;
       width: 32px;
       height: 32px;
-      color: #ccc;
+      color: var(--border-default);
     }
 
     &.error mat-icon {
-      color: #d32f2f;
+      color: var(--color-danger-600);
     }
 
     p {
@@ -78,7 +78,7 @@
 
       .match-sub {
         font-size: 12px;
-        color: #777;
+        color: var(--text-secondary);
       }
     }
   }
@@ -99,7 +99,7 @@
   }
 
   .chat-empty {
-    color: #999;
+    color: var(--text-secondary);
     font-size: 13px;
     text-align: center;
     padding: 16px 0;
@@ -114,7 +114,7 @@
 
     &.role-user {
       align-self: flex-end;
-      background: #e3f2fd;
+      background: var(--color-primary-100);
       color: #0d47a1;
     }
 
@@ -126,8 +126,8 @@
 
     &.role-error {
       align-self: flex-start;
-      background: #ffebee;
-      color: #c62828;
+      background: var(--status-danger-bg);
+      color: var(--color-danger-600);
     }
   }
 
@@ -144,5 +144,5 @@
 
 .dialog-actions {
   padding: 16px 0 0 0;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--border-default);
 }

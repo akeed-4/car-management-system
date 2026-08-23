@@ -10,34 +10,34 @@
   align-items: center;
   margin-bottom: 30px;
   padding-bottom: 20px;
-  border-bottom: 2px solid #e0e0e0;
+  border-bottom: 2px solid var(--border-default);
 }
 
 .page-title {
   font-size: 28px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .card {
-  background: white;
+  background: var(--surface-card);
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
 .card-header {
-  background-color: #f5f5f5;
+  background-color: var(--surface-sunken);
   padding: 16px 20px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--border-default);
 }
 
 .card-header h3 {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .card-body {
@@ -47,7 +47,7 @@
 .no-data {
   text-align: center;
   padding: 40px;
-  color: #999;
+  color: var(--text-secondary);
   font-size: 16px;
 }
 
@@ -67,8 +67,8 @@
 }
 
 .badge-warning {
-  background-color: #fff3cd;
-  color: #856404;
+  background-color: var(--status-warning-bg);
+  color: var(--status-warning-fg);
 }
 
 .badge-info {
@@ -96,22 +96,22 @@
   padding: 8px 16px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  background-color: #f5f5f5;
-  color: #333;
+  background-color: var(--surface-sunken);
+  color: var(--text-primary);
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s ease;
 }
 
 .btn-cancel:hover {
-  background-color: #e0e0e0;
+  background-color: var(--border-default);
 }
 
 .btn-submit {
   padding: 8px 16px;
   border: none;
   border-radius: 4px;
-  background-color: #dc3545;
+  background-color: var(--color-danger-500);
   color: white;
   cursor: pointer;
   font-weight: 600;
@@ -137,5 +137,5 @@
 }
 
 ::ng-deep .dx-datagrid-rowsview {
-  border-color: #e0e0e0;
+  border-color: var(--border-default);
 }

@@ -6,11 +6,11 @@
     margin: 0 0 24px 0;
     font-size: 20px;
     font-weight: 500;
-    color: #1976d2;
+    color: var(--color-primary-600);
   }
 
   .filter-section {
-    background: #f5f5f5;
+    background: var(--surface-sunken);
     padding: 16px;
     border-radius: 4px;
     margin-bottom: 24px;
@@ -33,7 +33,7 @@
 
   .grid-section {
     margin-bottom: 24px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--border-default);
     border-radius: 4px;
     overflow: hidden;
     min-height: 400px;
@@ -48,13 +48,13 @@
       align-items: center;
       justify-content: center;
       height: 400px;
-      color: #999;
+      color: var(--text-secondary);
 
       .empty-icon {
         font-size: 64px;
         width: 64px;
         height: 64px;
-        color: #ccc;
+        color: var(--border-default);
         margin-bottom: 16px;
       }
 
@@ -66,8 +66,8 @@
   }
 
   .selected-supplier-summary {
-    background: #e8f5e9;
-    border: 1px solid #4caf50;
+    background: var(--status-success-bg);
+    border: 1px solid var(--color-success-500);
     border-radius: 4px;
     padding: 16px;
     margin-bottom: 24px;
@@ -76,7 +76,7 @@
       margin: 0 0 12px 0;
       font-size: 14px;
       font-weight: 600;
-      color: #1b5e20;
+      color: var(--color-success-700);
     }
 
     .supplier-details {
@@ -91,12 +91,12 @@
 
         .label {
           font-weight: 500;
-          color: #1b5e20;
+          color: var(--color-success-700);
           min-width: 120px;
         }
 
         .value {
-          color: #2e7d32;
+          color: var(--color-success-600);
           flex: 1;
           text-align: right;
         }
@@ -107,5 +107,5 @@
 
 .dialog-actions {
   padding: 16px 0 0 0;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--border-default);
 }

@@ -11,7 +11,7 @@
   width: auto;
   padding: 8px;
   font: 12px sans-serif;
-  background: #333;
+  background: var(--text-primary);
   color: white;
   border: 0px;
   border-radius: 8px;

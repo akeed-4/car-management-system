@@ -78,7 +78,7 @@
 }
 
 .manual-entry-hint {
-  color: var(--color-gray-500, #888);
+  color: var(--color-gray-500, var(--text-secondary));
   font-size: 0.85rem;
 }
 
@@ -86,15 +86,15 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #e8f5e9;
-  border: 1px solid #4caf50;
+  background: var(--status-success-bg);
+  border: 1px solid var(--color-success-500);
   border-radius: 20px;
   padding: 4px 8px 4px 16px;
-  color: #1b5e20;
+  color: var(--color-success-700);
   font-size: 0.9rem;
 
   mat-icon:first-child {
-    color: #2e7d32;
+    color: var(--color-success-600);
   }
 
   button {
@@ -122,12 +122,12 @@
   align-items: center;
   gap: 8px;
   padding: 6px 10px;
-  background: #f5f5f5;
+  background: var(--surface-sunken);
   border-radius: 6px;
 
   .attachment-name {
     flex: 1;
-    color: #1976d2;
+    color: var(--color-primary-600);
     text-decoration: none;
     font-size: 13px;
 
@@ -138,7 +138,7 @@
 }
 
 .no-attachments {
-  color: #999;
+  color: var(--text-secondary);
   font-size: 13px;
   margin: 0 0 12px 0;
 }

@@ -14,7 +14,7 @@ mat-card-content {
 .form-section {
   margin-bottom: 32px;
   padding-bottom: 24px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--border-default);
 }
 
 .section-title {
@@ -89,7 +89,7 @@ mat-card-content {
   gap: 16px;
   margin-top: 32px;
   padding-top: 24px;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--border-default);
 }
 
 .cancel-button {
@@ -124,16 +124,16 @@ mat-card-content {
   gap: 1rem;
   margin-top: 2rem;
   padding-top: 1rem;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--border-default);
 }
 
 .success-message {
   margin-top: 1rem;
   padding: 1rem;
-  background-color: #d4edda;
+  background-color: var(--status-success-bg);
   border: 1px solid #c3e6cb;
   border-radius: 4px;
-  color: #155724;
+  color: var(--color-success-700);
   text-align: center;
   font-weight: 500;
 }
@@ -200,7 +200,7 @@ mat-card-content {
 }
 
 .bg-white {
-  background-color: white;
+  background-color: var(--surface-card);
 }
 
 .shadow-md {
@@ -212,15 +212,15 @@ mat-card-content {
 }
 
 .border {
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-default);
 }
 
 .border-b {
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border-default);
 }
 
 .border-t {
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--border-default);
 }
 
 .overflow-x-auto {
@@ -285,23 +285,23 @@ table {
 }
 
 .bg-gray-50 {
-  background-color: #f9fafb;
+  background-color: var(--surface-sunken);
 }
 
 .text-gray-700 {
-  color: #374151;
+  color: var(--text-primary);
 }
 
 .text-gray-800 {
-  color: #1f2937;
+  color: var(--text-primary);
 }
 
 .text-gray-600 {
-  color: #4b5563;
+  color: var(--text-secondary);
 }
 
 .text-gray-500 {
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .text-red-500 {
@@ -335,19 +335,19 @@ table {
 }
 
 .bg-primary-600 {
-  background-color: var(--color-primary-600, #2563eb);
+  background-color: var(--color-primary-600, var(--color-primary-600));
 }
 
 .hover\:bg-primary-700:hover {
-  background-color: var(--color-primary-700, #1d4ed8);
+  background-color: var(--color-primary-700, var(--color-primary-600));
 }
 
 .text-primary-600 {
-  color: var(--color-primary-600, #2563eb);
+  color: var(--color-primary-600, var(--color-primary-600));
 }
 
 .hover\:text-primary-800:hover {
-  color: var(--color-primary-800, #1e40af);
+  color: var(--color-primary-800, var(--color-primary-700));
 }
 
 .bg-indigo-600 {
@@ -355,19 +355,19 @@ table {
 }
 
 .hover\:bg-indigo-700:hover {
-  background-color: #4338ca;
+  background-color: var(--color-primary-600);
 }
 
 .bg-gray-200 {
-  background-color: #e5e7eb;
+  background-color: var(--border-default);
 }
 
 .hover\:bg-gray-300:hover {
-  background-color: #d1d5db;
+  background-color: var(--border-default);
 }
 
 .bg-gray-200 {
-  background-color: #e5e7eb;
+  background-color: var(--border-default);
 }
 
 .transition {

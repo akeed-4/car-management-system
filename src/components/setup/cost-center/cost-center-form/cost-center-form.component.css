@@ -16,7 +16,7 @@
 }
 
 .back-button {
-  background: white;
+  background: var(--surface-card);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -51,7 +51,7 @@
   gap: 12px;
   margin: 32px 0 24px 0;
   padding-bottom: 12px;
-  border-bottom: 2px solid #e0e0e0;
+  border-bottom: 2px solid var(--border-default);
 }
 
 .section-header:first-child {
@@ -101,7 +101,7 @@
   padding: 20px;
   background: rgba(255, 255, 255, 0.8);
   border-radius: 12px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-default);
 }
 
 .type-label {
@@ -178,7 +178,7 @@
   gap: 16px;
   margin-top: 48px;
   padding-top: 32px;
-  border-top: 2px solid #e0e0e0;
+  border-top: 2px solid var(--border-default);
 }
 
 .form-actions button {
@@ -198,7 +198,7 @@
 }
 
 ::ng-deep .mat-mdc-form-field.mat-form-field-invalid .mat-mdc-form-field-icon-prefix mat-icon {
-  color: #f44336;
+  color: var(--color-danger-500);
 }
 
 /* Loading State */

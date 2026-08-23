@@ -3,8 +3,8 @@
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  background: #fff;
-  border: 1px solid #e0e0e0;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
   border-radius: 8px;
   padding: 8px 12px !important;
   margin-bottom: 12px;
@@ -20,7 +20,7 @@
 
 .record-count {
   font-size: 13px;
-  color: #666;
+  color: var(--text-secondary);
   margin-inline-end: 8px;
 }
 
@@ -38,7 +38,7 @@
 @media (prefers-color-scheme: dark) {
   .report-toolbar {
     
-    border-color: #333;
+    border-color: var(--text-primary);
   }
 
   .record-count {

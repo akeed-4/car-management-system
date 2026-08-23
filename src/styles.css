@@ -1,6 +1,8 @@
 
 /* Angular Material theme (prebuilt) */
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
+/* Phase 5: shared Form/Info screen design system (token-based, RTL-safe) */
+@import './styles/form-system.css';
 /* --- GLOBAL DESIGN SYSTEM --- */
 
 /* 1. CSS Variables */
@@ -133,10 +135,33 @@
     --border-strong: #3a445c;
   }
 }
- .dx-datagrid-headers {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-  color: white !important;
+/* DataGrid header -- clean, flat, theme-aware. Replaces the old purple gradient
+   (linear-gradient(var(--color-primary-600), var(--color-primary-800))) which fought the blue design tokens, looked
+   dated, and ignored dark mode. Uses the semantic tokens so it follows the theme
+   automatically. */
+.dx-datagrid-headers {
+  background: var(--surface-sunken) !important;
+  color: var(--text-secondary) !important;
   font-weight: 600 !important;
+  border-bottom: 1px solid var(--border-strong) !important;
+}
+
+.dx-datagrid-headers .dx-datagrid-text-content {
+  color: var(--text-secondary) !important;
+  font-weight: 600 !important;
+}
+
+/* DataGrid body -- theme-aware surfaces for rows, pager and filter row. */
+.dx-datagrid .dx-datagrid-content {
+  color: var(--text-primary);
+}
+
+.dx-datagrid-filter-row {
+  background: var(--surface-card);
+}
+
+.dx-datagrid-pager {
+  border-top: 1px solid var(--border-default);
 }
 /* 2. Base & Typography */
 *,
@@ -147,8 +172,8 @@
 
 body {
   font-family: var(--font-family-sans);
-  background-color: var(--color-gray-50);
-  color: var(--color-gray-700);
+  background-color: var(--surface-page);
+  color: var(--text-secondary);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -156,7 +181,7 @@ body {
 }
 
 h1, h2, h3, h4 {
-  color: var(--color-gray-800);
+  color: var(--text-primary);
   font-weight: 700;
   margin: 0;
 }
@@ -271,7 +296,7 @@ a:hover {
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--color-gray-700);
+  color: var(--text-secondary);
   margin-bottom: var(--space-1);
 }
 
@@ -281,7 +306,9 @@ a:hover {
   width: 100%;
   padding: 0.625rem 0.75rem;
   font-size: 0.875rem;
-  border: 1px solid var(--color-gray-300);
+  color: var(--text-primary);
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-strong);
   border-radius: var(--rounded-md);
   box-shadow: var(--shadow-sm);
   transition: border-color 0.2s, box-shadow 0.2s;
@@ -294,11 +321,11 @@ a:hover {
 }
 .form-input:disabled,
 .form-select:disabled {
-  background-color: var(--color-gray-100);
+  background-color: var(--surface-sunken);
   cursor: not-allowed;
 }
 .form-input[readonly] {
-   background-color: var(--color-gray-100);
+   background-color: var(--surface-sunken);
 }
 
 .form-grid {
@@ -308,7 +335,7 @@ a:hover {
 
 /* Cards */
 .card {
-  background-color: var(--color-white);
+  background-color: var(--surface-card);
   border-radius: var(--rounded-lg);
   box-shadow: var(--shadow-md);
   padding: 1.5rem;
@@ -317,8 +344,9 @@ a:hover {
 /* Tables */
 .table-wrapper {
   overflow-x: auto;
-  border: 1px solid var(--color-gray-200);
+  border: 1px solid var(--border-default);
   border-radius: var(--rounded-lg);
+  background-color: var(--surface-card);
 }
 .table {
   width: 100%;
@@ -331,16 +359,16 @@ a:hover {
   white-space: nowrap;
 }
 .table thead {
-  background-color: var(--color-gray-50);
+  background-color: var(--surface-sunken);
 }
 .table th {
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--color-gray-600);
+  color: var(--text-secondary);
   text-transform: uppercase;
 }
 .table tbody tr {
-  border-bottom: 1px solid var(--color-gray-200);
+  border-bottom: 1px solid var(--border-default);
   transition: background-color 0.15s;
 }
 
@@ -393,7 +421,7 @@ img, svg, picture, iframe, video {
 }
 .page-header h2 {
   font-size: 1.5rem;
-  color: var(--color-gray-800);
+  color: var(--text-primary);
 }
 
 @media print {
@@ -863,7 +891,9 @@ mat-form-field {
 .mat-typography .mat-h2,
 .mat-typography .mat-headline-6,
 .mat-typography h2 {
-  font-family: vr(--font-secondary);
+  /* Fixed: was "vr(--font-secondary)" -- an invalid function() that made the whole
+     declaration drop, so these headings silently fell back to the inherited font. */
+  font-family: var(--font-secondary);
   font-weight: bold;
 }
 
@@ -875,7 +905,7 @@ mat-form-field {
 
 .dataGrid .dx-header-row .cell-bg,
 .dataGrid .dx-datagrid-rowsview .dx-row.dx-row-lines .cell-bg {
-  background-color: white;
+  background-color: var(--surface-card);
 }
 
 @media (max-width: 360px) {

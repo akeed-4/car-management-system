@@ -4,7 +4,7 @@
   justify-content: space-between;
   margin-bottom: 1.5rem;
   padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary-600);
   color: white;
   padding: 1.5rem;
   border-radius: 8px;
@@ -49,7 +49,7 @@
 }
 
 .datagrid-container {
-  background: white;
+  background: var(--surface-card);
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -60,15 +60,15 @@
 }
 
 .professional-datagrid .dx-datagrid-headers {
-  background: #f8f9fa;
+  background: var(--surface-sunken);
   font-weight: 600;
   color: #495057;
 }
 
 .professional-datagrid .dx-datagrid-rowsview .dx-row {
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid var(--border-default);
 }
 
 .professional-datagrid .dx-datagrid-rowsview .dx-row:hover {
-  background: #f8f9fa;
+  background: var(--surface-sunken);
 }

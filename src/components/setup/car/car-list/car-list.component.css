@@ -1,7 +1,7 @@
 /* Container */
 .car-list-container {
   padding: 24px;
-  background-color: #f8f9fa;
+  background-color: var(--surface-sunken);
   min-height: 100vh;
   direction: rtl;
 }
@@ -15,7 +15,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary-600);
   padding: 24px 32px;
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -132,7 +132,7 @@
 
 .view-details-btn {
   background-color: rgba(255, 255, 255, 0.9) !important;
-  color: #667eea !important;
+  color: var(--color-primary-600) !important;
   font-weight: 600;
   border-radius: 20px;
   padding: 8px 16px;
@@ -177,7 +177,7 @@
   align-items: center;
   margin-bottom: 12px;
   padding: 8px 12px;
-  background: #f8f9fa;
+  background: var(--surface-sunken);
   border-radius: 6px;
 }
 
@@ -190,7 +190,7 @@
 .price-value {
   font-size: 18px;
   font-weight: 700;
-  color: #28a745;
+  color: var(--color-success-500);
 }
 
 .car-status {
@@ -238,7 +238,7 @@
 
 .no-cars-icon {
   font-size: 64px;
-  color: #dee2e6;
+  color: var(--border-default);
   margin-bottom: 16px;
 }
 
@@ -367,7 +367,7 @@
 
 /* Focus States */
 .car-card:focus {
-  outline: 2px solid #667eea;
+  outline: 2px solid var(--color-primary-600);
   outline-offset: 2px;
 }
 
@@ -375,7 +375,7 @@
 @media print {
   .car-list-container {
     padding: 0;
-    background: white;
+    background: var(--surface-card);
   }
 
   .header-section,

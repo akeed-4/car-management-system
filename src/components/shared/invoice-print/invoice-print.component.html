@@ -1,0 +1,342 @@
+<div class="invoice-page" [attr.dir]="textDir()">
+
+  @if (loading()) {
+    <div class="invoice-state">
+      <mat-icon class="spin">sync</mat-icon>
+      <p>{{ 'INVOICE_PRINT.STATE.LOADING' | translate }}</p>
+    </div>
+  } @else if (notFound() || !data()) {
+    <div class="invoice-state">
+      <mat-icon>error_outline</mat-icon>
+      <h3>{{ 'INVOICE_PRINT.STATE.NOT_FOUND_TITLE' | translate }}</h3>
+      <p>{{ 'INVOICE_PRINT.STATE.NOT_FOUND_MESSAGE' | translate }}</p>
+      <button class="ip-btn ip-btn-secondary no-print" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+        <span>{{ 'INVOICE_PRINT.ACTIONS.BACK' | translate }}</span>
+      </button>
+    </div>
+  } @else {
+    <!-- ======================= ACTION TOOLBAR (screen only) ======================= -->
+    <div class="invoice-toolbar no-print">
+      <button class="ip-btn ip-btn-secondary" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+        <span>{{ 'INVOICE_PRINT.ACTIONS.BACK' | translate }}</span>
+      </button>
+      <div class="invoice-toolbar-spacer"></div>
+      <button class="ip-btn ip-btn-secondary" (click)="email()">
+        <mat-icon>mail_outline</mat-icon>
+        <span>{{ 'INVOICE_PRINT.ACTIONS.EMAIL' | translate }}</span>
+      </button>
+      <button class="ip-btn ip-btn-secondary" (click)="downloadPdf()" [disabled]="exporting()">
+        <mat-icon>picture_as_pdf</mat-icon>
+        <span>{{ exporting() ? ('INVOICE_PRINT.ACTIONS.EXPORTING' | translate) : ('INVOICE_PRINT.ACTIONS.DOWNLOAD_PDF' | translate) }}</span>
+      </button>
+      <button class="ip-btn ip-btn-primary" (click)="print()">
+        <mat-icon>print</mat-icon>
+        <span>{{ 'INVOICE_PRINT.ACTIONS.PRINT' | translate }}</span>
+      </button>
+    </div>
+
+    <!-- ============================== A4 SHEET ============================== -->
+    <div class="invoice-sheet" [class]="'invoice-sheet ' + watermarkClass()">
+
+      <!-- Status watermark -->
+      @if (data()!.watermark !== 'NONE') {
+        <div class="invoice-watermark" aria-hidden="true">
+          {{ 'INVOICE_PRINT.WATERMARK.' + data()!.watermark | translate }}
+        </div>
+      }
+
+      <!-- Header: company identity + document title/number -->
+      <header class="inv-header">
+        <div class="inv-header-company">
+          <div class="inv-logo">{{ data()!.company.name?.charAt(0) || 'C' }}</div>
+          <div class="inv-header-company-info">
+            <p class="inv-company-name">{{ data()!.company.name }}</p>
+            @if (data()!.company.address) { <p class="inv-company-meta">{{ data()!.company.address }}</p> }
+            @if (data()!.company.phone) { <p class="inv-company-meta">{{ 'INVOICE_PRINT.HEADER.PHONE' | translate }}: {{ data()!.company.phone }}</p> }
+            @if (data()!.company.email) { <p class="inv-company-meta">{{ 'INVOICE_PRINT.HEADER.EMAIL' | translate }}: {{ data()!.company.email }}</p> }
+            @if (data()!.company.taxId) { <p class="inv-company-meta">{{ 'INVOICE_PRINT.HEADER.VAT_NUMBER' | translate }}: {{ data()!.company.taxId }}</p> }
+            @if (data()!.company.crNumber) { <p class="inv-company-meta">{{ 'INVOICE_PRINT.HEADER.CR_NUMBER' | translate }}: {{ data()!.company.crNumber }}</p> }
+          </div>
+        </div>
+        <div class="inv-header-title">
+          <h1 class="inv-title">{{ titleKey() | translate }}</h1>
+          <div class="inv-number-box">{{ data()!.invoiceNumber }}</div>
+        </div>
+      </header>
+
+      <!-- Meta strip: issue date / due date / status + type-specific cells -->
+      <div class="inv-meta-strip">
+        <div class="inv-meta-cell">
+          <p class="inv-meta-label">{{ 'INVOICE_PRINT.META.ISSUE_DATE' | translate }}</p>
+          <p class="inv-meta-value">{{ data()!.issueDate | date:'dd/MM/yyyy' }}</p>
+        </div>
+        <div class="inv-meta-cell">
+          <p class="inv-meta-label">{{ 'INVOICE_PRINT.META.DUE_DATE' | translate }}</p>
+          <p class="inv-meta-value">{{ data()!.dueDate ? (data()!.dueDate | date:'dd/MM/yyyy') : ('INVOICE_PRINT.COMMON.NOT_SPECIFIED' | translate) }}</p>
+        </div>
+        @for (cell of data()!.metaCells; track cell.label) {
+          <div class="inv-meta-cell">
+            <p class="inv-meta-label">{{ cell.label | translate }}</p>
+            <p class="inv-meta-value">{{ cell.value }}</p>
+          </div>
+        }
+        <div class="inv-meta-cell">
+          <p class="inv-meta-label">{{ 'INVOICE_PRINT.META.STATUS' | translate }}</p>
+          <span class="inv-status-badge"
+            [class.is-paid]="data()!.status === 'Paid'"
+            [class.is-unpaid]="data()!.status === 'Unpaid' || data()!.status === 'Overdue'"
+            [class.is-partial]="data()!.status !== 'Paid' && data()!.status !== 'Unpaid' && data()!.status !== 'Overdue'">
+            {{ 'INVOICE_PRINT.STATUS.' + data()!.status | translate }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Party details: supplier (purchase) / customer (sales+service) vs. our company -->
+      <div class="inv-parties">
+        <div class="inv-party">
+          <h3 class="inv-party-heading">{{ partyHeadingKey() | translate }}</h3>
+          <p class="inv-party-name">{{ data()!.party.name || ('INVOICE_PRINT.COMMON.NOT_SPECIFIED' | translate) }}</p>
+          @if (data()!.party.address) { <p class="inv-party-line">{{ data()!.party.address }}</p> }
+          @if (data()!.party.taxId) { <p class="inv-party-line">{{ 'INVOICE_PRINT.PARTY.TAX_ID' | translate }}: {{ data()!.party.taxId }}</p> }
+          @if (data()!.party.crNumber) { <p class="inv-party-line">{{ 'INVOICE_PRINT.HEADER.CR_NUMBER' | translate }}: {{ data()!.party.crNumber }}</p> }
+          @if (data()!.party.phone) { <p class="inv-party-line">{{ 'INVOICE_PRINT.HEADER.PHONE' | translate }}: {{ data()!.party.phone }}</p> }
+          @if (data()!.party.email) { <p class="inv-party-line">{{ 'INVOICE_PRINT.HEADER.EMAIL' | translate }}: {{ data()!.party.email }}</p> }
+          @if (data()!.party.poReference) { <p class="inv-party-line inv-party-po">{{ 'INVOICE_PRINT.PARTY.PO_REFERENCE' | translate }}: {{ data()!.party.poReference }}</p> }
+        </div>
+        <div class="inv-party">
+          <h3 class="inv-party-heading">{{ counterpartyHeadingKey() | translate }}</h3>
+          <p class="inv-party-name">{{ data()!.company.name }}</p>
+          @if (data()!.company.address) { <p class="inv-party-line">{{ data()!.company.address }}</p> }
+          @if (data()!.company.taxId) { <p class="inv-party-line">{{ 'INVOICE_PRINT.HEADER.VAT_NUMBER' | translate }}: {{ data()!.company.taxId }}</p> }
+          @if (data()!.company.phone) { <p class="inv-party-line">{{ 'INVOICE_PRINT.HEADER.PHONE' | translate }}: {{ data()!.company.phone }}</p> }
+          @if (data()!.company.email) { <p class="inv-party-line">{{ 'INVOICE_PRINT.HEADER.EMAIL' | translate }}: {{ data()!.company.email }}</p> }
+        </div>
+      </div>
+
+      <!-- Line items: # | description | qty/hours | unit price | discount % | tax % | line total -->
+      <div class="inv-section">
+        <h3 class="inv-section-title">{{ 'INVOICE_PRINT.TABLE.ITEMS' | translate }}</h3>
+        <table class="inv-table">
+          <thead>
+            <tr>
+              <th class="inv-col-center">{{ 'INVOICE_PRINT.TABLE.NUMBER' | translate }}</th>
+              <th>{{ 'INVOICE_PRINT.TABLE.DESCRIPTION' | translate }}</th>
+              <th class="inv-col-center">{{ qtyColumnKey() | translate }}</th>
+              <th class="inv-col-end">{{ 'INVOICE_PRINT.TABLE.UNIT_PRICE' | translate }}</th>
+              <th class="inv-col-end">{{ 'INVOICE_PRINT.TABLE.DISCOUNT' | translate }}</th>
+              <th class="inv-col-end">{{ 'INVOICE_PRINT.TABLE.TAX' | translate }}</th>
+              <th class="inv-col-end">{{ 'INVOICE_PRINT.TABLE.LINE_TOTAL' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of data()!.items; track $index; let i = $index) {
+              <tr>
+                <td class="inv-col-center inv-mono">{{ i + 1 }}</td>
+                <td>
+                  <span class="inv-strong">{{ item.description }}</span>
+                  @if (item.detail) { <span class="inv-item-detail">{{ item.detail }}</span> }
+                </td>
+                <td class="inv-col-center inv-mono">{{ item.quantity }}</td>
+                <td class="inv-col-end inv-mono">{{ item.unitPrice | currency:data()!.currency:'symbol':'1.2-2' }}</td>
+                <td class="inv-col-end inv-mono">{{ item.discountPercent ? (item.discountPercent + '%') : '-' }}</td>
+                <td class="inv-col-end inv-mono">{{ item.taxPercent ? (item.taxPercent + '%') : '-' }}</td>
+                <td class="inv-col-end inv-mono inv-strong">{{ item.lineTotal | currency:data()!.currency:'symbol':'1.2-2' }}</td>
+              </tr>
+            } @empty {
+              <tr><td colspan="7" class="inv-col-center">{{ 'INVOICE_PRINT.TABLE.NO_ITEMS' | translate }}</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Totals: subtotal / discount / tax / grand total (+ sales payment breakdown) -->
+      <div class="inv-totals-wrap">
+        <div class="inv-totals-box">
+          <div class="inv-totals-row">
+            <span class="inv-totals-label">{{ 'INVOICE_PRINT.TOTALS.SUBTOTAL' | translate }}</span>
+            <span class="inv-totals-value">{{ data()!.totals.subtotal | currency:data()!.currency:'symbol':'1.2-2' }}</span>
+          </div>
+          @if (data()!.totals.totalDiscount > 0) {
+            <div class="inv-totals-row">
+              <span class="inv-totals-label">
+                {{ 'INVOICE_PRINT.TOTALS.DISCOUNT' | translate }}@if (data()!.totals.discountLabel) { ({{ data()!.totals.discountLabel }}) }
+              </span>
+              <span class="inv-totals-value">- {{ data()!.totals.totalDiscount | currency:data()!.currency:'symbol':'1.2-2' }}</span>
+            </div>
+            @if (data()!.totals.amountAfterDiscount != null) {
+              <div class="inv-totals-row">
+                <span class="inv-totals-label">{{ 'INVOICE_PRINT.TOTALS.AFTER_DISCOUNT' | translate }}</span>
+                <span class="inv-totals-value">{{ data()!.totals.amountAfterDiscount | currency:data()!.currency:'symbol':'1.2-2' }}</span>
+              </div>
+            }
+          }
+          <div class="inv-totals-row">
+            <span class="inv-totals-label">{{ 'INVOICE_PRINT.TOTALS.TAX' | translate }} ({{ data()!.totals.taxRate }}%)</span>
+            <span class="inv-totals-value">{{ data()!.totals.totalTax | currency:data()!.currency:'symbol':'1.2-2' }}</span>
+          </div>
+          <div class="inv-totals-row is-grand">
+            <span class="inv-totals-label">{{ 'INVOICE_PRINT.TOTALS.GRAND_TOTAL' | translate }}</span>
+            <span class="inv-totals-value">{{ data()!.totals.grandTotal | currency:data()!.currency:'symbol':'1.2-2' }}</span>
+          </div>
+          @if (data()!.type === 'sales') {
+            @if (data()!.totals.previousPayments! > 0) {
+              <div class="inv-totals-row">
+                <span class="inv-totals-label">{{ 'INVOICE_PRINT.TOTALS.PREVIOUS_PAYMENTS' | translate }}</span>
+                <span class="inv-totals-value">- {{ data()!.totals.previousPayments | currency:data()!.currency:'symbol':'1.2-2' }}</span>
+              </div>
+            }
+            @if (data()!.totals.downPayment! > 0) {
+              <div class="inv-totals-row">
+                <span class="inv-totals-label">{{ 'INVOICE_PRINT.TOTALS.DOWN_PAYMENT' | translate }}</span>
+                <span class="inv-totals-value">{{ data()!.totals.downPayment | currency:data()!.currency:'symbol':'1.2-2' }}</span>
+              </div>
+            }
+            <div class="inv-totals-row">
+              <span class="inv-totals-label">{{ 'INVOICE_PRINT.TOTALS.AMOUNT_PAID' | translate }}</span>
+              <span class="inv-totals-value">{{ data()!.totals.amountPaid | currency:data()!.currency:'symbol':'1.2-2' }}</span>
+            </div>
+            <div class="inv-totals-row is-due">
+              <span class="inv-totals-label">{{ 'INVOICE_PRINT.TOTALS.AMOUNT_DUE' | translate }}</span>
+              <span class="inv-totals-value" [class.is-outstanding]="data()!.totals.amountDue > 0" [class.is-settled]="data()!.totals.amountDue <= 0">
+                {{ data()!.totals.amountDue | currency:data()!.currency:'symbol':'1.2-2' }}
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Tax summary (ZATCA-style VAT breakdown) -->
+      <div class="inv-section">
+        <h3 class="inv-section-title">{{ 'INVOICE_PRINT.TAX_SUMMARY.TITLE' | translate }}</h3>
+        <table class="inv-table">
+          <thead>
+            <tr>
+              <th>{{ 'INVOICE_PRINT.TAX_SUMMARY.RATE' | translate }}</th>
+              <th class="inv-col-end">{{ 'INVOICE_PRINT.TAX_SUMMARY.TAXABLE_AMOUNT' | translate }}</th>
+              <th class="inv-col-end">{{ 'INVOICE_PRINT.TAX_SUMMARY.TAX_AMOUNT' | translate }}</th>
+              <th class="inv-col-end">{{ 'INVOICE_PRINT.TAX_SUMMARY.TOTAL' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="inv-mono">{{ data()!.totals.taxRate }}%</td>
+              <td class="inv-col-end inv-mono">{{ (data()!.totals.amountAfterDiscount ?? data()!.totals.subtotal) | currency:data()!.currency:'symbol':'1.2-2' }}</td>
+              <td class="inv-col-end inv-mono">{{ data()!.totals.totalTax | currency:data()!.currency:'symbol':'1.2-2' }}</td>
+              <td class="inv-col-end inv-mono inv-strong">{{ data()!.totals.grandTotal | currency:data()!.currency:'symbol':'1.2-2' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Auction purchase annex (purchase invoices only) -->
+      @if (data()!.auction; as auction) {
+        <div class="inv-section">
+          <h3 class="inv-section-title">{{ 'INVOICE_PRINT.AUCTION.TITLE' | translate }}</h3>
+          <p class="inv-strong">
+            {{ auction.provider }}@if (auction.lotNumber) { &nbsp;-&nbsp;{{ 'INVOICE_PRINT.AUCTION.LOT' | translate }} #{{ auction.lotNumber }} }
+          </p>
+          @if (auction.charges.length) {
+            <table class="inv-table">
+              <thead>
+                <tr>
+                  <th>{{ 'INVOICE_PRINT.AUCTION.CHARGE_TYPE' | translate }}</th>
+                  <th class="inv-col-end">{{ 'INVOICE_PRINT.AUCTION.AMOUNT' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (charge of auction.charges; track charge.type) {
+                  <tr>
+                    <td>{{ charge.type }}</td>
+                    <td class="inv-col-end inv-mono">{{ charge.amount | currency:data()!.currency:'symbol':'1.2-2' }}</td>
+                  </tr>
+                }
+                <tr>
+                  <td class="inv-strong">{{ 'INVOICE_PRINT.AUCTION.TOTAL' | translate }}</td>
+                  <td class="inv-col-end inv-mono inv-strong">{{ auction.total | currency:data()!.currency:'symbol':'1.2-2' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          }
+        </div>
+      }
+
+      <!-- Payment terms + bank details + notes -->
+      <div class="inv-footer-grid">
+        <div>
+          <h4 class="inv-footer-heading">{{ 'INVOICE_PRINT.FOOTER.PAYMENT_TERMS' | translate }}</h4>
+          <ul class="inv-terms-list">
+            <li>{{ 'INVOICE_PRINT.FOOTER.TERMS_1' | translate }}</li>
+            <li>{{ 'INVOICE_PRINT.FOOTER.TERMS_2' | translate }}</li>
+            <li>{{ 'INVOICE_PRINT.FOOTER.TERMS_3' | translate }}</li>
+          </ul>
+          @if (data()!.paymentMethod) {
+            <p class="inv-payment-method">{{ 'INVOICE_PRINT.META.PAYMENT_METHOD' | translate }}: <span class="inv-strong">{{ data()!.paymentMethod }}</span></p>
+          }
+        </div>
+        @if (hasBankDetails()) {
+          <div>
+            <h4 class="inv-footer-heading">{{ 'INVOICE_PRINT.FOOTER.BANK_DETAILS' | translate }}</h4>
+            @if (data()!.bankDetails!.bankName) { <p class="inv-party-line">{{ 'INVOICE_PRINT.BANK.BANK_NAME' | translate }}: {{ data()!.bankDetails!.bankName }}</p> }
+            @if (data()!.bankDetails!.accountName) { <p class="inv-party-line">{{ 'INVOICE_PRINT.BANK.ACCOUNT_NAME' | translate }}: {{ data()!.bankDetails!.accountName }}</p> }
+            @if (data()!.bankDetails!.accountNumber) { <p class="inv-party-line">{{ 'INVOICE_PRINT.BANK.ACCOUNT_NUMBER' | translate }}: {{ data()!.bankDetails!.accountNumber }}</p> }
+            @if (data()!.bankDetails!.iban) { <p class="inv-party-line">{{ 'INVOICE_PRINT.BANK.IBAN' | translate }}: {{ data()!.bankDetails!.iban }}</p> }
+            @if (data()!.bankDetails!.swift) { <p class="inv-party-line">{{ 'INVOICE_PRINT.BANK.SWIFT' | translate }}: {{ data()!.bankDetails!.swift }}</p> }
+          </div>
+        }
+        @if (data()!.notes) {
+          <div>
+            <h4 class="inv-footer-heading">{{ 'INVOICE_PRINT.FOOTER.NOTES' | translate }}</h4>
+            <p class="inv-notes-box">{{ data()!.notes }}</p>
+          </div>
+        }
+      </div>
+
+      <!-- QR code (ZATCA e-invoicing) -->
+      @if (data()!.qr; as ctx) {
+        <div class="inv-qr-section">
+          <app-qr-code [context]="ctx"></app-qr-code>
+        </div>
+      }
+
+      <!-- Signature / stamp areas -->
+      <div class="inv-signature-grid">
+        @if (signatureMode() === 'issuerReceiver') {
+          <div class="inv-signature-box">
+            <div class="inv-signature-line"></div>
+            <p class="inv-signature-role">{{ 'INVOICE_PRINT.SIGNATURE.ISSUER' | translate }}</p>
+            <p class="inv-signature-sub">{{ 'INVOICE_PRINT.SIGNATURE.NAME_LABEL' | translate }}</p>
+            <p class="inv-signature-sub">{{ 'INVOICE_PRINT.SIGNATURE.STAMP' | translate }}</p>
+          </div>
+          <div class="inv-signature-box">
+            <div class="inv-signature-line"></div>
+            <p class="inv-signature-role">{{ 'INVOICE_PRINT.SIGNATURE.RECEIVER' | translate }}</p>
+            <p class="inv-signature-sub">{{ 'INVOICE_PRINT.SIGNATURE.NAME_LABEL' | translate }}</p>
+            <p class="inv-signature-sub">{{ 'INVOICE_PRINT.SIGNATURE.STAMP' | translate }}</p>
+          </div>
+        } @else {
+          <div class="inv-signature-box">
+            <div class="inv-signature-line"></div>
+            <p class="inv-signature-role">{{ 'INVOICE_PRINT.SIGNATURE.PREPARED_BY' | translate }}</p>
+            <p class="inv-signature-sub">{{ 'INVOICE_PRINT.SIGNATURE.NAME_LABEL' | translate }}</p>
+            <p class="inv-signature-sub">{{ 'INVOICE_PRINT.SIGNATURE.DATE_LABEL' | translate }}</p>
+          </div>
+          <div class="inv-signature-box">
+            <div class="inv-signature-line"></div>
+            <p class="inv-signature-role">{{ 'INVOICE_PRINT.SIGNATURE.RECEIVED_BY' | translate }}</p>
+            <p class="inv-signature-sub">{{ 'INVOICE_PRINT.SIGNATURE.NAME_LABEL' | translate }}</p>
+            <p class="inv-signature-sub">{{ 'INVOICE_PRINT.SIGNATURE.DATE_LABEL' | translate }}</p>
+          </div>
+        }
+      </div>
+
+      <!-- Footer -->
+      <footer class="inv-footer">
+        <p class="inv-footer-thanks">{{ 'INVOICE_PRINT.FOOTER.THANKS' | translate }}</p>
+        <p class="inv-footer-line">{{ 'INVOICE_PRINT.FOOTER.DISCLAIMER' | translate }}</p>
+        <p class="inv-footer-line inv-footer-page">{{ 'INVOICE_PRINT.FOOTER.DOCUMENT' | translate }}: {{ data()!.invoiceNumber }}</p>
+      </footer>
+    </div>
+  }
+</div>

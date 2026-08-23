@@ -14,7 +14,7 @@
 
 .header-icon {
   font-size: 32px;
-  color: #1976d2;
+  color: var(--color-primary-600);
 }
 
 .declaration-content {
@@ -23,7 +23,7 @@
 }
 
 .declaration-text h3 {
-  color: #1976d2;
+  color: var(--color-primary-600);
   margin-bottom: 16px;
   font-weight: 600;
 }
@@ -37,7 +37,7 @@
 .signature-section {
   margin-top: 24px;
   padding-top: 20px;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--border-default);
 }
 
 .signature-field {
@@ -48,11 +48,11 @@
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .signature-pad {
-  border: 2px dashed #ccc;
+  border: 2px dashed var(--border-default);
   border-radius: 8px;
   padding: 12px;
   background: #f9f9f9;
@@ -70,7 +70,7 @@
   border: 1px solid #ddd;
   border-radius: 4px;
   cursor: crosshair;
-  background: white;
+  background: var(--surface-card);
   /* Without this, touchstart/touchmove on the canvas also triggers the browser's default
      scroll/pan-to-refresh gesture, fighting the signature stroke on every touch device. */
   touch-action: none;

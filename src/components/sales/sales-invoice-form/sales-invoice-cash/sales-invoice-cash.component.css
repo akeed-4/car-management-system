@@ -40,9 +40,9 @@ mat-card {
   font-size: 1.2rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  border-bottom: 2px solid #1976d2;
+  border-bottom: 2px solid var(--color-primary-600);
   padding-bottom: 0.5rem;
-  color: #1976d2;
+  color: var(--color-primary-600);
 }
 
 .form-grid {
@@ -57,10 +57,10 @@ mat-card {
 }
 
 .add-item-section {
-  background: #f8f9fa;
+  background: var(--surface-sunken);
   border-radius: 8px;
   padding: 1.5rem;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--border-default);
 }
 
 .add-button {
@@ -94,7 +94,7 @@ mat-card {
 }
 
 .summary-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary-600);
   color: white;
   border-radius: 12px;
   padding: 1.5rem;
@@ -152,7 +152,7 @@ mat-card {
   gap: 1rem;
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--border-default);
 }
 
 .form-actions a {
@@ -174,7 +174,7 @@ mat-card {
 }
 
 .btn-primary {
-  background: #1976d2;
+  background: var(--color-primary-600);
   color: white;
 }
 
@@ -185,8 +185,8 @@ mat-card {
 }
 
 .btn-secondary {
-  background: #f5f5f5;
-  color: #333;
+  background: var(--surface-sunken);
+  color: var(--text-primary);
   border: 1px solid #ddd;
 }
 
@@ -212,19 +212,19 @@ mat-card {
 .company-name {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1976d2;
+  color: var(--color-primary-600);
   margin: 0;
   letter-spacing: 0.5px;
 }
 
 .company-address {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-secondary);
   margin: 0.25rem 0 0 0;
 }
 
 .strong-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--color-primary-600);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   border-radius: 12px;
   padding: 1rem;
@@ -242,7 +242,7 @@ mat-card {
   font-size: 1.5rem;
   letter-spacing: 1px;
   margin: 0;
-  color: #333;
+  color: var(--text-primary);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
@@ -255,16 +255,16 @@ mat-card {
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
   border-radius: 16px;
   padding: 3rem;
-  background: #fff;
+  background: var(--surface-card);
   border: 1px solid #e8f4fd;
 }
 
 .premium-table {
-  background: #fff;
+  background: var(--surface-card);
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
   padding: 1.5rem;
-  border: 1px solid #f0f0f0;
+  border: 1px solid var(--surface-sunken);
 }
 
 /* Responsive Design */

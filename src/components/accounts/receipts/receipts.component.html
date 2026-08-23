@@ -1,20 +1,17 @@
-<mat-toolbar color="primary" class="page-header">
-  <mat-toolbar-row>
-    <span>{{ 'ACCOUNTS.RECEIPTS.LIST_TITLE' | translate }}</span>
-    <span class="spacer"></span>
-    <a mat-raised-button color="accent" routerLink="/accounts/receipts/new">
-      <mat-icon>add</mat-icon>
-      {{ 'ACCOUNTS.RECEIPTS.NEW' | translate }}
-    </a>
-  </mat-toolbar-row>
-</mat-toolbar>
-
-<mat-card class="receipts-card">
-  <mat-card-content>
-    <div class="search-section">
-      <!-- Search is now handled by the grid -->
+<div class="erp-page">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ 'ACCOUNTS.RECEIPTS.LIST_TITLE' | translate }}</h2>
     </div>
+    <div class="erp-page-actions">
+      <a mat-raised-button color="primary" routerLink="/accounts/receipts/new">
+        <mat-icon>add</mat-icon>
+        {{ 'ACCOUNTS.RECEIPTS.NEW' | translate }}
+      </a>
+    </div>
+  </div>
 
+  <div class="erp-grid-card">
     <!-- Mobile (<=840px): rows render as full-width cards instead of the grid's
          clipped/scrolling columns -- same data, same edit/delete actions. -->
     @if (isMobile()) {
@@ -136,5 +133,5 @@
 
     </dx-data-grid>
     }
-  </mat-card-content>
-</mat-card>
+  </div>
+</div>

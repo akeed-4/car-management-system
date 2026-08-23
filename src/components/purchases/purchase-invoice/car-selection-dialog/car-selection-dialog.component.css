@@ -17,8 +17,8 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   overflow: hidden;
-  background: #fff;
-  border: 1px solid #e0e0e0;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
 }
 
 .car-card:hover {
@@ -30,7 +30,7 @@
   height: 180px;
   object-fit: cover;
   width: 100%;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--border-default);
 }
 
 mat-card-content {
@@ -41,13 +41,13 @@ mat-card-content h4 {
   margin: 0 0 8px 0;
   font-size: 1.1rem;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
 }
 
 mat-card-content p {
   margin: 4px 0;
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-secondary);
   line-height: 1.4;
 }
 
@@ -55,8 +55,8 @@ mat-card-actions {
   padding: 16px;
   display: flex;
   justify-content: center;
-  background: #f8f9fa;
-  border-top: 1px solid #e0e0e0;
+  background: var(--surface-sunken);
+  border-top: 1px solid var(--border-default);
 }
 
 mat-card-actions button {

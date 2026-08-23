@@ -43,7 +43,7 @@
 
 /* Tree Section */
 .tree-section {
-  background: white;
+  background: var(--surface-card);
   border-radius: 16px;
   padding: 24px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -68,7 +68,7 @@
 
 .cost-cell {
   font-weight: 600;
-  color: #2e7d32;
+  color: var(--color-success-600);
   font-size: 1.05rem;
 }
 
@@ -126,7 +126,7 @@
   align-items: center;
   gap: 4px;
   font-weight: 600;
-  color: #666;
+  color: var(--text-secondary);
   font-size: 14px;
 }
 
@@ -134,7 +134,7 @@
   font-size: 16px;
   width: 16px;
   height: 16px;
-  color: #1976d2;
+  color: var(--color-primary-600);
 }
 
 /* Responsive Design */

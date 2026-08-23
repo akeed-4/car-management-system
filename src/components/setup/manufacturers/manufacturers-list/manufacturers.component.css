@@ -16,7 +16,7 @@
 }
 
 .card {
-  background: white;
+  background: var(--surface-card);
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.1);
   padding: 2rem;
@@ -57,7 +57,7 @@
 
 .btn-mat-height {
   height: 56px;
-  background: linear-gradient(135deg, #2196F3, #1976D2);
+  background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-600));
   border: none;
   border-radius: 12px;
   color: white;
@@ -85,7 +85,7 @@
 }
 
 .btn-mat-height:hover:not(:disabled) {
-  background: linear-gradient(135deg, #1976D2, #1565C0);
+  background: linear-gradient(135deg, var(--color-primary-600), #1565C0);
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(33, 150, 243, 0.4);
 }
@@ -100,7 +100,7 @@
 }
 
 .btn-mat-height:disabled {
-  background: #E0E0E0;
+  background: var(--border-default);
   color: #9E9E9E;
   box-shadow: none;
   transform: none;
@@ -138,7 +138,7 @@
 }
 
 .manufacturer-card {
-  background: white;
+  background: var(--surface-card);
   border: 1px solid #e1e8ed;
   border-radius: 8px;
   padding: 1.25rem;
@@ -195,10 +195,10 @@
 .table th {
   cursor: pointer;
   user-select: none;
-  background: #f8f9fa;
+  background: var(--surface-sunken);
   font-weight: 600;
   color: #495057;
-  border-bottom: 2px solid #dee2e6;
+  border-bottom: 2px solid var(--border-default);
 }
 
 .font-medium {
@@ -228,9 +228,9 @@
   text-align: center;
   padding: 3rem;
   color: #6c757d;
-  background: #f8f9fa;
+  background: var(--surface-sunken);
   border-radius: 8px;
-  border: 2px dashed #dee2e6;
+  border: 2px dashed var(--border-default);
 }
 
 .empty-state::before {
@@ -333,7 +333,7 @@ mat-form-field {
   border: none;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.04);
-  color: #6b7280;
+  color: var(--text-secondary);
   cursor: pointer;
   padding: 0;
   transition: background-color 0.2s ease, color 0.2s ease;
@@ -341,7 +341,7 @@ mat-form-field {
 
 .dialog-close-btn:hover {
   background: rgba(0, 0, 0, 0.08);
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .dialog-close-btn mat-icon {

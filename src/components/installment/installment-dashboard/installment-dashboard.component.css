@@ -14,6 +14,6 @@
 }
 
 h2, h3 {
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 16px;
 }

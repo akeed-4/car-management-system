@@ -1,31 +1,6 @@
-.users-container {
-  padding: 24px;
-  background: var(--surface-page);
-  min-height: 100vh;
-}
-
-.header-section {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding: 0 8px;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.title-section h2 {
-  margin: 0;
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.subtitle {
-  margin: 4px 0 0 0;
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-}
+/* Users list -- page shell, header and card come from the shared Phase 5 form
+   design system (src/styles/form-system.css: .erp-* classes). Only the filter
+   toolbar and role badge styling lives here; all colors use semantic tokens. */
 
 .add-button {
   height: 44px;
@@ -37,32 +12,24 @@
 .filter-toolbar {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 16px;
-  padding: 0 8px;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .filter-field {
   min-width: 200px;
 }
 
-.filter-field.mat-mdc-form-field {
-  font-size: 0.9rem;
-}
-
 .grid-section {
-  background: var(--surface-card);
-  border-radius: 12px;
-  padding: 20px;
-  border: 1px solid var(--border-default);
-  box-shadow: var(--shadow-sm);
+  padding: var(--space-3);
   overflow-x: auto;
 }
 
 .role-badge {
   display: inline-block;
   padding: 3px 10px;
-  border-radius: 999px;
+  border-radius: var(--rounded-full);
   background: var(--color-primary-100);
   color: var(--color-primary-700);
   font-size: 0.78rem;
@@ -79,20 +46,6 @@
 }
 
 @media (max-width: 768px) {
-  .users-container {
-    padding: 12px;
-  }
-
-  .header-section {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .title-section h2 {
-    font-size: 1.4rem;
-  }
-
   .add-button {
     width: 100%;
     justify-content: center;
@@ -105,9 +58,5 @@
   .filter-field {
     width: 100%;
     min-width: 0;
-  }
-
-  .grid-section {
-    padding: 12px;
   }
 }

@@ -1,22 +1,26 @@
-<mat-toolbar color="primary" class="mb-4 mr-3">
-  <mat-toolbar-row>
-    <span>{{ 'ACCOUNTS.FORM.TITLE' | translate }}</span>
-    <span class="spacer"></span>
-    <a mat-button routerLink="/accounts/payments" class="back-link">
-      <mat-icon>arrow_back</mat-icon>
-      {{ 'ACCOUNTS.FORM.BACK' | translate }}
-    </a>
-  </mat-toolbar-row>
-</mat-toolbar>
+<div class="erp-page">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ 'ACCOUNTS.FORM.TITLE' | translate }}</h2>
+    </div>
+    <div class="erp-page-actions">
+      <a mat-stroked-button routerLink="/accounts/payments">
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'ACCOUNTS.FORM.BACK' | translate }}
+      </a>
+    </div>
+  </div>
 
-<mat-card class="form-card">
-  <mat-card-content>
+  <div class="erp-card">
     <form [formGroup]="paymentForm" (ngSubmit)="savePayment()">
       <div class="form-container">
 
         <!-- Header Section -->
-        <div class="form-section header-section">
-          <h3>{{ 'ACCOUNTS.FORM.PAYMENT_DETAILS' | translate }}</h3>
+        <div class="erp-section header-section">
+          <h3 class="erp-section-title">
+            <mat-icon class="erp-section-icon">receipt_long</mat-icon>
+            {{ 'ACCOUNTS.FORM.PAYMENT_DETAILS' | translate }}
+          </h3>
 
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
@@ -85,8 +89,11 @@
         </div>
 
         <!-- Supplier Selection -->
-        <div class="form-section invoice-section">
-          <h3>{{ 'ACCOUNTS.FORM.SUPPLIER' | translate }}</h3>
+        <div class="erp-section invoice-section">
+          <h3 class="erp-section-title">
+            <mat-icon class="erp-section-icon">business</mat-icon>
+            {{ 'ACCOUNTS.FORM.SUPPLIER' | translate }}
+          </h3>
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'ACCOUNTS.FORM.SUPPLIER' | translate }}</mat-label>
@@ -103,8 +110,11 @@
         </div>
 
         <!-- Invoice Allocation Grid -->
-        <div class="form-section allocation-section" *ngIf="paymentForm.get('supplierId')?.value">
-          <h3>{{ 'ACCOUNTS.FORM.ALLOCATION_TABLE' | translate }}</h3>
+        <div class="erp-section allocation-section" *ngIf="paymentForm.get('supplierId')?.value">
+          <h3 class="erp-section-title">
+            <mat-icon class="erp-section-icon">fact_check</mat-icon>
+            {{ 'ACCOUNTS.FORM.ALLOCATION_TABLE' | translate }}
+          </h3>
           <app-invoice-allocation-grid
             [invoiceOptions]="outstandingInvoices()"
             [rows]="allocationRows()"
@@ -114,10 +124,11 @@
         </div>
 
         <!-- Car Distribution Grid (independent of invoice allocation -- see hasInvoiceAllocation) -->
-        <div class="form-section distribution-section">
-          <div class="distribution-header">
-            <h3>{{ 'ACCOUNTS.FORM.CAR_DISTRIBUTION' | translate }}</h3>
-            <div class="distribution-actions">
+        <div class="erp-section distribution-section">
+          <h3 class="erp-section-title">
+            <mat-icon class="erp-section-icon">directions_car</mat-icon>
+            {{ 'ACCOUNTS.FORM.CAR_DISTRIBUTION' | translate }}
+            <span class="erp-section-toolbar distribution-actions">
               <mat-form-field appearance="outline" class="load-cars-picker" *ngIf="allocationRows().length > 0">
                 <mat-label>{{ 'ACCOUNTS.FORM.LOAD_CARS_FROM_INVOICE' | translate }}</mat-label>
                 <mat-select #loadCarsSelect>
@@ -140,55 +151,57 @@
                 <mat-icon>call_split</mat-icon>
                 {{ 'ACCOUNTS.FORM.AUTO_DISTRIBUTE' | translate }}
               </button>
-            </div>
-          </div>
+            </span>
+          </h3>
           <div class="table-container" *ngIf="details.length > 0">
-            <table class="distribution-table">
-              <thead>
-                <tr>
-                  <th>{{ 'ACCOUNTS.FORM.CHASSIS_NUMBER' | translate }}</th>
-                  <th>{{ 'ACCOUNTS.FORM.MODEL' | translate }}</th>
-                  <th>{{ 'ACCOUNTS.FORM.AMOUNT' | translate }}</th>
-                  <th>{{ 'ACCOUNTS.FORM.NOTE' | translate }}</th>
-                  <th>{{ 'ACCOUNTS.FORM.ACTIONS' | translate }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let detail of details.controls; let i = index" [formGroup]="detail">
-                  <td>
-                    <mat-form-field appearance="outline" class="table-field">
-                      <mat-label>{{ 'ACCOUNTS.FORM.CHASSIS_NUMBER' | translate }}</mat-label>
-                      <input matInput formControlName="chassisNumber" [readonly]="!!detail.get('carId')?.value">
-                    </mat-form-field>
-                  </td>
-                  <td>
-                    <mat-form-field appearance="outline" class="table-field">
-                      <mat-label>{{ 'ACCOUNTS.FORM.MODEL' | translate }}</mat-label>
-                      <input matInput formControlName="model" [readonly]="!!detail.get('carId')?.value">
-                    </mat-form-field>
-                  </td>
-                  <td>
-                    <mat-form-field appearance="outline" class="table-field">
-                      <mat-label>{{ 'ACCOUNTS.FORM.AMOUNT' | translate }}</mat-label>
-                      <input matInput type="number" formControlName="amount" required min="0.01">
-                    </mat-form-field>
-                  </td>
-                  <td>
-                    <mat-form-field appearance="outline" class="table-field">
-                      <mat-label>{{ 'ACCOUNTS.FORM.NOTE' | translate }}</mat-label>
-                      <input matInput formControlName="note">
-                    </mat-form-field>
-                  </td>
-                  <td>
-                    <button mat-icon-button color="warn" type="button"
-                            (click)="removeDetail(i)"
-                            [disabled]="details.length <= 1">
-                      <mat-icon>delete</mat-icon>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="erp-table-wrapper">
+              <table class="erp-table distribution-table">
+                <thead>
+                  <tr>
+                    <th>{{ 'ACCOUNTS.FORM.CHASSIS_NUMBER' | translate }}</th>
+                    <th>{{ 'ACCOUNTS.FORM.MODEL' | translate }}</th>
+                    <th>{{ 'ACCOUNTS.FORM.AMOUNT' | translate }}</th>
+                    <th>{{ 'ACCOUNTS.FORM.NOTE' | translate }}</th>
+                    <th>{{ 'ACCOUNTS.FORM.ACTIONS' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let detail of details.controls; let i = index" [formGroup]="detail">
+                    <td>
+                      <mat-form-field appearance="outline" class="table-field">
+                        <mat-label>{{ 'ACCOUNTS.FORM.CHASSIS_NUMBER' | translate }}</mat-label>
+                        <input matInput formControlName="chassisNumber" [readonly]="!!detail.get('carId')?.value">
+                      </mat-form-field>
+                    </td>
+                    <td>
+                      <mat-form-field appearance="outline" class="table-field">
+                        <mat-label>{{ 'ACCOUNTS.FORM.MODEL' | translate }}</mat-label>
+                        <input matInput formControlName="model" [readonly]="!!detail.get('carId')?.value">
+                      </mat-form-field>
+                    </td>
+                    <td>
+                      <mat-form-field appearance="outline" class="table-field">
+                        <mat-label>{{ 'ACCOUNTS.FORM.AMOUNT' | translate }}</mat-label>
+                        <input matInput type="number" formControlName="amount" required min="0.01">
+                      </mat-form-field>
+                    </td>
+                    <td>
+                      <mat-form-field appearance="outline" class="table-field">
+                        <mat-label>{{ 'ACCOUNTS.FORM.NOTE' | translate }}</mat-label>
+                        <input matInput formControlName="note">
+                      </mat-form-field>
+                    </td>
+                    <td>
+                      <button mat-icon-button color="warn" type="button"
+                              (click)="removeDetail(i)"
+                              [disabled]="details.length <= 1">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
             <button mat-stroked-button type="button" class="add-row-btn" (click)="addDetail()">
               <mat-icon>add</mat-icon>
               {{ 'ACCOUNTS.FORM.ADD_ROW' | translate }}
@@ -203,16 +216,16 @@
         </div>
 
         <!-- Accounting Preview / Journal Balance -->
-        <div class="form-section accounting-section">
-          <div class="accounting-header">
-            <h3>{{ 'ACCOUNTS.FORM.ACCOUNTING_PREVIEW' | translate }}</h3>
-            <span class="balance-badge" [ngClass]="{
-              'balance-balanced': isJournalBalanced(),
-              'balance-unbalanced': !isJournalBalanced()
-            }">
+        <div class="erp-section accounting-section">
+          <h3 class="erp-section-title">
+            <mat-icon class="erp-section-icon">balance</mat-icon>
+            {{ 'ACCOUNTS.FORM.ACCOUNTING_PREVIEW' | translate }}
+            <span class="erp-status-badge balance-badge"
+                  [class.success]="isJournalBalanced()"
+                  [class.danger]="!isJournalBalanced()">
               {{ (isJournalBalanced() ? 'ACCOUNTING.BALANCED' : 'ACCOUNTING.UNBALANCED') | translate }}
             </span>
-          </div>
+          </h3>
           <div class="accounting-grid">
             <div class="accounting-card debit-card">
               <h4>
@@ -244,7 +257,7 @@
         </div>
 
         <!-- Notes -->
-        <div class="form-section notes-section">
+        <div class="erp-section notes-section">
           <mat-form-field appearance="outline" class="notes-field">
             <mat-label>{{ 'ACCOUNTS.FORM.NOTES' | translate }}</mat-label>
             <textarea matInput formControlName="notes" rows="3"></textarea>
@@ -253,15 +266,15 @@
 
       </div>
 
-      <mat-card-actions align="end" class="form-actions">
+      <div class="erp-actions-bar form-actions">
         <a mat-stroked-button routerLink="/accounts/payments">
           {{ 'ACCOUNTS.FORM.CANCEL' | translate }}
         </a>
         <button mat-raised-button color="primary" type="submit">
           {{ (isEditMode() ? 'ACCOUNTS.FORM.UPDATE' : 'ACCOUNTS.FORM.SAVE') | translate }}
         </button>
-      </mat-card-actions>
+      </div>
 
     </form>
-  </mat-card-content>
-</mat-card>
+  </div>
+</div>

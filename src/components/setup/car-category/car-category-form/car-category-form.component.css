@@ -9,7 +9,7 @@
 .card {
   border-radius: 10px;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
-  background: #fff;
+  background: var(--surface-card);
   border: 1px solid #dbe4f0;
   overflow: hidden;
 }
@@ -20,7 +20,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.85rem 1.25rem;
-  background: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%);
+  background: linear-gradient(135deg, var(--color-primary-600) 0%, #6d28d9 100%);
   color: white;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
 }
@@ -123,7 +123,7 @@ mat-form-field.mat-form-field {
 
 .btn-light {
   background: #eef1f8;
-  color: #333;
+  color: var(--text-primary);
   border: 1px solid #d5dcec;
 }
 
@@ -133,7 +133,7 @@ mat-form-field.mat-form-field {
 }
 
 .btn-primary {
-  background: #4338ca;
+  background: var(--color-primary-600);
   color: white;
 }
 

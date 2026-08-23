@@ -1,4 +1,21 @@
 {
+  "common": {
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "save": "Save",
+    "close": "Close",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "actions": "Actions",
+    "loading": "Loading...",
+    "noRecordsFound": "No records found",
+    "noRecordsHint": "Try changing your search or filters.",
+    "retry": "Retry",
+    "confirmTitle": "Confirm Action",
+    "confirmMessage": "Are you sure you want to continue? This action cannot be undone."
+  },
   "INVOICE": {
     "CREATE_TITLE": "Create Sales Invoice",
     "SOURCE_TITLE": "Invoice Source",
@@ -397,6 +414,10 @@
     "RECORD_COUNT": "Record Count",
     "ACTIVE": "Active",
     "INACTIVE": "Inactive",
+    "SECTION_GENERAL": "General Information",
+    "SECTION_LOCATION": "Location",
+    "SECTION_ADDRESS": "Address Information",
+    "SECTION_LEGAL": "Legal & Financial",
     "NO_DATA": "No records found"
   },
   "VALIDATION": {
@@ -4836,6 +4857,136 @@
   "LAYOUT": {
     "COMPANY_SWITCHER": {
       "SWITCH_ERROR": "Could not switch companies. Please try again."
+    }
+  },
+  "INVOICE_PRINT": {
+    "STATE": {
+      "LOADING": "Loading invoice...",
+      "NOT_FOUND_TITLE": "Invoice not found",
+      "NOT_FOUND_MESSAGE": "The requested invoice could not be loaded. It may have been deleted or the link is invalid."
+    },
+    "ACTIONS": {
+      "BACK": "Back",
+      "PRINT": "Print",
+      "DOWNLOAD_PDF": "Download PDF",
+      "EXPORTING": "Preparing PDF...",
+      "EMAIL": "Email"
+    },
+    "TITLE": {
+      "SALES": "Tax Invoice",
+      "PURCHASE": "Purchase Invoice",
+      "SERVICE": "Service Invoice"
+    },
+    "WATERMARK": {
+      "PAID": "PAID",
+      "UNPAID": "UNPAID",
+      "DRAFT": "DRAFT",
+      "COPY": "COPY"
+    },
+    "STATUS": {
+      "Paid": "Paid",
+      "Unpaid": "Unpaid",
+      "Pending": "Pending",
+      "Overdue": "Overdue",
+      "Draft": "Draft"
+    },
+    "HEADER": {
+      "PHONE": "Phone",
+      "EMAIL": "Email",
+      "VAT_NUMBER": "VAT Registration No.",
+      "CR_NUMBER": "CR No."
+    },
+    "META": {
+      "ISSUE_DATE": "Issue Date",
+      "DUE_DATE": "Due Date",
+      "STATUS": "Status",
+      "PAYMENT_METHOD": "Payment Method",
+      "PAYMENT_TYPE": "Payment Type",
+      "SALESPERSON": "Salesperson",
+      "INVOICE_TYPE": "Invoice Type",
+      "QUOTATION": "Quotation",
+      "PO_REFERENCE": "PO Reference",
+      "SERVICE_ORDER": "Service Order"
+    },
+    "PARTY": {
+      "CUSTOMER": "Customer",
+      "SUPPLIER": "Supplier / Vendor",
+      "SELLER": "Seller",
+      "BUYER": "Buyer",
+      "TAX_ID": "Tax ID",
+      "PO_REFERENCE": "PO Reference"
+    },
+    "TABLE": {
+      "ITEMS": "Items",
+      "NUMBER": "#",
+      "DESCRIPTION": "Description / Service",
+      "QTY": "Qty",
+      "HOURS": "Hours",
+      "UNIT_PRICE": "Unit Price",
+      "DISCOUNT": "Discount %",
+      "TAX": "Tax %",
+      "LINE_TOTAL": "Line Total",
+      "NO_ITEMS": "No line items on this invoice."
+    },
+    "TOTALS": {
+      "SUBTOTAL": "Subtotal",
+      "DISCOUNT": "Discount",
+      "AFTER_DISCOUNT": "Amount after discount",
+      "TAX": "VAT",
+      "GRAND_TOTAL": "Grand Total",
+      "PREVIOUS_PAYMENTS": "Previous Payments",
+      "DOWN_PAYMENT": "Down Payment",
+      "AMOUNT_PAID": "Amount Paid",
+      "AMOUNT_DUE": "Amount Due"
+    },
+    "TAX_SUMMARY": {
+      "TITLE": "Tax Summary",
+      "RATE": "VAT Rate",
+      "TAXABLE_AMOUNT": "Taxable Amount",
+      "TAX_AMOUNT": "VAT Amount",
+      "TOTAL": "Total"
+    },
+    "AUCTION": {
+      "TITLE": "Auction Purchase Details",
+      "LOT": "Lot",
+      "CHARGE_TYPE": "Charge Type",
+      "AMOUNT": "Amount",
+      "TOTAL": "Auction Total"
+    },
+    "BANK": {
+      "BANK_NAME": "Bank",
+      "ACCOUNT_NAME": "Account Name",
+      "ACCOUNT_NUMBER": "Account Number",
+      "IBAN": "IBAN",
+      "SWIFT": "SWIFT"
+    },
+    "SIGNATURE": {
+      "ISSUER": "Issuer (Seller)",
+      "RECEIVER": "Receiver (Buyer)",
+      "PREPARED_BY": "Prepared By",
+      "RECEIVED_BY": "Received By",
+      "NAME_LABEL": "Name:",
+      "DATE_LABEL": "Date:",
+      "STAMP": "Stamp / Signature:"
+    },
+    "FOOTER": {
+      "PAYMENT_TERMS": "Payment Terms",
+      "TERMS_1": "Payment is due within the period stated on this invoice.",
+      "TERMS_2": "Please quote the invoice number with every payment transfer.",
+      "TERMS_3": "Late payments may incur late fees as per the signed agreement.",
+      "BANK_DETAILS": "Bank Account Details",
+      "NOTES": "Notes",
+      "THANKS": "Thank you for your business.",
+      "DISCLAIMER": "This document is electronically generated and is valid without a physical signature.",
+      "DOCUMENT": "Document",
+      "PAGE_OF": "Page {{page}} of {{totalPages}}"
+    },
+    "COMMON": {
+      "NOT_SPECIFIED": "Not specified"
+    },
+    "EMAIL": {
+      "SUBJECT": "Invoice {{number}}",
+      "BODY": "Dear Customer,\n\nPlease find the details of your invoice below:\n\nInvoice No.: {{number}}\nIssue Date: {{date}}\nDue Date: {{due}}\nTotal: {{total}} {{currency}}\n\nThank you for your business."
     }
   }
 }

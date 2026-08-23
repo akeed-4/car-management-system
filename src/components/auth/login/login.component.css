@@ -3,15 +3,15 @@
    ========================================================================== */
 
 :host {
-  --brand-blue: #2563eb;
-  --brand-blue-dark: #1d4ed8;
+  --brand-blue: var(--color-primary-600);
+  --brand-blue-dark: var(--color-primary-600);
   --brand-indigo: #4f46e5;
-  --success-green: #16a34a;
+  --success-green: var(--color-success-600);
   --error-red: #dc2626;
   --page-bg: #f4f6fb;
   --card-bg: #ffffff;
-  --text-primary: #111827;
-  --text-secondary: #6b7280;
+  --text-primary: var(--text-primary);
+  --text-secondary: var(--text-secondary);
   display: block;
 }
 

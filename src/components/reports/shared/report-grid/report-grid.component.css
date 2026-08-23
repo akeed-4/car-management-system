@@ -10,35 +10,35 @@
 }
 
 ::ng-deep .dx-datagrid-headers {
-  background: #f8f9fa;
+  background: var(--surface-sunken);
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
 }
 
 ::ng-deep .dx-datagrid-header-panel {
-  background: #fff;
-  border-bottom: 2px solid #e9ecef;
+  background: var(--surface-card);
+  border-bottom: 2px solid var(--border-default);
 }
 
 ::ng-deep .dx-datagrid .dx-row-alt {
-  background-color: #f8f9fa;
+  background-color: var(--surface-sunken);
 }
 
 ::ng-deep .dx-datagrid .dx-row:hover {
-  background-color: #e9ecef;
+  background-color: var(--border-default);
   cursor: pointer;
 }
 
 ::ng-deep .dx-datagrid-rowsview .dx-row {
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid var(--border-default);
 }
 
 /* Summary Row Styling */
 ::ng-deep .dx-datagrid-total-footer {
-  background: #e9ecef;
+  background: var(--border-default);
   font-weight: 600;
-  color: #333;
-  border-top: 2px solid #333;
+  color: var(--text-primary);
+  border-top: 2px solid var(--text-primary);
 }
 
 /* Number Alignment */
@@ -61,8 +61,8 @@
 /* Pager Styling */
 ::ng-deep .dx-datagrid-pager {
   padding: 10px;
-  background: #fff;
-  border-top: 1px solid #dee2e6;
+  background: var(--surface-card);
+  border-top: 1px solid var(--border-default);
 }
 
 /* Search Panel */
@@ -72,17 +72,17 @@
 
 /* Filter Row */
 ::ng-deep .dx-datagrid-filter-row {
-  background: #fff;
+  background: var(--surface-card);
 }
 
 /* Column Chooser Button */
 ::ng-deep .dx-datagrid-column-chooser-button {
-  color: #667eea;
+  color: var(--color-primary-600);
 }
 
 /* Export Button */
 ::ng-deep .dx-datagrid-export-button {
-  color: #667eea;
+  color: var(--color-primary-600);
 }
 
 /* Responsive */

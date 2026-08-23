@@ -20,7 +20,7 @@
 .empty-state {
   text-align: center;
   padding: 48px;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .empty-state mat-icon {
@@ -32,6 +32,6 @@
 }
 
 dx-data-grid {
-  background: white;
+  background: var(--surface-card);
   border-radius: 4px;
 }

@@ -4,7 +4,7 @@
   margin: 1rem auto;
   padding: 0.5rem;
   font-family: 'Roboto', sans-serif;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: linear-gradient(135deg, var(--surface-sunken) 0%, var(--border-default) 100%);
   min-height: 100vh;
   position: relative;
   z-index: 1;
@@ -22,7 +22,7 @@
   justify-content: space-between;
   margin-bottom: 1.5rem;
   padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary-600);
   color: white;
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -37,7 +37,7 @@
 }
 
 .back-link {
-  color: #1976d2;
+  color: var(--color-primary-600);
   text-decoration: none;
   font-weight: 600;
   font-size: 0.9rem;
@@ -62,7 +62,7 @@
 
 /* Form Container */
 .form-container {
-  background: white;
+  background: var(--surface-card);
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   padding: 2rem;
@@ -84,7 +84,7 @@
 .section-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1976d2;
+  color: var(--color-primary-600);
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
@@ -96,7 +96,7 @@
   content: '';
   width: 3px;
   height: 20px;
-  background: linear-gradient(135deg, #1976d2, #1565c0);
+  background: linear-gradient(135deg, var(--color-primary-600), #1565c0);
   margin-right: 0.75rem;
   border-radius: 2px;
 }
@@ -124,7 +124,7 @@
 }
 
 .mat-mdc-form-field .mat-mdc-text-field-wrapper {
-  /* background: white; */
+  /* background: var(--surface-card); */
   border-radius: 8px;
 }
 
@@ -197,7 +197,7 @@
 
 /* Supplier Info Card */
 .supplier-info-card {
-  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  background: linear-gradient(135deg, var(--color-primary-100) 0%, #bbdefb 100%);
   border: 1px solid #90caf9;
   border-radius: 8px;
   padding: 1rem;
@@ -220,29 +220,29 @@
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  background: white;
+  background: var(--surface-card);
 }
 
 /* Professional DataGrid Styling */
 .professional-datagrid {
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-default);
   border-radius: 8px;
 }
 
 .professional-datagrid .dx-datagrid-headers {
-  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  background: linear-gradient(135deg, var(--color-primary-600) 0%, #1565c0 100%);
   color: white;
   font-weight: 600;
   border-bottom: 2px solid #0d47a1;
 }
 
 .professional-datagrid .dx-datagrid-header-panel {
-  background: #f8f9fa;
-  border-bottom: 1px solid #dee2e6;
+  background: var(--surface-sunken);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .professional-datagrid .dx-header-row {
-  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  background: linear-gradient(135deg, var(--color-primary-600) 0%, #1565c0 100%);
 }
 
 .professional-datagrid .dx-header-row td {
@@ -260,12 +260,12 @@
 }
 
 .professional-datagrid .dx-datagrid-rowsview .dx-row {
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid var(--border-default);
   transition: all 0.2s ease;
 }
 
 .professional-datagrid .dx-datagrid-rowsview .dx-row:hover {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: linear-gradient(135deg, var(--surface-sunken) 0%, var(--border-default) 100%);
   transform: scale(1.002);
 }
 
@@ -275,7 +275,7 @@
 
 .professional-datagrid .dx-datagrid-rowsview .dx-data-row td {
   padding: 0.75rem;
-  border-right: 1px solid #e9ecef;
+  border-right: 1px solid var(--border-default);
   font-size: 0.85rem;
   color: #37474f;
 }
@@ -290,11 +290,11 @@
 
 /* DataGrid Summary */
 .professional-datagrid .dx-datagrid-total-footer {
-  background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+  background: linear-gradient(135deg, var(--color-success-600) 0%, var(--color-success-700) 100%);
   color: white;
   font-weight: 700;
   font-size: 1rem;
-  border-top: 2px solid #1b5e20;
+  border-top: 2px solid var(--color-success-700);
 }
 
 .professional-datagrid .dx-datagrid-total-footer td {
@@ -308,8 +308,8 @@
 
 /* DataGrid Filter Row */
 .professional-datagrid .dx-datagrid-filter-row {
-  background: #f8f9fa;
-  border-bottom: 1px solid #dee2e6;
+  background: var(--surface-sunken);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .professional-datagrid .dx-datagrid-filter-row input {
@@ -322,13 +322,13 @@
 
 .professional-datagrid .dx-datagrid-filter-row input:focus {
   outline: none;
-  border-color: #1976d2;
+  border-color: var(--color-primary-600);
   box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
 }
 
 /* DataGrid Editing */
 .professional-datagrid .dx-editor-cell input {
-  border: 1px solid #1976d2;
+  border: 1px solid var(--color-primary-600);
   border-radius: 4px;
   padding: 0.25rem;
   font-size: 0.85rem;
@@ -412,7 +412,7 @@
 }
 
 .btn-save {
-  background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+  background: linear-gradient(135deg, var(--color-success-600) 0%, var(--color-success-700) 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -428,13 +428,13 @@
 }
 
 .btn-save:hover:not(:disabled) {
-  background: linear-gradient(135deg, #1b5e20 0%, #0d4f0d 100%);
+  background: linear-gradient(135deg, var(--color-success-700) 0%, #0d4f0d 100%);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
 }
 
 .btn-save:disabled {
-  background: #e0e0e0;
+  background: var(--border-default);
   color: #9e9e9e;
   box-shadow: none;
   transform: none;
@@ -884,7 +884,7 @@ button:disabled {
   padding: 6px;
   border-radius: 8px;
   background: #ede9fe;
-  color: #4338ca;
+  color: var(--color-primary-600);
   --mdc-icon-button-state-layer-size: 36px;
   transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
 }

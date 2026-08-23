@@ -7,16 +7,16 @@
 .signature-label {
   font-size: 0.72rem;
   font-weight: 700;
-  color: var(--color-gray-500, #6b7280);
+  color: var(--color-gray-500, var(--text-secondary));
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
 
 .canvas-wrapper {
   position: relative;
-  border: 1px dashed var(--color-gray-300, #d1d5db);
+  border: 1px dashed var(--color-gray-300, var(--border-default));
   border-radius: var(--rounded-md, 6px);
-  background: var(--color-gray-50, #f9fafb);
+  background: var(--color-gray-50, var(--surface-sunken));
 }
 
 .signature-canvas {
@@ -32,7 +32,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: var(--color-gray-400, #9ca3af);
+  color: var(--color-gray-400, var(--text-secondary));
   font-size: 0.85rem;
   pointer-events: none;
 }
@@ -40,12 +40,12 @@
 .clear-btn {
   align-self: flex-end;
   font-size: 0.8rem;
-  color: var(--color-gray-600, #4b5563);
+  color: var(--color-gray-600, var(--text-secondary));
 }
 
 @media (prefers-color-scheme: dark) {
   .canvas-wrapper {
-    background: #1f2937;
-    border-color: #374151;
+    background: var(--text-primary);
+    border-color: var(--text-primary);
   }
 }

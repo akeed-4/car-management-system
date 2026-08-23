@@ -29,8 +29,8 @@
 }
 
 .risk-badge.risk-low {
-  background: #e8f5e9;
-  color: #2e7d32;
+  background: var(--status-success-bg);
+  color: var(--color-success-600);
 }
 
 .risk-badge.risk-medium {
@@ -39,13 +39,13 @@
 }
 
 .risk-badge.risk-high {
-  background: #ffebee;
-  color: #c62828;
+  background: var(--status-danger-bg);
+  color: var(--color-danger-600);
 }
 
 .exceeds-warning {
   margin-top: 8px;
-  color: #c62828;
+  color: var(--color-danger-600);
   font-size: 0.85rem;
   font-weight: 500;
 }

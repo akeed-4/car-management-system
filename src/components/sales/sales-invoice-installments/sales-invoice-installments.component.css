@@ -44,9 +44,9 @@
 .form-section {
   margin-bottom: 32px;
   padding: 24px;
-  background: #f8f9fa;
+  background: var(--surface-sunken);
   border-radius: 8px;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--border-default);
 }
 
 .form-section-title {
@@ -55,7 +55,7 @@
   font-weight: 600;
   margin: 0 0 20px 0;
   padding-bottom: 12px;
-  border-bottom: 2px solid #dee2e6;
+  border-bottom: 2px solid var(--border-default);
 }
 
 .form-grid {
@@ -71,7 +71,7 @@
 
 /* Installment Specific Styles */
 .installment-section {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary-600);
   color: white;
   border: none;
 }
@@ -135,7 +135,7 @@
 }
 
 .installments-table th {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary-600);
   color: white;
   padding: 16px 12px;
   text-align: left;
@@ -145,12 +145,12 @@
 
 .installments-table td {
   padding: 16px 12px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--border-default);
   vertical-align: middle;
 }
 
 .installments-table tr:hover {
-  background-color: rgba(102, 126, 234, 0.1);
+  background-color: rgba(37, 99, 235, 0.1);
 }
 
 .installment-number-cell {
@@ -220,7 +220,7 @@
 
 .summary-card {
   flex: 1;
-  background: white;
+  background: var(--surface-card);
   border-radius: 8px;
   padding: 24px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -278,7 +278,7 @@
 
 .summary-divider {
   border: none;
-  border-top: 1px solid #dee2e6;
+  border-top: 1px solid var(--border-default);
   margin: 8px 0;
 }
 
@@ -303,14 +303,14 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary-600);
   color: white;
   border: none;
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
 }
 
 .btn-secondary {
@@ -385,7 +385,7 @@
 }
 
 .premium-table ::ng-deep .dx-datagrid-headers {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary-600);
   color: white;
 }
 

@@ -23,7 +23,7 @@
   justify-content: space-between;
   margin-bottom: 1.5rem;
   padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary-600);
   color: white;
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -72,13 +72,13 @@
 }
 
 .btn-primary:hover {
-  background: #4338ca;
+  background: var(--color-primary-600);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
 }
 
 .card {
-  background: white;
+  background: var(--surface-card);
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   overflow: hidden;
@@ -106,7 +106,7 @@
 
 .toggle-switch label {
   font-weight: 500;
-  color: #374151;
+  color: var(--text-primary);
 }
 
 .toggle-switch input[type="checkbox"] {
@@ -126,22 +126,22 @@
 }
 
 .premium-table .dx-datagrid .dx-datagrid-headers {
-  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-  border-bottom: 2px solid #d1d5db;
+  background: linear-gradient(135deg, var(--surface-sunken) 0%, var(--border-default) 100%);
+  border-bottom: 2px solid var(--border-default);
 }
 
 .premium-table .dx-datagrid .dx-datagrid-headers .dx-datagrid-table .dx-row > td {
   font-weight: 600;
-  color: #374151;
-  border-bottom: 2px solid #d1d5db;
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--border-default);
 }
 
 .premium-table .dx-datagrid .dx-datagrid-rowsview .dx-row {
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border-default);
 }
 
 .premium-table .dx-datagrid .dx-datagrid-rowsview .dx-row:hover {
-  background: #f9fafb;
+  background: var(--surface-sunken);
 }
 
 .premium-table .dx-datagrid .dx-datagrid-rowsview .dx-row.dx-selection {
@@ -169,13 +169,13 @@
 }
 
 .more-items {
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 0.8rem;
   margin-left: 0.5rem;
 }
 
 .text-success {
-  color: #16a34a !important;
+  color: var(--color-success-600) !important;
 }
 
 .text-danger {
@@ -198,13 +198,13 @@
   }
 
   .page-header {
-    background: white !important;
-    color: black !important;
+    background: var(--surface-card) !important;
+    color: var(--text-primary) !important;
     box-shadow: none !important;
   }
 
   .card {
     box-shadow: none !important;
-    border: 1px solid #e5e7eb !important;
+    border: 1px solid var(--border-default) !important;
   }
 }

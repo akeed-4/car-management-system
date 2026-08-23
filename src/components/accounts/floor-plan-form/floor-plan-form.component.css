@@ -1,17 +1,29 @@
-.form-card {
-  margin: 16px;
-}
+/* Floor plan form -- page shell, header, card and actions bar come from the
+   shared Phase 5 form design system (src/styles/form-system.css: .erp-*
+   classes). Only the field grid lives here; all colors use semantic tokens. */
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-4);
 }
 
-.form-actions {
-  margin-top: 24px;
+.form-field {
+  width: 100%;
+  min-width: 0;
 }
 
-.spacer {
-  flex: 1 1 auto;
+mat-form-field {
+  width: 100%;
+}
+
+.vehicle-select-row {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 720px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
 }

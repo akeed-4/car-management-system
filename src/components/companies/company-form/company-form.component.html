@@ -1,111 +1,127 @@
-<div class="form-header">
-  <h2>{{ isEdit ? ('COMPANIES.FORM.EDIT_COMPANY' | translate) : ('COMPANIES.FORM.ADD_COMPANY' | translate) }}</h2>
-  <p class="form-subtitle">{{ 'COMPANIES.FORM.FILL_DETAILS' | translate }}</p>
-</div>
-
-<div *ngIf="isLoading()" class="loading-container">
-  <mat-spinner diameter="40" color="primary"></mat-spinner>
-  <p>{{ 'COMPANIES.FORM.LOADING_DATA' | translate }}</p>
-</div>
-
-<form [formGroup]="companyForm" (ngSubmit)="onSubmit()" class="company-form" *ngIf="!isLoading()">
-  <div class="form-grid">
-    <!-- Basic Information -->
-
-   
-
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'COMPANIES.FORM.NAME_AR' | translate }}</mat-label>
-      <input matInput formControlName="nameAr" [placeholder]="'COMPANIES.FORM.NAME_AR_PLACEHOLDER' | translate">
-      <mat-error *ngIf="companyForm.get('nameAr')?.invalid && companyForm.get('nameAr')?.touched">
-        {{ 'COMPANIES.FORM.NAME_AR_REQUIRED' | translate }}
-      </mat-error>
-    </mat-form-field>
-     <mat-form-field appearance="outline">
-      <mat-label>{{ 'COMPANIES.FORM.NAME_EN' | translate }}</mat-label>
-      <input matInput formControlName="nameEn" [placeholder]="'COMPANIES.FORM.NAME_EN_PLACEHOLDER' | translate">
-      <mat-error *ngIf="companyForm.get('nameEn')?.invalid && companyForm.get('nameEn')?.touched">
-        {{ 'COMPANIES.FORM.NAME_EN_REQUIRED' | translate }}
-      </mat-error>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'COMPANIES.FORM.DESCRIPTION' | translate }}</mat-label>
-      <textarea matInput formControlName="description" [placeholder]="'COMPANIES.FORM.DESCRIPTION_PLACEHOLDER' | translate" rows="3"></textarea>
-    </mat-form-field>
-
-   
-
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'COMPANIES.FORM.STATUS' | translate }}</mat-label>
-      <mat-select formControlName="status">
-        <mat-option value="active">{{ 'COMPANIES.STATUS.ACTIVE' | translate }}</mat-option>
-        <mat-option value="inactive">{{ 'COMPANIES.STATUS.INACTIVE' | translate }}</mat-option>
-        <mat-option value="suspended">{{ 'COMPANIES.STATUS.SUSPENDED' | translate }}</mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'COMPANIES.FORM.VAT_REGISTRATION_NUMBER' | translate }}</mat-label>
-      <input matInput formControlName="vatRegistrationNumber" [placeholder]="'COMPANIES.FORM.VAT_REGISTRATION_NUMBER_PLACEHOLDER' | translate">
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'COMPANIES.FORM.CR_NUMBER' | translate }}</mat-label>
-      <input matInput formControlName="crNumber" [placeholder]="'COMPANIES.FORM.CR_NUMBER_PLACEHOLDER' | translate">
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'COMPANIES.FORM.BASE_CURRENCY' | translate }}</mat-label>
-      <mat-select formControlName="baseCurrencyId">
-        <mat-option *ngFor="let currency of currencies" [value]="currency.id">{{ currency.code }} - {{ currency.nameEn }}</mat-option>
-      </mat-select>
-      <mat-hint>{{ 'COMPANIES.FORM.BASE_CURRENCY_HINT' | translate }}</mat-hint>
-    </mat-form-field>
-
-    <!-- Geographic Information -->
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'COMPANIES.FORM.LATITUDE' | translate }}</mat-label>
-      <input matInput type="number" formControlName="lat" [placeholder]="'COMPANIES.FORM.LATITUDE_PLACEHOLDER' | translate">
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'COMPANIES.FORM.LONGITUDE' | translate }}</mat-label>
-      <input matInput type="number" formControlName="lng" [placeholder]="'COMPANIES.FORM.LONGITUDE_PLACEHOLDER' | translate">
-    </mat-form-field>
-
-    <!-- Address Information -->
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'COMPANIES.FORM.STREET' | translate }}</mat-label>
-      <input matInput formControlName="street" [placeholder]="'COMPANIES.FORM.STREET_PLACEHOLDER' | translate">
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'COMPANIES.FORM.CITY' | translate }}</mat-label>
-      <input matInput formControlName="city" [placeholder]="'COMPANIES.FORM.CITY_PLACEHOLDER' | translate">
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'COMPANIES.FORM.STATE' | translate }}</mat-label>
-      <input matInput formControlName="state" [placeholder]="'COMPANIES.FORM.STATE_PLACEHOLDER' | translate">
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'COMPANIES.FORM.COUNTRY' | translate }}</mat-label>
-      <input matInput formControlName="country" [placeholder]="'COMPANIES.FORM.COUNTRY_PLACEHOLDER' | translate">
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'COMPANIES.FORM.ZIP_CODE' | translate }}</mat-label>
-      <input matInput formControlName="zipCode" [placeholder]="'COMPANIES.FORM.ZIP_CODE_PLACEHOLDER' | translate">
-    </mat-form-field>
+<div class="erp-page">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ isEdit ? ('COMPANIES.FORM.EDIT_COMPANY' | translate) : ('COMPANIES.FORM.ADD_COMPANY' | translate) }}</h2>
+      <p class="erp-page-subtitle">{{ 'COMPANIES.FORM.FILL_DETAILS' | translate }}</p>
+    </div>
   </div>
 
-  <div class="form-actions">
-    <button mat-raised-button color="primary" type="submit" [disabled]="!companyForm.valid || isLoading()">
-      <span *ngIf="!isLoading()">{{ isEdit ? ('COMPANIES.FORM.UPDATE_BUTTON' | translate) : ('COMPANIES.FORM.CREATE_BUTTON' | translate) }}</span>
-      <mat-spinner *ngIf="isLoading()" diameter="20" color="accent"></mat-spinner>
-    </button>
-    <button mat-button type="button" (click)="onCancel()">{{ 'COMPANIES.FORM.CANCEL_BUTTON' | translate }}</button>
+  <div *ngIf="isLoading()" class="loading-container">
+    <mat-spinner diameter="40" color="primary"></mat-spinner>
+    <p>{{ 'COMPANIES.FORM.LOADING_DATA' | translate }}</p>
   </div>
-</form>
+
+  <div class="erp-card" *ngIf="!isLoading()">
+    <form [formGroup]="companyForm" (ngSubmit)="onSubmit()" class="company-form">
+
+      <!-- General Information -->
+      <div class="erp-section">
+        <h3 class="erp-section-title">{{ 'COMPANIES.FORM.TITLE' | translate }}</h3>
+        <div class="erp-form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'COMPANIES.FORM.NAME_AR' | translate }}</mat-label>
+            <input matInput formControlName="nameAr" [placeholder]="'COMPANIES.FORM.NAME_AR_PLACEHOLDER' | translate">
+            <mat-error *ngIf="companyForm.get('nameAr')?.invalid && companyForm.get('nameAr')?.touched">
+              {{ 'COMPANIES.FORM.NAME_AR_REQUIRED' | translate }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'COMPANIES.FORM.NAME_EN' | translate }}</mat-label>
+            <input matInput formControlName="nameEn" [placeholder]="'COMPANIES.FORM.NAME_EN_PLACEHOLDER' | translate">
+            <mat-error *ngIf="companyForm.get('nameEn')?.invalid && companyForm.get('nameEn')?.touched">
+              {{ 'COMPANIES.FORM.NAME_EN_REQUIRED' | translate }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="erp-span-2">
+            <mat-label>{{ 'COMPANIES.FORM.DESCRIPTION' | translate }}</mat-label>
+            <textarea matInput formControlName="description" [placeholder]="'COMPANIES.FORM.DESCRIPTION_PLACEHOLDER' | translate" rows="3"></textarea>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'COMPANIES.FORM.STATUS' | translate }}</mat-label>
+            <mat-select formControlName="status">
+              <mat-option value="active">{{ 'COMPANIES.STATUS.ACTIVE' | translate }}</mat-option>
+              <mat-option value="inactive">{{ 'COMPANIES.STATUS.INACTIVE' | translate }}</mat-option>
+              <mat-option value="suspended">{{ 'COMPANIES.STATUS.SUSPENDED' | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Legal & Financial -->
+      <div class="erp-section">
+        <h3 class="erp-section-title">{{ 'COMMON.SECTION_LEGAL' | translate }}</h3>
+        <div class="erp-form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'COMPANIES.FORM.VAT_REGISTRATION_NUMBER' | translate }}</mat-label>
+            <input matInput formControlName="vatRegistrationNumber" [placeholder]="'COMPANIES.FORM.VAT_REGISTRATION_NUMBER_PLACEHOLDER' | translate">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'COMPANIES.FORM.CR_NUMBER' | translate }}</mat-label>
+            <input matInput formControlName="crNumber" [placeholder]="'COMPANIES.FORM.CR_NUMBER_PLACEHOLDER' | translate">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'COMPANIES.FORM.BASE_CURRENCY' | translate }}</mat-label>
+            <mat-select formControlName="baseCurrencyId">
+              <mat-option *ngFor="let currency of currencies" [value]="currency.id">{{ currency.code }} - {{ currency.nameEn }}</mat-option>
+            </mat-select>
+            <mat-hint>{{ 'COMPANIES.FORM.BASE_CURRENCY_HINT' | translate }}</mat-hint>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Location -->
+      <div class="erp-section">
+        <h3 class="erp-section-title">{{ 'COMMON.SECTION_LOCATION' | translate }}</h3>
+        <div class="erp-form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'COMPANIES.FORM.STREET' | translate }}</mat-label>
+            <input matInput formControlName="street" [placeholder]="'COMPANIES.FORM.STREET_PLACEHOLDER' | translate">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'COMPANIES.FORM.CITY' | translate }}</mat-label>
+            <input matInput formControlName="city" [placeholder]="'COMPANIES.FORM.CITY_PLACEHOLDER' | translate">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'COMPANIES.FORM.STATE' | translate }}</mat-label>
+            <input matInput formControlName="state" [placeholder]="'COMPANIES.FORM.STATE_PLACEHOLDER' | translate">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'COMPANIES.FORM.COUNTRY' | translate }}</mat-label>
+            <input matInput formControlName="country" [placeholder]="'COMPANIES.FORM.COUNTRY_PLACEHOLDER' | translate">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'COMPANIES.FORM.ZIP_CODE' | translate }}</mat-label>
+            <input matInput formControlName="zipCode" [placeholder]="'COMPANIES.FORM.ZIP_CODE_PLACEHOLDER' | translate">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'COMPANIES.FORM.LATITUDE' | translate }}</mat-label>
+            <input matInput type="number" formControlName="lat" [placeholder]="'COMPANIES.FORM.LATITUDE_PLACEHOLDER' | translate">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'COMPANIES.FORM.LONGITUDE' | translate }}</mat-label>
+            <input matInput type="number" formControlName="lng" [placeholder]="'COMPANIES.FORM.LONGITUDE_PLACEHOLDER' | translate">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="erp-actions-bar">
+        <button mat-button type="button" (click)="onCancel()">{{ 'COMPANIES.FORM.CANCEL_BUTTON' | translate }}</button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="!companyForm.valid || isLoading()">
+          <span *ngIf="!isLoading()">{{ isEdit ? ('COMPANIES.FORM.UPDATE_BUTTON' | translate) : ('COMPANIES.FORM.CREATE_BUTTON' | translate) }}</span>
+          <mat-spinner *ngIf="isLoading()" diameter="20" color="accent"></mat-spinner>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
