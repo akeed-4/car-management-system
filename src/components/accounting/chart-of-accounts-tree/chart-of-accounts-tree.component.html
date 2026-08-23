@@ -1,20 +1,18 @@
-<div class="tree-container">
-  <div class="header-card">
-    <div class="header-content">
-      <div class="header-text">
-        <h2 class="header-title">{{ 'ACCOUNTING.CHART_OF_ACCOUNTS_HIERARCHY' | translate }}</h2>
-        <p class="header-subtitle">{{ 'ACCOUNTING.HIERARCHICAL_VIEW_DESCRIPTION' | translate }}</p>
-      </div>
-      <div class="header-actions">
-        <button class="btn-refresh" (click)="loadAccounts()">
-          <i class="dx-icon-refresh"></i>
-          {{ 'ACCOUNTING.REFRESH' | translate }}
-        </button>
-      </div>
+<div class="erp-page">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ 'ACCOUNTING.CHART_OF_ACCOUNTS_HIERARCHY' | translate }}</h2>
+      <p class="erp-page-subtitle">{{ 'ACCOUNTING.HIERARCHICAL_VIEW_DESCRIPTION' | translate }}</p>
+    </div>
+    <div class="erp-page-actions">
+      <button class="btn-refresh" (click)="loadAccounts()">
+        <i class="dx-icon-refresh"></i>
+        {{ 'ACCOUNTING.REFRESH' | translate }}
+      </button>
     </div>
   </div>
 
-  <div class="tree-section">
+  <div class="erp-grid-card tree-section">
     <div class="loading-overlay" *ngIf="isLoading()">
       <div class="spinner"></div>
       <p>{{ 'ACCOUNTING.LOADING' | translate }}</p>
@@ -144,4 +142,5 @@
       
       
     </dx-tree-list>
+  </div>
 </div>

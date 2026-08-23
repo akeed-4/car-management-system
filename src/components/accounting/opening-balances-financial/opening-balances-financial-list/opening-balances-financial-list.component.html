@@ -1,14 +1,17 @@
-<mat-card>
-    <mat-card-header>
-      <mat-card-title>{{ translate.instant('ACCOUNTING.OPENING_BALANCES_FINANCIAL') }}</mat-card-title>
-      <div class="spacer"></div>
+<div class="erp-page">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ translate.instant('ACCOUNTING.OPENING_BALANCES_FINANCIAL') }}</h2>
+    </div>
+    <div class="erp-page-actions">
       <button mat-raised-button color="primary" (click)="navigateToNewForm()">
         <mat-icon>add</mat-icon>
         {{ translate.instant('COMMON.NEW') }}
       </button>
-    </mat-card-header>
-    <mat-card-content>
-      <div class="data-grid-container">
+    </div>
+  </div>
+
+  <div class="erp-grid-card">
         <dx-data-grid
           [dataSource]="openingBalances"
           [showBorders]="true"
@@ -91,6 +94,5 @@
             [allowAdding]="false">
           </dxo-editing>
         </dx-data-grid>
-      </div>
-    </mat-card-content>
-  </mat-card>
+  </div>
+</div>

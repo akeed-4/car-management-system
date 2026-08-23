@@ -1,20 +1,7 @@
-/* Opening Balances Financial List Component Styles */
-
-mat-card-header {
-  display: flex;
-  align-items: center;
-  padding: 16px;
-  background-color: var(--surface-sunken);
-}
-
-mat-card-title {
-  flex: 1;
-  margin: 0;
-}
-
-.spacer {
-  flex: 1 1 auto;
-}
+/* Opening Balances Financial List -- migrated to the shared .erp-* design
+   system (src/styles/form-system.css). Page shell, header and grid card
+   come from shared classes now; nothing else screen-specific remains
+   beyond icon spacing in the header action button. */
 
 button mat-icon {
   margin-inline-end: 8px;

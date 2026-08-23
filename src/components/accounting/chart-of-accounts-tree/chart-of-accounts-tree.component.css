@@ -1,88 +1,15 @@
-/* Chart of accounts tree -- tokenized for the Phase 5 design system. Layout
-   and TreeList structure preserved; all colors use semantic tokens so dark
-   mode works automatically. Direction follows the app-level html[dir]. */
-
-/* Container Styles */
-.tree-container {
-  padding: 20px;
-  background-color: var(--surface-page);
-  min-height: 100vh;
-}
-
-/* Header Card */
-.header-card {
-  background: var(--color-primary-600);
-  border-radius: var(--rounded-lg);
-  padding: 24px 32px;
-  margin-bottom: 24px;
-  box-shadow: var(--shadow-sm);
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-.header-text {
-  flex: 1;
-  min-width: 250px;
-}
-
-.header-title {
-  color: #fff;
-  font-size: 28px;
-  font-weight: 700;
-  margin: 0 0 8px 0;
-}
-
-.header-subtitle {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 14px;
-  margin: 0;
-  font-weight: 400;
-}
-
-.header-actions {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.level-filter {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 8px 12px;
-  border-radius: 6px;
-  backdrop-filter: blur(10px);
-}
-
-.level-filter label {
-  color: #fff;
-  font-size: 14px;
-  font-weight: 500;
-  margin: 0;
-}
-
-.level-filter select {
-  background: var(--surface-card);
-  border: 1px solid var(--border-default);
-  border-radius: 4px;
-  padding: 4px 8px;
-  font-size: 14px;
-  color: var(--text-primary);
-  min-width: 60px;
-}
+/* Chart of accounts tree -- migrated to the shared .erp-* design system
+   (src/styles/form-system.css). Page shell, header and grid card come from
+   shared classes now; only the refresh button, loading/error states and
+   DevExtreme TreeList overrides remain screen-specific. All colors use
+   semantic tokens so dark mode works automatically. Direction follows the
+   app-level html[dir]. */
 
 .btn-refresh {
-  background-color: rgba(255, 255, 255, 0.2);
-  color: #fff;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  padding: 10px 20px;
+  background-color: var(--surface-card);
+  color: var(--color-primary-600);
+  border: 1px solid var(--border-strong);
+  padding: 0.5rem 1rem;
   border-radius: var(--rounded-md);
   font-size: 14px;
   font-weight: 600;
@@ -90,31 +17,25 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
 }
 
 .btn-refresh:hover {
-  background-color: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.5);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
+  background-color: var(--color-primary-100);
+  border-color: var(--color-primary-600);
 }
 
 .btn-refresh:active {
-  transform: translateY(0);
+  transform: translateY(1px);
 }
 
 .btn-refresh i {
   font-size: 16px;
 }
 
-/* Tree Section */
+/* Tree grid card: erp-grid-card provides the surface, this adds the
+   relative positioning the loading overlay needs. */
 .tree-section {
-  background: var(--surface-card);
-  border-radius: var(--rounded-lg);
-  padding: 24px;
-  box-shadow: var(--shadow-sm);
   position: relative;
   overflow: hidden;
 }
@@ -227,34 +148,6 @@
   font-size: 15px;
 }
 
-/* Level Template Styles */
-.level-cell {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-}
-
-.level-indicator {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 600;
-  color: var(--color-primary-600);
-}
-
-.level-icon {
-  font-size: 16px;
-  color: var(--color-primary-600);
-}
-
-.level-arrow {
-  font-size: 14px;
-  color: var(--color-primary-600);
-  margin-inline-end: 4px;
-  display: inline-block;
-}
-
 ::ng-deep .code-column {
   font-family: 'Courier New', monospace;
   font-weight: 600;
@@ -359,59 +252,10 @@
 }
 
 /* Responsive Design */
-@media screen and (max-width: 1200px) {
-  .tree-container {
-    padding: 16px;
-  }
-
-  .header-card {
-    padding: 20px 24px;
-  }
-
-  .header-title {
-    font-size: 24px;
-  }
-
-  .tree-section {
-    padding: 16px;
-  }
-}
-
 @media screen and (max-width: 768px) {
-  .tree-container {
-    padding: 12px;
-  }
-
-  .header-card {
-    padding: 16px 20px;
-  }
-
-  .header-content {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .header-title {
-    font-size: 20px;
-  }
-
-  .header-subtitle {
-    font-size: 13px;
-  }
-
-  .header-actions {
-    width: 100%;
-    justify-content: flex-start;
-  }
-
   .btn-refresh {
     width: 100%;
     justify-content: center;
-  }
-
-  .tree-section {
-    padding: 12px;
-    border-radius: var(--rounded-md);
   }
 
   ::ng-deep #accountsHierarchyTreeList .dx-header-row > td {
@@ -426,27 +270,6 @@
 }
 
 @media screen and (max-width: 480px) {
-  .tree-container {
-    padding: 8px;
-  }
-
-  .header-card {
-    padding: 12px 16px;
-    border-radius: var(--rounded-md);
-  }
-
-  .header-title {
-    font-size: 18px;
-  }
-
-  .header-subtitle {
-    font-size: 12px;
-  }
-
-  .tree-section {
-    padding: 8px;
-  }
-
   ::ng-deep #accountsHierarchyTreeList .dx-header-row > td {
     font-size: 10px;
     padding: 8px 6px;
@@ -460,35 +283,9 @@
 
 /* Print Styles */
 @media print {
-  .tree-container {
-    padding: 0;
-    background-color: var(--surface-card);
-  }
-
-  .header-card {
-    background: var(--surface-card);
-    color: var(--text-primary);
-    box-shadow: none;
-    border: 1px solid var(--border-default);
-  }
-
-  .header-title {
-    color: var(--text-primary);
-  }
-
-  .header-subtitle {
-    color: var(--text-secondary);
-  }
-
-  .header-actions,
   .loading-overlay,
   .error-message {
     display: none;
-  }
-
-  .tree-section {
-    box-shadow: none;
-    border: 1px solid var(--border-default);
   }
 
   ::ng-deep .actions-column {
