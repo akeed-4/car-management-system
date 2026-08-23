@@ -1,20 +1,21 @@
-<mat-toolbar color="primary" class="mb-4 mr-3">
-  <mat-toolbar-row>
-    <span>Receipt Voucher</span>
-    <span class="spacer"></span>
-    <a mat-button routerLink="/accounts/receipts" class="back-link">
-      <mat-icon>arrow_back</mat-icon>
-      Back
-    </a>
-  </mat-toolbar-row>
-</mat-toolbar>
+<div class="erp-page">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">Receipt Voucher</h2>
+    </div>
+    <div class="erp-page-actions">
+      <a mat-stroked-button routerLink="/accounts/receipts">
+        <mat-icon>arrow_back</mat-icon>
+        Back
+      </a>
+    </div>
+  </div>
 
-<mat-card class="form-card">
-  <mat-card-content>
+  <div class="erp-card">
     <form [formGroup]="form" (ngSubmit)="save()">
       <div class="form-grid">
         <!-- Header Info -->
-        <div class="header-section">
+        <div class="erp-section header-section">
           <mat-form-field appearance="outline">
             <mat-label>Total Amount</mat-label>
             <input matInput type="number" formControlName="totalAmount" required min="0.01">
@@ -42,8 +43,8 @@
         </div>
 
         <!-- Details Table -->
-        <div class="details-section">
-          <h3>Receipt Details</h3>
+        <div class="erp-section details-section">
+          <h3 class="erp-section-title">Receipt Details</h3>
           <dx-data-grid
             [dataSource]="detailsData | async"
             [showBorders]="true"
@@ -52,7 +53,7 @@
             [columnAutoWidth]="true"
             [editing]="{ mode: 'cell', allowUpdating: true, allowAdding: true, allowDeleting: true }"
             (onRowUpdated)="onRowUpdated($event)">
-            
+
             <dxo-paging [enabled]="false"></dxo-paging>
             <dxo-editing
               mode="cell"
@@ -91,21 +92,22 @@
             <button mat-stroked-button type="button" (click)="distributeEvenly()" *ngIf="(detailsData | async)?.length > 0">
               Distribute Evenly
             </button>
-            <div class="total-row">
-              <strong>Total: {{ getTotalAmount() | currency:'SAR' }}</strong>
+            <div class="erp-total-row">
+              <span class="erp-total-label">Total</span>
+              <span class="erp-total-value">{{ getTotalAmount() | currency:'SAR' }}</span>
             </div>
           </div>
         </div>
       </div>
 
-      <mat-card-actions align="end" class="form-actions">
+      <div class="erp-actions-bar">
         <a mat-stroked-button routerLink="/accounts/receipts">
           Cancel
         </a>
         <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
           Save
         </button>
-      </mat-card-actions>
+      </div>
     </form>
-  </mat-card-content>
-</mat-card>
+  </div>
+</div>

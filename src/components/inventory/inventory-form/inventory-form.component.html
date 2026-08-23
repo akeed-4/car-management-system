@@ -1,19 +1,22 @@
 
 
-<mat-toolbar color="primary">
-  <span>{{ pageTitle() }}</span>
-  <span class="spacer"></span>
-  <button mat-icon-button routerLink="/inventory" matTooltip="{{ 'INVENTORY.FORM.BACK_TO_INVENTORY' | translate }}">
-    <mat-icon>arrow_back</mat-icon>
-  </button>
-</mat-toolbar>
+<div class="erp-page">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ pageTitle() }}</h2>
+    </div>
+    <div class="erp-page-actions">
+      <button mat-icon-button routerLink="/inventory" matTooltip="{{ 'INVENTORY.FORM.BACK_TO_INVENTORY' | translate }}">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+    </div>
+  </div>
 
-<mat-card>
-  <mat-card-content>
+  <div class="erp-card">
     <form [formGroup]="carForm" (ngSubmit)="saveCar()">
       <!-- Main Details Section -->
-      <div class="form-section">
-        <h3 class="section-title">{{ 'INVENTORY.FORM.MAIN_DETAILS' | translate }}</h3>
+      <div class="erp-section">
+        <h3 class="erp-section-title">{{ 'INVENTORY.FORM.MAIN_DETAILS' | translate }}</h3>
         <div class="form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'INVENTORY.FORM.MANUFACTURER' | translate }}</mat-label>
@@ -61,8 +64,8 @@
       </div>
 
       <!-- Saudi Specific Details -->
-      <div class="form-section">
-        <h3 class="section-title">{{ 'INVENTORY.FORM.SAUDI_DETAILS' | translate }}</h3>
+      <div class="erp-section">
+        <h3 class="erp-section-title">{{ 'INVENTORY.FORM.SAUDI_DETAILS' | translate }}</h3>
         <div class="form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'INVENTORY.FORM.VIN' | translate }}</mat-label>
@@ -96,8 +99,8 @@
       </div>
 
       <!-- Technical & Visual Details -->
-      <div class="form-section">
-        <h3 class="section-title">{{ 'INVENTORY.FORM.TECHNICAL' | translate }}</h3>
+      <div class="erp-section">
+        <h3 class="erp-section-title">{{ 'INVENTORY.FORM.TECHNICAL' | translate }}</h3>
         <div class="form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'INVENTORY.FORM.MILEAGE' | translate }}</mat-label>
@@ -130,8 +133,8 @@
       </div>
 
       <!-- Car Type & Transportation -->
-      <div class="form-section">
-        <h3 class="section-title">{{ 'INVENTORY.FORM.CAR_TYPE_TRANSPORTATION' | translate }}</h3>
+      <div class="erp-section">
+        <h3 class="erp-section-title">{{ 'INVENTORY.FORM.CAR_TYPE_TRANSPORTATION' | translate }}</h3>
         <div class="form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'INVENTORY.FORM.CAR_TYPE' | translate }}</mat-label>
@@ -155,8 +158,8 @@
       </div>
 
       <!-- Owner & Authorized Seller Details -->
-      <div class="form-section">
-        <h3 class="section-title">{{ 'INVENTORY.FORM.OWNER_SELLER_DETAILS' | translate }}</h3>
+      <div class="erp-section">
+        <h3 class="erp-section-title">{{ 'INVENTORY.FORM.OWNER_SELLER_DETAILS' | translate }}</h3>
         <div class="form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'INVENTORY.FORM.OWNER_NAME' | translate }}</mat-label>
@@ -191,8 +194,8 @@
       </div>
 
       <!-- Authorization Document -->
-      <div class="form-section">
-        <h3 class="section-title">{{ 'INVENTORY.FORM.AUTHORIZATION_DOCUMENT' | translate }}</h3>
+      <div class="erp-section">
+        <h3 class="erp-section-title">{{ 'INVENTORY.FORM.AUTHORIZATION_DOCUMENT' | translate }}</h3>
         <div class="form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'INVENTORY.FORM.DOCUMENT_NUMBER' | translate }}</mat-label>
@@ -214,8 +217,8 @@
       </div>
 
       <!-- Banking Information -->
-      <div class="form-section">
-        <h3 class="section-title">{{ 'INVENTORY.FORM.BANKING_INFORMATION' | translate }}</h3>
+      <div class="erp-section">
+        <h3 class="erp-section-title">{{ 'INVENTORY.FORM.BANKING_INFORMATION' | translate }}</h3>
         <div class="form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'INVENTORY.FORM.BANK_NAME' | translate }}</mat-label>
@@ -235,8 +238,8 @@
       </div>
 
       <!-- Buyer Information -->
-      <div class="form-section">
-        <h3 class="section-title">{{ 'INVENTORY.FORM.BUYER_INFORMATION' | translate }}</h3>
+      <div class="erp-section">
+        <h3 class="erp-section-title">{{ 'INVENTORY.FORM.BUYER_INFORMATION' | translate }}</h3>
         <div class="form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'INVENTORY.FORM.BUYER_NAME' | translate }}</mat-label>
@@ -256,8 +259,8 @@
       </div>
 
       <!-- Sales & Commission -->
-      <div class="form-section">
-        <h3 class="section-title">{{ 'INVENTORY.FORM.SALES_COMMISSION' | translate }}</h3>
+      <div class="erp-section">
+        <h3 class="erp-section-title">{{ 'INVENTORY.FORM.SALES_COMMISSION' | translate }}</h3>
         <div class="form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'INVENTORY.FORM.SHOWROOM_COMMISSION' | translate }}</mat-label>
@@ -277,8 +280,8 @@
       </div>
 
       <!-- Document Upload & Entry Permission -->
-      <div class="form-section">
-        <h3 class="section-title">{{ 'INVENTORY.FORM.DOCUMENTS_ENTRY' | translate }}</h3>
+      <div class="erp-section">
+        <h3 class="erp-section-title">{{ 'INVENTORY.FORM.DOCUMENTS_ENTRY' | translate }}</h3>
         <div class="form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'INVENTORY.FORM.DOCUMENT_IMAGES' | translate }}</mat-label>
@@ -294,8 +297,8 @@
       </div>
 
       <!-- Financials -->
-      <div class="form-section">
-        <h3 class="section-title">{{ 'INVENTORY.FORM.FINANCIALS' | translate }}</h3>
+      <div class="erp-section">
+        <h3 class="erp-section-title">{{ 'INVENTORY.FORM.FINANCIALS' | translate }}</h3>
         <div class="form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'INVENTORY.FORM.PURCHASE_PRICE' | translate }}</mat-label>
@@ -372,8 +375,8 @@
         </div>
       </div>
 
-      <div *ngIf="editMode() && associatedExpenses().length > 0" class="form-section">
-        <h3 class="section-title">{{ 'INVENTORY.FORM.RELATED_COSTS' | translate }}</h3>
+      <div *ngIf="editMode() && associatedExpenses().length > 0" class="erp-section">
+        <h3 class="erp-section-title">{{ 'INVENTORY.FORM.RELATED_COSTS' | translate }}</h3>
         <dx-data-grid
           [dataSource]="associatedExpenses()"
           [showBorders]="true"
@@ -433,8 +436,8 @@
       </div>
 
       <!-- Description and Photos -->
-      <div class="form-section">
-        <h3 class="section-title">{{ 'INVENTORY.FORM.DESCRIPTION_PHOTOS' | translate }}</h3>
+      <div class="erp-section">
+        <h3 class="erp-section-title">{{ 'INVENTORY.FORM.DESCRIPTION_PHOTOS' | translate }}</h3>
         <div class="form-grid">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>{{ 'INVENTORY.FORM.MARKETING_DESCRIPTION' | translate }}</mat-label>
@@ -456,7 +459,7 @@
       </div>
 
       <!-- Form Actions -->
-      <div class="form-actions">
+      <div class="erp-actions-bar">
         <button mat-stroked-button routerLink="/inventory">
           <mat-icon>cancel</mat-icon>
           {{ 'INVENTORY.FORM.CANCEL' | translate }}
@@ -478,11 +481,11 @@
         </button>
       </div>
     </form>
-  </mat-card-content>
-</mat-card>
+  </div>
+</div>
 
-<app-vin-scanner 
-  [isOpen]="isScannerOpen()" 
+<app-vin-scanner
+  [isOpen]="isScannerOpen()"
   (vinScanned)="onVinScanned($event)"
   (cancel)="isScannerOpen.set(false)">
 </app-vin-scanner>

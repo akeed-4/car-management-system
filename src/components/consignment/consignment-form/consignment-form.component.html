@@ -1,196 +1,195 @@
-<mat-toolbar color="primary" class="toolbar">
-  <mat-toolbar-row>
-    <span>{{ editMode() ? ('CONSIGNMENT.FORM.EDIT_TITLE' | translate) : ('CONSIGNMENT.FORM.NEW_TITLE' | translate) }}</span>
-    <span class="spacer"></span>
-    @if (editMode()) {
-      <button mat-icon-button (click)="openHistory()" [matTooltip]="'AUDIT_HISTORY.TITLE' | translate">
-        <mat-icon>history</mat-icon>
+<div class="erp-page">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ editMode() ? ('CONSIGNMENT.FORM.EDIT_TITLE' | translate) : ('CONSIGNMENT.FORM.NEW_TITLE' | translate) }}</h2>
+    </div>
+    <div class="erp-page-actions">
+      @if (editMode()) {
+        <button mat-icon-button (click)="openHistory()" [matTooltip]="'AUDIT_HISTORY.TITLE' | translate">
+          <mat-icon>history</mat-icon>
+        </button>
+      }
+      <button mat-icon-button routerLink="/consignment-cars" [matTooltip]="'REQUESTED_CARS.FORM.BACK_TO_LIST' | translate">
+        <mat-icon>arrow_back</mat-icon>
       </button>
-    }
-    <button mat-icon-button routerLink="/consignment-cars" [matTooltip]="'REQUESTED_CARS.FORM.BACK_TO_LIST' | translate">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
-  </mat-toolbar-row>
-</mat-toolbar>
+    </div>
+  </div>
 
-<div class="container">
-  <mat-card class="form-card">
-    <mat-card-content>
-      <form [formGroup]="carForm" (ngSubmit)="saveCar()">
+  <div class="erp-card">
+    <form [formGroup]="carForm" (ngSubmit)="saveCar()">
 
-        <div class="form-section">
-          <h3 class="section-title">{{ 'CONSIGNMENT.FORM.SUPPLIER_DETAILS' | translate }}</h3>
-          <div class="form-grid cols-2">
-            <div class="lookup-field">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'CONSIGNMENT.SUPPLIER' | translate }}</mat-label>
-                <input matInput [value]="selectedSupplier()?.name || ''" readonly>
-              </mat-form-field>
-              <button mat-stroked-button type="button" color="primary" (click)="openSupplierLookup()">
-                <mat-icon>search</mat-icon>
-                {{ 'SUPPLIER_LOOKUP.TITLE' | translate }}
-              </button>
-            </div>
-
+      <div class="erp-section">
+        <h3 class="erp-section-title">{{ 'CONSIGNMENT.FORM.SUPPLIER_DETAILS' | translate }}</h3>
+        <div class="erp-form-grid">
+          <div class="lookup-field">
             <mat-form-field appearance="outline">
-              <mat-label>{{ 'SUPPLIER_LOOKUP.PHONE' | translate }}</mat-label>
-              <input matInput type="tel" [value]="selectedSupplier()?.phone || ''" readonly>
+              <mat-label>{{ 'CONSIGNMENT.SUPPLIER' | translate }}</mat-label>
+              <input matInput [value]="selectedSupplier()?.name || ''" readonly>
             </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'CONSIGNMENT.ARRIVAL_DATE' | translate }}</mat-label>
-              <input matInput type="date" formControlName="arrivalDate">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'CONSIGNMENT.LOCATION' | translate }}</mat-label>
-              <input matInput type="text" formControlName="location">
-            </mat-form-field>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h3 class="section-title">{{ 'CONSIGNMENT.FORM.VEHICLE_DETAILS' | translate }}</h3>
-          <div class="form-grid cols-3">
-            <div class="lookup-field col-span-3">
-              <button mat-stroked-button type="button" color="primary" (click)="openVehicleLookup()">
-                <mat-icon>search</mat-icon>
-                {{ 'VEHICLE_LOOKUP.TITLE' | translate }}
-              </button>
-              @if (selectedVehicleSource()) {
-                <span class="lookup-hint">{{ 'CONSIGNMENT.FORM.VEHICLE_PREFILLED_FROM_LOOKUP' | translate }}</span>
-              }
-            </div>
-
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'REQUESTED_CARS.FORM.MANUFACTURER' | translate }}</mat-label>
-              <input matInput type="text" formControlName="make">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'REQUESTED_CARS.FORM.MODEL' | translate }}</mat-label>
-              <input matInput type="text" formControlName="model">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'REQUESTED_CARS.FORM.YEAR_OPTIONAL' | translate }}</mat-label>
-              <input matInput type="number" formControlName="year">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'REQUESTED_CARS.FORM.COLOR_OPTIONAL' | translate }}</mat-label>
-              <input matInput type="text" formControlName="exteriorColor">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'CONSIGNMENT.VIN' | translate }}</mat-label>
-              <input matInput type="text" formControlName="vin">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'CONSIGNMENT.ENGINE_NUMBER' | translate }}</mat-label>
-              <input matInput type="text" formControlName="engineNumber">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'CONSIGNMENT.PLATE_NUMBER' | translate }}</mat-label>
-              <input matInput type="text" formControlName="plateNumber">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'CONSIGNMENT.MILEAGE' | translate }}</mat-label>
-              <input matInput type="number" formControlName="mileage">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'CONSIGNMENT.STATUS' | translate }}</mat-label>
-              <mat-select formControlName="status">
-                <mat-option *ngIf="carForm.get('status')?.disabled" value="Sold">
-                  {{ 'CONSIGNMENT.STATUS_SOLD' | translate }}
-                </mat-option>
-                <mat-option *ngFor="let s of editableStatusOptions" [value]="s">
-                  {{ ('CONSIGNMENT.STATUS_' + s.toUpperCase()) | translate }}
-                </mat-option>
-              </mat-select>
-              @if (carForm.get('status')?.disabled) {
-                <mat-hint>{{ 'CONSIGNMENT.FORM.SOLD_STATUS_LOCKED_HINT' | translate }}</mat-hint>
-              }
-            </mat-form-field>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h3 class="section-title">{{ 'CONSIGNMENT.FORM.FINANCIAL_DETAILS' | translate }}</h3>
-          <div class="form-grid cols-3">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'CONSIGNMENT.EXPECTED_SALE_PRICE' | translate }}</mat-label>
-              <input matInput type="number" formControlName="expectedSalePrice">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'CONSIGNMENT.CURRENT_COST' | translate }}</mat-label>
-              <input matInput type="number" formControlName="currentCost">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'CONSIGNMENT.SALE.COMMISSION_TYPE' | translate }}</mat-label>
-              <mat-select formControlName="commissionType">
-                <mat-option value="Percentage">{{ 'CONSIGNMENT.SALE.COMMISSION_PERCENTAGE' | translate }}</mat-option>
-                <mat-option value="FixedAmount">{{ 'CONSIGNMENT.SALE.COMMISSION_FIXED' | translate }}</mat-option>
-              </mat-select>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" *ngIf="carForm.get('commissionType')?.value !== 'FixedAmount'">
-              <mat-label>{{ 'CONSIGNMENT.COMMISSION_RATE' | translate }}</mat-label>
-              <input matInput type="number" formControlName="commissionRate">
-              <span matTextSuffix>%</span>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" *ngIf="carForm.get('commissionType')?.value === 'FixedAmount'">
-              <mat-label>{{ 'CONSIGNMENT.SALE.COMMISSION_FIXED' | translate }}</mat-label>
-              <input matInput type="number" formControlName="commissionFixedAmount">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="col-span-3">
-              <mat-label>{{ 'REQUESTED_CARS.FORM.ADDITIONAL_NOTES' | translate }}</mat-label>
-              <textarea matInput formControlName="notes" rows="3"></textarea>
-            </mat-form-field>
-          </div>
-        </div>
-
-        @if (editMode()) {
-          <div class="form-section">
-            <h3 class="section-title">{{ 'REQUESTED_CARS.FORM.ATTACHMENTS' | translate }}</h3>
-            <div class="attachments-list">
-              @for (att of attachments(); track att.id) {
-                <div class="attachment-item">
-                  <mat-icon>attach_file</mat-icon>
-                  <a [href]="fileUrl(att)" target="_blank" class="attachment-name">{{ att.fileName }}</a>
-                  <button mat-icon-button color="warn" type="button" (click)="deleteAttachment(att.id)">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </div>
-              } @empty {
-                <p class="no-attachments">{{ 'REQUESTED_CARS.FORM.NO_ATTACHMENTS' | translate }}</p>
-              }
-            </div>
-            <input type="file" (change)="onFileSelected($event)" [disabled]="uploading()" #fileInput hidden>
-            <button mat-stroked-button type="button" (click)="fileInput.click()" [disabled]="uploading()">
-              <mat-icon>upload_file</mat-icon>
-              {{ 'REQUESTED_CARS.FORM.UPLOAD_ATTACHMENT' | translate }}
+            <button mat-stroked-button type="button" color="primary" (click)="openSupplierLookup()">
+              <mat-icon>search</mat-icon>
+              {{ 'SUPPLIER_LOOKUP.TITLE' | translate }}
             </button>
           </div>
-        }
 
-        <div class="form-actions">
-          <button mat-button routerLink="/consignment-cars" type="button">
-            {{ 'REQUESTED_CARS.FORM.CANCEL' | translate }}
-          </button>
-          <button mat-raised-button color="primary" type="submit" [disabled]="carForm.invalid || saving()">
-            {{ editMode() ? ('REQUESTED_CARS.FORM.SAVE_CHANGES' | translate) : ('CONSIGNMENT.FORM.SAVE_CAR' | translate) }}
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'SUPPLIER_LOOKUP.PHONE' | translate }}</mat-label>
+            <input matInput type="tel" [value]="selectedSupplier()?.phone || ''" readonly>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'CONSIGNMENT.ARRIVAL_DATE' | translate }}</mat-label>
+            <input matInput type="date" formControlName="arrivalDate">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'CONSIGNMENT.LOCATION' | translate }}</mat-label>
+            <input matInput type="text" formControlName="location">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="erp-section">
+        <h3 class="erp-section-title">{{ 'CONSIGNMENT.FORM.VEHICLE_DETAILS' | translate }}</h3>
+        <div class="erp-form-grid-3">
+          <div class="lookup-field erp-span-3">
+            <button mat-stroked-button type="button" color="primary" (click)="openVehicleLookup()">
+              <mat-icon>search</mat-icon>
+              {{ 'VEHICLE_LOOKUP.TITLE' | translate }}
+            </button>
+            @if (selectedVehicleSource()) {
+              <span class="lookup-hint">{{ 'CONSIGNMENT.FORM.VEHICLE_PREFILLED_FROM_LOOKUP' | translate }}</span>
+            }
+          </div>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'REQUESTED_CARS.FORM.MANUFACTURER' | translate }}</mat-label>
+            <input matInput type="text" formControlName="make">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'REQUESTED_CARS.FORM.MODEL' | translate }}</mat-label>
+            <input matInput type="text" formControlName="model">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'REQUESTED_CARS.FORM.YEAR_OPTIONAL' | translate }}</mat-label>
+            <input matInput type="number" formControlName="year">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'REQUESTED_CARS.FORM.COLOR_OPTIONAL' | translate }}</mat-label>
+            <input matInput type="text" formControlName="exteriorColor">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'CONSIGNMENT.VIN' | translate }}</mat-label>
+            <input matInput type="text" formControlName="vin">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'CONSIGNMENT.ENGINE_NUMBER' | translate }}</mat-label>
+            <input matInput type="text" formControlName="engineNumber">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'CONSIGNMENT.PLATE_NUMBER' | translate }}</mat-label>
+            <input matInput type="text" formControlName="plateNumber">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'CONSIGNMENT.MILEAGE' | translate }}</mat-label>
+            <input matInput type="number" formControlName="mileage">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'CONSIGNMENT.STATUS' | translate }}</mat-label>
+            <mat-select formControlName="status">
+              <mat-option *ngIf="carForm.get('status')?.disabled" value="Sold">
+                {{ 'CONSIGNMENT.STATUS_SOLD' | translate }}
+              </mat-option>
+              <mat-option *ngFor="let s of editableStatusOptions" [value]="s">
+                {{ ('CONSIGNMENT.STATUS_' + s.toUpperCase()) | translate }}
+              </mat-option>
+            </mat-select>
+            @if (carForm.get('status')?.disabled) {
+              <mat-hint>{{ 'CONSIGNMENT.FORM.SOLD_STATUS_LOCKED_HINT' | translate }}</mat-hint>
+            }
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="erp-section">
+        <h3 class="erp-section-title">{{ 'CONSIGNMENT.FORM.FINANCIAL_DETAILS' | translate }}</h3>
+        <div class="erp-form-grid-3">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'CONSIGNMENT.EXPECTED_SALE_PRICE' | translate }}</mat-label>
+            <input matInput type="number" formControlName="expectedSalePrice">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'CONSIGNMENT.CURRENT_COST' | translate }}</mat-label>
+            <input matInput type="number" formControlName="currentCost">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'CONSIGNMENT.SALE.COMMISSION_TYPE' | translate }}</mat-label>
+            <mat-select formControlName="commissionType">
+              <mat-option value="Percentage">{{ 'CONSIGNMENT.SALE.COMMISSION_PERCENTAGE' | translate }}</mat-option>
+              <mat-option value="FixedAmount">{{ 'CONSIGNMENT.SALE.COMMISSION_FIXED' | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" *ngIf="carForm.get('commissionType')?.value !== 'FixedAmount'">
+            <mat-label>{{ 'CONSIGNMENT.COMMISSION_RATE' | translate }}</mat-label>
+            <input matInput type="number" formControlName="commissionRate">
+            <span matTextSuffix>%</span>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" *ngIf="carForm.get('commissionType')?.value === 'FixedAmount'">
+            <mat-label>{{ 'CONSIGNMENT.SALE.COMMISSION_FIXED' | translate }}</mat-label>
+            <input matInput type="number" formControlName="commissionFixedAmount">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="erp-span-3">
+            <mat-label>{{ 'REQUESTED_CARS.FORM.ADDITIONAL_NOTES' | translate }}</mat-label>
+            <textarea matInput formControlName="notes" rows="3"></textarea>
+          </mat-form-field>
+        </div>
+      </div>
+
+      @if (editMode()) {
+        <div class="erp-section">
+          <h3 class="erp-section-title">{{ 'REQUESTED_CARS.FORM.ATTACHMENTS' | translate }}</h3>
+          <div class="attachments-list">
+            @for (att of attachments(); track att.id) {
+              <div class="attachment-item">
+                <mat-icon>attach_file</mat-icon>
+                <a [href]="fileUrl(att)" target="_blank" class="attachment-name">{{ att.fileName }}</a>
+                <button mat-icon-button color="warn" type="button" (click)="deleteAttachment(att.id)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            } @empty {
+              <p class="no-attachments">{{ 'REQUESTED_CARS.FORM.NO_ATTACHMENTS' | translate }}</p>
+            }
+          </div>
+          <input type="file" (change)="onFileSelected($event)" [disabled]="uploading()" #fileInput hidden>
+          <button mat-stroked-button type="button" (click)="fileInput.click()" [disabled]="uploading()">
+            <mat-icon>upload_file</mat-icon>
+            {{ 'REQUESTED_CARS.FORM.UPLOAD_ATTACHMENT' | translate }}
           </button>
         </div>
-      </form>
-    </mat-card-content>
-  </mat-card>
+      }
+
+      <div class="erp-actions-bar">
+        <button mat-button routerLink="/consignment-cars" type="button">
+          {{ 'REQUESTED_CARS.FORM.CANCEL' | translate }}
+        </button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="carForm.invalid || saving()">
+          {{ editMode() ? ('REQUESTED_CARS.FORM.SAVE_CHANGES' | translate) : ('CONSIGNMENT.FORM.SAVE_CAR' | translate) }}
+        </button>
+      </div>
+    </form>
+  </div>
 </div>

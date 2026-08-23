@@ -1,109 +1,99 @@
-<div class="approval-history-container">
-  <mat-card>
-    <mat-card-header>
-      <div class="header-content">
-        <div class="header-left">
-          <mat-icon>history</mat-icon>
-          <mat-card-title>{{ 'APPROVALS.APPROVAL_HISTORY' | translate }}</mat-card-title>
-        </div>
-        <div class="header-right">
-          <button mat-icon-button (click)="refresh()" 
-            [matTooltip]="'APPROVALS.REFRESH' | translate"
-            [disabled]="isLoading()">
-            <mat-icon>refresh</mat-icon>
-          </button>
-        </div>
+<div class="approval-history-container erp-card">
+  <div class="erp-list-toolbar">
+    <mat-icon>history</mat-icon>
+    <span class="history-title">{{ 'APPROVALS.APPROVAL_HISTORY' | translate }}</span>
+    <span class="erp-toolbar-spacer"></span>
+    <button mat-icon-button (click)="refresh()"
+      [matTooltip]="'APPROVALS.REFRESH' | translate"
+      [disabled]="isLoading()">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+
+  <div class="erp-section">
+    @if (isLoading()) {
+      <div class="loading-state">
+        <mat-icon class="loading-icon">hourglass_empty</mat-icon>
+        <p>{{ 'APPROVALS.LOADING_HISTORY' | translate }}</p>
       </div>
-    </mat-card-header>
+    } @else if (!hasHistory()) {
+      <div class="empty-state">
+        <mat-icon>inbox</mat-icon>
+        <p>{{ 'APPROVALS.NO_HISTORY' | translate }}</p>
+      </div>
+    } @else {
+      <!-- Timeline -->
+      <div class="timeline">
+        @for (item of history(); track item.id; let isFirst = $first; let isLast = $last) {
+          <div class="timeline-item"
+            [class.approved]="item.action === 'Approved'"
+            [class.rejected]="item.action === 'Rejected'"
+            [class.pending]="item.action === 'Pending'">
 
-    <mat-card-content>
-      @if (isLoading()) {
-        <div class="loading-state">
-          <mat-icon class="loading-icon">hourglass_empty</mat-icon>
-          <p>{{ 'APPROVALS.LOADING_HISTORY' | translate }}</p>
-        </div>
-      } @else if (!hasHistory()) {
-        <div class="empty-state">
-          <mat-icon>inbox</mat-icon>
-          <p>{{ 'APPROVALS.NO_HISTORY' | translate }}</p>
-        </div>
-      } @else {
-        <!-- Timeline -->
-        <div class="timeline">
-          @for (item of history(); track item.id; let isFirst = $first; let isLast = $last) {
-            <div class="timeline-item" 
-              [class.approved]="item.action === 'Approved'"
-              [class.rejected]="item.action === 'Rejected'"
-              [class.pending]="item.action === 'Pending'">
-              
-              <!-- Timeline Connector -->
-              @if (!isFirst) {
-                <div class="timeline-connector"></div>
-              }
+            <!-- Timeline Connector -->
+            @if (!isFirst) {
+              <div class="timeline-connector"></div>
+            }
 
-              <!-- Timeline Marker -->
-              <div class="timeline-marker">
-                <mat-icon [color]="getActionColor(item.action)">
-                  {{ getActionIcon(item.action) }}
-                </mat-icon>
+            <!-- Timeline Marker -->
+            <div class="timeline-marker">
+              <mat-icon [color]="getActionColor(item.action)">
+                {{ getActionIcon(item.action) }}
+              </mat-icon>
+            </div>
+
+            <!-- Timeline Content -->
+            <div class="timeline-content">
+              <div class="content-header">
+                <div class="level-info">
+                  <span class="level-badge">{{ 'APPROVALS.LEVEL' | translate }} {{ item.level }}</span>
+                  <span class="level-name">{{ item.levelName }}</span>
+                </div>
+                <span class="erp-status-badge" [class.success]="item.action === 'Approved'" [class.danger]="item.action === 'Rejected'" [class.warning]="item.action === 'Pending'" [class.neutral]="item.action !== 'Approved' && item.action !== 'Rejected' && item.action !== 'Pending'">
+                  {{ item.action }}
+                </span>
               </div>
 
-              <!-- Timeline Content -->
-              <div class="timeline-content">
-                <div class="content-header">
-                  <div class="level-info">
-                    <span class="level-badge">{{ 'APPROVALS.LEVEL' | translate }} {{ item.level }}</span>
-                    <span class="level-name">{{ item.levelName }}</span>
-                  </div>
-                  <mat-chip [color]="getActionColor(item.action)" selected>
-                    {{ item.action }}
-                  </mat-chip>
+              <div class="content-body">
+                <div class="approver-info">
+                  <mat-icon>person</mat-icon>
+                  <span class="approver-name">{{ item.approverName }}</span>
                 </div>
 
-                <div class="content-body">
-                  <div class="approver-info">
-                    <mat-icon>person</mat-icon>
-                    <span class="approver-name">{{ item.approverName }}</span>
-                  </div>
-                  
-                  <div class="action-date">
-                    <mat-icon>schedule</mat-icon>
-                    <span>{{ formatDate(item.actionDate) }}</span>
-                  </div>
-
-                  @if (item.comment) {
-                    <div class="comment-box">
-                      <mat-icon>comment</mat-icon>
-                      <div class="comment-text">{{ item.comment }}</div>
-                    </div>
-                  }
+                <div class="action-date">
+                  <mat-icon>schedule</mat-icon>
+                  <span>{{ formatDate(item.actionDate) }}</span>
                 </div>
+
+                @if (item.comment) {
+                  <div class="comment-box">
+                    <mat-icon>comment</mat-icon>
+                    <div class="comment-text">{{ item.comment }}</div>
+                  </div>
+                }
               </div>
             </div>
-          }
-        </div>
-
-        <mat-divider></mat-divider>
-
-        <!-- Summary -->
-        <div class="history-summary">
-          <div class="summary-item">
-            <mat-icon>assignment</mat-icon>
-            <span class="summary-label">{{ 'APPROVALS.OVERALL_STATUS' | translate }}:</span>
-            <mat-chip [color]="getOverallStatus() === 'Approved' ? 'primary' : 
-                               getOverallStatus() === 'Rejected' ? 'warn' : 
-                               'accent'" 
-                      selected>
-              {{ getOverallStatus() }}
-            </mat-chip>
           </div>
-          <div class="summary-item">
-            <mat-icon>layers</mat-icon>
-            <span class="summary-label">{{ 'APPROVALS.HISTORY_ENTRIES' | translate }}:</span>
-            <span class="summary-value">{{ history().length }}</span>
-          </div>
+        }
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Summary -->
+      <div class="history-summary">
+        <div class="summary-item">
+          <mat-icon>assignment</mat-icon>
+          <span class="summary-label">{{ 'APPROVALS.OVERALL_STATUS' | translate }}:</span>
+          <span class="erp-status-badge" [class.success]="getOverallStatus() === 'Approved'" [class.danger]="getOverallStatus() === 'Rejected'" [class.warning]="getOverallStatus() === 'In Progress'" [class.neutral]="getOverallStatus() === 'No history'">
+            {{ getOverallStatus() }}
+          </span>
         </div>
-      }
-    </mat-card-content>
-  </mat-card>
+        <div class="summary-item">
+          <mat-icon>layers</mat-icon>
+          <span class="summary-label">{{ 'APPROVALS.HISTORY_ENTRIES' | translate }}:</span>
+          <span class="summary-value">{{ history().length }}</span>
+        </div>
+      </div>
+    }
+  </div>
 </div>

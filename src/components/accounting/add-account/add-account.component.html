@@ -1,14 +1,12 @@
 <div mat-dialog-title *ngIf="isQuickAddDialog">
   {{ (isEditing ? 'ACCOUNTING.EDIT_ACCOUNT' : 'ACCOUNTING.ADD_ACCOUNT') | translate }}
 </div>
-<mat-card *ngIf="!isQuickAddDialog">
-  <mat-card-header>
-    <mat-card-title>{{ (isEditing ? 'ACCOUNTING.EDIT_ACCOUNT' : 'ACCOUNTING.ADD_ACCOUNT') | translate }}</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
+<div class="erp-card" *ngIf="!isQuickAddDialog">
+  <div class="erp-section">
+    <h3 class="erp-section-title">{{ (isEditing ? 'ACCOUNTING.EDIT_ACCOUNT' : 'ACCOUNTING.ADD_ACCOUNT') | translate }}</h3>
     <ng-container *ngTemplateOutlet="formTemplate"></ng-container>
-  </mat-card-content>
-</mat-card>
+  </div>
+</div>
 <ng-container *ngIf="isQuickAddDialog">
   <ng-container *ngTemplateOutlet="formTemplate"></ng-container>
 </ng-container>
@@ -77,7 +75,7 @@
 
       <!-- Main Account Form (Simple) -->
       <div *ngIf="accountForm.get('accountTypeSelection')?.value === 'main'" class="account-form-section">
-        <div class="form-row">
+        <div class="erp-form-grid">
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'ACCOUNTING.ACCOUNT_CODE' | translate }}</mat-label>
             <input matInput formControlName="accountCode" required>
@@ -137,7 +135,7 @@
         </div>
 
         <!-- Basic Account Information -->
-        <div class="form-row">
+        <div class="erp-form-grid">
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'ACCOUNTING.ACCOUNT_CODE' | translate }}</mat-label>
             <input matInput formControlName="accountCode" required>
@@ -162,7 +160,7 @@
         </div>
 
       <!-- Account Structure (Hidden - Auto-populated from parent) -->
-      <div class="form-row" style="display: none;">
+      <div class="erp-form-grid" style="display: none;">
         <mat-form-field appearance="outline" class="form-field">
           <mat-label>{{ 'ACCOUNTING.ACCOUNT_LEVEL' | translate }}</mat-label>
           <input matInput type="number" formControlName="accountLevel">
@@ -183,11 +181,11 @@
       </div>
 
       <!-- Main Account Information -->
-      <div class="form-row">
+      <div class="erp-form-grid">
         <mat-checkbox formControlName="isMainAccount">{{ 'ACCOUNTING.IS_MAIN_ACCOUNT' | translate }}</mat-checkbox>
       </div>
 
-      <div class="form-row" *ngIf="!accountForm.get('isMainAccount')?.value">
+      <div class="erp-form-grid" *ngIf="!accountForm.get('isMainAccount')?.value">
         <mat-form-field appearance="outline" class="form-field">
           <mat-label>{{ 'ACCOUNTING.MAIN_ACCOUNT_CODE' | translate }}</mat-label>
           <input matInput formControlName="mainAccountCode">
@@ -203,7 +201,7 @@
       </div>
 
       <!-- Currency and Cost Center -->
-      <div class="form-row">
+      <div class="erp-form-grid">
         <mat-form-field appearance="outline" class="form-field">
           <mat-label>{{ 'ACCOUNTING.CURRENCY' | translate }}</mat-label>
           <mat-select formControlName="currencyId">
@@ -228,13 +226,13 @@
       </div>
 
       <!-- Status and Privacy -->
-      <div class="form-row">
+      <div class="erp-form-grid">
         <mat-checkbox formControlName="isActive">{{ 'ACCOUNTING.IS_ACTIVE' | translate }}</mat-checkbox>
         <mat-checkbox formControlName="isRetired">{{ 'ACCOUNTING.IS_RETIRED' | translate }}</mat-checkbox>
         <mat-checkbox formControlName="isPrivate">{{ 'ACCOUNTING.IS_PRIVATE' | translate }}</mat-checkbox>
       </div>
 
-      <div class="form-row" *ngIf="!accountForm.get('isActive')?.value">
+      <div class="erp-form-grid" *ngIf="!accountForm.get('isActive')?.value">
         <mat-form-field appearance="outline" class="form-field">
           <mat-label>{{ 'ACCOUNTING.INACTIVE_REASONS' | translate }}</mat-label>
           <textarea matInput formControlName="inActiveReasons" rows="3"></textarea>
@@ -243,12 +241,12 @@
       </div>
 
       <!-- Remarks and Notes -->
-      <div class="form-row">
+      <div class="erp-form-grid">
         <mat-checkbox formControlName="hasRemarks">{{ 'ACCOUNTING.HAS_REMARKS' | translate }}</mat-checkbox>
       </div>
 
       <div *ngIf="accountForm.get('hasRemarks')?.value">
-        <div class="form-row">
+        <div class="erp-form-grid">
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'ACCOUNTING.REMARKS_AR' | translate }}</mat-label>
             <textarea matInput formControlName="remarksAr" rows="2"></textarea>
@@ -262,7 +260,7 @@
           </mat-form-field>
         </div>
 
-        <div class="form-row">
+        <div class="erp-form-grid">
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'ACCOUNTING.NOTES_AR' | translate }}</mat-label>
             <textarea matInput formControlName="notesAr" rows="2"></textarea>
@@ -281,7 +279,7 @@
       <div class="form-section">
         <h3>{{ 'ACCOUNTING.INTEGRATION' | translate }}</h3>
 
-        <div class="form-row">
+        <div class="erp-form-grid">
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'ACCOUNTING.ENTITY_TYPE' | translate }}</mat-label>
             <mat-select formControlName="entityType">
@@ -296,13 +294,13 @@
 
         <!-- Customer -->
         <ng-container *ngIf="accountForm.get('entityType')?.value === 'customer'">
-          <div class="form-row">
+          <div class="erp-form-grid">
             <mat-checkbox formControlName="createNewClient" (change)="onCreateAutomaticallyChange($event.checked)">
               {{ 'ACCOUNTING.CREATE_NEW_CLIENT' | translate }}
             </mat-checkbox>
           </div>
 
-          <div class="form-row" *ngIf="accountForm.get('createNewClient')?.value">
+          <div class="erp-form-grid" *ngIf="accountForm.get('createNewClient')?.value">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'ACCOUNTING.NEW_CUSTOMER_PHONE' | translate }}</mat-label>
               <input matInput formControlName="newCustomerPhone" required>
@@ -311,7 +309,7 @@
             </mat-form-field>
           </div>
 
-          <div class="form-row" *ngIf="!accountForm.get('createNewClient')?.value">
+          <div class="erp-form-grid" *ngIf="!accountForm.get('createNewClient')?.value">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'ACCOUNTING.LINK_EXISTING_CUSTOMER' | translate }}</mat-label>
               <mat-select formControlName="customerId">
@@ -325,13 +323,13 @@
 
         <!-- Supplier -->
         <ng-container *ngIf="accountForm.get('entityType')?.value === 'supplier'">
-          <div class="form-row">
+          <div class="erp-form-grid">
             <mat-checkbox formControlName="createNewSupplier" (change)="onCreateAutomaticallyChange($event.checked)">
               {{ 'ACCOUNTING.CREATE_NEW_SUPPLIER' | translate }}
             </mat-checkbox>
           </div>
 
-          <div class="form-row" *ngIf="accountForm.get('createNewSupplier')?.value">
+          <div class="erp-form-grid" *ngIf="accountForm.get('createNewSupplier')?.value">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'ACCOUNTING.NEW_SUPPLIER_PHONE' | translate }}</mat-label>
               <input matInput formControlName="newSupplierPhone" required>
@@ -340,7 +338,7 @@
             </mat-form-field>
           </div>
 
-          <div class="form-row" *ngIf="!accountForm.get('createNewSupplier')?.value">
+          <div class="erp-form-grid" *ngIf="!accountForm.get('createNewSupplier')?.value">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'ACCOUNTING.LINK_EXISTING_SUPPLIER' | translate }}</mat-label>
               <mat-select formControlName="supplierId">
@@ -354,11 +352,11 @@
 
         <!-- Bank -->
         <ng-container *ngIf="accountForm.get('entityType')?.value === 'bank'">
-          <div class="form-row">
+          <div class="erp-form-grid">
             <mat-checkbox formControlName="createNewBank">{{ 'ACCOUNTING.CREATE_NEW_BANK' | translate }}</mat-checkbox>
           </div>
 
-          <div class="form-row" *ngIf="!accountForm.get('createNewBank')?.value">
+          <div class="erp-form-grid" *ngIf="!accountForm.get('createNewBank')?.value">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'ACCOUNTING.BANK_ID' | translate }}</mat-label>
               <input matInput type="number" formControlName="bankId">
@@ -374,7 +372,7 @@
         </ng-container>
 
         <!-- Update-only: opt-in name sync when the account is already linked -->
-        <div class="form-row" *ngIf="isEditing && accountForm.get('entityType')?.value !== 'none'">
+        <div class="erp-form-grid" *ngIf="isEditing && accountForm.get('entityType')?.value !== 'none'">
           <mat-checkbox formControlName="syncEntityName">{{ 'ACCOUNTING.SYNC_ENTITY_NAME' | translate }}</mat-checkbox>
         </div>
       </div>

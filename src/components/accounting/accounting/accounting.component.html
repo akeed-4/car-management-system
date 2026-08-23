@@ -1,19 +1,23 @@
-<div class="accounting-container">
-  <mat-toolbar color="primary" class="accounting-toolbar">
-    <span>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS' | translate }}</span>
-  </mat-toolbar>
+<div class="erp-page">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ 'ACCOUNTING.CHART_OF_ACCOUNTS' | translate }}</h2>
+    </div>
+  </div>
 
-  <mat-tab-group [(selectedIndex)]="selectedTab" (selectedTabChange)="onTabChange($event)">
-    <mat-tab label="{{ 'ACCOUNTING.CHART_OF_ACCOUNTS' | translate }}">
-      <app-chart-of-accounts></app-chart-of-accounts>
-    </mat-tab>
+  <div class="erp-card">
+    <mat-tab-group [(selectedIndex)]="selectedTab" (selectedTabChange)="onTabChange($event)">
+      <mat-tab label="{{ 'ACCOUNTING.CHART_OF_ACCOUNTS' | translate }}">
+        <app-chart-of-accounts></app-chart-of-accounts>
+      </mat-tab>
 
-    <mat-tab label="{{ 'ACCOUNTING.CHART_OF_ACCOUNTS_HIERARCHY' | translate }}">
-      <app-chart-of-accounts-tree></app-chart-of-accounts-tree>
-    </mat-tab>
+      <mat-tab label="{{ 'ACCOUNTING.CHART_OF_ACCOUNTS_HIERARCHY' | translate }}">
+        <app-chart-of-accounts-tree></app-chart-of-accounts-tree>
+      </mat-tab>
 
-    <mat-tab label="{{ 'ACCOUNTING.JOURNAL_ENTRIES' | translate }}">
-      <app-journal-entries></app-journal-entries>
-    </mat-tab>
-  </mat-tab-group>
+      <mat-tab label="{{ 'ACCOUNTING.JOURNAL_ENTRIES' | translate }}">
+        <app-journal-entries></app-journal-entries>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
 </div>

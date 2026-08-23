@@ -1,8 +1,10 @@
-<div class="page-container">
-  <div class="page-header header-row">
-    <h1>
-      {{ (mode === 'edit' ? 'BANK.EDIT_TITLE' : mode === 'view' ? 'BANK.VIEW_TITLE' : 'BANK.CREATE_TITLE') | translate }}
-    </h1>
+<div class="erp-page">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">
+        {{ (mode === 'edit' ? 'BANK.EDIT_TITLE' : mode === 'view' ? 'BANK.VIEW_TITLE' : 'BANK.CREATE_TITLE') | translate }}
+      </h2>
+    </div>
   </div>
 
   <div class="loading-overlay" *ngIf="isLoading()">
@@ -10,12 +12,10 @@
   </div>
 
   <form [formGroup]="form" (ngSubmit)="save()" *ngIf="!isLoading()">
-    <mat-card class="form-card">
-      <mat-card-header>
-        <mat-card-title>{{ 'BANK.SECTION_IDENTIFICATION' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="form-grid">
+    <div class="erp-card">
+      <div class="erp-section">
+        <h3 class="erp-section-title">{{ 'BANK.SECTION_IDENTIFICATION' | translate }}</h3>
+        <div class="erp-form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'BANK.BANK_CODE' | translate }}</mat-label>
             <input matInput formControlName="bankCode" maxlength="20" required>
@@ -58,15 +58,11 @@
         <div class="toggle-row">
           <mat-checkbox formControlName="isActive">{{ 'COMMON.ACTIVE' | translate }}</mat-checkbox>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </div>
 
-    <mat-card class="form-card">
-      <mat-card-header>
-        <mat-card-title>{{ 'BANK.SECTION_CONTACT' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="form-grid">
+      <div class="erp-section">
+        <h3 class="erp-section-title">{{ 'BANK.SECTION_CONTACT' | translate }}</h3>
+        <div class="erp-form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'BANK.PHONE' | translate }}</mat-label>
             <input matInput formControlName="phone">
@@ -83,31 +79,31 @@
             <input matInput formControlName="website">
           </mat-form-field>
 
-          <mat-form-field appearance="outline" class="full-width">
+          <mat-form-field appearance="outline" class="erp-span-2">
             <mat-label>{{ 'BANK.ADDRESS' | translate }}</mat-label>
             <input matInput formControlName="address">
           </mat-form-field>
 
-          <mat-form-field appearance="outline" class="full-width">
+          <mat-form-field appearance="outline" class="erp-span-2">
             <mat-label>{{ 'BANK.NOTES' | translate }}</mat-label>
             <textarea matInput formControlName="notes" rows="3" maxlength="1000"></textarea>
           </mat-form-field>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </div>
 
-    <div class="form-actions">
-      <button mat-raised-button color="primary" type="submit" *ngIf="!isView" [disabled]="isSaving()">
-        <mat-icon>save</mat-icon>
-        {{ 'COMMON.SAVE' | translate }}
-      </button>
-      <button mat-raised-button color="accent" type="button" *ngIf="isView" (click)="editFromView()">
-        <mat-icon>edit</mat-icon>
-        {{ 'COMMON.EDIT' | translate }}
-      </button>
-      <button mat-stroked-button type="button" (click)="cancel()">
-        {{ (isView ? 'COMMON.BACK' : 'COMMON.CANCEL') | translate }}
-      </button>
+      <div class="erp-actions-bar">
+        <button mat-raised-button color="primary" type="submit" *ngIf="!isView" [disabled]="isSaving()">
+          <mat-icon>save</mat-icon>
+          {{ 'COMMON.SAVE' | translate }}
+        </button>
+        <button mat-raised-button color="accent" type="button" *ngIf="isView" (click)="editFromView()">
+          <mat-icon>edit</mat-icon>
+          {{ 'COMMON.EDIT' | translate }}
+        </button>
+        <button mat-stroked-button type="button" (click)="cancel()">
+          {{ (isView ? 'COMMON.BACK' : 'COMMON.CANCEL') | translate }}
+        </button>
+      </div>
     </div>
   </form>
 </div>

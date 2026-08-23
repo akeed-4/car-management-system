@@ -5,30 +5,34 @@
   [titleKey]="'SALES_LIFECYCLE.BUNUK.CREATE_ORDER'">
 </app-sales-invoice-form>
 
-<div class="container" *ngIf="!editId">
-  <div class="page-header">
-    <h2>{{ 'BANK_FINANCING.INVOICE_TITLE' | translate }}</h2>
-    <a routerLink="/sales/bank/invoices" class="back-link">
-      <button mat-icon-button>
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <span>{{ 'INVOICE.BACK_TO_SALES' | translate }}</span>
-    </a>
+<div class="erp-page container" *ngIf="!editId">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ 'BANK_FINANCING.INVOICE_TITLE' | translate }}</h2>
+    </div>
+    <div class="erp-page-actions">
+      <a routerLink="/sales/bank/invoices" class="back-link">
+        <button mat-icon-button>
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <span>{{ 'INVOICE.BACK_TO_SALES' | translate }}</span>
+      </a>
+    </div>
   </div>
 
-  <mat-card class="doc-card">
-    <section class="form-section">
-      <h3 class="form-section-title">{{ 'INVOICE.SOURCE_TITLE' | translate }}</h3>
+  <div class="erp-card doc-card">
+    <section class="erp-section">
+      <h3 class="erp-section-title">{{ 'INVOICE.SOURCE_TITLE' | translate }}</h3>
       <mat-button-toggle-group [(ngModel)]="source" (change)="onSourceChange($event.value)" class="source-toggle">
         <mat-button-toggle value="order">{{ 'BANK_FINANCING.SOURCE_ORDER' | translate }}</mat-button-toggle>
         <mat-button-toggle value="delivery">{{ 'INVOICE.SOURCE_DELIVERY' | translate }}</mat-button-toggle>
       </mat-button-toggle-group>
     </section>
-  </mat-card>
+  </div>
 
-  <mat-card class="doc-card" *ngIf="source === 'order'">
-    <section class="form-section">
-      <h3 class="form-section-title">{{ 'BANK_FINANCING.ORDER_TITLE' | translate }}</h3>
+  <div class="erp-card doc-card" *ngIf="source === 'order'">
+    <section class="erp-section">
+      <h3 class="erp-section-title">{{ 'BANK_FINANCING.ORDER_TITLE' | translate }}</h3>
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>{{ 'BANK_FINANCING.SELECT_SALES_ORDER' | translate }}</mat-label>
         <mat-select [ngModel]="selectedOrderId" (ngModelChange)="onOrderSelected($event)">
@@ -40,51 +44,45 @@
         <mat-spinner *ngIf="ordersLoading()" matSuffix diameter="18"></mat-spinner>
       </mat-form-field>
     </section>
-  </mat-card>
+  </div>
 
-  <mat-card class="doc-card" *ngIf="source === 'order' && selectedOrder() as o">
-    <section class="form-section">
-      <ng-container *ngIf="cardLayout3 | async as layout">
-        <mat-grid-list [cols]="layout.columns" rowHeight="76" gutterSize="16px">
-          <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-            <div class="readonly-field">
-              <span class="readonly-label">{{ 'BANK_FINANCING.END_USER_NAME' | translate }}</span>
-              <span class="readonly-value">{{ o.endUserName }}</span>
-            </div>
-          </mat-grid-tile>
-          <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-            <div class="readonly-field">
-              <span class="readonly-label">{{ 'BANK_FINANCING.BANK' | translate }}</span>
-              <span class="readonly-value">{{ o.bankName }}</span>
-            </div>
-          </mat-grid-tile>
-          <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-            <div class="readonly-field">
-              <span class="readonly-label">{{ 'BANK_FINANCING.ORDER_NUMBER' | translate }}</span>
-              <span class="readonly-value font-mono">{{ o.orderNumber }}</span>
-            </div>
-          </mat-grid-tile>
-        </mat-grid-list>
-      </ng-container>
+  <div class="erp-card doc-card" *ngIf="source === 'order' && selectedOrder() as o">
+    <section class="erp-section">
+      <div class="erp-info-grid">
+        <div class="erp-info-field">
+          <span class="erp-info-label">{{ 'BANK_FINANCING.END_USER_NAME' | translate }}</span>
+          <span class="erp-info-value">{{ o.endUserName }}</span>
+        </div>
+        <div class="erp-info-field">
+          <span class="erp-info-label">{{ 'BANK_FINANCING.BANK' | translate }}</span>
+          <span class="erp-info-value">{{ o.bankName }}</span>
+        </div>
+        <div class="erp-info-field">
+          <span class="erp-info-label">{{ 'BANK_FINANCING.ORDER_NUMBER' | translate }}</span>
+          <span class="erp-info-value font-mono">{{ o.orderNumber }}</span>
+        </div>
+      </div>
     </section>
-  </mat-card>
+  </div>
 
-  <mat-card class="doc-card lines-card" *ngIf="source === 'order' && selectedOrder()">
-    <div class="section-header">
-      <h3 class="form-section-title">{{ 'BANK_FINANCING.FINANCED_VEHICLE' | translate }}</h3>
-    </div>
-    <div class="table-container">
-      <dx-data-grid [dataSource]="orderVehicleLines()" [showBorders]="true" [columnAutoWidth]="true" [rtlEnabled]="true" [height]="140">
-        <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}"></dxi-column>
-        <dxi-column dataField="vin" caption="VIN"></dxi-column>
-        <dxi-column dataField="vehiclePrice" caption="{{ 'BANK_FINANCING.VEHICLE_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
-      </dx-data-grid>
-    </div>
-  </mat-card>
+  <div class="erp-card doc-card lines-card" *ngIf="source === 'order' && selectedOrder()">
+    <section class="erp-section">
+      <div class="section-header">
+        <h3 class="erp-section-title">{{ 'BANK_FINANCING.FINANCED_VEHICLE' | translate }}</h3>
+      </div>
+      <div class="erp-grid-card table-container">
+        <dx-data-grid [dataSource]="orderVehicleLines()" [showBorders]="true" [columnAutoWidth]="true" [rtlEnabled]="true" [height]="140">
+          <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}"></dxi-column>
+          <dxi-column dataField="vin" caption="VIN"></dxi-column>
+          <dxi-column dataField="vehiclePrice" caption="{{ 'BANK_FINANCING.VEHICLE_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
+        </dx-data-grid>
+      </div>
+    </section>
+  </div>
 
-  <mat-card class="doc-card" *ngIf="source === 'delivery'">
-    <section class="form-section">
-      <h3 class="form-section-title">{{ 'INVOICE.SOURCE_DELIVERY' | translate }}</h3>
+  <div class="erp-card doc-card" *ngIf="source === 'delivery'">
+    <section class="erp-section">
+      <h3 class="erp-section-title">{{ 'INVOICE.SOURCE_DELIVERY' | translate }}</h3>
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>{{ 'BANK_FINANCING.SELECT_DELIVERY' | translate }}</mat-label>
         <mat-select [ngModel]="selectedDeliveryId" (ngModelChange)="onDeliverySelected($event)">
@@ -96,81 +94,69 @@
         <mat-spinner *ngIf="deliveriesLoading()" matSuffix diameter="18"></mat-spinner>
       </mat-form-field>
     </section>
-  </mat-card>
+  </div>
 
-  <mat-card class="doc-card lines-card" *ngIf="source === 'delivery' && selectedDelivery() as d">
-    <div class="section-header">
-      <h3 class="form-section-title">{{ 'BANK_FINANCING.FINANCED_VEHICLE' | translate }}</h3>
-    </div>
-    <div class="table-container">
-      <dx-data-grid [dataSource]="[d]" [showBorders]="true" [columnAutoWidth]="true" [rtlEnabled]="true" [height]="140">
-        <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}"></dxi-column>
-        <dxi-column dataField="vin" caption="VIN"></dxi-column>
-        <dxi-column dataField="unitPrice" caption="{{ 'BANK_FINANCING.VEHICLE_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
-        <dxi-column dataField="deliveryDate" caption="{{ 'CORPORATE.DELIVERY_DATE' | translate }}" dataType="date"></dxi-column>
-      </dx-data-grid>
-    </div>
-  </mat-card>
-
-  <mat-card class="doc-card">
-    <section class="form-section">
-      <h3 class="form-section-title">{{ 'BANK_FINANCING.INVOICE_DETAILS' | translate }}</h3>
-      <ng-container *ngIf="cardLayout3 | async as layout">
-        <mat-grid-list [cols]="layout.columns" rowHeight="80" gutterSize="16px">
-          <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'BANK_FINANCING.BILLING_CUSTOMER' | translate }}</mat-label>
-              <mat-select [(ngModel)]="bankBillingCustomerId" required>
-                <mat-option *ngFor="let c of customers()" [value]="c.id">{{ c.name }}</mat-option>
-              </mat-select>
-            </mat-form-field>
-          </mat-grid-tile>
-          <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'BANK_FINANCING.ISSUED_PLATE_NUMBER' | translate }}</mat-label>
-              <input matInput [(ngModel)]="issuedPlateNumber" required>
-            </mat-form-field>
-          </mat-grid-tile>
-        </mat-grid-list>
-      </ng-container>
-      <ng-container *ngIf="cardLayout3 | async as layout">
-        <mat-grid-list [cols]="layout.columns" rowHeight="80" gutterSize="16px">
-          <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-            <div class="field-with-add">
-              <mat-form-field appearance="outline" class="field-with-add-select">
-                <mat-label>{{ 'INVOICE.DEBIT_ACCOUNT' | translate }}</mat-label>
-                <mat-select [(ngModel)]="debitAccountId" required>
-                  <mat-option *ngFor="let account of debitAccounts()" [value]="account.id">
-                    {{ account.accountCode }} - {{ account.accountNameAr }}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
-              <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateDebitAccountDialog()">
-                <mat-icon>add</mat-icon>
-              </button>
-            </div>
-          </mat-grid-tile>
-          <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-            <div class="field-with-add">
-              <mat-form-field appearance="outline" class="field-with-add-select">
-                <mat-label>{{ 'INVOICE.CREDIT_ACCOUNT' | translate }}</mat-label>
-                <mat-select [(ngModel)]="creditAccountId" required>
-                  <mat-option *ngFor="let account of creditAccounts()" [value]="account.id">
-                    {{ account.accountCode }} - {{ account.accountNameAr }}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
-              <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateCreditAccountDialog()">
-                <mat-icon>add</mat-icon>
-              </button>
-            </div>
-          </mat-grid-tile>
-        </mat-grid-list>
-      </ng-container>
+  <div class="erp-card doc-card lines-card" *ngIf="source === 'delivery' && selectedDelivery() as d">
+    <section class="erp-section">
+      <div class="section-header">
+        <h3 class="erp-section-title">{{ 'BANK_FINANCING.FINANCED_VEHICLE' | translate }}</h3>
+      </div>
+      <div class="erp-grid-card table-container">
+        <dx-data-grid [dataSource]="[d]" [showBorders]="true" [columnAutoWidth]="true" [rtlEnabled]="true" [height]="140">
+          <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}"></dxi-column>
+          <dxi-column dataField="vin" caption="VIN"></dxi-column>
+          <dxi-column dataField="unitPrice" caption="{{ 'BANK_FINANCING.VEHICLE_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
+          <dxi-column dataField="deliveryDate" caption="{{ 'CORPORATE.DELIVERY_DATE' | translate }}" dataType="date"></dxi-column>
+        </dx-data-grid>
+      </div>
     </section>
-  </mat-card>
+  </div>
 
-  <div class="form-actions-bar">
+  <div class="erp-card doc-card">
+    <section class="erp-section">
+      <h3 class="erp-section-title">{{ 'BANK_FINANCING.INVOICE_DETAILS' | translate }}</h3>
+      <div class="erp-form-grid">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'BANK_FINANCING.BILLING_CUSTOMER' | translate }}</mat-label>
+          <mat-select [(ngModel)]="bankBillingCustomerId" required>
+            <mat-option *ngFor="let c of customers()" [value]="c.id">{{ c.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'BANK_FINANCING.ISSUED_PLATE_NUMBER' | translate }}</mat-label>
+          <input matInput [(ngModel)]="issuedPlateNumber" required>
+        </mat-form-field>
+        <div class="field-with-add">
+          <mat-form-field appearance="outline" class="field-with-add-select">
+            <mat-label>{{ 'INVOICE.DEBIT_ACCOUNT' | translate }}</mat-label>
+            <mat-select [(ngModel)]="debitAccountId" required>
+              <mat-option *ngFor="let account of debitAccounts()" [value]="account.id">
+                {{ account.accountCode }} - {{ account.accountNameAr }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateDebitAccountDialog()">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+        <div class="field-with-add">
+          <mat-form-field appearance="outline" class="field-with-add-select">
+            <mat-label>{{ 'INVOICE.CREDIT_ACCOUNT' | translate }}</mat-label>
+            <mat-select [(ngModel)]="creditAccountId" required>
+              <mat-option *ngFor="let account of creditAccounts()" [value]="account.id">
+                {{ account.accountCode }} - {{ account.accountNameAr }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateCreditAccountDialog()">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="erp-actions-bar form-actions-bar">
     <button mat-raised-button color="primary" class="save-btn" (click)="onSubmit()" [disabled]="!isFormValid || submitting()">
       <mat-icon>receipt_long</mat-icon>
       {{ 'INVOICE.CREATE_TITLE' | translate }}

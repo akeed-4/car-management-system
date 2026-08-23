@@ -1,12 +1,12 @@
-<mat-card class="customer-tracking-card">
-  <mat-card-header>
-    <mat-card-title>
-      <mat-icon>people</mat-icon>
+<div class="erp-card customer-tracking-card">
+  <div class="erp-section customer-tracking-header">
+    <h3 class="erp-section-title">
+      <mat-icon class="erp-section-icon">people</mat-icon>
       <span>{{ 'DASHBOARD.TOP_CUSTOMERS' | translate }}</span>
-    </mat-card-title>
-  </mat-card-header>
+    </h3>
+  </div>
 
-  <mat-card-content>
+  <div class="erp-section customer-tracking-body">
     <!-- Data Table -->
     <div class="table-container" *ngIf="!loading && data && data.length > 0">
       <table mat-table [dataSource]="data" class="customers-table">
@@ -91,5 +91,5 @@
       <mat-icon>people_outline</mat-icon>
       <p>{{ 'DASHBOARD.NO_CUSTOMERS_DATA' | translate }}</p>
     </div>
-  </mat-card-content>
-</mat-card>
+  </div>
+</div>

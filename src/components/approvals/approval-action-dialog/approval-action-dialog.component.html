@@ -6,30 +6,30 @@
 
   <mat-dialog-content>
     <!-- Document Information -->
-    <section class="info-section">
-      <h3>{{ 'APPROVALS.DOCUMENT_INFORMATION' | translate }}</h3>
-      <div class="info-grid">
-        <div class="info-item">
-          <span class="info-label">{{ 'APPROVALS.DOCUMENT_TYPE' | translate }}:</span>
+    <section class="erp-section">
+      <h3 class="erp-section-title">{{ 'APPROVALS.DOCUMENT_INFORMATION' | translate }}</h3>
+      <div class="erp-info-grid">
+        <div class="erp-info-field">
+          <span class="erp-info-label">{{ 'APPROVALS.DOCUMENT_TYPE' | translate }}</span>
           <mat-chip color="accent" selected>{{ approval.documentType }}</mat-chip>
         </div>
-        <div class="info-item">
-          <span class="info-label">{{ 'APPROVALS.DOCUMENT_NUMBER' | translate }}:</span>
-          <span class="info-value">{{ approval.documentNumber }}</span>
+        <div class="erp-info-field">
+          <span class="erp-info-label">{{ 'APPROVALS.DOCUMENT_NUMBER' | translate }}</span>
+          <span class="erp-info-value">{{ approval.documentNumber }}</span>
         </div>
         @if (approval.amount) {
-          <div class="info-item">
-            <span class="info-label">{{ 'APPROVALS.AMOUNT' | translate }}:</span>
-            <span class="info-value amount">{{ approval.amount | currency:'SAR':'symbol':'1.0-0' }}</span>
+          <div class="erp-info-field">
+            <span class="erp-info-label">{{ 'APPROVALS.AMOUNT' | translate }}</span>
+            <span class="erp-info-value amount">{{ approval.amount | currency:'SAR':'symbol':'1.0-0' }}</span>
           </div>
         }
-        <div class="info-item">
-          <span class="info-label">{{ 'APPROVALS.REQUESTED_BY' | translate }}:</span>
-          <span class="info-value">{{ approval.initiatedByName }}</span>
+        <div class="erp-info-field">
+          <span class="erp-info-label">{{ 'APPROVALS.REQUESTED_BY' | translate }}</span>
+          <span class="erp-info-value">{{ approval.initiatedByName }}</span>
         </div>
-        <div class="info-item">
-          <span class="info-label">{{ 'APPROVALS.REQUESTED_DATE' | translate }}:</span>
-          <span class="info-value">{{ formatDate(approval.initiatedAt) }}</span>
+        <div class="erp-info-field">
+          <span class="erp-info-label">{{ 'APPROVALS.REQUESTED_DATE' | translate }}</span>
+          <span class="erp-info-value">{{ formatDate(approval.initiatedAt) }}</span>
         </div>
       </div>
     </section>
@@ -37,8 +37,8 @@
     <mat-divider></mat-divider>
 
     <!-- Approval Progress -->
-    <section class="progress-section">
-      <h3>{{ 'APPROVALS.APPROVAL_PROGRESS' | translate }}</h3>
+    <section class="erp-section">
+      <h3 class="erp-section-title">{{ 'APPROVALS.APPROVAL_PROGRESS' | translate }}</h3>
       <div class="progress-info">
         <span>{{ 'APPROVALS.LEVEL' | translate }} {{ approval.currentLevel }} {{ 'APPROVALS.OF' | translate }} {{ approval.totalLevels }}</span>
         <span class="progress-percentage">{{ getProgressPercentage() | number:'1.0-0' }}%</span>
@@ -50,16 +50,16 @@
 
     <!-- Previous Approvals -->
     @if (approval.approvalHistory && approval.approvalHistory.length > 0) {
-      <section class="history-section">
-        <h3>{{ 'APPROVALS.APPROVAL_HISTORY' | translate }}</h3>
+      <section class="erp-section">
+        <h3 class="erp-section-title">{{ 'APPROVALS.APPROVAL_HISTORY' | translate }}</h3>
         <div class="history-list">
           @for (history of approval.approvalHistory; track history.id) {
             <div class="history-item" [class.approved]="history.action === 'Approved'" [class.rejected]="history.action === 'Rejected'">
               <div class="history-header">
                 <span class="history-level">{{ 'APPROVALS.LEVEL' | translate }} {{ history.level }}: {{ history.levelName }}</span>
-                <mat-chip [color]="history.action === 'Approved' ? 'primary' : 'warn'" selected>
+                <span class="erp-status-badge" [class.success]="history.action === 'Approved'" [class.danger]="history.action === 'Rejected'" [class.neutral]="history.action !== 'Approved' && history.action !== 'Rejected'">
                   {{ history.action }}
-                </mat-chip>
+                </span>
               </div>
               <div class="history-details">
                 <span class="history-approver">{{ history.approverName }}</span>
@@ -80,8 +80,8 @@
     }
 
     <!-- Action Form -->
-    <section class="action-section">
-      <h3>{{ 'APPROVALS.YOUR_DECISION' | translate }}</h3>
+    <section class="erp-section">
+      <h3 class="erp-section-title">{{ 'APPROVALS.YOUR_DECISION' | translate }}</h3>
       <form [formGroup]="actionForm">
         <mat-radio-group formControlName="action" class="action-radio-group">
           <mat-radio-button value="Approve" color="primary">
@@ -96,7 +96,7 @@
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ 'APPROVALS.COMMENT' | translate }}</mat-label>
-          <textarea matInput formControlName="comment" rows="4" 
+          <textarea matInput formControlName="comment" rows="4"
             placeholder="{{ 'APPROVALS.COMMENT_PLACEHOLDER' | translate }}"></textarea>
         </mat-form-field>
       </form>
@@ -107,7 +107,7 @@
     <button mat-button (click)="cancel()" [disabled]="isProcessing()">
       {{ 'APPROVALS.CANCEL' | translate }}
     </button>
-    <button mat-raised-button [color]="actionForm.get('action')?.value === 'Approve' ? 'primary' : 'warn'" 
+    <button mat-raised-button [color]="actionForm.get('action')?.value === 'Approve' ? 'primary' : 'warn'"
       (click)="submitAction()" [disabled]="actionForm.invalid || isProcessing()">
       <mat-icon>{{ actionForm.get('action')?.value === 'Approve' ? 'check_circle' : 'cancel' }}</mat-icon>
       {{ (actionForm.get('action')?.value === 'Approve' ? 'APPROVALS.APPROVE' : 'APPROVALS.REJECT') | translate }}

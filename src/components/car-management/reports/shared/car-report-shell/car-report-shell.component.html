@@ -1,15 +1,13 @@
-<div class="page-container">
-  <div class="page-header">
-    <div class="breadcrumb">
-      <span>{{ 'CAR_REPORTS.BACK_TO_REPORTS' | translate }}</span>
-      <mat-icon>chevron_right</mat-icon>
-      <span class="current">{{ breadcrumbKey | translate }}</span>
-    </div>
-    <div class="header-row">
-      <div>
-        <h1>{{ titleKey | translate }}</h1>
-        <p class="subtitle">{{ subtitleKey | translate }}</p>
+<div class="erp-page">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <div class="breadcrumb">
+        <span>{{ 'CAR_REPORTS.BACK_TO_REPORTS' | translate }}</span>
+        <mat-icon>chevron_right</mat-icon>
+        <span class="current">{{ breadcrumbKey | translate }}</span>
       </div>
+      <h1 class="erp-page-title">{{ titleKey | translate }}</h1>
+      <p class="erp-page-subtitle">{{ subtitleKey | translate }}</p>
     </div>
   </div>
 
@@ -36,7 +34,7 @@
     (columnChooser)="openColumnChooser()">
   </app-report-toolbar>
 
-  <div class="grid-container">
+  <div class="erp-grid-card grid-container">
     <div class="loading-overlay" *ngIf="loading">
       <mat-spinner diameter="40"></mat-spinner>
     </div>

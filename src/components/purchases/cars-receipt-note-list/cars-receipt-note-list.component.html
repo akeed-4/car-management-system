@@ -1,9 +1,9 @@
-<div class="container-fluid p-4">
-  <div class="page-header strong-header header-row">
-    <div class="header-left">
-      <h2>{{ 'CARS_RECEIPT_NOTE.LIST_TITLE' | translate }}</h2>
+<div class="erp-page">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ 'CARS_RECEIPT_NOTE.LIST_TITLE' | translate }}</h2>
     </div>
-    <div class="header-right">
+    <div class="erp-page-actions">
       <button mat-raised-button color="primary" (click)="onCreateNew()">
         <mat-icon>add</mat-icon>
         {{ 'CARS_RECEIPT_NOTE.CREATE_TITLE' | translate }}
@@ -24,40 +24,42 @@
       </ng-template>
     </app-mobile-card-list>
   } @else {
-  <dx-data-grid
-    [dataSource]="receiptNotes"
-    [showBorders]="true"
-    [columnAutoWidth]="true"
-    [rowAlternationEnabled]="true"
-    [rtlEnabled]="true"
-    height="600px"
-    [showRowLines]="true"
-    [allowColumnReordering]="true"
-    [allowColumnResizing]="true"
-    keyExpr="id">
+  <div class="erp-grid-card">
+    <dx-data-grid
+      [dataSource]="receiptNotes"
+      [showBorders]="true"
+      [columnAutoWidth]="true"
+      [rowAlternationEnabled]="true"
+      [rtlEnabled]="true"
+      height="600px"
+      [showRowLines]="true"
+      [allowColumnReordering]="true"
+      [allowColumnResizing]="true"
+      keyExpr="id">
 
-    <dxo-search-panel [visible]="true"></dxo-search-panel>
-    <dxo-filter-row [visible]="true"></dxo-filter-row>
-    <dxo-header-filter [visible]="true"></dxo-header-filter>
-    <dxo-paging [pageSize]="10"></dxo-paging>
-    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
+      <dxo-search-panel [visible]="true"></dxo-search-panel>
+      <dxo-filter-row [visible]="true"></dxo-filter-row>
+      <dxo-header-filter [visible]="true"></dxo-header-filter>
+      <dxo-paging [pageSize]="10"></dxo-paging>
+      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
 
-    <dxi-column dataField="grnNumber" [caption]="'CARS_RECEIPT_NOTE.GRN_NUMBER' | translate"></dxi-column>
-    <dxi-column dataField="receiptDate" [caption]="'CARS_RECEIPT_NOTE.RECEIPT_DATE' | translate" dataType="date"></dxi-column>
-    <dxi-column dataField="poNumber" [caption]="'CARS_RECEIPT_NOTE.PO_NUMBER' | translate"></dxi-column>
-    <dxi-column dataField="items" [caption]="'CARS_RECEIPT_NOTE.ITEMS_COUNT' | translate" [calculateCellValue]="getItemsCount"></dxi-column>
-    <dxi-column dataField="status" [caption]="'CARS_RECEIPT_NOTE.STATUS' | translate" cellTemplate="statusCellTemplate"></dxi-column>
-    <div *dxTemplate="let cell of 'statusCellTemplate'">
-      <app-document-status-badge [status]="cell.value"></app-document-status-badge>
-    </div>
+      <dxi-column dataField="grnNumber" [caption]="'CARS_RECEIPT_NOTE.GRN_NUMBER' | translate"></dxi-column>
+      <dxi-column dataField="receiptDate" [caption]="'CARS_RECEIPT_NOTE.RECEIPT_DATE' | translate" dataType="date"></dxi-column>
+      <dxi-column dataField="poNumber" [caption]="'CARS_RECEIPT_NOTE.PO_NUMBER' | translate"></dxi-column>
+      <dxi-column dataField="items" [caption]="'CARS_RECEIPT_NOTE.ITEMS_COUNT' | translate" [calculateCellValue]="getItemsCount"></dxi-column>
+      <dxi-column dataField="status" [caption]="'CARS_RECEIPT_NOTE.STATUS' | translate" cellTemplate="statusCellTemplate"></dxi-column>
+      <div *dxTemplate="let cell of 'statusCellTemplate'">
+        <app-document-status-badge [status]="cell.value"></app-document-status-badge>
+      </div>
 
-    <dxi-column type="buttons" [width]="90">
-      <dxi-button
-        icon="find"
-        [hint]="'COMMON.VIEW' | translate"
-        [onClick]="onView.bind(this)">
-      </dxi-button>
-    </dxi-column>
-  </dx-data-grid>
+      <dxi-column type="buttons" [width]="90">
+        <dxi-button
+          icon="find"
+          [hint]="'COMMON.VIEW' | translate"
+          [onClick]="onView.bind(this)">
+        </dxi-button>
+      </dxi-column>
+    </dx-data-grid>
+  </div>
   }
 </div>

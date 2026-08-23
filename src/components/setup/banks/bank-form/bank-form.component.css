@@ -1,28 +1,6 @@
-.page-container {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 16px 20px 32px;
-}
-
-.page-header {
-  margin-bottom: 16px;
-}
-
-.header-row h1 {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 600;
-}
-
-.form-card {
-  position: relative;
-  padding: 24px;
-  margin-bottom: 16px;
-}
-
-.form-card mat-card-header {
-  margin-bottom: 8px;
-}
+/* Bank form -- page shell, header, card, section titles, form grid and actions
+   bar come from the shared design system (src/styles/form-system.css: .erp-*
+   classes). Only the loading overlay and checkbox row remain here. */
 
 .loading-overlay {
   display: flex;
@@ -31,31 +9,8 @@
   padding: 60px 0;
 }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0 16px;
-}
-
-.full-width {
-  grid-column: 1 / -1;
-}
-
 .toggle-row {
   display: flex;
-  gap: 20px;
-  margin: 8px 0 16px;
-}
-
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 12px;
-}
-
-@media (max-width: 768px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
+  gap: var(--space-4);
+  margin: var(--space-2) 0 var(--space-3);
 }

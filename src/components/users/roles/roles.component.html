@@ -1,17 +1,17 @@
 <div class="roles-page">
-  <header class="page-header">
-    <mat-icon class="header-icon">security</mat-icon>
-    <div class="header-text">
-      <nav class="breadcrumb" aria-label="breadcrumb">
-        <span>{{ 'ROLES.PAGE.BREADCRUMB' | translate }}</span>
-      </nav>
-      <h1 class="page-title">{{ 'ROLES.PAGE.TITLE' | translate }}</h1>
-      <p class="page-subtitle">{{ 'ROLES.PAGE.SUBTITLE' | translate }}</p>
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <span class="erp-page-eyebrow">{{ 'ROLES.PAGE.BREADCRUMB' | translate }}</span>
+      <h2 class="erp-page-title">
+        <mat-icon class="erp-section-icon">security</mat-icon>
+        {{ 'ROLES.PAGE.TITLE' | translate }}
+      </h2>
+      <p class="erp-page-subtitle">{{ 'ROLES.PAGE.SUBTITLE' | translate }}</p>
     </div>
-  </header>
+  </div>
 
   <div class="roles-grid">
-    <section class="panel role-list-container">
+    <section class="erp-card panel role-list-container">
       <app-role-list-panel
         [roles]="rolesWithStats()"
         [selectedRoleId]="selectedRoleId()"
@@ -30,7 +30,7 @@
       </app-role-list-panel>
     </section>
 
-    <section class="panel permission-panel-container">
+    <section class="erp-card panel permission-panel-container">
       <app-permission-panel
         [permissionsList]="permissionsList()"
         [currentPermissions]="currentPermissions()"
