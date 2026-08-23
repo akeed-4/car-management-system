@@ -1,9 +1,9 @@
-<div class="container">
-  <div class="page-header strong-header">
-    <div class="header-info">
-      <h2 class="strong-title">{{ 'SALES_REQUEST.TITLE' | translate }}</h2>
+<div class="erp-page container">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ 'SALES_REQUEST.TITLE' | translate }}</h2>
     </div>
-    <div class="header-actions">
+    <div class="erp-page-actions">
       <button mat-button class="btn btn-secondary btn-small" (click)="showDetails()">
         {{ 'SALES_REQUEST.DETAILS' | translate }}
       </button>
@@ -17,10 +17,10 @@
     </div>
   </div>
 
-  <div class="card invoice-card">
+  <div class="erp-card invoice-card">
     <form [formGroup]="salesRequestForm" (ngSubmit)="onSubmit()">
-      <section class="form-section">
-        <h3 class="form-section-title">{{ 'SALES_REQUEST.MAIN_DATA' | translate }}</h3>
+      <section class="erp-section form-section">
+        <h3 class="erp-section-title form-section-title">{{ 'SALES_REQUEST.MAIN_DATA' | translate }}</h3>
 
         <ng-container *ngIf="cardLayout3 | async as layout">
           <mat-grid-list [cols]="layout.columns" rowHeight="90">
@@ -81,7 +81,7 @@
         </ng-container>
       </section>
 
-      <section class="form-section">
+      <section class="erp-section form-section">
         <div class="table-actions">
           <button mat-raised-button color="primary" type="button" (click)="searchItems()">
             <mat-icon>search</mat-icon>
@@ -102,8 +102,8 @@
         </div>
       </section>
 
-      <section class="form-section">
-        <div class="table-wrapper premium-table">
+      <section class="erp-section form-section">
+        <div class="erp-grid-card table-wrapper premium-table">
           <dx-data-grid
             [dataSource]="requestItems"
             [showBorders]="true"
@@ -136,7 +136,7 @@
         </div>
       </section>
 
-      <div class="form-actions">
+      <div class="erp-actions-bar form-actions">
         <a routerLink="/sales/requests" class="btn btn-secondary">{{ 'COMMON.CANCEL' | translate }}</a>
         <button mat-raised-button color="primary" type="submit" [disabled]="!salesRequestForm.valid || requestItems.length === 0" class="btn-primary">
           {{ isEditMode ? ('COMMON.UPDATE' | translate) : ('COMMON.CREATE' | translate) }}

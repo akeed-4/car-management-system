@@ -1,7 +1,2 @@
-.quotations-container {
-  padding: 20px;
-}
-
-.quotations-grid {
-  margin-top: 20px;
-}
+/* Page shell, header and grid card now come from the shared .erp-* design
+   system (src/styles/form-system.css). */

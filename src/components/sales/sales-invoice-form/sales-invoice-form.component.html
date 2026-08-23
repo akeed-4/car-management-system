@@ -1,12 +1,16 @@
-<div class="container">
-  <div class="page-header">
-    <h2>{{ titleKey | translate }}</h2>
-    <a routerLink="/sales" class="back-link">
-      <button mat-icon-button>
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <span>{{ 'INVOICE.BACK_TO_SALES' | translate }}</span>
-    </a>
+<div class="erp-page container">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ titleKey | translate }}</h2>
+    </div>
+    <div class="erp-page-actions">
+      <a routerLink="/sales" class="back-link">
+        <button mat-icon-button>
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <span>{{ 'INVOICE.BACK_TO_SALES' | translate }}</span>
+      </a>
+    </div>
   </div>
 
   <!-- BAND 1: ACTION & TRACEABILITY HEADER BAR -->
@@ -53,10 +57,10 @@
     <div class="invoice-workspace">
       <div class="workspace-main">
 
-        <mat-card class="doc-card">
+        <div class="erp-card doc-card">
           <!-- BAND 2: INVOICE HEADER FORM -->
-          <section class="form-section">
-            <h3 class="form-section-title">{{ 'INVOICE.MAIN_DATA' | translate }}</h3>
+          <section class="erp-section form-section">
+            <h3 class="erp-section-title form-section-title">{{ 'INVOICE.MAIN_DATA' | translate }}</h3>
             <ng-container *ngIf="cardLayout3 | async as layout">
               <mat-grid-list [cols]="layout.columns" rowHeight="88" gutterSize="16px">
                 <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
@@ -218,22 +222,22 @@
           </section>
 
           <!-- Requirement 2: Cash Amount Calculator (cash sales) -->
-          <section class="form-section" *ngIf="saleType === SaleType.Cash">
-            <h3 class="form-section-title">{{ 'CASH_CALCULATOR.TITLE' | translate }}</h3>
+          <section class="erp-section form-section" *ngIf="saleType === SaleType.Cash">
+            <h3 class="erp-section-title form-section-title">{{ 'CASH_CALCULATOR.TITLE' | translate }}</h3>
             <app-cash-amount-calculator
               [invoiceTotal]="totalAmount()"
               [initialAmountReceived]="totalAmount()"
               (amountReceivedChange)="onAmountReceivedChange($event)">
             </app-cash-amount-calculator>
           </section>
-        </mat-card>
+        </div>
 
         <!-- Grid + Notes share a row so Notes sits beside the line items instead of stacking under
              them -- keeps the whole document on one screen instead of growing the page vertically. -->
         <div class="lines-row">
-          <mat-card class="doc-card lines-card">
+          <div class="erp-card doc-card lines-card">
             <div class="section-header">
-              <h3 class="form-section-title">
+              <h3 class="erp-section-title form-section-title">
                 {{ 'PURCHASE_INVOICE.SELECT_CAR_CARD' | translate }}
                 <span class="line-count-badge" *ngIf="invoiceItems().length > 0">{{ invoiceItems().length }}</span>
               </h3>
@@ -244,7 +248,7 @@
             </div>
 
             <!-- BAND 3: INVOICE LINE ITEMS GRID -->
-            <div class="table-container premium-table">
+            <div class="erp-grid-card table-container premium-table">
               <dx-data-grid
                 [dataSource]="invoiceItems()"
                 keyExpr="lineKey"
@@ -284,16 +288,16 @@
                 <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
               </dx-data-grid>
             </div>
-          </mat-card>
+          </div>
 
-          <mat-card class="doc-card notes-card">
-            <section class="form-section notes-section">
-              <h3 class="form-section-title">{{ 'INVOICE.NOTES' | translate }}</h3>
+          <div class="erp-card doc-card notes-card">
+            <section class="erp-section form-section notes-section">
+              <h3 class="erp-section-title form-section-title">{{ 'INVOICE.NOTES' | translate }}</h3>
               <mat-form-field appearance="outline" class="full-width">
                 <textarea matInput rows="12" formControlName="notes" placeholder="{{ 'INVOICE.NOTES_PLACEHOLDER' | translate }}"></textarea>
               </mat-form-field>
             </section>
-          </mat-card>
+          </div>
         </div>
 
       </div>

@@ -15,25 +15,10 @@
   z-index: 10000 !important;
 }
 
-/* Page Header */
-.page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-  padding: 1rem 1.5rem;
-  background: var(--color-primary-600);
-  color: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-}
-
-.page-title {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
+/* Page shell, header, form card, sections and info grid now come from the
+   shared .erp-* design system (src/styles/form-system.css). Screen-specific
+   styles below cover the back-link, DevExtreme grid, refund breakdown and
+   financial summary callout. */
 
 .back-link {
   display: flex;
@@ -354,12 +339,6 @@
   box-shadow: 0 4px 16px rgba(255, 152, 0, 0.2);
 }
 
-.summary-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
 .summary-label {
   font-size: 1.1rem;
   font-weight: 700;
@@ -376,15 +355,7 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-/* Form Actions */
-.form-actions {
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 2px solid #ecf0f1;
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-}
+/* Form Actions: layout now comes from .erp-actions-bar; only button skins remain here. */
 
 .btn-cancel {
   background: linear-gradient(135deg, #757575 0%, #616161 100%);
@@ -441,37 +412,12 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .container {
-    padding: 0.25rem;
-  }
-
-  .page-header {
-    padding: 1rem;
-  }
-
-  .page-title {
-    font-size: 1.5rem;
-  }
-
-  .form-container {
-    padding: 1rem;
-  }
-
-  .form-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
   .financial-summary {
     justify-content: center;
   }
 
   .summary-card {
     min-width: 250px;
-  }
-
-  .form-actions {
-    flex-direction: column;
   }
 
   .btn-cancel,
@@ -482,18 +428,6 @@
 }
 
 @media (max-width: 480px) {
-  .page-title {
-    font-size: 1.25rem;
-  }
-
-  .section-title {
-    font-size: 1.1rem;
-  }
-
-  .form-container {
-    padding: 0.75rem;
-  }
-
   .summary-card {
     padding: 1rem;
     min-width: 200px;
