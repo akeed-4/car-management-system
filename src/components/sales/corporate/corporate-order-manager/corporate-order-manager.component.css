@@ -1,47 +1,24 @@
 /* ============================================================
-   Corporate Sales Order -- same ERP document layout convention
-   as Corporate Quotation / sales-invoice-form / purchase-invoice.
+   Corporate Sales Order -- page shell, header, cards, form grid
+   and info-grid now come from the shared .erp-* design system
+   (src/styles/form-system.css). The two-column document/sidebar
+   workspace layout is kept as screen-specific.
    ============================================================ */
-
-.container {
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: var(--space-3, 0.75rem) var(--space-6, 1.5rem) var(--space-4, 1rem);
-  font-family: var(--font-family-sans, 'Roboto', sans-serif);
-  color: var(--color-gray-800, var(--text-primary));
-}
-
-.page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4, 1rem);
-  margin-bottom: var(--space-3, 0.75rem);
-  padding-bottom: var(--space-2, 0.5rem);
-  border-bottom: 1px solid var(--color-gray-200, var(--border-default));
-}
-
-.page-header h2 {
-  margin: 0;
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: var(--color-gray-900, var(--text-primary));
-}
 
 .back-link {
   display: flex;
   align-items: center;
   text-decoration: none;
-  color: var(--color-gray-600, var(--text-secondary));
+  color: var(--text-secondary);
   font-weight: 500;
   font-size: 0.9rem;
   padding: 0.4rem 0.9rem;
-  border-radius: var(--rounded-md, 6px);
+  border-radius: var(--rounded-md);
 }
 
 .back-link:hover {
-  background: var(--color-gray-100, var(--surface-sunken));
-  color: var(--color-primary-700, var(--color-primary-600));
+  background: var(--surface-sunken);
+  color: var(--color-primary-600);
 }
 
 .back-link mat-icon {
@@ -49,15 +26,6 @@
   font-size: 1.1rem;
   width: 1.1rem;
   height: 1.1rem;
-}
-
-.empty-state {
-  padding: 2rem;
-  text-align: center;
-  color: var(--color-gray-500, var(--text-secondary));
-  background: var(--color-gray-50, var(--surface-sunken));
-  border-radius: var(--rounded-lg, 8px);
-  border: 1px dashed var(--color-gray-300, var(--border-default));
 }
 
 .invoice-workspace {
@@ -80,49 +48,6 @@
   align-self: start;
 }
 
-.doc-card {
-  padding: var(--space-4, 1rem) !important;
-  border-radius: var(--rounded-lg, 8px) !important;
-  box-shadow: var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.05)) !important;
-  background: var(--color-white, #fff) !important;
-  border: 1px solid var(--color-gray-200, var(--border-default)) !important;
-}
-
-.form-section-title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-  margin: 0 0 var(--space-2, 0.5rem);
-  color: var(--color-gray-500, var(--text-secondary));
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--space-2, 0.5rem);
-}
-
-.section-header h3 {
-  margin: 0;
-}
-
-mat-grid-list {
-  margin-bottom: 0;
-}
-
-mat-grid-list + mat-grid-list {
-  margin-top: var(--space-3, 0.75rem);
-}
-
-mat-grid-tile {
-  padding: 0 !important;
-}
-
 mat-form-field {
   width: 100%;
 }
@@ -131,35 +56,9 @@ mat-form-field {
   margin-top: var(--space-3, 0.75rem);
 }
 
-.readonly-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  padding: 0.4rem 0;
-}
-
-.readonly-label {
-  font-size: 0.72rem;
-  color: var(--color-gray-500, var(--text-secondary));
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.readonly-value {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--color-gray-900, var(--text-primary));
-}
-
 .lines-card {
   display: flex;
   flex-direction: column;
-}
-
-.table-container {
-  border-radius: var(--rounded-md, 6px);
-  overflow: hidden;
-  border: 1px solid var(--color-gray-200, var(--border-default));
 }
 
 :host ::ng-deep .premium-table .dx-datagrid-headers {
@@ -173,15 +72,15 @@ mat-form-field {
 }
 
 :host ::ng-deep .premium-table .readonly-col {
-  background: var(--color-gray-50, var(--surface-sunken));
-  color: var(--color-gray-500, var(--text-secondary));
+  background: var(--surface-sunken);
+  color: var(--text-secondary);
 }
 
 .summary-card {
   padding: var(--space-4, 1rem) !important;
   border-radius: var(--rounded-lg, 8px) !important;
-  background: var(--color-white, #fff) !important;
-  border: 1px solid var(--color-gray-200, var(--border-default)) !important;
+  background: var(--surface-card) !important;
+  border: 1px solid var(--border-default) !important;
   box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1)) !important;
 }
 
@@ -189,35 +88,12 @@ mat-form-field {
   padding: 0 !important;
 }
 
-.summary-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.3rem 0;
-}
-
-.summary-item.total {
-  color: var(--color-gray-900, var(--text-primary));
-  font-weight: 700;
-  font-size: 1.15rem;
-  padding: 0.6rem 0.6rem;
-  border-radius: var(--rounded-md, 6px);
-  background: var(--color-primary-50, var(--color-primary-100));
-}
-
 .summary-item.total .font-mono {
-  color: var(--color-primary-700, var(--color-primary-600));
-}
-
-.summary-item p {
-  margin: 0;
-  font-size: 0.88rem;
+  color: var(--color-primary-600);
 }
 
 .font-mono {
   font-family: 'Courier New', monospace;
-  font-size: 0.92rem;
-  font-weight: 700;
 }
 
 .form-actions {
@@ -226,7 +102,7 @@ mat-form-field {
   gap: var(--space-2, 0.5rem);
   margin-top: var(--space-3, 0.75rem);
   padding-top: var(--space-3, 0.75rem);
-  border-top: 1px solid var(--color-gray-200, var(--border-default));
+  border-top: 1px solid var(--border-default);
 }
 
 .form-actions .save-btn {
@@ -244,7 +120,7 @@ mat-form-field {
 .form-actions .cancel-btn {
   width: 100%;
   text-align: center;
-  color: var(--color-gray-600, var(--text-secondary));
+  color: var(--text-secondary);
 }
 
 @media (max-width: 1100px) {
@@ -258,30 +134,9 @@ mat-form-field {
 }
 
 @media (max-width: 768px) {
-  .container {
-    padding: var(--space-3, 0.75rem);
-  }
-
-  .page-header {
+  .erp-page-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .container {
-    color: var(--border-default);
-  }
-
-  .page-header,
-  .doc-card,
-  .summary-card,
-  .empty-state {
-    border-color: var(--text-primary) !important;
-  }
-
-  .summary-item.total {
-    background: rgba(59, 130, 246, 0.15);
   }
 }

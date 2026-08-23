@@ -1,47 +1,24 @@
 /* ============================================================
-   Corporate Delivery Note (view) -- same ERP document layout
-   convention as Corporate Sales Order / Corporate Quotation.
+   Corporate Delivery Note (view) -- page shell, header, cards
+   and info-grid now come from the shared .erp-* design system
+   (src/styles/form-system.css). The two-column document/sidebar
+   workspace layout is kept as screen-specific.
    ============================================================ */
-
-.container {
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: var(--space-3, 0.75rem) var(--space-6, 1.5rem) var(--space-4, 1rem);
-  font-family: var(--font-family-sans, 'Roboto', sans-serif);
-  color: var(--color-gray-800, var(--text-primary));
-}
-
-.page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4, 1rem);
-  margin-bottom: var(--space-3, 0.75rem);
-  padding-bottom: var(--space-2, 0.5rem);
-  border-bottom: 1px solid var(--color-gray-200, var(--border-default));
-}
-
-.page-header h2 {
-  margin: 0;
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: var(--color-gray-900, var(--text-primary));
-}
 
 .back-link {
   display: flex;
   align-items: center;
   text-decoration: none;
-  color: var(--color-gray-600, var(--text-secondary));
+  color: var(--text-secondary);
   font-weight: 500;
   font-size: 0.9rem;
   padding: 0.4rem 0.9rem;
-  border-radius: var(--rounded-md, 6px);
+  border-radius: var(--rounded-md);
 }
 
 .back-link:hover {
-  background: var(--color-gray-100, var(--surface-sunken));
-  color: var(--color-primary-700, var(--color-primary-600));
+  background: var(--surface-sunken);
+  color: var(--color-primary-600);
 }
 
 .back-link mat-icon {
@@ -54,10 +31,10 @@
 .empty-state {
   padding: 2rem;
   text-align: center;
-  color: var(--color-gray-500, var(--text-secondary));
-  background: var(--color-gray-50, var(--surface-sunken));
-  border-radius: var(--rounded-lg, 8px);
-  border: 1px dashed var(--color-gray-300, var(--border-default));
+  color: var(--text-secondary);
+  background: var(--surface-sunken);
+  border-radius: var(--rounded-lg);
+  border: 1px dashed var(--border-default);
 }
 
 .invoice-workspace {
@@ -78,58 +55,6 @@
   position: sticky;
   top: var(--space-4, 1rem);
   align-self: start;
-}
-
-.doc-card {
-  padding: var(--space-4, 1rem) !important;
-  border-radius: var(--rounded-lg, 8px) !important;
-  box-shadow: var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.05)) !important;
-  background: var(--color-white, #fff) !important;
-  border: 1px solid var(--color-gray-200, var(--border-default)) !important;
-}
-
-.form-section-title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-  margin: 0 0 var(--space-2, 0.5rem);
-  color: var(--color-gray-500, var(--text-secondary));
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-mat-grid-list {
-  margin-bottom: 0;
-}
-
-mat-grid-list + mat-grid-list {
-  margin-top: var(--space-3, 0.75rem);
-}
-
-mat-grid-tile {
-  padding: 0 !important;
-}
-
-.readonly-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  padding: 0.4rem 0;
-}
-
-.readonly-label {
-  font-size: 0.72rem;
-  color: var(--color-gray-500, var(--text-secondary));
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.readonly-value {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--color-gray-900, var(--text-primary));
 }
 
 .notes-text {
@@ -154,27 +79,27 @@ mat-grid-tile {
 }
 
 .check-yes {
-  color: var(--color-primary-600, var(--color-success-600));
+  color: var(--color-success-600);
 }
 
 .check-no {
-  color: var(--color-gray-400, var(--text-secondary));
+  color: var(--text-secondary);
 }
 
 .signature-image {
   max-width: 320px;
   max-height: 160px;
-  border: 1px solid var(--color-gray-200, var(--border-default));
+  border: 1px solid var(--border-default);
   border-radius: var(--rounded-md, 6px);
-  background: var(--color-gray-50, var(--surface-sunken));
+  background: var(--surface-sunken);
   padding: 0.5rem;
 }
 
 .summary-card {
   padding: var(--space-4, 1rem) !important;
   border-radius: var(--rounded-lg, 8px) !important;
-  background: var(--color-white, #fff) !important;
-  border: 1px solid var(--color-gray-200, var(--border-default)) !important;
+  background: var(--surface-card) !important;
+  border: 1px solid var(--border-default) !important;
   box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1)) !important;
 }
 
@@ -182,22 +107,8 @@ mat-grid-tile {
   padding: 0 !important;
 }
 
-.summary-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.3rem 0;
-}
-
-.summary-item p {
-  margin: 0;
-  font-size: 0.88rem;
-}
-
 .font-mono {
   font-family: 'Courier New', monospace;
-  font-size: 0.92rem;
-  font-weight: 700;
 }
 
 .form-actions {
@@ -206,13 +117,13 @@ mat-grid-tile {
   gap: var(--space-2, 0.5rem);
   margin-top: var(--space-3, 0.75rem);
   padding-top: var(--space-3, 0.75rem);
-  border-top: 1px solid var(--color-gray-200, var(--border-default));
+  border-top: 1px solid var(--border-default);
 }
 
 .form-actions .cancel-btn {
   width: 100%;
   text-align: center;
-  color: var(--color-gray-600, var(--text-secondary));
+  color: var(--text-secondary);
 }
 
 @media (max-width: 1100px) {
@@ -226,30 +137,9 @@ mat-grid-tile {
 }
 
 @media (max-width: 768px) {
-  .container {
-    padding: var(--space-3, 0.75rem);
-  }
-
-  .page-header {
+  .erp-page-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .container {
-    color: var(--border-default);
-  }
-
-  .page-header,
-  .doc-card,
-  .summary-card,
-  .empty-state {
-    border-color: var(--text-primary) !important;
-  }
-
-  .signature-image {
-    background: var(--text-primary);
   }
 }

@@ -1,9 +1,9 @@
-<div class="container-fluid p-4">
-  <div class="page-header strong-header header-row">
-    <div class="header-left">
-      <h2>{{ 'CORPORATE.DELIVERIES_LIST_TITLE' | translate }}</h2>
+<div class="erp-page">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ 'CORPORATE.DELIVERIES_LIST_TITLE' | translate }}</h2>
     </div>
-    <div class="header-right">
+    <div class="erp-page-actions">
       <button mat-raised-button color="primary" (click)="onCreateNew()">
         <mat-icon>add</mat-icon>
         {{ 'CORPORATE.DISPATCH_VEHICLES' | translate }}
@@ -24,6 +24,7 @@
       </ng-template>
     </app-mobile-card-list>
   } @else {
+  <div class="erp-grid-card">
   <dx-data-grid
     [dataSource]="deliveryNotes()"
     [showBorders]="true"
@@ -59,5 +60,6 @@
       </dxi-button>
     </dxi-column>
   </dx-data-grid>
+  </div>
   }
 </div>

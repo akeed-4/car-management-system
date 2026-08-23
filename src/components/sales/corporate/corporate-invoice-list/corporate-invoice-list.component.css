@@ -1,20 +1,11 @@
-.page-container {
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 16px 20px 32px;
-}
-
-.page-header {
-  margin-bottom: 16px;
-}
+/* Page shell, header, list toolbar and grid card now come from the shared
+   .erp-* design system (src/styles/form-system.css). Breadcrumb icon sizing
+   and the sticky toolbar remain screen-specific. */
 
 .breadcrumb {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin-bottom: 6px;
 }
 
 .breadcrumb mat-icon {
@@ -23,28 +14,7 @@
   height: 16px;
 }
 
-.breadcrumb .current {
-  color: var(--text-primary);
-  font-weight: 500;
-}
-
-.header-row h1 {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 600;
-}
-
-.header-row .subtitle {
-  margin: 4px 0 0 0;
-  color: var(--text-secondary);
-  font-size: 14px;
-}
-
 .page-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
   background: var(--surface-card);
   border: 1px solid var(--border-default);
   border-radius: 8px;
@@ -56,59 +26,18 @@
   height: auto !important;
 }
 
-.toolbar-spacer {
-  flex: 1 1 auto;
-}
-
-.grid-container {
-  border: 1px solid var(--border-default);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
 ::ng-deep .dx-datagrid-headers {
   background-color: var(--surface-sunken);
   font-weight: 600;
 }
 
-.status-badge {
-  display: inline-block;
-  padding: 2px 10px;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.status-paid {
-  background-color: var(--status-success-bg);
-  color: var(--color-success-700);
-}
-
-.status-pending {
-  background-color: var(--status-warning-bg);
-  color: var(--status-warning-fg);
-}
-
-.status-overdue {
-  background-color: var(--status-danger-bg);
-  color: #721c24;
-}
-
 @media (max-width: 768px) {
-  .page-container {
-    padding: 8px;
-  }
-
-  .header-row {
-    flex-direction: column;
-  }
-
   .page-toolbar {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .toolbar-spacer {
+  .erp-toolbar-spacer {
     display: none;
   }
 }
