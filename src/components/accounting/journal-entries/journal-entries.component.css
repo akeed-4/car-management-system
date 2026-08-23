@@ -123,6 +123,13 @@ dx-data-grid {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
+/* --- Requirement 9: lines toolbar "+ Create Account" sits next to "+ Add Line" --- */
+.lines-actions-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 8px;
+}
+
 .footer-section {
   margin-top: 30px;
   padding: 20px;

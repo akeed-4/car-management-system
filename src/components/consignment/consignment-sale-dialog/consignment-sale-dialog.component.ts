@@ -10,11 +10,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
 import { ConsignmentCar, CommissionType } from '../../../models/consignment-car.model';
 import { Customer } from '../../../models/customer.model';
 import { Account } from '../../accounting/models';
 import { AccountingService } from '../../accounting/accounting.service';
+import { openCreateAccountDialog } from '../../accounting/create-account-dialog.helper';
 import { CustomerLookupModalComponent } from '../../shared/customer-lookup-modal/customer-lookup-modal.component';
 import { ConsignmentSaleService } from '../../../services/consignment-sale.service';
 import { AuthService } from '../../../services/AuthService.service';
@@ -43,6 +45,7 @@ export interface ConsignmentSaleDialogData {
     MatDatepickerModule,
     MatNativeDateModule,
     MatSlideToggleModule,
+    MatTooltipModule,
     TranslateModule,
   ],
   templateUrl: './consignment-sale-dialog.component.html',
@@ -97,6 +100,31 @@ export class ConsignmentSaleDialogComponent {
       ownerProceeds: Math.max(0, salePrice - commission),
     };
   });
+
+  // --- Requirement 9: "+ Create Account" from this document -----------------------------------
+  openCreateDebitAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.debitAccounts.update(list => [...list, created]);
+      this.saleForm.get('debitAccountId')?.setValue(created.id);
+    });
+  }
+
+  openCreateCommissionRevenueAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.commissionAccounts.update(list => [...list, created]);
+      this.saleForm.get('commissionRevenueAccountId')?.setValue(created.id);
+    });
+  }
+
+  openCreateOwnerPayableAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.payableAccounts.update(list => [...list, created]);
+      this.saleForm.get('ownerPayableAccountId')?.setValue(created.id);
+    });
+  }
 
   constructor(@Inject(MAT_DIALOG_DATA) data: ConsignmentSaleDialogData) {
     this.car = data.car;

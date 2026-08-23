@@ -90,24 +90,34 @@
       <ng-container *ngIf="cardLayout3 | async as layout">
         <mat-grid-list [cols]="layout.columns" rowHeight="76" gutterSize="16px">
           <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'INVOICE.DEBIT_ACCOUNT' | translate }}</mat-label>
-              <mat-select [(ngModel)]="debitAccountId" required>
-                <mat-option *ngFor="let account of debitAccounts()" [value]="account.id">
-                  {{ account.accountCode }} - {{ account.accountNameAr }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
+            <div class="field-with-add">
+              <mat-form-field appearance="outline" class="field-with-add-select">
+                <mat-label>{{ 'INVOICE.DEBIT_ACCOUNT' | translate }}</mat-label>
+                <mat-select [(ngModel)]="debitAccountId" required>
+                  <mat-option *ngFor="let account of debitAccounts()" [value]="account.id">
+                    {{ account.accountCode }} - {{ account.accountNameAr }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateDebitAccountDialog()">
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
           </mat-grid-tile>
           <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'INVOICE.CREDIT_ACCOUNT' | translate }}</mat-label>
-              <mat-select [(ngModel)]="creditAccountId" required>
-                <mat-option *ngFor="let account of creditAccounts()" [value]="account.id">
-                  {{ account.accountCode }} - {{ account.accountNameAr }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
+            <div class="field-with-add">
+              <mat-form-field appearance="outline" class="field-with-add-select">
+                <mat-label>{{ 'INVOICE.CREDIT_ACCOUNT' | translate }}</mat-label>
+                <mat-select [(ngModel)]="creditAccountId" required>
+                  <mat-option *ngFor="let account of creditAccounts()" [value]="account.id">
+                    {{ account.accountCode }} - {{ account.accountNameAr }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateCreditAccountDialog()">
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
           </mat-grid-tile>
         </mat-grid-list>
       </ng-container>

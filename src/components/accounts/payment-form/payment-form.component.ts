@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormGroup, ReactiveFormsModule, Validators, FormArray, FormBuilder } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CurrencyPipe, CommonModule } from '@angular/common';
@@ -14,6 +13,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
 import {
   InvoiceAllocationGridComponent,
@@ -29,6 +30,7 @@ import { PurchaseInvoice } from '../../../models/purchase-invoice.model';
 import { Payment, BeneficiaryType } from '../../../models/payment.model';
 import { VoucherStatus } from '../../../models/payment-voucher.model';
 import { AccountingService } from '../../accounting/accounting.service';
+import { openCreateAccountDialog } from '../../accounting/create-account-dialog.helper';
 import { NotificationService } from '@/src/services/notification.service';
 
 @Component({
@@ -50,6 +52,8 @@ import { NotificationService } from '@/src/services/notification.service';
     MatDatepickerModule,
     MatNativeDateModule,
     MatTableModule,
+    MatTooltipModule,
+    MatDialogModule,
     DxDataGridModule,
     DxButtonModule,
     InvoiceAllocationGridComponent,
@@ -69,12 +73,15 @@ export class PaymentFormComponent implements OnInit {
   private inventoryService  = inject(InventoryService);
   private notificationService = inject(NotificationService);
   private fb = inject(FormBuilder);
+  private dialog = inject(MatDialog);
 
   paymentForm!: FormGroup;
 
   // Debit/Credit selectors must only offer leaf/postable accounts -- parent/grouping accounts
   // are excluded server-side by this endpoint, not filtered client-side from the full account list.
-  accounts        = toSignal(this.accountingService.getPostableAccounts(), { initialValue: [] });
+  // A plain writable signal (not toSignal's read-only snapshot) so Requirement 9's "+ Create
+  // Account" can append the newly created account without a full reload.
+  accounts        = signal<any[]>([]);
   suppliers           = signal<Supplier[]>([]);
   /** Outstanding (unpaid/partially paid) invoices for the selected supplier -- offered to the
    *  allocation grid's "add invoice" dropdown, in AllocatableInvoice shape. */
@@ -114,6 +121,10 @@ export class PaymentFormComponent implements OnInit {
   // ── Lifecycle ────────────────────────────────────────────────────────────────
   ngOnInit(): void {
     this.initForm();
+
+    this.accountingService.getPostableAccounts().subscribe(accounts => {
+      this.accounts.set(accounts);
+    });
 
     this.supplierService.getSuppliers().subscribe(suppliers => {
       this.suppliers.set(suppliers);
@@ -279,6 +290,23 @@ export class PaymentFormComponent implements OnInit {
         note:          ''
       })),
       error: () => {}
+    });
+  }
+
+  // --- Requirement 9: "+ Create Account" from this document -----------------------------------
+  openCreateDebitAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.accounts.update(list => [...list, created]);
+      this.paymentForm.get('debitAccountId')?.setValue(created.id);
+    });
+  }
+
+  openCreateCreditAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.accounts.update(list => [...list, created]);
+      this.paymentForm.get('creditAccountId')?.setValue(created.id);
     });
   }
 

@@ -19,29 +19,44 @@
             <mat-error *ngIf="form.get('storeId')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
           </mat-form-field>
 
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'STORE_ACCOUNTING_CONFIG.INVENTORY_ACCOUNT' | translate }}</mat-label>
-            <mat-select formControlName="inventoryAccountId" required>
-              <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameEn }}</mat-option>
-            </mat-select>
-            <mat-error *ngIf="form.get('inventoryAccountId')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
-          </mat-form-field>
+          <div class="field-with-add">
+            <mat-form-field appearance="outline" class="field-with-add-select">
+              <mat-label>{{ 'STORE_ACCOUNTING_CONFIG.INVENTORY_ACCOUNT' | translate }}</mat-label>
+              <mat-select formControlName="inventoryAccountId" required>
+                <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameEn }}</mat-option>
+              </mat-select>
+              <mat-error *ngIf="form.get('inventoryAccountId')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
+            </mat-form-field>
+            <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateInventoryAccountDialog()">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
 
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'STORE_ACCOUNTING_CONFIG.COGS_ACCOUNT' | translate }}</mat-label>
-            <mat-select formControlName="cogsAccountId" required>
-              <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameEn }}</mat-option>
-            </mat-select>
-            <mat-error *ngIf="form.get('cogsAccountId')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
-          </mat-form-field>
+          <div class="field-with-add">
+            <mat-form-field appearance="outline" class="field-with-add-select">
+              <mat-label>{{ 'STORE_ACCOUNTING_CONFIG.COGS_ACCOUNT' | translate }}</mat-label>
+              <mat-select formControlName="cogsAccountId" required>
+                <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameEn }}</mat-option>
+              </mat-select>
+              <mat-error *ngIf="form.get('cogsAccountId')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
+            </mat-form-field>
+            <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateCogsAccountDialog()">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
 
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'STORE_ACCOUNTING_CONFIG.ADJUSTMENT_ACCOUNT' | translate }}</mat-label>
-            <mat-select formControlName="inventoryAdjustmentAccountId" required>
-              <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameEn }}</mat-option>
-            </mat-select>
-            <mat-error *ngIf="form.get('inventoryAdjustmentAccountId')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
-          </mat-form-field>
+          <div class="field-with-add">
+            <mat-form-field appearance="outline" class="field-with-add-select">
+              <mat-label>{{ 'STORE_ACCOUNTING_CONFIG.ADJUSTMENT_ACCOUNT' | translate }}</mat-label>
+              <mat-select formControlName="inventoryAdjustmentAccountId" required>
+                <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameEn }}</mat-option>
+              </mat-select>
+              <mat-error *ngIf="form.get('inventoryAdjustmentAccountId')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
+            </mat-form-field>
+            <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateInventoryAdjustmentAccountDialog()">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
         </div>
 
         <div class="toggle-row">

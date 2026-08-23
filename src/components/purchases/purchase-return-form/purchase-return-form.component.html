@@ -39,8 +39,8 @@
           </div>
           <!-- Account selection based on return type -->
           @if (returnType === 'CASH') {
-            <div>
-              <mat-form-field appearance="outline" class="full-width">
+            <div class="field-with-add">
+              <mat-form-field appearance="outline" class="full-width field-with-add-select">
                 <mat-label>{{ 'PURCHASE_RETURN.CASH_BANK_ACCOUNT' | translate }}</mat-label>
                 <mat-select formControlName="debitAccountId" required>
                   <mat-option>
@@ -56,26 +56,27 @@
                   </mat-option>
                 </mat-select>
               </mat-form-field>
+              <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateCashBankAccountDialog()">
+                <mat-icon>add</mat-icon>
+              </button>
             </div>
           } @else {
-            <div>
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'PURCHASE_RETURN.SUPPLIER_ACCOUNT' | translate }}</mat-label>
-                <mat-select formControlName="creditAccountId" required>
-                  <mat-option>
-                    <ngx-mat-select-search
-                      [formControl]="supplierAccountFilterCtrl"
-                      placeholderLabel="{{ 'PURCHASE_RETURN.SEARCH_ACCOUNT' | translate }}"
-                      noEntriesFoundLabel="{{ 'PURCHASE_RETURN.NO_ACCOUNTS_FOUND' | translate }}">
-                    </ngx-mat-select-search>
-                  </mat-option>
-                  <mat-option [value]="null" disabled>{{ 'PURCHASE_RETURN.SELECT_SUPPLIER_ACCOUNT' | translate }}</mat-option>
-                  <mat-option *ngFor="let account of filteredSupplierAccounts()" [value]="account.id">
-                    {{ account.accountCode }} - {{ account.accountNameAr }}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
-            </div>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'PURCHASE_RETURN.SUPPLIER_ACCOUNT' | translate }}</mat-label>
+              <mat-select formControlName="creditAccountId" required>
+                <mat-option>
+                  <ngx-mat-select-search
+                    [formControl]="supplierAccountFilterCtrl"
+                    placeholderLabel="{{ 'PURCHASE_RETURN.SEARCH_ACCOUNT' | translate }}"
+                    noEntriesFoundLabel="{{ 'PURCHASE_RETURN.NO_ACCOUNTS_FOUND' | translate }}">
+                  </ngx-mat-select-search>
+                </mat-option>
+                <mat-option [value]="null" disabled>{{ 'PURCHASE_RETURN.SELECT_SUPPLIER_ACCOUNT' | translate }}</mat-option>
+                <mat-option *ngFor="let account of filteredSupplierAccounts()" [value]="account.id">
+                  {{ account.accountCode }} - {{ account.accountNameAr }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
           }
         </div>
          @if (selectedOriginalInvoice(); as originalInvoice) {

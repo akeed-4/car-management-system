@@ -11,11 +11,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { PurchaseAdditionalCostService } from '../../../services/purchase-additional-cost.service';
 import { PurchasesService } from '../../../services/purchases.service';
 import { AccountingService } from '../../accounting/accounting.service';
+import { openCreateAccountDialog } from '../../accounting/create-account-dialog.helper';
 import { NotificationService } from '../../../services/notification.service';
 import { AuthService } from '../../../services/AuthService.service';
 import { Account } from '../../accounting/models';
@@ -43,6 +45,7 @@ import {
     MatDatepickerModule,
     MatNativeDateModule,
     MatTooltipModule,
+    MatDialogModule,
     TranslateModule,
   ],
   templateUrl: './purchase-additional-cost-form.component.html',
@@ -55,6 +58,7 @@ export class PurchaseAdditionalCostFormComponent implements OnInit, OnChanges {
   private accountingService = inject(AccountingService);
   private notificationService = inject(NotificationService);
   private authService = inject(AuthService);
+  private dialog = inject(MatDialog);
 
   /** Set when embedded in a Purchase Invoice's "Additional Costs" tab: locks the invoice field
    * to this invoice and hides the invoice picker. */
@@ -98,6 +102,23 @@ export class PurchaseAdditionalCostFormComponent implements OnInit, OnChanges {
   isManualMethod = computed(() => this.costForm.get('allocationMethod')?.value === 'Manual');
 
   manualTotal = computed(() => Object.values(this.manualAmounts()).reduce((sum, v) => sum + (v || 0), 0));
+
+  // --- Requirement 9: "+ Create Account" from this document -----------------------------------
+  openCreateDebitAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.debitAccounts.update(list => [...list, created]);
+      this.costForm.get('debitAccountId')?.setValue(created.id);
+    });
+  }
+
+  openCreateCreditAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.payableAccounts.update(list => [...list, created]);
+      this.costForm.get('creditAccountId')?.setValue(created.id);
+    });
+  }
 
   ngOnInit(): void {
     this.purchasesService.getInvoices().subscribe({

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -18,6 +18,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { debounce, finalize, map, of, switchMap } from 'rxjs';
 
 import { DepositVoucher, DepositPaymentMethod } from '@/src/models/deposit-voucher.model';
@@ -25,6 +26,7 @@ import { ChartOfAccountsService } from '../../../../services/chart-of-accounts.s
 import { AccountNode } from '../../../../models/account-node.model';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { AccountingService } from '@/src/components/accounting/accounting.service';
+import { openCreateAccountDialog } from '@/src/components/accounting/create-account-dialog.helper';
 import { Account } from '@/src/components/accounting/models';
 import { NotificationService } from '@/src/services/notification.service';
 
@@ -44,7 +46,9 @@ import { NotificationService } from '@/src/services/notification.service';
     MatToolbarModule,
     MatSelectModule,
     MatCheckboxModule,
-    MatRadioModule
+    MatRadioModule,
+    MatTooltipModule,
+    MatDialogModule
   ],
   templateUrl: './deposit-form.component.html',
   styleUrl: './deposit-form.component.css',
@@ -82,6 +86,23 @@ private notificationService = inject(NotificationService);
           this.selectedVehicleId.set(selectedCar.carId);
         }
       });
+    });
+  }
+
+  // --- Requirement 9: "+ Create Account" from this document -----------------------------------
+  openCreateDebitAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.accounts.update(list => [...list, created]);
+      this.depositForm.get('debitAccountId')?.setValue(created.id);
+    });
+  }
+
+  openCreateCreditAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.accounts.update(list => [...list, created]);
+      this.depositForm.get('creditAccountId')?.setValue(created.id);
     });
   }
 

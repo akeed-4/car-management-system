@@ -9,10 +9,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { StoreAccountingConfigurationService } from '../../../../services/store-accounting-configuration.service';
 import { StoreService } from '../../../../services/store.service';
 import { AccountingService } from '../../../accounting/accounting.service';
+import { openCreateAccountDialog } from '../../../accounting/create-account-dialog.helper';
 import { NotificationService } from '../../../../services/notification.service';
 import { Store } from '../../../../models/branch.model';
 import { Account } from '../../../accounting/models';
@@ -33,6 +36,8 @@ type FormMode = 'create' | 'edit';
     MatIconModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
+    MatDialogModule,
     TranslateModule
   ],
   templateUrl: './store-accounting-configuration-form.component.html',
@@ -47,6 +52,7 @@ export class StoreAccountingConfigurationFormComponent implements OnInit {
   private accountingService = inject(AccountingService);
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
+  private dialog = inject(MatDialog);
 
   form!: FormGroup;
   mode: FormMode = 'create';
@@ -98,6 +104,31 @@ export class StoreAccountingConfigurationFormComponent implements OnInit {
     this.accountingService.getPostableAccounts().subscribe({
       next: (data) => this.accounts.set(data || []),
       error: () => this.notificationService.showError(this.translate.instant('STORE_ACCOUNTING_CONFIG.LOAD_ACCOUNTS_ERROR'))
+    });
+  }
+
+  // --- Requirement 9: "+ Create Account" from this document -----------------------------------
+  openCreateInventoryAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.accounts.update(list => [...list, created]);
+      this.form.get('inventoryAccountId')?.setValue(created.id);
+    });
+  }
+
+  openCreateCogsAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.accounts.update(list => [...list, created]);
+      this.form.get('cogsAccountId')?.setValue(created.id);
+    });
+  }
+
+  openCreateInventoryAdjustmentAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.accounts.update(list => [...list, created]);
+      this.form.get('inventoryAdjustmentAccountId')?.setValue(created.id);
     });
   }
 

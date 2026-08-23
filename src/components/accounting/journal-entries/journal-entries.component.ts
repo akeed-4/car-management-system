@@ -17,8 +17,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 import { NotificationService } from '@/src/services/notification.service';
+import { openCreateAccountDialog as openCreateAccountDialogHelper } from '../create-account-dialog.helper';
 
 @Component({
   selector: 'app-journal-entries',
@@ -38,6 +41,8 @@ import { NotificationService } from '@/src/services/notification.service';
     MatCardModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatTooltipModule,
+    MatDialogModule,
     TranslateModule
   ]
 })
@@ -60,7 +65,8 @@ export class JournalEntriesComponent implements OnInit {
     private translate: TranslateService,
     private route: ActivatedRoute,
     private router: Router,
-    private toastService: NotificationService
+    private toastService: NotificationService,
+    private dialog: MatDialog
   ) {
     this.journalEntries$ = this.accountingService.journalEntries$;
     this.accounts$ = this.accountingService.accounts$;
@@ -80,6 +86,21 @@ export class JournalEntriesComponent implements OnInit {
   // journal line. Fetched from the centralized backend endpoint rather than derived client-side
   // from isMainAccount, which does not reliably track whether an account currently has children.
   postableAccounts: Account[] = [];
+
+  // --- Requirement 9: "+ Create Account" from this document -----------------------------------
+  // Journal lines use a DevExtreme grid-cell lookup rather than a standalone mat-select, so the
+  // affordance lives on the lines toolbar instead of per-cell: the created account becomes
+  // immediately selectable in every row's Account column via the shared postableAccounts lookup
+  // datasource (reassigned, not mutated in place, so the dxo-lookup datasource picks up the change).
+  openCreateAccountDialog(): void {
+    openCreateAccountDialogHelper(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.postableAccounts = [...this.postableAccounts, created];
+      if (this.grid) {
+        this.grid.instance.refresh();
+      }
+    });
+  }
 
   ngOnInit() {
     this.journalEntries$.subscribe(entries => {

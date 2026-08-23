@@ -67,19 +67,29 @@
         <div class="form-section">
           <h3 class="section-title">{{ 'PURCHASE_ADDITIONAL_COST.FORM.POSTING_ACCOUNTS' | translate }}</h3>
           <div class="form-grid cols-2">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'PURCHASE_ADDITIONAL_COST.DEBIT_ACCOUNT' | translate }}</mat-label>
-              <mat-select formControlName="debitAccountId">
-                <mat-option *ngFor="let a of debitAccounts()" [value]="a.id">{{ a.accountCode }} - {{ a.accountNameAr }}</mat-option>
-              </mat-select>
-            </mat-form-field>
+            <div class="field-with-add">
+              <mat-form-field appearance="outline" class="field-with-add-select">
+                <mat-label>{{ 'PURCHASE_ADDITIONAL_COST.DEBIT_ACCOUNT' | translate }}</mat-label>
+                <mat-select formControlName="debitAccountId">
+                  <mat-option *ngFor="let a of debitAccounts()" [value]="a.id">{{ a.accountCode }} - {{ a.accountNameAr }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateDebitAccountDialog()">
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'PURCHASE_ADDITIONAL_COST.CREDIT_ACCOUNT' | translate }}</mat-label>
-              <mat-select formControlName="creditAccountId">
-                <mat-option *ngFor="let a of payableAccounts()" [value]="a.id">{{ a.accountCode }} - {{ a.accountNameAr }}</mat-option>
-              </mat-select>
-            </mat-form-field>
+            <div class="field-with-add">
+              <mat-form-field appearance="outline" class="field-with-add-select">
+                <mat-label>{{ 'PURCHASE_ADDITIONAL_COST.CREDIT_ACCOUNT' | translate }}</mat-label>
+                <mat-select formControlName="creditAccountId">
+                  <mat-option *ngFor="let a of payableAccounts()" [value]="a.id">{{ a.accountCode }} - {{ a.accountNameAr }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateCreditAccountDialog()">
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
           </div>
         </div>
 

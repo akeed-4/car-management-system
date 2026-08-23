@@ -33,6 +33,7 @@ import { Account } from '../../accounting/models';
 import { StoreCarStockDto } from '../../../models/store-car-stock.model';
 import { InvoiceClassificationOption } from '../../../models/invoice-classification.model';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { InvoiceItemDialogComponent } from '../../sales/invoice-item-dialog/invoice-item-dialog.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatSelectChange } from '@angular/material/select';
@@ -63,6 +64,7 @@ import { CarsReceiptNoteDto } from '@/src/models/cars-receipt-note.model';
 import { CashAmountCalculatorComponent } from '../../shared/cash-amount-calculator/cash-amount-calculator.component';
 import { PurchaseAdditionalCostListComponent } from '../purchase-additional-cost-list/purchase-additional-cost-list.component';
 import { PurchaseAdditionalCostFormComponent } from '../purchase-additional-cost-form/purchase-additional-cost-form.component';
+import { openCreateAccountDialog } from '../../accounting/create-account-dialog.helper';
 
 @Component({
   selector: 'app-purchase-invoice',
@@ -86,6 +88,7 @@ import { PurchaseAdditionalCostFormComponent } from '../purchase-additional-cost
     MatDatepickerModule,
     MatTabsModule,
     MatDialogModule,
+    MatTooltipModule,
     DxDataGridModule,
     NgxMatSelectSearchModule,
     PurchaseAdditionalCostListComponent,
@@ -680,6 +683,28 @@ export class PurchaseInvoiceComponent implements OnInit {
 
     this.accountingService.getPostableAccounts('credit').subscribe(accounts => {
       this.creditAccounts.set(accounts);
+    });
+  }
+
+  // --- Requirement 9: "+ Create Account" from this document -----------------------------------
+  // Reuses the SAME Chart of Accounts creation form as /accounts/chart-of-accounts-new, opened as
+  // a MatDialog (see AddAccountComponent's @Optional() MatDialogRef support), instead of a second
+  // account-creation implementation. On save, the new account is appended to the relevant list and
+  // auto-selected in this invoice's form -- no need to leave the document to create it first.
+
+  openCreateDebitAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.debitAccounts.update(list => [...list, created]);
+      this.purchaseInvoiceForm.patchValue({ debitAccountId: created.id });
+    });
+  }
+
+  openCreateCreditAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.creditAccounts.update(list => [...list, created]);
+      this.purchaseInvoiceForm.patchValue({ creditAccountId: created.id });
     });
   }
 

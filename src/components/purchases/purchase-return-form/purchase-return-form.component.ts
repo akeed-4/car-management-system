@@ -11,12 +11,15 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { PurchasesService } from '../../../services/purchases.service';
 import { PurchaseReturnService } from '../../../services/purchase-return.service';
 import { InventoryService } from '../../../services/inventory.service';
 import { AccountingService } from '../../accounting/accounting.service';
+import { openCreateAccountDialog } from '../../accounting/create-account-dialog.helper';
 import { ReturnInvoiceItem } from '../../../models/return-invoice-item.model';
 import { PurchaseReturnInvoice, PurchaseReturnType } from '../../../models/purchase-return-invoice.model';
 import { PurchaseInvoice } from '../../../models/purchase-invoice.model';
@@ -26,7 +29,7 @@ import { CreateJournalEntryDto } from '../../../components/accounting/models';
 @Component({
   selector: 'app-purchase-return-form',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, CommonModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatIconModule, MatDatepickerModule, NgxMatSelectSearchModule],
+  imports: [RouterLink, ReactiveFormsModule, CommonModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatIconModule, MatDatepickerModule, MatTooltipModule, MatDialogModule, NgxMatSelectSearchModule],
   templateUrl: './purchase-return-form.component.html',
   styleUrl: './purchase-return-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,6 +42,7 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
   private purchaseReturnService = inject(PurchaseReturnService);
   private inventoryService = inject(InventoryService);
   private accountingService = inject(AccountingService);
+  private dialog = inject(MatDialog);
   private router = inject(Router);
   private translate = inject(TranslateService);
   private fb = inject(FormBuilder);
@@ -120,6 +124,17 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
 
     this.accountingService.getPostableAccounts('supplier').subscribe(accounts => {
       this.supplierAccounts.set(accounts);
+    });
+  }
+
+  // --- Requirement 9: "+ Create Account" from this document -----------------------------------
+  // Scope note: Supplier Account (CREDIT branch) is intentionally excluded -- supplier AR/AP
+  // accounts are managed via the Supplier form, out of scope per confirmed rollout scope.
+  openCreateCashBankAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.cashBankAccounts.update(list => [...list, created]);
+      this.returnForm.get('debitAccountId')?.setValue(created.id);
     });
   }
 

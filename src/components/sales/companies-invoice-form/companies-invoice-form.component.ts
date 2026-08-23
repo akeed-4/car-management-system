@@ -10,10 +10,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { CorporateFleetService } from '../../../services/corporate-fleet.service';
 import { AccountingService } from '../../accounting/accounting.service';
+import { openCreateAccountDialog } from '../../accounting/create-account-dialog.helper';
 import { CurrentSettingService } from '../../../services/current-setting.service';
 import { NotificationService } from '@/src/services/notification.service';
 import { CorporateQuotation } from '../../../models/corporate/corporate-quotation.model';
@@ -42,6 +45,8 @@ type InvoiceSource = 'quotation' | 'delivery';
     MatProgressSpinnerModule,
     DxDataGridModule,
     TranslateModule,
+    MatTooltipModule,
+    MatDialogModule,
     SalesInvoiceFormComponent
   ],
   templateUrl: './companies-invoice-form.component.html',
@@ -53,6 +58,7 @@ export class CompaniesInvoiceFormComponent implements OnInit {
   private accountingService = inject(AccountingService);
   private currentSettingService = inject(CurrentSettingService);
   private notificationService = inject(NotificationService);
+  private dialog = inject(MatDialog);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -82,6 +88,23 @@ export class CompaniesInvoiceFormComponent implements OnInit {
   creditAccountId: number | null = null;
 
   submitting = signal(false);
+
+  // --- Requirement 9: "+ Create Account" from this document -----------------------------------
+  openCreateDebitAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.debitAccounts.update(list => [...list, created]);
+      this.debitAccountId = created.id;
+    });
+  }
+
+  openCreateCreditAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.creditAccounts.update(list => [...list, created]);
+      this.creditAccountId = created.id;
+    });
+  }
 
   ngOnInit(): void {
     this.editId = Number(this.route.snapshot.params['id']) || null;

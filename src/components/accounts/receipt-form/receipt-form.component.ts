@@ -13,6 +13,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import {
   InvoiceAllocationGridComponent,
   InvoiceAllocationRow,
@@ -23,6 +25,7 @@ import { SalesService } from '../../../services/sales.service';
 import { ReceiptService } from '../../../services/receipt.service';
 import { Receipt, ReceiptSource, CreateReceiptDto } from '@/src/models/receipt.model';
 import { AccountingService } from '../../accounting/accounting.service';
+import { openCreateAccountDialog } from '../../accounting/create-account-dialog.helper';
 import { Account } from '../../accounting/models';
 import { NotificationService } from '@/src/services/notification.service';
 
@@ -45,6 +48,8 @@ import { NotificationService } from '@/src/services/notification.service';
     MatDatepickerModule,
     MatNativeDateModule,
     MatCheckboxModule,
+    MatTooltipModule,
+    MatDialogModule,
     InvoiceAllocationGridComponent,
   ],
   templateUrl: './receipt-form.component.html',
@@ -61,6 +66,7 @@ export class ReceiptFormComponent implements OnInit {
   private translate = inject(TranslateService);
   private notificationService = inject(NotificationService);
   private fb = inject(FormBuilder);
+  private dialog = inject(MatDialog);
 
   receiptForm!: FormGroup;
 
@@ -219,6 +225,23 @@ export class ReceiptFormComponent implements OnInit {
     } else {
       this.allocationRows.set([]);
     }
+  }
+
+  // --- Requirement 9: "+ Create Account" from this document -----------------------------------
+  openCreateDebitAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.accounts.update(list => [...list, created]);
+      this.receiptForm.get('debitAccountId')?.setValue(created.id);
+    });
+  }
+
+  openCreateCreditAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.accounts.update(list => [...list, created]);
+      this.receiptForm.get('creditAccountId')?.setValue(created.id);
+    });
   }
 
   // ── Account Name Helper ──────────────────────────────────────────────────────

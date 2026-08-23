@@ -27,6 +27,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatTableModule } from '@angular/material/table';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -38,6 +39,7 @@ import { applyFieldLock } from '../../../models/form-field-lock';
 import { DxoValueErrorBarComponent } from 'devextreme-angular/ui/nested';
 import { NotificationService } from '@/src/services/notification.service';
 import { AccountingService } from '../../accounting/accounting.service';
+import { openCreateAccountDialog } from '../../accounting/create-account-dialog.helper';
 import { SalesCycleService } from '../../../services/sales-cycle.service';
 import { Quotation } from '../../../models/quotation.model';
 import { SalesChannel } from '../../../models/enums/sales-channel.enum';
@@ -80,6 +82,7 @@ const PAYMENT_TYPE_POOL: { value: string; labelKey: string }[] = [
     MatTableModule,
     MatDatepickerModule,
     MatDividerModule,
+    MatTooltipModule,
     DxDataGridModule,
     TranslateModule,
     CashAmountCalculatorComponent,
@@ -589,6 +592,26 @@ export class SalesInvoiceFormComponent implements OnInit {
 
     this.accountingService.getPostableAccounts('credit').subscribe(accounts => {
       this.creditAccounts.set(accounts);
+    });
+  }
+
+  // --- Requirement 9: "+ Create Account" from this document -----------------------------------
+  // Reuses the SAME Chart of Accounts creation form via the shared dialog helper -- see
+  // PurchaseInvoiceComponent's identical pattern for the full rationale.
+
+  openCreateDebitAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.debitAccounts.update(list => [...list, created]);
+      this.invoiceForm.get('debitAccount')?.setValue(created.id);
+    });
+  }
+
+  openCreateCreditAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.creditAccounts.update(list => [...list, created]);
+      this.invoiceForm.get('creditAccount')?.setValue(created.id);
     });
   }
 

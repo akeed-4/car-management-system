@@ -107,10 +107,16 @@
                 </dxi-column>
               </dx-data-grid>
 
-              <button mat-stroked-button type="button" (click)="addLine()">
-                <mat-icon>add</mat-icon>
-                {{ 'ACCOUNTING.ADD_LINE' | translate }}
-              </button>
+              <div class="lines-actions-bar">
+                <button mat-stroked-button type="button" (click)="addLine()">
+                  <mat-icon>add</mat-icon>
+                  {{ 'ACCOUNTING.ADD_LINE' | translate }}
+                </button>
+                <button mat-stroked-button type="button" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateAccountDialog()">
+                  <mat-icon>add</mat-icon>
+                  {{ 'ACCOUNTING.ADD_ACCOUNT' | translate }}
+                </button>
+              </div>
             </div>
 
             <!-- Footer Section -->

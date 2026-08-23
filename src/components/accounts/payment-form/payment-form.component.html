@@ -40,37 +40,47 @@
 
           <!-- Debit / Credit Row -->
           <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field debit-field">
-              <mat-label>
-                <mat-icon class="field-icon">arrow_upward</mat-icon>
-                {{ 'ACCOUNTS.FORM.DEBIT_ACCOUNT' | translate }}
-              </mat-label>
-              <mat-select formControlName="debitAccountId" required>
-                <mat-option [value]="null" disabled>{{ 'ACCOUNTS.FORM.SELECT_ACCOUNT' | translate }}</mat-option>
-                <mat-option *ngFor="let acc of accounts(); trackBy: trackByAccountId" [value]="acc.id">
-                  {{ acc.accountCode }} - {{ acc.accountNameAr }}
-                </mat-option>
-              </mat-select>
-              <mat-error *ngIf="paymentForm.get('debitAccountId')?.hasError('required')">
-                {{ 'VALIDATION.REQUIRED' | translate }}
-              </mat-error>
-            </mat-form-field>
+            <div class="field-with-add">
+              <mat-form-field appearance="outline" class="form-field debit-field field-with-add-select">
+                <mat-label>
+                  <mat-icon class="field-icon">arrow_upward</mat-icon>
+                  {{ 'ACCOUNTS.FORM.DEBIT_ACCOUNT' | translate }}
+                </mat-label>
+                <mat-select formControlName="debitAccountId" required>
+                  <mat-option [value]="null" disabled>{{ 'ACCOUNTS.FORM.SELECT_ACCOUNT' | translate }}</mat-option>
+                  <mat-option *ngFor="let acc of accounts(); trackBy: trackByAccountId" [value]="acc.id">
+                    {{ acc.accountCode }} - {{ acc.accountNameAr }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="paymentForm.get('debitAccountId')?.hasError('required')">
+                  {{ 'VALIDATION.REQUIRED' | translate }}
+                </mat-error>
+              </mat-form-field>
+              <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateDebitAccountDialog()">
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
 
-            <mat-form-field appearance="outline" class="form-field credit-field">
-              <mat-label>
-                <mat-icon class="field-icon">arrow_downward</mat-icon>
-                {{ 'ACCOUNTS.FORM.CREDIT_ACCOUNT' | translate }}
-              </mat-label>
-              <mat-select formControlName="creditAccountId" required>
-                <mat-option [value]="null" disabled>{{ 'ACCOUNTS.FORM.SELECT_ACCOUNT' | translate }}</mat-option>
-                <mat-option *ngFor="let acc of accounts(); trackBy: trackByAccountId" [value]="acc.id">
-                  {{ acc.accountCode }} - {{ acc.accountNameAr }}
-                </mat-option>
-              </mat-select>
-              <mat-error *ngIf="paymentForm.get('creditAccountId')?.hasError('required')">
-                {{ 'VALIDATION.REQUIRED' | translate }}
-              </mat-error>
-            </mat-form-field>
+            <div class="field-with-add">
+              <mat-form-field appearance="outline" class="form-field credit-field field-with-add-select">
+                <mat-label>
+                  <mat-icon class="field-icon">arrow_downward</mat-icon>
+                  {{ 'ACCOUNTS.FORM.CREDIT_ACCOUNT' | translate }}
+                </mat-label>
+                <mat-select formControlName="creditAccountId" required>
+                  <mat-option [value]="null" disabled>{{ 'ACCOUNTS.FORM.SELECT_ACCOUNT' | translate }}</mat-option>
+                  <mat-option *ngFor="let acc of accounts(); trackBy: trackByAccountId" [value]="acc.id">
+                    {{ acc.accountCode }} - {{ acc.accountNameAr }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="paymentForm.get('creditAccountId')?.hasError('required')">
+                  {{ 'VALIDATION.REQUIRED' | translate }}
+                </mat-error>
+              </mat-form-field>
+              <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateCreditAccountDialog()">
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
           </div>
         </div>
 
