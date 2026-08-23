@@ -3,7 +3,6 @@
   padding: 24px;
   background-color: var(--surface-sunken);
   min-height: 100vh;
-  direction: rtl;
 }
 
 /* Header Section */

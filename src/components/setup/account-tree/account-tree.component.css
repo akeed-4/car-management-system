@@ -174,7 +174,7 @@
   .dx-header-row {
     font-weight: 600;
     color: #1a237e;
-    text-align: right;
+    text-align: start;
   }
 
   .dx-data-row {
@@ -192,7 +192,7 @@
 
   .dx-cell {
     padding: 1rem 0.5rem;
-    text-align: right;
+    text-align: start;
   }
 
   .dx-treelist-cell-expandable {
@@ -506,7 +506,7 @@
   background: var(--surface-sunken);
   padding: 1rem;
   border-radius: 6px;
-  text-align: right;
+  text-align: start;
   margin-bottom: 1rem;
 }
 
@@ -520,10 +520,8 @@
   color: #1a237e;
 }
 
-/* RTL Direction */
-[dir="rtl"] .form-group label,
-[dir="rtl"] .account-info {
-  text-align: right;
+.form-group label {
+  text-align: start;
 }
 
 /* Responsive Design */
