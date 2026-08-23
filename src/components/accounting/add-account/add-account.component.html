@@ -1,9 +1,20 @@
-<mat-card>
+<div mat-dialog-title *ngIf="isQuickAddDialog">
+  {{ (isEditing ? 'ACCOUNTING.EDIT_ACCOUNT' : 'ACCOUNTING.ADD_ACCOUNT') | translate }}
+</div>
+<mat-card *ngIf="!isQuickAddDialog">
   <mat-card-header>
     <mat-card-title>{{ (isEditing ? 'ACCOUNTING.EDIT_ACCOUNT' : 'ACCOUNTING.ADD_ACCOUNT') | translate }}</mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <form [formGroup]="accountForm" (ngSubmit)="onSave()" class="form">
+    <ng-container *ngTemplateOutlet="formTemplate"></ng-container>
+  </mat-card-content>
+</mat-card>
+<ng-container *ngIf="isQuickAddDialog">
+  <ng-container *ngTemplateOutlet="formTemplate"></ng-container>
+</ng-container>
+
+<ng-template #formTemplate>
+    <form [formGroup]="accountForm" (ngSubmit)="onSave()" class="form" [class.mat-dialog-content]="isQuickAddDialog">
 
       <!-- Account Type Selection - Professional Design -->
       <div class="account-type-selection-section">
@@ -19,7 +30,8 @@
           <mat-card
             class="account-type-card"
             [class.selected]="accountForm.get('accountTypeSelection')?.value === 'main'"
-            (click)="accountForm.get('accountTypeSelection')?.setValue('main')">
+            [class.locked]="hasPostedTransactions"
+            (click)="!hasPostedTransactions && accountForm.get('accountTypeSelection')?.setValue('main')">
             <mat-card-content class="card-content">
               <div class="card-icon">
                 <mat-icon>account_balance</mat-icon>
@@ -39,7 +51,8 @@
           <mat-card
             class="account-type-card"
             [class.selected]="accountForm.get('accountTypeSelection')?.value === 'partial'"
-            (click)="accountForm.get('accountTypeSelection')?.setValue('partial')">
+            [class.locked]="hasPostedTransactions"
+            (click)="!hasPostedTransactions && accountForm.get('accountTypeSelection')?.setValue('partial')">
             <mat-card-content class="card-content">
               <div class="card-icon">
                 <mat-icon>account_tree</mat-icon>
@@ -56,6 +69,10 @@
             </mat-card-content>
           </mat-card>
         </div>
+        <p class="posted-transactions-hint" *ngIf="hasPostedTransactions">
+          <mat-icon>lock</mat-icon>
+          {{ 'ACCOUNTING.LOCKED_HAS_POSTED_ENTRIES' | translate }}
+        </p>
       </div>
 
       <!-- Main Account Form (Simple) -->
@@ -98,12 +115,34 @@
 
       <!-- Partial Account Form (Comprehensive) -->
       <div *ngIf="accountForm.get('accountTypeSelection')?.value === 'partial'" class="account-form-section">
+        <!-- Requirement 2: parent account summary -- current code/name next to the parent's, so
+             the user always sees where this account sits without hunting through the tree. -->
+        <div class="parent-account-summary" *ngIf="!accountForm.get('isMainAccount')?.value">
+          <div class="parent-account-summary-item">
+            <span class="parent-account-summary-label">{{ 'ACCOUNTING.PARENT_ACCOUNT' | translate }}</span>
+            <span class="parent-account-summary-value" *ngIf="accountForm.get('mainAccountCode')?.value; else noParent">
+              {{ accountForm.get('mainAccountCode')?.value }} &ndash; {{ accountForm.get('mainAccountName')?.value }}
+            </span>
+            <ng-template #noParent>
+              <span class="parent-account-summary-value parent-account-summary-empty">{{ 'ACCOUNTING.PARENT_ACCOUNT_NOT_SELECTED' | translate }}</span>
+            </ng-template>
+          </div>
+          <mat-icon class="parent-account-summary-arrow">arrow_forward</mat-icon>
+          <div class="parent-account-summary-item">
+            <span class="parent-account-summary-label">{{ 'ACCOUNTING.THIS_ACCOUNT' | translate }}</span>
+            <span class="parent-account-summary-value">
+              {{ accountForm.get('accountCode')?.value || '—' }} &ndash; {{ accountForm.get('accountNameEn')?.value || (accountForm.get('accountNameAr')?.value || '—') }}
+            </span>
+          </div>
+        </div>
+
         <!-- Basic Account Information -->
         <div class="form-row">
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'ACCOUNTING.ACCOUNT_CODE' | translate }}</mat-label>
             <input matInput formControlName="accountCode" required>
             <mat-icon matPrefix>tag</mat-icon>
+            <mat-hint>{{ 'ACCOUNTING.CODE_AUTO_GENERATED_HINT' | translate }}</mat-hint>
             <mat-error *ngIf="accountForm.get('accountCode')?.invalid">{{ 'ACCOUNTING.CODE_REQUIRED' | translate }}</mat-error>
           </mat-form-field>
 
@@ -153,11 +192,12 @@
           <mat-label>{{ 'ACCOUNTING.MAIN_ACCOUNT_CODE' | translate }}</mat-label>
           <input matInput formControlName="mainAccountCode">
           <mat-icon matPrefix>account_balance</mat-icon>
+          <mat-hint>{{ 'ACCOUNTING.MAIN_ACCOUNT_CODE_HINT' | translate }}</mat-hint>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="form-field">
           <mat-label>{{ 'ACCOUNTING.MAIN_ACCOUNT_NAME' | translate }}</mat-label>
-          <input matInput formControlName="mainAccountName">
+          <input matInput formControlName="mainAccountName" readonly>
           <mat-icon matPrefix>account_balance_wallet</mat-icon>
         </mat-form-field>
       </div>
@@ -340,7 +380,7 @@
       </div>
       </div>
 
-      <div class="form-actions">
+      <div class="form-actions" [class.mat-dialog-actions]="isQuickAddDialog">
         <button mat-raised-button color="primary" type="submit" [disabled]="accountForm.invalid || isSaving">
           <mat-progress-spinner *ngIf="isSaving" diameter="20" class="loading-spinner"></mat-progress-spinner>
           <span *ngIf="!isSaving">{{ 'ACCOUNTING.SAVE' | translate }}</span>
@@ -350,7 +390,6 @@
           {{ 'ACCOUNTING.CANCEL' | translate }}
         </button>
       </div>
-      
+
     </form>
-  </mat-card-content>
-</mat-card>
+</ng-template>

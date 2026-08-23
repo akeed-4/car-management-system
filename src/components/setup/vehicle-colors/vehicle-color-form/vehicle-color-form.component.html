@@ -1,0 +1,40 @@
+<div class="dialog-container">
+  <div class="dialog-header">
+    <h2 mat-dialog-title>{{ 'INVENTORY.FORM.ADD_COLOR' | translate }}</h2>
+    <button
+      type="button"
+      class="dialog-close-btn"
+      (click)="cancel()"
+      [attr.aria-label]="'ACCOUNTING.CANCEL' | translate"
+      [title]="'ACCOUNTING.CANCEL' | translate">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <form [formGroup]="colorForm" class="mat-dialog-content">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'INVENTORY.FORM.COLOR_NAME_EN' | translate }}</mat-label>
+      <input matInput formControlName="nameEn" required dir="ltr">
+      <mat-error *ngIf="colorForm.get('nameEn')?.hasError('required')">
+        {{ 'INVENTORY.FORM.COLOR_NAME_REQUIRED' | translate }}
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'INVENTORY.FORM.COLOR_NAME_AR' | translate }}</mat-label>
+      <input matInput formControlName="nameAr" required dir="rtl">
+      <mat-error *ngIf="colorForm.get('nameAr')?.hasError('required')">
+        {{ 'INVENTORY.FORM.COLOR_NAME_REQUIRED' | translate }}
+      </mat-error>
+    </mat-form-field>
+  </form>
+
+  <div class="mat-dialog-actions">
+    <button mat-button type="button" (click)="cancel()" [disabled]="isSaving">
+      {{ 'ACCOUNTING.CANCEL' | translate }}
+    </button>
+    <button mat-raised-button color="primary" type="button" (click)="save()" [disabled]="isSaving">
+      {{ 'ACCOUNTING.SAVE' | translate }}
+    </button>
+  </div>
+</div>

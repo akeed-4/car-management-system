@@ -129,7 +129,6 @@ export class AccountingService {
   }
 
   deleteAccount(id: number): Observable<void> {
-    alert('Deleting account with id: ' + id);
     return this.http.delete<void>(`${this.Url}/DeleteAccount/${id}`).pipe(
       map(() => {
         // Update local state
@@ -350,6 +349,16 @@ export class AccountingService {
   getPostableAccounts(category?: string): Observable<Account[]> {
     const url = category ? `${this.Url}/accounts/postable?category=${category}` : `${this.Url}/accounts/postable`;
     return this.http.get<Account[]>(url, { headers: this.headers });
+  }
+
+  /**
+   * Preview of the next auto-generated account code under the given parent (omit for a new root
+   * account). Purely informational -- CreateAccount re-derives and validates the real code at
+   * save time, so this never reserves a code.
+   */
+  getNextAccountCode(parentId: number | null): Observable<string> {
+    const url = parentId != null ? `${this.Url}/accounts/next-code?parentId=${parentId}` : `${this.Url}/accounts/next-code`;
+    return this.http.get<string>(url, { headers: this.headers });
   }
 
   /**

@@ -16,6 +16,10 @@ export interface Car {
   condition: CarCondition; // New property
   exteriorColor: string;
   interiorColor: string;
+  /** Requirement 8: preferred over the free-text exteriorColor/interiorColor above -- the Vehicle
+   * Card's color fields are dropdowns backed by the VehicleColor dictionary. */
+  exteriorColorId?: number | null;
+  interiorColorId?: number | null;
   mileage: number;
   transmission: 'Automatic' | 'Manual';
   engineSize: string; // e.g., '2.5L V6'

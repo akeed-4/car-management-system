@@ -54,6 +54,11 @@ export interface Account {
   hasChildren?: boolean;
   /** Inverse of hasChildren -- true means this account may be selected for a Debit/Credit posting. */
   isPostable?: boolean;
+  /** Read-only, only populated by the single-account fetch (getAccountById) -- true when this
+   * account has at least one line on a Posted journal entry. The backend rejects changes to
+   * accountCode/Type/accountTypeId/currencyId/parentId (and deletion) once this is true; the
+   * edit form uses it to disable those controls up front instead of failing only at save time. */
+  hasPostedTransactions?: boolean;
 }
 
 export interface JournalEntry {

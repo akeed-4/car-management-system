@@ -1,0 +1,46 @@
+.dialog-container {
+  min-width: 320px;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.25rem;
+  background: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%);
+  color: white;
+}
+
+.dialog-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.dialog-close-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  cursor: pointer;
+  padding: 0;
+}
+
+.dialog-close-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.dialog-close-btn mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.full-width {
+  width: 100%;
+}

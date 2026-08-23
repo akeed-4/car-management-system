@@ -23,6 +23,9 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../../../services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
+import { NationalAddressService } from '../../../../services/national-address.service';
+import { Country, Region, City, District } from '../../../../models/national-address.model';
+import { postalCodeValidators, buildingNumberValidators } from '../../../../models/national-address-validators';
 
 /** Section id -> the form control names it contains, used to auto-expand + scroll to whichever
  *  collapsed section holds the first invalid control on a failed submit (business requirement:
@@ -31,7 +34,7 @@ import { NotificationService } from '@/src/services/notification.service';
 const SECTION_FIELDS: Record<string, string[]> = {
   basic: ['name', 'nationalId', 'phone', 'phone2'],
   contact: ['email', 'preferredContactMethod'],
-  address: ['city', 'district', 'postalCode', 'address'],
+  address: ['city', 'district', 'postalCode', 'address', 'countryId', 'regionId', 'cityId', 'districtId', 'buildingNumber', 'streetName'],
   personal: ['dateOfBirth', 'gender', 'occupation', 'employer', 'monthlyIncome', 'creditScore'],
   financial: ['creditLimit'],
   additional: ['notes', 'isActive'],
@@ -70,11 +73,19 @@ export class CustomerFormComponent implements OnInit {
   private toastService = inject(NotificationService);
   private translate = inject(TranslateService);
   private fb = inject(FormBuilder);
+  private nationalAddressService = inject(NationalAddressService);
 
   customerForm!: FormGroup;
   customer = signal<Partial<Customer>>({});
   editMode = signal(false);
   pageTitle = signal('إضافة عميل جديد');
+
+  // Requirement 7: National Address dependent dropdowns -- each level's options are scoped to
+  // the level above it, so a District from an unrelated City can never even appear as an option.
+  countries = signal<Country[]>([]);
+  regions = signal<Region[]>([]);
+  cities = signal<City[]>([]);
+  districts = signal<District[]>([]);
 
   soldCars = signal<(Car & { saleDate: string })[]>([]);
 
@@ -96,6 +107,7 @@ export class CustomerFormComponent implements OnInit {
 
   ngOnInit() {
     this.initializeForm();
+    this.setupNationalAddressCascade();
 
     // Check if editing existing customer
     const idParam = this.route.snapshot.params['id'];
@@ -109,6 +121,7 @@ export class CustomerFormComponent implements OnInit {
         if (existingCustomer) {
           this.customer.set(existingCustomer);
           this.customerForm.patchValue(existingCustomer);
+          this.preloadNationalAddressChain(existingCustomer.countryId, existingCustomer.regionId, existingCustomer.cityId);
 
           // Fetch sold cars for this customer
           this.salesService.getInvoicesByCustomerId(existingCustomer.id).subscribe({
@@ -140,6 +153,55 @@ export class CustomerFormComponent implements OnInit {
     }
   }
 
+  /** Requirement 7: wires the Country -> Region -> City -> District cascade. Selecting a level
+   *  loads only that level's children and clears whatever was previously selected below it, so
+   *  the form can never end up holding a District that doesn't belong to the current City. */
+  private setupNationalAddressCascade(): void {
+    this.nationalAddressService.getCountries().subscribe(countries => this.countries.set(countries));
+
+    this.customerForm.get('countryId')?.valueChanges.subscribe((countryId: number | null) => {
+      this.regions.set([]);
+      this.cities.set([]);
+      this.districts.set([]);
+      this.customerForm.patchValue({ regionId: null, cityId: null, districtId: null }, { emitEvent: false });
+      if (countryId) {
+        this.nationalAddressService.getRegions(countryId).subscribe(regions => this.regions.set(regions));
+      }
+    });
+
+    this.customerForm.get('regionId')?.valueChanges.subscribe((regionId: number | null) => {
+      this.cities.set([]);
+      this.districts.set([]);
+      this.customerForm.patchValue({ cityId: null, districtId: null }, { emitEvent: false });
+      if (regionId) {
+        this.nationalAddressService.getCities(regionId).subscribe(cities => this.cities.set(cities));
+      }
+    });
+
+    this.customerForm.get('cityId')?.valueChanges.subscribe((cityId: number | null) => {
+      this.districts.set([]);
+      this.customerForm.patchValue({ districtId: null }, { emitEvent: false });
+      if (cityId) {
+        this.nationalAddressService.getDistricts(cityId).subscribe(districts => this.districts.set(districts));
+      }
+    });
+  }
+
+  /** Populates the Region/City/District dropdowns for a customer's existing address when
+   *  entering edit mode -- without this, patchValue would set e.g. districtId on a dropdown
+   *  whose options were never loaded, leaving the select showing nothing. */
+  private preloadNationalAddressChain(countryId?: number | null, regionId?: number | null, cityId?: number | null): void {
+    if (countryId) {
+      this.nationalAddressService.getRegions(countryId).subscribe(regions => this.regions.set(regions));
+    }
+    if (regionId) {
+      this.nationalAddressService.getCities(regionId).subscribe(cities => this.cities.set(cities));
+    }
+    if (cityId) {
+      this.nationalAddressService.getDistricts(cityId).subscribe(districts => this.districts.set(districts));
+    }
+  }
+
   private initializeForm() {
     this.customerForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
@@ -150,7 +212,13 @@ export class CustomerFormComponent implements OnInit {
       address: ['', Validators.required],
       city: [''],
       district: [''],
-      postalCode: [''],
+      postalCode: ['', postalCodeValidators],
+      countryId: [null],
+      regionId: [null],
+      cityId: [null],
+      districtId: [null],
+      buildingNumber: ['', buildingNumberValidators],
+      streetName: [''],
       dateOfBirth: [null],
       gender: [''],
       occupation: [''],

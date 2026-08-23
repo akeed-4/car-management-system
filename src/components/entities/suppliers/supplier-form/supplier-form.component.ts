@@ -13,6 +13,9 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NotificationService } from '@/src/services/notification.service';
+import { NationalAddressService } from '../../../../services/national-address.service';
+import { Country, Region, City, District } from '../../../../models/national-address.model';
+import { postalCodeValidators, buildingNumberValidators } from '../../../../models/national-address-validators';
 
 /** Section id -> the form control names it contains, used to auto-expand + scroll to whichever
  *  collapsed section holds the first invalid control on a failed submit. Keep in sync with the
@@ -20,7 +23,7 @@ import { NotificationService } from '@/src/services/notification.service';
 const SECTION_FIELDS: Record<string, string[]> = {
   basic: ['name', 'crNumber', 'taxNumber', 'supplierCategory'],
   contact: ['phone', 'phone2', 'email', 'website'],
-  address: ['city', 'district', 'postalCode', 'address'],
+  address: ['city', 'district', 'postalCode', 'address', 'countryId', 'regionId', 'cityId', 'districtId', 'buildingNumber', 'streetName'],
   contactPerson: ['contactPerson', 'contactPersonPhone', 'contactPersonEmail'],
   financial: ['paymentTerms', 'creditLimit'],
   banking: ['bankName', 'bankAccountNumber', 'iban'],
@@ -54,10 +57,17 @@ export class SupplierFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private translateService = inject(TranslateService);
   private notificationService = inject(NotificationService);
+  private nationalAddressService = inject(NationalAddressService);
   supplierForm!: FormGroup;
   supplier = signal<Partial<Supplier>>({});
   editMode = signal(false);
   pageTitle = signal('إضافة مورد جديد');
+
+  // Requirement 7: National Address dependent dropdowns.
+  countries = signal<Country[]>([]);
+  regions = signal<Region[]>([]);
+  cities = signal<City[]>([]);
+  districts = signal<District[]>([]);
 
   /** "Basic Info" (name/CR number/category) starts open since it's filled first; the rest start
    *  collapsed to cut initial scroll. Sections toggle independently (multi: true). */
@@ -77,6 +87,7 @@ export class SupplierFormComponent implements OnInit {
 
   ngOnInit() {
     this.initializeForm();
+    this.setupNationalAddressCascade();
 
     // Check if editing existing supplier
     const idParam = this.route.snapshot.params['id'];
@@ -87,10 +98,56 @@ export class SupplierFormComponent implements OnInit {
       this.supplierService.getSupplierById(id).subscribe(existingSupplier => {
         this.supplier.set({ ...existingSupplier });
         this.supplierForm.patchValue(existingSupplier);
+        this.preloadNationalAddressChain(existingSupplier.countryId, existingSupplier.regionId, existingSupplier.cityId);
       }, error => {
         console.error('Error loading supplier:', error);
         this.router.navigate(['/entities/suppliers']);
       });
+    }
+  }
+
+  /** Requirement 7: wires the Country -> Region -> City -> District cascade -- see
+   *  CustomerFormComponent's identical method for the full rationale. */
+  private setupNationalAddressCascade(): void {
+    this.nationalAddressService.getCountries().subscribe(countries => this.countries.set(countries));
+
+    this.supplierForm.get('countryId')?.valueChanges.subscribe((countryId: number | null) => {
+      this.regions.set([]);
+      this.cities.set([]);
+      this.districts.set([]);
+      this.supplierForm.patchValue({ regionId: null, cityId: null, districtId: null }, { emitEvent: false });
+      if (countryId) {
+        this.nationalAddressService.getRegions(countryId).subscribe(regions => this.regions.set(regions));
+      }
+    });
+
+    this.supplierForm.get('regionId')?.valueChanges.subscribe((regionId: number | null) => {
+      this.cities.set([]);
+      this.districts.set([]);
+      this.supplierForm.patchValue({ cityId: null, districtId: null }, { emitEvent: false });
+      if (regionId) {
+        this.nationalAddressService.getCities(regionId).subscribe(cities => this.cities.set(cities));
+      }
+    });
+
+    this.supplierForm.get('cityId')?.valueChanges.subscribe((cityId: number | null) => {
+      this.districts.set([]);
+      this.supplierForm.patchValue({ districtId: null }, { emitEvent: false });
+      if (cityId) {
+        this.nationalAddressService.getDistricts(cityId).subscribe(districts => this.districts.set(districts));
+      }
+    });
+  }
+
+  private preloadNationalAddressChain(countryId?: number | null, regionId?: number | null, cityId?: number | null): void {
+    if (countryId) {
+      this.nationalAddressService.getRegions(countryId).subscribe(regions => this.regions.set(regions));
+    }
+    if (regionId) {
+      this.nationalAddressService.getCities(regionId).subscribe(cities => this.cities.set(cities));
+    }
+    if (cityId) {
+      this.nationalAddressService.getDistricts(cityId).subscribe(districts => this.districts.set(districts));
     }
   }
 
@@ -106,7 +163,13 @@ export class SupplierFormComponent implements OnInit {
       address: ['', Validators.required],
       city: [''],
       district: [''],
-      postalCode: [''],
+      postalCode: ['', postalCodeValidators],
+      countryId: [null],
+      regionId: [null],
+      cityId: [null],
+      districtId: [null],
+      buildingNumber: ['', buildingNumberValidators],
+      streetName: [''],
       contactPerson: [''],
       contactPersonPhone: [''],
       contactPersonEmail: ['', [Validators.email]],

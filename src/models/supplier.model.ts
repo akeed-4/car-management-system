@@ -11,6 +11,14 @@ export interface Supplier {
   city?: string;
   district?: string;
   postalCode?: string;
+  /** Requirement 7: National Address dictionary selections -- preferred over the free-text
+   * city/district above. */
+  countryId?: number | null;
+  regionId?: number | null;
+  cityId?: number | null;
+  districtId?: number | null;
+  buildingNumber?: string;
+  streetName?: string;
   contactPerson?: string; // Primary contact person
   contactPersonPhone?: string;
   contactPersonEmail?: string;

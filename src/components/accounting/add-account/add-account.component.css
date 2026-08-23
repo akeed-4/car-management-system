@@ -41,6 +41,59 @@
   font-weight: 500;
 }
 
+.parent-account-summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  background: #f5f7fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+}
+
+.parent-account-summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 160px;
+}
+
+.parent-account-summary-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #78909c;
+  font-weight: 600;
+}
+
+.parent-account-summary-value {
+  font-size: 15px;
+  font-weight: 500;
+  color: #263238;
+}
+
+.parent-account-summary-empty {
+  font-weight: 400;
+  font-style: italic;
+  color: #90a4ae;
+}
+
+.parent-account-summary-arrow {
+  color: #90a4ae;
+}
+
+@media (max-width: 600px) {
+  .parent-account-summary {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .parent-account-summary-arrow {
+    transform: rotate(90deg);
+  }
+}
+
 .form-actions {
   display: flex;
   gap: 12px;
@@ -145,6 +198,39 @@ mat-card-header {
 
 .account-type-card.selected::before {
   transform: scaleX(1);
+}
+
+/* Requirement: an account with posted journal-entry history cannot change Main/Partial
+   (it drives ParentId) -- shown visually locked instead of just silently ignoring clicks. */
+.account-type-card.locked {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.account-type-card.locked:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: inherit;
+}
+
+.posted-transactions-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.9rem;
+  background: #fff3e0;
+  border-left: 3px solid #f57c00;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.85rem;
+  color: #7a4a00;
+}
+
+.posted-transactions-hint mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #f57c00;
 }
 
 .card-content {

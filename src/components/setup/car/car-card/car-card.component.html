@@ -141,6 +141,9 @@
                             <button matSuffix mat-icon-button (click)="isScannerOpen.set(true)" type="button">
                                 <mat-icon>qr_code_scanner</mat-icon>
                             </button>
+                            <mat-error *ngIf="carForm.get('vin')?.hasError('pattern')">
+                                {{ 'INVENTORY.FORM.VIN_INVALID' | translate }}
+                            </mat-error>
                         </mat-form-field>
 
                         <mat-form-field appearance="outline" class="field-span-1">
@@ -175,26 +178,53 @@
                             {{ 'INVENTORY.FORM.TECHNICAL' | translate }}
                         </mat-panel-title>
                         <mat-panel-description class="panel-summary">
-                            {{ carForm.value.exteriorColor || '—' }}<span *ngIf="carForm.value.transmission"> • {{ carForm.value.transmission }}</span>
+                            {{ selectedExteriorColorName() || '—' }}<span *ngIf="carForm.value.transmission"> • {{ carForm.value.transmission }}</span>
                         </mat-panel-description>
                     </mat-expansion-panel-header>
 
                     <div class="form-grid">
                         <mat-form-field appearance="outline" class="field-span-1">
                             <mat-label>{{ 'INVENTORY.FORM.MILEAGE' | translate }}</mat-label>
-                            <input matInput type="number" formControlName="mileage" required
+                            <input matInput type="number" formControlName="mileage" required min="0"
                                 [attr.disabled]="carForm.value.condition === 'New' ? true : null">
+                            <mat-error *ngIf="carForm.get('mileage')?.hasError('min')">
+                                {{ 'INVENTORY.FORM.MILEAGE_INVALID' | translate }}
+                            </mat-error>
                         </mat-form-field>
 
-                        <mat-form-field appearance="outline" class="field-span-1">
-                            <mat-label>{{ 'INVENTORY.FORM.EXTERIOR_COLOR' | translate }}</mat-label>
-                            <input matInput type="text" formControlName="exteriorColor">
-                        </mat-form-field>
+                        <div class="field-span-1 field-with-add">
+                            <mat-form-field appearance="outline" class="field-with-add-select">
+                                <mat-label>{{ 'INVENTORY.FORM.EXTERIOR_COLOR' | translate }}</mat-label>
+                                <mat-select formControlName="exteriorColorId" required>
+                                    <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_COLOR' | translate }}</mat-option>
+                                    @for (color of vehicleColors(); track color.id) {
+                                    <mat-option [value]="color.id">{{ color.nameEn }}</mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                            <button type="button" mat-icon-button class="field-add-btn"
+                                [matTooltip]="'INVENTORY.FORM.ADD_COLOR' | translate"
+                                (click)="openAddVehicleColorDialog('exteriorColorId')">
+                                <mat-icon>add</mat-icon>
+                            </button>
+                        </div>
 
-                        <mat-form-field appearance="outline" class="field-span-1">
-                            <mat-label>{{ 'INVENTORY.FORM.INTERIOR_COLOR' | translate }}</mat-label>
-                            <input matInput type="text" formControlName="interiorColor">
-                        </mat-form-field>
+                        <div class="field-span-1 field-with-add">
+                            <mat-form-field appearance="outline" class="field-with-add-select">
+                                <mat-label>{{ 'INVENTORY.FORM.INTERIOR_COLOR' | translate }}</mat-label>
+                                <mat-select formControlName="interiorColorId" required>
+                                    <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_COLOR' | translate }}</mat-option>
+                                    @for (color of vehicleColors(); track color.id) {
+                                    <mat-option [value]="color.id">{{ color.nameEn }}</mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                            <button type="button" mat-icon-button class="field-add-btn"
+                                [matTooltip]="'INVENTORY.FORM.ADD_COLOR' | translate"
+                                (click)="openAddVehicleColorDialog('interiorColorId')">
+                                <mat-icon>add</mat-icon>
+                            </button>
+                        </div>
 
                         <mat-form-field appearance="outline" class="field-span-1">
                             <mat-label>{{ 'INVENTORY.FORM.TRANSMISSION' | translate }}</mat-label>

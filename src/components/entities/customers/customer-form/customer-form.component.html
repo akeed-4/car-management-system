@@ -93,6 +93,69 @@
             </mat-panel-title>
           </mat-expansion-panel-header>
 
+          <!-- Requirement 7: National Address dependent dropdowns -- each level only offers
+               options that belong to the level selected above it. -->
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CUSTOMERS.FORM.COUNTRY' | translate }}</mat-label>
+              <mat-select formControlName="countryId">
+                <mat-option [value]="null">{{ 'CUSTOMERS.FORM.SELECT_COUNTRY' | translate }}</mat-option>
+                <mat-option *ngFor="let country of countries()" [value]="country.id">{{ country.nameEn }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CUSTOMERS.FORM.REGION' | translate }}</mat-label>
+              <mat-select formControlName="regionId" [disabled]="!customerForm.get('countryId')?.value">
+                <mat-option [value]="null">{{ 'CUSTOMERS.FORM.SELECT_REGION' | translate }}</mat-option>
+                <mat-option *ngFor="let region of regions()" [value]="region.id">{{ region.nameEn }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CUSTOMERS.FORM.CITY_DICTIONARY' | translate }}</mat-label>
+              <mat-select formControlName="cityId" [disabled]="!customerForm.get('regionId')?.value">
+                <mat-option [value]="null">{{ 'CUSTOMERS.FORM.SELECT_CITY' | translate }}</mat-option>
+                <mat-option *ngFor="let city of cities()" [value]="city.id">{{ city.nameEn }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CUSTOMERS.FORM.DISTRICT_DICTIONARY' | translate }}</mat-label>
+              <mat-select formControlName="districtId" [disabled]="!customerForm.get('cityId')?.value">
+                <mat-option [value]="null">{{ 'CUSTOMERS.FORM.SELECT_DISTRICT' | translate }}</mat-option>
+                <mat-option *ngFor="let district of districts()" [value]="district.id">{{ district.nameEn }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CUSTOMERS.FORM.STREET_NAME' | translate }}</mat-label>
+              <input matInput formControlName="streetName">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CUSTOMERS.FORM.BUILDING_NUMBER' | translate }}</mat-label>
+              <input matInput formControlName="buildingNumber" type="text" inputmode="numeric">
+              <mat-error *ngIf="customerForm.get('buildingNumber')?.hasError('pattern')">
+                {{ 'CUSTOMERS.FORM.VALIDATION.BUILDING_NUMBER_INVALID' | translate }}
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'CUSTOMERS.FORM.POSTAL_CODE' | translate }}</mat-label>
+              <input matInput formControlName="postalCode" type="text" inputmode="numeric">
+              <mat-error *ngIf="customerForm.get('postalCode')?.hasError('pattern')">
+                {{ 'CUSTOMERS.FORM.VALIDATION.POSTAL_CODE_INVALID' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- Legacy free-text fields, kept for records created before the National Address
+               dictionary existed. -->
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'CUSTOMERS.FORM.CITY' | translate }}</mat-label>
@@ -102,11 +165,6 @@
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'CUSTOMERS.FORM.DISTRICT' | translate }}</mat-label>
               <input matInput formControlName="district">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'CUSTOMERS.FORM.POSTAL_CODE' | translate }}</mat-label>
-              <input matInput formControlName="postalCode">
             </mat-form-field>
           </div>
           <mat-form-field appearance="outline" class="form-field full-width">

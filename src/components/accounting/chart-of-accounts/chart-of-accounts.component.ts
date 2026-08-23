@@ -10,6 +10,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { AccountingService } from '../accounting.service';
 import { Account } from '../models';
 import { AddAccountComponent } from '../add-account/add-account.component';
+import { setChartOfAccountsTreeFocus } from '../chart-of-accounts-tree-state';
+import { NotificationService } from '@/src/services/notification.service';
 
 @Component({
   selector: 'app-chart-of-accounts',
@@ -92,7 +94,8 @@ export class ChartOfAccountsComponent implements OnInit {
     private accountingService: AccountingService,
     private translate: TranslateService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private notificationService: NotificationService
   ) {
     this.accounts$ = this.accountingService.accounts$;
     
@@ -152,17 +155,39 @@ export class ChartOfAccountsComponent implements OnInit {
   onAccountSaved(account: Account) {
     this.isEditing = false;
     this.editingAccount = null;
+    // Requirement 6: return to the tree instead of leaving the user stranded on this form --
+    // the tree restores its expanded/selected state and highlights this account on arrival.
+    this.returnToTreeFocusedOn(account.id);
   }
 
   onDeleteAccount(node: any) {
     if (confirm(this.translate.instant('ACCOUNTING.CONFIRM_DELETE'))) {
-      this.accountingService.deleteAccount(node.id).subscribe();
+      this.accountingService.deleteAccount(node.id).subscribe({
+        next: () => {
+          this.notificationService.showSuccess(this.translate.instant('ACCOUNTING.ACCOUNT_DELETED'));
+        },
+        error: (error) => {
+          // Surface the backend's specific reason (e.g. "has posted journal entries") when
+          // available, instead of failing silently.
+          const backendMessage = typeof error?.error === 'string' ? error.error : null;
+          this.notificationService.showError(backendMessage || this.translate.instant('ACCOUNTING.ERROR_DELETING_ACCOUNT'));
+        }
+      });
     }
   }
 
   onCancel() {
     this.isEditing = false;
     this.editingAccount = null;
+    this.router.navigate(['/accounts/chart-of-accounts']);
+  }
+
+  /** Requirement 6: hands back to the tree's saved state so it selects/highlights this specific
+   *  account (the one just created or edited) instead of only the parent that was saved before
+   *  navigating here, then returns to the tree page. */
+  private returnToTreeFocusedOn(accountId: number) {
+    setChartOfAccountsTreeFocus(accountId);
+    this.router.navigate(['/accounts/chart-of-accounts']);
   }
 
   private loadAccountForEdit(accountId: number) {

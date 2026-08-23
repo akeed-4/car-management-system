@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
-import { DxTreeListModule, DxTemplateModule, DxTemplateHost } from 'devextreme-angular';
+import { Component, OnInit, OnDestroy, ViewChild, signal, computed } from '@angular/core';
+import { DxTreeListModule, DxTemplateModule, DxTemplateHost, DxTreeListComponent } from 'devextreme-angular';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastService } from '@/src/services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
+import { saveChartOfAccountsTreeState, readChartOfAccountsTreeState } from '../chart-of-accounts-tree-state';
 
 @Component({
   selector: 'app-chart-of-accounts-tree',
@@ -25,16 +26,13 @@ import { NotificationService } from '@/src/services/notification.service';
   styleUrl: './chart-of-accounts-tree.component.css'
 })
 export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
+  @ViewChild(DxTreeListComponent, { static: false }) treeList!: DxTreeListComponent;
+
   // Signals for reactive state management
   accounts = signal<Account[]>([]);
   isLoading = signal<boolean>(false);
   error = signal<string | null>(null);
   maxLevel = signal<number | null>(null);
-
-  // Form properties
-  isEditing = false;
-  editingAccount: Account | null = null;
-  parentId: number | null = null;
 
   // Computed signal for processed accounts data
   processedAccounts = computed(() => {
@@ -85,7 +83,7 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.loadAccounts();
+    this.loadAccounts(/* restoreTreeState */ true);
 
     // Subscribe to language changes to refresh data with updated translations
     this.translate.onLangChange.pipe(takeUntil(this.destroy$)).subscribe(() => {
@@ -103,7 +101,7 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  loadAccounts() {
+  loadAccounts(restoreTreeState = false) {
     this.isLoading.set(true);
     this.error.set(null);
 
@@ -112,7 +110,11 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
         const accounts = result.data || result;
         this.accounts.set(accounts);
         this.isLoading.set(false);
-        console.log('Accounts loaded:', accounts);
+        if (restoreTreeState) {
+          // Wait a tick for the tree list to render the freshly-loaded rows before we ask it to
+          // expand/select/scroll -- DevExtreme's instance methods are no-ops on rows not yet drawn.
+          setTimeout(() => this.restoreTreeState(), 0);
+        }
       },
       error: (error) => {
         console.error('Error loading accounts:', error);
@@ -122,10 +124,50 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
     });
   }
 
+  /** Requirement 6: called right before navigating away to Add/Edit, so the tree can put itself
+   *  back the way the user left it when they return to this page. `focusRowKey` is the account to
+   *  highlight on return -- the parent being added under, or the account being edited. */
+  private saveTreeState(focusRowKey: number | null) {
+    const instance = this.treeList?.instance;
+    if (!instance) return;
+
+    saveChartOfAccountsTreeState({
+      expandedRowKeys: instance.getVisibleRows()
+        .filter((row: any) => row.node?.expanded)
+        .map((row: any) => row.key),
+      selectedRowKey: instance.getSelectedRowKeys()[0] ?? null,
+      focusRowKey
+    });
+  }
+
+  /** Restores expanded nodes and selection saved by saveTreeState, and selects focusRowKey
+   *  (typically the account just created or edited) once the tree can display it. */
+  private restoreTreeState() {
+    const state = readChartOfAccountsTreeState();
+    if (!state) return;
+
+    const instance = this.treeList?.instance;
+    if (!instance) return;
+
+    for (const key of state.expandedRowKeys ?? []) {
+      instance.expandRow(key);
+    }
+
+    // DevExtreme's own selection highlight is the visible "here's the row that matters" cue --
+    // selecting focusRowKey (the parent just added under, or the account just edited) surfaces it
+    // without a separate custom highlight/timer to keep in sync with the tree's real repaint cycle.
+    const rowToSelectAndFocus = state.focusRowKey ?? state.selectedRowKey;
+    if (rowToSelectAndFocus != null) {
+      instance.selectRows([rowToSelectAndFocus], false);
+      instance.navigateToRow(rowToSelectAndFocus);
+    }
+  }
+
   onAddSubAccount(e: any) {
     const accountId = e.row.data.id;
-    // Navigate to add sub-account form with parentId as query parameter
-    console.log('Add sub-account for id:', accountId);
+    // Preserve where the user is in the tree, and come back focused on the parent they were
+    // adding under -- the new child will appear alongside it once created.
+    this.saveTreeState(accountId);
     this.router.navigate(['/accounts/chart-of-accounts-new'], {
       queryParams: { parentId: accountId, mode: 'add' }
     });
@@ -137,13 +179,12 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
       ? accountOrEvent.row.data
       : accountOrEvent;
 
-    console.log('Edit account clicked:', account);
     if (!account || !account.id) {
       console.error('Edit navigation failed: account id is missing', accountOrEvent);
       return;
     }
 
-    // Navigate to edit form with account ID as route parameter
+    this.saveTreeState(account.id);
     this.router.navigate(['/accounts/chart-of-accounts-new', account.id], {
       queryParams: { mode: 'edit' }
     });
@@ -160,7 +201,10 @@ export class ChartOfAccountsTreeComponent implements OnInit, OnDestroy {
           this.loadAccounts();
         },
         error: (error) => {
-         this.toastService.showError(this.translate.instant('ACCOUNTING.ERROR_DELETING_ACCOUNT'));
+          // Surface the backend's specific reason (e.g. "has posted journal entries") when
+          // available, instead of only a generic failure message.
+          const backendMessage = typeof error?.error === 'string' ? error.error : null;
+          this.toastService.showError(backendMessage || this.translate.instant('ACCOUNTING.ERROR_DELETING_ACCOUNT'));
         }
       });
     }

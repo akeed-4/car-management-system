@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Inject, Input, Optional, Output, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { AccountingService } from '../accounting.service';
@@ -23,6 +23,14 @@ import { CustomerService } from '../../../services/customer.service';
 import { SupplierService } from '../../../services/supplier.service';
 import { CurrencyService } from '../../../services/currency.service';
 import { Currency } from '../../../models/currency.model';
+import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+
+/** Data passed when opening AddAccountComponent as a quick-add dialog from a financial document
+ *  (Requirement 9), e.g. the Purchase Invoice's Debit/Credit Account "+" button. Lets the dialog
+ *  pre-select a sensible parent instead of defaulting to "new root account". */
+export interface AddAccountQuickAddData {
+  parentId?: number | null;
+}
 
 @Component({
   selector: 'app-add-account',
@@ -41,6 +49,7 @@ import { Currency } from '../../../models/currency.model';
     MatCheckboxModule,
     MatRadioModule,
     MatProgressSpinnerModule,
+    MatDialogModule,
     TranslateModule
   ]
 })
@@ -50,6 +59,19 @@ export class AddAccountComponent implements OnChanges, OnInit {
   @Input() parentId: number | null = null;
   @Output() accountSaved = new EventEmitter<Account>();
   @Output() cancelled = new EventEmitter<void>();
+
+  /** Present only when opened via MatDialog.open(AddAccountComponent, ...) (Requirement 9 -- the
+   *  "+ Create Account" affordance on financial documents) -- absent for the existing routed
+   *  /accounts/chart-of-accounts-new page, which keeps behaving exactly as before. */
+  isQuickAddDialog = !!this.dialogRef;
+
+  /** True while editing an account that already has posted journal-entry history -- disables
+   *  Code/Type/Currency/Parent editing in the UI up front, matching the guard
+   *  AccountService.UpdateAsync/DeleteAsync enforce server-side. Read from the account fetched by
+   *  getAccountById (only that single-account endpoint populates hasPostedTransactions). */
+  get hasPostedTransactions(): boolean {
+    return this.isEditing && !!this.editingAccount?.hasPostedTransactions;
+  }
 
   // Form properties
   infoMode = false;
@@ -84,6 +106,9 @@ export class AddAccountComponent implements OnChanges, OnInit {
   costCenters: CostCenter[] = [];
   currencies: Currency[] = [];
   isSaving = false;
+  /** True once the user has hand-edited the auto-filled account code, so a later parent change
+   *  stops overwriting their edit. */
+  private codeManuallyEdited = false;
 
   customers = this.customerService.customers$;
   suppliers = this.supplierService.suppliers$;
@@ -98,7 +123,9 @@ export class AddAccountComponent implements OnChanges, OnInit {
     private router: Router,
     private customerService: CustomerService,
     private supplierService: SupplierService,
-    private currencyService: CurrencyService
+    private currencyService: CurrencyService,
+    @Optional() private dialogRef: MatDialogRef<AddAccountComponent, Account | undefined> | null,
+    @Optional() @Inject(MAT_DIALOG_DATA) private dialogData: AddAccountQuickAddData | null
   ) {
     this.accountForm = this.fb.group({
       accountTypeSelection: ['main'], // Default to main account
@@ -167,14 +194,18 @@ export class AddAccountComponent implements OnChanges, OnInit {
       mainAccountCodeControl?.updateValueAndValidity();
     });
 
-    // Watch for mainAccountCode changes to auto-fill mainAccountName
+    // Watch for mainAccountCode changes to auto-fill mainAccountName. Typing a code here selects
+    // the account's real parent (not just a denormalized "top of tree" pointer) -- also sets
+    // parentId so the created account's hierarchy (and CreateAsync's numbering, which is keyed on
+    // parentId) is correct, matching the parent already resolved by tree-navigation.
     this.accountForm.get('mainAccountCode')?.valueChanges.subscribe(code => {
       if (code) {
         const mainAccount = this.accountingService.getAccountByCode(code);
         if (mainAccount) {
           this.accountForm.patchValue({
             mainAccountName: mainAccount.accountNameEn,
-            mainAccountId: mainAccount.id,
+            mainAccountId: mainAccount.isMainAccount ? mainAccount.id : mainAccount.mainAccountId,
+            parentId: mainAccount.id,
             accountTypeId: mainAccount.accountTypeId,
             accountCategoryId: mainAccount.accountCategoryId,
             currencyId: mainAccount.currencyId,
@@ -185,7 +216,7 @@ export class AddAccountComponent implements OnChanges, OnInit {
         }
       } else {
         // Clear dependent fields when code is empty
-        this.accountForm.patchValue({ mainAccountName: '', mainAccountId: 0 }, { emitEvent: false });
+        this.accountForm.patchValue({ mainAccountName: '', mainAccountId: 0, parentId: null }, { emitEvent: false });
       }
     });
 
@@ -208,15 +239,62 @@ export class AddAccountComponent implements OnChanges, OnInit {
       }
     });
 
+    // Requirement 1: parentId is the single field CreateAsync actually keys numbering on (and the
+    // real hierarchy edge sent to the backend) -- fetch the next code whenever it changes, for
+    // both the "type a parent code" and "navigate from tree" flows.
+    this.accountForm.get('parentId')?.valueChanges.subscribe(parentId => {
+      this.fetchAndFillNextCode(parentId ?? null);
+    });
+
+    // Track manual edits to the code field so a later parent-change doesn't clobber them.
+    this.accountForm.get('accountCode')?.valueChanges.subscribe(() => {
+      if (!this.suppressCodeEditTracking) {
+        this.codeManuallyEdited = true;
+      }
+    });
+
     // Set initial selection state and validation
     this.syncAccountTypeSelection('main');
     this.updateValidationBasedOnAccountType('main');
+  }
+
+  /** Set while the component itself patches accountCode, so that patch isn't mistaken for a
+   *  manual user edit by the tracking subscriber above. */
+  private suppressCodeEditTracking = false;
+
+  /** Requirement 1: the user should not have to work out the next account code by hand. Fetches
+   *  the backend-computed next code for the given parent (or root, when null) and fills it in --
+   *  unless the user already typed their own code for this account. */
+  private fetchAndFillNextCode(parentId: number | null) {
+    if (this.isEditing || this.codeManuallyEdited) return;
+
+    this.accountingService.getNextAccountCode(parentId).subscribe({
+      next: (code) => {
+        if (this.isEditing || this.codeManuallyEdited) return;
+        this.suppressCodeEditTracking = true;
+        this.accountForm.patchValue({ accountCode: code });
+        this.suppressCodeEditTracking = false;
+      },
+      error: () => {
+        // Auto-numbering is a convenience -- if it fails, the user can still type a code by hand.
+      }
+    });
   }
 
   ngOnInit() {
     // Load cost centers
     this.loadCostCenters();
     this.loadCurrencies();
+
+    // Quick-add dialog mode (Requirement 9): initialize straight from dialogData instead of the
+    // host page's own route -- ActivatedRoute here would otherwise resolve to whatever screen
+    // opened the dialog (e.g. the Purchase Invoice page), not this form's own route.
+    if (this.isQuickAddDialog) {
+      if (this.dialogData?.parentId) {
+        this.setupForAddSubAccount(this.dialogData.parentId);
+      }
+      return;
+    }
 
     // Handle route parameters for editing
     this.route.params.subscribe(params => {
@@ -387,6 +465,7 @@ export class AddAccountComponent implements OnChanges, OnInit {
         mainAccountName: '',
         parentId: null
       }, { emitEvent: false });
+      this.fetchAndFillNextCode(null);
     }
   }
 
@@ -402,7 +481,11 @@ export class AddAccountComponent implements OnChanges, OnInit {
   onSave() {
     if (this.accountForm.valid) {
       this.isSaving = true;
-      const formValue = this.accountForm.value;
+      // getRawValue(), not .value -- when hasPostedTransactions locks a control (accountCode,
+      // accountTypeId, currencyId, accountTypeSelection, mainAccountCode), Angular omits disabled
+      // controls from .value entirely. Using .value here would send those fields as undefined,
+      // which the backend would treat as "clear it" rather than "leave it unchanged".
+      const formValue = this.accountForm.getRawValue();
 
       // Remove UI-only fields that aren't part of the DTO
       const { accountTypeSelection, entityType, ...dtoData } = formValue;
@@ -431,9 +514,9 @@ export class AddAccountComponent implements OnChanges, OnInit {
         };
         this.accountingService.updateAccount(updateDto).subscribe({
           next: (account) => {
-            debugger
             this.toastService.showSuccess(this.translate.instant('ACCOUNTING.ACCOUNT_UPDATED'));
             this.accountSaved.emit(account);
+            this.dialogRef?.close(account);
             this.isSaving = false;
           },
           error: (error) => {
@@ -443,11 +526,11 @@ export class AddAccountComponent implements OnChanges, OnInit {
         });
       } else {
         const createDto: CreateAccountDto = processedData;
-        console.log('Sending create DTO:', createDto);
         this.accountingService.createAccount(createDto).subscribe({
           next: (account) => {
             this.toastService.showSuccess(this.translate.instant('ACCOUNTING.ACCOUNT_CREATED'));
             this.accountSaved.emit(account);
+            this.dialogRef?.close(account);
             this.isSaving = false;
           },
           error: (error) => {
@@ -465,7 +548,31 @@ export class AddAccountComponent implements OnChanges, OnInit {
 
   onCancel() {
     this.cancelled.emit();
+    if (this.dialogRef) {
+      this.dialogRef.close();
+      return;
+    }
     this.router.navigate(['/accounts/chart-of-accounts']);
+  }
+
+  /** Disables the controls the backend rejects once an account has posted journal-entry history
+   *  (accountCode, accountTypeId, currencyId, and everything that drives ParentId: the main/partial
+   *  toggle and mainAccountCode) -- see AccountService.UpdateAsync's changesProtectedField guard.
+   *  Re-enables them for a fresh (non-editing, or history-free) account, so this can be called
+   *  unconditionally from updateFormForEditing without special-casing the "no history" path. */
+  private applyPostedTransactionsLock(): void {
+    const lockedControlNames = ['accountCode', 'accountTypeId', 'currencyId', 'accountTypeSelection', 'mainAccountCode'];
+    const locked = this.hasPostedTransactions;
+
+    for (const name of lockedControlNames) {
+      const control = this.accountForm.get(name);
+      if (!control) continue;
+      if (locked) {
+        control.disable({ emitEvent: false });
+      } else {
+        control.enable({ emitEvent: false });
+      }
+    }
   }
 
   private updateFormForEditing() {
@@ -519,6 +626,7 @@ export class AddAccountComponent implements OnChanges, OnInit {
       }, { emitEvent: false });
       this.syncAccountTypeSelection(accountTypeSelection);
       this.updateValidationBasedOnAccountType(accountTypeSelection);
+      this.applyPostedTransactionsLock();
       // If this is a partial account, ensure the main account fields are populated
       if (!this.editingAccount.isMainAccount) {
         // Try to resolve from local cache first
@@ -605,18 +713,21 @@ export class AddAccountComponent implements OnChanges, OnInit {
     }
   }
 
-  private setupForAddSubAccount() {
-    if (this.parentId) {
+  /** @param parentIdOverride Used by the quick-add dialog (Requirement 9), which has no @Input
+   *  parentId of its own -- falls back to the @Input for the existing embedded-form usage. */
+  private setupForAddSubAccount(parentIdOverride?: number | null) {
+    const parentId = parentIdOverride ?? this.parentId;
+    if (parentId) {
       // Set as partial account with parentId
       this.accountForm.patchValue({
         accountTypeSelection: 'partial',
         isMainAccount: false,
-        parentId: this.parentId
+        parentId: parentId
       });
       // Wait for accounts to be loaded, then set main account
       this.accountingService.accounts$.subscribe(accounts => {
         if (accounts && accounts.length > 0) {
-          const parentAccount = accounts.find(acc => acc.id === this.parentId);
+          const parentAccount = accounts.find(acc => acc.id === parentId);
           if (parentAccount) {
             // For partial accounts, the main account is the top-level main account
             let mainAccount = parentAccount;

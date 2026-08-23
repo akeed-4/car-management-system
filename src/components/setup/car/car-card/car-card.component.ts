@@ -28,8 +28,10 @@ import { ExpenseService } from '../../../../services/expense.service';
 import { ToastService } from '../../../../services/toast.service';
 import { CarCategoryService } from '../../../../services/car-category.service';
 import { PermissionService } from '../../../../services/permission.service';
+import { VehicleColorService } from '../../../../services/vehicle-color.service';
 
 import { Car, CarCondition } from '../../../../models/car.model';
+import { VehicleColor } from '../../../../models/vehicle-color.model';
 import { PriceSuggestion } from '../../../../models/price-suggestion.model';
 import { CarCategory } from '../../../../types/car-category.model';
 import { Manufacturer } from '../../../../models/manufacturer.model';
@@ -42,6 +44,12 @@ import { NotificationService } from '@/src/services/notification.service';
 import { ManufacturersComponent } from '../../manufacturers/manufacturers-list/manufacturers.component';
 import { CarModelsComponent, CarModelQuickAddData } from '../../car-models/car-models-list/car-models.component';
 import { CarCategoryFormComponent, CarCategoryQuickAddData } from '../../car-category/car-category-form/car-category-form.component';
+import { VehicleColorFormComponent } from '../../vehicle-colors/vehicle-color-form/vehicle-color-form.component';
+
+/** Requirement 8: VIN/chassis number must not accept Arabic characters -- English letters and
+ * numbers only, matching the backend's VehicleValidation.ValidateVin. Frontend-only convenience;
+ * the backend is still the enforcing authority (see CarService.CreateCarAsync/UpdateCarAsync). */
+const VIN_PATTERN = /^[A-Za-z0-9]+$/;
 
 @Component({
   selector: 'app-car-card',
@@ -84,6 +92,7 @@ export class CarCardComponent implements OnInit {
   private carCategoryService = inject(CarCategoryService);
   private notificationService = inject(NotificationService);
   private permissionService = inject(PermissionService);
+  private vehicleColorService = inject(VehicleColorService);
   private dialog = inject(MatDialog);
 private translate = inject(TranslateService);
   layout$ = this.currentSettingService.getCardLayout(3);
@@ -99,6 +108,7 @@ private translate = inject(TranslateService);
   floorPlans = this.floorPlanService.floorPlans$;
   categories = this.carCategoryService.categories$;
   filteredCategories = signal<CarCategory[]>([]);
+  vehicleColors = signal<VehicleColor[]>([]);
 
   // Component state
   editMode = signal(false);
@@ -109,6 +119,14 @@ private translate = inject(TranslateService);
 
   // Current car being edited (for modals)
   car = computed(() => this.carForm?.value || {});
+
+  // Selected exterior color name from exteriorColorId, for the section-panel summary
+  selectedExteriorColorName = computed(() => {
+    const colorId = this.carForm?.value?.exteriorColorId;
+    if (!colorId) return '';
+    const color = this.vehicleColors().find(c => c.id === colorId);
+    return color ? color.nameEn : '';
+  });
 
   // Selected model name from modelId
   selectedModel = computed(() => {
@@ -180,6 +198,7 @@ private translate = inject(TranslateService);
   ngOnInit(): void {
     this.initForm();
     this.filteredCategories.set([]);
+    this.loadVehicleColors();
 
     // Check if editing existing car
     const idParam = this.route.snapshot.queryParams['id'];
@@ -194,7 +213,7 @@ private translate = inject(TranslateService);
   private initForm(): void {
     this.carForm = this.fb.group({
       id: [null],
-      vin: [''],
+      vin: ['', Validators.pattern(VIN_PATTERN)],
       plateNumber: [''],
       istimaraExpiry: [''],
       fahasStatus: ['Valid'],
@@ -204,9 +223,11 @@ private translate = inject(TranslateService);
       categoryId: [null],
       year: [new Date().getFullYear()],
       condition: ['Used'],
-      exteriorColor: ['', Validators.required],
-      interiorColor: ['', Validators.required],
-      mileage: [0],
+      exteriorColor: [''],
+      interiorColor: [''],
+      exteriorColorId: [null, Validators.required],
+      interiorColorId: [null, Validators.required],
+      mileage: [0, [Validators.required, Validators.min(0)]],
       transmission: ['Automatic'],
       engineSize: ['', Validators.required],
       status: ['Available'],
@@ -377,6 +398,30 @@ backToCard(): void {
         list.some(c => c.id === created.id) ? list : [...list, created]
       );
       this.carForm.patchValue({ categoryId: created.id }, { emitEvent: true });
+      this.cdr.markForCheck();
+    });
+  }
+
+  private loadVehicleColors(): void {
+    this.vehicleColorService.getActive().subscribe({
+      next: (colors) => this.vehicleColors.set(colors),
+      error: (error) => console.error('Failed to load vehicle colors', error)
+    });
+  }
+
+  /** Requirement 8/9-style quick-add: opens the same VehicleColor create form used for both
+   * Exterior and Interior Color "+" buttons, then patches the newly created color into whichever
+   * field triggered it. */
+  openAddVehicleColorDialog(field: 'exteriorColorId' | 'interiorColorId'): void {
+    const dialogRef = this.dialog.open(VehicleColorFormComponent, {
+      width: '420px',
+      autoFocus: false
+    });
+
+    dialogRef.afterClosed().subscribe((created?: VehicleColor) => {
+      if (!created) return;
+      this.vehicleColors.update(list => [...list, created]);
+      this.carForm.patchValue({ [field]: created.id }, { emitEvent: true });
       this.cdr.markForCheck();
     });
   }

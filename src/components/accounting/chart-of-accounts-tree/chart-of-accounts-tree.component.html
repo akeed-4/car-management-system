@@ -144,15 +144,4 @@
       
       
     </dx-tree-list>
-
-  <!-- Account Form Section -->
-  <div class="form-section" *ngIf="isEditing || parentId">
-    <app-add-account
-      [isEditing]="isEditing"
-      [editingAccount]="editingAccount"
-      [parentId]="parentId"
-      (accountSaved)="onAccountSaved($event)"
-      (cancelled)="onCancel()">
-    </app-add-account>
-  </div>
 </div>
