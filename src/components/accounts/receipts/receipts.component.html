@@ -109,12 +109,19 @@
       </dxi-column>
    <dxi-column
         type="buttons"
-        [width]="120"
+        [width]="170"
         [caption]="'ACCOUNTS.RECEIPTS.COL_ACTIONS' | translate">
         <dxi-button
         icon="edit"
           text="Edit"
           [onClick]="editReceipt">
+        </dxi-button>
+        <dxi-button
+          icon="check"
+          text="Post"
+          hint="Post receipt"
+          [visible]="isDraft"
+          [onClick]="postReceipt">
         </dxi-button>
         <dxi-button
           icon="trash"

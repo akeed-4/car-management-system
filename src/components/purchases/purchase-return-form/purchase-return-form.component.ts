@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, Input, OnChanges, SimpleChanges, output } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, Input, OnChanges, SimpleChanges, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormControl, AbstractControl } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe, CommonModule } from '@angular/common';
 import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
@@ -12,24 +12,18 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { provideNativeDateAdapter } from '@angular/material/core';
-import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { PurchasesService } from '../../../services/purchases.service';
 import { PurchaseReturnService } from '../../../services/purchase-return.service';
-import { InventoryService } from '../../../services/inventory.service';
-import { AccountingService } from '../../accounting/accounting.service';
-import { openCreateAccountDialog } from '../../accounting/create-account-dialog.helper';
 import { ReturnInvoiceItem } from '../../../models/return-invoice-item.model';
 import { PurchaseReturnInvoice, PurchaseReturnType } from '../../../models/purchase-return-invoice.model';
 import { PurchaseInvoice } from '../../../models/purchase-invoice.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { CreateJournalEntryDto } from '../../../components/accounting/models';
 
 @Component({
   selector: 'app-purchase-return-form',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, CommonModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatIconModule, MatDatepickerModule, MatTooltipModule, MatDialogModule, NgxMatSelectSearchModule],
+  imports: [RouterLink, ReactiveFormsModule, CommonModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatIconModule, MatDatepickerModule, MatTooltipModule, ],
   templateUrl: './purchase-return-form.component.html',
   styleUrl: './purchase-return-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,11 +33,7 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
   @Input() returnType: PurchaseReturnType = 'CASH';
   @Input() customTitle: string = '';
   private procurementService = inject(PurchasesService);
-  private purchaseReturnService = inject(PurchaseReturnService);
-  private inventoryService = inject(InventoryService);
-  private accountingService = inject(AccountingService);
-  private dialog = inject(MatDialog);
-  private router = inject(Router);
+  private purchaseReturnService = inject(PurchaseReturnService);  private router = inject(Router);
   private translate = inject(TranslateService);
   private fb = inject(FormBuilder);
 
@@ -52,32 +42,9 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
   // Form State
   returnInvoiceDate = signal(new Date().toISOString().split('T')[0]);
 
-  // Accounts for different return types
-  cashBankAccounts = signal<any[]>([]);
-  supplierAccounts = signal<any[]>([]);
-
-  // Filter controls for mat-select search
-  cashBankAccountFilterCtrl = new FormControl('');
-  supplierAccountFilterCtrl = new FormControl('');
-
-  // Convert filter controls to signals
-  private cashBankAccountFilterSignal = toSignal(this.cashBankAccountFilterCtrl.valueChanges, { initialValue: '' });
-  private supplierAccountFilterSignal = toSignal(this.supplierAccountFilterCtrl.valueChanges, { initialValue: '' });
-
-  // Filtered accounts
-  filteredCashBankAccounts = computed(() => {
-    const filter = this.cashBankAccountFilterSignal()?.toLowerCase() || '';
-    return this.cashBankAccounts().filter(a =>
-      (a.accountNameAr?.toLowerCase().includes(filter) ?? false) || (a.accountCode?.toLowerCase().includes(filter) ?? false)
-    );
-  });
-
-  filteredSupplierAccounts = computed(() => {
-    const filter = this.supplierAccountFilterSignal()?.toLowerCase() || '';
-    return this.supplierAccounts().filter(a =>
-      (a.accountNameAr?.toLowerCase().includes(filter) ?? false) || (a.accountCode?.toLowerCase().includes(filter) ?? false)
-    );
-  });
+  // Phase 2B: GL account selection was removed entirely -- Debit/Credit accounts are derived
+  // server-side at approval time (Store accounting configuration + supplier's linked account /
+  // configured cash account). The frontend neither shows nor sends them.
 
   // Mock data for development - replace with actual API call when backend is ready
     invoices = toSignal(this.procurementService.getInvoices(), { initialValue: [] });
@@ -104,7 +71,6 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
-    this.loadAccounts();
     this.initForm();
   }
 
@@ -115,46 +81,14 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
     }
   }
 
-  private loadAccounts(): void {
-    // Debit/Credit selectors must only offer leaf/postable accounts -- parent/grouping accounts
-    // are excluded server-side by this endpoint, not filtered client-side from the category list.
-    this.accountingService.getPostableAccounts('cash-bank').subscribe(accounts => {
-      this.cashBankAccounts.set(accounts);
-    });
-
-    this.accountingService.getPostableAccounts('supplier').subscribe(accounts => {
-      this.supplierAccounts.set(accounts);
-    });
-  }
-
-  // --- Requirement 9: "+ Create Account" from this document -----------------------------------
-  // Scope note: Supplier Account (CREDIT branch) is intentionally excluded -- supplier AR/AP
-  // accounts are managed via the Supplier form, out of scope per confirmed rollout scope.
-  openCreateCashBankAccountDialog(): void {
-    openCreateAccountDialog(this.dialog).subscribe((created) => {
-      if (!created) return;
-      this.cashBankAccounts.update(list => [...list, created]);
-      this.returnForm.get('debitAccountId')?.setValue(created.id);
-    });
-  }
-
   private initForm(): void {
     const today = new Date();
 
-    if (this.returnType === 'CASH') {
-      this.returnForm = this.fb.group({
-        returnDate: [today, Validators.required],
-        originalInvoice: [null, Validators.required],
-        debitAccountId: [null, Validators.required] // Cash/Bank account for cash returns
-      });
-    } else {
-      // CREDIT return
-      this.returnForm = this.fb.group({
-        returnDate: [today, Validators.required],
-        originalInvoice: [null, Validators.required],
-        creditAccountId: [null, Validators.required] // Supplier account for credit returns
-      });
-    }
+    // Phase 2B: no account controls -- only document data the client actually owns.
+    this.returnForm = this.fb.group({
+      returnDate: [today, Validators.required],
+      originalInvoice: [null, Validators.required]
+    });
 
     // Listen to return date changes
     this.returnForm.get('returnDate')?.valueChanges.subscribe(value => {
@@ -177,7 +111,7 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
   };
 
   customizeTotalText = (data: any) => {
-    return `الإجمالي الكلي: ${data.value?.toLocaleString('ar-SA', { style: 'currency', currency: 'SAR' }) || '0 ر.س'}`;
+    return `Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„ÙƒÙ„ÙŠ: ${data.value?.toLocaleString('ar-SA', { style: 'currency', currency: 'SAR' }) || '0 Ø±.Ø³'}`;
   };
 
   onRowUpdated(event: any): void {
@@ -244,25 +178,13 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
     if (!this.returnForm.valid) {
       alert(this.translate.instant('PURCHASES.PURCHASE_RETURN.ERROR_INVALID_FORM'));
       return;
-    }
+    }    const totalAmount = this.totalAmount();
 
-    const formValue = this.returnForm.value;
-    const totalAmount = this.totalAmount();
-
-    let debitAccountId: number | undefined;
-    let creditAccountId: number | undefined;
-
-    if (this.returnType === 'CASH') {
-      debitAccountId = formValue.debitAccountId; // Cash/Bank account
-      // For cash returns, credit goes to inventory (reversing the original purchase)
-      creditAccountId = originalInvoice.debitAccountId; // Inventory account
-    } else {
-      // CREDIT return
-      creditAccountId = formValue.creditAccountId; // Supplier account
-      // For credit returns, debit goes to inventory (reversing the original purchase)
-      debitAccountId = originalInvoice.debitAccountId; // Inventory account
-    }
-
+    // Phase 2B: no debitAccountId/creditAccountId are sent -- the backend derives both GL
+    // accounts server-side at approval time from the Store accounting configuration, the
+    // supplier's linked account, and (for cash returns) the configured cash account. The
+    // backend also posts the stock decrease at approval; the client must NOT pre-apply
+    // inventory changes itself (that used to double-decrement stock).
     const newReturn: Omit<PurchaseReturnInvoice, 'id'> = {
       returnInvoiceNumber: '',
       returnInvoiceDate: this.returnInvoiceDate(),
@@ -270,27 +192,17 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
       supplierId: originalInvoice.supplierId,
       supplierName: originalInvoice.supplier?.name || '',
       returnType: this.returnType,
-      debitAccountId: debitAccountId,
-      creditAccountId: creditAccountId,
       items: itemsToReturn,
       totalAmount: totalAmount,
     };
 
-    // Save the return invoice
+    // Save the return as a DRAFT -- posting happens server-side when it is approved.
     this.purchaseReturnService.addReturnInvoice(newReturn).subscribe({
-      next: (createdReturn) => {
+      next: (_createdReturn) => {
         alert(this.translate.instant('PURCHASES.PURCHASE_RETURN.SUCCESS_RETURN_SAVED'));
-
-    // Update inventory - reduce inventory for returned items
-    itemsToReturn.forEach(item => {
-      this.inventoryService.decrementCarQuantity(item.carId, item.returnQuantity);
-    });
-
-    // Create accounting journal entry based on return type
-
-  
-
-},      error: (error) => {
+        this.router.navigate([this.backRoute()]);
+      },
+      error: (error) => {
         console.error('Error saving return invoice:', error);
         alert(this.translate.instant('PURCHASES.PURCHASE_RETURN.ERROR_SAVING_RETURN'));
       }

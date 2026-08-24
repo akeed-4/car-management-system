@@ -61,8 +61,8 @@ export interface CreateBankInvoiceFromDeliveryDto {
   deliveryNoteId: number;
   bankBillingCustomerId: number;
   issuedPlateNumber: string;
-  debitAccountId: number;
-  creditAccountId: number;
+  debitAccountId?: number;
+  creditAccountId?: number;
   userId: number;
 }
 

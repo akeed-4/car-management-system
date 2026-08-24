@@ -102,7 +102,30 @@ export class ReceiptsComponent implements OnInit {
       });
     }
   }
-  
+
+  /** Phase 2B: only DRAFT receipts can be posted (Posted/Cancelled vouchers are locked). */
+  isDraft = (e: any): boolean => {
+    const status = e?.row?.data?.status;
+    return status === undefined || status === null || status === 0 || status === 'Draft';
+  }
+
+  /** Phase 2B: posts a DRAFT receipt -- the server derives and posts its journal entry. */
+  postReceipt = (e: any) => {
+    const receipt = e.row.data;
+    if (confirm(this.translate.instant('ACCOUNTS.RECEIPTS.CONFIRM_POST') || 'Post this receipt? Its journal entry will be created.')) {
+      this.receiptService.postReceipt(receipt.id).subscribe({
+        next: () => {
+          this.dataSource.load();
+          this.toastService.showSuccess(this.translate.instant('ACCOUNTS.RECEIPTS.POSTED') || 'Receipt posted successfully');
+        },
+        error: (error) => {
+          console.error('Error posting receipt:', error);
+          alert(error?.error?.Message || error?.error || this.translate.instant('ACCOUNTS.RECEIPTS.ERROR_POSTING') || 'Error posting receipt');
+        }
+      });
+    }
+  }
+
 
   trackByReceiptId(index: number, receipt: Receipt): number {
     return receipt.id;

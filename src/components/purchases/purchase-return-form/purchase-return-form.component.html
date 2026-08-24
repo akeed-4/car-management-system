@@ -41,61 +41,19 @@
               </mat-select>
             </mat-form-field>
           </div>
-          <!-- Account selection based on return type -->
-          @if (returnType === 'CASH') {
-            <div class="field-with-add">
-              <mat-form-field appearance="outline" class="full-width field-with-add-select">
-                <mat-label>{{ 'PURCHASE_RETURN.CASH_BANK_ACCOUNT' | translate }}</mat-label>
-                <mat-select formControlName="debitAccountId" required>
-                  <mat-option>
-                    <ngx-mat-select-search
-                      [formControl]="cashBankAccountFilterCtrl"
-                      placeholderLabel="{{ 'PURCHASE_RETURN.SEARCH_ACCOUNT' | translate }}"
-                      noEntriesFoundLabel="{{ 'PURCHASE_RETURN.NO_ACCOUNTS_FOUND' | translate }}">
-                    </ngx-mat-select-search>
-                  </mat-option>
-                  <mat-option [value]="null" disabled>{{ 'PURCHASE_RETURN.SELECT_CASH_BANK_ACCOUNT' | translate }}</mat-option>
-                  <mat-option *ngFor="let account of filteredCashBankAccounts()" [value]="account.id">
-                    {{ account.accountCode }} - {{ account.accountNameAr }}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
-              <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateCashBankAccountDialog()">
-                <mat-icon>add</mat-icon>
-              </button>
-            </div>
-          } @else {
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'PURCHASE_RETURN.SUPPLIER_ACCOUNT' | translate }}</mat-label>
-              <mat-select formControlName="creditAccountId" required>
-                <mat-option>
-                  <ngx-mat-select-search
-                    [formControl]="supplierAccountFilterCtrl"
-                    placeholderLabel="{{ 'PURCHASE_RETURN.SEARCH_ACCOUNT' | translate }}"
-                    noEntriesFoundLabel="{{ 'PURCHASE_RETURN.NO_ACCOUNTS_FOUND' | translate }}">
-                  </ngx-mat-select-search>
-                </mat-option>
-                <mat-option [value]="null" disabled>{{ 'PURCHASE_RETURN.SELECT_SUPPLIER_ACCOUNT' | translate }}</mat-option>
-                <mat-option *ngFor="let account of filteredSupplierAccounts()" [value]="account.id">
-                  {{ account.accountCode }} - {{ account.accountNameAr }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          }
+          <!-- Phase 2B: GL accounts are derived server-side at approval time (Store accounting
+               configuration + supplier's linked account / configured cash account). They are
+               intentionally NOT selectable here -- automatically derived accounts are hidden
+               from the UI and never accepted from the client. -->
+          <div class="mt-2 text-sm text-gray-500">
+            {{ 'PURCHASE_RETURN.ACCOUNTS_AUTO_DERIVED' | translate }}
+          </div>
         </div>
          @if (selectedOriginalInvoice(); as originalInvoice) {
           <div class="mt-4 p-4 bg-gray-50 rounded-lg border text-sm">
             <p><span class="font-medium text-gray-500">{{ 'PURCHASE_RETURN.SUPPLIER' | translate }}:</span> <span class="font-semibold">{{originalInvoice.supplier?.name}}</span></p>
           </div>
         }
-
-        <!-- Validation Errors -->
-        <div *ngIf="returnForm.errors?.['debitAccountRequired']" class="error-message">
-          <mat-error>{{ 'PURCHASE_RETURN.ERROR_DEBIT_ACCOUNT_REQUIRED' | translate }}</mat-error>
-        </div>
-        <div *ngIf="returnForm.errors?.['creditAccountRequired']" class="error-message">
-          <mat-error>{{ 'PURCHASE_RETURN.ERROR_CREDIT_ACCOUNT_REQUIRED' | translate }}</mat-error>
-        </div>
       </section>
 
       <!-- Return Items DataGrid -->

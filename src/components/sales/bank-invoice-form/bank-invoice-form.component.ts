@@ -193,7 +193,7 @@ export class BankInvoiceFormComponent implements OnInit {
   });
 
   get isFormValid(): boolean {
-    if (!this.debitAccountId || !this.creditAccountId || !this.bankBillingCustomerId || !this.issuedPlateNumber) {
+    if (!this.bankBillingCustomerId || !this.issuedPlateNumber) {
       return false;
     }
     return this.source === 'order' ? !!this.selectedOrderId : !!this.selectedDeliveryId;
@@ -211,16 +211,12 @@ export class BankInvoiceFormComponent implements OnInit {
           bankQuotationId: this.selectedOrderId!,
           bankBillingCustomerId: this.bankBillingCustomerId!,
           issuedPlateNumber: this.issuedPlateNumber,
-          debitAccountId: this.debitAccountId!,
-          creditAccountId: this.creditAccountId!,
           userId: 1
         })
       : this.bankFinancingService.createInvoiceFromDelivery({
           deliveryNoteId: this.selectedDeliveryId!,
           bankBillingCustomerId: this.bankBillingCustomerId!,
           issuedPlateNumber: this.issuedPlateNumber,
-          debitAccountId: this.debitAccountId!,
-          creditAccountId: this.creditAccountId!,
           userId: 1
         });
 

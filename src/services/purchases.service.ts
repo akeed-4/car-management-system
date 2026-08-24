@@ -36,7 +36,13 @@ export class PurchasesService {
       .pipe(map(res => this.unwrap<PurchaseInvoice>(res)));
   }
 
-  addInvoice(invoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue' | 'createdAt' | 'updatedAt' | 'supplier' | 'debitAccount' | 'creditAccount'>): Observable<PurchaseInvoice> {
+  /** debitAccountId/creditAccountId are excluded entirely -- not just made optional. The backend
+   * always derives both accounts server-side (Debit from the selected Store's inventory
+   * accounting configuration, Credit from the Supplier's linked account) and never reads a
+   * client-supplied value for either; CreatePurchaseInvoiceDto doesn't even declare these
+   * properties -- see PurchaseInvoiceService.ResolveDebitAccountAsync/ResolveCreditAccountAsync
+   * on the backend. */
+  addInvoice(invoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue' | 'createdAt' | 'updatedAt' | 'supplier' | 'debitAccount' | 'creditAccount' | 'debitAccountId' | 'creditAccountId'>): Observable<PurchaseInvoice> {
     // The backend derives amountPaid/amountDue/status itself from paymentType + initialPayment
     // (cash invoices are auto-marked fully paid; credit invoices net off initialPayment) - it
     // does not trust client-sent amountPaid/amountDue on create.
@@ -48,7 +54,11 @@ export class PurchasesService {
     return this.http.post<PurchaseInvoice>(this.apiUrl+'/Create', payload);
   }
 
-  updateInvoice(id: number, invoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue' | 'createdAt' | 'updatedAt' | 'supplier' | 'debitAccount' | 'creditAccount'>): Observable<PurchaseInvoice> {
+  /** Same exclusion as addInvoice -- on Update the backend re-derives Credit only if SupplierId
+   * actually changes (UpdatePurchaseInvoiceDto doesn't declare these fields at all); Debit is
+   * immutable after creation since the Store an invoice posted stock into isn't editable via this
+   * DTO. */
+  updateInvoice(id: number, invoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue' | 'createdAt' | 'updatedAt' | 'supplier' | 'debitAccount' | 'creditAccount' | 'debitAccountId' | 'creditAccountId'>): Observable<PurchaseInvoice> {
     // Same as addInvoice: let the backend recompute amountPaid/amountDue/status from
     // paymentType + initialPayment rather than forcing them here.
     const payload: any = {
@@ -65,6 +75,11 @@ export class PurchasesService {
   }
 
   // أرشفة فاتورة
+  /** Phase cancellation lifecycle: reverses inventory + accounting for an unpaid purchase invoice. */
+  cancelInvoice(id: number): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/Cancel/${id}`, {});
+  }
+
   archiveInvoice(id: number): Observable<PurchaseInvoice> {
     return this.http.patch<PurchaseInvoice>(`${this.apiUrl}/${id}`, { isArchived: true });
   }

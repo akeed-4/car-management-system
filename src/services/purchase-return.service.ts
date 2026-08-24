@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { PurchaseReturnInvoice } from '../models/purchase-return-invoice.model';
-import { PurchaseReturn, PurchaseReturnJournalEntry } from '../models/sales-return.model';
+import { PurchaseReturn } from '../models/sales-return.model';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
 
@@ -74,21 +74,19 @@ export class PurchaseReturnService {
   }
 
   /**
-   * Approve a purchase return and create journal entries
+   * Approve a purchase return. Phase 2B: approval is server-side only -- stock and accounting
+   * are posted by the backend from configuration; the client sends no journal entries.
    */
-  approvePurchaseReturn(id: number, entries: PurchaseReturnJournalEntry[]): Observable<PurchaseReturn> {
-    return this.http.post<PurchaseReturn>(
-      `${this.apiUrl}/${id}/approve`,
-      { entries }
-    );
+  approvePurchaseReturn(id: number): Observable<void> {
+    return this.http.put<void>(`${this.legacyApiUrl}/${id}/approve`, {});
   }
 
   /**
-   * Reject a purchase return
+   * Reject an unposted purchase return with a reason.
    */
-  rejectPurchaseReturn(id: number, rejectionReason: string): Observable<PurchaseReturn> {
-    return this.http.post<PurchaseReturn>(
-      `${this.apiUrl}/${id}/reject`,
+  rejectPurchaseReturn(id: number, rejectionReason: string): Observable<void> {
+    return this.http.put<void>(
+      `${this.legacyApiUrl}/${id}/reject`,
       { rejectionReason }
     );
   }

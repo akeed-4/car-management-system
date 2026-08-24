@@ -62,6 +62,38 @@
           <dxo-format type="currency" currency="SAR"></dxo-format>
         </dxi-column>
 
+        <dxi-column
+          dataField="status"
+          [caption]="'PURCHASE_RETURN.COL_STATUS' | translate"
+          cellTemplate="statusCellTemplate">
+        </dxi-column>
+
+        <div *dxTemplate="let cell of 'statusCellTemplate'">
+          <span class="erp-status-badge status-badge"
+            [ngClass]="{
+              'warning': cell.value === 'DRAFT' || cell.value === 'PENDING_APPROVAL',
+              'success': cell.value === 'APPROVED' || cell.value === 'COMPLETED',
+              'danger': cell.value === 'REJECTED'
+            }">
+            {{ ('PURCHASE_RETURN.STATUS_' + (cell.value || 'DRAFT')) | translate }}
+          </span>
+        </div>
+
+        <dxi-column type="buttons" [width]="120">
+          <dxi-button
+            icon="check"
+            [hint]="'PURCHASE_RETURN.APPROVE' | translate"
+            [visible]="isUnposted"
+            [onClick]="onApprove.bind(this)">
+          </dxi-button>
+          <dxi-button
+            icon="close"
+            [hint]="'PURCHASE_RETURN.REJECT' | translate"
+            [visible]="isUnposted"
+            [onClick]="onReject.bind(this)">
+          </dxi-button>
+        </dxi-column>
+
         <dxo-summary>
           <dxi-total-item
             column="totalAmount"

@@ -56,7 +56,6 @@ export enum InvoiceType {
 }
 
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
-import { AccountingService } from '../../accounting/accounting.service';
 import { NotificationService } from '../../../services/notification.service';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { CarsReceiptNoteService } from '@/src/services/cars-receipt-note.service';
@@ -64,7 +63,6 @@ import { CarsReceiptNoteDto } from '@/src/models/cars-receipt-note.model';
 import { CashAmountCalculatorComponent } from '../../shared/cash-amount-calculator/cash-amount-calculator.component';
 import { PurchaseAdditionalCostListComponent } from '../purchase-additional-cost-list/purchase-additional-cost-list.component';
 import { PurchaseAdditionalCostFormComponent } from '../purchase-additional-cost-form/purchase-additional-cost-form.component';
-import { openCreateAccountDialog } from '../../accounting/create-account-dialog.helper';
 
 @Component({
   selector: 'app-purchase-invoice',
@@ -128,7 +126,6 @@ export class PurchaseInvoiceComponent implements OnInit {
   private currentSettingService = inject(CurrentSettingService);
   private storeService = inject(StoreService);
   private salesService = inject(SalesService);
-  private accountingService = inject(AccountingService);
   private languageService = inject(LanguageService);
   private carsReceiptNoteService = inject(CarsReceiptNoteService);
   private vinService = inject(VinService);
@@ -157,20 +154,18 @@ export class PurchaseInvoiceComponent implements OnInit {
   stores = this.storeService.stores$;
   cars = this.inventoryService.cars$;
   carStocks = signal<StoreCarStockDto[]>([]);
-  debitAccounts = signal<Account[]>([]);
-  creditAccounts = signal<Account[]>([]);
+  // Debit (Inventory) / Credit (Accounts Payable) accounts are no longer shown or selected in
+  // this form -- the backend always derives them (Store's inventory accounting configuration,
+  // Supplier's linked account) and never accepts a value from the client. See
+  // PurchaseInvoiceService.ResolveDebitAccountAsync/ResolveCreditAccountAsync on the backend.
   textDir: Direction = this.languageService.getCurrentLanguage() == 'en' ? 'ltr' : 'rtl';
 
   // Filter controls for mat-select search
   supplierFilterCtrl = new FormControl('');
-  debitAccountFilterCtrl = new FormControl('');
-  creditAccountFilterCtrl = new FormControl('');
   paymentMethodFilterCtrl = new FormControl('');
 
   // Convert filter controls to signals
   private supplierFilterSignal = toSignal(this.supplierFilterCtrl.valueChanges, { initialValue: '' });
-  private debitAccountFilterSignal = toSignal(this.debitAccountFilterCtrl.valueChanges, { initialValue: '' });
-  private creditAccountFilterSignal = toSignal(this.creditAccountFilterCtrl.valueChanges, { initialValue: '' });
   private paymentMethodFilterSignal = toSignal(this.paymentMethodFilterCtrl.valueChanges, { initialValue: '' });
 
   // Filtered signals
@@ -182,20 +177,6 @@ export class PurchaseInvoiceComponent implements OnInit {
     s.name?.toLowerCase().includes(filter)
   );
 });
-
-  filteredDebitAccounts = computed(() => {
-    const filter = this.debitAccountFilterSignal()?.toLowerCase() || '';
-    return this.debitAccounts().filter(a =>
-      (a.accountNameAr?.toLowerCase().includes(filter) ?? false) || (a.accountCode?.toLowerCase().includes(filter) ?? false)
-    );
-  });
-
-  filteredCreditAccounts = computed(() => {
-    const filter = this.creditAccountFilterSignal()?.toLowerCase() || '';
-    return this.creditAccounts().filter(a =>
-      (a.accountNameAr?.toLowerCase().includes(filter) ?? false) || (a.accountCode?.toLowerCase().includes(filter) ?? false)
-    );
-  });
 
   paymentMethods = [
     { value: 'Cash', label: 'PURCHASE_INVOICE.PAYMENT_CASH' },
@@ -442,9 +423,6 @@ export class PurchaseInvoiceComponent implements OnInit {
       this.suppliers.set(suppliers);
     });
 
-    // Load accounts
-    this.loadAccounts();
-
     // GRN dropdown is not gated behind supplier selection -- picking a GRN inherits and locks the supplier.
     this.loadUninvoicedReceipts();
     this.loadUninvoicedReceiptNotes();
@@ -674,46 +652,19 @@ export class PurchaseInvoiceComponent implements OnInit {
    * Handle payment method locking based on input properties
    */
  
-  private loadAccounts(): void {
-    // Debit/Credit selectors must only offer leaf/postable accounts -- parent/grouping accounts
-    // are excluded server-side by this endpoint, not filtered client-side from the category list.
-    this.accountingService.getPostableAccounts('debit').subscribe(accounts => {
-      this.debitAccounts.set(accounts);
-    });
-
-    this.accountingService.getPostableAccounts('credit').subscribe(accounts => {
-      this.creditAccounts.set(accounts);
-    });
-  }
-
-  // --- Requirement 9: "+ Create Account" from this document -----------------------------------
-  // Reuses the SAME Chart of Accounts creation form as /accounts/chart-of-accounts-new, opened as
-  // a MatDialog (see AddAccountComponent's @Optional() MatDialogRef support), instead of a second
-  // account-creation implementation. On save, the new account is appended to the relevant list and
-  // auto-selected in this invoice's form -- no need to leave the document to create it first.
-
-  openCreateDebitAccountDialog(): void {
-    openCreateAccountDialog(this.dialog).subscribe((created) => {
-      if (!created) return;
-      this.debitAccounts.update(list => [...list, created]);
-      this.purchaseInvoiceForm.patchValue({ debitAccountId: created.id });
-    });
-  }
-
-  openCreateCreditAccountDialog(): void {
-    openCreateAccountDialog(this.dialog).subscribe((created) => {
-      if (!created) return;
-      this.creditAccounts.update(list => [...list, created]);
-      this.purchaseInvoiceForm.patchValue({ creditAccountId: created.id });
-    });
-  }
+  // loadAccounts()/openCreateDebitAccountDialog()/openCreateCreditAccountDialog() were removed:
+  // Debit/Credit accounts are no longer selectable in this form (see the comment near
+  // filteredSuppliers above) -- the backend always derives them, so there's nothing here to load
+  // a picklist for or to create-and-select into.
 
   private initForm(): void {
     this.purchaseInvoiceForm = this.fb.group({
       supplierId: [null, Validators.required],
       storeId: [null, Validators.required],
-      debitAccountId: [null, Validators.required],
-      creditAccountId: [null, Validators.required],
+      // No debitAccountId/creditAccountId controls: the backend always derives both accounts
+      // (Store's inventory accounting configuration, Supplier's linked account) and never accepts
+      // a value from this form -- see saveInvoice()'s newInvoice construction, which no longer
+      // sends either field at all.
       invoiceDate: [new Date(), Validators.required],
       paymentMethod: [this.fixedPaymentMethod , Validators.required],
       paymentType: [this.fixedPaymentMethod || 'Bank Transfer'],
@@ -725,7 +676,7 @@ export class PurchaseInvoiceComponent implements OnInit {
       isAuctionPurchase: [false],
       auctionProvider: [null],
       auctionLotNumber: ['']
-    }, { validators: [this.accountValidator, this.dueDateValidator] });
+    }, { validators: [this.dueDateValidator] });
 
     // Set payment method signal
     this.paymentMethodSignal.set(this.fixedPaymentMethod || 'Bank Transfer');
@@ -748,15 +699,6 @@ export class PurchaseInvoiceComponent implements OnInit {
         this.amountReceivedSignal.set(Number(this.purchaseInvoiceForm.get('initialPayment')?.value) || 0);
       }
     });
-  }
-
-  private accountValidator(group: AbstractControl): { [key: string]: any } | null {
-    const debitAccountId = group.get('debitAccountId')?.value;
-    const creditAccountId = group.get('creditAccountId')?.value;
-    if (debitAccountId && creditAccountId && debitAccountId === creditAccountId) {
-      return { sameAccount: true };
-    }
-    return null;
   }
 
   /** paymentMethod holds either the base route's own dropdown value ('Credit (Deferred)') or,
@@ -787,8 +729,9 @@ export class PurchaseInvoiceComponent implements OnInit {
         this.purchaseInvoiceForm = this.fb.group({
           supplierId: [invoice.supplierId, Validators.required],
           storeId: [invoice.storeId, Validators.required],
-          debitAccountId: [invoice.debitAccountId, Validators.required],
-          creditAccountId: [invoice.creditAccountId, Validators.required],
+          // No debitAccountId/creditAccountId controls here either -- see initForm()'s comment.
+          // The loaded invoice's own invoice.debitAccountId/creditAccountId (already resolved by
+          // the backend) are only used read-only, e.g. on the printable invoice.
           invoiceDate: [new Date(invoice.invoiceDate), Validators.required],
           paymentMethod: [invoice.paymentMethod || 'Bank Transfer'],
           paymentType: [invoice.paymentType || 'credit'],
@@ -800,7 +743,7 @@ export class PurchaseInvoiceComponent implements OnInit {
           isAuctionPurchase: [!!invoice.auctionProvider],
           auctionProvider: [invoice.auctionProvider || null],
           auctionLotNumber: [invoice.auctionLotNumber || ''],
-        }, { validators: [this.accountValidator, this.dueDateValidator] });
+        }, { validators: [this.dueDateValidator] });
 
         this.auctionCharges.set(invoice.auctionCharges || []);
 
@@ -1051,13 +994,18 @@ export class PurchaseInvoiceComponent implements OnInit {
       return;
     }
 
-    const newInvoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue' | 'createdAt' | 'updatedAt' | 'supplier' | 'debitAccount' | 'creditAccount'> = {
+    // debitAccountId/creditAccountId are nullable here (unlike PurchaseInvoice's own non-nullable
+    // debitAccountId/creditAccountId are intentionally NOT sent: the backend always derives both
+    // (Debit from the selected Store's inventory accounting configuration, Credit from the
+    // Supplier's linked account) and never reads a client-supplied value for either -- see
+    // PurchaseInvoiceService.ResolveDebitAccountAsync/ResolveCreditAccountAsync. If derivation
+    // isn't possible (missing configuration), Save fails with a clear backend error naming the
+    // store/supplier instead of silently posting to a wrong or empty account.
+    const newInvoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue' | 'createdAt' | 'updatedAt' | 'supplier' | 'debitAccount' | 'creditAccount' | 'debitAccountId' | 'creditAccountId'> = {
       invoiceNumber: this.invoiceNumberSignal() || '',
       invoiceDate: formValue.invoiceDate.toISOString(),
       storeId,
       supplierId: supplierId,
-      debitAccountId: formValue.debitAccountId,
-      creditAccountId: formValue.creditAccountId,
       paymentType: formValue.paymentType,
       paymentMethod: formValue.paymentMethod,
       dueDate: formValue.dueDate ? formValue.dueDate.toISOString() : undefined,

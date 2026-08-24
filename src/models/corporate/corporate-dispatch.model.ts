@@ -49,14 +49,14 @@ export interface DispatchBatchDto {
 
 export interface CreateCorporateInvoiceFromQuotationDto {
   corporateQuotationId: number;
-  debitAccountId: number;
-  creditAccountId: number;
+debitAccountId?: number; // Phase 4: server-derived, optional for compat
+  creditAccountId?: number; // Phase 4: server-derived
   userId: number;
 }
 
 export interface CreateCorporateInvoiceFromDeliveryDto {
   deliveryNoteIds: number[];
-  debitAccountId: number;
-  creditAccountId: number;
+debitAccountId?: number; // Phase 4: server-derived, optional for compat
+  creditAccountId?: number; // Phase 4: server-derived
   userId: number;
 }

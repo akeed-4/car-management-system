@@ -110,36 +110,11 @@
                     </mat-select>
                   </mat-form-field>
                 </mat-grid-tile>
+                <!-- Phase 2: Debit/Credit GL accounts are DERIVED server-side (customer AR /
+                     revenue / default cash) and are no longer user-selectable here. -->
                 <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-                  <div class="field-with-add">
-                    <mat-form-field appearance="outline" class="field-with-add-select">
-                      <mat-label>{{ 'INVOICE.DEBIT_ACCOUNT' | translate }}</mat-label>
-                      <mat-select formControlName="debitAccount" required>
-                        <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_DEBIT_ACCOUNT' | translate }}</mat-option>
-                        <mat-option *ngFor="let account of debitAccounts()" [value]="account.id">
-                          {{ account.accountCode }} - {{ account.accountNameAr }}
-                        </mat-option>
-                      </mat-select>
-                    </mat-form-field>
-                    <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateDebitAccountDialog()">
-                      <mat-icon>add</mat-icon>
-                    </button>
-                  </div>
-                </mat-grid-tile>
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-                  <div class="field-with-add">
-                    <mat-form-field appearance="outline" class="field-with-add-select">
-                      <mat-label>{{ 'INVOICE.CREDIT_ACCOUNT' | translate }}</mat-label>
-                      <mat-select formControlName="creditAccount" required>
-                        <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_CREDIT_ACCOUNT' | translate }}</mat-option>
-                        <mat-option *ngFor="let account of creditAccounts()" [value]="account.id">
-                          {{ account.accountCode }} - {{ account.accountNameAr }}
-                        </mat-option>
-                      </mat-select>
-                    </mat-form-field>
-                    <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateCreditAccountDialog()">
-                      <mat-icon>add</mat-icon>
-                    </button>
+                  <div class="w-full text-sm text-gray-500 px-4">
+                    {{ 'INVOICE.ACCOUNTS_AUTO_DERIVED' | translate }}
                   </div>
                 </mat-grid-tile>
               </mat-grid-list>

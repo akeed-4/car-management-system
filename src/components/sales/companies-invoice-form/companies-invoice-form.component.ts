@@ -215,14 +215,10 @@ export class CompaniesInvoiceFormComponent implements OnInit {
     const call$ = this.source === 'quotation'
       ? this.corporateFleetService.createInvoiceFromQuotation({
           corporateQuotationId: this.selectedQuotationId!,
-          debitAccountId: this.debitAccountId!,
-          creditAccountId: this.creditAccountId!,
           userId: 1
         })
       : this.corporateFleetService.createInvoiceFromDelivery({
           deliveryNoteIds: this.selectedDeliveryIds,
-          debitAccountId: this.debitAccountId!,
-          creditAccountId: this.creditAccountId!,
           userId: 1
         });
 

@@ -58,7 +58,7 @@ export interface FinalizeBankInvoiceDto {
   /** The bank's billing Customer record (Bill-to / Debtor). */
   bankBillingCustomerId: number;
   issuedPlateNumber: string;
-  debitAccountId: number;
-  creditAccountId: number;
+  debitAccountId?: number; // Phase 4: server-derived, optional for compat
+  creditAccountId?: number; // Phase 4: server-derived
   userId: number;
 }

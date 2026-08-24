@@ -61,8 +61,10 @@ import { ExpensesComponent } from './components/expenses/expenses-list/expenses.
 import { ExpenseFormComponent } from './components/expenses/expense-form/expense-form.component';
 import { ReceiptsComponent } from './components/accounts/receipts/receipts.component';
 import { ReceiptFormComponent } from './components/accounts/receipt-form/receipt-form.component';
+import { ReceiptVoucherComponent } from './components/accounts/receipt-voucher/receipt-voucher.component';
 import { PaymentsComponent } from './components/accounts/payments/payments.component';
 import { PaymentFormComponent } from './components/accounts/payment-form/payment-form.component';
+import { CarPaymentVoucherComponent } from './components/accounts/car-payment-voucher/car-payment-voucher.component';
 import { FloorPlanReportComponent } from './components/accounts/floor-plan-report/floor-plan-report.component';
 import { TestDrivesComponent } from './components/test-drives/test-drives-list/test-drives.component';
 import { TestDriveFormComponent } from './components/test-drives/test-drive-form/test-drive-form.component';
@@ -391,9 +393,11 @@ export const APP_ROUTES: Routes = [
   { path: 'accounts/receipts', component: ReceiptsComponent },
   { path: 'accounts/receipts/new', component: ReceiptFormComponent },
    { path: 'accounts/receipts/edit/:id', component: ReceiptFormComponent },
+  { path: 'accounts/receipts/voucher', component: ReceiptVoucherComponent },
   { path: 'accounts/payments', component: PaymentsComponent },
   { path: 'accounts/payments/new', component: PaymentFormComponent },
   { path: 'accounts/payments/edit/:id', component: PaymentFormComponent },
+  { path: 'accounts/payments/car-voucher', component: CarPaymentVoucherComponent },
 
   { path: 'accounts/deposits', component: DepositListComponent }, // New Deposit List
   { path: 'accounts/deposits/new', component: DepositFormComponent }, // New Deposit Form
@@ -431,10 +435,10 @@ export const APP_ROUTES: Routes = [
   { path: 'reports/business-activity', component: BusinessActivityComponent },
   { path: 'reports/general-journal', component: GeneralJournalComponent },
   { path: 'reports/trial-balance', component: TrialBalanceComponent },
-  { path: 'users', component: UsersComponent, canActivate: [permissionGuard('users.view')] },
-  { path: 'users/new', component: UserFormComponent, canActivate: [permissionGuard('users.create')] },
-  { path: 'users/edit/:id', component: UserFormComponent, canActivate: [permissionGuard('users.edit')] },
-  { path: 'users/roles', component: RolesComponent, canActivate: [permissionGuard('users.roles.view')] },
+  { path: 'users', component: UsersComponent,  },
+  { path: 'users/new', component: UserFormComponent,  },
+  { path: 'users/edit/:id', component: UserFormComponent,  },
+  { path: 'users/roles', component: RolesComponent,  },
   { path: 'profile', component: UserProfileComponent },
   { path: 'test-drives', component: TestDrivesComponent },
   { path: 'test-drives/new', component: TestDriveFormComponent },

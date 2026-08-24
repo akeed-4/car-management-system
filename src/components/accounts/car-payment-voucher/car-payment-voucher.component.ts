@@ -137,4 +137,12 @@ export class CarPaymentVoucherComponent implements OnInit {
   onRowUpdated(e: any): void {
     // Not needed
   }
+
+  trackByAccountId(index: number, item: AccountNode): number {
+    return item.id;
+  }
+
+  trackByInvoiceId(index: number, item: PurchaseInvoice): number {
+    return item.id;
+  }
 }

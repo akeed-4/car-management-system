@@ -54,6 +54,11 @@ getOutstandingInvoicesByCustomerId(customerId: number): Observable<SalesInvoice[
     return this.http.get<SalesInvoice>(`${this.apiUrl}/GetInvoice/${id}`).pipe(map(res => this.unwrap<SalesInvoice>(res)));
   }
 
+  /** Phase cancellation lifecycle: reverses inventory + accounting for a posted sales invoice. */
+  cancelInvoice(id: number): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/CancelInvoice/${id}`, {});
+  }
+
   // إضافة فاتورة جديدة
   addInvoice(invoice: SalesInvoice): Observable<SalesInvoice> {
     // The backend derives amountPaid/amountDue/status itself from isCash + downPayment (cash

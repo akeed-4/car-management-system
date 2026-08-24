@@ -114,46 +114,13 @@
             <ng-container *ngIf="cardLayout3 | async as layout">
               <mat-grid-list [cols]="layout.columns" rowHeight="88" gutterSize="16px">
 
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-                  <div class="field-with-add">
-                    <mat-form-field appearance="outline" class="field-with-add-select">
-                      <mat-label>{{ 'PURCHASE_INVOICE.DEBIT_ACCOUNT' | translate }}</mat-label>
-                      <mat-select formControlName="debitAccountId" required>
-                        <mat-option>
-                          <ngx-mat-select-search [formControl]="debitAccountFilterCtrl"
-                            placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
-                            noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
-                          </ngx-mat-select-search>
-                        </mat-option>
-                        <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_DEBIT_ACCOUNT' | translate }}</mat-option>
-                        <mat-option *ngFor="let account of filteredDebitAccounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameAr }}</mat-option>
-                      </mat-select>
-                    </mat-form-field>
-                    <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateDebitAccountDialog()">
-                      <mat-icon>add</mat-icon>
-                    </button>
-                  </div>
-                </mat-grid-tile>
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-                  <div class="field-with-add">
-                    <mat-form-field appearance="outline" class="field-with-add-select">
-                      <mat-label>{{ 'PURCHASE_INVOICE.CREDIT_ACCOUNT' | translate }}</mat-label>
-                      <mat-select formControlName="creditAccountId" required>
-                        <mat-option>
-                          <ngx-mat-select-search [formControl]="creditAccountFilterCtrl"
-                            placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
-                            noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
-                          </ngx-mat-select-search>
-                        </mat-option>
-                        <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_CREDIT_ACCOUNT' | translate }}</mat-option>
-                        <mat-option *ngFor="let account of filteredCreditAccounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameAr }}</mat-option>
-                      </mat-select>
-                    </mat-form-field>
-                    <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateCreditAccountDialog()">
-                      <mat-icon>add</mat-icon>
-                    </button>
-                  </div>
-                </mat-grid-tile>
+                <!-- Debit (Inventory) and Credit (Accounts Payable) accounts are no longer shown
+                     here: the backend always derives them (Store's inventory accounting
+                     configuration, Supplier's linked account) and never accepts a value from this
+                     form -- see PurchaseInvoiceService.ResolveDebitAccountAsync/
+                     ResolveCreditAccountAsync. If derivation isn't possible (missing store/supplier
+                     configuration), Save fails with a clear message naming the store/supplier
+                     rather than silently posting to a wrong or empty account. -->
                 <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'PURCHASE_INVOICE.INVOICE_DATE' | translate }}</mat-label>
@@ -194,9 +161,6 @@
             </ng-container>
 
             <!-- Validation Errors -->
-            <div *ngIf="purchaseInvoiceForm.errors?.['sameAccount']" class="error-message">
-              <mat-error>{{ 'PURCHASE_INVOICE.ERROR_SAME_ACCOUNT' | translate }}</mat-error>
-            </div>
             <div *ngIf="purchaseInvoiceForm.errors?.['dueDateRequired']" class="error-message">
               <mat-error>{{ 'PURCHASE_INVOICE.DUE_DATE_REQUIRED' | translate }}</mat-error>
             </div>

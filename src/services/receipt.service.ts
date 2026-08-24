@@ -40,4 +40,9 @@ export class ReceiptService {
   deleteReceipt(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/Delete/${id}`);
   }
+
+  /** Phase 2B: posts a DRAFT receipt voucher -- the server derives and posts its journal. */
+  postReceipt(id: number): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/Post/${id}`, {});
+  }
 }

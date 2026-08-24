@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, OnInit, Input } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, OnInit, Input } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { AbstractControl, ReactiveFormsModule, FormControl, ValidationErrors, Validators, FormGroup } from '@angular/forms';
@@ -112,9 +112,9 @@ export class SalesInvoiceFormComponent implements OnInit {
 
     @Input() customTitle: string | null = null;
   @Input() titleKey = 'INVOICE.CREATE_TITLE';
-    /** Sales distribution channel (Afrad/Sharikat/Bunuk) — drives which fields are shown. */
+    /** Sales distribution channel (Afrad/Sharikat/Bunuk) â€” drives which fields are shown. */
     @Input() channel: SalesChannel = SalesChannel.Afrad;
-    /** Cash / Credit / Installments — drives down-payment and payment-method behavior. */
+    /** Cash / Credit / Installments â€” drives down-payment and payment-method behavior. */
     @Input() saleType: SaleType = SaleType.Cash;
     // Expose enums to template
     InvoiceType = InvoiceType;
@@ -227,8 +227,8 @@ export class SalesInvoiceFormComponent implements OnInit {
       this.invoiceForm = new FormGroup({
         storeId: new FormControl(null, Validators.required),
         customer: new FormControl(null, Validators.required),
-        debitAccount: new FormControl(null, Validators.required),
-        creditAccount: new FormControl(null, Validators.required),
+        debitAccount: new FormControl(null), // Phase 2: server-derived, ignored by backend
+        creditAccount: new FormControl(null), // Phase 2: server-derived, ignored by backend
         invoiceDate: new FormControl(new Date(), Validators.required),
         dueDate: new FormControl(''),
         paymentMethod: new FormControl('Cash'),
@@ -473,8 +473,8 @@ export class SalesInvoiceFormComponent implements OnInit {
           paymentType: new FormControl(invoice.paymentType || 'Bank Transfer'),
           salesperson: new FormControl(invoice.salesperson || ''),
           ClassificationId: new FormControl(invoice.ClassificationId || 0, Validators.required),
-          debitAccount: new FormControl(invoice.debitAccountId, Validators.required),
-          creditAccount: new FormControl(invoice.creditAccountId, Validators.required),
+          debitAccount: new FormControl(null), // Phase 2: server-derived
+          creditAccount: new FormControl(null), // Phase 2: server-derived
           invoiceType: new FormControl(invoice.invoiceType || InvoiceType.Taxable, Validators.required),
           selectedCarId: new FormControl(null),
           selectedQuantity: new FormControl(1, [Validators.required, Validators.min(1)]),
@@ -1040,8 +1040,6 @@ export class SalesInvoiceFormComponent implements OnInit {
       customerName: customer.name,
       storeId,
       ClassificationId: this.invoiceForm.get('ClassificationId')?.value,
-      debitAccountId: this.invoiceForm.get('debitAccount')?.value,
-      creditAccountId: this.invoiceForm.get('creditAccount')?.value,
       paymentMethod: this.invoiceForm.get('paymentMethod')?.value,
       paymentType: this.invoiceForm.get('paymentType')?.value,
       invoiceType: this.invoiceForm.get('invoiceType')?.value,

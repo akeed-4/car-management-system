@@ -117,10 +117,8 @@ export class ManagerApprovalComponent implements OnInit {
     approvingSet.add(purchaseReturn.id || 0);
     this.isApproving.set(approvingSet);
 
-    // Generate journal entries
-    const entries = this.accountingService.createPurchaseReturnEntry(purchaseReturn);
-
-    this.purchaseReturnService.approvePurchaseReturn(purchaseReturn.id || 0, entries).subscribe({
+    // Phase 2B: journal entries are derived server-side at approval -- the client sends none.
+    this.purchaseReturnService.approvePurchaseReturn(purchaseReturn.id || 0).subscribe({
       next: () => {
         console.log('Purchase return approved successfully');
         this.loadPendingReturns();
