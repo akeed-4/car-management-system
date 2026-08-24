@@ -1,14 +1,18 @@
 <div mat-dialog-title *ngIf="isQuickAddDialog">
   {{ (isEditing ? 'ACCOUNTING.EDIT_ACCOUNT' : 'ACCOUNTING.ADD_ACCOUNT') | translate }}
 </div>
-<mat-card *ngIf="!isQuickAddDialog">
-  <mat-card-header>
-    <mat-card-title>{{ (isEditing ? 'ACCOUNTING.EDIT_ACCOUNT' : 'ACCOUNTING.ADD_ACCOUNT') | translate }}</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    <ng-container *ngTemplateOutlet="formTemplate"></ng-container>
-  </mat-card-content>
-</mat-card>
+<div class="erp-page" *ngIf="!isQuickAddDialog">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ (isEditing ? 'ACCOUNTING.EDIT_ACCOUNT' : 'ACCOUNTING.ADD_ACCOUNT') | translate }}</h2>
+    </div>
+  </div>
+  <div class="erp-card">
+    <div class="erp-section">
+      <ng-container *ngTemplateOutlet="formTemplate"></ng-container>
+    </div>
+  </div>
+</div>
 <ng-container *ngIf="isQuickAddDialog">
   <ng-container *ngTemplateOutlet="formTemplate"></ng-container>
 </ng-container>
