@@ -4,6 +4,12 @@
   <div class="erp-page-header">
     <div class="erp-page-header-titles">
       <h2 class="erp-page-title">{{ getTitle() }}</h2>
+      <div class="doc-meta" *ngIf="invoiceNumberSignal() || previewStatus()">
+        <span class="erp-status-badge neutral doc-meta-chip" dir="ltr" *ngIf="invoiceNumberSignal()">
+          <mat-icon>tag</mat-icon>{{ invoiceNumberSignal() }}
+        </span>
+        <span class="erp-status-badge info" *ngIf="previewStatus()">{{ previewStatus() | translate }}</span>
+      </div>
     </div>
     <div class="erp-page-actions">
       <a [routerLink]="backRoute()" class="back-link">

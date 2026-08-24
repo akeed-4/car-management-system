@@ -9,7 +9,7 @@
   margin: 0 auto;
   /* padding: var(--space-3, 0.75rem) var(--space-6, 1.5rem) var(--space-4, 1rem); */
   font-family: var(--font-family-sans, 'Roboto', sans-serif);
-  color: var(--color-gray-800, var(--text-primary));
+  color: var(--text-primary);
 }
 
 /* --- Additional Costs tab (embeds PurchaseAdditionalCostList/FormComponent) --- */
@@ -43,15 +43,32 @@
   margin: 0;
   font-size: 1.4rem;
   font-weight: 700;
-  color: var(--color-gray-900, var(--text-primary));
+  color: var(--text-primary);
   letter-spacing: -0.01em;
+}
+
+/* Document meta chips (invoice number + status) under the title -- semantic tokens only,
+   so they follow the active theme with no extra overrides. */
+.doc-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2, 0.5rem);
+  margin-top: var(--space-1, 0.25rem);
+}
+
+.doc-meta-chip mat-icon {
+  font-size: 0.95rem;
+  width: 0.95rem;
+  height: 0.95rem;
+  margin-inline-end: 0.25rem;
 }
 
 .back-link {
   display: flex;
   align-items: center;
   text-decoration: none;
-  color: var(--color-gray-600, var(--text-secondary));
+  color: var(--text-secondary);
   font-weight: 500;
   font-size: 0.9rem;
   padding: 0.4rem 0.9rem;
@@ -60,12 +77,12 @@
 }
 
 .back-link:hover {
-  background: var(--color-gray-100, var(--surface-sunken));
-  color: var(--color-primary-700, var(--color-primary-600));
+  background: var(--surface-sunken);
+  color: var(--color-primary-600);
 }
 
 .back-link mat-icon {
-  margin-right: 0.35rem;
+  margin-inline-end: 0.35rem;
   font-size: 1.1rem;
   width: 1.1rem;
   height: 1.1rem;
@@ -80,9 +97,9 @@
   gap: var(--space-4, 1rem);
   padding: 0.6rem var(--space-4, 1rem);
   margin-bottom: var(--space-3, 0.75rem);
-  background: var(--color-white, #fff);
-  border: 1px solid var(--color-gray-200, var(--border-default));
-  border-left: 4px solid var(--color-primary-500, #3b82f6);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-inline-start: 4px solid var(--color-primary-500);
   border-radius: var(--rounded-lg, 8px);
   box-shadow: var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.05));
 }
@@ -271,12 +288,10 @@
 }
 
 /* --- Document cards --- */
+/* Surface/border/radius/shadow come from the shared .erp-card class (semantic tokens), so
+   dark mode needs no screen-local overrides here -- only the denser padding is specific. */
 .doc-card {
-  padding: var(--space-4, 1rem) !important;
-  border-radius: var(--rounded-lg, 8px) !important;
-  box-shadow: var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.05)) !important;
-  background: var(--color-white, #fff) !important;
-  border: 1px solid var(--color-gray-200, var(--border-default)) !important;
+  padding: var(--space-4, 1rem);
 }
 
 .form-section {
@@ -295,7 +310,7 @@
   font-size: 0.72rem;
   font-weight: 700;
   margin: 0 0 var(--space-2, 0.5rem);
-  color: var(--color-gray-500, var(--text-secondary));
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -386,7 +401,7 @@ mat-form-field.mat-form-field {
 .table-container {
   border-radius: var(--rounded-md, 6px);
   overflow: hidden;
-  border: 1px solid var(--color-gray-200, var(--border-default));
+  border: 1px solid var(--border-default);
 }
 
 .dx-datagrid {
@@ -402,8 +417,8 @@ mat-form-field.mat-form-field {
 }
 
 :host ::ng-deep .premium-table .readonly-col {
-  background: var(--color-gray-50, var(--surface-sunken));
-  color: var(--color-gray-500, var(--text-secondary));
+  background: var(--surface-sunken);
+  color: var(--text-secondary);
 }
 
 /* Denser rows/header so more line items fit in the bounded grid height without scrolling sooner
@@ -420,6 +435,33 @@ mat-form-field.mat-form-field {
   padding: 6px 4px;
 }
 
+/* Column-header hierarchy + numeric readability -- presentation only, no DX config changes. */
+:host ::ng-deep .premium-table .dx-datagrid-headers .dx-datagrid-text-content {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+
+:host ::ng-deep .premium-table .dx-datagrid-content td {
+  font-variant-numeric: tabular-nums;
+}
+
+:host ::ng-deep .premium-table .dx-datagrid .dx-row:hover > td {
+  background: var(--surface-sunken) !important;
+}
+
+:host ::ng-deep .premium-table .dx-datagrid .dx-selection.dx-row > td {
+  background: var(--color-primary-100) !important;
+  color: var(--text-primary) !important;
+}
+
+:host ::ng-deep .premium-table .dx-cell-focus-modified {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: -2px;
+}
+
 /* --- Notes --- */
 .notes-section .full-width {
   margin-bottom: -1.25em;
@@ -429,9 +471,19 @@ mat-form-field.mat-form-field {
 .summary-card {
   padding: var(--space-4, 1rem) !important;
   border-radius: var(--rounded-lg, 8px) !important;
-  background: var(--color-white, #fff) !important;
-  border: 1px solid var(--color-gray-200, var(--border-default)) !important;
-  box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1)) !important;
+  background: var(--surface-card) !important;
+  border: 1px solid var(--border-default) !important;
+  box-shadow: var(--shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1)) !important;
+}
+
+.summary-card mat-card-title {
+  padding: 0 !important;
+  margin: 0 0 var(--space-2, 0.5rem) !important;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
 }
 
 .summary-card mat-card-content {
@@ -442,32 +494,56 @@ mat-form-field.mat-form-field {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--space-2, 0.5rem);
   padding: 0.3rem 0;
-  color: var(--color-gray-600, var(--text-secondary));
+  color: var(--text-secondary);
 }
 
+/* The shared .erp-total-row boxes every row (sunken bg + border) -- right for grid footer
+   totals, too heavy for a summary rail. Flatten the plain rows here so the rail reads like
+   the sales invoice's; only the dominant total row keeps a tinted surface. */
+.summary-card .erp-total-row {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0.3rem 0;
+  justify-content: space-between;
+  gap: var(--space-2, 0.5rem);
+}
+
+/* Amounts: tabular figures, theme-aware emphasis. */
+.summary-item .font-mono {
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Grand Total / Amount Due -- the visually dominant row. color-mix keeps the tint theme-aware;
+   the plain var() line above is the fallback for browsers without color-mix support. */
 .summary-item.total {
-  color: var(--color-gray-900, var(--text-primary));
+  color: var(--text-primary);
   font-weight: 700;
   font-size: 1.15rem;
   padding: 0.6rem 0.6rem;
   margin-top: 0.3rem;
   border-radius: var(--rounded-md, 6px);
   background: var(--color-primary-50, var(--color-primary-100));
+  background: color-mix(in srgb, var(--color-primary-500) 12%, var(--surface-card));
+}
+
+.summary-item.total .erp-total-label {
+  font-size: 0.78rem;
 }
 
 .summary-item.total .font-mono {
+  font-size: 1.15rem;
   color: var(--color-primary-700, var(--color-primary-600));
-}
-
-.summary-item p {
-  margin: 0;
-  font-size: 0.88rem;
 }
 
 .summary-card hr {
   border: none;
-  border-top: 1px solid var(--color-gray-200, var(--border-default));
+  border-top: 1px solid var(--border-default);
   margin: 0.35rem 0;
 }
 
@@ -495,7 +571,7 @@ mat-form-field.mat-form-field {
 }
 
 .form-actions .save-btn mat-icon {
-  margin-right: 0.35rem;
+  margin-inline-end: 0.35rem;
 }
 
 .form-actions .cancel-btn {
@@ -626,37 +702,24 @@ mat-form-field.mat-form-field {
   }
 }
 
-/* --- Dark mode: the app has no theme toggle today, but respect the OS preference gracefully --- */
-@media (prefers-color-scheme: dark) {
-  .container {
-    color: var(--border-default);
+/* Small screens: every section stays inside the viewport -- the line-items grid scrolls
+   horizontally inside .table-container, never the page itself. */
+@media (max-width: 600px) {
+  .trace-bar-selector {
+    min-width: 0;
   }
 
-  .page-header,
-  .trace-bar,
-  .doc-card,
-  .summary-card {
-    border-color: var(--text-primary) !important;
+  .grn-select {
+    max-width: none;
   }
 
-  .page-header {
-    border-bottom-color: var(--text-primary);
-  }
-
-
-
-  .summary-card hr {
-    border-color: var(--text-primary);
-  }
-
-  .summary-item.total {
-    background: rgba(59, 130, 246, 0.15);
-  }
-
-  .table-container {
-    border-color: var(--text-primary);
+  .field-with-add {
+    flex-wrap: wrap;
   }
 }
+
+/* --- Dark mode: handled entirely by the semantic tokens (--surface-*, --text-*, --border-*),
+   which ThemeService redefines under [data-theme="dark"] -- no screen-local overrides needed. */
 
 /* --- Requirement 9: "+ Create Account" button next to Debit/Credit Account selects, matching
    the existing Manufacturer/Model/Category quick-add affordance on the Vehicle Card --- */
@@ -678,8 +741,8 @@ mat-form-field.mat-form-field {
   height: 36px;
   padding: 6px;
   border-radius: 8px;
-  background: #ede9fe;
-  color: var(--color-primary-600);
+  background: var(--color-primary-100);
+  color: var(--color-primary-700);
   --mdc-icon-button-state-layer-size: 36px;
   transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
 }
@@ -691,8 +754,8 @@ mat-form-field.mat-form-field {
 }
 
 .field-add-btn:hover:not(:disabled) {
-  background: #ddd6fe;
-  box-shadow: 0 3px 8px rgba(67, 56, 202, 0.25);
+  background: var(--color-primary-200);
+  box-shadow: var(--shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1));
   transform: translateY(-1px);
 }
 
