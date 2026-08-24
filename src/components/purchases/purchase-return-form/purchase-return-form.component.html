@@ -1,18 +1,22 @@
-<div class="container">
-  <div class="page-header">
-    <h2>{{ customTitle ? (customTitle | translate) : getTitle() }}</h2>
-    <a [routerLink]="backRoute()" class="back-link">
-      <button mat-icon-button>
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <span>{{ 'PURCHASE_RETURN.BACK_TO_LIST' | translate }}</span>
-    </a>
+<div class="erp-page container">
+  <div class="erp-page-header page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ customTitle ? (customTitle | translate) : getTitle() }}</h2>
+    </div>
+    <div class="erp-page-actions">
+      <a [routerLink]="backRoute()" class="back-link">
+        <button mat-icon-button>
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <span>{{ 'PURCHASE_RETURN.BACK_TO_LIST' | translate }}</span>
+      </a>
+    </div>
   </div>
-  <div class="bg-white p-6 md:p-8 rounded-lg shadow-md">
+  <div class="erp-card bg-white p-6 md:p-8 rounded-lg shadow-md">
     <form [formGroup]="returnForm" (ngSubmit)="saveReturn()">
        <!-- Return Header -->
-      <section class="border-b pb-6 mb-6">
-        <h3 class="text-xl font-semibold text-gray-700 mb-4">{{ 'PURCHASE_RETURN.HEADER' | translate }}</h3>
+      <section class="erp-section border-b pb-6 mb-6">
+        <h3 class="erp-section-title text-xl font-semibold text-gray-700 mb-4">{{ 'PURCHASE_RETURN.HEADER' | translate }}</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>{{ 'PURCHASE_RETURN.RETURN_NUMBER' | translate }}</mat-label>
@@ -95,9 +99,9 @@
       </section>
 
       <!-- Return Items DataGrid -->
-      <section class="mb-8">
-        <h3 class="text-xl font-semibold text-gray-700 mb-4">{{ 'PURCHASE_RETURN.ITEMS_HEADER' | translate }}</h3>
-        <div class="datagrid-container">
+      <section class="erp-section mb-8">
+        <h3 class="erp-section-title text-xl font-semibold text-gray-700 mb-4">{{ 'PURCHASE_RETURN.ITEMS_HEADER' | translate }}</h3>
+        <div class="erp-grid-card datagrid-container">
           <dx-data-grid
             [dataSource]="returnItems()"
             [showBorders]="true"
@@ -181,16 +185,16 @@
 
       <!-- Financial Summary -->
       <section class="financial-summary">
-        <div class="summary-card">
+        <div class="erp-total-row summary-card">
           <div class="summary-content">
-            <p class="summary-label">{{ 'PURCHASE_RETURN.TOTAL' | translate }}</p>
-            <p class="summary-amount">{{ totalAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
+            <p class="erp-total-label summary-label">{{ 'PURCHASE_RETURN.TOTAL' | translate }}</p>
+            <p class="erp-total-value summary-amount">{{ totalAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
           </div>
         </div>
       </section>
 
       <!-- Form Actions -->
-      <div class="form-actions">
+      <div class="erp-actions-bar form-actions">
         <a routerLink="/purchases/return" class="btn-cancel">
           {{ 'PURCHASE_RETURN.CANCEL' | translate }}
         </a>

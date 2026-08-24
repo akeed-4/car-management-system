@@ -1,9 +1,9 @@
-<div class="container mx-auto">
-    <div class="page-header strong-header">
-      <div class="header-info">
-        <h2 class="strong-title">{{ 'CASH_PURCHASE_RETURN.LIST_TITLE' | translate }}</h2>
+<div class="erp-page container mx-auto">
+    <div class="erp-page-header page-header strong-header">
+      <div class="erp-page-header-titles header-info">
+        <h2 class="erp-page-title strong-title">{{ 'CASH_PURCHASE_RETURN.LIST_TITLE' | translate }}</h2>
       </div>
-      <a routerLink="/purchases/return/cash/new" class="btn btn-primary btn-small no-print">
+      <a routerLink="/purchases/return/cash/new" class="erp-page-actions btn btn-primary btn-small no-print">
         <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
         </svg>
@@ -27,7 +27,7 @@
         </ng-template>
       </app-mobile-card-list>
     } @else {
-    <div class="datagrid-container">
+    <div class="erp-grid-card datagrid-container">
       <dx-data-grid
         [dataSource]="filteredReturnInvoices()"
         [showBorders]="true"

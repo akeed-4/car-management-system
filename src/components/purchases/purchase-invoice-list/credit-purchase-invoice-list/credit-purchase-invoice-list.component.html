@@ -1,9 +1,9 @@
-<div class="container">
-  <div class="page-header strong-header">
-    <div class="header-info">
-      <h2 class="strong-title">{{ 'PURCHASE_INVOICE.CREDIT_INVOICE_LIST_TITLE' | translate }}</h2>
+<div class="erp-page container">
+  <div class="erp-page-header page-header strong-header">
+    <div class="erp-page-header-titles header-info">
+      <h2 class="erp-page-title strong-title">{{ 'PURCHASE_INVOICE.CREDIT_INVOICE_LIST_TITLE' | translate }}</h2>
     </div>
-    <a routerLink="/purchases/invoice/credit/new" class="btn btn-primary btn-small no-print">
+    <a routerLink="/purchases/invoice/credit/new" class="erp-page-actions btn btn-primary btn-small no-print">
       <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
       <span>{{ 'PURCHASE_INVOICE.NEW_CREDIT_INVOICE' | translate }}</span>
     </a>
@@ -16,7 +16,7 @@
         <input type="checkbox" id="showArchived" [checked]="showArchived()" (change)="showArchived.set(!showArchived())">
       </div>
     </div>
-    <div class="table-wrapper premium-table">
+    <div class="erp-grid-card table-wrapper premium-table">
       <dx-data-grid
         [dataSource]="filteredAndSortedInvoices()"
         [showBorders]="true"
@@ -81,8 +81,10 @@
         </div>
 
         <div *dxTemplate="let data of 'statusTemplate'">
-          <span class="badge"
+          <span class="erp-status-badge badge"
+                [class.success]="data.data.status === 'Paid'"
                 [class.badge-green]="data.data.status === 'Paid'"
+                [class.danger]="data.data.status === 'Unpaid'"
                 [class.badge-red]="data.data.status === 'Unpaid'">
             {{ data.data.status }}
           </span>

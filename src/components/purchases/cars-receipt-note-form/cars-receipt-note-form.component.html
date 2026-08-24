@@ -1,18 +1,15 @@
-<div class="cars-receipt-note-container p-4">
-  <mat-card class="styled-card" appearance="raised">
-    <mat-card-content class="p-4">
+<div class="erp-page cars-receipt-note-container p-4">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <span class="erp-page-eyebrow">{{ 'CARS_RECEIPT_NOTE.MODULE_NAME' | translate }}</span>
+      <h2 class="erp-page-title">
+        {{ (isViewMode ? 'CARS_RECEIPT_NOTE.VIEW_TITLE' : 'CARS_RECEIPT_NOTE.CREATE_TITLE') | translate }}
+      </h2>
+    </div>
+  </div>
+  <div class="erp-card styled-card">
+    <div class="p-4">
       <form [formGroup]="grnForm" (ngSubmit)="onSubmit()" autocomplete="off">
-
-        <div class="card-header-accent p-4 d-flex align-items-center justify-content-between">
-          <div class="header-title-group">
-            <span class="text-muted text-uppercase small-tracking font-weight-bold">
-              {{ 'CARS_RECEIPT_NOTE.MODULE_NAME' | translate }}
-            </span>
-            <h3 class="m-0 page-title font-weight-bold mt-1">
-              {{ (isViewMode ? 'CARS_RECEIPT_NOTE.VIEW_TITLE' : 'CARS_RECEIPT_NOTE.CREATE_TITLE') | translate }}
-            </h3>
-          </div>
-        </div>
 
         <app-document-header *ngIf="loadedGrn" [document]="loadedGrn"></app-document-header>
 
@@ -26,8 +23,8 @@
           </app-document-actions-toolbar>
         </div>
 
-        <div class="doc-section-title">
-          <mat-icon class="section-icon">info</mat-icon>
+        <div class="erp-section-title doc-section-title">
+          <mat-icon class="erp-section-icon section-icon">info</mat-icon>
           <span>{{ 'CARS_RECEIPT_NOTE.SEC_CORE_INFO' | translate }}</span>
         </div>
 
@@ -65,7 +62,7 @@
           </div>
         </div>
 
-        <div class="details-grid-wrapper mb-3">
+        <div class="erp-grid-card details-grid-wrapper mb-3">
           <dx-data-grid [dataSource]="lineItems" [showBorders]="true" [columnAutoWidth]="true"
             [rowAlternationEnabled]="true" [hoverStateEnabled]="true" 
             noDataText="{{ 'CARS_RECEIPT_NOTE.NO_ITEMS' | translate }}" rtlEnabled="true" height="200px" [showRowLines]="true" [allowColumnReordering]="true">
@@ -95,7 +92,7 @@
           </div>
         </div>
 
-        <div class="d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
+        <div class="erp-actions-bar d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
           <button *ngIf="!isViewMode" mat-raised-button color="primary" type="submit" class="action-btn"
             [disabled]="saving()">
             <mat-icon class="me-1" *ngIf="!saving()">save</mat-icon>
@@ -108,6 +105,6 @@
         </div>
 
       </form>
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </div>
 </div>

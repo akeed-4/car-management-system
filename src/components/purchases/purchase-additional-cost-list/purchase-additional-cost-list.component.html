@@ -1,16 +1,14 @@
-<div class="page-container">
+<div class="erp-page page-container">
 
-  <div class="page-header">
-    <div class="breadcrumb">
-      <span>{{ 'PURCHASE_INVOICE.TITLE' | translate }}</span>
-      <mat-icon>chevron_right</mat-icon>
-      <span class="current">{{ 'PURCHASE_ADDITIONAL_COST.TITLE' | translate }}</span>
-    </div>
-    <div class="header-row">
-      <div>
-        <h1>{{ 'PURCHASE_ADDITIONAL_COST.TITLE' | translate }}</h1>
-        <p class="subtitle">{{ 'PURCHASE_ADDITIONAL_COST.SUBTITLE' | translate }}</p>
-      </div>
+  <div class="erp-page-header page-header">
+    <div class="erp-page-header-titles">
+      <span class="erp-page-eyebrow breadcrumb">
+        {{ 'PURCHASE_INVOICE.TITLE' | translate }}
+        <mat-icon>chevron_right</mat-icon>
+        <span class="current">{{ 'PURCHASE_ADDITIONAL_COST.TITLE' | translate }}</span>
+      </span>
+      <h1 class="erp-page-title">{{ 'PURCHASE_ADDITIONAL_COST.TITLE' | translate }}</h1>
+      <p class="erp-page-subtitle subtitle">{{ 'PURCHASE_ADDITIONAL_COST.SUBTITLE' | translate }}</p>
     </div>
   </div>
 
@@ -45,7 +43,7 @@
     </mat-card>
   </div>
 
-  <mat-toolbar class="page-toolbar">
+  <mat-toolbar class="erp-list-toolbar page-toolbar">
     <button mat-flat-button color="primary" (click)="newCost()" *appHasPermission="'purchaseAdditionalCost.create'">
       <mat-icon>add</mat-icon>
       {{ 'COMMON.NEW' | translate }}
@@ -56,7 +54,7 @@
       {{ 'COMMON.REFRESH' | translate }}
     </button>
 
-    <span class="toolbar-spacer"></span>
+    <span class="erp-toolbar-spacer toolbar-spacer"></span>
 
     <mat-form-field appearance="outline" class="filter-select">
       <mat-label>{{ 'PURCHASE_ADDITIONAL_COST.STATUS' | translate }}</mat-label>
@@ -87,8 +85,8 @@
       </ng-template>
     </app-mobile-card-list>
   } @else {
-  <div class="table-wrapper">
-    <table class="table">
+  <div class="erp-table-wrapper table-wrapper">
+    <table class="erp-table table">
       <thead>
         <tr>
           <th>{{ 'PURCHASE_ADDITIONAL_COST.DOCUMENT_NUMBER' | translate }}</th>
@@ -110,7 +108,12 @@
           <td>{{ item.amount | number:'1.2-2' }}</td>
           <td>{{ ('PURCHASE_ADDITIONAL_COST.METHOD_' + item.allocationMethod.toUpperCase()) | translate }}</td>
           <td>
-            <span class="chip" [ngClass]="'status-' + item.status.toLowerCase()">
+            <span class="erp-status-badge chip"
+              [ngClass]="{
+                'neutral': item.status === 'Draft',
+                'success': item.status === 'Posted',
+                'danger': item.status === 'Cancelled'
+              }">
               {{ ('PURCHASE_ADDITIONAL_COST.STATUS_' + item.status.toUpperCase()) | translate }}
             </span>
           </td>

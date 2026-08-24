@@ -1,16 +1,16 @@
-<div class="container mx-auto">
-  <div class="page-header">
-    <div class="flex flex-col items-start gap-4">
-      <h2 class="text-2xl font-semibold text-gray-800">{{ 'CREDIT_PURCHASE_RETURN.LIST_TITLE' | translate }}</h2>
+<div class="erp-page container mx-auto">
+  <div class="erp-page-header page-header">
+    <div class="erp-page-header-titles flex flex-col items-start gap-4">
+      <h2 class="erp-page-title text-2xl font-semibold text-gray-800">{{ 'CREDIT_PURCHASE_RETURN.LIST_TITLE' | translate }}</h2>
       <a routerLink="/purchases/return/credit/new" class="btn-primary">
-      
+
         {{ 'CREDIT_PURCHASE_RETURN.NEW_RETURN' | translate }}
 
       </a>
     </div>
   </div>
   <div class="bg-white p-6 rounded-lg shadow-md">
-    <div class="datagrid-container">
+    <div class="erp-grid-card datagrid-container">
       <dx-data-grid
         [dataSource]="filteredReturnInvoices()"
        [showBorders]="true"

@@ -1,9 +1,9 @@
-<div class="container-fluid p-4">
-  <div class="page-header strong-header header-row">
-    <div class="header-left">
-      <h2>{{ 'PURCHASE_ORDER.LIST_TITLE' | translate }}</h2>
+<div class="erp-page container-fluid p-4">
+  <div class="erp-page-header page-header strong-header header-row">
+    <div class="erp-page-header-titles header-left">
+      <h2 class="erp-page-title">{{ 'PURCHASE_ORDER.LIST_TITLE' | translate }}</h2>
     </div>
-    <div class="header-right">
+    <div class="erp-page-actions header-right">
       <button mat-raised-button color="primary" (click)="onCreateNew()">
         <mat-icon>add</mat-icon>
         {{ 'PURCHASE_ORDER.CREATE_TITLE' | translate }}
@@ -24,6 +24,7 @@
       </ng-template>
     </app-mobile-card-list>
   } @else {
+  <div class="erp-grid-card">
   <dx-data-grid
     [dataSource]="purchaseOrders"
     [showBorders]="true"
@@ -50,11 +51,11 @@
     <dxi-column dataField="totalAmount" [caption]="'PURCHASE_ORDER.TOTAL_AMOUNT' | translate" format="currency"></dxi-column>
     <dxi-column dataField="status" [caption]="'PURCHASE_ORDER.STATUS' | translate" cellTemplate="statusCellTemplate"></dxi-column>
     <div *dxTemplate="let cell of 'statusCellTemplate'">
-      <span class="status-badge" [ngClass]="{
-        'status-open': cell.value === 'Open',
-        'status-partial': cell.value === 'PartiallyReceived',
-        'status-full': cell.value === 'FullyReceived',
-        'status-closed': cell.value === 'Closed' || cell.value === 'Cancelled'
+      <span class="erp-status-badge status-badge" [ngClass]="{
+        'warning': cell.value === 'Open',
+        'info': cell.value === 'PartiallyReceived',
+        'success': cell.value === 'FullyReceived',
+        'neutral': cell.value === 'Closed' || cell.value === 'Cancelled'
       }">
         {{ ('PURCHASE_ORDER.STATUS_' + cell.value?.toUpperCase()) | translate }}
       </span>
@@ -68,5 +69,6 @@
       </dxi-button>
     </dxi-column>
   </dx-data-grid>
+  </div>
   }
 </div>

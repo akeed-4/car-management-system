@@ -1,7 +1,7 @@
-<div class="container mx-auto">
-  <div class="page-header">
-    <div class="flex flex-col items-start gap-4">
-      <h2 class="text-2xl font-semibold text-gray-800">{{ 'PURCHASE_RETURN.LIST_TITLE' | translate }}</h2>
+<div class="erp-page container mx-auto">
+  <div class="erp-page-header page-header">
+    <div class="erp-page-header-titles flex flex-col items-start gap-4">
+      <h2 class="erp-page-title text-2xl font-semibold text-gray-800">{{ 'PURCHASE_RETURN.LIST_TITLE' | translate }}</h2>
       <a routerLink="/purchases/return/new" class="btn-primary">
         <svg class="w-5 h-5 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
           stroke="currentColor">
@@ -12,8 +12,8 @@
       </a>
     </div>
   </div>
-  <div class="bg-white p-6 rounded-lg shadow-md">
-    <div class="datagrid-container">
+  <div class="erp-card bg-white p-6 rounded-lg shadow-md">
+    <div class="erp-grid-card datagrid-container">
       <dx-data-grid
         [dataSource]="returnInvoices()"
         [showBorders]="true"
