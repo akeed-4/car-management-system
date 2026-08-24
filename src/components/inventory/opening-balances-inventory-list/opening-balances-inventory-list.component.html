@@ -1,10 +1,10 @@
-<div class="opening-balances-list-container">
-  <div class="page-header">
-    <div class="header-info">
-      <h2 class="page-title">{{ 'ACCOUNTING.OPENING_BALANCES_INVENTORY' | translate }}</h2>
-      <p class="page-subtitle">{{ 'ACCOUNTING.OPENING_BALANCES_INVENTORY_SUBTITLE' | translate }}</p>
+<div class="erp-page opening-balances-list-container">
+  <div class="erp-page-header page-header">
+    <div class="erp-page-header-titles header-info">
+      <h2 class="erp-page-title page-title">{{ 'ACCOUNTING.OPENING_BALANCES_INVENTORY' | translate }}</h2>
+      <p class="erp-page-subtitle page-subtitle">{{ 'ACCOUNTING.OPENING_BALANCES_INVENTORY_SUBTITLE' | translate }}</p>
     </div>
-    <div class="header-actions">
+    <div class="erp-page-actions header-actions">
       <button mat-raised-button color="primary" (click)="onNew()" class="add-button">
         <mat-icon>add</mat-icon>
         <span>{{ 'ACCOUNTING.ADD_OPENING_BALANCE' | translate }}</span>
@@ -12,8 +12,7 @@
     </div>
   </div>
 
-  <mat-card class="data-grid-card">
-    <mat-card-content>
+  <div class="erp-card data-grid-card">
       <!-- Mobile (<=768px): the 9-column grid doesn't fit a phone width, so rows render as
            full-width cards instead -- same data, same edit/delete actions. -->
       @if (isMobile()) {
@@ -30,7 +29,7 @@
           </ng-template>
         </app-mobile-card-list>
       } @else {
-      <div class="data-grid-container">
+      <div class="erp-grid-card data-grid-container">
         <dx-data-grid
           [dataSource]="openingBalances()"
           [showBorders]="true"
@@ -132,6 +131,5 @@
         </dx-data-grid>
       </div>
       }
-    </mat-card-content>
-  </mat-card>
+  </div>
 </div>

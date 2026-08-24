@@ -1,9 +1,12 @@
-<mat-card class="form-card">
-  <mat-card-header>
-    <mat-card-title>{{ 'ACCOUNTING.ADD_OPENING_BALANCE' | translate }}</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    <form [formGroup]="form" (ngSubmit)="onSave()" class="balance-form">
+<div class="erp-page">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ 'ACCOUNTING.ADD_OPENING_BALANCE' | translate }}</h2>
+    </div>
+  </div>
+
+  <div class="erp-card form-card">
+    <form [formGroup]="form" (ngSubmit)="onSave()" class="erp-section balance-form">
       <div class="form-row">
         <div class="item-id-container">
           <mat-form-field appearance="outline" class="form-field">
@@ -69,7 +72,7 @@
         </mat-form-field>
       </div>
 
-      <div class="form-actions">
+      <div class="erp-actions-bar form-actions">
         <button mat-button type="button" (click)="onCancel()">{{ 'ACCOUNTING.CANCEL' | translate }}</button>
         <button mat-raised-button color="primary" type="submit" [disabled]="!form.valid || isSaving()">
           <span *ngIf="!isSaving()">{{ (isEditing ? 'ACCOUNTING.UPDATE' : 'ACCOUNTING.SAVE') | translate }}</span>
@@ -81,5 +84,5 @@
         {{ successMessage() }}
       </div>
     </form>
-  </mat-card-content>
-</mat-card>
+  </div>
+</div>

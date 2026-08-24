@@ -1,19 +1,22 @@
-<mat-toolbar color="primary">
-  <span>{{ 'STOCK_TAKING_APPROVAL_FORM.TITLE' | translate }}</span>
-  <span class="spacer"></span>
-  <button mat-icon-button routerLink="/inventory/stock-taking-approval">
-    <mat-icon>arrow_back</mat-icon>
-  </button>
-</mat-toolbar>
+<div class="erp-page">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h1 class="erp-page-title">{{ 'STOCK_TAKING_APPROVAL_FORM.TITLE' | translate }}</h1>
+    </div>
+    <div class="erp-page-actions">
+      <button mat-icon-button routerLink="/inventory/stock-taking-approval">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+    </div>
+  </div>
 
-<mat-card>
-  <mat-card-content>
+  <div class="erp-card">
     <form [formGroup]="approvalForm" >
 
       <!-- Approval Header -->
-      <div class="form-section">
-        <h3 class="section-title">{{ 'STOCK_TAKING_APPROVAL_FORM.APPROVAL_DETAILS' | translate }}</h3>
-        <div class="form-grid">
+      <div class="erp-section form-section">
+        <h3 class="erp-section-title">{{ 'STOCK_TAKING_APPROVAL_FORM.APPROVAL_DETAILS' | translate }}</h3>
+        <div class="erp-form-grid form-grid">
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'STOCK_TAKING_APPROVAL_FORM.STOCK_TAKE_DOCUMENT' | translate }}</mat-label>
             <mat-select
@@ -59,9 +62,10 @@
             [placeholder]="'STOCK_TAKING_APPROVAL_FORM.NOTES_PLACEHOLDER' | translate"></textarea>
         </mat-form-field>
       </div>
-      <div *ngIf="selectedStockTake() as stockTake" class="table-section">
-        <h3 class="section-title">{{ 'STOCK_TAKING_APPROVAL_FORM.QUANTITY_COMPARISON' | translate }}</h3>
+      <div *ngIf="selectedStockTake() as stockTake" class="erp-section table-section">
+        <h3 class="erp-section-title">{{ 'STOCK_TAKING_APPROVAL_FORM.QUANTITY_COMPARISON' | translate }}</h3>
 
+        <div class="erp-grid-card">
         <dx-data-grid
           [dataSource]="selectedStockTake().items"
           [showBorders]="true"
@@ -82,6 +86,7 @@
           <dxi-column dataField="notes" caption="{{ 'STOCK_TAKING_APPROVAL_FORM.NOTES' | translate }}"></dxi-column>
 
         </dx-data-grid>
+        </div>
       </div>
 
       <!-- Empty State -->
@@ -90,17 +95,17 @@
       </div>
 
       <!-- Form Actions -->
-      <div class="form-actions" *ngIf="selectedStockTake()">
+      <div class="erp-actions-bar form-actions" *ngIf="selectedStockTake()">
         <button mat-stroked-button type="button" routerLink="/inventory/stock-taking-approval" class="cancel-button">
           {{ 'STOCK_TAKING_APPROVAL_FORM.CANCEL' | translate }}
         </button>
         <button mat-raised-button color="primary" (click)="saveApproval()" [disabled]="approvalForm.invalid">
-          {{ isEditMode() ? ('STOCK_TAKING_APPROVAL_FORM.UPDATE' | translate) : 
-             (approvalForm.get('approvalStatus')?.value === 'Approved' ? ('STOCK_TAKING_APPROVAL_FORM.APPROVE_AND_UPDATE' | translate) : 
-              approvalForm.get('approvalStatus')?.value === 'Rejected' ? ('STOCK_TAKING_APPROVAL_FORM.REJECT' | translate) : 
+          {{ isEditMode() ? ('STOCK_TAKING_APPROVAL_FORM.UPDATE' | translate) :
+             (approvalForm.get('approvalStatus')?.value === 'Approved' ? ('STOCK_TAKING_APPROVAL_FORM.APPROVE_AND_UPDATE' | translate) :
+              approvalForm.get('approvalStatus')?.value === 'Rejected' ? ('STOCK_TAKING_APPROVAL_FORM.REJECT' | translate) :
               ('STOCK_TAKING_APPROVAL_FORM.SUBMIT' | translate)) }}
         </button>
       </div>
     </form>
-  </mat-card-content>
-</mat-card>
+  </div>
+</div>

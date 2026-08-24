@@ -1,20 +1,23 @@
 
 
-<mat-toolbar color="primary">
-  <span>{{ 'INVENTORY.TITLE' | translate }}</span>
-  <span class="spacer"></span>
-  <button mat-icon-button (click)="isScannerOpen.set(true)" matTooltip="{{ 'INVENTORY.SCAN_VIN' | translate }}">
-    <mat-icon>qr_code_scanner</mat-icon>
-  </button>
-  <button mat-raised-button color="accent" routerLink="/inventory/new">
-    <mat-icon>add</mat-icon>
-    {{ 'INVENTORY.ADD_NEW_CAR' | translate }}
-  </button>
-</mat-toolbar>
+<div class="erp-page page-container">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h1 class="erp-page-title">{{ 'INVENTORY.TITLE' | translate }}</h1>
+    </div>
+    <div class="erp-page-actions">
+      <button mat-icon-button (click)="isScannerOpen.set(true)" matTooltip="{{ 'INVENTORY.SCAN_VIN' | translate }}">
+        <mat-icon>qr_code_scanner</mat-icon>
+      </button>
+      <button mat-raised-button color="accent" routerLink="/inventory/new">
+        <mat-icon>add</mat-icon>
+        {{ 'INVENTORY.ADD_NEW_CAR' | translate }}
+      </button>
+    </div>
+  </div>
 
-<mat-card>
-  <mat-card-content>
-    <div class="filters-section">
+  <div class="erp-card">
+    <div class="erp-list-toolbar filters-section">
       <mat-form-field appearance="outline" class="filter-field">
         <mat-label>{{ 'INVENTORY.CONDITION_FILTER' | translate }}</mat-label>
         <mat-select [value]="conditionFilter()" (valueChange)="setConditionFilter($event)">
@@ -52,6 +55,7 @@
         </ng-template>
       </app-mobile-card-list>
     } @else {
+    <div class="erp-grid-card">
     <dx-data-grid
       [dataSource]="filteredAndSortedCars()"
       [showBorders]="true"
@@ -94,9 +98,10 @@
       <dxo-editing mode="cell" [allowUpdating]="!showArchived()" [allowDeleting]="false" [allowAdding]="false"></dxo-editing>
 
     </dx-data-grid>
+    </div>
     }
-  </mat-card-content>
-</mat-card>
+  </div>
+</div>
 
 <app-modal
   [isOpen]="isDeleteModalOpen()"

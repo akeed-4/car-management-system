@@ -1,14 +1,18 @@
-<mat-toolbar color="primary">
-  <span>{{ 'STOCK_TAKING_APPROVAL.TITLE' | translate }}</span>
-  <span class="spacer"></span>
-  <button mat-raised-button color="accent" routerLink="/inventory/stock-taking-approval/new">
-    <mat-icon>add</mat-icon>
-    {{ 'STOCK_TAKING_APPROVAL.CREATE_NEW' | translate }}
-  </button>
-</mat-toolbar>
+<div class="erp-page">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h1 class="erp-page-title">{{ 'STOCK_TAKING_APPROVAL.TITLE' | translate }}</h1>
+    </div>
+    <div class="erp-page-actions">
+      <button mat-raised-button color="accent" routerLink="/inventory/stock-taking-approval/new">
+        <mat-icon>add</mat-icon>
+        {{ 'STOCK_TAKING_APPROVAL.CREATE_NEW' | translate }}
+      </button>
+    </div>
+  </div>
 
-<mat-card>
-  <mat-card-content>
+  <div class="erp-card">
+    <div class="erp-grid-card">
     <dx-data-grid
       [dataSource]="stockTakesApproval()"
       [showBorders]="true"
@@ -38,5 +42,6 @@
 
       <dxo-editing mode="popup" [allowUpdating]="false" [allowDeleting]="false" [allowAdding]="false"></dxo-editing>
     </dx-data-grid>
-  </mat-card-content>
-</mat-card>
+    </div>
+  </div>
+</div>

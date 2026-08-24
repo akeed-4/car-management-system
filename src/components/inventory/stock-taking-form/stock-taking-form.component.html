@@ -1,19 +1,22 @@
-<mat-toolbar color="primary">
-  <span>{{ pageTitle() }}</span>
-  <span class="spacer"></span>
-  <button mat-icon-button routerLink="/inventory/stock-taking">
-    <mat-icon>arrow_back</mat-icon>
-  </button>
-</mat-toolbar>
+<div class="erp-page">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h1 class="erp-page-title">{{ pageTitle() }}</h1>
+    </div>
+    <div class="erp-page-actions">
+      <button mat-icon-button routerLink="/inventory/stock-taking">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+    </div>
+  </div>
 
-<mat-card>
-  <mat-card-content>
+  <div class="erp-card">
     <form [formGroup]="stockTakeForm">
 
       <!-- Stock Take Header -->
-      <div class="form-section">
-        <h3 class="section-title">{{ 'INVENTORY.STOCK_TAKING_FORM.HEADER_TITLE' | translate }}</h3>
-        <div class="form-grid">
+      <div class="erp-section form-section">
+        <h3 class="erp-section-title">{{ 'INVENTORY.STOCK_TAKING_FORM.HEADER_TITLE' | translate }}</h3>
+        <div class="erp-form-grid form-grid">
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'INVENTORY.STOCK_TAKING_FORM.DOCUMENT_NAME' | translate }}</mat-label>
             <input matInput
@@ -63,24 +66,25 @@
             [placeholder]="'INVENTORY.STOCK_TAKING_FORM.NOTES_PLACEHOLDER' | translate"></textarea>
         </mat-form-field>
       </div>
-      <section class="form-section">
+      <section class="erp-section form-section">
         <div class="section-header">
-          <h3 class="form-section-title">{{ 'PURCHASE_INVOICE.SELECT_CAR_CARD' | translate }}</h3>
+          <h3 class="erp-section-title form-section-title">{{ 'PURCHASE_INVOICE.SELECT_CAR_CARD' | translate }}</h3>
           <button mat-raised-button color="accent" (click)="toggleCarCards()">
             <mat-icon>search</mat-icon>
             {{ 'PURCHASE_INVOICE.SELECT_CAR' | translate }}
           </button>
         </div>
       </section>
-      <div class="table-section">
+      <div class="erp-section table-section">
         <div class="table-header">
-          <h3 class="section-title">{{ 'INVENTORY.STOCK_TAKING_FORM.ITEMS_TITLE' | translate }}</h3>
+          <h3 class="erp-section-title section-title">{{ 'INVENTORY.STOCK_TAKING_FORM.ITEMS_TITLE' | translate }}</h3>
           <button mat-raised-button color="accent" type="button" (click)="addNewItemRow()">
             <mat-icon>add</mat-icon>
             {{ 'INVENTORY.STOCK_TAKING_FORM.ADD_ITEM' | translate }}
           </button>
         </div>
 
+        <div class="erp-grid-card">
         <dx-data-grid
           [dataSource]="items()"
           [showBorders]="true"
@@ -125,6 +129,7 @@
 
 
         </dx-data-grid>
+        </div>
 
         <!-- Empty State -->
         <div *ngIf="!items || items.length === 0" class="empty-state">
@@ -133,7 +138,7 @@
       </div>
 
       <!-- Form Actions -->
-      <div class="form-actions">
+      <div class="erp-actions-bar form-actions">
         <button mat-stroked-button type="button" routerLink="/inventory/stock-taking" class="cancel-button">
           {{ 'INVENTORY.STOCK_TAKING_FORM.CANCEL' | translate }}
         </button>
@@ -147,5 +152,5 @@
         {{ successMessage() }}
       </div>
     </form>
-  </mat-card-content>
-</mat-card>
+  </div>
+</div>
