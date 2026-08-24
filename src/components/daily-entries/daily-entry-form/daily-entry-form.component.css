@@ -1,31 +1,4 @@
-.container {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 16px;
-}
-
-.toolbar {
-  margin-bottom: 16px;
-}
-
-.spacer {
-  flex: 1 1 auto;
-}
-
 .form-card {
-  margin-bottom: 16px;
-}
-
-.form-section {
-  margin-bottom: 24px;
-}
-
-.section-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--color-gray-700);
-  border-bottom: 1px solid var(--color-gray-200);
-  padding-bottom: 8px;
   margin-bottom: 16px;
 }
 
@@ -53,15 +26,6 @@
 
 .col-span-3 {
   grid-column: span 3;
-}
-
-.form-actions {
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid var(--color-gray-200);
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
 }
 
 .lookup-field {
@@ -128,10 +92,6 @@
 }
 
 @media (max-width: 768px) {
-  .container {
-    padding: 8px;
-  }
-
   .cols-2,
   .cols-3 {
     grid-template-columns: 1fr;
@@ -140,14 +100,5 @@
   .col-span-2,
   .col-span-3 {
     grid-column: span 1;
-  }
-
-  .form-actions {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .form-actions button {
-    width: 100%;
   }
 }

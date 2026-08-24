@@ -1,3 +1,4 @@
+<div class="erp-grid-card">
 <dx-data-grid
   [dataSource]="gridDataSource"
   [showBorders]="true"
@@ -57,7 +58,8 @@
     </dx-data-grid>
 
     <div *dxTemplate="let cellInfo of 'overdueTemplate'">
-      <span *ngIf="cellInfo.value" class="overdue-indicator">{{ 'INSTALLMENT.STATUS.OVERDUE' | translate }}</span>
+      <span *ngIf="cellInfo.value" class="erp-status-badge danger">{{ 'INSTALLMENT.STATUS.OVERDUE' | translate }}</span>
     </div>
   </div>
 </dx-data-grid>
+</div>

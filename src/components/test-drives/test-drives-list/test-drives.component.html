@@ -1,13 +1,17 @@
-<div class="container mx-auto">
-  <div class="flex justify-between items-center mb-6">
-    <h2 class="text-xl font-semibold text-gray-800">{{ 'TEST_DRIVES.SCHEDULE_TITLE' | translate }}</h2>
-    <a routerLink="/test-drives/new" class="bg-primary-600 text-white px-4 py-2 rounded-lg shadow hover:bg-primary-700 transition duration-300 flex items-center text-sm">
-      <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-      {{ 'TEST_DRIVES.BOOK_NEW' | translate }}
-    </a>
+<div class="erp-page page-container">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ 'TEST_DRIVES.SCHEDULE_TITLE' | translate }}</h2>
+    </div>
+    <div class="erp-page-actions">
+      <a routerLink="/test-drives/new" class="bg-primary-600 text-white px-4 py-2 rounded-lg shadow hover:bg-primary-700 transition duration-300 flex items-center text-sm">
+        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+        {{ 'TEST_DRIVES.BOOK_NEW' | translate }}
+      </a>
+    </div>
   </div>
 
-  <div class="bg-white p-6 rounded-lg shadow-md">
+  <div class="erp-card p-6">
     <div class="flex flex-col space-y-8">
       @for (day of schedule(); track day.date) {
         <div>
@@ -22,15 +26,16 @@
                   <div>
                     <div class="flex justify-between items-start">
                       <p class="font-bold text-gray-800">{{ booking.carDescription }}</p>
-                      <span class="px-2 py-1 text-xs font-semibold rounded-full"
-                            [class.bg-blue-100]="booking.status === 'Scheduled'" [class.text-blue-800]="booking.status === 'Scheduled'"
-                            [class.bg-green-100]="booking.status === 'Completed'" [class.text-green-800]="booking.status === 'Completed'"
-                            [class.bg-red-100]="booking.status === 'Canceled'" [class.text-red-800]="booking.status === 'Canceled'">
+                      <span class="erp-status-badge" [ngClass]="{
+                        'info': booking.status === 'Scheduled',
+                        'success': booking.status === 'Completed',
+                        'danger': booking.status === 'Canceled'
+                      }">
                         {{ booking.status === 'Scheduled' ? ('TEST_DRIVES.STATUS_SCHEDULED' | translate) : (booking.status === 'Completed' ? ('TEST_DRIVES.STATUS_COMPLETED' | translate) : ('TEST_DRIVES.STATUS_CANCELED' | translate)) }}
                       </span>
                     </div>
                     <p class="text-sm text-gray-600">
-                      <span class="font-semibold">{{ booking.startTime | date:'shortTime':'':'ar' }}</span> - 
+                      <span class="font-semibold">{{ booking.startTime | date:'shortTime':'':'ar' }}</span> -
                       <span class="font-semibold">{{ booking.endTime | date:'shortTime':'':'ar' }}</span>
                     </p>
                     <p class="text-sm text-gray-500">{{ 'TEST_DRIVES.CLIENT' | translate }}: <span class="font-medium">{{ booking.customerName }}</span></p>

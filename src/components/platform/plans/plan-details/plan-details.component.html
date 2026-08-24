@@ -1,21 +1,23 @@
-<div class="page-container">
-  <div class="page-header">
-    <div class="breadcrumb">
-      <span>{{ 'PLATFORM.BREADCRUMB' | translate }}</span>
-      <mat-icon>chevron_right</mat-icon>
-      <span class="current">{{ (isEdit() ? 'PLATFORM.PLANS.EDIT_TITLE' : 'PLATFORM.PLANS.CREATE_TITLE') | translate }}</span>
+<div class="erp-page page-container">
+  <div class="erp-page-header page-header">
+    <div class="erp-page-header-titles">
+      <span class="erp-page-eyebrow breadcrumb">
+        {{ 'PLATFORM.BREADCRUMB' | translate }}
+        <mat-icon>chevron_right</mat-icon>
+        {{ (isEdit() ? 'PLATFORM.PLANS.EDIT_TITLE' : 'PLATFORM.PLANS.CREATE_TITLE') | translate }}
+      </span>
+      <h1 class="erp-page-title">{{ (isEdit() ? 'PLATFORM.PLANS.EDIT_TITLE' : 'PLATFORM.PLANS.CREATE_TITLE') | translate }}</h1>
     </div>
-    <h1>{{ (isEdit() ? 'PLATFORM.PLANS.EDIT_TITLE' : 'PLATFORM.PLANS.CREATE_TITLE') | translate }}</h1>
   </div>
 
   <div class="loading-overlay" *ngIf="isLoading()">
     <mat-spinner diameter="40"></mat-spinner>
   </div>
 
-  <form [formGroup]="planForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading()">
-    <section class="form-section">
-      <h2>{{ 'PLATFORM.PLANS.GENERAL' | translate }}</h2>
-      <div class="form-grid">
+  <form [formGroup]="planForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading()" class="erp-card">
+    <section class="erp-section form-section">
+      <h2 class="erp-section-title">{{ 'PLATFORM.PLANS.GENERAL' | translate }}</h2>
+      <div class="erp-form-grid form-grid">
         <mat-form-field appearance="outline">
           <mat-label>{{ 'PLATFORM.PLANS.CODE' | translate }}</mat-label>
           <input matInput formControlName="code" required>
@@ -32,9 +34,9 @@
       </div>
     </section>
 
-    <section class="form-section">
-      <h2>{{ 'PLATFORM.PLANS.PRICING' | translate }}</h2>
-      <div class="form-grid">
+    <section class="erp-section form-section">
+      <h2 class="erp-section-title">{{ 'PLATFORM.PLANS.PRICING' | translate }}</h2>
+      <div class="erp-form-grid form-grid">
         <mat-form-field appearance="outline">
           <mat-label>{{ 'PLATFORM.BILLING_CYCLE.MONTHLY' | translate }}</mat-label>
           <input matInput type="number" formControlName="priceMonthly">
@@ -58,8 +60,8 @@
       </div>
     </section>
 
-    <section class="form-section">
-      <h2>{{ 'PLATFORM.PLANS.LIMITS' | translate }}</h2>
+    <section class="erp-section form-section">
+      <h2 class="erp-section-title">{{ 'PLATFORM.PLANS.LIMITS' | translate }}</h2>
       <div class="limits-editor" [formArrayName]="'limits'">
         @for (limitGroup of limitsArray.controls; track $index) {
           <div class="limit-editor-row" [formGroupName]="$index">
@@ -73,8 +75,8 @@
       </div>
     </section>
 
-    <section class="form-section">
-      <h2>{{ 'PLATFORM.PLANS.FEATURES' | translate }}</h2>
+    <section class="erp-section form-section">
+      <h2 class="erp-section-title">{{ 'PLATFORM.PLANS.FEATURES' | translate }}</h2>
       <div class="features-editor" [formArrayName]="'features'">
         @for (featureGroup of featuresArray.controls; track $index) {
           <div class="feature-editor-row" [formGroupName]="$index">
@@ -84,7 +86,7 @@
       </div>
     </section>
 
-    <div class="form-actions">
+    <div class="erp-actions-bar form-actions">
       <button mat-stroked-button type="button" (click)="cancel()" [disabled]="isSaving()">
         {{ 'COMMON.CANCEL' | translate }}
       </button>

@@ -1,14 +1,16 @@
-<div class="container">
-  <div class="page-header">
-    <h2 class="page-title">{{ 'MANAGER_APPROVAL.TITLE' | translate }}</h2>
+<div class="erp-page container">
+  <div class="erp-page-header page-header">
+    <div class="erp-page-header-titles">
+      <h1 class="erp-page-title page-title">{{ 'MANAGER_APPROVAL.TITLE' | translate }}</h1>
+    </div>
   </div>
 
   <!-- Sales Returns Tab -->
-  <div class="card">
-    <div class="card-header">
+  <div class="erp-card card">
+    <div class="erp-section-title card-header">
       <h3>{{ 'MANAGER_APPROVAL.SALES_RETURNS' | translate }}</h3>
     </div>
-    <div class="card-body">
+    <div class="erp-section card-body">
       @if (pendingSalesReturns().length > 0) {
         <dx-data-grid
           [dataSource]="pendingSalesReturns()"
@@ -109,11 +111,11 @@
   </div>
 
   <!-- Purchase Returns Tab -->
-  <div class="card" style="margin-top: 20px;">
-    <div class="card-header">
+  <div class="erp-card card" style="margin-top: 20px;">
+    <div class="erp-section-title card-header">
       <h3>{{ 'MANAGER_APPROVAL.PURCHASE_RETURNS' | translate }}</h3>
     </div>
-    <div class="card-body">
+    <div class="erp-section card-body">
       @if (pendingPurchaseReturns().length > 0) {
         <dx-data-grid
           [dataSource]="pendingPurchaseReturns()"

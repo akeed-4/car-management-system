@@ -1,4 +1,4 @@
-<div class="page-container">
+<div class="erp-page page-container">
 
   <!-- Page Header -->
   <div class="page-header">
@@ -7,10 +7,10 @@
       <mat-icon>chevron_right</mat-icon>
       <span class="current">{{ 'DAILY_ENTRIES.TITLE' | translate }}</span>
     </div>
-    <div class="header-row">
-      <div>
-        <h1>{{ 'DAILY_ENTRIES.TITLE' | translate }}</h1>
-        <p class="subtitle">{{ 'DAILY_ENTRIES.SUBTITLE' | translate }}</p>
+    <div class="header-row erp-page-header">
+      <div class="erp-page-header-titles">
+        <h1 class="erp-page-title">{{ 'DAILY_ENTRIES.TITLE' | translate }}</h1>
+        <p class="erp-page-subtitle subtitle">{{ 'DAILY_ENTRIES.SUBTITLE' | translate }}</p>
       </div>
     </div>
   </div>
@@ -48,7 +48,7 @@
   </div>
 
   <!-- Toolbar -->
-  <mat-toolbar class="page-toolbar">
+  <mat-toolbar class="erp-list-toolbar page-toolbar">
     <button mat-flat-button color="primary" (click)="newEntry()" >
       <mat-icon>add</mat-icon>
       {{ 'DAILY_ENTRIES.NEW_ENTRY' | translate }}
@@ -59,7 +59,7 @@
       {{ 'COMMON.REFRESH' | translate }}
     </button>
 
-    <span class="toolbar-spacer"></span>
+    <span class="erp-toolbar-spacer toolbar-spacer"></span>
 
     <mat-form-field appearance="outline" class="filter-select">
       <mat-label>{{ 'DAILY_ENTRIES.ENTRY_TYPE' | translate }}</mat-label>
@@ -122,7 +122,7 @@
     </app-mobile-card-list>
   } @else {
   <!-- DataGrid -->
-  <div class="grid-container">
+  <div class="erp-grid-card grid-container">
     <dx-data-grid
       #dataGrid
       id="dailyEntriesGrid"
@@ -159,7 +159,7 @@
 
       <dxi-column dataField="entryType" [caption]="'DAILY_ENTRIES.ENTRY_TYPE' | translate" [width]="130" cellTemplate="typeTemplate"></dxi-column>
       <div *dxTemplate="let cell of 'typeTemplate'">
-        <span class="chip" [ngClass]="getDailyEntryTypeClass(cell.value)">
+        <span class="erp-status-badge chip" [ngClass]="getDailyEntryTypeClass(cell.value)">
           {{ ('DAILY_ENTRIES.TYPE_' + cell.value?.toUpperCase()) | translate }}
         </span>
       </div>
@@ -172,7 +172,7 @@
 
       <dxi-column dataField="status" [caption]="'DAILY_ENTRIES.STATUS' | translate" [width]="130" cellTemplate="statusTemplate"></dxi-column>
       <div *dxTemplate="let cell of 'statusTemplate'">
-        <span class="chip" [ngClass]="getDailyEntryStatusClass(cell.value)">
+        <span class="erp-status-badge chip" [ngClass]="getDailyEntryStatusClass(cell.value)">
           {{ ('DAILY_ENTRIES.STATUS_' + cell.value?.toUpperCase()) | translate }}
         </span>
       </div>

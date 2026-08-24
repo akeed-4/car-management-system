@@ -7,7 +7,7 @@
   --brand-blue-dark: var(--color-primary-600);
   --brand-indigo: #4f46e5;
   --success-green: var(--color-success-600);
-  --error-red: #dc2626;
+  --error-red: var(--color-danger-600);
   --warn-orange: var(--color-warning-500);
   --page-bg: #f4f6fb;
   --card-bg: #ffffff;
@@ -241,12 +241,6 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--brand-blue);
-}
-
-.field-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px 16px;
 }
 
 .full-width {
@@ -530,7 +524,6 @@
     border-radius: 16px;
   }
 
-  .field-grid,
   .password-checklist {
     grid-template-columns: 1fr;
   }

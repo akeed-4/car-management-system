@@ -1,7 +1,9 @@
-<div class="profile-container">
-  <div class="header-section">
-    <h2>{{ 'USERS.PROFILE.TITLE' | translate }}</h2>
-    <p class="subtitle">{{ 'USERS.PROFILE.SUBTITLE' | translate }}</p>
+<div class="profile-container erp-page">
+  <div class="header-section erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ 'USERS.PROFILE.TITLE' | translate }}</h2>
+      <p class="subtitle erp-page-subtitle">{{ 'USERS.PROFILE.SUBTITLE' | translate }}</p>
+    </div>
   </div>
 
   @if (loading()) {
@@ -11,8 +13,8 @@
     </div>
   }
   <ng-container *ngIf="!loading() && profile() as profile">
-    <mat-card class="profile-card">
-      <mat-card-content>
+    <div class="profile-card erp-card">
+      <div class="erp-section">
 
         <div class="avatar-section">
           <div class="avatar-wrapper">
@@ -39,28 +41,28 @@
           <p class="avatar-hint">{{ 'USERS.PROFILE.AVATAR_HINT' | translate }}</p>
         </div>
 
-        <div class="info-grid">
-          <div class="info-field">
-            <label>{{ 'USERS.FORM.USERNAME' | translate }}</label>
-            <span>{{ profile.name }}</span>
+        <div class="info-grid erp-info-grid">
+          <div class="info-field erp-info-field">
+            <label class="erp-info-label">{{ 'USERS.FORM.USERNAME' | translate }}</label>
+            <span class="erp-info-value">{{ profile.name }}</span>
           </div>
-          <div class="info-field">
-            <label>{{ 'USERS.FORM.ROLE' | translate }}</label>
-            <span class="role-badge">{{ profile.roleName }}</span>
+          <div class="info-field erp-info-field">
+            <label class="erp-info-label">{{ 'USERS.FORM.ROLE' | translate }}</label>
+            <span class="role-badge erp-status-badge info">{{ profile.roleName }}</span>
           </div>
-          <div class="info-field" *ngIf="profile.tenantName">
-            <label>{{ 'USERS.PROFILE.COMPANY' | translate }}</label>
-            <span>{{ profile.tenantName }}</span>
+          <div class="info-field erp-info-field" *ngIf="profile.tenantName">
+            <label class="erp-info-label">{{ 'USERS.PROFILE.COMPANY' | translate }}</label>
+            <span class="erp-info-value">{{ profile.tenantName }}</span>
           </div>
-          <div class="info-field">
-            <label>{{ 'USERS.FORM.STATUS' | translate }}</label>
-            <span>{{ ('USERS.STATUS.' + profile.status.toUpperCase()) | translate }}</span>
+          <div class="info-field erp-info-field">
+            <label class="erp-info-label">{{ 'USERS.FORM.STATUS' | translate }}</label>
+            <span class="erp-info-value">{{ ('USERS.STATUS.' + profile.status.toUpperCase()) | translate }}</span>
           </div>
         </div>
 
         <form [formGroup]="form" (ngSubmit)="save()" class="editable-fields">
           <div class="section-title-row">
-            <h3>{{ 'USERS.PROFILE.CONTACT_INFO' | translate }}</h3>
+            <h3 class="erp-section-title">{{ 'USERS.PROFILE.CONTACT_INFO' | translate }}</h3>
             @if (!editMode()) {
               <button mat-button type="button" (click)="startEdit()">
                 <mat-icon>edit</mat-icon>
@@ -83,7 +85,7 @@
           </mat-form-field>
 
           @if (editMode()) {
-            <div class="form-actions">
+            <div class="form-actions erp-actions-bar">
               <button mat-stroked-button type="button" [disabled]="saving()" (click)="cancelEdit()">
                 {{ 'USERS.FORM.CANCEL' | translate }}
               </button>
@@ -98,14 +100,14 @@
         </form>
 
         <div class="security-section">
-          <h3>{{ 'USERS.PROFILE.SECURITY' | translate }}</h3>
+          <h3 class="erp-section-title">{{ 'USERS.PROFILE.SECURITY' | translate }}</h3>
           <button mat-stroked-button type="button" (click)="openChangePassword()">
             <mat-icon>lock_reset</mat-icon>
             {{ 'admin.changePassword' | translate }}
           </button>
         </div>
 
-      </mat-card-content>
-    </mat-card>
+      </div>
+    </div>
   </ng-container>
 </div>

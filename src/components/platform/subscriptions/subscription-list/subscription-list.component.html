@@ -1,12 +1,14 @@
-<div class="page-container">
-  <div class="page-header">
-    <div class="breadcrumb">
-      <span>{{ 'PLATFORM.BREADCRUMB' | translate }}</span>
-      <mat-icon>chevron_right</mat-icon>
-      <span class="current">{{ 'PLATFORM.SUBSCRIPTIONS.TITLE' | translate }}</span>
+<div class="erp-page page-container">
+  <div class="erp-page-header page-header">
+    <div class="erp-page-header-titles">
+      <span class="erp-page-eyebrow breadcrumb">
+        {{ 'PLATFORM.BREADCRUMB' | translate }}
+        <mat-icon>chevron_right</mat-icon>
+        {{ 'PLATFORM.SUBSCRIPTIONS.TITLE' | translate }}
+      </span>
+      <h1 class="erp-page-title">{{ 'PLATFORM.SUBSCRIPTIONS.TITLE' | translate }}</h1>
     </div>
-    <div class="header-row">
-      <h1>{{ 'PLATFORM.SUBSCRIPTIONS.TITLE' | translate }}</h1>
+    <div class="erp-page-actions">
       <button mat-stroked-button (click)="refresh()">
         <mat-icon>refresh</mat-icon>
         {{ 'COMMON.REFRESH' | translate }}
@@ -16,7 +18,7 @@
 
   <mat-progress-bar mode="indeterminate" *ngIf="loading()"></mat-progress-bar>
 
-  <div class="grid-container" *ngIf="!loading()">
+  <div class="erp-grid-card grid-container" *ngIf="!loading()">
     <dx-data-grid
       [dataSource]="subscriptions()"
       keyExpr="id"
@@ -36,7 +38,7 @@
 
       <dxi-column dataField="status" [caption]="'PLATFORM.SUBSCRIPTIONS.STATUS' | translate" cellTemplate="statusTemplate"></dxi-column>
       <div *dxTemplate="let cell of 'statusTemplate'">
-        <span class="chip" [style.background]="getStatusColor(cell.value) + '22'" [style.color]="getStatusColor(cell.value)">
+        <span class="erp-status-badge chip" [style.background]="getStatusColor(cell.value) + '22'" [style.color]="getStatusColor(cell.value)">
           {{ getStatusLabel(cell.value) | translate }}
         </span>
       </div>
@@ -48,7 +50,7 @@
 
       <dxi-column dataField="paymentStatus" [caption]="'PLATFORM.SUBSCRIPTIONS.PAYMENT_STATUS' | translate" cellTemplate="paymentStatusTemplate"></dxi-column>
       <div *dxTemplate="let cell of 'paymentStatusTemplate'">
-        <span class="chip" [style.background]="getPaymentStatusColor(cell.value) + '22'" [style.color]="getPaymentStatusColor(cell.value)">
+        <span class="erp-status-badge chip" [style.background]="getPaymentStatusColor(cell.value) + '22'" [style.color]="getPaymentStatusColor(cell.value)">
           {{ getPaymentStatusLabel(cell.value) | translate }}
         </span>
       </div>

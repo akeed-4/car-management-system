@@ -1,17 +1,18 @@
-<div class="container">
-  <div class="page-header">
-    <div class="header-content">
-      <h2>{{ 'APPROVALS.WORKFLOW_LIST_TITLE' | translate }}</h2>
-      <p class="subtitle">{{ 'APPROVALS.WORKFLOW_LIST_SUBTITLE' | translate }}</p>
+<div class="erp-page container">
+  <div class="erp-page-header page-header">
+    <div class="erp-page-header-titles header-content">
+      <h1 class="erp-page-title">{{ 'APPROVALS.WORKFLOW_LIST_TITLE' | translate }}</h1>
+      <p class="erp-page-subtitle subtitle">{{ 'APPROVALS.WORKFLOW_LIST_SUBTITLE' | translate }}</p>
     </div>
-    <button mat-raised-button color="primary" (click)="createWorkflow()">
-      <mat-icon>add</mat-icon>
-      {{ 'APPROVALS.CREATE_WORKFLOW' | translate }}
-    </button>
+    <div class="erp-page-actions">
+      <button mat-raised-button color="primary" (click)="createWorkflow()">
+        <mat-icon>add</mat-icon>
+        {{ 'APPROVALS.CREATE_WORKFLOW' | translate }}
+      </button>
+    </div>
   </div>
 
-  <mat-card>
-    <mat-card-content>
+  <div class="erp-grid-card">
       <dx-data-grid
         [dataSource]="workflows()"
         [showBorders]="true"
@@ -116,6 +117,5 @@
         <dxo-header-filter [visible]="true"></dxo-header-filter>
         <dxo-search-panel [visible]="true" [width]="240"></dxo-search-panel>
       </dx-data-grid>
-    </mat-card-content>
-  </mat-card>
+  </div>
 </div>

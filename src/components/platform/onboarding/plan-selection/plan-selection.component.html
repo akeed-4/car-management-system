@@ -1,7 +1,9 @@
-<div class="page-container">
-  <div class="page-header">
-    <h1>{{ 'ONBOARDING.PLANS.TITLE' | translate }}</h1>
-    <p class="subtitle">{{ 'ONBOARDING.PLANS.SUBTITLE' | translate }}</p>
+<div class="erp-page page-container">
+  <div class="erp-page-header page-header">
+    <div class="erp-page-header-titles">
+      <h1 class="erp-page-title">{{ 'ONBOARDING.PLANS.TITLE' | translate }}</h1>
+      <p class="erp-page-subtitle subtitle">{{ 'ONBOARDING.PLANS.SUBTITLE' | translate }}</p>
+    </div>
 
     <mat-button-toggle-group class="cycle-toggle" [value]="billingCycle()" (change)="setBillingCycle($event.value)">
       <mat-button-toggle *ngFor="let c of billingCycles" [value]="c.value">
@@ -22,7 +24,7 @@
   </div>
 
   <div class="plan-grid" *ngIf="!loading() && !loadError()">
-    <mat-card class="plan-card" *ngFor="let plan of plans()">
+    <div class="erp-card plan-card" *ngFor="let plan of plans()">
       <div class="plan-header">
         <h2>{{ planNameKey(plan) | translate }}</h2>
       </div>
@@ -52,6 +54,6 @@
           {{ 'ONBOARDING.PLANS.SUBSCRIBE_AND_PAY' | translate }}
         </button>
       </div>
-    </mat-card>
+    </div>
   </div>
 </div>

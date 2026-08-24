@@ -1,22 +1,24 @@
-<div class="page-container">
-  <div class="page-header">
-    <div class="breadcrumb">
-      <span>{{ 'PLATFORM.BREADCRUMB' | translate }}</span>
-      <mat-icon>chevron_right</mat-icon>
-      <span class="current">{{ 'PLATFORM.SETTINGS.TITLE' | translate }}</span>
+<div class="erp-page page-container">
+  <div class="erp-page-header page-header">
+    <div class="erp-page-header-titles">
+      <span class="erp-page-eyebrow breadcrumb">
+        {{ 'PLATFORM.BREADCRUMB' | translate }}
+        <mat-icon>chevron_right</mat-icon>
+        {{ 'PLATFORM.SETTINGS.TITLE' | translate }}
+      </span>
+      <h1 class="erp-page-title">{{ 'PLATFORM.SETTINGS.TITLE' | translate }}</h1>
     </div>
-    <h1>{{ 'PLATFORM.SETTINGS.TITLE' | translate }}</h1>
   </div>
 
   <div class="loading-overlay" *ngIf="isLoading()">
     <mat-spinner diameter="40"></mat-spinner>
   </div>
 
-  <form [formGroup]="settingsForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading()">
+  <form [formGroup]="settingsForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading()" class="erp-card">
     <mat-tab-group animationDuration="150ms">
 
       <mat-tab [label]="'PLATFORM.SETTINGS.SECTIONS.GENERAL' | translate">
-        <div class="tab-content form-grid">
+        <div class="erp-form-grid tab-content form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'PLATFORM.SETTINGS.APPLICATION_NAME' | translate }}</mat-label>
             <input matInput formControlName="applicationName" required>
@@ -29,7 +31,7 @@
       </mat-tab>
 
       <mat-tab [label]="'PLATFORM.SETTINGS.SECTIONS.SMTP' | translate">
-        <div class="tab-content form-grid">
+        <div class="erp-form-grid tab-content form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'PLATFORM.SETTINGS.SMTP_HOST' | translate }}</mat-label>
             <input matInput formControlName="smtpHost">
@@ -51,7 +53,7 @@
       </mat-tab>
 
       <mat-tab [label]="'PLATFORM.SETTINGS.SECTIONS.STORAGE' | translate">
-        <div class="tab-content form-grid">
+        <div class="erp-form-grid tab-content form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'PLATFORM.SETTINGS.STORAGE_PROVIDER' | translate }}</mat-label>
             <input matInput formControlName="storageProvider">
@@ -64,7 +66,7 @@
       </mat-tab>
 
       <mat-tab [label]="'PLATFORM.SETTINGS.SECTIONS.API_KEYS' | translate">
-        <div class="tab-content form-grid">
+        <div class="erp-form-grid tab-content form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'PLATFORM.SETTINGS.TAP_SECRET_KEY' | translate }}</mat-label>
             <input matInput type="password" formControlName="tapSecretKey">
@@ -85,7 +87,7 @@
       </mat-tab>
 
       <mat-tab [label]="'PLATFORM.SETTINGS.SECTIONS.SECURITY' | translate">
-        <div class="tab-content form-grid">
+        <div class="erp-form-grid tab-content form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'PLATFORM.SETTINGS.DEFAULT_TRIAL_DAYS' | translate }}</mat-label>
             <input matInput type="number" formControlName="defaultTrialDays">
@@ -101,7 +103,7 @@
       </mat-tab>
     </mat-tab-group>
 
-    <div class="form-actions">
+    <div class="erp-actions-bar form-actions">
       <button mat-flat-button color="primary" type="submit" [disabled]="isSaving()">
         <mat-spinner *ngIf="isSaving()" diameter="18"></mat-spinner>
         <span *ngIf="!isSaving()">{{ 'COMMON.SAVE' | translate }}</span>

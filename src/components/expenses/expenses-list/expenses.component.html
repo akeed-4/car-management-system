@@ -1,19 +1,24 @@
-<div class="container">
-  <div class="page-header">
-    <h2>قائمة المصروفات</h2>
-    <a routerLink="/expenses/new" class="btn btn-primary">
-      <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-      <span>إضافة مصروف جديد</span>
-    </a>
+<div class="erp-page container">
+  <div class="erp-page-header page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">قائمة المصروفات</h2>
+    </div>
+    <div class="erp-page-actions">
+      <a routerLink="/expenses/new" class="btn btn-primary">
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+        <span>إضافة مصروف جديد</span>
+      </a>
+    </div>
   </div>
 
   <div class="card">
-    <div class="table-controls">
-      <input 
-        type="text" 
+    <div class="erp-list-toolbar table-controls">
+      <input
+        type="text"
         placeholder="ابحث عن مصروف (الوصف، الفئة...)"
-        class="form-input search-input"
+        class="erp-search-input form-input search-input"
         (input)="onFilter($event)">
+      <span class="erp-toolbar-spacer"></span>
       <div class="toggle-switch">
         <label for="showArchived">عرض الأرشيف</label>
         <input type="checkbox" id="showArchived" [checked]="showArchived()" (change)="showArchived.set(!showArchived())">
@@ -38,8 +43,8 @@
         </ng-template>
       </app-mobile-card-list>
     } @else {
-    <div class="table-wrapper">
-      <table class="table">
+    <div class="erp-table-wrapper table-wrapper">
+      <table class="erp-table table">
         <thead>
           <tr>
             <th (click)="onSort('date')">التاريخ {{ getSortIcon('date') }}</th>

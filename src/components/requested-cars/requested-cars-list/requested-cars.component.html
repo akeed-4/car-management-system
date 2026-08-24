@@ -1,17 +1,15 @@
-<div class="page-container">
+<div class="erp-page page-container">
 
   <!-- Page Header -->
-  <div class="page-header">
-    <div class="breadcrumb">
-      <span>{{ 'REQUESTED_CARS.BREADCRUMB_PARENT' | translate }}</span>
-      <mat-icon>chevron_right</mat-icon>
-      <span class="current">{{ 'REQUESTED_CARS.TITLE' | translate }}</span>
-    </div>
-    <div class="header-row">
-      <div>
-        <h1>{{ 'REQUESTED_CARS.TITLE' | translate }}</h1>
-        <p class="subtitle">{{ 'REQUESTED_CARS.SUBTITLE' | translate }}</p>
-      </div>
+  <div class="erp-page-header page-header">
+    <div class="erp-page-header-titles">
+      <span class="erp-page-eyebrow breadcrumb">
+        {{ 'REQUESTED_CARS.BREADCRUMB_PARENT' | translate }}
+        <mat-icon>chevron_right</mat-icon>
+        {{ 'REQUESTED_CARS.TITLE' | translate }}
+      </span>
+      <h1 class="erp-page-title">{{ 'REQUESTED_CARS.TITLE' | translate }}</h1>
+      <p class="erp-page-subtitle subtitle">{{ 'REQUESTED_CARS.SUBTITLE' | translate }}</p>
     </div>
   </div>
 
@@ -55,7 +53,7 @@
   </div>
 
   <!-- Toolbar -->
-  <mat-toolbar class="page-toolbar">
+  <mat-toolbar class="erp-list-toolbar page-toolbar">
     <button mat-flat-button color="primary" (click)="newRequest()" >
       <mat-icon>add</mat-icon>
       {{ 'REQUESTED_CARS.NEW_REQUEST' | translate }}
@@ -66,7 +64,7 @@
       {{ 'COMMON.REFRESH' | translate }}
     </button>
 
-    <span class="toolbar-spacer"></span>
+    <span class="erp-toolbar-spacer toolbar-spacer"></span>
 
     <mat-form-field appearance="outline" class="filter-select">
       <mat-label>{{ 'REQUESTED_CARS.STATUS' | translate }}</mat-label>
@@ -112,7 +110,7 @@
   </mat-toolbar>
 
   <!-- DataGrid -->
-  <div class="grid-container">
+  <div class="erp-grid-card grid-container">
     <dx-data-grid
       #dataGrid
       id="requestedCarsGrid"
@@ -158,7 +156,7 @@
 
       <dxi-column dataField="priority" [caption]="'REQUESTED_CARS.PRIORITY' | translate" [width]="120" cellTemplate="priorityTemplate"></dxi-column>
       <div *dxTemplate="let cell of 'priorityTemplate'">
-        <span class="chip" [ngClass]="getPriorityClass(cell.value)">
+        <span class="erp-status-badge chip" [ngClass]="getPriorityClass(cell.value)">
           {{ ('REQUESTED_CARS.PRIORITY_' + cell.value?.toUpperCase()) | translate }}
         </span>
       </div>
@@ -167,14 +165,14 @@
 
       <dxi-column dataField="status" [caption]="'REQUESTED_CARS.STATUS' | translate" [width]="130" cellTemplate="statusTemplate"></dxi-column>
       <div *dxTemplate="let cell of 'statusTemplate'">
-        <span class="chip" [ngClass]="getStatusClass(cell.value)">
+        <span class="erp-status-badge chip" [ngClass]="getStatusClass(cell.value)">
           {{ ('REQUESTED_CARS.STATUS_' + cell.value?.toUpperCase()) | translate }}
         </span>
       </div>
 
       <dxi-column dataField="reservationStatus" [caption]="'REQUESTED_CARS.RESERVATION_STATUS' | translate" [width]="140" cellTemplate="reservationTemplate"></dxi-column>
       <div *dxTemplate="let cell of 'reservationTemplate'">
-        <span class="chip" [ngClass]="getReservationStatusClass(cell.value)">
+        <span class="erp-status-badge chip" [ngClass]="getReservationStatusClass(cell.value)">
           {{ ('REQUESTED_CARS.RESERVATION_' + cell.value?.toUpperCase()) | translate }}
         </span>
       </div>

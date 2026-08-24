@@ -1,7 +1,0 @@
-.overdue-indicator {
-  color: var(--color-danger-500);
-  font-weight: bold;
-  background-color: var(--status-danger-bg);
-  padding: 4px 8px;
-  border-radius: 4px;
-}

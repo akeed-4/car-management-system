@@ -3,41 +3,8 @@
 }
 
 .schedule-summary {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 10px;
   margin-bottom: 16px;
   padding: 16px;
   background-color: var(--surface-sunken);
   border-radius: 8px;
-}
-
-table {
-  width: 100%;
-}
-
-.paid {
-  color: var(--color-success-500);
-  font-weight: bold;
-}
-
-.unpaid {
-  color: #ff9800;
-}
-
-.overdue {
-  color: var(--color-danger-500);
-  font-weight: bold;
-}
-
-.total-row {
-  text-align: right;
-  margin-top: 16px;
-  padding: 16px;
-  background-color: #e8f5e8;
-  border-radius: 8px;
-}
-
-h4 {
-  color: var(--text-primary);
 }

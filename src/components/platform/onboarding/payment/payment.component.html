@@ -1,5 +1,5 @@
 <div class="page-container">
-  <mat-card class="payment-card">
+  <div class="erp-card payment-card">
     <h1>{{ 'ONBOARDING.PAYMENT.TITLE' | translate }}</h1>
     <p class="plan-summary" *ngIf="plan() as p">
       {{ 'ONBOARDING.PAYMENT.PLAN_SUMMARY' | translate:{ plan: p.name } }}
@@ -25,5 +25,5 @@
     </button>
 
     <a routerLink="/onboarding/plans" class="back-link">{{ 'ONBOARDING.PAYMENT.BACK_TO_PLANS' | translate }}</a>
-  </mat-card>
+  </div>
 </div>

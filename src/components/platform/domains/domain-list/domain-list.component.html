@@ -1,12 +1,14 @@
-<div class="page-container">
-  <div class="page-header">
-    <div class="breadcrumb">
-      <span>{{ 'PLATFORM.BREADCRUMB' | translate }}</span>
-      <mat-icon>chevron_right</mat-icon>
-      <span class="current">{{ 'PLATFORM.DOMAINS.TITLE' | translate }}</span>
+<div class="erp-page page-container">
+  <div class="erp-page-header page-header">
+    <div class="erp-page-header-titles">
+      <span class="erp-page-eyebrow breadcrumb">
+        {{ 'PLATFORM.BREADCRUMB' | translate }}
+        <mat-icon>chevron_right</mat-icon>
+        {{ 'PLATFORM.DOMAINS.TITLE' | translate }}
+      </span>
+      <h1 class="erp-page-title">{{ 'PLATFORM.DOMAINS.TITLE' | translate }}</h1>
     </div>
-    <div class="header-row">
-      <h1>{{ 'PLATFORM.DOMAINS.TITLE' | translate }}</h1>
+    <div class="erp-page-actions">
       <button mat-stroked-button (click)="refresh()">
         <mat-icon>refresh</mat-icon>
         {{ 'COMMON.REFRESH' | translate }}
@@ -16,7 +18,7 @@
 
   <mat-progress-bar mode="indeterminate" *ngIf="loading()"></mat-progress-bar>
 
-  <div class="grid-container" *ngIf="!loading()">
+  <div class="erp-grid-card grid-container" *ngIf="!loading()">
     <dx-data-grid
       [dataSource]="domains()"
       keyExpr="id"
@@ -42,7 +44,7 @@
 
       <dxi-column dataField="isVerified" [caption]="'PLATFORM.DOMAINS.STATUS' | translate" [width]="130" cellTemplate="statusTemplate"></dxi-column>
       <div *dxTemplate="let cell of 'statusTemplate'">
-        <span class="chip" [ngClass]="cell.value ? 'status-chip-active' : 'status-chip-default'">
+        <span class="erp-status-badge chip" [ngClass]="cell.value ? 'success' : 'neutral'">
           {{ (cell.value ? 'PLATFORM.DOMAINS.VERIFIED' : 'PLATFORM.DOMAINS.PENDING') | translate }}
         </span>
       </div>

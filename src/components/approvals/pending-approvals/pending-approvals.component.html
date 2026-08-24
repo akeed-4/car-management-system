@@ -1,10 +1,10 @@
-<div class="container">
-  <div class="page-header">
-    <div class="header-content">
-      <h2>{{ 'APPROVALS.PENDING_APPROVALS_TITLE' | translate }}</h2>
-      <p class="subtitle">{{ 'APPROVALS.PENDING_APPROVALS_SUBTITLE' | translate }}</p>
+<div class="erp-page container">
+  <div class="erp-page-header page-header">
+    <div class="erp-page-header-titles header-content">
+      <h1 class="erp-page-title">{{ 'APPROVALS.PENDING_APPROVALS_TITLE' | translate }}</h1>
+      <p class="erp-page-subtitle subtitle">{{ 'APPROVALS.PENDING_APPROVALS_SUBTITLE' | translate }}</p>
     </div>
-    <div class="header-actions">
+    <div class="erp-page-actions header-actions">
       <button mat-icon-button (click)="loadPendingApprovals()" matTooltip="{{ 'APPROVALS.REFRESH' | translate }}">
         <mat-icon>refresh</mat-icon>
       </button>
@@ -41,8 +41,7 @@
   }
 
   <!-- Approvals Grid -->
-  <mat-card>
-    <mat-card-content>
+  <div class="erp-grid-card">
       <dx-data-grid
         [dataSource]="pendingApprovals()"
         [showBorders]="true"
@@ -152,6 +151,5 @@
         <dxo-filter-row [visible]="true"></dxo-filter-row>
         <dxo-search-panel [visible]="true" [width]="240"></dxo-search-panel>
       </dx-data-grid>
-    </mat-card-content>
-  </mat-card>
+  </div>
 </div>

@@ -1,13 +1,16 @@
-<mat-card class="workflow-form-card">
-  <mat-card-header>
-    <mat-card-title>{{ editMode() ? 'APPROVALS.EDIT_WORKFLOW' : 'APPROVALS.CREATE_WORKFLOW' | translate }}</mat-card-title>
-  </mat-card-header>
+<div class="erp-page">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h1 class="erp-page-title">{{ editMode() ? 'APPROVALS.EDIT_WORKFLOW' : 'APPROVALS.CREATE_WORKFLOW' | translate }}</h1>
+    </div>
+  </div>
 
-  <mat-card-content>
+  <div class="erp-card workflow-form-card">
+    <div class="erp-section">
     <form [formGroup]="workflowForm" (ngSubmit)="saveWorkflow()">
       <!-- Basic Information -->
       <div class="form-section">
-        <h3>{{ 'APPROVALS.BASIC_INFO' | translate }}</h3>
+        <h3 class="erp-section-title">{{ 'APPROVALS.BASIC_INFO' | translate }}</h3>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ 'APPROVALS.WORKFLOW_NAME' | translate }}</mat-label>
@@ -43,12 +46,14 @@
 
       <!-- Approval Levels -->
       <div class="form-section">
-        <div class="levels-header">
+        <div class="levels-header erp-section-title">
           <h3>{{ 'APPROVALS.APPROVAL_LEVELS' | translate }}</h3>
-          <button mat-raised-button color="primary" type="button" (click)="addLevel()">
-            <mat-icon>add</mat-icon>
-            {{ 'APPROVALS.ADD_LEVEL' | translate }}
-          </button>
+          <div class="erp-section-toolbar">
+            <button mat-raised-button color="primary" type="button" (click)="addLevel()">
+              <mat-icon>add</mat-icon>
+              {{ 'APPROVALS.ADD_LEVEL' | translate }}
+            </button>
+          </div>
         </div>
 
         <div class="levels-container" formArrayName="levels">
@@ -69,7 +74,7 @@
             </mat-card-header>
 
             <mat-card-content>
-              <div class="level-form-row">
+              <div class="level-form-row erp-form-grid">
                 <mat-form-field appearance="outline">
                   <mat-label>{{ 'APPROVALS.LEVEL_NAME' | translate }}</mat-label>
                   <input matInput formControlName="levelName" required>
@@ -85,7 +90,7 @@
                 </mat-form-field>
               </div>
 
-              <div class="level-form-row">
+              <div class="level-form-row erp-form-grid">
                 <mat-form-field appearance="outline" class="approver-field">
                   <mat-label>{{ 'APPROVALS.APPROVER' | translate }}</mat-label>
                   <mat-select formControlName="approverId" required>
@@ -108,15 +113,16 @@
         </div>
       </div>
     </form>
-  </mat-card-content>
+    </div>
 
-  <mat-card-actions align="end">
-    <button mat-button type="button" (click)="cancel()">
-      {{ 'COMMON.CANCEL' | translate }}
-    </button>
-    <button mat-raised-button color="primary" type="submit" [disabled]="workflowForm.invalid || isSubmitting()" (click)="saveWorkflow()">
-      <mat-icon *ngIf="isSubmitting()">hourglass_empty</mat-icon>
-      {{ editMode() ? ('APPROVALS.UPDATE' | translate) : ('APPROVALS.CREATE' | translate) }}
-    </button>
-  </mat-card-actions>
-</mat-card>
+    <div class="erp-actions-bar">
+      <button mat-button type="button" (click)="cancel()">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button mat-raised-button color="primary" type="submit" [disabled]="workflowForm.invalid || isSubmitting()" (click)="saveWorkflow()">
+        <mat-icon *ngIf="isSubmitting()">hourglass_empty</mat-icon>
+        {{ editMode() ? ('APPROVALS.UPDATE' | translate) : ('APPROVALS.CREATE' | translate) }}
+      </button>
+    </div>
+  </div>
+</div>

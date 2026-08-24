@@ -1,51 +1,49 @@
-<div class="page-container">
+<div class="erp-page page-container">
 
-  <div class="page-header">
-    <div class="breadcrumb">
-      <span>{{ 'PLATFORM.BREADCRUMB' | translate }}</span>
-      <mat-icon>chevron_right</mat-icon>
-      <span class="current">{{ 'PLATFORM.TENANTS.TITLE' | translate }}</span>
-    </div>
-    <div class="header-row">
-      <div>
-        <h1>{{ 'PLATFORM.TENANTS.TITLE' | translate }}</h1>
-        <p class="subtitle">{{ 'PLATFORM.TENANTS.SUBTITLE' | translate }}</p>
-      </div>
+  <div class="erp-page-header page-header">
+    <div class="erp-page-header-titles">
+      <span class="erp-page-eyebrow breadcrumb">
+        {{ 'PLATFORM.BREADCRUMB' | translate }}
+        <mat-icon>chevron_right</mat-icon>
+        {{ 'PLATFORM.TENANTS.TITLE' | translate }}
+      </span>
+      <h1 class="erp-page-title">{{ 'PLATFORM.TENANTS.TITLE' | translate }}</h1>
+      <p class="erp-page-subtitle subtitle">{{ 'PLATFORM.TENANTS.SUBTITLE' | translate }}</p>
     </div>
   </div>
 
   <div class="summary-cards">
-    <mat-card class="summary-card total">
+    <div class="erp-card summary-card total">
       <mat-icon>business</mat-icon>
       <div class="summary-info">
         <div class="summary-value">{{ summary().total }}</div>
         <div class="summary-label">{{ 'PLATFORM.TENANTS.SUMMARY.TOTAL' | translate }}</div>
       </div>
-    </mat-card>
-    <mat-card class="summary-card active">
+    </div>
+    <div class="erp-card summary-card active">
       <mat-icon>check_circle</mat-icon>
       <div class="summary-info">
         <div class="summary-value">{{ summary().active }}</div>
         <div class="summary-label">{{ 'PLATFORM.TENANTS.SUMMARY.ACTIVE' | translate }}</div>
       </div>
-    </mat-card>
-    <mat-card class="summary-card provisioning">
+    </div>
+    <div class="erp-card summary-card provisioning">
       <mat-icon>hourglass_top</mat-icon>
       <div class="summary-info">
         <div class="summary-value">{{ summary().provisioning }}</div>
         <div class="summary-label">{{ 'PLATFORM.TENANTS.SUMMARY.PROVISIONING' | translate }}</div>
       </div>
-    </mat-card>
-    <mat-card class="summary-card suspended">
+    </div>
+    <div class="erp-card summary-card suspended">
       <mat-icon>block</mat-icon>
       <div class="summary-info">
         <div class="summary-value">{{ summary().suspended }}</div>
         <div class="summary-label">{{ 'PLATFORM.TENANTS.SUMMARY.SUSPENDED' | translate }}</div>
       </div>
-    </mat-card>
+    </div>
   </div>
 
-  <mat-toolbar class="page-toolbar">
+  <mat-toolbar class="erp-list-toolbar page-toolbar">
     <button mat-flat-button color="primary" (click)="newTenant()" *appHasPermission="'platform.tenants.create'">
       <mat-icon>add</mat-icon>
       {{ 'PLATFORM.TENANTS.NEW_TENANT' | translate }}
@@ -56,7 +54,7 @@
       {{ 'COMMON.REFRESH' | translate }}
     </button>
 
-    <span class="toolbar-spacer"></span>
+    <span class="erp-toolbar-spacer toolbar-spacer"></span>
 
     <mat-form-field appearance="outline" class="filter-select">
       <mat-label>{{ 'PLATFORM.TENANTS.STATUS' | translate }}</mat-label>
@@ -91,7 +89,7 @@
     </button>
   </mat-toolbar>
 
-  <div class="grid-container">
+  <div class="erp-grid-card grid-container">
     <dx-data-grid
       #dataGrid
       id="platformTenantsGrid"
@@ -131,7 +129,7 @@
 
       <dxi-column dataField="status" [caption]="'PLATFORM.TENANTS.STATUS' | translate" [width]="130" cellTemplate="statusTemplate"></dxi-column>
       <div *dxTemplate="let cell of 'statusTemplate'">
-        <span class="chip" [ngClass]="getTenantStatusClass(cell.value)">
+        <span class="erp-status-badge chip" [ngClass]="getTenantStatusClass(cell.value)">
           {{ ('PLATFORM.TENANT_STATUS.' + (cell.value === TenantStatus.Active ? 'ACTIVE' : cell.value === TenantStatus.Provisioning ? 'PROVISIONING' : cell.value === TenantStatus.Suspended ? 'SUSPENDED' : 'BLOCKED')) | translate }}
         </span>
       </div>
