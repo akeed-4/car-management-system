@@ -48,7 +48,7 @@
         <div class="info-row">
           <span class="label">{{ 'CARS.STATUS' | translate }}:</span>
           <mat-chip-set aria-label="Status">
-            <mat-chip [color]="getStatusColor(data.status)" selected>
+            <mat-chip [color]="getStatusColor(data.status)" selected class="erp-status-badge">
               <mat-icon matChipAvatar>flag</mat-icon>
               {{ data.status }}
             </mat-chip>
@@ -142,7 +142,7 @@
         <div class="info-row">
           <span class="label">{{ 'CARS.FAHAS_STATUS' | translate }}:</span>
           <mat-chip-set aria-label="Fahas Status">
-            <mat-chip [color]="getFahasStatusColor(data.fahasStatus)" selected>
+            <mat-chip [color]="getFahasStatusColor(data.fahasStatus)" selected class="erp-status-badge">
               <mat-icon matChipAvatar>verified</mat-icon>
               {{ data.fahasStatus }}
             </mat-chip>
@@ -253,7 +253,7 @@
         <div class="info-row" *ngIf="data.isArchived !== undefined">
           <span class="label">{{ 'COMMON.ARCHIVED' | translate }}:</span>
           <mat-chip-set aria-label="Archived">
-            <mat-chip [color]="data.isArchived ? 'warn' : 'primary'" selected>
+            <mat-chip [color]="data.isArchived ? 'warn' : 'primary'" selected class="erp-status-badge">
               <mat-icon matChipAvatar>{{ data.isArchived ? 'archive' : 'unarchive' }}</mat-icon>
               {{ data.isArchived ? 'COMMON.YES' : 'COMMON.NO' | translate }}
             </mat-chip>

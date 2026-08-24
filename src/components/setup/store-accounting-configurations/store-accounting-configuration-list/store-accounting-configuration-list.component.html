@@ -1,26 +1,30 @@
-<div class="page-container">
-  <div class="page-header header-row">
-    <h1>{{ 'STORE_ACCOUNTING_CONFIG.LIST_TITLE' | translate }}</h1>
-    <a routerLink="/setup/store-accounting-configurations/new" mat-raised-button color="primary">
-      <mat-icon>add</mat-icon>
-      {{ 'STORE_ACCOUNTING_CONFIG.CREATE_TITLE' | translate }}
-    </a>
+<div class="erp-page page-container">
+  <div class="erp-page-header page-header header-row">
+    <div class="erp-page-header-titles">
+      <h1 class="erp-page-title">{{ 'STORE_ACCOUNTING_CONFIG.LIST_TITLE' | translate }}</h1>
+    </div>
+    <div class="erp-page-actions">
+      <a routerLink="/setup/store-accounting-configurations/new" mat-raised-button color="primary">
+        <mat-icon>add</mat-icon>
+        {{ 'STORE_ACCOUNTING_CONFIG.CREATE_TITLE' | translate }}
+      </a>
+    </div>
   </div>
 
-  <mat-toolbar class="page-toolbar">
+  <mat-toolbar class="erp-list-toolbar page-toolbar">
     <button mat-stroked-button (click)="refresh()">
       <mat-icon>refresh</mat-icon>
       {{ 'COMMON.REFRESH' | translate }}
     </button>
 
-    <span class="toolbar-spacer"></span>
+    <span class="erp-toolbar-spacer toolbar-spacer"></span>
 
     <button mat-icon-button (click)="printGrid()" [matTooltip]="'COMMON.PRINT' | translate">
       <mat-icon>print</mat-icon>
     </button>
   </mat-toolbar>
 
-  <div class="grid-container">
+  <div class="erp-grid-card grid-container">
     <dx-data-grid
       [dataSource]="configurations()"
       [showBorders]="true"
@@ -48,7 +52,7 @@
       <dxi-column dataField="isActive" dataType="boolean" [caption]="'COMMON.ACTIVE' | translate" [width]="110" cellTemplate="statusTemplate"></dxi-column>
 
       <div *dxTemplate="let cell of 'statusTemplate'">
-        <span class="status-badge" [class.status-active]="cell.data.isActive" [class.status-inactive]="!cell.data.isActive">
+        <span class="erp-status-badge status-badge" [ngClass]="cell.data.isActive ? 'success' : 'neutral'" [class.status-active]="cell.data.isActive" [class.status-inactive]="!cell.data.isActive">
           {{ (cell.data.isActive ? 'COMMON.ACTIVE' : 'COMMON.INACTIVE') | translate }}
         </span>
       </div>

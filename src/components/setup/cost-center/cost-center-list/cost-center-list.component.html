@@ -1,23 +1,25 @@
-<div class="cost-center-container">
+<div class="erp-page cost-center-container">
   <!-- Header Section -->
-  <div class="header-section">
-    <div class="title-section">
-      <h2>{{ 'COST_CENTER.LIST_TITLE' | translate }}</h2>
-      <p class="subtitle">{{ 'COST_CENTER.LIST_SUBTITLE' | translate }}</p>
+  <div class="erp-page-header header-section">
+    <div class="erp-page-header-titles title-section">
+      <h2 class="erp-page-title">{{ 'COST_CENTER.LIST_TITLE' | translate }}</h2>
+      <p class="erp-page-subtitle subtitle">{{ 'COST_CENTER.LIST_SUBTITLE' | translate }}</p>
     </div>
-    <button
-      mat-raised-button
-      color="primary"
-      class="add-button"
-      (click)="onCreate()"
-      appHasPermission="cost-center.create">
-      <mat-icon>add</mat-icon>
-      {{ 'COST_CENTER.ADD_NEW' | translate }}
-    </button>
+    <div class="erp-page-actions">
+      <button
+        mat-raised-button
+        color="primary"
+        class="add-button"
+        (click)="onCreate()"
+        appHasPermission="cost-center.create">
+        <mat-icon>add</mat-icon>
+        {{ 'COST_CENTER.ADD_NEW' | translate }}
+      </button>
+    </div>
   </div>
 
   <!-- TreeList -->
-  <div class="tree-section">
+  <div class="erp-grid-card tree-section">
     <dx-tree-list
       id="costCentersTreeList"
       [dataSource]="costCentersWithLevels()"
@@ -164,7 +166,7 @@
 
       <!-- Status Column Template -->
       <div *dxTemplate="let data of 'statusTemplate'">
-        <mat-chip [color]="getStatusColor(data.value)" selected>
+        <mat-chip [color]="getStatusColor(data.value)" selected class="erp-status-badge">
           {{ getStatusText(data.value) | translate }}
         </mat-chip>
       </div>

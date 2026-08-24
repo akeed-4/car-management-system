@@ -1,7 +1,9 @@
-<div class="container-fluid p-4">
-  <div class="page-header strong-header">
-    <h2>{{ 'QR_CODE_SETTINGS.TITLE' | translate }}</h2>
-    <p class="page-subtitle">{{ 'QR_CODE_SETTINGS.SUBTITLE' | translate }}</p>
+<div class="erp-page container-fluid p-4">
+  <div class="erp-page-header page-header strong-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ 'QR_CODE_SETTINGS.TITLE' | translate }}</h2>
+      <p class="erp-page-subtitle page-subtitle">{{ 'QR_CODE_SETTINGS.SUBTITLE' | translate }}</p>
+    </div>
   </div>
 
   <div class="state-message" *ngIf="isLoading()">
@@ -9,13 +11,13 @@
   </div>
 
   <div class="settings-layout" *ngIf="!isLoading()">
-    <mat-card class="form-card">
+    <div class="erp-card form-card">
       <form [formGroup]="form" (ngSubmit)="save()">
         <mat-slide-toggle formControlName="isEnabled" class="mb-3">
           {{ 'QR_CODE_SETTINGS.ENABLE_QR' | translate }}
         </mat-slide-toggle>
 
-        <div class="form-grid">
+        <div class="erp-form-grid form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'QR_CODE_SETTINGS.POSITION' | translate }}</mat-label>
             <mat-select formControlName="position">
@@ -72,17 +74,17 @@
           </div>
         </div>
 
-        <div class="form-actions">
+        <div class="erp-actions-bar form-actions">
           <button mat-raised-button color="primary" type="submit">
             <mat-icon>save</mat-icon>
             {{ 'COMMON.SAVE' | translate }}
           </button>
         </div>
       </form>
-    </mat-card>
+    </div>
 
-    <mat-card class="preview-card">
-      <h3>{{ 'QR_CODE_SETTINGS.PREVIEW' | translate }}</h3>
+    <div class="erp-card preview-card">
+      <h3 class="erp-section-title">{{ 'QR_CODE_SETTINGS.PREVIEW' | translate }}</h3>
       <div class="preview-box" *ngIf="previewDataUrl(); else noPreview">
         <img [src]="previewDataUrl()" [width]="form.value.sizePx" [height]="form.value.sizePx"
           [style.border]="form.value.showBorder ? ('1px solid ' + form.value.borderColor) : 'none'"
@@ -92,6 +94,6 @@
       <ng-template #noPreview>
         <p class="preview-disabled">{{ 'QR_CODE_SETTINGS.PREVIEW_DISABLED' | translate }}</p>
       </ng-template>
-    </mat-card>
+    </div>
   </div>
 </div>

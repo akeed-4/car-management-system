@@ -1,6 +1,8 @@
-<div class="page-container">
-  <div class="page-header header-row">
-    <h1>{{ (mode === 'edit' ? 'STORE_ACCOUNTING_CONFIG.EDIT_TITLE' : 'STORE_ACCOUNTING_CONFIG.CREATE_TITLE') | translate }}</h1>
+<div class="erp-page page-container">
+  <div class="erp-page-header page-header header-row">
+    <div class="erp-page-header-titles">
+      <h1 class="erp-page-title">{{ (mode === 'edit' ? 'STORE_ACCOUNTING_CONFIG.EDIT_TITLE' : 'STORE_ACCOUNTING_CONFIG.CREATE_TITLE') | translate }}</h1>
+    </div>
   </div>
 
   <div class="loading-overlay" *ngIf="isLoading()">
@@ -8,9 +10,8 @@
   </div>
 
   <form [formGroup]="form" (ngSubmit)="save()" *ngIf="!isLoading()">
-    <mat-card class="form-card">
-      <mat-card-content>
-        <div class="form-grid">
+    <div class="erp-card form-card">
+        <div class="erp-form-grid form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'STORE_ACCOUNTING_CONFIG.STORE' | translate }}</mat-label>
             <mat-select formControlName="storeId" required>
@@ -62,10 +63,9 @@
         <div class="toggle-row">
           <mat-checkbox formControlName="isActive">{{ 'COMMON.ACTIVE' | translate }}</mat-checkbox>
         </div>
-      </mat-card-content>
-    </mat-card>
+    </div>
 
-    <div class="form-actions">
+    <div class="erp-actions-bar form-actions">
       <button mat-raised-button color="primary" type="submit" [disabled]="isSaving()">
         <mat-icon>save</mat-icon>
         {{ 'COMMON.SAVE' | translate }}

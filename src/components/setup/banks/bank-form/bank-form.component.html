@@ -1,8 +1,10 @@
-<div class="page-container">
-  <div class="page-header header-row">
-    <h1>
-      {{ (mode === 'edit' ? 'BANK.EDIT_TITLE' : mode === 'view' ? 'BANK.VIEW_TITLE' : 'BANK.CREATE_TITLE') | translate }}
-    </h1>
+<div class="page-container erp-page">
+  <div class="page-header header-row erp-page-header">
+    <div class="erp-page-header-titles">
+      <h1 class="erp-page-title">
+        {{ (mode === 'edit' ? 'BANK.EDIT_TITLE' : mode === 'view' ? 'BANK.VIEW_TITLE' : 'BANK.CREATE_TITLE') | translate }}
+      </h1>
+    </div>
   </div>
 
   <div class="loading-overlay" *ngIf="isLoading()">
@@ -10,12 +12,10 @@
   </div>
 
   <form [formGroup]="form" (ngSubmit)="save()" *ngIf="!isLoading()">
-    <mat-card class="form-card">
-      <mat-card-header>
-        <mat-card-title>{{ 'BANK.SECTION_IDENTIFICATION' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="form-grid">
+    <div class="form-card erp-card">
+      <div class="erp-section">
+        <h3 class="erp-section-title">{{ 'BANK.SECTION_IDENTIFICATION' | translate }}</h3>
+        <div class="form-grid erp-form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'BANK.BANK_CODE' | translate }}</mat-label>
             <input matInput formControlName="bankCode" maxlength="20" required>
@@ -58,15 +58,11 @@
         <div class="toggle-row">
           <mat-checkbox formControlName="isActive">{{ 'COMMON.ACTIVE' | translate }}</mat-checkbox>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </div>
 
-    <mat-card class="form-card">
-      <mat-card-header>
-        <mat-card-title>{{ 'BANK.SECTION_CONTACT' | translate }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="form-grid">
+      <div class="erp-section">
+        <h3 class="erp-section-title">{{ 'BANK.SECTION_CONTACT' | translate }}</h3>
+        <div class="form-grid erp-form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'BANK.PHONE' | translate }}</mat-label>
             <input matInput formControlName="phone">
@@ -83,20 +79,20 @@
             <input matInput formControlName="website">
           </mat-form-field>
 
-          <mat-form-field appearance="outline" class="full-width">
+          <mat-form-field appearance="outline" class="full-width erp-span-2">
             <mat-label>{{ 'BANK.ADDRESS' | translate }}</mat-label>
             <input matInput formControlName="address">
           </mat-form-field>
 
-          <mat-form-field appearance="outline" class="full-width">
+          <mat-form-field appearance="outline" class="full-width erp-span-2">
             <mat-label>{{ 'BANK.NOTES' | translate }}</mat-label>
             <textarea matInput formControlName="notes" rows="3" maxlength="1000"></textarea>
           </mat-form-field>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </div>
+    </div>
 
-    <div class="form-actions">
+    <div class="form-actions erp-actions-bar">
       <button mat-raised-button color="primary" type="submit" *ngIf="!isView" [disabled]="isSaving()">
         <mat-icon>save</mat-icon>
         {{ 'COMMON.SAVE' | translate }}

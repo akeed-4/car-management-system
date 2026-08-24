@@ -1,26 +1,25 @@
-<div class="cost-center-form-container">
+<div class="erp-page cost-center-form-container">
   <!-- Header -->
-  <div class="form-header">
-    <div class="header-content">
+  <div class="erp-page-header form-header">
+    <div class="erp-page-header-titles header-content">
       <button mat-icon-button (click)="onCancel()" class="back-button">
         <mat-icon>arrow_back</mat-icon>
       </button>
       <div class="header-text">
-        <h2>{{ (isEditMode ? 'COST_CENTER.EDIT_TITLE' : 'COST_CENTER.CREATE_TITLE') | translate }}</h2>
-        <p class="subtitle">{{ (isEditMode ? 'COST_CENTER.EDIT_SUBTITLE' : 'COST_CENTER.CREATE_SUBTITLE') | translate }}</p>
+        <h2 class="erp-page-title">{{ (isEditMode ? 'COST_CENTER.EDIT_TITLE' : 'COST_CENTER.CREATE_TITLE') | translate }}</h2>
+        <p class="erp-page-subtitle subtitle">{{ (isEditMode ? 'COST_CENTER.EDIT_SUBTITLE' : 'COST_CENTER.CREATE_SUBTITLE') | translate }}</p>
       </div>
     </div>
   </div>
 
   <!-- Form Card -->
-  <mat-card class="form-card">
-    <mat-card-content>
+  <div class="erp-card form-card">
       <form [formGroup]="costCenterForm" (ngSubmit)="onSubmit()">
-        
+
         <!-- Basic Information Section -->
-        <div class="section-header">
+        <div class="erp-section section-header">
           <mat-icon>info</mat-icon>
-          <h3>{{ 'COST_CENTER.BASIC_INFO' | translate }}</h3>
+          <h3 class="erp-section-title">{{ 'COST_CENTER.BASIC_INFO' | translate }}</h3>
         </div>
 
         <div class="form-row">
@@ -89,9 +88,9 @@
         </div>
 
         <!-- Linking Section -->
-        <div class="section-header">
+        <div class="erp-section section-header">
           <mat-icon>link</mat-icon>
-          <h3>{{ 'COST_CENTER.LINKING_INFO' | translate }}</h3>
+          <h3 class="erp-section-title">{{ 'COST_CENTER.LINKING_INFO' | translate }}</h3>
         </div>
 
         <!-- Cost Center Type -->
@@ -153,9 +152,9 @@
         </div>
 
         <!-- Status Section -->
-        <div class="section-header">
+        <div class="erp-section section-header">
           <mat-icon>settings</mat-icon>
-          <h3>{{ 'COST_CENTER.STATUS_INFO' | translate }}</h3>
+          <h3 class="erp-section-title">{{ 'COST_CENTER.STATUS_INFO' | translate }}</h3>
         </div>
 
         <div class="form-row">
@@ -165,9 +164,8 @@
         </div>
 
         <!-- Action Buttons -->
-        <div class="form-actions">
-        
-          
+        <div class="erp-actions-bar form-actions">
+
           <button
             mat-raised-button
             color="primary"
@@ -177,8 +175,7 @@
             {{ (isLoading ? 'COST_CENTER.SAVING' : 'COST_CENTER.SAVE') | translate }}
           </button>
 
-
-            <button
+          <button
             mat-raised-button
             type="button"
             (click)="onCancel()"
@@ -188,6 +185,5 @@
           </button>
         </div>
       </form>
-    </mat-card-content>
-  </mat-card>
+  </div>
 </div>

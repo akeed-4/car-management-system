@@ -1,14 +1,16 @@
-<div class="container-fluid p-4">
-  <div class="page-header strong-header">
-    <h2>{{ 'DOCUMENT_LIFECYCLE_SETTINGS.TITLE' | translate }}</h2>
-    <p class="page-subtitle">{{ 'DOCUMENT_LIFECYCLE_SETTINGS.SUBTITLE' | translate }}</p>
+<div class="container-fluid p-4 erp-page">
+  <div class="page-header strong-header erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ 'DOCUMENT_LIFECYCLE_SETTINGS.TITLE' | translate }}</h2>
+      <p class="page-subtitle erp-page-subtitle">{{ 'DOCUMENT_LIFECYCLE_SETTINGS.SUBTITLE' | translate }}</p>
+    </div>
   </div>
 
   <div class="state-message" *ngIf="isLoading()">
     <mat-spinner diameter="36"></mat-spinner>
   </div>
 
-  <mat-card class="settings-list" *ngIf="!isLoading()">
+  <div class="settings-list erp-card" *ngIf="!isLoading()">
     <div class="setting-row" *ngFor="let row of rows()">
       <div class="row-info">
         <mat-icon>description</mat-icon>
@@ -21,5 +23,5 @@
         {{ 'DOCUMENT_LIFECYCLE_SETTINGS.AUTO_APPROVE_ON_SAVE' | translate }}
       </mat-slide-toggle>
     </div>
-  </mat-card>
+  </div>
 </div>

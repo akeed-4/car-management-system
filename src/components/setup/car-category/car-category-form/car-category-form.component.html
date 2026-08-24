@@ -1,12 +1,16 @@
 <div class="container" [class.dialog-mode]="isQuickAddDialog">
   <div class="card">
-    <div class="card-header">
+    <div class="card-header" [class.erp-page-header]="!isQuickAddDialog">
       @if (!isQuickAddDialog) {
-        <h2>{{ pageTitle() | translate }}</h2>
-        <a routerLink="/setup/car-category" class="back-link">
-          <mat-icon>arrow_back</mat-icon>
-          {{ 'CAR_CATEGORY.FORM.BACK_TO_LIST' | translate }}
-        </a>
+        <div class="erp-page-header-titles">
+          <h2 class="erp-page-title">{{ pageTitle() | translate }}</h2>
+        </div>
+        <div class="erp-page-actions">
+          <a routerLink="/setup/car-category" class="back-link">
+            <mat-icon>arrow_back</mat-icon>
+            {{ 'CAR_CATEGORY.FORM.BACK_TO_LIST' | translate }}
+          </a>
+        </div>
       } @else {
         <h2 mat-dialog-title>{{ 'CAR_CATEGORY.ADD_NEW' | translate }}</h2>
         <button

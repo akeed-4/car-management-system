@@ -1,19 +1,21 @@
-<div class="car-grid-list-container">
+<div class="erp-page car-grid-list-container">
   <!-- Header Section -->
-  <div class="header-section">
-    <div class="title-section">
-      <h2>{{ 'CARS.LIST_TITLE' | translate }}</h2>
-      <p class="subtitle">{{ 'CARS.LIST_SUBTITLE' | translate }}</p>
+  <div class="erp-page-header header-section">
+    <div class="erp-page-header-titles title-section">
+      <h2 class="erp-page-title">{{ 'CARS.LIST_TITLE' | translate }}</h2>
+      <p class="erp-page-subtitle subtitle">{{ 'CARS.LIST_SUBTITLE' | translate }}</p>
     </div>
-    <button
-      mat-raised-button
-      color="primary"
-      class="add-button"
-      (click)="onCreate()"
-      appHasPermission="car.create">
-      <mat-icon>add</mat-icon>
-      {{ 'CARS.ADD_NEW' | translate }}
-    </button>
+    <div class="erp-page-actions">
+      <button
+        mat-raised-button
+        color="primary"
+        class="add-button"
+        (click)="onCreate()"
+        appHasPermission="car.create">
+        <mat-icon>add</mat-icon>
+        {{ 'CARS.ADD_NEW' | translate }}
+      </button>
+    </div>
   </div>
 
   <!-- Filters and Controls Section -->
@@ -109,7 +111,7 @@
           (error)="$event.target.src='assets/images/car-placeholder.png'">
         
         <!-- Status Badge -->
-        <div class="status-badge" [class]="getStatusColor(car.status)">
+        <div class="erp-status-badge status-badge" [ngClass]="getStatusColor(car.status)">
           {{ 'CARS.STATUS.' + car.status?.toUpperCase().replace(' ', '_') | translate }}
         </div>
         
@@ -120,7 +122,7 @@
         </div>
 
         <!-- Showroom Entry Badge -->
-        <div class="showroom-badge" [class]="getShowroomStatusColor(car)">
+        <div class="erp-status-badge showroom-badge" [ngClass]="getShowroomStatusColor(car)">
           <mat-icon>{{ canEnterShowroom(car) ? 'check_circle' : 'cancel' }}</mat-icon>
           {{ 'CARS.SHOWROOM_' + getShowroomStatus(car) | translate }}
         </div>
@@ -244,7 +246,7 @@
         <div class="list-details">
           <div class="list-header">
             <h3 class="list-title">{{ car.year }} {{ car.make }} {{ car.model }}</h3>
-            <mat-chip [color]="getStatusColor(car.status)" selected>
+            <mat-chip [color]="getStatusColor(car.status)" selected class="erp-status-badge">
               {{ 'CARS.STATUS.' + car.status?.toUpperCase().replace(' ', '_') | translate }}
             </mat-chip>
           </div>

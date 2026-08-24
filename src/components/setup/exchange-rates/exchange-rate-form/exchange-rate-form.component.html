@@ -1,6 +1,8 @@
-<div class="page-container">
-  <div class="page-header header-row">
-    <h1>{{ (mode === 'edit' ? 'EXCHANGE_RATE.EDIT_TITLE' : 'EXCHANGE_RATE.CREATE_TITLE') | translate }}</h1>
+<div class="page-container erp-page">
+  <div class="page-header header-row erp-page-header">
+    <div class="erp-page-header-titles">
+      <h1 class="erp-page-title">{{ (mode === 'edit' ? 'EXCHANGE_RATE.EDIT_TITLE' : 'EXCHANGE_RATE.CREATE_TITLE') | translate }}</h1>
+    </div>
   </div>
 
   <div class="loading-overlay" *ngIf="isLoading()">
@@ -8,9 +10,9 @@
   </div>
 
   <form [formGroup]="form" (ngSubmit)="save()" *ngIf="!isLoading()">
-    <mat-card class="form-card">
-      <mat-card-content>
-        <div class="form-grid">
+    <div class="form-card erp-card">
+      <div class="erp-section">
+        <div class="form-grid erp-form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'EXCHANGE_RATE.FROM_CURRENCY' | translate }}</mat-label>
             <mat-select formControlName="fromCurrencyId" required>
@@ -47,10 +49,10 @@
         <div class="toggle-row">
           <mat-checkbox formControlName="isActive">{{ 'COMMON.ACTIVE' | translate }}</mat-checkbox>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </div>
+    </div>
 
-    <div class="form-actions">
+    <div class="form-actions erp-actions-bar">
       <button mat-raised-button color="primary" type="submit" [disabled]="isSaving()">
         <mat-icon>save</mat-icon>
         {{ 'COMMON.SAVE' | translate }}

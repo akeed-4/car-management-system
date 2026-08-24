@@ -1,18 +1,19 @@
-<div class="cost-price-settings-container">
-  <mat-card class="settings-card">
-    <mat-card-header>
-      <mat-card-title>
+<div class="erp-page cost-price-settings-container">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">
         <mat-icon>calculate</mat-icon>
         <span>{{ 'COST_PRICE_SETTINGS.TITLE' | translate }}</span>
-      </mat-card-title>
-    </mat-card-header>
+      </h2>
+    </div>
+  </div>
 
-    <mat-card-content>
-      <form [formGroup]="settingsForm" class="settings-form">
-        
+  <div class="erp-card settings-card">
+    <form [formGroup]="settingsForm" class="settings-form">
+
         <!-- Calculation Method Selection -->
-        <div class="form-section">
-          <h3>
+        <div class="erp-section form-section">
+          <h3 class="erp-section-title">
             <mat-icon>functions</mat-icon>
             {{ 'COST_PRICE_SETTINGS.CALCULATION_METHOD' | translate }}
           </h3>
@@ -32,8 +33,8 @@
         </div>
 
         <!-- Cost Components -->
-        <div class="form-section">
-          <h3>
+        <div class="erp-section form-section">
+          <h3 class="erp-section-title">
             <mat-icon>account_balance_wallet</mat-icon>
             {{ 'COST_PRICE_SETTINGS.COST_COMPONENTS' | translate }}
           </h3>
@@ -63,8 +64,8 @@
         </div>
 
         <!-- Pricing Configuration -->
-        <div class="form-section">
-          <h3>
+        <div class="erp-section form-section">
+          <h3 class="erp-section-title">
             <mat-icon>local_offer</mat-icon>
             {{ 'COST_PRICE_SETTINGS.PRICING_CONFIG' | translate }}
           </h3>
@@ -81,8 +82,8 @@
         </div>
 
         <!-- VAT Configuration -->
-        <div class="form-section">
-          <h3>
+        <div class="erp-section form-section">
+          <h3 class="erp-section-title">
             <mat-icon>receipt</mat-icon>
             {{ 'COST_PRICE_SETTINGS.VAT_CONFIG' | translate }}
           </h3>
@@ -103,8 +104,8 @@
         </div>
 
         <!-- Activation Status -->
-        <div class="form-section">
-          <h3>
+        <div class="erp-section form-section">
+          <h3 class="erp-section-title">
             <mat-icon>toggle_on</mat-icon>
             {{ 'COST_PRICE_SETTINGS.ACTIVATION_STATUS' | translate }}
           </h3>
@@ -129,9 +130,8 @@
         </div>
 
       </form>
-    </mat-card-content>
 
-    <mat-card-actions>
+    <div class="erp-actions-bar">
       <button mat-raised-button color="primary" (click)="onSave()" [disabled]="settingsForm.invalid || isLoading">
         <mat-icon>save</mat-icon>
         {{ 'COST_PRICE_SETTINGS.SAVE_SETTINGS' | translate }}
@@ -141,6 +141,6 @@
         {{ 'COST_PRICE_SETTINGS.RESET' | translate }}
       </button>
       <mat-spinner *ngIf="isLoading" diameter="24"></mat-spinner>
-    </mat-card-actions>
-  </mat-card>
+    </div>
+  </div>
 </div>

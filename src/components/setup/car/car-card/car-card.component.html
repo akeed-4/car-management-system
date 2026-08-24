@@ -1,8 +1,12 @@
-<div class="container">
-    <div class="card">
-        <div class="card-header">
-            <h2>{{ pageTitle() | translate }}</h2>
-            <a routerLink="/inventory" class="back-link">{{ 'INVENTORY.FORM.BACK_TO_INVENTORY' | translate }}</a>
+<div class="erp-page container">
+    <div class="erp-card card">
+        <div class="erp-page-header card-header">
+            <div class="erp-page-header-titles">
+                <h2 class="erp-page-title">{{ pageTitle() | translate }}</h2>
+            </div>
+            <div class="erp-page-actions">
+                <a routerLink="/inventory" class="back-link">{{ 'INVENTORY.FORM.BACK_TO_INVENTORY' | translate }}</a>
+            </div>
         </div>
 
         <form [formGroup]="carForm" class="card-body">
@@ -21,7 +25,7 @@
                         </mat-panel-description>
                     </mat-expansion-panel-header>
 
-                    <div class="form-grid">
+                    <div class="erp-form-grid form-grid">
                         <div class="field-span-1 field-with-add">
                             <mat-form-field appearance="outline" class="field-with-add-select">
                                 <mat-label>{{ 'INVENTORY.FORM.MANUFACTURER' | translate }}</mat-label>
@@ -134,7 +138,7 @@
                         </mat-panel-description>
                     </mat-expansion-panel-header>
 
-                    <div class="form-grid">
+                    <div class="erp-form-grid form-grid">
                         <mat-form-field appearance="outline" class="field-span-1">
                             <mat-label>{{ 'INVENTORY.FORM.VIN' | translate }}</mat-label>
                             <input matInput type="text" formControlName="vin" required dir="ltr">
@@ -182,7 +186,7 @@
                         </mat-panel-description>
                     </mat-expansion-panel-header>
 
-                    <div class="form-grid">
+                    <div class="erp-form-grid form-grid">
                         <mat-form-field appearance="outline" class="field-span-1">
                             <mat-label>{{ 'INVENTORY.FORM.MILEAGE' | translate }}</mat-label>
                             <input matInput type="number" formControlName="mileage" required min="0"
@@ -254,7 +258,7 @@
                         </mat-panel-description>
                     </mat-expansion-panel-header>
 
-                    <div class="form-grid">
+                    <div class="erp-form-grid form-grid">
                         <mat-form-field appearance="outline" class="field-span-1">
                             <mat-label>{{ 'INVENTORY.FORM.PURCHASE_PRICE' | translate }}</mat-label>
                             <input matInput type="number" formControlName="purchasePrice" required>
@@ -366,7 +370,7 @@
                         </mat-panel-description>
                     </mat-expansion-panel-header>
 
-                    <div class="form-grid">
+                    <div class="erp-form-grid form-grid">
                         <mat-form-field appearance="outline" class="field-span-2">
                             <mat-label>{{ 'INVENTORY.FORM.MARKETING_DESCRIPTION' | translate }}</mat-label>
                             <textarea matInput formControlName="description" rows="6"></textarea>
@@ -412,7 +416,7 @@
         </form>
 
         <!-- Form Actions (sticky footer) -->
-        <div class="form-actions">
+        <div class="erp-actions-bar form-actions">
             <button type="button" (click)="cancelForm()" class="btn btn-light">{{ 'INVENTORY.FORM.CANCEL' |
                 translate }}</button>
             <button type="button" (click)="saveCar()" [disabled]="carForm.invalid" class="btn btn-primary">

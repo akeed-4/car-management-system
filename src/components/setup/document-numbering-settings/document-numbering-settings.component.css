@@ -23,12 +23,6 @@
   padding: 24px;
 }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0 16px;
-}
-
 .toggle-row {
   display: flex;
   flex-wrap: wrap;
@@ -64,10 +58,4 @@
   justify-content: flex-end;
   gap: 12px;
   margin-top: 12px;
-}
-
-@media (max-width: 768px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
 }

@@ -1,10 +1,14 @@
-<div class="container">
-  <div class="page-header">
-    <h2>{{ 'CAR_CATEGORY.LIST_TITLE' | translate }}</h2>
-    <a routerLink="/setup/car-categories/new" mat-raised-button color="primary">
-      <mat-icon>add</mat-icon>
-      {{ 'CAR_CATEGORY.ADD_NEW' | translate }}
-    </a>
+<div class="container erp-page">
+  <div class="page-header erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ 'CAR_CATEGORY.LIST_TITLE' | translate }}</h2>
+    </div>
+    <div class="erp-page-actions">
+      <a routerLink="/setup/car-categories/new" mat-raised-button color="primary">
+        <mat-icon>add</mat-icon>
+        {{ 'CAR_CATEGORY.ADD_NEW' | translate }}
+      </a>
+    </div>
   </div>
 
   @if (isMobile()) {
@@ -21,6 +25,7 @@
       </ng-template>
     </app-mobile-card-list>
   } @else {
+  <div class="erp-grid-card">
   <dx-data-grid
     [dataSource]="categories()"
     [showBorders]="true"
@@ -61,5 +66,6 @@
       </div>
     </div>
   </dx-data-grid>
+  </div>
   }
 </div>

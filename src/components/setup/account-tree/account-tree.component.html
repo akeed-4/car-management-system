@@ -1,9 +1,11 @@
-<div class="account-tree-container">
+<div class="erp-page account-tree-container">
   <!-- Header Section -->
-  <div class="account-tree-header">
-    <div class="header-content">
-      <h1 class="header-title">{{ 'CHART_OF_ACCOUNTS.TREE_TITLE' | translate }}</h1>
-      <button 
+  <div class="erp-page-header account-tree-header">
+    <div class="erp-page-header-titles header-content">
+      <h1 class="erp-page-title header-title">{{ 'CHART_OF_ACCOUNTS.TREE_TITLE' | translate }}</h1>
+    </div>
+    <div class="erp-page-actions">
+      <button
         type="button"
         class="btn-add-account"
         (click)="openAddDialog()"
@@ -24,7 +26,7 @@
 
   <!-- TreeList -->
   @if (!isLoading() && accountsData().length > 0) {
-    <div class="treelist-container">
+    <div class="erp-grid-card treelist-container">
       <dx-tree-list
         [dataSource]="accountsData()"
         [columns]="treeListColumns"
@@ -90,9 +92,9 @@
           <div class="account-name-cell">
             <span class="account-name">{{ cell.value }}</span>
             @if (cell.data.type === 'PARENT') {
-              <span class="account-badge badge-parent">{{ 'CHART_OF_ACCOUNTS.PARENT_ACCOUNT' | translate }}</span>
+              <span class="erp-status-badge success account-badge badge-parent">{{ 'CHART_OF_ACCOUNTS.PARENT_ACCOUNT' | translate }}</span>
             } @else {
-              <span class="account-badge badge-leaf">{{ 'CHART_OF_ACCOUNTS.LEAF_ACCOUNT' | translate }}</span>
+              <span class="erp-status-badge info account-badge badge-leaf">{{ 'CHART_OF_ACCOUNTS.LEAF_ACCOUNT' | translate }}</span>
             }
           </div>
         </div>
@@ -213,7 +215,7 @@
         </div>
       </form>
 
-      <div class="modal-footer">
+      <div class="erp-actions-bar modal-footer">
         <button 
           type="button"
           class="btn-cancel"
@@ -299,7 +301,7 @@
         </div>
       </form>
 
-      <div class="modal-footer">
+      <div class="erp-actions-bar modal-footer">
         <button 
           type="button"
           class="btn-cancel"
@@ -339,7 +341,7 @@
         }
       </div>
 
-      <div class="modal-footer">
+      <div class="erp-actions-bar modal-footer">
         <button 
           type="button"
           class="btn-cancel"

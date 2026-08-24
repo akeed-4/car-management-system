@@ -1,9 +1,9 @@
-<div class="container-fluid p-4">
-  <div class="page-header strong-header header-row">
-    <div class="header-left">
-      <h2>{{ 'DOCUMENT_NUMBERING.TITLE' | translate }}</h2>
+<div class="container-fluid p-4 erp-page">
+  <div class="page-header strong-header header-row erp-page-header">
+    <div class="header-left erp-page-header-titles">
+      <h2 class="erp-page-title">{{ 'DOCUMENT_NUMBERING.TITLE' | translate }}</h2>
     </div>
-    <div class="header-right">
+    <div class="header-right erp-page-actions">
       <button mat-raised-button color="primary" (click)="openCreate()">
         <mat-icon>add</mat-icon>
         {{ 'DOCUMENT_NUMBERING.CREATE_TITLE' | translate }}
@@ -11,6 +11,7 @@
     </div>
   </div>
 
+  <div class="erp-grid-card">
   <dx-data-grid
     [dataSource]="settings()"
     [showBorders]="true"
@@ -42,13 +43,14 @@
       <dxi-button icon="trash" [hint]="'COMMON.DELETE' | translate" [onClick]="delete.bind(this)"></dxi-button>
     </dxi-column>
   </dx-data-grid>
+  </div>
 
   <div class="form-overlay" *ngIf="showForm">
-    <mat-card class="form-card">
+    <div class="form-card erp-card">
       <form [formGroup]="form" (ngSubmit)="save()">
-        <h3>{{ (editingId ? 'DOCUMENT_NUMBERING.EDIT_TITLE' : 'DOCUMENT_NUMBERING.CREATE_TITLE') | translate }}</h3>
+        <h3 class="erp-section-title">{{ (editingId ? 'DOCUMENT_NUMBERING.EDIT_TITLE' : 'DOCUMENT_NUMBERING.CREATE_TITLE') | translate }}</h3>
 
-        <div class="form-grid">
+        <div class="form-grid erp-form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'DOCUMENT_NUMBERING.DOCUMENT_TYPE' | translate }}</mat-label>
             <mat-select formControlName="documentType">
@@ -125,7 +127,7 @@
           <span class="preview-value">{{ preview }}</span>
         </div>
 
-        <div class="form-actions">
+        <div class="form-actions erp-actions-bar">
           <button mat-raised-button color="primary" type="submit">
             <mat-icon>save</mat-icon>
             {{ 'COMMON.SAVE' | translate }}
@@ -135,6 +137,6 @@
           </button>
         </div>
       </form>
-    </mat-card>
+    </div>
   </div>
 </div>

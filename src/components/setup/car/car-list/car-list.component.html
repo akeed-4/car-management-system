@@ -1,8 +1,10 @@
-<div class="car-list-container">
+<div class="erp-page car-list-container">
   <!-- Header Section -->
-  <div class="header-section">
-    <div class="header-content">
-      <h2 class="page-title">{{ 'CARS.LIST_TITLE' | translate }}</h2>
+  <div class="erp-page-header header-section">
+    <div class="erp-page-header-titles header-content">
+      <h2 class="erp-page-title page-title">{{ 'CARS.LIST_TITLE' | translate }}</h2>
+    </div>
+    <div class="erp-page-actions">
       <button mat-raised-button color="primary" (click)="onCreate()" class="add-button">
         <mat-icon>add</mat-icon>
         {{ 'CARS.ADD_NEW' | translate }}
@@ -12,8 +14,7 @@
 
   <!-- Filters Section -->
   <div class="filters-section">
-    <mat-card class="filters-card">
-      <mat-card-content>
+    <div class="erp-card filters-card">
         <div class="filters-grid">
           <!-- Search Input -->
           <mat-form-field appearance="outline" class="filter-field">
@@ -49,8 +50,7 @@
             <mat-icon matPrefix>info</mat-icon>
           </mat-form-field>
         </div>
-      </mat-card-content>
-    </mat-card>
+    </div>
   </div>
 
   <!-- Cars Grid -->
