@@ -1,17 +1,21 @@
-<div class="container">
-  <div class="page-header">
-    <h2>{{ 'CORPORATE.DELIVERY_TITLE' | translate }}</h2>
-    <a routerLink="/sales" class="back-link">
-      <button mat-icon-button>
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <span>{{ 'INVOICE.BACK_TO_SALES' | translate }}</span>
-    </a>
+<div class="erp-page container">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ 'CORPORATE.DELIVERY_TITLE' | translate }}</h2>
+    </div>
+    <div class="erp-page-actions">
+      <a routerLink="/sales" class="back-link">
+        <button mat-icon-button>
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <span>{{ 'INVOICE.BACK_TO_SALES' | translate }}</span>
+      </a>
+    </div>
   </div>
 
-  <mat-card class="doc-card">
-    <section class="form-section">
-      <h3 class="form-section-title">{{ 'CORPORATE.PENDING_ORDER' | translate }}</h3>
+  <div class="erp-card doc-card">
+    <section class="erp-section">
+      <h3 class="erp-section-title">{{ 'CORPORATE.PENDING_ORDER' | translate }}</h3>
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>{{ 'CORPORATE.SELECT_ORDER' | translate }}</mat-label>
         <mat-select [ngModel]="orderId" (ngModelChange)="onOrderSelected($event)" required>
@@ -23,12 +27,12 @@
         <mat-hint *ngIf="pendingOrders().length === 0">{{ 'CORPORATE.NO_PENDING_ORDERS' | translate }}</mat-hint>
       </mat-form-field>
     </section>
-  </mat-card>
+  </div>
 
   <div class="invoice-workspace" *ngIf="orderId">
     <div class="workspace-main">
 
-      <mat-card class="doc-card success-card" *ngIf="lastResult() as r">
+      <div class="erp-card doc-card success-card" *ngIf="lastResult() as r">
         <div class="success-row">
           <mat-icon class="success-icon">check_circle</mat-icon>
           <span>{{ 'CORPORATE.DISPATCH_COMPLETED' | translate }}</span>
@@ -39,24 +43,23 @@
             {{ 'CORPORATE.VIEW_DELIVERIES' | translate }}
           </a>
         </div>
-      </mat-card>
+      </div>
 
-      <mat-card class="doc-card" *ngIf="progress() as p">
-        <section class="form-section">
-          <h3 class="form-section-title">{{ 'CORPORATE.FULFILLMENT_PROGRESS' | translate }}</h3>
+      <div class="erp-card doc-card" *ngIf="progress() as p">
+        <section class="erp-section">
+          <h3 class="erp-section-title">{{ 'CORPORATE.FULFILLMENT_PROGRESS' | translate }}</h3>
           <mat-progress-bar mode="determinate" [value]="(p.totalDelivered / p.totalOrdered) * 100"></mat-progress-bar>
           <div class="progress-stats">
             <span>{{ p.totalDelivered }} / {{ p.totalOrdered }} {{ 'CORPORATE.VEHICLE_LINES' | translate }}</span>
             <span>{{ p.remaining }} {{ 'CORPORATE.REMAINING_VEHICLES' | translate }}</span>
           </div>
         </section>
-      </mat-card>
+      </div>
 
-      <mat-card class="doc-card lines-card">
-        <div class="section-header">
-          <h3 class="form-section-title">{{ 'CORPORATE.SELECT_VEHICLES_TO_DISPATCH' | translate }}</h3>
-        </div>
-        <div class="table-container premium-table">
+      <div class="erp-card doc-card lines-card">
+        <section class="erp-section">
+        <h3 class="erp-section-title">{{ 'CORPORATE.SELECT_VEHICLES_TO_DISPATCH' | translate }}</h3>
+        <div class="erp-grid-card table-container premium-table">
           <dx-data-grid
             [dataSource]="remainingVins()"
             [showBorders]="true"
@@ -76,71 +79,58 @@
             <dxi-column dataField="unitPrice" caption="{{ 'INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
           </dx-data-grid>
         </div>
-      </mat-card>
+        </section>
+      </div>
 
-      <mat-card class="doc-card">
-        <section class="form-section">
-          <h3 class="form-section-title">{{ 'CORPORATE.RECEIVER_DETAILS' | translate }}</h3>
-          <ng-container *ngIf="cardLayout3 | async as layout">
-            <mat-grid-list [cols]="layout.columns" rowHeight="88" gutterSize="16px">
-              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>{{ 'CORPORATE.RECEIVER_NAME' | translate }}</mat-label>
-                  <input matInput [(ngModel)]="receiverName" required>
-                </mat-form-field>
-              </mat-grid-tile>
-              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>{{ 'CORPORATE.RECEIVER_NATIONAL_ID' | translate }}</mat-label>
-                  <input matInput [(ngModel)]="receiverNationalId">
-                </mat-form-field>
-              </mat-grid-tile>
-              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>{{ 'CORPORATE.RECEIVER_PHONE' | translate }}</mat-label>
-                  <input matInput [(ngModel)]="receiverPhone">
-                </mat-form-field>
-              </mat-grid-tile>
-            </mat-grid-list>
-          </ng-container>
-          <ng-container *ngIf="cardLayout3 | async as layout">
-            <mat-grid-list [cols]="layout.columns" rowHeight="88" gutterSize="16px">
-              <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>{{ 'CORPORATE.DRIVER_NAME' | translate }}</mat-label>
-                  <input matInput [(ngModel)]="driverName">
-                </mat-form-field>
-              </mat-grid-tile>
-            </mat-grid-list>
-          </ng-container>
+      <div class="erp-card doc-card">
+        <section class="erp-section">
+          <h3 class="erp-section-title">{{ 'CORPORATE.RECEIVER_DETAILS' | translate }}</h3>
+          <div class="erp-form-grid-3 erp-form-grid">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'CORPORATE.RECEIVER_NAME' | translate }}</mat-label>
+              <input matInput [(ngModel)]="receiverName" required>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'CORPORATE.RECEIVER_NATIONAL_ID' | translate }}</mat-label>
+              <input matInput [(ngModel)]="receiverNationalId">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'CORPORATE.RECEIVER_PHONE' | translate }}</mat-label>
+              <input matInput [(ngModel)]="receiverPhone">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'CORPORATE.DRIVER_NAME' | translate }}</mat-label>
+              <input matInput [(ngModel)]="driverName">
+            </mat-form-field>
+          </div>
 
           <mat-form-field appearance="outline" class="full-width notes-field">
             <mat-label>{{ 'INVOICE.NOTES' | translate }}</mat-label>
             <textarea matInput rows="2" [(ngModel)]="notes"></textarea>
           </mat-form-field>
         </section>
-      </mat-card>
-
-      <div class="checklist-signature-row">
-        <mat-card class="doc-card">
-          <section class="form-section">
-            <h3 class="form-section-title">{{ 'CORPORATE.DELIVERY_CHECKLIST' | translate }}</h3>
-            <app-document-checklist [items]="checklistItems" (itemsChange)="onChecklistChange($event)"></app-document-checklist>
-          </section>
-        </mat-card>
-
-        <mat-card class="doc-card">
-          <section class="form-section">
-            <app-signature-pad label="CORPORATE.RECEIVER_NAME" (signatureChange)="onSignatureChange($event)"></app-signature-pad>
-          </section>
-        </mat-card>
       </div>
 
-      <mat-card class="doc-card">
-        <section class="form-section">
+      <div class="checklist-signature-row">
+        <div class="erp-card doc-card">
+          <section class="erp-section">
+            <h3 class="erp-section-title">{{ 'CORPORATE.DELIVERY_CHECKLIST' | translate }}</h3>
+            <app-document-checklist [items]="checklistItems" (itemsChange)="onChecklistChange($event)"></app-document-checklist>
+          </section>
+        </div>
+
+        <div class="erp-card doc-card">
+          <section class="erp-section">
+            <app-signature-pad label="CORPORATE.RECEIVER_NAME" (signatureChange)="onSignatureChange($event)"></app-signature-pad>
+          </section>
+        </div>
+      </div>
+
+      <div class="erp-card doc-card">
+        <section class="erp-section">
           <app-attachment-uploader documentType="DeliveryNote" [documentId]="null"></app-attachment-uploader>
         </section>
-      </mat-card>
+      </div>
 
     </div>
 
@@ -148,9 +138,9 @@
       <mat-card class="summary-card">
         <mat-card-title>{{ 'CORPORATE.TOTAL_VALUE' | translate }}</mat-card-title>
         <mat-card-content>
-          <div class="summary-item total">
-            <p>{{ 'CORPORATE.DISPATCH_VALUE' | translate }}</p>
-            <p class="font-mono">{{ dispatchValue() | currency:'SAR':'symbol':'1.0-0' }}</p>
+          <div class="erp-total-row summary-item total">
+            <span class="erp-total-label">{{ 'CORPORATE.DISPATCH_VALUE' | translate }}</span>
+            <span class="erp-total-value font-mono">{{ dispatchValue() | currency:'SAR':'symbol':'1.0-0' }}</span>
           </div>
           <p class="dispatch-hint">{{ 'CORPORATE.INVOICE_LATER_HINT' | translate }}</p>
         </mat-card-content>
