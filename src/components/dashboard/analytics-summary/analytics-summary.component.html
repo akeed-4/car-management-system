@@ -1,7 +1,7 @@
 <div class="analytics-summary">
   <div class="summary-grid" *ngIf="!loading">
-    <mat-card class="summary-card" *ngFor="let card of getSummaryCards()" 
-              [style.border-left]="'4px solid ' + card.color">
+    <mat-card class="erp-card summary-card" *ngFor="let card of getSummaryCards()"
+              [style.border-inline-start]="'4px solid ' + card.color">
       <div class="card-content">
         <div class="card-icon" [style.background-color]="card.bgColor">
           <mat-icon [style.color]="card.color">{{ card.icon }}</mat-icon>
@@ -24,7 +24,7 @@
 
   <!-- Loading State -->
   <div class="loading-state" *ngIf="loading">
-    <mat-card class="summary-card skeleton" *ngFor="let i of [1,2,3,4,5,6,7,8]">
+    <mat-card class="erp-card summary-card skeleton" *ngFor="let i of [1,2,3,4,5,6,7,8]">
       <div class="skeleton-content"></div>
     </mat-card>
   </div>

@@ -8,15 +8,7 @@
   margin-bottom: 16px;
 }
 
-.form-row {
-  display: flex;
-  gap: 11px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-}
-
 .form-field {
-  flex: 1 1 240px;
   min-width: 180px;
   box-sizing: border-box;
 }
@@ -117,10 +109,6 @@
 }
 
 mat-card {
-  margin-bottom: 16px;
-}
-
-mat-card-header {
   margin-bottom: 16px;
 }
 
@@ -225,7 +213,10 @@ mat-card-header {
   padding: 0.6rem 0.9rem;
   background: var(--status-warning-bg);
   border-inline-start: 3px solid var(--status-warning-fg);
-  border-radius: 0 var(--rounded-sm, 6px) var(--rounded-sm, 6px) 0;
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+  border-start-end-radius: var(--rounded-sm, 6px);
+  border-end-end-radius: var(--rounded-sm, 6px);
   font-size: 0.85rem;
   color: var(--status-warning-fg);
 }
