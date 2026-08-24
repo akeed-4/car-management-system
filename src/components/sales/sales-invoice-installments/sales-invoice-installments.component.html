@@ -1,10 +1,10 @@
-<div class="container">
-  <div class="page-header strong-header">
-    <div class="header-info">
-      <h2 class="strong-title">{{ 'INVOICE.INSTALLMENT_INVOICE_TITLE' | translate }}</h2>
-      <p class="header-subtitle">{{ 'INVOICE.INSTALLMENT_INVOICE_SUBTITLE' | translate }}</p>
+<div class="erp-page container">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ 'INVOICE.INSTALLMENT_INVOICE_TITLE' | translate }}</h2>
+      <p class="erp-page-subtitle header-subtitle">{{ 'INVOICE.INSTALLMENT_INVOICE_SUBTITLE' | translate }}</p>
     </div>
-    <div class="header-actions">
+    <div class="erp-page-actions">
       <a routerLink="/sales" class="btn btn-secondary btn-small">
         <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -14,11 +14,11 @@
     </div>
   </div>
 
-  <div class="card invoice-card">
+  <div class="erp-card invoice-card">
     <form [formGroup]="invoiceForm" >
-      <section class="form-section">
-        <h3 class="form-section-title">{{ 'INVOICE.MAIN_DATA' | translate }}</h3>
-        <div class="form-grid">
+      <section class="erp-section form-section">
+        <h3 class="erp-section-title form-section-title">{{ 'INVOICE.MAIN_DATA' | translate }}</h3>
+        <div class="erp-form-grid form-grid">
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ 'INVOICE.CUSTOMER' | translate }}</mat-label>
             <mat-select formControlName="customer" required>
@@ -58,10 +58,10 @@
         </div>
       </section>
 
-      <section class="form-section">
-        <h3 class="form-section-title">{{ 'INVOICE.ITEMS_SECTION' | translate }}</h3>
+      <section class="erp-section form-section">
+        <h3 class="erp-section-title form-section-title">{{ 'INVOICE.ITEMS_SECTION' | translate }}</h3>
         <div class="add-item-section">
-          <div class="form-grid">
+          <div class="erp-form-grid form-grid">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'INVOICE.SELECT_CAR' | translate }}</mat-label>
               <mat-select formControlName="selectedCarId">
@@ -92,7 +92,7 @@
         </div>
       </section>
 
-      <section class="form-section">
+      <section class="erp-section form-section">
         <div class="table-wrapper premium-table">
           <dx-data-grid
             [dataSource]="invoiceItems()"
@@ -127,8 +127,8 @@
       </section>
 
       <!-- Installment Configuration Section -->
-      <section class="form-section installment-section">
-        <h3 class="form-section-title">{{ 'SALE.INSTALLMENT_SALE_TITLE' | translate }}</h3>
+      <section class="erp-section form-section installment-section">
+        <h3 class="erp-section-title form-section-title">{{ 'SALE.INSTALLMENT_SALE_TITLE' | translate }}</h3>
 
         <!-- Down Payment -->
         <div class="down-payment-section">
@@ -233,7 +233,7 @@
         </div>
       </section>
 
-      <div class="form-actions">
+      <div class="erp-actions-bar form-actions">
         <a routerLink="/sales" class="btn btn-secondary">{{ 'INVOICE.CANCEL' | translate }}</a>
         <button mat-raised-button color="primary" (click)="saveInvoice()" [disabled]="!invoiceForm.valid || invoiceItems().length === 0 || installments.controls.length === 0" class="btn-primary">
           {{ 'INVOICE.ISSUE_INSTALLMENT_INVOICE' | translate }}
