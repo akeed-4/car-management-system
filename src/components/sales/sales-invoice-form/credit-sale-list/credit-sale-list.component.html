@@ -1,19 +1,17 @@
-<div class="page-container">
-  <div class="page-header">
-    <div class="breadcrumb">
-      <span>{{ 'INVOICE.BACK_TO_SALES' | translate }}</span>
-      <mat-icon>chevron_right</mat-icon>
-      <span class="current">{{ 'DIRECT_SALES.CREDIT.TITLE' | translate }}</span>
-    </div>
-    <div class="header-row">
-      <div>
-        <h1>{{ 'DIRECT_SALES.CREDIT.TITLE' | translate }}</h1>
-        <p class="subtitle">{{ 'DIRECT_SALES.CREDIT.SUBTITLE' | translate }}</p>
-      </div>
+<div class="erp-page page-container">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <span class="erp-page-eyebrow breadcrumb">
+        {{ 'INVOICE.BACK_TO_SALES' | translate }}
+        <mat-icon>chevron_right</mat-icon>
+        {{ 'DIRECT_SALES.CREDIT.TITLE' | translate }}
+      </span>
+      <h1 class="erp-page-title">{{ 'DIRECT_SALES.CREDIT.TITLE' | translate }}</h1>
+      <p class="erp-page-subtitle">{{ 'DIRECT_SALES.CREDIT.SUBTITLE' | translate }}</p>
     </div>
   </div>
 
-  <mat-toolbar class="page-toolbar">
+  <mat-toolbar class="erp-list-toolbar page-toolbar">
     <button mat-flat-button color="primary" (click)="onCreateNew()">
       <mat-icon>add</mat-icon>
       {{ 'DIRECT_SALES.CREDIT.ADD_NEW' | translate }}
@@ -24,7 +22,7 @@
       {{ 'COMMON.REFRESH' | translate }}
     </button>
 
-    <span class="toolbar-spacer"></span>
+    <span class="erp-toolbar-spacer toolbar-spacer"></span>
 
     <button mat-icon-button [matMenuTriggerFor]="exportMenu" [matTooltip]="'COMMON.EXPORT' | translate">
       <mat-icon>file_download</mat-icon>
@@ -58,7 +56,7 @@
       </ng-template>
     </app-mobile-card-list>
   } @else {
-  <div class="grid-container">
+  <div class="erp-grid-card grid-container">
     <dx-data-grid
       [dataSource]="invoices()"
       [showBorders]="true"
@@ -87,10 +85,10 @@
       <dxi-column dataField="amountDue" [caption]="'INVOICE.AMOUNT_DUE' | translate" dataType="number" format="currency"></dxi-column>
       <dxi-column dataField="status" [caption]="'INVOICE.STATUS' | translate" cellTemplate="statusCellTemplate"></dxi-column>
       <div *dxTemplate="let cell of 'statusCellTemplate'">
-        <span class="status-badge" [ngClass]="{
-          'status-paid': cell.value === 'Paid',
-          'status-pending': cell.value === 'Pending',
-          'status-overdue': cell.value === 'Overdue'
+        <span class="erp-status-badge" [ngClass]="{
+          'success': cell.value === 'Paid',
+          'warning': cell.value === 'Pending',
+          'danger': cell.value === 'Overdue'
         }">
           {{ ('INVOICE.STATUS_' + cell.value?.toUpperCase()) | translate }}
         </span>

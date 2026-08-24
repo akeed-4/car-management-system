@@ -1,12 +1,16 @@
-<div class="container">
-  <div class="page-header">
-    <h2>{{ 'BANK_FINANCING.APPROVAL_TITLE' | translate }}</h2>
-    <a routerLink="/sales/bank/approvals" class="back-link">
-      <button mat-icon-button>
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <span>{{ 'BANK_FINANCING.BACK_TO_APPROVALS' | translate }}</span>
-    </a>
+<div class="erp-page container">
+  <div class="erp-page-header page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ 'BANK_FINANCING.APPROVAL_TITLE' | translate }}</h2>
+    </div>
+    <div class="erp-page-actions">
+      <a routerLink="/sales/bank/approvals" class="back-link">
+        <button mat-icon-button>
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <span>{{ 'BANK_FINANCING.BACK_TO_APPROVALS' | translate }}</span>
+      </a>
+    </div>
   </div>
 
   <div *ngIf="!quotation() && !loading()" class="empty-state">
@@ -16,31 +20,32 @@
   <div class="invoice-workspace" *ngIf="quotation() as q">
     <div class="workspace-main">
 
-      <mat-card class="doc-card">
-        <div class="section-header">
-          <h3 class="form-section-title">{{ 'CORPORATE.QUOTATION_DETAILS' | translate }}</h3>
-          <span class="status-badge" [ngClass]="statusClass()">
+      <div class="erp-card doc-card">
+        <section class="erp-section">
+        <div class="erp-section-title section-header">
+          <span>{{ 'CORPORATE.QUOTATION_DETAILS' | translate }}</span>
+          <span class="erp-status-badge" [ngClass]="statusClass()">
             {{ ('BANK_FINANCING.STATUS_' + (q.status || '').toUpperCase()) | translate }}
           </span>
         </div>
         <ng-container *ngIf="cardLayout3 | async as layout">
           <mat-grid-list [cols]="layout.columns" rowHeight="76" gutterSize="16px">
             <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-              <div class="readonly-field">
-                <span class="readonly-label">{{ 'CORPORATE.QUOTATION_NUMBER' | translate }}</span>
-                <span class="readonly-value">{{ q.quotationNumber }}</span>
+              <div class="erp-info-field readonly-field">
+                <span class="erp-info-label readonly-label">{{ 'CORPORATE.QUOTATION_NUMBER' | translate }}</span>
+                <span class="erp-info-value readonly-value">{{ q.quotationNumber }}</span>
               </div>
             </mat-grid-tile>
             <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-              <div class="readonly-field">
-                <span class="readonly-label">{{ 'BANK_FINANCING.END_USER_NAME' | translate }}</span>
-                <span class="readonly-value">{{ q.endUserName }}</span>
+              <div class="erp-info-field readonly-field">
+                <span class="erp-info-label readonly-label">{{ 'BANK_FINANCING.END_USER_NAME' | translate }}</span>
+                <span class="erp-info-value readonly-value">{{ q.endUserName }}</span>
               </div>
             </mat-grid-tile>
             <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-              <div class="readonly-field">
-                <span class="readonly-label">{{ 'BANK_FINANCING.BANK' | translate }}</span>
-                <span class="readonly-value">{{ q.bankName }}</span>
+              <div class="erp-info-field readonly-field">
+                <span class="erp-info-label readonly-label">{{ 'BANK_FINANCING.BANK' | translate }}</span>
+                <span class="erp-info-value readonly-value">{{ q.bankName }}</span>
               </div>
             </mat-grid-tile>
           </mat-grid-list>
@@ -48,47 +53,49 @@
         <ng-container *ngIf="cardLayout3 | async as layout">
           <mat-grid-list [cols]="layout.columns" rowHeight="76" gutterSize="16px">
             <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-              <div class="readonly-field">
-                <span class="readonly-label">VIN</span>
-                <span class="readonly-value">{{ q.vin }}</span>
+              <div class="erp-info-field readonly-field">
+                <span class="erp-info-label readonly-label">VIN</span>
+                <span class="erp-info-value readonly-value">{{ q.vin }}</span>
               </div>
             </mat-grid-tile>
             <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-              <div class="readonly-field">
-                <span class="readonly-label">{{ 'PURCHASE_INVOICE.CAR' | translate }}</span>
-                <span class="readonly-value">{{ q.carDescription }}</span>
+              <div class="erp-info-field readonly-field">
+                <span class="erp-info-label readonly-label">{{ 'PURCHASE_INVOICE.CAR' | translate }}</span>
+                <span class="erp-info-value readonly-value">{{ q.carDescription }}</span>
               </div>
             </mat-grid-tile>
             <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-              <div class="readonly-field">
-                <span class="readonly-label">{{ 'INVOICE.TOTAL' | translate }}</span>
-                <span class="readonly-value">{{ q.vehiclePrice | currency:'SAR':'symbol':'1.0-0' }}</span>
+              <div class="erp-info-field readonly-field">
+                <span class="erp-info-label readonly-label">{{ 'INVOICE.TOTAL' | translate }}</span>
+                <span class="erp-info-value readonly-value">{{ q.vehiclePrice | currency:'SAR':'symbol':'1.0-0' }}</span>
               </div>
             </mat-grid-tile>
           </mat-grid-list>
         </ng-container>
-      </mat-card>
+        </section>
+      </div>
 
-      <mat-card class="doc-card" *ngIf="q.bankLpoReference">
-        <h3 class="form-section-title">{{ 'BANK_FINANCING.APPROVAL_DETAILS' | translate }}</h3>
+      <div class="erp-card doc-card" *ngIf="q.bankLpoReference">
+        <section class="erp-section">
+        <h3 class="erp-section-title">{{ 'BANK_FINANCING.APPROVAL_DETAILS' | translate }}</h3>
         <ng-container *ngIf="cardLayout3 | async as layout">
           <mat-grid-list [cols]="layout.columns" rowHeight="76" gutterSize="16px">
             <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-              <div class="readonly-field">
-                <span class="readonly-label">{{ 'BANK_FINANCING.LPO_REFERENCE' | translate }}</span>
-                <span class="readonly-value">{{ q.bankLpoReference }}</span>
+              <div class="erp-info-field readonly-field">
+                <span class="erp-info-label readonly-label">{{ 'BANK_FINANCING.LPO_REFERENCE' | translate }}</span>
+                <span class="erp-info-value readonly-value">{{ q.bankLpoReference }}</span>
               </div>
             </mat-grid-tile>
             <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-              <div class="readonly-field">
-                <span class="readonly-label">{{ 'BANK_FINANCING.APPROVED_FINANCING_AMOUNT' | translate }}</span>
-                <span class="readonly-value">{{ q.approvedFinancingAmount | currency:'SAR':'symbol':'1.0-0' }}</span>
+              <div class="erp-info-field readonly-field">
+                <span class="erp-info-label readonly-label">{{ 'BANK_FINANCING.APPROVED_FINANCING_AMOUNT' | translate }}</span>
+                <span class="erp-info-value readonly-value">{{ q.approvedFinancingAmount | currency:'SAR':'symbol':'1.0-0' }}</span>
               </div>
             </mat-grid-tile>
             <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-              <div class="readonly-field">
-                <span class="readonly-label">{{ 'BANK_FINANCING.DOWN_PAYMENT' | translate }}</span>
-                <span class="readonly-value">{{ (q.downPayment || 0) | currency:'SAR':'symbol':'1.0-0' }}</span>
+              <div class="erp-info-field readonly-field">
+                <span class="erp-info-label readonly-label">{{ 'BANK_FINANCING.DOWN_PAYMENT' | translate }}</span>
+                <span class="erp-info-value readonly-value">{{ (q.downPayment || 0) | currency:'SAR':'symbol':'1.0-0' }}</span>
               </div>
             </mat-grid-tile>
           </mat-grid-list>
@@ -96,36 +103,41 @@
         <ng-container *ngIf="cardLayout3 | async as layout">
           <mat-grid-list [cols]="layout.columns" rowHeight="76" gutterSize="16px">
             <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-              <div class="readonly-field">
-                <span class="readonly-label">{{ 'BANK_FINANCING.INSTALLMENT_COUNT' | translate }}</span>
-                <span class="readonly-value">{{ q.installmentCount || '—' }}</span>
+              <div class="erp-info-field readonly-field">
+                <span class="erp-info-label readonly-label">{{ 'BANK_FINANCING.INSTALLMENT_COUNT' | translate }}</span>
+                <span class="erp-info-value readonly-value">{{ q.installmentCount || '—' }}</span>
               </div>
             </mat-grid-tile>
             <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-              <div class="readonly-field">
-                <span class="readonly-label">{{ 'BANK_FINANCING.INSTALLMENT_TERM_MONTHS' | translate }}</span>
-                <span class="readonly-value">{{ q.installmentTermMonths || '—' }}</span>
+              <div class="erp-info-field readonly-field">
+                <span class="erp-info-label readonly-label">{{ 'BANK_FINANCING.INSTALLMENT_TERM_MONTHS' | translate }}</span>
+                <span class="erp-info-value readonly-value">{{ q.installmentTermMonths || '—' }}</span>
               </div>
             </mat-grid-tile>
             <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-              <div class="readonly-field">
-                <span class="readonly-label">{{ 'BANK_FINANCING.APPROVED_AT' | translate }}</span>
-                <span class="readonly-value">{{ q.approvedAt ? (q.approvedAt | date:'medium') : '—' }}</span>
+              <div class="erp-info-field readonly-field">
+                <span class="erp-info-label readonly-label">{{ 'BANK_FINANCING.APPROVED_AT' | translate }}</span>
+                <span class="erp-info-value readonly-value">{{ q.approvedAt ? (q.approvedAt | date:'medium') : '—' }}</span>
               </div>
             </mat-grid-tile>
           </mat-grid-list>
         </ng-container>
-      </mat-card>
+        </section>
+      </div>
 
-      <mat-card class="doc-card">
-        <h3 class="form-section-title">{{ 'INVOICE.NOTES' | translate }}</h3>
-        <p class="readonly-value notes-text">{{ q.approvalNotes || ('CORPORATE.NO_NOTES' | translate) }}</p>
-      </mat-card>
+      <div class="erp-card doc-card">
+        <section class="erp-section">
+        <h3 class="erp-section-title">{{ 'INVOICE.NOTES' | translate }}</h3>
+        <p class="erp-info-value readonly-value notes-text">{{ q.approvalNotes || ('CORPORATE.NO_NOTES' | translate) }}</p>
+        </section>
+      </div>
 
-      <mat-card class="doc-card">
-        <h3 class="form-section-title">{{ 'DOCUMENT.ATTACHMENTS' | translate }}</h3>
+      <div class="erp-card doc-card">
+        <section class="erp-section">
+        <h3 class="erp-section-title">{{ 'DOCUMENT.ATTACHMENTS' | translate }}</h3>
         <app-attachment-uploader documentType="BankQuotation" [documentId]="q.id"></app-attachment-uploader>
-      </mat-card>
+        </section>
+      </div>
 
     </div>
 
@@ -133,9 +145,9 @@
       <mat-card class="summary-card">
         <mat-card-title>{{ 'INVOICE.INVOICE_SUMMARY' | translate }}</mat-card-title>
         <mat-card-content>
-          <div class="summary-item total">
-            <p>{{ 'INVOICE.TOTAL' | translate }}</p>
-            <p class="font-mono">{{ q.vehiclePrice | currency:'SAR':'symbol':'1.0-0' }}</p>
+          <div class="erp-total-row summary-item total">
+            <span class="erp-total-label">{{ 'INVOICE.TOTAL' | translate }}</span>
+            <span class="erp-total-value font-mono">{{ q.vehiclePrice | currency:'SAR':'symbol':'1.0-0' }}</span>
           </div>
         </mat-card-content>
 

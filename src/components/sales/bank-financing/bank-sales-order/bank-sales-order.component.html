@@ -1,17 +1,21 @@
-<div class="container">
-  <div class="page-header">
-    <h2>{{ 'BANK_FINANCING.ORDER_TITLE' | translate }}</h2>
-    <a routerLink="/sales" class="back-link">
-      <button mat-icon-button>
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <span>{{ 'INVOICE.BACK_TO_SALES' | translate }}</span>
-    </a>
+<div class="erp-page container">
+  <div class="erp-page-header page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ 'BANK_FINANCING.ORDER_TITLE' | translate }}</h2>
+    </div>
+    <div class="erp-page-actions">
+      <a routerLink="/sales" class="back-link">
+        <button mat-icon-button>
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <span>{{ 'INVOICE.BACK_TO_SALES' | translate }}</span>
+      </a>
+    </div>
   </div>
 
-  <mat-card class="doc-card approval-lookup-card">
-    <section class="form-section">
-      <h3 class="form-section-title">{{ 'BANK_FINANCING.OPEN_EXISTING_APPROVAL' | translate }}</h3>
+  <div class="erp-card doc-card approval-lookup-card">
+    <section class="erp-section form-section">
+      <h3 class="erp-section-title">{{ 'BANK_FINANCING.OPEN_EXISTING_APPROVAL' | translate }}</h3>
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>{{ 'BANK_FINANCING.SEARCH_APPROVALS' | translate }}</mat-label>
         <mat-select [formControl]="approvalLookupControl"  required>
@@ -33,7 +37,7 @@
         <mat-spinner *ngIf="approvalOptionsLoading()" matSuffix diameter="18"></mat-spinner>
       </mat-form-field>
     </section>
-  </mat-card>
+  </div>
 
   <div *ngIf="!approval() && !loading()" class="empty-state">
     {{ 'BANK_FINANCING.APPROVAL_REQUIRED' | translate }}
@@ -46,26 +50,26 @@
   <div class="invoice-workspace" *ngIf="approval() as a">
     <div class="workspace-main">
 
-      <mat-card class="doc-card">
-        <section class="form-section">
-          <h3 class="form-section-title">{{ 'CORPORATE.QUOTATION_DETAILS' | translate }}</h3>
+      <div class="erp-card doc-card">
+        <section class="erp-section form-section">
+          <h3 class="erp-section-title">{{ 'CORPORATE.QUOTATION_DETAILS' | translate }}</h3>
           <ng-container *ngIf="cardLayout3 | async as layout">
             <mat-grid-list [cols]="layout.columns" rowHeight="76" gutterSize="16px">
               <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-                <div class="readonly-field">
-                  <span class="readonly-label">{{ 'BANK_FINANCING.END_USER_NAME' | translate }}</span>
-                  <span class="readonly-value">{{ a.endUserName }}</span>
+                <div class="erp-info-field readonly-field">
+                  <span class="erp-info-label readonly-label">{{ 'BANK_FINANCING.END_USER_NAME' | translate }}</span>
+                  <span class="erp-info-value readonly-value">{{ a.endUserName }}</span>
                 </div>
               </mat-grid-tile>
               <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-                <div class="readonly-field">
-                  <span class="readonly-label">{{ 'BANK_FINANCING.BANK' | translate }}</span>
-                  <span class="readonly-value">{{ a.bankName }}</span>
+                <div class="erp-info-field readonly-field">
+                  <span class="erp-info-label readonly-label">{{ 'BANK_FINANCING.BANK' | translate }}</span>
+                  <span class="erp-info-value readonly-value">{{ a.bankName }}</span>
                 </div>
               </mat-grid-tile>
               <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-                <div class="readonly-field">
-                  <span class="readonly-label">{{ 'BANK_FINANCING.STATUS' | translate }}</span>
+                <div class="erp-info-field readonly-field">
+                  <span class="erp-info-label readonly-label">{{ 'BANK_FINANCING.STATUS' | translate }}</span>
                   <mat-chip-set>
                     <mat-chip [class.status-approved]="isApproved">{{ a.status }}</mat-chip>
                   </mat-chip-set>
@@ -74,13 +78,14 @@
             </mat-grid-list>
           </ng-container>
         </section>
-      </mat-card>
+      </div>
 
-      <mat-card class="doc-card lines-card">
-        <div class="section-header">
-          <h3 class="form-section-title">{{ 'BANK_FINANCING.FINANCED_VEHICLE' | translate }}</h3>
+      <div class="erp-card doc-card lines-card">
+        <section class="erp-section">
+        <div class="erp-section-title section-header">
+          <span>{{ 'BANK_FINANCING.FINANCED_VEHICLE' | translate }}</span>
         </div>
-        <div class="table-container premium-table">
+        <div class="erp-grid-card table-container premium-table">
           <dx-data-grid
             [dataSource]="vehicleLines()"
             [showBorders]="true"
@@ -93,7 +98,8 @@
             <dxi-column dataField="vehiclePrice" caption="{{ 'BANK_FINANCING.VEHICLE_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
           </dx-data-grid>
         </div>
-      </mat-card>
+        </section>
+      </div>
 
     </div>
 
@@ -101,30 +107,30 @@
       <mat-card class="summary-card">
         <mat-card-title>{{ 'BANK_FINANCING.FINANCING_SUMMARY' | translate }}</mat-card-title>
         <mat-card-content>
-          <div class="summary-item">
-            <p>{{ 'BANK_FINANCING.LPO_REFERENCE' | translate }}</p>
-            <p class="font-mono">{{ a.bankLpoReference }}</p>
+          <div class="erp-total-row summary-item">
+            <span class="erp-total-label">{{ 'BANK_FINANCING.LPO_REFERENCE' | translate }}</span>
+            <span class="erp-total-value font-mono">{{ a.bankLpoReference }}</span>
           </div>
-          <div class="summary-item">
-            <p>{{ 'BANK_FINANCING.APPROVED_FINANCING_AMOUNT' | translate }}</p>
-            <p class="font-mono">{{ financedAmount() | currency:'SAR':'symbol':'1.0-0' }}</p>
+          <div class="erp-total-row summary-item">
+            <span class="erp-total-label">{{ 'BANK_FINANCING.APPROVED_FINANCING_AMOUNT' | translate }}</span>
+            <span class="erp-total-value font-mono">{{ financedAmount() | currency:'SAR':'symbol':'1.0-0' }}</span>
           </div>
-          <div class="summary-item">
-            <p>{{ 'BANK_FINANCING.DOWN_PAYMENT' | translate }}</p>
-            <p class="font-mono">- {{ downPayment() | currency:'SAR':'symbol':'1.0-0' }}</p>
+          <div class="erp-total-row summary-item">
+            <span class="erp-total-label">{{ 'BANK_FINANCING.DOWN_PAYMENT' | translate }}</span>
+            <span class="erp-total-value font-mono">- {{ downPayment() | currency:'SAR':'symbol':'1.0-0' }}</span>
           </div>
-          <div class="summary-item" *ngIf="a.installmentCount">
-            <p>{{ 'BANK_FINANCING.INSTALLMENT_COUNT' | translate }}</p>
-            <p class="font-mono">{{ a.installmentCount }}</p>
+          <div class="erp-total-row summary-item" *ngIf="a.installmentCount">
+            <span class="erp-total-label">{{ 'BANK_FINANCING.INSTALLMENT_COUNT' | translate }}</span>
+            <span class="erp-total-value font-mono">{{ a.installmentCount }}</span>
           </div>
-          <div class="summary-item" *ngIf="a.orderNumber">
-            <p>{{ 'BANK_FINANCING.ORDER_NUMBER' | translate }}</p>
-            <p class="font-mono">{{ a.orderNumber }}</p>
+          <div class="erp-total-row summary-item" *ngIf="a.orderNumber">
+            <span class="erp-total-label">{{ 'BANK_FINANCING.ORDER_NUMBER' | translate }}</span>
+            <span class="erp-total-value font-mono">{{ a.orderNumber }}</span>
           </div>
           <hr>
-          <div class="summary-item total">
-            <p>{{ 'CORPORATE.NET_TOTAL' | translate }}</p>
-            <p class="font-mono">{{ netFinanced() | currency:'SAR':'symbol':'1.0-0' }}</p>
+          <div class="erp-total-row summary-item total">
+            <span class="erp-total-label">{{ 'CORPORATE.NET_TOTAL' | translate }}</span>
+            <span class="erp-total-value font-mono">{{ netFinanced() | currency:'SAR':'symbol':'1.0-0' }}</span>
           </div>
         </mat-card-content>
 

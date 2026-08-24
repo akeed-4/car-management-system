@@ -1,9 +1,9 @@
-<div class="container-fluid p-4">
-  <div class="page-header strong-header header-row">
-    <div class="header-left">
-      <h2>{{ 'BANK_FINANCING.DELIVERIES_LIST_TITLE' | translate }}</h2>
+<div class="erp-page container-fluid p-4">
+  <div class="erp-page-header page-header strong-header header-row">
+    <div class="erp-page-header-titles header-left">
+      <h2 class="erp-page-title">{{ 'BANK_FINANCING.DELIVERIES_LIST_TITLE' | translate }}</h2>
     </div>
-    <div class="header-right">
+    <div class="erp-page-actions header-right">
       <button mat-raised-button color="primary" (click)="onCreateNew()">
         <mat-icon>add</mat-icon>
         {{ 'BANK_FINANCING.NEW_DELIVERY_ACTION' | translate }}
@@ -26,7 +26,7 @@
       </ng-template>
     </app-mobile-card-list>
   } @else {
-  <div class="grid-container">
+  <div class="erp-grid-card grid-container">
   <dx-data-grid
     [dataSource]="deliveries()"
     [showBorders]="true"

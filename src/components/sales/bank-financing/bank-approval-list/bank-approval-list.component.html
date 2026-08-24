@@ -1,9 +1,9 @@
-<div class="container-fluid p-4">
-  <div class="page-header strong-header header-row">
-    <div class="header-left">
-      <h2>{{ 'BANK_FINANCING.APPROVALS_LIST_TITLE' | translate }}</h2>
+<div class="erp-page container-fluid p-4">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ 'BANK_FINANCING.APPROVALS_LIST_TITLE' | translate }}</h2>
     </div>
-    <div class="header-right">
+    <div class="erp-page-actions">
       <button mat-raised-button color="primary" (click)="onCreateNew()">
         <mat-icon>add</mat-icon>
         {{ 'BANK_FINANCING.RECORD_APPROVAL' | translate }}
@@ -11,6 +11,7 @@
     </div>
   </div>
 
+  <div class="erp-grid-card">
   <dx-data-grid
     [dataSource]="quotations()"
     [showBorders]="true"
@@ -38,10 +39,10 @@
     <dxi-column dataField="bankLpoReference" [caption]="'BANK_FINANCING.LPO_REFERENCE' | translate"></dxi-column>
     <dxi-column dataField="status" [caption]="'CORPORATE.ORDER_STATUS' | translate" cellTemplate="statusCellTemplate"></dxi-column>
     <div *dxTemplate="let cell of 'statusCellTemplate'">
-      <span class="status-badge" [ngClass]="{
-        'status-pending': cell.value === 'Locked',
-        'status-accepted': cell.value === 'Bank_Approved' || cell.value === 'Finalized',
-        'status-rejected': cell.value === 'Expired' || cell.value === 'Cancelled'
+      <span class="erp-status-badge" [ngClass]="{
+        'warning': cell.value === 'Locked',
+        'success': cell.value === 'Bank_Approved' || cell.value === 'Finalized',
+        'danger': cell.value === 'Expired' || cell.value === 'Cancelled'
       }">
         {{ ('BANK_FINANCING.STATUS_' + cell.value?.toUpperCase()) | translate }}
       </span>
@@ -55,4 +56,5 @@
       </dxi-button>
     </dxi-column>
   </dx-data-grid>
+  </div>
 </div>

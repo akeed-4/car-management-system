@@ -1,10 +1,10 @@
-<div class="container-fluid p-4">
-  <div class="page-header strong-header header-row">
-    <div class="header-left">
-      <h2>{{ (isBankChannel ? 'BANK_FINANCING.DELIVERIES_LIST_TITLE' : 'RETAIL.DELIVERIES_LIST_TITLE') | translate }}</h2>
+<div class="erp-page container-fluid p-4">
+  <div class="erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ (isBankChannel ? 'BANK_FINANCING.DELIVERIES_LIST_TITLE' : 'RETAIL.DELIVERIES_LIST_TITLE') | translate }}</h2>
     </div>
     @if (isBankChannel) {
-      <div class="header-right">
+      <div class="erp-page-actions">
         <button mat-raised-button color="primary" (click)="onCreateNew()" >
           <mat-icon>add</mat-icon>
           {{ 'BANK_FINANCING.NEW_DELIVERY_ACTION' | translate }}
@@ -13,6 +13,7 @@
     }
   </div>
 
+  <div class="erp-grid-card">
   <dx-data-grid
     [dataSource]="deliveryNotes()"
     [showBorders]="true"
@@ -48,4 +49,5 @@
       </dxi-button>
     </dxi-column>
   </dx-data-grid>
+  </div>
 </div>
