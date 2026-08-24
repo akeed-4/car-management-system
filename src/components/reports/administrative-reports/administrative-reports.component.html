@@ -1,18 +1,18 @@
-<div class="container">
-  <h2 class="page-title">التقارير الإدارية</h2>
+<div class="container erp-page">
+  <h2 class="page-title erp-page-title">التقارير الإدارية</h2>
 
   <div class="reports-grid">
-    <div class="card">
-      <h3 class="card-header">السيارات الأكثر مبيعاً</h3>
-      <div class="table-controls">
-        <input 
-          type="text" 
+    <div class="card erp-card">
+      <h3 class="card-header erp-section-title">السيارات الأكثر مبيعاً</h3>
+      <div class="table-controls erp-list-toolbar">
+        <input
+          type="text"
           placeholder="ابحث عن سيارة..."
-          class="form-input search-input"
+          class="form-input search-input erp-search-input"
           (input)="onBestSellerFilter($event)">
       </div>
-       <div class="table-wrapper">
-        <table class="table">
+       <div class="table-wrapper erp-table-wrapper">
+        <table class="table erp-table">
           <thead>
             <tr>
               <th (click)="onBestSellerSort('description')">السيارة {{ getBestSellerSortIcon('description') }}</th>
@@ -37,17 +37,17 @@
       </div>
     </div>
 
-    <div class="card">
-       <h3 class="card-header">أفضل أداء لمندوبي المبيعات</h3>
-       <div class="table-controls">
-        <input 
-          type="text" 
+    <div class="card erp-card">
+       <h3 class="card-header erp-section-title">أفضل أداء لمندوبي المبيعات</h3>
+       <div class="table-controls erp-list-toolbar">
+        <input
+          type="text"
           placeholder="ابحث عن مندوب..."
-          class="form-input search-input"
+          class="form-input search-input erp-search-input"
           (input)="onSalespersonFilter($event)">
       </div>
-       <div class="table-wrapper">
-        <table class="table">
+       <div class="table-wrapper erp-table-wrapper">
+        <table class="table erp-table">
           <thead>
             <tr>
               <th (click)="onSalespersonSort('name')">اسم المندوب {{ getSalespersonSortIcon('name') }}</th>

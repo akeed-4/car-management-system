@@ -1,32 +1,32 @@
-<div class="container">
-  <h2 class="page-title">التقرير الضريبي للمبيعات</h2>
+<div class="container erp-page">
+  <h2 class="page-title erp-page-title">التقرير الضريبي للمبيعات</h2>
 
-  <div class="summary-grid">
-    <div class="summary-card">
-      <p class="summary-title">إجمالي المبيعات (قبل الضريبة)</p>
-      <p class="summary-value">{{ totalSubtotal() | currency:'SAR':'symbol':'1.0-2' }}</p>
+  <div class="summary-grid erp-info-grid">
+    <div class="summary-card erp-info-field">
+      <p class="summary-title erp-info-label">إجمالي المبيعات (قبل الضريبة)</p>
+      <p class="summary-value erp-info-value">{{ totalSubtotal() | currency:'SAR':'symbol':'1.0-2' }}</p>
     </div>
-    <div class="summary-card">
-      <p class="summary-title">إجمالي ضريبة القيمة المضافة</p>
-      <p class="summary-value text-orange">{{ totalVatAmount() | currency:'SAR':'symbol':'1.0-2' }}</p>
+    <div class="summary-card erp-info-field">
+      <p class="summary-title erp-info-label">إجمالي ضريبة القيمة المضافة</p>
+      <p class="summary-value text-orange erp-info-value">{{ totalVatAmount() | currency:'SAR':'symbol':'1.0-2' }}</p>
     </div>
-    <div class="summary-card">
-      <p class="summary-title">الإجمالي الشامل (مع الضريبة)</p>
-      <p class="summary-value text-blue">{{ grandTotal() | currency:'SAR':'symbol':'1.0-2' }}</p>
+    <div class="summary-card erp-info-field">
+      <p class="summary-title erp-info-label">الإجمالي الشامل (مع الضريبة)</p>
+      <p class="summary-value text-blue erp-info-value">{{ grandTotal() | currency:'SAR':'symbol':'1.0-2' }}</p>
     </div>
   </div>
 
-  <div class="card">
-     <h3 class="card-header">تفاصيل فواتير المبيعات</h3>
-     <div class="table-controls">
-      <input 
-        type="text" 
+  <div class="card erp-card">
+     <h3 class="card-header erp-section-title">تفاصيل فواتير المبيعات</h3>
+     <div class="table-controls erp-list-toolbar">
+      <input
+        type="text"
         placeholder="ابحث عن فاتورة (الرقم، العميل، التاريخ...)"
-        class="form-input search-input"
+        class="form-input search-input erp-search-input"
         (input)="onFilter($event)">
     </div>
-     <div class="table-wrapper">
-      <table class="table">
+     <div class="table-wrapper erp-table-wrapper">
+      <table class="table erp-table">
         <thead>
           <tr>
             <th (click)="onSort('invoiceNumber')">رقم الفاتورة {{ getSortIcon('invoiceNumber') }}</th>

@@ -1,5 +1,5 @@
-<div class="report-container">
-  <mat-card class="report-card">
+<div class="report-container erp-page">
+  <mat-card class="report-card erp-card">
     <mat-card-header>
       <mat-card-title>
         <mat-icon>{{ icon }}</mat-icon>
@@ -10,7 +10,7 @@
 
     <mat-card-content>
       <!-- Filter Section -->
-      <div class="filter-section">
+      <div class="filter-section erp-section">
         <form [formGroup]="filterForm" class="filter-form">
           <div class="filter-row">
             <!-- Date Range -->
@@ -79,7 +79,7 @@
           </div>
 
           <!-- Action Buttons -->
-          <div class="filter-actions">
+          <div class="filter-actions erp-actions-bar">
             <button mat-raised-button color="primary" (click)="onApplyFilter()" [disabled]="loading">
               <mat-icon>search</mat-icon>
               {{ 'REPORTS.APPLY_FILTER' | translate }}
@@ -95,7 +95,7 @@
       <mat-divider></mat-divider>
 
       <!-- Report Actions -->
-      <div class="report-actions">
+      <div class="report-actions erp-list-toolbar">
         <button mat-button (click)="onRefresh()" [disabled]="loading">
           <mat-icon>refresh</mat-icon>
           {{ 'REPORTS.REFRESH' | translate }}
