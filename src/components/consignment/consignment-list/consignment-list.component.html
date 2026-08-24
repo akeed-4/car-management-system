@@ -1,17 +1,15 @@
-<div class="page-container">
+<div class="erp-page page-container">
 
   <!-- Page Header -->
-  <div class="page-header">
-    <div class="breadcrumb">
-      <span>{{ 'REQUESTED_CARS.BREADCRUMB_PARENT' | translate }}</span>
-      <mat-icon>chevron_right</mat-icon>
-      <span class="current">{{ 'CONSIGNMENT.TITLE' | translate }}</span>
-    </div>
-    <div class="header-row">
-      <div>
-        <h1>{{ 'CONSIGNMENT.TITLE' | translate }}</h1>
-        <p class="subtitle">{{ 'CONSIGNMENT.SUBTITLE' | translate }}</p>
-      </div>
+  <div class="erp-page-header page-header">
+    <div class="erp-page-header-titles">
+      <span class="erp-page-eyebrow breadcrumb">
+        {{ 'REQUESTED_CARS.BREADCRUMB_PARENT' | translate }}
+        <mat-icon>chevron_right</mat-icon>
+        {{ 'CONSIGNMENT.TITLE' | translate }}
+      </span>
+      <h1 class="erp-page-title">{{ 'CONSIGNMENT.TITLE' | translate }}</h1>
+      <p class="erp-page-subtitle subtitle">{{ 'CONSIGNMENT.SUBTITLE' | translate }}</p>
     </div>
   </div>
 
@@ -55,7 +53,7 @@
   </div>
 
   <!-- Toolbar -->
-  <mat-toolbar class="page-toolbar">
+  <mat-toolbar class="erp-list-toolbar page-toolbar">
     <button mat-flat-button color="primary" (click)="newCar()">
       <mat-icon>add</mat-icon>
       {{ 'COMMON.NEW' | translate }}
@@ -66,7 +64,7 @@
       {{ 'COMMON.REFRESH' | translate }}
     </button>
 
-    <span class="toolbar-spacer"></span>
+    <span class="erp-toolbar-spacer toolbar-spacer"></span>
 
     <mat-form-field appearance="outline" class="filter-select">
       <mat-label>{{ 'CONSIGNMENT.STATUS' | translate }}</mat-label>
@@ -102,7 +100,7 @@
   </mat-toolbar>
 
   <!-- DataGrid -->
-  <div class="grid-container">
+  <div class="erp-grid-card grid-container">
     <dx-data-grid
       #dataGrid
       id="consignmentCarsGrid"
@@ -151,7 +149,7 @@
 
       <dxi-column dataField="status" [caption]="'CONSIGNMENT.STATUS' | translate" [width]="130" cellTemplate="statusTemplate"></dxi-column>
       <div *dxTemplate="let cell of 'statusTemplate'">
-        <span class="chip" [ngClass]="getConsignmentStatusClass(cell.value)">
+        <span class="erp-status-badge chip" [ngClass]="getConsignmentStatusClass(cell.value)">
           {{ ('CONSIGNMENT.STATUS_' + cell.value?.toUpperCase()) | translate }}
         </span>
       </div>

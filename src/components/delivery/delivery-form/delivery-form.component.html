@@ -13,14 +13,13 @@
   </mat-toolbar-row>
 </mat-toolbar>
 
-<div class="container">
-  <mat-card class="form-card">
-    <mat-card-content>
-      <form [formGroup]="deliveryForm" (ngSubmit)="saveDelivery()">
+<div class="erp-page container">
+  <div class="erp-card form-card">
+    <form [formGroup]="deliveryForm" (ngSubmit)="saveDelivery()">
 
-        <div class="form-section">
-          <h3 class="section-title">{{ 'DELIVERY_SCHEDULE.FORM.CUSTOMER_AND_VEHICLE' | translate }}</h3>
-          <div class="form-grid cols-2">
+        <div class="erp-section form-section">
+          <h3 class="erp-section-title section-title">{{ 'DELIVERY_SCHEDULE.FORM.CUSTOMER_AND_VEHICLE' | translate }}</h3>
+          <div class="erp-form-grid form-grid cols-2">
             <div class="lookup-field">
               <mat-form-field appearance="outline">
                 <mat-label>{{ 'REQUESTED_CARS.CUSTOMER' | translate }}</mat-label>
@@ -55,9 +54,9 @@
           </div>
         </div>
 
-        <div class="form-section">
-          <h3 class="section-title">{{ 'DELIVERY_SCHEDULE.FORM.SCHEDULE_DETAILS' | translate }}</h3>
-          <div class="form-grid cols-3">
+        <div class="erp-section form-section">
+          <h3 class="erp-section-title section-title">{{ 'DELIVERY_SCHEDULE.FORM.SCHEDULE_DETAILS' | translate }}</h3>
+          <div class="erp-form-grid-3 form-grid cols-3">
             <mat-form-field appearance="outline">
               <mat-label>{{ 'DELIVERY_SCHEDULE.DELIVERY_DATE' | translate }}</mat-label>
               <input matInput type="date" formControlName="deliveryDate">
@@ -99,8 +98,8 @@
           </div>
         </div>
 
-        <div class="form-section">
-          <h3 class="section-title">{{ 'DELIVERY_SCHEDULE.FORM.READINESS_CHECKLIST' | translate }}</h3>
+        <div class="erp-section form-section">
+          <h3 class="erp-section-title section-title">{{ 'DELIVERY_SCHEDULE.FORM.READINESS_CHECKLIST' | translate }}</h3>
           <div class="checklist-grid">
             <mat-checkbox formControlName="documentsReady">{{ 'DELIVERY_SCHEDULE.DOCUMENTS_READY' | translate }}</mat-checkbox>
             <mat-checkbox formControlName="insuranceReady">{{ 'DELIVERY_SCHEDULE.INSURANCE_READY' | translate }}</mat-checkbox>
@@ -109,8 +108,8 @@
           </div>
         </div>
 
-        <div class="form-section">
-          <div class="form-grid cols-1">
+        <div class="erp-section form-section">
+          <div class="erp-form-grid form-grid cols-1">
             <mat-form-field appearance="outline">
               <mat-label>{{ 'REQUESTED_CARS.NOTES' | translate }}</mat-label>
               <textarea matInput formControlName="notes" rows="3"></textarea>
@@ -118,7 +117,7 @@
           </div>
         </div>
 
-        <div class="form-actions">
+        <div class="erp-actions-bar form-actions">
           <button mat-button routerLink="/deliveries" type="button">
             {{ 'REQUESTED_CARS.FORM.CANCEL' | translate }}
           </button>
@@ -127,6 +126,5 @@
           </button>
         </div>
       </form>
-    </mat-card-content>
-  </mat-card>
+  </div>
 </div>

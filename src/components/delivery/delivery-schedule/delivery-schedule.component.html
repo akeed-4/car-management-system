@@ -1,17 +1,15 @@
-<div class="page-container">
+<div class="erp-page page-container">
 
   <!-- Page Header -->
-  <div class="page-header">
-    <div class="breadcrumb">
-      <span>{{ 'REQUESTED_CARS.BREADCRUMB_PARENT' | translate }}</span>
-      <mat-icon>chevron_right</mat-icon>
-      <span class="current">{{ 'DELIVERY_SCHEDULE.TITLE' | translate }}</span>
-    </div>
-    <div class="header-row">
-      <div>
-        <h1>{{ 'DELIVERY_SCHEDULE.TITLE' | translate }}</h1>
-        <p class="subtitle">{{ 'DELIVERY_SCHEDULE.SUBTITLE' | translate }}</p>
-      </div>
+  <div class="erp-page-header page-header">
+    <div class="erp-page-header-titles">
+      <span class="erp-page-eyebrow breadcrumb">
+        {{ 'REQUESTED_CARS.BREADCRUMB_PARENT' | translate }}
+        <mat-icon>chevron_right</mat-icon>
+        {{ 'DELIVERY_SCHEDULE.TITLE' | translate }}
+      </span>
+      <h1 class="erp-page-title">{{ 'DELIVERY_SCHEDULE.TITLE' | translate }}</h1>
+      <p class="erp-page-subtitle subtitle">{{ 'DELIVERY_SCHEDULE.SUBTITLE' | translate }}</p>
     </div>
   </div>
 
@@ -48,7 +46,7 @@
   </div>
 
   <!-- Toolbar -->
-  <mat-toolbar class="page-toolbar">
+  <mat-toolbar class="erp-list-toolbar page-toolbar">
     <button mat-flat-button color="primary" (click)="newDelivery()" >
       <mat-icon>add</mat-icon>
       {{ 'DELIVERY_SCHEDULE.NEW_DELIVERY' | translate }}
@@ -70,7 +68,7 @@
       </mat-button-toggle>
     </mat-button-toggle-group>
 
-    <span class="toolbar-spacer"></span>
+    <span class="erp-toolbar-spacer toolbar-spacer"></span>
 
     <mat-form-field appearance="outline" class="filter-select">
       <mat-label>{{ 'DELIVERY_SCHEDULE.STATUS' | translate }}</mat-label>
@@ -107,7 +105,7 @@
 
   <!-- Grid View -->
   @if (viewMode() === 'grid') {
-    <div class="grid-container">
+    <div class="erp-grid-card grid-container">
       <dx-data-grid
         #dataGrid
         id="deliveryScheduleGrid"
@@ -151,11 +149,11 @@
 
         <dxi-column dataField="status" [caption]="'DELIVERY_SCHEDULE.STATUS' | translate" [width]="130" cellTemplate="statusTemplate"></dxi-column>
         <div *dxTemplate="let cell of 'statusTemplate'">
-          <span class="chip" [ngClass]="getDeliveryStatusClass(cell.value)">
+          <span class="erp-status-badge chip" [ngClass]="getDeliveryStatusClass(cell.value)">
             {{ ('DELIVERY_SCHEDULE.STATUS_' + cell.value?.toUpperCase()) | translate }}
           </span>
           @if (isLateDelivery(cell.data)) {
-            <span class="chip status-chip-late">{{ 'DELIVERY_SCHEDULE.LATE' | translate }}</span>
+            <span class="erp-status-badge chip status-chip-late">{{ 'DELIVERY_SCHEDULE.LATE' | translate }}</span>
           }
         </div>
 
@@ -199,7 +197,7 @@
                 <div class="delivery-time">{{ delivery.deliveryTime }}</div>
                 <div class="delivery-customer">{{ delivery.customerName }}</div>
                 <div class="delivery-car">{{ delivery.carDescription }}</div>
-                <span class="chip" [ngClass]="getDeliveryStatusClass(delivery.status)">
+                <span class="erp-status-badge chip" [ngClass]="getDeliveryStatusClass(delivery.status)">
                   {{ ('DELIVERY_SCHEDULE.STATUS_' + delivery.status.toUpperCase()) | translate }}
                 </span>
               </div>

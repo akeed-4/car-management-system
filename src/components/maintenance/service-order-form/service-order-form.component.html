@@ -1,20 +1,24 @@
 
 
-<div class="container">
-  <div class="page-header">
-    <h2>{{ pageTitle() }}</h2>
-    <a routerLink="/maintenance" class="back-link">
-      <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-      <span>العودة إلى إدارة الصيانة</span>
-    </a>
+<div class="erp-page container">
+  <div class="erp-page-header page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ pageTitle() }}</h2>
+    </div>
+    <div class="erp-page-actions">
+      <a routerLink="/maintenance" class="back-link">
+        <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+        <span>العودة إلى إدارة الصيانة</span>
+      </a>
+    </div>
   </div>
 
-  <div class="card">
+  <div class="erp-card card">
     <form #serviceOrderForm="ngForm" (ngSubmit)="saveServiceOrder()">
       <!-- Header Info -->
-      <section class="form-section">
-        <h3 class="form-section-title">بيانات أمر العمل</h3>
-        <div class="form-grid cols-3">
+      <section class="erp-section form-section">
+        <h3 class="erp-section-title form-section-title">بيانات أمر العمل</h3>
+        <div class="erp-form-grid-3 form-grid cols-3">
           <div>
             <label class="form-label">رقم أمر العمل</label>
             <input type="text" [ngModel]="serviceOrder().orderNumber || 'يُنشأ تلقائيًا عند الحفظ'" disabled class="form-input" readonly>
@@ -40,9 +44,9 @@
       </section>
 
       <!-- Car/Customer Details -->
-      <section class="form-section">
-        <h3 class="form-section-title">تفاصيل السيارة والعميل</h3>
-        <div class="form-grid cols-2">
+      <section class="erp-section form-section">
+        <h3 class="erp-section-title form-section-title">تفاصيل السيارة والعميل</h3>
+        <div class="erp-form-grid form-grid cols-2">
           <div>
             <label for="carId" class="form-label">سيارة من المخزون (اختياري)</label>
             <select id="carId" name="carId" [ngModel]="serviceOrder().carId" (ngModelChange)="updateField('carId', $event ? +$event : undefined)" class="form-select">
@@ -79,10 +83,10 @@
       </section>
 
       <!-- Service Items -->
-      <section class="form-section">
-        <h3 class="form-section-title">بنود الخدمة وقطع الغيار</h3>
-        <div class="table-wrapper">
-          <table class="table items-table">
+      <section class="erp-section form-section">
+        <h3 class="erp-section-title form-section-title">بنود الخدمة وقطع الغيار</h3>
+        <div class="erp-table-wrapper table-wrapper">
+          <table class="erp-table table items-table">
             <thead>
               <tr>
                 <th>الوصف</th>
@@ -137,21 +141,21 @@
       </section>
 
       <!-- Notes and Total -->
-      <section class="form-section summary-section">
+      <section class="erp-section form-section summary-section">
         <div>
            <label for="notes" class="form-label">ملاحظات (اختياري)</label>
            <textarea id="notes" name="notes" rows="4" [ngModel]="serviceOrder().notes" (ngModelChange)="updateField('notes', $event)" placeholder="ملاحظات إضافية حول أمر العمل..." class="form-input"></textarea>
         </div>
         <div class="summary-box">
-            <div class="summary-item total">
-              <h4>التكلفة الإجمالية</h4>
-              <p class="font-mono">{{ serviceOrder().totalCost | currency:'SAR':'symbol':'1.0-0' }}</p>
+            <div class="erp-total-row summary-item total">
+              <h4 class="erp-total-label">التكلفة الإجمالية</h4>
+              <p class="erp-total-value font-mono">{{ serviceOrder().totalCost | currency:'SAR':'symbol':'1.0-0' }}</p>
             </div>
           </div>
       </section>
 
       <!-- Form Actions -->
-      <div class="form-actions">
+      <div class="erp-actions-bar form-actions">
         <a routerLink="/maintenance" class="btn btn-light">إلغاء</a>
         <button type="submit" [disabled]="serviceOrderForm.invalid || !serviceOrder().serviceItems || serviceOrder().serviceItems?.length === 0 || (!serviceOrder().carId && !serviceOrder().customerName)" class="btn btn-primary">
             {{ editMode() ? 'حفظ التغييرات' : 'إنشاء أمر العمل' }}

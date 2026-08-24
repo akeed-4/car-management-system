@@ -1,16 +1,20 @@
 
 
-<div class="container">
-  <div class="page-header">
-    <h2>إدارة الصيانة (أوامر العمل)</h2>
-    <a routerLink="/maintenance/new" class="btn btn-primary">
-      <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-      <span>أمر عمل جديد</span>
-    </a>
+<div class="erp-page container">
+  <div class="erp-page-header page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">إدارة الصيانة (أوامر العمل)</h2>
+    </div>
+    <div class="erp-page-actions">
+      <a routerLink="/maintenance/new" class="btn btn-primary">
+        <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+        <span>أمر عمل جديد</span>
+      </a>
+    </div>
   </div>
 
-  <div class="card">
-    <div class="table-controls">
+  <div class="erp-card card">
+    <div class="erp-list-toolbar table-controls">
       <div class="filter-buttons">
         <button class="filter-btn" [class.active]="statusFilter() === 'All'" (click)="setStatusFilter('All')">الكل</button>
         <button class="filter-btn" [class.active]="statusFilter() === 'Pending'" (click)="setStatusFilter('Pending')">بانتظار الصيانة</button>
@@ -24,8 +28,8 @@
         (input)="onFilter($event)">
     </div>
 
-    <div class="table-wrapper">
-      <table class="table">
+    <div class="erp-table-wrapper table-wrapper">
+      <table class="erp-table table">
         <thead>
           <tr>
             <th (click)="onSort('orderNumber')">رقم الأمر {{ getSortIcon('orderNumber') }}</th>
@@ -53,13 +57,13 @@
               <td>{{ order.dateOut ? (order.dateOut | date:'yyyy-MM-dd') : '-' }}</td>
               <td class="font-mono">{{ order.totalCost | currency:'SAR' }}</td>
               <td>
-                <span class="badge"
+                <span class="erp-status-badge badge"
                       [class.badge-yellow]="order.status === 'Pending'"
                       [class.badge-blue]="order.status === 'In Progress'"
                       [class.badge-green]="order.status === 'Completed'"
                       [class.badge-red]="order.status === 'Canceled'">
-                  {{ order.status === 'Pending' ? 'بانتظار الصيانة' : 
-                     (order.status === 'In Progress' ? 'قيد العمل' : 
+                  {{ order.status === 'Pending' ? 'بانتظار الصيانة' :
+                     (order.status === 'In Progress' ? 'قيد العمل' :
                        (order.status === 'Completed' ? 'مكتملة' : 'ملغاة')) }}
                 </span>
               </td>

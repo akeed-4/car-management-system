@@ -1,4 +1,4 @@
-<mat-toolbar class="report-toolbar">
+<mat-toolbar class="erp-list-toolbar report-toolbar">
   <button mat-stroked-button (click)="refresh.emit()">
     <mat-icon>refresh</mat-icon>
     {{ 'COMMON.REFRESH' | translate }}
@@ -9,7 +9,7 @@
     {{ 'COMMON.COLUMN_CHOOSER' | translate }}
   </button>
 
-  <span class="toolbar-spacer"></span>
+  <span class="erp-toolbar-spacer toolbar-spacer"></span>
 
   <span class="record-count">{{ 'COMMON.RECORD_COUNT' | translate }}: {{ recordCount }}</span>
 
