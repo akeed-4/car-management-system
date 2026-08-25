@@ -569,6 +569,38 @@
     "SELECT_CAR": "Select Car",
     "CAR_REQUIRED_WARNING": "Select a car for every line before saving"
   },
+  "DOCUMENT_COMMON": {
+    "ACTIONS": {
+      "SAVE": "Save",
+      "SAVE_AND_PRINT": "Save & Print",
+      "SAVE_AND_CLOSE": "Save & Close",
+      "SAVE_DRAFT": "Save Draft",
+      "PRINT": "Print",
+      "PREVIEW": "Preview",
+      "CANCEL": "Cancel",
+      "CLOSE": "Close",
+      "POST": "Post",
+      "APPROVE": "Approve",
+      "CONFIRM": "Confirm",
+      "CREATE": "Create",
+      "DUPLICATE": "Duplicate",
+      "DELETE": "Delete",
+      "MORE_ACTIONS": "More actions"
+    },
+    "TOTALS": {
+      "TITLE": "Totals",
+      "SUBTOTAL": "Subtotal",
+      "DISCOUNT": "Discount",
+      "TAX": "Tax",
+      "ADDITIONAL_CHARGES": "Additional charges",
+      "ROUNDING": "Rounding",
+      "GRAND_TOTAL": "Grand total"
+    },
+    "PRINT": {
+      "SAVING_BEFORE_PRINT": "Saving changes before printing…",
+      "SAVE_FAILED": "Could not save the document, printing was cancelled."
+    }
+  },
   "DOCUMENT_LIFECYCLE": {
     "STATUS_DRAFT": "Draft",
     "STATUS_APPROVED": "Approved",

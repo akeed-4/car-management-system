@@ -1,0 +1,15 @@
+<div class="doc-totals">
+  <h3 class="doc-totals-title" *ngIf="titleKey">{{ titleKey | translate }}</h3>
+
+  <div class="doc-totals-row {{ kindClass(row) }}" *ngFor="let row of rows">
+    <span class="doc-totals-label">
+      {{ row.labelKey ? (row.labelKey | translate) : labelFor(row) }}
+      <span class="doc-totals-hint" *ngIf="row.hintKey || row.hint">
+        {{ row.hintKey ? (row.hintKey | translate) : row.hint }}
+      </span>
+    </span>
+    <!-- dir="ltr" keeps signed numeric values readable in RTL layouts, matching
+         the reference design's currency column treatment. -->
+    <span class="doc-totals-value font-mono" dir="ltr">{{ row.value }}</span>
+  </div>
+</div>

@@ -124,14 +124,8 @@
         </div>
 
         <div class="erp-actions-bar d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
-          <button mat-raised-button color="primary" type="submit" class="action-btn"
-            [disabled]="poForm.invalid || poItems.length === 0">
-            <mat-icon class="me-1">save</mat-icon>
-            {{ (isEditMode ? 'COMMON.UPDATE' : 'COMMON.SAVE') | translate }}
-          </button>
-          <button mat-stroked-button type="button" class="action-btn" (click)="onCancel()">
-            {{ 'COMMON.CANCEL' | translate }}
-          </button>
+          <!-- Unified document toolbar (shared across ALL document screens). -->
+          <app-document-toolbar [actions]="toolbarActions()"></app-document-toolbar>
         </div>
 
       </form>

@@ -1,0 +1,75 @@
+/* Unified document action toolbar.
+   Design-system compliant: semantic tokens only, logical CSS properties only
+   (RTL/LTR safe), spacing from the shared scale. */
+
+.doc-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+  margin-bottom: var(--space-3);
+}
+
+.doc-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-inline-start: auto;
+}
+
+/* Visual weight per variant -- mirrors the reference design's green primary
+   Save / blue Preview hierarchy without hardcoding screen-specific colors. */
+.doc-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+}
+
+.doc-action .mat-icon {
+  margin-inline-end: 0;
+}
+
+.doc-action-primary {
+  --mdc-filled-button-container-color: var(--color-success-600, var(--color-primary-600));
+  --mdc-filled-button-label-text-color: #fff;
+}
+
+.doc-action-accent {
+  --mdc-filled-button-container-color: var(--color-primary-600);
+  --mdc-filled-button-label-text-color: #fff;
+}
+
+.doc-action-more {
+  color: var(--text-secondary);
+}
+
+/* Busy state: visual feedback while a save/print round-trip is running. */
+.doc-toolbar-busy .doc-toolbar-actions {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Handset: keep the toolbar reachable, collapse secondary actions (handled in
+   TS via the overflow menu) and stop buttons from wrapping mid-label. */
+@media (max-width: 599px) {
+  .doc-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--surface-card);
+    border-bottom: 1px solid var(--border-default);
+    padding-block: var(--space-2);
+  }
+
+  .doc-toolbar-actions {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .doc-action {
+    flex: 0 0 auto;
+  }
+}

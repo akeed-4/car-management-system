@@ -21,6 +21,7 @@ import { NotificationService } from '../../../services/notification.service';
 import { Supplier } from '../../../models/supplier.model';
 import { CreatePoDto } from '../../../models/purchase-order.model';
 import { ApprovedOfferLookupDto } from '../../../models/purchase-offer.model';
+import { DocumentToolbarComponent, DocumentAction } from '../../shared/document';
 
 interface PoLineItem {
   supplierRfqItemId: number;
@@ -48,7 +49,8 @@ interface PoLineItem {
     MatCardModule,
     DxDataGridModule,
     DxButtonModule,
-    TranslateModule
+    TranslateModule,
+    DocumentToolbarComponent
   ],
   templateUrl: './purchase-order-form.component.html',
   styleUrls: ['./purchase-order-form.component.css']
@@ -306,5 +308,26 @@ debugger
 
   onCancel(): void {
     this.router.navigate(['/purchases/orders']);
+  }
+
+  /** Unified toolbar configuration -- same shared action system as the invoice screens. */
+  toolbarActions(): DocumentAction[] {
+    return [
+      {
+        id: 'save',
+        label: this.isEditMode ? 'COMMON.UPDATE' : 'COMMON.SAVE',
+        icon: 'save',
+        variant: 'primary',
+        disabled: !this.poForm?.valid || this.poItems.length === 0,
+        execute: () => this.onSubmit()
+      },
+      {
+        id: 'cancel',
+        label: 'COMMON.CANCEL',
+        icon: 'close',
+        variant: 'basic',
+        execute: () => this.onCancel()
+      }
+    ];
   }
 }

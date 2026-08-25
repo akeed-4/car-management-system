@@ -19,6 +19,10 @@
     </div>
   </div>
 
+  <!-- Unified document toolbar (shared across ALL document screens): Save / Save & Print /
+       Print / Cancel -- rendered per permissions and document state by DocumentToolbarComponent. -->
+  <app-document-toolbar [actions]="toolbarActions()" [busy]="saving()"></app-document-toolbar>
+
   <!-- BAND 1: ACTION & TRACEABILITY HEADER BAR -->
   <div class="trace-bar">
     <div class="trace-bar-selector">
@@ -288,68 +292,16 @@
         <mat-card class="summary-card">
           <mat-card-title>{{ 'INVOICE.INVOICE_SUMMARY' | translate }}</mat-card-title>
           <mat-card-content>
-            <div class="summary-item">
-              <p>{{ 'INVOICE.SUBTOTAL' | translate }}</p>
-              <p class="font-mono">{{ subtotal() | currency:'SAR':'symbol':'1.0-2' }}</p>
-            </div>
-            <div class="summary-item" *ngIf="discountAmount() > 0">
-              <p>{{ 'INVOICE.DISCOUNT' | translate }} ({{ invoiceForm.get('discountType')?.value === 'Percentage' ? (invoiceForm.get('discountValue')?.value + '%') : ('INVOICE.DISCOUNT_FIXED' | translate) }})</p>
-              <p class="font-mono">- {{ discountAmount() | currency:'SAR':'symbol':'1.0-2' }}</p>
-            </div>
-            <div class="summary-item">
-              <p>{{ 'INVOICE.AMOUNT_AFTER_DISCOUNT' | translate }}</p>
-              <p class="font-mono">{{ amountAfterDiscount() | currency:'SAR':'symbol':'1.0-2' }}</p>
-            </div>
-            <div class="summary-item">
-              <p>{{ 'INVOICE.VAT' | translate }} ({{ vatRate() }}%)</p>
-              <p class="font-mono">+ {{ vatAmount() | currency:'SAR':'symbol':'1.0-2' }}</p>
-            </div>
-            <p class="margin-vat-note" *ngIf="hasMarginVatItems()">
-              {{ 'INVOICE.MARGIN_VAT_NOTE' | translate }}
-            </p>
-            <hr>
-            <div class="summary-item total">
-              <p>{{ 'INVOICE.TOTAL' | translate }}</p>
-              <p class="font-mono">{{ totalAmount() | currency:'SAR':'symbol':'1.0-2' }}</p>
-            </div>
-            <hr>
-            <!-- Payment breakdown: Previously Paid -> Down Payment (if any) -> Current Amount ->
-                 Amount Paid (running total) -> Remaining Balance. Down Payment and Amount Paid are
-                 supporting detail rows, not part of the required 3-tier order, but are placed so
-                 the 3 required rows (Previous Payments/Current Payment/Remaining Balance) still
-                 appear in that relative order. -->
-            <div class="summary-item" *ngIf="previousPayments() > 0">
-              <p>{{ 'INVOICE.PREVIOUS_PAYMENTS' | translate }}</p>
-              <p class="font-mono">- {{ previousPayments() | currency:'SAR':'symbol':'1.0-2' }}</p>
-            </div>
-            <div class="summary-item" *ngIf="saleType !== SaleType.Cash">
-              <p>{{ 'INVOICE.DOWN_PAYMENT' | translate }}</p>
-              <p class="font-mono">{{ downPaymentSignal() | currency:'SAR':'symbol':'1.0-2' }}</p>
-            </div>
-            <div class="summary-item">
-              <p>{{ 'INVOICE.CURRENT_PAYMENT' | translate }}</p>
-              <p class="font-mono">- {{ currentPayment() | currency:'SAR':'symbol':'1.0-2' }}</p>
-            </div>
-            <div class="summary-item">
-              <p>{{ 'INVOICE.AMOUNT_PAID' | translate }}</p>
-              <p class="font-mono">{{ previewAmountPaid() | currency:'SAR':'symbol':'1.0-2' }}</p>
-            </div>
-            <div class="summary-item total">
-              <p>{{ 'INVOICE.REMAINING_BALANCE' | translate }}</p>
-              <p class="font-mono">{{ remainingBalance() | currency:'SAR':'symbol':'1.0-2' }}</p>
-            </div>
-            <div class="summary-item">
-              <p>{{ 'INVOICE.STATUS' | translate }}</p>
-              <p class="font-mono">{{ previewStatus() | translate }}</p>
-            </div>
+            <!-- Shared totals block (DocumentTotalsComponent) -- the same component every other
+                 document screen uses. Rows are built in totalsRows() from the same computed
+                 signals as before; no calculation moved. -->
+            <app-document-totals [rows]="totalsRows()"></app-document-totals>
           </mat-card-content>
 
-          <div class="form-actions">
-            <button mat-raised-button color="primary" class="save-btn" (click)="saveInvoice()" [disabled]="!invoiceForm.get('customer')?.valid || !invoiceForm.get('invoiceDate')?.valid || invoiceForm.get('discountValue')?.invalid || invoiceItems().length === 0">
-              <mat-icon>save</mat-icon>
-              {{ 'INVOICE.ISSUE' | translate }}
-            </button>
-            <a routerLink="/sales" mat-button class="cancel-btn">{{ 'INVOICE.CANCEL' | translate }}</a>
+          <!-- Same shared toolbar as the page top: one action system, rendered twice for
+               reachability (the sticky summary rail keeps Save/Print visible without scrolling). -->
+          <div class="erp-actions-bar form-actions">
+            <app-document-toolbar [actions]="toolbarActions()" [busy]="saving()"></app-document-toolbar>
           </div>
         </mat-card>
       </aside>

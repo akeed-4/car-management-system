@@ -570,6 +570,38 @@
     "SELECT_CAR": "اختر السيارة",
     "CAR_REQUIRED_WARNING": "اختر سيارة لكل سطر قبل الحفظ"
   },
+  "DOCUMENT_COMMON": {
+    "ACTIONS": {
+      "SAVE": "حفظ",
+      "SAVE_AND_PRINT": "حفظ وطباعة",
+      "SAVE_AND_CLOSE": "حفظ وإغلاق",
+      "SAVE_DRAFT": "حفظ كمسودة",
+      "PRINT": "طباعة",
+      "PREVIEW": "معاينة",
+      "CANCEL": "إلغاء",
+      "CLOSE": "إغلاق",
+      "POST": "ترحيل",
+      "APPROVE": "اعتماد",
+      "CONFIRM": "تأكيد",
+      "CREATE": "إنشاء",
+      "DUPLICATE": "نسخ",
+      "DELETE": "حذف",
+      "MORE_ACTIONS": "إجراءات إضافية"
+    },
+    "TOTALS": {
+      "TITLE": "الإجماليات",
+      "SUBTOTAL": "الإجمالي الفرعي",
+      "DISCOUNT": "الخصم",
+      "TAX": "الضريبة",
+      "ADDITIONAL_CHARGES": "رسوم إضافية",
+      "ROUNDING": "التقريب",
+      "GRAND_TOTAL": "الإجمالي النهائي"
+    },
+    "PRINT": {
+      "SAVING_BEFORE_PRINT": "جارٍ حفظ التغييرات قبل الطباعة…",
+      "SAVE_FAILED": "تعذر حفظ المستند، تم إلغاء الطباعة."
+    }
+  },
   "DOCUMENT_LIFECYCLE": {
     "STATUS_DRAFT": "مسودة",
     "STATUS_APPROVED": "معتمد",

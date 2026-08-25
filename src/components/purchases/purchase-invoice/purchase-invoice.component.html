@@ -21,6 +21,10 @@
     </div>
   </div>
 
+  <!-- Unified document toolbar (shared across ALL document screens): Save / Save & Print /
+       Print / Cancel -- rendered per permissions and document state by DocumentToolbarComponent. -->
+  <app-document-toolbar [actions]="toolbarActions()" [busy]="saving()"></app-document-toolbar>
+
   <mat-tab-group class="invoice-tab-group" animationDuration="0ms">
     <mat-tab [label]="'PURCHASE_INVOICE.TAB_DETAILS' | translate">
       <ng-template matTabContent>
@@ -363,53 +367,16 @@
         <mat-card class="summary-card">
           <mat-card-title>{{ 'PURCHASE_INVOICE.INVOICE_SUMMARY' | translate }}</mat-card-title>
           <mat-card-content>
-            <div class="erp-total-row summary-item">
-              <span class="erp-total-label">{{ 'PURCHASE_INVOICE.SUBTOTAL' | translate }}</span>
-              <span class="erp-total-value font-mono">{{ subtotal() | currency:'SAR':'symbol':'1.0-0' }}</span>
-            </div>
-            <div class="erp-total-row summary-item" *ngIf="selectedInvoiceClassification()?.vatRate > 0">
-              <span class="erp-total-label">{{ 'PURCHASE_INVOICE.VAT' | translate }} ({{ selectedInvoiceClassification()?.vatRate }}%)</span>
-              <span class="erp-total-value font-mono">+ {{ vatAmount() | currency:'SAR':'symbol':'1.0-0' }}</span>
-            </div>
-            <hr>
-            <div class="erp-total-row summary-item total">
-              <span class="erp-total-label">{{ 'PURCHASE_INVOICE.TOTAL' | translate }}</span>
-              <span class="erp-total-value font-mono">{{ totalAmount() | currency:'SAR':'symbol':'1.0-0' }}</span>
-            </div>
-            <p class="margin-vat-note" *ngIf="hasMarginVatItems()">
-              {{ 'PURCHASE_INVOICE.MARGIN_VAT_NOTE' | translate }}
-            </p>
-            <hr>
-            <!-- Payment breakdown order (matches sales-invoice-form.component.html): Previously
-                 Paid -> Current Amount -> Remaining Balance. -->
-            <div class="erp-total-row summary-item" *ngIf="previousPayments() > 0">
-              <span class="erp-total-label">{{ 'PURCHASE_INVOICE.PREVIOUS_PAYMENTS' | translate }}</span>
-              <span class="erp-total-value font-mono">{{ previousPayments() | currency:'SAR':'symbol':'1.0-0' }}</span>
-            </div>
-            <div class="erp-total-row summary-item">
-              <span class="erp-total-label">{{ 'PURCHASE_INVOICE.CURRENT_PAYMENT' | translate }}</span>
-              <span class="erp-total-value font-mono">{{ currentPayment() | currency:'SAR':'symbol':'1.0-0' }}</span>
-            </div>
-            <div class="erp-total-row summary-item">
-              <span class="erp-total-label">{{ 'PURCHASE_INVOICE.AMOUNT_PAID' | translate }}</span>
-              <span class="erp-total-value font-mono">{{ previewAmountPaid() | currency:'SAR':'symbol':'1.0-0' }}</span>
-            </div>
-            <div class="erp-total-row summary-item total">
-              <span class="erp-total-label">{{ 'PURCHASE_INVOICE.AMOUNT_DUE' | translate }}</span>
-              <span class="erp-total-value font-mono">{{ previewAmountDue() | currency:'SAR':'symbol':'1.0-0' }}</span>
-            </div>
-            <div class="erp-total-row summary-item">
-              <span class="erp-total-label">{{ 'PURCHASE_INVOICE.PAYMENT_STATUS' | translate }}</span>
-              <span class="erp-total-value font-mono">{{ previewStatus() | translate }}</span>
-            </div>
+            <!-- Shared totals block (DocumentTotalsComponent) -- the same component every other
+                 document screen uses. Rows are built in totalsRows() from the same computed
+                 signals as before; no calculation moved. -->
+            <app-document-totals [rows]="totalsRows()"></app-document-totals>
           </mat-card-content>
 
+          <!-- Same shared toolbar as the page top: one action system, rendered twice for
+               reachability (the sticky summary rail keeps Save/Print visible without scrolling). -->
           <div class="erp-actions-bar form-actions">
-            <button mat-raised-button color="primary" class="save-btn" (click)="saveInvoice()" [disabled]="purchaseInvoiceForm.invalid || invoiceItems().length === 0">
-              <mat-icon>save</mat-icon>
-              {{ 'PURCHASE_INVOICE.SAVE' | translate }}
-            </button>
-            <a [routerLink]="backRoute()" mat-button class="cancel-btn">{{ 'PURCHASE_INVOICE.CANCEL' | translate }}</a>
+            <app-document-toolbar [actions]="toolbarActions()" [busy]="saving()"></app-document-toolbar>
           </div>
         </mat-card>
       </aside>

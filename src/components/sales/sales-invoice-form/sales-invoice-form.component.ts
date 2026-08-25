@@ -1,4 +1,4 @@
-﻿import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, OnInit, Input } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, OnInit, Input, LOCALE_ID } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { AbstractControl, ReactiveFormsModule, FormControl, ValidationErrors, Validators, FormGroup } from '@angular/forms';
@@ -47,6 +47,9 @@ import { SaleType } from '../../../models/sales-enhancements.model';
 import { CashAmountCalculatorComponent } from '../../shared/cash-amount-calculator/cash-amount-calculator.component';
 import { DiscountType } from '../../../models/sales-invoice-financials';
 import { SalesInvoiceCalculationService } from '../../../services/sales-invoice-calculation.service';
+import { Observable, of, map, tap, catchError, finalize } from 'rxjs';
+import { formatCurrency } from '@angular/common';
+import { DocumentToolbarComponent, DocumentTotalsComponent, DocumentPrintService, DocumentAction, DocumentTotalsRow } from '../../shared/document';
 
 export enum InvoiceType {
   Taxable = 'Taxable',
@@ -86,6 +89,8 @@ const PAYMENT_TYPE_POOL: { value: string; labelKey: string }[] = [
     DxDataGridModule,
     TranslateModule,
     CashAmountCalculatorComponent,
+    DocumentToolbarComponent,
+    DocumentTotalsComponent,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './sales-invoice-form.component.html',
@@ -109,6 +114,9 @@ export class SalesInvoiceFormComponent implements OnInit {
     private route = inject(ActivatedRoute);
     private notificationService = inject(NotificationService);
     private calc = inject(SalesInvoiceCalculationService);
+    /** Shared save-before-print workflow + formatting locale for the shared totals block. */
+    private printWorkflow = inject(DocumentPrintService);
+    private localeId = inject(LOCALE_ID);
 
     @Input() customTitle: string | null = null;
   @Input() titleKey = 'INVOICE.CREATE_TITLE';
@@ -155,6 +163,8 @@ export class SalesInvoiceFormComponent implements OnInit {
   invoiceNumber = signal('');
   isEditMode = signal(false);
   currentInvoiceId = signal<number | null>(null);
+  /** True while a save / save-and-print round-trip is in flight (drives the shared toolbar's busy state). */
+  saving = signal(false);
   selectedCustomer = signal<Customer | null>(null);
 
   // Invoice type signal
@@ -269,6 +279,9 @@ export class SalesInvoiceFormComponent implements OnInit {
           ClassificationId: classifications[0].value
         });
       }
+      // Baseline the dirty-tracking snapshot once async defaulting has settled
+      // (see captureDocumentSnapshot) so Print won't save an untouched document.
+      this.captureDocumentSnapshot();
     });
 
     // Load accounts
@@ -501,6 +514,8 @@ export class SalesInvoiceFormComponent implements OnInit {
         // Backend-loaded items don't carry a lineKey -- assign one so the grid's row identity is
         // unique even when a prep-charge line shares its carId with the vehicle line it belongs to.
         this.invoiceItems.set((invoice.items || []).map(item => ({ ...item, lineKey: this.allocateLineKey() })));
+        // Baseline the dirty-tracking snapshot for the freshly loaded document.
+        this.captureDocumentSnapshot();
       },
       error: (error) => {
         console.error('Failed to load invoice for edit', error);
@@ -1012,7 +1027,115 @@ export class SalesInvoiceFormComponent implements OnInit {
   }
 
 
+  // =====================================================================
+  // Shared document UI integration (DocumentToolbar / DocumentPrintService).
+  // Presentation-only: all calculations stay in the existing computed
+  // signals and backend services.
+  // =====================================================================
+
+  /** Serialized form + items state used as the dirty-tracking baseline. */
+  private documentSnapshot = '';
+
+  private captureDocumentSnapshot(): void {
+    this.documentSnapshot = this.serializeDocumentState();
+  }
+
+  private serializeDocumentState(): string {
+    if (!this.invoiceForm) return '';
+    return JSON.stringify({
+      form: this.invoiceForm.getRawValue(),
+      items: this.invoiceItems()
+    });
+  }
+
+  /** True when the user modified the document since the last load/save. Drives
+   * the shared print workflow: clean documents print directly, dirty ones are
+   * saved first so we never print stale server data. */
+  isDocumentDirty(): boolean {
+    if (!this.invoiceForm) return false;
+    return this.serializeDocumentState() !== this.documentSnapshot;
+  }
+
+  /** Same validity rule the save button always enforced, now feeding the shared toolbar. */
+  private canSaveInvoice(): boolean {
+    return !!this.invoiceForm?.get('customer')?.valid
+      && !!this.invoiceForm?.get('invoiceDate')?.valid
+      && !this.invoiceForm?.get('discountValue')?.invalid
+      && this.invoiceItems().length > 0;
+  }
+
+  /** Unified toolbar configuration -- rendered by DocumentToolbarComponent at the
+   * top of the page and in the sticky summary rail. */
+  toolbarActions(): DocumentAction[] {
+    const canSave = this.canSaveInvoice();
+    return [
+      {
+        id: 'save',
+        label: this.isEditMode() ? 'COMMON.SAVE' : 'INVOICE.ISSUE',
+        icon: 'save',
+        variant: 'primary',
+        disabled: !canSave,
+        execute: () => this.saveInvoice()
+      },
+      {
+        id: 'save-print',
+        label: 'DOCUMENT_COMMON.ACTIONS.SAVE_AND_PRINT',
+        icon: 'print',
+        variant: 'accent',
+        disabled: !canSave,
+        execute: () => this.printInvoice()
+      },
+      {
+        id: 'print',
+        label: 'DOCUMENT_COMMON.ACTIONS.PRINT',
+        icon: 'print',
+        variant: 'basic',
+        visible: this.isEditMode(),
+        // A clean persisted document can always be printed; a dirty one only if it can be saved first.
+        disabled: this.isDocumentDirty() && !canSave,
+        execute: () => this.printInvoice()
+      },
+      {
+        id: 'cancel',
+        label: 'INVOICE.CANCEL',
+        icon: 'close',
+        variant: 'basic',
+        execute: () => this.router.navigate(['/sales'])
+      }
+    ];
+  }
+
+  /**
+   * Unified print workflow (DocumentPrintService):
+   * - clean persisted document -> prints directly, no Save call;
+   * - modified document -> saves, waits for the server-confirmed id, then prints;
+   * - new document -> creates, receives the server-confirmed id, then prints it.
+   */
+  printInvoice(): void {
+    if (this.saving()) return;
+    this.saving.set(true);
+    this.printWorkflow.printDocument({
+      isPersisted: this.isEditMode(),
+      isDirty: this.isDocumentDirty(),
+      currentId: this.currentInvoiceId(),
+      save: () => this.saveInvoiceCore(this.isEditMode() ? false : true),
+      print: id => this.printWorkflow.openPrintRoute(`/sales/invoice/print/${id}`),
+      onSettled: () => this.saving.set(false)
+    });
+  }
+
+  /** Issue/Save entry point -- keeps the exact previous behavior (navigate after create). */
   saveInvoice(): void {
+    this.saving.set(true);
+    this.saveInvoiceCore(true).pipe(finalize(() => this.saving.set(false))).subscribe();
+  }
+
+  /**
+   * The screen's single save pipeline. Returns the SERVER-CONFIRMED document id,
+   * or null when validation/save failed. Both the Save button and the shared
+   * save-before-print workflow funnel through here -- no duplicated save logic.
+   */
+  private saveInvoiceCore(navigateAfterSave: boolean): Observable<number | null> {
     const storeId = this.invoiceForm.get('storeId')?.value;
     const customerId = this.invoiceForm.getRawValue().customer;
     const customer = this.customers().find(c => c.id === customerId);
@@ -1020,15 +1143,15 @@ export class SalesInvoiceFormComponent implements OnInit {
 
     if (!storeId) {
       alert(this.translate.instant('INVOICE.SELECT_STORE'));
-      return;
+      return of(null);
     }
     if (!customerId || !customer) {
       alert(this.translate.instant('INVOICE.SELECT_CUSTOMER_OPTION'));
-      return;
+      return of(null);
     }
     if (items.length === 0) {
       alert(this.translate.instant('INVOICE.ADD_AT_LEAST_ONE'));
-      return;
+      return of(null);
     }
 
     // Prepare invoice data (adjust fields as needed)
@@ -1081,43 +1204,102 @@ export class SalesInvoiceFormComponent implements OnInit {
     }
 
     if (this.isEditMode()) {
-      this.salesService.updateInvoice(invoiceData).subscribe({
-        next: () => {
+      return this.salesService.updateInvoice(invoiceData).pipe(
+        map(() => {
           this.notificationService.showSuccess('TOAST.UPDATE_SUCCESS');
-        },
-        error: () => {
+          // Re-baseline dirty tracking so Print now sees a clean document.
+          this.captureDocumentSnapshot();
+          return this.currentInvoiceId();
+        }),
+        catchError(() => {
           this.notificationService.showError('TOAST.SAVE_ERROR');
+          return of(null);
+        })
+      );
+    }
+
+    return this.salesService.addInvoice(invoiceData).pipe(
+      tap(savedInvoice => {
+        this.notificationService.showSuccess('TOAST.ADD_SUCCESS');
+        // Mark preparation charges as applied
+        this.markPreparationChargesAsApplied(savedInvoice.id);
+        // Mark customer order as invoiced
+        const order = this.selectedCustomerOrder();
+        if (order?.id) {
+          this.salesService.markCustomerOrderAsInvoiced(order.id).subscribe();
         }
-      });
-    } else {
-      this.salesService.addInvoice(invoiceData).subscribe({
-        next: (savedInvoice) => {
-          this.notificationService.showSuccess('TOAST.ADD_SUCCESS');
-          // Mark preparation charges as applied
-          this.markPreparationChargesAsApplied(savedInvoice.id);
-          // Mark customer order as invoiced
-          const order = this.selectedCustomerOrder();
-          if (order?.id) {
-            this.salesService.markCustomerOrderAsInvoiced(order.id).subscribe();
-          }
-          // Mark deposit as invoiced
-          const deposit = this.selectedDeposit();
-          if (deposit) {
-            this.depositService.markDepositAsInvoiced(deposit.id).subscribe();
-          }
+        // Mark deposit as invoiced
+        const deposit = this.selectedDeposit();
+        if (deposit) {
+          this.depositService.markDepositAsInvoiced(deposit.id).subscribe();
+        }
+        if (navigateAfterSave) {
           if (this.channel === SalesChannel.Bunuk) {
             // Bank Sales workflow: continue to Vehicle Delivery
             this.router.navigate(['/sales/bank/deliveries/new'], { queryParams: { invoiceId: savedInvoice.id } });
           } else {
             this.router.navigate(['/sales']);
           }
-        },
-        error: (error) => {
-          console.log(error);
-          this.notificationService.showError('TOAST.SAVE_ERROR');
         }
+      }),
+      map(savedInvoice => {
+        // Re-baseline dirty tracking so Print now sees a clean document.
+        this.captureDocumentSnapshot();
+        return savedInvoice.id;
+      }),
+      catchError(error => {
+        console.log(error);
+        this.notificationService.showError('TOAST.SAVE_ERROR');
+        return of(null);
+      })
+    );
+  }
+
+  /** Rows for the shared totals block -- same computed signals the summary rail always used. */
+  totalsRows(): DocumentTotalsRow[] {
+    const fmt = (v: number) => formatCurrency(v, this.localeId, 'SAR', 'symbol', '1.0-2');
+    const rows: DocumentTotalsRow[] = [
+      { labelKey: 'INVOICE.SUBTOTAL', value: fmt(this.subtotal()) }
+    ];
+
+    if (this.discountAmount() > 0) {
+      const isPercentage = this.invoiceForm.get('discountType')?.value === 'Percentage';
+      rows.push({
+        labelKey: 'INVOICE.DISCOUNT',
+        hint: isPercentage
+          ? (this.invoiceForm.get('discountValue')?.value + '%')
+          : this.translate.instant('INVOICE.DISCOUNT_FIXED'),
+        value: '- ' + fmt(this.discountAmount())
       });
     }
+
+    rows.push({ labelKey: 'INVOICE.AMOUNT_AFTER_DISCOUNT', value: fmt(this.amountAfterDiscount()) });
+    rows.push({ labelKey: 'INVOICE.VAT', hint: `${this.vatRate()}%`, value: '+ ' + fmt(this.vatAmount()) });
+
+    if (this.hasMarginVatItems()) {
+      rows.push({ labelKey: 'INVOICE.MARGIN_VAT_NOTE', kind: 'muted', value: '' });
+    }
+
+    rows.push({ labelKey: 'INVOICE.TOTAL', kind: 'total', value: fmt(this.totalAmount()) });
+
+    // Payment breakdown order preserved from the previous summary rail:
+    // Previously Paid -> Down Payment (if any) -> Current Amount -> Amount Paid -> Remaining Balance.
+    if (this.previousPayments() > 0) {
+      rows.push({ labelKey: 'INVOICE.PREVIOUS_PAYMENTS', value: '- ' + fmt(this.previousPayments()) });
+    }
+    if (this.saleType !== SaleType.Cash) {
+      rows.push({ labelKey: 'INVOICE.DOWN_PAYMENT', value: fmt(this.downPaymentSignal()) });
+    }
+    rows.push({ labelKey: 'INVOICE.CURRENT_PAYMENT', value: '- ' + fmt(this.currentPayment()) });
+    rows.push({ labelKey: 'INVOICE.AMOUNT_PAID', value: fmt(this.previewAmountPaid()) });
+    rows.push({ labelKey: 'INVOICE.REMAINING_BALANCE', kind: 'total', value: fmt(this.remainingBalance()) });
+
+    const statusKey = this.previewStatus();
+    if (statusKey) {
+      rows.push({ labelKey: 'INVOICE.STATUS', kind: 'muted', value: this.translate.instant(statusKey) });
+    }
+
+    return rows;
   }
-  
+
 }

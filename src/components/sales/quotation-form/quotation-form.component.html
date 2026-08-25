@@ -65,11 +65,9 @@
         </div>
       </div>
 
+      <!-- Unified document toolbar (shared across ALL document screens). -->
       <div class="erp-actions-bar form-actions">
-        <button mat-button type="button" (click)="onCancel()">{{ 'COMMON.CANCEL' | translate }}</button>
-        <button mat-raised-button color="primary" type="submit" [disabled]="!quotationForm.valid">
-          {{ isEditMode ? ('COMMON.UPDATE' | translate) : ('COMMON.CREATE' | translate) }}
-        </button>
+        <app-document-toolbar [actions]="toolbarActions()"></app-document-toolbar>
       </div>
     </form>
   </div>

@@ -1,5 +1,5 @@
 
-import { ChangeDetectionStrategy, Component, computed, inject, signal, effect, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, effect, Input, OnInit, OnChanges, SimpleChanges, LOCALE_ID } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormsModule, FormGroup, FormBuilder, Validators, AbstractControl, FormControl } from '@angular/forms';
@@ -63,6 +63,9 @@ import { CarsReceiptNoteDto } from '@/src/models/cars-receipt-note.model';
 import { CashAmountCalculatorComponent } from '../../shared/cash-amount-calculator/cash-amount-calculator.component';
 import { PurchaseAdditionalCostListComponent } from '../purchase-additional-cost-list/purchase-additional-cost-list.component';
 import { PurchaseAdditionalCostFormComponent } from '../purchase-additional-cost-form/purchase-additional-cost-form.component';
+import { Observable, of, map, tap, catchError, finalize } from 'rxjs';
+import { formatCurrency } from '@angular/common';
+import { DocumentToolbarComponent, DocumentTotalsComponent, DocumentPrintService, DocumentAction, DocumentTotalsRow } from '../../shared/document';
 
 @Component({
   selector: 'app-purchase-invoice',
@@ -91,6 +94,8 @@ import { PurchaseAdditionalCostFormComponent } from '../purchase-additional-cost
     NgxMatSelectSearchModule,
     PurchaseAdditionalCostListComponent,
     PurchaseAdditionalCostFormComponent,
+    DocumentToolbarComponent,
+    DocumentTotalsComponent,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './purchase-invoice.component.html',
@@ -138,6 +143,9 @@ export class PurchaseInvoiceComponent implements OnInit {
   private dialog = inject(MatDialog);
   private notificationService = inject(NotificationService);
   private oidcSecurityService = inject(OidcSecurityService);
+  /** Shared save-before-print workflow + formatting locale for the shared totals block. */
+  private printWorkflow = inject(DocumentPrintService);
+  private localeId = inject(LOCALE_ID);
   
   // User and showroom information
   private currentUserId = signal<number | null>(null);
@@ -199,6 +207,8 @@ export class PurchaseInvoiceComponent implements OnInit {
   isEditMode = signal(false);
   currentInvoiceId = signal<number | null>(null);
   invoiceNumberSignal = signal<string>('');
+  /** True while a save / save-and-print round-trip is in flight (drives the shared toolbar's busy state). */
+  saving = signal(false);
 
   // Additional Costs tab state -- the tab embeds the standalone list/form components (see
   // purchase-additional-cost-list/-form) instead of routing to them; toggling between the two
@@ -767,6 +777,9 @@ export class PurchaseInvoiceComponent implements OnInit {
         // its own; no manual ChangeDetectorRef/grid.instance.option() call is needed here.
         this.invoiceItems.set(invoice.items || []);
 
+        // Baseline the dirty-tracking snapshot for the freshly loaded document.
+        this.captureDocumentSnapshot();
+
         // Restore linked Car Receipts
         this.linkedReceiptIds.set(invoice.carReceiptIds || []);
         this.loadUninvoicedReceipts();
@@ -959,10 +972,154 @@ export class PurchaseInvoiceComponent implements OnInit {
     }
   }
 
+  // =====================================================================
+  // Shared document UI integration (DocumentToolbar / DocumentTotals /
+  // DocumentPrintService). Presentation-only: all calculations stay in the
+  // existing computed signals and backend services.
+  // =====================================================================
+
+  /** Serialized form + items state used as the dirty-tracking baseline. */
+  private documentSnapshot = '';
+
+  private captureDocumentSnapshot(): void {
+    this.documentSnapshot = this.serializeDocumentState();
+  }
+
+  private serializeDocumentState(): string {
+    if (!this.purchaseInvoiceForm) return '';
+    return JSON.stringify({
+      form: this.purchaseInvoiceForm.getRawValue(),
+      items: this.invoiceItems(),
+      auctionCharges: this.auctionCharges()
+    });
+  }
+
+  /** True when the user modified the document since the last load/save. Drives
+   * the shared print workflow: clean documents print directly, dirty ones are
+   * saved first so we never print stale server data. */
+  isDocumentDirty(): boolean {
+    if (!this.purchaseInvoiceForm) return false;
+    return this.serializeDocumentState() !== this.documentSnapshot;
+  }
+
+  /** Same validity rule the save button always enforced, now feeding the shared toolbar. */
+  private canSaveInvoice(): boolean {
+    return !!this.purchaseInvoiceForm && !this.purchaseInvoiceForm.invalid && this.invoiceItems().length > 0;
+  }
+
+  /** Unified toolbar configuration -- rendered by DocumentToolbarComponent at the
+   * top of the page and in the sticky summary rail. */
+  toolbarActions(): DocumentAction[] {
+    const canSave = this.canSaveInvoice();
+    return [
+      {
+        id: 'save',
+        label: 'PURCHASE_INVOICE.SAVE',
+        icon: 'save',
+        variant: 'primary',
+        disabled: !canSave,
+        execute: () => this.saveInvoice()
+      },
+      {
+        id: 'save-print',
+        label: 'DOCUMENT_COMMON.ACTIONS.SAVE_AND_PRINT',
+        icon: 'print',
+        variant: 'accent',
+        disabled: !canSave,
+        execute: () => this.printInvoice()
+      },
+      {
+        id: 'print',
+        label: 'DOCUMENT_COMMON.ACTIONS.PRINT',
+        icon: 'print',
+        variant: 'basic',
+        visible: this.isEditMode(),
+        // A clean persisted document can always be printed; a dirty one only if it can be saved first.
+        disabled: this.isDocumentDirty() && !canSave,
+        execute: () => this.printInvoice()
+      },
+      {
+        id: 'cancel',
+        label: 'PURCHASE_INVOICE.CANCEL',
+        icon: 'close',
+        variant: 'basic',
+        execute: () => this.router.navigate([this.backRoute()])
+      }
+    ];
+  }
+
+  /**
+   * Unified print workflow (DocumentPrintService):
+   * - clean persisted document -> prints directly, no Save call;
+   * - modified document -> saves, waits for the server-confirmed id, then prints;
+   * - new document -> creates, receives the server-confirmed id, then prints it.
+   */
+  printInvoice(): void {
+    if (this.saving()) return;
+    this.saving.set(true);
+    this.printWorkflow.printDocument({
+      isPersisted: this.isEditMode(),
+      isDirty: this.isDocumentDirty(),
+      currentId: this.currentInvoiceId(),
+      save: () => this.saveInvoiceCore(),
+      print: id => this.printWorkflow.openPrintRoute(`/purchases/invoice/print/${id}`),
+      onSettled: () => this.saving.set(false)
+    });
+  }
+
+  /** Rows for the shared totals block -- same computed signals the summary rail always used. */
+  totalsRows(): DocumentTotalsRow[] {
+    const fmt = (v: number) => formatCurrency(v, this.localeId, 'SAR', 'symbol', '1.0-0');
+    const rows: DocumentTotalsRow[] = [
+      { labelKey: 'PURCHASE_INVOICE.SUBTOTAL', value: fmt(this.subtotal()) }
+    ];
+
+    if ((this.selectedInvoiceClassification()?.vatRate ?? 0) > 0) {
+      rows.push({
+        labelKey: 'PURCHASE_INVOICE.VAT',
+        hint: `${this.selectedInvoiceClassification()?.vatRate}%`,
+        value: '+ ' + fmt(this.vatAmount())
+      });
+    }
+
+    if (this.hasMarginVatItems()) {
+      rows.push({ labelKey: 'PURCHASE_INVOICE.MARGIN_VAT_NOTE', kind: 'muted', value: '' });
+    }
+
+    rows.push({ labelKey: 'PURCHASE_INVOICE.TOTAL', kind: 'total', value: fmt(this.totalAmount()) });
+
+    // Payment breakdown order preserved from the previous summary rail:
+    // Previously Paid -> Current Amount -> Amount Paid -> Amount Due -> Status.
+    if (this.previousPayments() > 0) {
+      rows.push({ labelKey: 'PURCHASE_INVOICE.PREVIOUS_PAYMENTS', value: fmt(this.previousPayments()) });
+    }
+    rows.push({ labelKey: 'PURCHASE_INVOICE.CURRENT_PAYMENT', value: fmt(this.currentPayment()) });
+    rows.push({ labelKey: 'PURCHASE_INVOICE.AMOUNT_PAID', value: fmt(this.previewAmountPaid()) });
+    rows.push({ labelKey: 'PURCHASE_INVOICE.AMOUNT_DUE', kind: 'total', value: fmt(this.previewAmountDue()) });
+    rows.push({
+      labelKey: 'PURCHASE_INVOICE.PAYMENT_STATUS',
+      kind: 'muted',
+      value: this.previewStatus() ? this.translate.instant(this.previewStatus()) : ''
+    });
+
+    return rows;
+  }
+
+  /** Save entry point -- keeps the exact previous behavior (stay on page, switch to edit mode). */
   saveInvoice(): void {
+    this.saving.set(true);
+    this.saveInvoiceCore().pipe(finalize(() => this.saving.set(false))).subscribe();
+  }
+
+  /**
+   * The screen's single save pipeline. Returns the SERVER-CONFIRMED document id,
+   * or null when validation/save failed. Both the Save button and the shared
+   * save-before-print workflow funnel through here -- no duplicated save logic.
+   */
+  private saveInvoiceCore(): Observable<number | null> {
     if (this.purchaseInvoiceForm.invalid) {
       this.notificationService.showError('PURCHASE_INVOICE.ERROR_INVALID_FORM');
-      return;
+      return of(null);
     }
 
     const formValue = this.purchaseInvoiceForm.getRawValue();
@@ -973,7 +1130,7 @@ export class PurchaseInvoiceComponent implements OnInit {
 
     if (!supplierId || !supplier) {
       this.notificationService.showError(this.translate.instant('PURCHASE_INVOICE.ERROR_SELECT_SUPPLIER'));
-      return;
+      return of(null);
     }
     // storeId used to come from CurrentSettingService.getStoreId(), which nothing in the app
     // ever set -- it always returned 0, so a "|| 1" fallback silently targeted store 1. Store
@@ -983,15 +1140,15 @@ export class PurchaseInvoiceComponent implements OnInit {
     // required field on this form, like every other invoice form in the app.
     if (!storeId) {
       this.notificationService.showError(this.translate.instant('PURCHASE_INVOICE.ERROR_SELECT_STORE'));
-      return;
+      return of(null);
     }
     if (items.length === 0) {
       this.notificationService.showError(this.translate.instant('PURCHASE_INVOICE.ERROR_NO_ITEMS'));
-      return;
+      return of(null);
     }
     if (this.totalAmount() <= 0) {
       this.notificationService.showError(this.translate.instant('PURCHASE_INVOICE.ERROR_TOTAL_AMOUNT'));
-      return;
+      return of(null);
     }
 
     // debitAccountId/creditAccountId are nullable here (unlike PurchaseInvoice's own non-nullable
@@ -1035,34 +1192,44 @@ export class PurchaseInvoiceComponent implements OnInit {
       const invoiceId = this.currentInvoiceId();
       if (!invoiceId) {
         this.notificationService.showError('PURCHASE_INVOICE.ERROR_INVALID_ID');
-        return;
+        return of(null);
       }
-      this.procurementService.updateInvoice(invoiceId, newInvoice).subscribe({
-        next: (savedInvoice) => {
+      return this.procurementService.updateInvoice(invoiceId, newInvoice).pipe(
+        map(savedInvoice => {
           this.notificationService.showSuccess(this.translate.instant('TOAST.UPDATE_SUCCESS'));
-        },
-        error: (error) => {
+          // Re-baseline dirty tracking so Print now sees a clean document.
+          this.captureDocumentSnapshot();
+          return invoiceId;
+        }),
+        catchError(error => {
           console.error('Error updating purchase invoice:', error);
           this.notificationService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
-        }
-      });
-    } else {
-      this.procurementService.addInvoice(newInvoice).subscribe({
-        next: (savedInvoice) => {
-            this.notificationService.showSuccess(this.translate.instant('TOAST.ADD_SUCCESS'));
-            // Switch into edit mode for the invoice just created -- without this, currentInvoiceId()
-            // stays null after a fresh save, so the Additional Costs tab (which requires an existing
-            // PurchaseInvoiceId, same as PurchaseAdditionalCost's backend FK) would stay disabled
-            // forever in the same session instead of unlocking right after Save like it should.
-            this.currentInvoiceId.set(savedInvoice.id);
-            this.isEditMode.set(true);
-        },
-        error: (error) => {
-          console.error('Error saving purchase invoice:', error);
-          this.notificationService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
-        }
-      });
+          return of(null);
+        })
+      );
     }
+
+    return this.procurementService.addInvoice(newInvoice).pipe(
+      tap(savedInvoice => {
+        this.notificationService.showSuccess(this.translate.instant('TOAST.ADD_SUCCESS'));
+        // Switch into edit mode for the invoice just created -- without this, currentInvoiceId()
+        // stays null after a fresh save, so the Additional Costs tab (which requires an existing
+        // PurchaseInvoiceId, same as PurchaseAdditionalCost's backend FK) would stay disabled
+        // forever in the same session instead of unlocking right after Save like it should.
+        this.currentInvoiceId.set(savedInvoice.id);
+        this.isEditMode.set(true);
+      }),
+      map(savedInvoice => {
+        // Re-baseline dirty tracking so Print now sees a clean document.
+        this.captureDocumentSnapshot();
+        return savedInvoice.id;
+      }),
+      catchError(error => {
+        console.error('Error saving purchase invoice:', error);
+        this.notificationService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
+        return of(null);
+      })
+    );
   }
 
   editQuantity = (e: any): void => {

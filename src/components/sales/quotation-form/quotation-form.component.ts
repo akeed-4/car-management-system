@@ -11,6 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { DocumentToolbarComponent, DocumentAction } from '../../shared/document';
 
 @Component({
   selector: 'app-quotation-form',
@@ -24,7 +25,8 @@ import { TranslateModule } from '@ngx-translate/core';
     MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    TranslateModule
+    TranslateModule,
+    DocumentToolbarComponent
   ],
   templateUrl: './quotation-form.component.html',
   styleUrls: ['./quotation-form.component.css']
@@ -90,5 +92,26 @@ export class QuotationFormComponent implements OnInit {
 
   onCancel(): void {
     this.router.navigate(['/sales/quotations']);
+  }
+
+  /** Unified toolbar configuration -- same shared action system as the invoice screens. */
+  toolbarActions(): DocumentAction[] {
+    return [
+      {
+        id: 'save',
+        label: this.isEditMode ? 'COMMON.UPDATE' : 'COMMON.CREATE',
+        icon: 'save',
+        variant: 'primary',
+        disabled: !this.quotationForm?.valid,
+        execute: () => this.onSubmit()
+      },
+      {
+        id: 'cancel',
+        label: 'COMMON.CANCEL',
+        icon: 'close',
+        variant: 'basic',
+        execute: () => this.onCancel()
+      }
+    ];
   }
 }

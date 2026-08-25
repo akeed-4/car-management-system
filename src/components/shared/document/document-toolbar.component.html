@@ -1,0 +1,74 @@
+<div class="doc-toolbar" [class.doc-toolbar-busy]="busy" role="toolbar" aria-label="Document actions">
+  <div class="doc-toolbar-actions">
+    <ng-container *ngFor="let action of inlineActions()">
+      <!-- primary: filled accent button (the screen's main Save/Issue action) -->
+      <button *ngIf="!action.variant || action.variant === 'primary'"
+              mat-flat-button
+              type="button"
+              class="doc-action doc-action-primary"
+              [disabled]="busy || action.disabled"
+              [matTooltip]="action.tooltip ? (action.tooltip | translate) : ''"
+              (click)="action.execute()">
+        <mat-icon *ngIf="action.icon" aria-hidden="true">{{ action.icon }}</mat-icon>
+        <span>{{ action.label | translate }}</span>
+      </button>
+
+      <!-- accent: tonal secondary emphasis (Save & Print / Preview) -->
+      <button *ngIf="action.variant === 'accent'"
+              mat-flat-button
+              type="button"
+              class="doc-action doc-action-accent"
+              [disabled]="busy || action.disabled"
+              [matTooltip]="action.tooltip ? (action.tooltip | translate) : ''"
+              (click)="action.execute()">
+        <mat-icon *ngIf="action.icon" aria-hidden="true">{{ action.icon }}</mat-icon>
+        <span>{{ action.label | translate }}</span>
+      </button>
+
+      <!-- danger: destructive actions (Delete / Cancel document) -->
+      <button *ngIf="action.variant === 'danger'"
+              mat-flat-button
+              type="button"
+              color="warn"
+              class="doc-action"
+              [disabled]="busy || action.disabled"
+              [matTooltip]="action.tooltip ? (action.tooltip | translate) : ''"
+              (click)="action.execute()">
+        <mat-icon *ngIf="action.icon" aria-hidden="true">{{ action.icon }}</mat-icon>
+        <span>{{ action.label | translate }}</span>
+      </button>
+
+      <!-- basic: quiet secondary actions -->
+      <button *ngIf="action.variant === 'basic'"
+              mat-stroked-button
+              type="button"
+              class="doc-action"
+              [disabled]="busy || action.disabled"
+              [matTooltip]="action.tooltip ? (action.tooltip | translate) : ''"
+              (click)="action.execute()">
+        <mat-icon *ngIf="action.icon" aria-hidden="true">{{ action.icon }}</mat-icon>
+        <span>{{ action.label | translate }}</span>
+      </button>
+    </ng-container>
+
+    <!-- More actions: overflow for secondary/destructive/collapsed actions -->
+    <ng-container *ngIf="overflowActions().length > 0">
+      <button mat-icon-button type="button" class="doc-action-more"
+              [matMenuTriggerFor]="moreMenu"
+              [matTooltip]="showMoreLabel | translate"
+              [attr.aria-label]="showMoreLabel | translate">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #moreMenu="matMenu" xPosition="before">
+        <ng-container *ngFor="let action of overflowActions()">
+          <button mat-menu-item type="button"
+                  [disabled]="busy || action.disabled"
+                  (click)="action.execute()">
+            <mat-icon *ngIf="action.icon" aria-hidden="true">{{ action.icon }}</mat-icon>
+            <span>{{ action.label | translate }}</span>
+          </button>
+        </ng-container>
+      </mat-menu>
+    </ng-container>
+  </div>
+</div>
