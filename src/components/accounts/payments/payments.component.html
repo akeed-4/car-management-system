@@ -15,130 +15,29 @@
   <div #toastContainer id="toast-payments-container" class="toast-container-local"></div>
 
   <div class="erp-grid-card">
-    <!-- Mobile (<=840px): rows render as full-width cards instead of the grid's
-         clipped/scrolling columns -- same data, same edit/delete actions. -->
-    @if (isMobile()) {
-      <app-mobile-card-list
-        [items]="mobilePayments()"
-        [fields]="mobileFields"
-        [titleOf]="mobileTitleOf"
-        [trackByFn]="mobileTrackBy"
-        emptyMessage="COMMON.NO_DATA"
-      >
-        <ng-template let-item>
-          <button type="button" class="btn btn-light" (click)="mobileEdit(item)">{{ 'COMMON.EDIT' | translate }}</button>
-          <button type="button" class="btn btn-light" (click)="mobileDelete(item)">{{ 'COMMON.DELETE' | translate }}</button>
-        </ng-template>
-      </app-mobile-card-list>
-    } @else {
-    <dx-data-grid
-     #dataGrid
-     id="dataGrid"
+    <!-- Shared DataGrid: owns grid chrome, row actions, and the mobile card-list
+         rendering (same rows/actions as before). -->
+    <app-shared-data-grid
       [dataSource]="dataSource"
-      [remoteOperations]="true"
-      [showBorders]="true"
-      [showRowLines]="true"
-      [showColumnLines]="true"
-      [rtlEnabled]="true"
-      [wordWrapEnabled]="false"
-      [columnAutoWidth]="true"
-      [allowColumnReordering]="true"
-      [allowColumnResizing]="true"
+      [columns]="columns"
+      [rowActions]="rowActions"
+      [summaryItems]="summaryItems"
       keyExpr="id"
-      class="payments-grid">
+      searchPlaceholder="COMMON.SEARCH"
+      noDataText="COMMON.NO_DATA"
+      [pageSize]="10"
+      [allowedPageSizes]="[5, 10, 20]"
+      [mobileItems]="mobilePayments()"
+      [mobileFields]="mobileFields"
+      [mobileTitleOf]="mobileTitleOf"
+      [mobileTrackBy]="mobileTrackBy"
+      (rowAction)="onGridAction($event)">
 
-      <dxo-search-panel
-        [visible]="true">
-      </dxo-search-panel>
-
-      <dxo-grouping [autoExpandAll]="false"></dxo-grouping>
-
-      <dxo-paging
-        [pageSize]="10">
-        <dxo-pager
-          [visible]="true"
-          [allowedPageSizes]="[5, 10, 20]"
-          [displayMode]="'compact'"
-          [showPageSizeSelector]="true"
-          [showInfo]="true"
-          [showNavigationButtons]="true">
-        </dxo-pager>
-      </dxo-paging>
-
-      <dxo-filter-row [visible]="true"></dxo-filter-row>
-
-      <dxo-header-filter [visible]="true"></dxo-header-filter>
-
-      <dxi-column
-        dataField="voucherNumber"
-        [caption]="'ACCOUNTS.PAYMENTS.COL_VOUCHER_NUMBER' | translate"
-        [alignment]="'right'"
-       >
-      </dxi-column>
-
-      <dxi-column
-        dataField="voucherDate"
-        [caption]="'ACCOUNTS.PAYMENTS.COL_DATE' | translate"
-        dataType="date"
-        format="yyyy-MM-dd"
-        [alignment]="'right'"
-        >
-      </dxi-column>
-
-      <dxi-column
-        dataField="supplierName"
-        [caption]="'ACCOUNTS.PAYMENTS.COL_SUPPLIER' | translate"
-        [alignment]="'right'"
-       >
-      </dxi-column>
-
-      <dxi-column
-        dataField="purchaseInvoiceNumber"
-        [caption]="'ACCOUNTS.PAYMENTS.COL_INVOICE' | translate"
-        [alignment]="'right'"
-       >
-      </dxi-column>
-
-      <dxi-column
-        dataField="amount"
-        [caption]="'ACCOUNTS.PAYMENTS.COL_AMOUNT' | translate"
-        dataType="number"
-        format="currency"
-        [alignment]="'right'"
-        >
-        <dxo-format
-          type="currency"
-          [precision]="2"
-          currency="SAR">
-        </dxo-format>
-      </dxi-column>
-
-      <dxi-column
-        type="buttons"
-        [width]="120"
-        [caption]="'ACCOUNTS.PAYMENTS.COL_ACTIONS' | translate">
-        <dxi-button
-        icon="edit"
-          text="Edit"
-          [onClick]="editPayment">
-        </dxi-button>
-        <dxi-button
-        icon="trash"
-          text="Delete"
-          [onClick]="deletePayment">
-        </dxi-button>
-      </dxi-column>
-
-      <dxo-summary>
-        <dxi-total-item
-          column="amount"
-          summaryType="sum"
-          [alignment]="'right'"
-        >
-        </dxi-total-item>
-      </dxo-summary>
-
-    </dx-data-grid>
-    }
+      <!-- Mobile per-row actions (same edit/delete behavior as before) -->
+      <ng-template let-item>
+        <button type="button" class="btn btn-light" (click)="mobileEdit(item)">{{ 'COMMON.EDIT' | translate }}</button>
+        <button type="button" class="btn btn-light" (click)="mobileDelete(item)">{{ 'COMMON.DELETE' | translate }}</button>
+      </ng-template>
+    </app-shared-data-grid>
   </div>
 </div>

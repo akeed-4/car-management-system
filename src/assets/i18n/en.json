@@ -2224,7 +2224,11 @@
       "COL_CUSTOMER": "Customer",
       "COL_INVOICE": "Invoice Number",
       "COL_AMOUNT": "Amount",
-      "NO_RECEIPTS": "No receipt vouchers registered."
+      "NO_RECEIPTS": "No receipt vouchers registered.",
+      "COL_ACTIONS": "Actions",
+      "EDIT": "Edit",
+      "DELETE": "Delete",
+      "POST": "Post"
     },
     "FLOOR_PLAN_REPORT": {
       "TITLE": "Financed Cars Report",
@@ -3291,6 +3295,13 @@
     "PARENT_ACCOUNT": "Parent Account",
     "PARENT_ACCOUNT_NOT_SELECTED": "Not selected yet",
     "THIS_ACCOUNT": "This Account",
+    "FORM_SUBTITLE_CREATE": "Create a new chart of accounts entry",
+    "FORM_SUBTITLE_EDIT": "Update this chart of accounts entry",
+    "SECTION_ACCOUNT_INFO": "Account Information",
+    "SECTION_HIERARCHY": "Account Hierarchy",
+    "SECTION_CONFIG": "Accounting Configuration",
+    "SECTION_ADDITIONAL_INFO": "Additional Information",
+    "SAVE_ACCOUNT": "Save Account",
     "CODE_AUTO_GENERATED_HINT": "Auto-generated from the parent account; you can edit it if needed",
     "LOCKED_HAS_POSTED_ENTRIES": "This account has posted journal entries, so its code, type, currency, and parent account can no longer be changed. Name, notes, status, and cost center settings can still be edited.",
     "CURRENCY": "Currency",

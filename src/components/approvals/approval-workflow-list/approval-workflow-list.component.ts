@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, viewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -7,9 +7,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DxDataGridModule } from 'devextreme-angular';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../shared/shared-data-grid/shared-data-grid.component';
 import { ApprovalService } from '../../../services/approval.service';
 import { ApprovalWorkflow, DOCUMENT_TYPES } from '../../../models/approval-workflow.model';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 import { ToastService } from '../../../services/toast.service';
 import { NotificationService } from '../../../services/notification.service';
 
@@ -25,7 +29,7 @@ import { NotificationService } from '../../../services/notification.service';
     MatChipsModule,
     MatTooltipModule,
     TranslateModule,
-    DxDataGridModule
+    SharedDataGridComponent
   ],
   templateUrl: './approval-workflow-list.component.html',
   styleUrls: ['./approval-workflow-list.component.css']
@@ -41,12 +45,54 @@ export class ApprovalWorkflowListComponent implements OnInit {
 
   documentTypes = DOCUMENT_TYPES;
 
-  constructor() {
-    this.editWorkflowClick = this.editWorkflowClick.bind(this);
-    this.toggleStatusClick = this.toggleStatusClick.bind(this);
-    this.deleteWorkflowClick = this.deleteWorkflowClick.bind(this);
-    this.statusIcon = this.statusIcon.bind(this);
-    this.statusHint = this.statusHint.bind(this);
+  /** Screen-specific cell renderers passed generically to the Shared DataGrid. */
+  private documentTypeTpl = viewChild<TemplateRef<any>>('documentTypeTemplate');
+  private levelsTpl = viewChild<TemplateRef<any>>('levelsTemplate');
+  private statusTpl = viewChild<TemplateRef<any>>('statusTemplate');
+
+  get cellTemplates(): Record<string, TemplateRef<any>> {
+    const doc = this.documentTypeTpl();
+    const levels = this.levelsTpl();
+    const status = this.statusTpl();
+    return {
+      ...(doc ? { documentTypeTemplate: doc } : {}),
+      ...(levels ? { levelsTemplate: levels } : {}),
+      ...(status ? { statusTemplate: status } : {}),
+    };
+  }
+
+  /** Config-driven columns -- same fields/formats as before (captions are i18n keys). */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'workflowName', dataType: 'string', caption: 'APPROVALS.WORKFLOW_NAME', width: 250 },
+    { dataField: 'documentType', dataType: 'string', caption: 'APPROVALS.DOCUMENT_TYPE', width: 180, cellTemplate: 'documentTypeTemplate' },
+    { dataField: 'description', dataType: 'string', caption: 'APPROVALS.DESCRIPTION', minWidth: 200 },
+    { dataField: 'levels', dataType: 'string', caption: 'APPROVALS.LEVELS', width: 100, alignment: 'center', cellTemplate: 'levelsTemplate', allowSorting: false, allowFiltering: false },
+    { dataField: 'isActive', dataType: 'boolean', caption: 'APPROVALS.STATUS', width: 120, alignment: 'center', cellTemplate: 'statusTemplate', allowSorting: false, allowFiltering: false },
+    { dataField: 'actions', dataType: 'string', type: 'actions', caption: 'APPROVALS.ACTIONS', width: 180, allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Already-authorized actions -- the activate/deactivate pair replaces the old
+   *  dynamic-icon button using the built-in per-row visibility support. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'APPROVALS.EDIT_WORKFLOW' },
+    {
+      id: 'deactivate', icon: 'check_circle',
+      labelKey: 'APPROVALS.DEACTIVATE_WORKFLOW',
+      visible: (row: ApprovalWorkflow) => !!row.isActive,
+    },
+    {
+      id: 'activate', icon: 'cancel',
+      labelKey: 'APPROVALS.ACTIVATE_WORKFLOW',
+      visible: (row: ApprovalWorkflow) => !row.isActive,
+    },
+    { id: 'delete', icon: 'trash', labelKey: 'APPROVALS.DELETE_WORKFLOW' },
+  ];
+
+  onGridAction(e: SharedGridRowActionEvent): void {
+    const workflow = e.row as ApprovalWorkflow;
+    if (e.actionId === 'edit') this.editWorkflow(workflow.id);
+    else if (e.actionId === 'activate' || e.actionId === 'deactivate') this.toggleStatus(workflow);
+    else if (e.actionId === 'delete') this.deleteWorkflow(workflow);
   }
 
   ngOnInit(): void {
@@ -78,26 +124,6 @@ export class ApprovalWorkflowListComponent implements OnInit {
 
   viewWorkflow(id: number): void {
     this.router.navigate(['/approvals/workflows/view', id]);
-  }
-
-  editWorkflowClick(e: any): void {
-    this.editWorkflow(e.row.data.id);
-  }
-
-  toggleStatusClick(e: any): void {
-    this.toggleStatus(e.row.data);
-  }
-
-  deleteWorkflowClick(e: any): void {
-    this.deleteWorkflow(e.row.data);
-  }
-
-  statusIcon(e: any): string {
-    return this.getStatusIcon(e.row.data);
-  }
-
-  statusHint(e: any): string {
-    return this.translate.instant(this.getStatusHint(e.row.data));
   }
 
   async toggleStatus(workflow: ApprovalWorkflow): Promise<void> {

@@ -1,0 +1,81 @@
+/* Shared DataGrid -- thin wrapper around dx-data-grid.
+   Visual identity stays with the existing ERP design system (.erp-grid-card
+   wrappers live in the screens); only wrapper-specific chrome lives here. */
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.shared-data-grid {
+  position: relative;
+  min-width: 0;
+}
+
+/* Built-in row-actions cell */
+.sdg-actions-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.sdg-actions-cell button mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.sdg-actions-cell button.warn {
+  color: var(--status-danger-fg);
+}
+
+/* Built-in boolean-icon cell */
+.sdg-check-cell mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.sdg-check-cell .sdg-check-on {
+  color: var(--status-success-fg);
+}
+
+.sdg-check-cell .sdg-check-off {
+  color: var(--status-danger-fg);
+}
+
+/* Status badge cells inherit .erp-status-badge global styling already. */
+
+/* Loading overlay (screen-driven via [loading]) */
+.sdg-loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--surface-card, #fff) 60%, transparent);
+  border-radius: inherit;
+  pointer-events: all;
+}
+
+.sdg-loading-spinner {
+  inline-size: 40px;
+  block-size: 40px;
+  border-radius: 50%;
+  border: 3px solid var(--color-primary-100, #e3f2fd);
+  border-top-color: var(--color-primary-600, #1e88e5);
+  animation: sdg-spin 0.9s linear infinite;
+}
+
+@keyframes sdg-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sdg-loading-spinner {
+    animation-duration: 0s;
+  }
+}

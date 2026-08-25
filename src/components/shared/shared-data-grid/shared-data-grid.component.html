@@ -1,0 +1,174 @@
+<div class="shared-data-grid" [class.sdg-loading]="loading">
+  <!-- Mobile: the shared card list is THE responsive rendering for index screens
+       (same rows/actions as the grid; no per-screen CSS hacks). -->
+  @if (showMobileCards && isMobile) {
+    <app-mobile-card-list
+      [items]="mobileItems"
+      [fields]="mobileFields!"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      [emptyMessage]="noDataText">
+      <ng-template let-item [ngTemplateOutlet]="mobileActionsTemplate" [ngTemplateOutletContext]="{ $implicit: item }"></ng-template>
+    </app-mobile-card-list>
+  } @else {
+    <dx-data-grid
+      [dataSource]="dataSource"
+      [keyExpr]="keyExpr"
+      [rtlEnabled]="resolvedRtl"
+      [height]="resolvedHeight"
+      [remoteOperations]="dxRemoteOperations ?? false"
+      [showBorders]="true"
+      [showRowLines]="true"
+      [showColumnLines]="true"
+      [rowAlternationEnabled]="true"
+      [columnAutoWidth]="true"
+      [allowColumnReordering]="true"
+      [allowColumnResizing]="true"
+      [hoverStateEnabled]="true"
+      [selection]="{ mode: selectionMode }"
+      [selectedRowKeys]="selectedRowKeys ?? []"
+      [loadPanel]="{ enabled: true, text: loadingTextOf() }"
+      [noDataText]="noDataTextOf()"
+      (onOptionChanged)="onOptionChanged($event)"
+      (onRowClick)="onRowClick($event)"
+      (onRowDblClick)="rowDblClick.emit($event?.data)"
+      (onSelectionChanged)="onSelectionChanged($event)">
+
+      <dxo-search-panel
+        [visible]="showSearchPanel"
+        [width]="240"
+        [placeholder]="searchPlaceholderOf()">
+      </dxo-search-panel>
+
+      <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
+      <dxo-header-filter [visible]="showHeaderFilter"></dxo-header-filter>
+
+      @if (showGroupPanel) {
+        <dxo-grouping [autoExpandAll]="false" [contextMenuEnabled]="true"></dxo-grouping>
+        <dxo-group-panel [visible]="true"></dxo-group-panel>
+      }
+
+      @if (showColumnChooser) {
+        <dxo-column-chooser [enabled]="true" mode="select"></dxo-column-chooser>
+      }
+
+      <dxo-paging
+        [pageSize]="resolvedPageSize"
+        [pageIndex]="pageIndex ?? 0">
+      </dxo-paging>
+
+      @if (exportFileName) {
+        <dxo-export [enabled]="true" [fileName]="exportFileName"></dxo-export>
+      }
+
+      <dxo-scrolling [mode]="scrollingMode"></dxo-scrolling>
+
+      <dxo-pager
+        [visible]="true"
+        [displayMode]="resolvedPagerDisplayMode"
+        [allowedPageSizes]="resolvedAllowedPageSizes"
+        [showPageSizeSelector]="true"
+        [showInfo]="true"
+        [showNavigationButtons]="true">
+      </dxo-pager>
+
+      <!-- Config-driven columns (existing dataGridColumnDto model) -->
+      @for (column of columns; track column.dataField) {
+        <dxi-column
+          [dataField]="column.dataField"
+          [caption]="captionOf(column)"
+          [dataType]="column.dataType || 'string'"
+          [format]="column.format"
+          [alignment]="column.alignment"
+          [width]="column.width"
+          [minWidth]="column.minWidth"
+          [cssClass]="column.cssClass"
+          [visible]="column.visible !== false"
+          [fixed]="column.fixed"
+          [cellTemplate]="templateOf(column)"
+          [allowSorting]="column.allowSorting !== false"
+          [allowFiltering]="column.allowFiltering !== false && column.type !== 'actions'"
+          [allowHeaderFiltering]="column.allowHeaderFiltering ?? showHeaderFilter"
+          [allowReordering]="column.allowReordering ?? true"
+          [sortOrder]="column.sortOrder"
+          [sortIndex]="column.sortIndex"
+          [calculateDisplayValue]="column.calculateDisplayValue"
+          [lookup]="column.lookup">
+        </dxi-column>
+      }
+
+      <!-- Built-in status badge template (type: 'status') -->
+      <div *dxTemplate="let cell of 'sdgStatusTemplate'">
+        <span class="erp-status-badge" [ngClass]="statusClass(cell)">
+          {{ statusText(cell) }}
+        </span>
+      </div>
+
+      <!-- Built-in boolean-icon template (type: 'check') -->
+      <div *dxTemplate="let cell of 'sdgCheckTemplate'" class="sdg-check-cell">
+        @if (cell.value) {
+          <mat-icon class="sdg-check-on">check_circle</mat-icon>
+        } @else {
+          <mat-icon class="sdg-check-off">cancel</mat-icon>
+        }
+      </div>
+
+      <!-- Built-in row-actions template (type: 'actions') -->
+      <div *dxTemplate="let cell of 'sdgActionsTemplate'" class="sdg-actions-cell">
+        @for (action of visibleActions(cell.data); track action.id) {
+          <button
+            type="button"
+            mat-icon-button
+            [class]="action.cssClass"
+            [disabled]="actionDisabled(action, cell.data)"
+            [matTooltip]="labelOf(action)"
+            [attr.aria-label]="labelOf(action)"
+            (click)="doAction(action, cell.data, $event)">
+            <mat-icon>{{ action.icon }}</mat-icon>
+          </button>
+        }
+      </div>
+
+      <!-- Screen-provided custom cell templates (keyed by column.cellTemplate) -->
+      @for (name of customTemplateNames; track name) {
+        <ng-template dxTemplate let-cell [dxTemplateOf]="name">
+          <ng-container
+            [ngTemplateOutlet]="cellTemplates![name]"
+            [ngTemplateOutletContext]="{ $implicit: cell }">
+          </ng-container>
+        </ng-template>
+      }
+
+      <!-- Optional totals summary -->
+      @if (summaryItems.length > 0) {
+        <dxo-summary>
+          @for (item of summaryItems; track $index) {
+            <dxi-total-item
+              [column]="item.column"
+              [summaryType]="item.summaryType"
+              [valueFormat]="item.valueFormat"
+              [displayFormat]="item.displayFormat"
+              [alignment]="item.alignment"
+              [alignByColumn]="item.alignByColumn">
+            </dxi-total-item>
+          }
+        </dxo-summary>
+      }
+
+      @if (stateStoringKey) {
+        <dxo-state-storing
+          [enabled]="true"
+          type="localStorage"
+          [storageKey]="stateStoringKey">
+        </dxo-state-storing>
+      }
+    </dx-data-grid>
+
+    <!-- Shared loading overlay (screen-driven via [loading]) -->
+    @if (loading) {
+      <div class="sdg-loading-overlay" role="status" [attr.aria-label]="loadingTextOf()">
+        <div class="sdg-loading-spinner"></div>
+      </div>
+    }
+  }
+</div>

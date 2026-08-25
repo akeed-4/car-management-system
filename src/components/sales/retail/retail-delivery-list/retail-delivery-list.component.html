@@ -14,40 +14,21 @@
   </div>
 
   <div class="erp-grid-card">
-  <dx-data-grid
+  <!-- Shared DataGrid: owns grid chrome/paging/row actions (same view button,
+       double-click opens the delivery). -->
+  <app-shared-data-grid
     [dataSource]="deliveryNotes()"
-    [showBorders]="true"
-    [columnAutoWidth]="true"
-    [rowAlternationEnabled]="true"
-    [rtlEnabled]="true"
+    [columns]="columns"
+    [rowActions]="rowActions"
+    [loading]="loading()"
+    keyExpr="id"
     height="600px"
-    [showRowLines]="true"
-    [allowColumnReordering]="true"
-    [allowColumnResizing]="true"
-    [noDataText]="'CORPORATE.NO_DELIVERIES' | translate"
-    (onRowDblClick)="onView($event)"
-    keyExpr="id">
-
-    <dxo-search-panel [visible]="true"></dxo-search-panel>
-    <dxo-filter-row [visible]="true"></dxo-filter-row>
-    <dxo-header-filter [visible]="true"></dxo-header-filter>
-    <dxo-paging [pageSize]="10"></dxo-paging>
-    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
-
-    <dxi-column dataField="deliveryNoteNumber" [caption]="'CORPORATE.DELIVERY_NOTE_NUMBER' | translate"></dxi-column>
-    <dxi-column dataField="vin" caption="VIN"></dxi-column>
-    <dxi-column dataField="gatePassSerial" [caption]="'CORPORATE.GATE_PASS_SERIAL' | translate"></dxi-column>
-    <dxi-column dataField="deliveryDate" [caption]="'CORPORATE.DELIVERY_DATE' | translate" dataType="date"></dxi-column>
-    <dxi-column dataField="deliveredToName" [caption]="'CORPORATE.RECEIVER_NAME' | translate"></dxi-column>
-    <dxi-column dataField="driverName" [caption]="'CORPORATE.DRIVER_NAME' | translate"></dxi-column>
-
-    <dxi-column type="buttons" [width]="80">
-      <dxi-button
-        icon="find"
-        [hint]="'COMMON.VIEW' | translate"
-        [onClick]="onView">
-      </dxi-button>
-    </dxi-column>
-  </dx-data-grid>
+    searchPlaceholder="COMMON.SEARCH"
+    noDataText="CORPORATE.NO_DELIVERIES"
+    [pageSize]="10"
+    [allowedPageSizes]="[10, 20, 50]"
+    (rowDblClick)="onView($event)"
+    (rowAction)="onGridAction($event)">
+  </app-shared-data-grid>
   </div>
 </div>

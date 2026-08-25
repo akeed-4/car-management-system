@@ -4,166 +4,216 @@
 <div class="erp-page" *ngIf="!isQuickAddDialog">
   <div class="erp-page-header">
     <div class="erp-page-header-titles">
-      <h2 class="erp-page-title">{{ (isEditing ? 'ACCOUNTING.EDIT_ACCOUNT' : 'ACCOUNTING.ADD_ACCOUNT') | translate }}</h2>
+      <div class="acc-header-titles">
+        <div class="acc-title-icon" aria-hidden="true">
+          <mat-icon>account_balance</mat-icon>
+        </div>
+        <div>
+          <span class="erp-page-eyebrow">{{ 'ACCOUNTING.CHART_OF_ACCOUNTS' | translate }}</span>
+          <h2 class="erp-page-title">{{ (isEditing ? 'ACCOUNTING.EDIT_ACCOUNT' : 'ACCOUNTING.ADD_ACCOUNT') | translate }}</h2>
+          <p class="erp-page-subtitle">{{ (isEditing ? 'ACCOUNTING.FORM_SUBTITLE_EDIT' : 'ACCOUNTING.FORM_SUBTITLE_CREATE') | translate }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="erp-page-actions">
+      <button mat-stroked-button type="button" (click)="onCancel()" [disabled]="isSaving">
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'ACCOUNTING.CANCEL' | translate }}
+      </button>
+      <button mat-raised-button color="primary" type="button" (click)="onSave()" [disabled]="accountForm.invalid || isSaving">
+        <mat-icon>save</mat-icon>
+        <span *ngIf="!isSaving">{{ 'ACCOUNTING.SAVE_ACCOUNT' | translate }}</span>
+        <span *ngIf="isSaving">{{ 'ACCOUNTING.SAVING' | translate }}</span>
+      </button>
     </div>
   </div>
-  <div class="erp-card">
-    <div class="erp-section">
-      <ng-container *ngTemplateOutlet="formTemplate"></ng-container>
-    </div>
-  </div>
+
+  <ng-container *ngTemplateOutlet="formTemplate"></ng-container>
 </div>
 <ng-container *ngIf="isQuickAddDialog">
   <ng-container *ngTemplateOutlet="formTemplate"></ng-container>
 </ng-container>
 
 <ng-template #formTemplate>
-    <form [formGroup]="accountForm" (ngSubmit)="onSave()" class="form" [class.mat-dialog-content]="isQuickAddDialog">
+    <form [formGroup]="accountForm" (ngSubmit)="onSave()" class="form acc-form" [class.acc-form-dialog]="isQuickAddDialog" [class.mat-dialog-content]="isQuickAddDialog">
 
+      <!-- Two-column ERP workspace: form sections + live summary sidebar -->
+      <div class="acc-layout">
+        <div class="acc-main">
       <!-- Account Type Selection - Professional Design -->
-      <div class="account-type-selection-section">
-        <div class="section-header">
-          <h3 class="section-title">
-            <mat-icon>account_balance_wallet</mat-icon>
-            {{ 'ACCOUNTING.SELECT_ACCOUNT_TYPE' | translate }}
-          </h3>
-          <p class="section-subtitle">{{ 'ACCOUNTING.SELECT_ACCOUNT_TYPE_DESC' | translate }}</p>
-        </div>
+      <div class="erp-card acc-card">
+        <div class="erp-section">
+          <div class="section-header">
+            <h3 class="section-title">
+              <mat-icon>account_balance_wallet</mat-icon>
+              {{ 'ACCOUNTING.SELECT_ACCOUNT_TYPE' | translate }}
+            </h3>
+            <p class="section-subtitle">{{ 'ACCOUNTING.SELECT_ACCOUNT_TYPE_DESC' | translate }}</p>
+          </div>
 
-        <div class="account-type-cards">
-          <mat-card
-            class="account-type-card"
-            [class.selected]="accountForm.get('accountTypeSelection')?.value === 'main'"
-            [class.locked]="hasPostedTransactions"
-            (click)="!hasPostedTransactions && accountForm.get('accountTypeSelection')?.setValue('main')">
-            <mat-card-content class="card-content">
-              <div class="card-icon">
-                <mat-icon>account_balance</mat-icon>
-              </div>
-              <div class="card-text">
-                <h4>{{ 'ACCOUNTING.MAIN_ACCOUNT' | translate }}</h4>
-                <p>{{ 'ACCOUNTING.MAIN_ACCOUNT_DESC' | translate }}</p>
-              </div>
-              <mat-radio-button
-                value="main"
-                formControlName="accountTypeSelection"
-                class="card-radio">
-              </mat-radio-button>
-            </mat-card-content>
-          </mat-card>
+          <div class="account-type-cards">
+            <mat-card
+              class="account-type-card"
+              [class.selected]="accountForm.get('accountTypeSelection')?.value === 'main'"
+              [class.locked]="hasPostedTransactions"
+              (click)="!hasPostedTransactions && accountForm.get('accountTypeSelection')?.setValue('main')">
+              <mat-card-content class="card-content">
+                <div class="card-icon">
+                  <mat-icon>account_balance</mat-icon>
+                </div>
+                <div class="card-text">
+                  <h4>{{ 'ACCOUNTING.MAIN_ACCOUNT' | translate }}</h4>
+                  <p>{{ 'ACCOUNTING.MAIN_ACCOUNT_DESC' | translate }}</p>
+                </div>
+                <mat-radio-button
+                  value="main"
+                  formControlName="accountTypeSelection"
+                  class="card-radio">
+                </mat-radio-button>
+              </mat-card-content>
+            </mat-card>
 
-          <mat-card
-            class="account-type-card"
-            [class.selected]="accountForm.get('accountTypeSelection')?.value === 'partial'"
-            [class.locked]="hasPostedTransactions"
-            (click)="!hasPostedTransactions && accountForm.get('accountTypeSelection')?.setValue('partial')">
-            <mat-card-content class="card-content">
-              <div class="card-icon">
-                <mat-icon>account_tree</mat-icon>
-              </div>
-              <div class="card-text">
-                <h4>{{ 'ACCOUNTING.PARTIAL_ACCOUNT' | translate }}</h4>
-                <p>{{ 'ACCOUNTING.PARTIAL_ACCOUNT_DESC' | translate }}</p>
-              </div>
-              <mat-radio-button
-                value="partial"
-                formControlName="accountTypeSelection"
-                class="card-radio">
-              </mat-radio-button>
-            </mat-card-content>
-          </mat-card>
+            <mat-card
+              class="account-type-card"
+              [class.selected]="accountForm.get('accountTypeSelection')?.value === 'partial'"
+              [class.locked]="hasPostedTransactions"
+              (click)="!hasPostedTransactions && accountForm.get('accountTypeSelection')?.setValue('partial')">
+              <mat-card-content class="card-content">
+                <div class="card-icon">
+                  <mat-icon>account_tree</mat-icon>
+                </div>
+                <div class="card-text">
+                  <h4>{{ 'ACCOUNTING.PARTIAL_ACCOUNT' | translate }}</h4>
+                  <p>{{ 'ACCOUNTING.PARTIAL_ACCOUNT_DESC' | translate }}</p>
+                </div>
+                <mat-radio-button
+                  value="partial"
+                  formControlName="accountTypeSelection"
+                  class="card-radio">
+                </mat-radio-button>
+              </mat-card-content>
+            </mat-card>
+          </div>
+          <p class="posted-transactions-hint" *ngIf="hasPostedTransactions">
+            <mat-icon>lock</mat-icon>
+            {{ 'ACCOUNTING.LOCKED_HAS_POSTED_ENTRIES' | translate }}
+          </p>
         </div>
-        <p class="posted-transactions-hint" *ngIf="hasPostedTransactions">
-          <mat-icon>lock</mat-icon>
-          {{ 'ACCOUNTING.LOCKED_HAS_POSTED_ENTRIES' | translate }}
-        </p>
       </div>
 
       <!-- Main Account Form (Simple) -->
-      <div *ngIf="accountForm.get('accountTypeSelection')?.value === 'main'" class="account-form-section">
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'ACCOUNTING.ACCOUNT_CODE' | translate }}</mat-label>
-            <input matInput formControlName="accountCode" required>
-            <mat-icon matPrefix>tag</mat-icon>
-            <mat-error *ngIf="accountForm.get('accountCode')?.invalid">{{ 'ACCOUNTING.CODE_REQUIRED' | translate }}</mat-error>
-          </mat-form-field>
+      <div *ngIf="accountForm.get('accountTypeSelection')?.value === 'main'" class="erp-card acc-card">
+        <div class="erp-section">
+          <h3 class="erp-section-title">
+            <mat-icon class="erp-section-icon">folder</mat-icon>
+            {{ 'ACCOUNTING.SECTION_ACCOUNT_INFO' | translate }}
+          </h3>
 
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'ACCOUNTING.ACCOUNT_NAME_EN' | translate }}</mat-label>
-            <input matInput formControlName="accountNameEn" required>
-            <mat-icon matPrefix>label</mat-icon>
-            <mat-error *ngIf="accountForm.get('accountNameEn')?.invalid">{{ 'ACCOUNTING.NAME_REQUIRED' | translate }}</mat-error>
-          </mat-form-field>
+          <div class="erp-form-grid">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'ACCOUNTING.ACCOUNT_CODE' | translate }}</mat-label>
+              <input matInput formControlName="accountCode" required dir="ltr" style="text-align: start;">
+              <mat-icon matPrefix>tag</mat-icon>
+              <mat-hint>{{ 'ACCOUNTING.CODE_AUTO_GENERATED_HINT' | translate }}</mat-hint>
+              <mat-error *ngIf="accountForm.get('accountCode')?.invalid">{{ 'ACCOUNTING.CODE_REQUIRED' | translate }}</mat-error>
+            </mat-form-field>
 
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'ACCOUNTING.ACCOUNT_NAME_AR' | translate }}</mat-label>
-            <input matInput formControlName="accountNameAr">
-            <mat-icon matPrefix>label</mat-icon>
-            <mat-hint>{{ 'ACCOUNTING.OPTIONAL_FIELD' | translate }}</mat-hint>
-          </mat-form-field>
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'ACCOUNTING.ACCOUNT_TYPE' | translate }}</mat-label>
+              <mat-select formControlName="accountTypeId" required>
+                <mat-option value="1">{{ 'ACCOUNTING.TYPE_ASSET' | translate }}</mat-option>
+                <mat-option value="2">{{ 'ACCOUNTING.TYPE_LIABILITY' | translate }}</mat-option>
+                <mat-option value="3">{{ 'ACCOUNTING.TYPE_EQUITY' | translate }}</mat-option>
+                <mat-option value="4">{{ 'ACCOUNTING.TYPE_REVENUE' | translate }}</mat-option>
+                <mat-option value="5">{{ 'ACCOUNTING.TYPE_EXPENSE' | translate }}</mat-option>
+              </mat-select>
+              <mat-icon matPrefix>category</mat-icon>
+            </mat-form-field>
 
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'ACCOUNTING.ACCOUNT_TYPE' | translate }}</mat-label>
-            <mat-select formControlName="accountTypeId" required>
-              <mat-option value="1">{{ 'ACCOUNTING.TYPE_ASSET' | translate }}</mat-option>
-              <mat-option value="2">{{ 'ACCOUNTING.TYPE_LIABILITY' | translate }}</mat-option>
-              <mat-option value="3">{{ 'ACCOUNTING.TYPE_EQUITY' | translate }}</mat-option>
-              <mat-option value="4">{{ 'ACCOUNTING.TYPE_REVENUE' | translate }}</mat-option>
-              <mat-option value="5">{{ 'ACCOUNTING.TYPE_EXPENSE' | translate }}</mat-option>
-            </mat-select>
-            <mat-icon matPrefix>category</mat-icon>
-          </mat-form-field>
+            <mat-form-field appearance="outline" class="form-field erp-span-2">
+              <mat-label>{{ 'ACCOUNTING.ACCOUNT_NAME_EN' | translate }}</mat-label>
+              <input matInput formControlName="accountNameEn" required>
+              <mat-icon matPrefix>label</mat-icon>
+              <mat-error *ngIf="accountForm.get('accountNameEn')?.invalid">{{ 'ACCOUNTING.NAME_REQUIRED' | translate }}</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field erp-span-2">
+              <mat-label>{{ 'ACCOUNTING.ACCOUNT_NAME_AR' | translate }}</mat-label>
+              <input matInput formControlName="accountNameAr">
+              <mat-icon matPrefix>label</mat-icon>
+              <mat-hint>{{ 'ACCOUNTING.OPTIONAL_FIELD' | translate }}</mat-hint>
+            </mat-form-field>
+          </div>
         </div>
       </div>
 
       <!-- Partial Account Form (Comprehensive) -->
-      <div *ngIf="accountForm.get('accountTypeSelection')?.value === 'partial'" class="account-form-section">
-        <!-- Requirement 2: parent account summary -- current code/name next to the parent's, so
-             the user always sees where this account sits without hunting through the tree. -->
-        <div class="parent-account-summary" *ngIf="!accountForm.get('isMainAccount')?.value">
-          <div class="parent-account-summary-item">
-            <span class="parent-account-summary-label">{{ 'ACCOUNTING.PARENT_ACCOUNT' | translate }}</span>
-            <span class="parent-account-summary-value" *ngIf="accountForm.get('mainAccountCode')?.value; else noParent">
-              {{ accountForm.get('mainAccountCode')?.value }} &ndash; {{ accountForm.get('mainAccountName')?.value }}
-            </span>
-            <ng-template #noParent>
-              <span class="parent-account-summary-value parent-account-summary-empty">{{ 'ACCOUNTING.PARENT_ACCOUNT_NOT_SELECTED' | translate }}</span>
-            </ng-template>
-          </div>
-          <mat-icon class="parent-account-summary-arrow">arrow_forward</mat-icon>
-          <div class="parent-account-summary-item">
-            <span class="parent-account-summary-label">{{ 'ACCOUNTING.THIS_ACCOUNT' | translate }}</span>
-            <span class="parent-account-summary-value">
-              {{ accountForm.get('accountCode')?.value || '—' }} &ndash; {{ accountForm.get('accountNameEn')?.value || (accountForm.get('accountNameAr')?.value || '—') }}
-            </span>
-          </div>
-        </div>
+      <ng-container *ngIf="accountForm.get('accountTypeSelection')?.value === 'partial'">
 
         <!-- Basic Account Information -->
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'ACCOUNTING.ACCOUNT_CODE' | translate }}</mat-label>
-            <input matInput formControlName="accountCode" required>
-            <mat-icon matPrefix>tag</mat-icon>
-            <mat-hint>{{ 'ACCOUNTING.CODE_AUTO_GENERATED_HINT' | translate }}</mat-hint>
-            <mat-error *ngIf="accountForm.get('accountCode')?.invalid">{{ 'ACCOUNTING.CODE_REQUIRED' | translate }}</mat-error>
-          </mat-form-field>
+        <div class="erp-card acc-card">
+          <div class="erp-section">
+            <h3 class="erp-section-title">
+              <mat-icon class="erp-section-icon">folder</mat-icon>
+              {{ 'ACCOUNTING.SECTION_ACCOUNT_INFO' | translate }}
+            </h3>
 
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'ACCOUNTING.ACCOUNT_NAME_AR' | translate }}</mat-label>
-            <input matInput formControlName="accountNameAr" required>
-            <mat-icon matPrefix>label</mat-icon>
-            <mat-error *ngIf="accountForm.get('accountNameAr')?.invalid">{{ 'ACCOUNTING.NAME_REQUIRED' | translate }}</mat-error>
-          </mat-form-field>
+            <div class="erp-form-grid">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'ACCOUNTING.ACCOUNT_CODE' | translate }}</mat-label>
+                <input matInput formControlName="accountCode" required dir="ltr" style="text-align: start;">
+                <mat-icon matPrefix>tag</mat-icon>
+                <mat-hint>{{ 'ACCOUNTING.CODE_AUTO_GENERATED_HINT' | translate }}</mat-hint>
+                <mat-error *ngIf="accountForm.get('accountCode')?.invalid">{{ 'ACCOUNTING.CODE_REQUIRED' | translate }}</mat-error>
+              </mat-form-field>
 
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'ACCOUNTING.ACCOUNT_NAME_EN' | translate }}</mat-label>
-            <input matInput formControlName="accountNameEn" required>
-            <mat-icon matPrefix>label</mat-icon>
-            <mat-error *ngIf="accountForm.get('accountNameEn')?.invalid">{{ 'ACCOUNTING.NAME_REQUIRED' | translate }}</mat-error>
-          </mat-form-field>
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'ACCOUNTING.ACCOUNT_NAME_EN' | translate }}</mat-label>
+                <input matInput formControlName="accountNameEn" required>
+                <mat-icon matPrefix>label</mat-icon>
+                <mat-error *ngIf="accountForm.get('accountNameEn')?.invalid">{{ 'ACCOUNTING.NAME_REQUIRED' | translate }}</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="form-field erp-span-2">
+                <mat-label>{{ 'ACCOUNTING.ACCOUNT_NAME_AR' | translate }}</mat-label>
+                <input matInput formControlName="accountNameAr" required>
+                <mat-icon matPrefix>label</mat-icon>
+                <mat-error *ngIf="accountForm.get('accountNameAr')?.invalid">{{ 'ACCOUNTING.NAME_REQUIRED' | translate }}</mat-error>
+              </mat-form-field>
+            </div>
+          </div>
         </div>
+
+        <!-- Account Hierarchy -->
+        <div class="erp-card acc-card">
+          <div class="erp-section">
+            <h3 class="erp-section-title">
+              <mat-icon class="erp-section-icon">account_tree</mat-icon>
+              {{ 'ACCOUNTING.SECTION_HIERARCHY' | translate }}
+            </h3>
+
+            <!-- Requirement 2: parent account summary -- current code/name next to the parent's, so
+                 the user always sees where this account sits without hunting through the tree. -->
+            <div class="parent-account-summary" *ngIf="!accountForm.get('isMainAccount')?.value">
+              <div class="parent-account-summary-item">
+                <span class="parent-account-summary-label">{{ 'ACCOUNTING.PARENT_ACCOUNT' | translate }}</span>
+                <span class="parent-account-summary-value" *ngIf="accountForm.get('mainAccountCode')?.value; else noParent">
+                  <span class="acc-code-chip" dir="ltr">{{ accountForm.get('mainAccountCode')?.value }}</span>
+                  {{ accountForm.get('mainAccountName')?.value }}
+                </span>
+                <ng-template #noParent>
+                  <span class="parent-account-summary-value parent-account-summary-empty">{{ 'ACCOUNTING.PARENT_ACCOUNT_NOT_SELECTED' | translate }}</span>
+                </ng-template>
+              </div>
+              <mat-icon class="parent-account-summary-arrow" aria-hidden="true">subdirectory_arrow_right</mat-icon>
+              <div class="parent-account-summary-item">
+                <span class="parent-account-summary-label">{{ 'ACCOUNTING.THIS_ACCOUNT' | translate }}</span>
+                <span class="parent-account-summary-value">
+                  <span class="acc-code-chip" dir="ltr">{{ accountForm.get('accountCode')?.value || '—' }}</span>
+                  {{ accountForm.get('accountNameEn')?.value || (accountForm.get('accountNameAr')?.value || '—') }}
+                </span>
+              </div>
+            </div>
 
       <!-- Account Structure (Hidden - Auto-populated from parent) -->
       <div class="form-row" style="display: none;">
@@ -186,214 +236,307 @@
         </mat-form-field>
       </div>
 
-      <!-- Main Account Information -->
-      <div class="form-row">
-        <mat-checkbox formControlName="isMainAccount">{{ 'ACCOUNTING.IS_MAIN_ACCOUNT' | translate }}</mat-checkbox>
-      </div>
+            <!-- Main Account Information -->
+            <div class="acc-check-row">
+              <mat-checkbox formControlName="isMainAccount">{{ 'ACCOUNTING.IS_MAIN_ACCOUNT' | translate }}</mat-checkbox>
+            </div>
 
-      <div class="form-row" *ngIf="!accountForm.get('isMainAccount')?.value">
-        <mat-form-field appearance="outline" class="form-field">
-          <mat-label>{{ 'ACCOUNTING.MAIN_ACCOUNT_CODE' | translate }}</mat-label>
-          <input matInput formControlName="mainAccountCode">
-          <mat-icon matPrefix>account_balance</mat-icon>
-          <mat-hint>{{ 'ACCOUNTING.MAIN_ACCOUNT_CODE_HINT' | translate }}</mat-hint>
-        </mat-form-field>
+            <div class="erp-form-grid" *ngIf="!accountForm.get('isMainAccount')?.value">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'ACCOUNTING.MAIN_ACCOUNT_CODE' | translate }}</mat-label>
+                <input matInput formControlName="mainAccountCode" dir="ltr" style="text-align: start;">
+                <mat-icon matPrefix>account_balance</mat-icon>
+                <mat-hint>{{ 'ACCOUNTING.MAIN_ACCOUNT_CODE_HINT' | translate }}</mat-hint>
+              </mat-form-field>
 
-        <mat-form-field appearance="outline" class="form-field">
-          <mat-label>{{ 'ACCOUNTING.MAIN_ACCOUNT_NAME' | translate }}</mat-label>
-          <input matInput formControlName="mainAccountName" readonly>
-          <mat-icon matPrefix>account_balance_wallet</mat-icon>
-        </mat-form-field>
-      </div>
-
-      <!-- Currency and Cost Center -->
-      <div class="form-row">
-        <mat-form-field appearance="outline" class="form-field">
-          <mat-label>{{ 'ACCOUNTING.CURRENCY' | translate }}</mat-label>
-          <mat-select formControlName="currencyId">
-            <mat-option [value]="null">{{ 'ACCOUNTING.CURRENCY_MULTI' | translate }}</mat-option>
-            <mat-option *ngFor="let currency of currencies" [value]="currency.id">{{ currency.code }} - {{ currency.nameEn }}</mat-option>
-          </mat-select>
-          <mat-icon matPrefix>attach_money</mat-icon>
-          <mat-hint>{{ 'ACCOUNTING.CURRENCY_HINT' | translate }}</mat-hint>
-        </mat-form-field>
-
-        <mat-checkbox formControlName="hasCostCenter">{{ 'ACCOUNTING.HAS_COST_CENTER' | translate }}</mat-checkbox>
-
-        <mat-form-field appearance="outline" class="form-field" *ngIf="accountForm.get('hasCostCenter')?.value">
-          <mat-label>{{ 'ACCOUNTING.COST_CENTER' | translate }}</mat-label>
-          <mat-select formControlName="costCenterId">
-            <mat-option *ngFor="let costCenter of costCenters" [value]="costCenter.id">
-              {{ costCenter.code }} - {{ costCenter.nameAr || costCenter.name }}
-            </mat-option>
-          </mat-select>
-          <mat-icon matPrefix>business</mat-icon>
-        </mat-form-field>
-      </div>
-
-      <!-- Status and Privacy -->
-      <div class="form-row">
-        <mat-checkbox formControlName="isActive">{{ 'ACCOUNTING.IS_ACTIVE' | translate }}</mat-checkbox>
-        <mat-checkbox formControlName="isRetired">{{ 'ACCOUNTING.IS_RETIRED' | translate }}</mat-checkbox>
-        <mat-checkbox formControlName="isPrivate">{{ 'ACCOUNTING.IS_PRIVATE' | translate }}</mat-checkbox>
-      </div>
-
-      <div class="form-row" *ngIf="!accountForm.get('isActive')?.value">
-        <mat-form-field appearance="outline" class="form-field">
-          <mat-label>{{ 'ACCOUNTING.INACTIVE_REASONS' | translate }}</mat-label>
-          <textarea matInput formControlName="inActiveReasons" rows="3"></textarea>
-          <mat-icon matPrefix>info</mat-icon>
-        </mat-form-field>
-      </div>
-
-      <!-- Remarks and Notes -->
-      <div class="form-row">
-        <mat-checkbox formControlName="hasRemarks">{{ 'ACCOUNTING.HAS_REMARKS' | translate }}</mat-checkbox>
-      </div>
-
-      <div *ngIf="accountForm.get('hasRemarks')?.value">
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'ACCOUNTING.REMARKS_AR' | translate }}</mat-label>
-            <textarea matInput formControlName="remarksAr" rows="2"></textarea>
-            <mat-icon matPrefix>comment</mat-icon>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'ACCOUNTING.REMARKS_EN' | translate }}</mat-label>
-            <textarea matInput formControlName="remarksEn" rows="2"></textarea>
-            <mat-icon matPrefix>comment</mat-icon>
-          </mat-form-field>
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'ACCOUNTING.MAIN_ACCOUNT_NAME' | translate }}</mat-label>
+                <input matInput formControlName="mainAccountName" readonly>
+                <mat-icon matPrefix>account_balance_wallet</mat-icon>
+              </mat-form-field>
+            </div>
+          </div>
         </div>
 
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'ACCOUNTING.NOTES_AR' | translate }}</mat-label>
-            <textarea matInput formControlName="notesAr" rows="2"></textarea>
-            <mat-icon matPrefix>notes</mat-icon>
-          </mat-form-field>
+        <!-- Currency and Cost Center + Status and Privacy -->
+        <div class="erp-card acc-card">
+          <div class="erp-section">
+            <h3 class="erp-section-title">
+              <mat-icon class="erp-section-icon">tune</mat-icon>
+              {{ 'ACCOUNTING.SECTION_CONFIG' | translate }}
+            </h3>
 
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'ACCOUNTING.NOTES_EN' | translate }}</mat-label>
-            <textarea matInput formControlName="notesEn" rows="2"></textarea>
-            <mat-icon matPrefix>notes</mat-icon>
-          </mat-form-field>
+            <div class="erp-form-grid">
+              <mat-form-field appearance="outline" class="form-field erp-span-2">
+                <mat-label>{{ 'ACCOUNTING.CURRENCY' | translate }}</mat-label>
+                <mat-select formControlName="currencyId">
+                  <mat-option [value]="null">{{ 'ACCOUNTING.CURRENCY_MULTI' | translate }}</mat-option>
+                  <mat-option *ngFor="let currency of currencies" [value]="currency.id">{{ currency.code }} - {{ currency.nameEn }}</mat-option>
+                </mat-select>
+                <mat-icon matPrefix>attach_money</mat-icon>
+                <mat-hint>{{ 'ACCOUNTING.CURRENCY_HINT' | translate }}</mat-hint>
+              </mat-form-field>
+            </div>
+
+            <div class="acc-check-grid">
+              <mat-checkbox formControlName="hasCostCenter">{{ 'ACCOUNTING.HAS_COST_CENTER' | translate }}</mat-checkbox>
+
+              <mat-checkbox formControlName="isActive">{{ 'ACCOUNTING.IS_ACTIVE' | translate }}</mat-checkbox>
+              <mat-checkbox formControlName="isRetired">{{ 'ACCOUNTING.IS_RETIRED' | translate }}</mat-checkbox>
+              <mat-checkbox formControlName="isPrivate">{{ 'ACCOUNTING.IS_PRIVATE' | translate }}</mat-checkbox>
+            </div>
+
+            <div class="erp-form-grid" *ngIf="accountForm.get('hasCostCenter')?.value">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'ACCOUNTING.COST_CENTER' | translate }}</mat-label>
+                <mat-select formControlName="costCenterId">
+                  <mat-option *ngFor="let costCenter of costCenters" [value]="costCenter.id">
+                    {{ costCenter.code }} - {{ costCenter.nameAr || costCenter.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-icon matPrefix>business</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <div class="erp-form-grid" *ngIf="!accountForm.get('isActive')?.value">
+              <mat-form-field appearance="outline" class="form-field erp-span-2">
+                <mat-label>{{ 'ACCOUNTING.INACTIVE_REASONS' | translate }}</mat-label>
+                <textarea matInput formControlName="inActiveReasons" rows="3"></textarea>
+                <mat-icon matPrefix>info</mat-icon>
+              </mat-form-field>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <!-- Client/Supplier/Bank Integration -->
-      <div class="form-section">
-        <h3>{{ 'ACCOUNTING.INTEGRATION' | translate }}</h3>
+        <!-- Remarks and Notes -->
+        <div class="erp-card acc-card">
+          <div class="erp-section">
+            <h3 class="erp-section-title">
+              <mat-icon class="erp-section-icon">description</mat-icon>
+              {{ 'ACCOUNTING.SECTION_ADDITIONAL_INFO' | translate }}
+            </h3>
 
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ 'ACCOUNTING.ENTITY_TYPE' | translate }}</mat-label>
-            <mat-select formControlName="entityType">
-              <mat-option value="none">{{ 'ACCOUNTING.ENTITY_TYPE_NONE' | translate }}</mat-option>
-              <mat-option value="customer">{{ 'ACCOUNTING.ENTITY_TYPE_CUSTOMER' | translate }}</mat-option>
-              <mat-option value="supplier">{{ 'ACCOUNTING.ENTITY_TYPE_SUPPLIER' | translate }}</mat-option>
-              <mat-option value="bank">{{ 'ACCOUNTING.ENTITY_TYPE_BANK' | translate }}</mat-option>
-            </mat-select>
-            <mat-icon matPrefix>link</mat-icon>
-          </mat-form-field>
+            <div class="acc-check-row">
+              <mat-checkbox formControlName="hasRemarks">{{ 'ACCOUNTING.HAS_REMARKS' | translate }}</mat-checkbox>
+            </div>
+
+            <div *ngIf="accountForm.get('hasRemarks')?.value">
+              <div class="erp-form-grid">
+                <mat-form-field appearance="outline" class="form-field">
+                  <mat-label>{{ 'ACCOUNTING.REMARKS_AR' | translate }}</mat-label>
+                  <textarea matInput formControlName="remarksAr" rows="2"></textarea>
+                  <mat-icon matPrefix>comment</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="form-field">
+                  <mat-label>{{ 'ACCOUNTING.REMARKS_EN' | translate }}</mat-label>
+                  <textarea matInput formControlName="remarksEn" rows="2"></textarea>
+                  <mat-icon matPrefix>comment</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="form-field">
+                  <mat-label>{{ 'ACCOUNTING.NOTES_AR' | translate }}</mat-label>
+                  <textarea matInput formControlName="notesAr" rows="2"></textarea>
+                  <mat-icon matPrefix>notes</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="form-field">
+                  <mat-label>{{ 'ACCOUNTING.NOTES_EN' | translate }}</mat-label>
+                  <textarea matInput formControlName="notesEn" rows="2"></textarea>
+                  <mat-icon matPrefix>notes</mat-icon>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- Customer -->
-        <ng-container *ngIf="accountForm.get('entityType')?.value === 'customer'">
-          <div class="form-row">
-            <mat-checkbox formControlName="createNewClient" (change)="onCreateAutomaticallyChange($event.checked)">
-              {{ 'ACCOUNTING.CREATE_NEW_CLIENT' | translate }}
-            </mat-checkbox>
+        <!-- Client/Supplier/Bank Integration -->
+        <div class="erp-card acc-card">
+          <div class="erp-section">
+            <h3 class="erp-section-title">
+              <mat-icon class="erp-section-icon">link</mat-icon>
+              {{ 'ACCOUNTING.INTEGRATION' | translate }}
+            </h3>
+
+            <div class="erp-form-grid">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'ACCOUNTING.ENTITY_TYPE' | translate }}</mat-label>
+                <mat-select formControlName="entityType">
+                  <mat-option value="none">{{ 'ACCOUNTING.ENTITY_TYPE_NONE' | translate }}</mat-option>
+                  <mat-option value="customer">{{ 'ACCOUNTING.ENTITY_TYPE_CUSTOMER' | translate }}</mat-option>
+                  <mat-option value="supplier">{{ 'ACCOUNTING.ENTITY_TYPE_SUPPLIER' | translate }}</mat-option>
+                  <mat-option value="bank">{{ 'ACCOUNTING.ENTITY_TYPE_BANK' | translate }}</mat-option>
+                </mat-select>
+                <mat-icon matPrefix>link</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <!-- Customer -->
+            <ng-container *ngIf="accountForm.get('entityType')?.value === 'customer'">
+              <div class="acc-check-row">
+                <mat-checkbox formControlName="createNewClient" (change)="onCreateAutomaticallyChange($event.checked)">
+                  {{ 'ACCOUNTING.CREATE_NEW_CLIENT' | translate }}
+                </mat-checkbox>
+              </div>
+
+              <div class="erp-form-grid" *ngIf="accountForm.get('createNewClient')?.value">
+                <mat-form-field appearance="outline" class="form-field">
+                  <mat-label>{{ 'ACCOUNTING.NEW_CUSTOMER_PHONE' | translate }}</mat-label>
+                  <input matInput formControlName="newCustomerPhone" required>
+                  <mat-icon matPrefix>phone</mat-icon>
+                  <mat-error *ngIf="accountForm.get('newCustomerPhone')?.invalid">{{ 'ACCOUNTING.NEW_CUSTOMER_PHONE_REQUIRED' | translate }}</mat-error>
+                </mat-form-field>
+              </div>
+
+              <div class="erp-form-grid" *ngIf="!accountForm.get('createNewClient')?.value">
+                <mat-form-field appearance="outline" class="form-field">
+                  <mat-label>{{ 'ACCOUNTING.LINK_EXISTING_CUSTOMER' | translate }}</mat-label>
+                  <mat-select formControlName="customerId">
+                    <mat-option [value]="null">{{ 'ACCOUNTING.SEARCH_ENTITY_PLACEHOLDER' | translate }}</mat-option>
+                    <mat-option *ngFor="let customer of customers()" [value]="customer.id">{{ customer.name }}</mat-option>
+                  </mat-select>
+                  <mat-icon matPrefix>person</mat-icon>
+                </mat-form-field>
+              </div>
+            </ng-container>
+
+            <!-- Supplier -->
+            <ng-container *ngIf="accountForm.get('entityType')?.value === 'supplier'">
+              <div class="acc-check-row">
+                <mat-checkbox formControlName="createNewSupplier" (change)="onCreateAutomaticallyChange($event.checked)">
+                  {{ 'ACCOUNTING.CREATE_NEW_SUPPLIER' | translate }}
+                </mat-checkbox>
+              </div>
+
+              <div class="erp-form-grid" *ngIf="accountForm.get('createNewSupplier')?.value">
+                <mat-form-field appearance="outline" class="form-field">
+                  <mat-label>{{ 'ACCOUNTING.NEW_SUPPLIER_PHONE' | translate }}</mat-label>
+                  <input matInput formControlName="newSupplierPhone" required>
+                  <mat-icon matPrefix>phone</mat-icon>
+                  <mat-error *ngIf="accountForm.get('newSupplierPhone')?.invalid">{{ 'ACCOUNTING.NEW_SUPPLIER_PHONE_REQUIRED' | translate }}</mat-error>
+                </mat-form-field>
+              </div>
+
+              <div class="erp-form-grid" *ngIf="!accountForm.get('createNewSupplier')?.value">
+                <mat-form-field appearance="outline" class="form-field">
+                  <mat-label>{{ 'ACCOUNTING.LINK_EXISTING_SUPPLIER' | translate }}</mat-label>
+                  <mat-select formControlName="supplierId">
+                    <mat-option [value]="null">{{ 'ACCOUNTING.SEARCH_ENTITY_PLACEHOLDER' | translate }}</mat-option>
+                    <mat-option *ngFor="let supplier of suppliers()" [value]="supplier.id">{{ supplier.name }}</mat-option>
+                  </mat-select>
+                  <mat-icon matPrefix>store</mat-icon>
+                </mat-form-field>
+              </div>
+            </ng-container>
+
+            <!-- Bank -->
+            <ng-container *ngIf="accountForm.get('entityType')?.value === 'bank'">
+              <div class="acc-check-row">
+                <mat-checkbox formControlName="createNewBank">{{ 'ACCOUNTING.CREATE_NEW_BANK' | translate }}</mat-checkbox>
+              </div>
+
+              <div class="erp-form-grid" *ngIf="!accountForm.get('createNewBank')?.value">
+                <mat-form-field appearance="outline" class="form-field">
+                  <mat-label>{{ 'ACCOUNTING.BANK_ID' | translate }}</mat-label>
+                  <input matInput type="number" formControlName="bankId">
+                  <mat-icon matPrefix>account_balance</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="form-field">
+                  <mat-label>{{ 'ACCOUNTING.BANK_NAME' | translate }}</mat-label>
+                  <input matInput formControlName="bankName">
+                  <mat-icon matPrefix>account_balance_wallet</mat-icon>
+                </mat-form-field>
+              </div>
+            </ng-container>
+
+            <!-- Update-only: opt-in name sync when the account is already linked -->
+            <div class="acc-check-row" *ngIf="isEditing && accountForm.get('entityType')?.value !== 'none'">
+              <mat-checkbox formControlName="syncEntityName">{{ 'ACCOUNTING.SYNC_ENTITY_NAME' | translate }}</mat-checkbox>
+            </div>
           </div>
-
-          <div class="form-row" *ngIf="accountForm.get('createNewClient')?.value">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'ACCOUNTING.NEW_CUSTOMER_PHONE' | translate }}</mat-label>
-              <input matInput formControlName="newCustomerPhone" required>
-              <mat-icon matPrefix>phone</mat-icon>
-              <mat-error *ngIf="accountForm.get('newCustomerPhone')?.invalid">{{ 'ACCOUNTING.NEW_CUSTOMER_PHONE_REQUIRED' | translate }}</mat-error>
-            </mat-form-field>
-          </div>
-
-          <div class="form-row" *ngIf="!accountForm.get('createNewClient')?.value">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'ACCOUNTING.LINK_EXISTING_CUSTOMER' | translate }}</mat-label>
-              <mat-select formControlName="customerId">
-                <mat-option [value]="null">{{ 'ACCOUNTING.SEARCH_ENTITY_PLACEHOLDER' | translate }}</mat-option>
-                <mat-option *ngFor="let customer of customers()" [value]="customer.id">{{ customer.name }}</mat-option>
-              </mat-select>
-              <mat-icon matPrefix>person</mat-icon>
-            </mat-form-field>
-          </div>
-        </ng-container>
-
-        <!-- Supplier -->
-        <ng-container *ngIf="accountForm.get('entityType')?.value === 'supplier'">
-          <div class="form-row">
-            <mat-checkbox formControlName="createNewSupplier" (change)="onCreateAutomaticallyChange($event.checked)">
-              {{ 'ACCOUNTING.CREATE_NEW_SUPPLIER' | translate }}
-            </mat-checkbox>
-          </div>
-
-          <div class="form-row" *ngIf="accountForm.get('createNewSupplier')?.value">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'ACCOUNTING.NEW_SUPPLIER_PHONE' | translate }}</mat-label>
-              <input matInput formControlName="newSupplierPhone" required>
-              <mat-icon matPrefix>phone</mat-icon>
-              <mat-error *ngIf="accountForm.get('newSupplierPhone')?.invalid">{{ 'ACCOUNTING.NEW_SUPPLIER_PHONE_REQUIRED' | translate }}</mat-error>
-            </mat-form-field>
-          </div>
-
-          <div class="form-row" *ngIf="!accountForm.get('createNewSupplier')?.value">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'ACCOUNTING.LINK_EXISTING_SUPPLIER' | translate }}</mat-label>
-              <mat-select formControlName="supplierId">
-                <mat-option [value]="null">{{ 'ACCOUNTING.SEARCH_ENTITY_PLACEHOLDER' | translate }}</mat-option>
-                <mat-option *ngFor="let supplier of suppliers()" [value]="supplier.id">{{ supplier.name }}</mat-option>
-              </mat-select>
-              <mat-icon matPrefix>store</mat-icon>
-            </mat-form-field>
-          </div>
-        </ng-container>
-
-        <!-- Bank -->
-        <ng-container *ngIf="accountForm.get('entityType')?.value === 'bank'">
-          <div class="form-row">
-            <mat-checkbox formControlName="createNewBank">{{ 'ACCOUNTING.CREATE_NEW_BANK' | translate }}</mat-checkbox>
-          </div>
-
-          <div class="form-row" *ngIf="!accountForm.get('createNewBank')?.value">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'ACCOUNTING.BANK_ID' | translate }}</mat-label>
-              <input matInput type="number" formControlName="bankId">
-              <mat-icon matPrefix>account_balance</mat-icon>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'ACCOUNTING.BANK_NAME' | translate }}</mat-label>
-              <input matInput formControlName="bankName">
-              <mat-icon matPrefix>account_balance_wallet</mat-icon>
-            </mat-form-field>
-          </div>
-        </ng-container>
-
-        <!-- Update-only: opt-in name sync when the account is already linked -->
-        <div class="form-row" *ngIf="isEditing && accountForm.get('entityType')?.value !== 'none'">
-          <mat-checkbox formControlName="syncEntityName">{{ 'ACCOUNTING.SYNC_ENTITY_NAME' | translate }}</mat-checkbox>
         </div>
-      </div>
+      </ng-container>
+      </div><!-- /.acc-main -->
+
+        <!-- Live read-only summary (mirrors form values; no editable duplicates) -->
+        <aside class="acc-sidebar" *ngIf="!isQuickAddDialog" [attr.aria-label]="'ACCOUNTING.ACCOUNT_SUMMARY' | translate">
+          <div class="erp-card acc-summary">
+            <div class="erp-section">
+              <h3 class="erp-section-title">
+                <mat-icon class="erp-section-icon">info</mat-icon>
+                {{ 'ACCOUNTING.ACCOUNT_SUMMARY' | translate }}
+              </h3>
+
+              <div class="acc-summary-hero">
+                <div class="acc-summary-icon" aria-hidden="true">
+                  <mat-icon>account_balance</mat-icon>
+                </div>
+                <div class="acc-summary-code" dir="ltr">{{ accountForm.get('accountCode')?.value || '—' }}</div>
+                <div class="acc-summary-name">{{ accountForm.get('accountNameEn')?.value || accountForm.get('accountNameAr')?.value || '—' }}</div>
+              </div>
+
+              <dl class="acc-summary-list">
+                <div class="acc-summary-item">
+                  <dt>{{ 'ACCOUNTING.ACCOUNT_TYPE' | translate }}</dt>
+                  <dd>
+                    <ng-container [ngSwitch]="accountForm.get('accountTypeId')?.value">
+                      <span *ngSwitchCase="'1'">{{ 'ACCOUNTING.TYPE_ASSET' | translate }}</span>
+                      <span *ngSwitchCase="'2'">{{ 'ACCOUNTING.TYPE_LIABILITY' | translate }}</span>
+                      <span *ngSwitchCase="'3'">{{ 'ACCOUNTING.TYPE_EQUITY' | translate }}</span>
+                      <span *ngSwitchCase="'4'">{{ 'ACCOUNTING.TYPE_REVENUE' | translate }}</span>
+                      <span *ngSwitchCase="'5'">{{ 'ACCOUNTING.TYPE_EXPENSE' | translate }}</span>
+                      <span *ngSwitchDefault>—</span>
+                    </ng-container>
+                  </dd>
+                </div>
+
+                <div class="acc-summary-item">
+                  <dt>{{ 'ACCOUNTING.PARENT_ACCOUNT' | translate }}</dt>
+                  <dd *ngIf="accountForm.get('accountTypeSelection')?.value === 'main'" class="acc-summary-muted">—</dd>
+                  <dd *ngIf="accountForm.get('accountTypeSelection')?.value !== 'main'">
+                    <span *ngIf="accountForm.get('mainAccountCode')?.value; else summaryNoParent">
+                      <span dir="ltr">{{ accountForm.get('mainAccountCode')?.value }}</span>
+                      — {{ accountForm.get('mainAccountName')?.value }}
+                    </span>
+                    <ng-template #summaryNoParent>{{ 'ACCOUNTING.PARENT_ACCOUNT_NOT_SELECTED' | translate }}</ng-template>
+                  </dd>
+                </div>
+
+                <div class="acc-summary-item">
+                  <dt>{{ 'ACCOUNTING.STATUS' | translate }}</dt>
+                  <dd>
+                    <span class="acc-status-line">
+                      <span class="acc-status-dot" [class.inactive]="!accountForm.get('isActive')?.value" aria-hidden="true"></span>
+                      {{ (accountForm.get('isActive')?.value ? 'ACCOUNTING.ACTIVE' : 'ACCOUNTING.INACTIVE') | translate }}
+                    </span>
+                  </dd>
+                </div>
+              </dl>
+
+              <div class="acc-summary-badges">
+                <span class="erp-status-badge success" *ngIf="accountForm.get('isMainAccount')?.value || accountForm.get('accountTypeSelection')?.value === 'main'">{{ 'ACCOUNTING.MAIN_ACCOUNT' | translate }}</span>
+                <span class="erp-status-badge warning" *ngIf="accountForm.get('isRetired')?.value">{{ 'ACCOUNTING.IS_RETIRED' | translate }}</span>
+                <span class="erp-status-badge neutral" *ngIf="accountForm.get('isPrivate')?.value">{{ 'ACCOUNTING.IS_PRIVATE' | translate }}</span>
+              </div>
+            </div>
+          </div>
+        </aside>
       </div>
 
-      <div class="form-actions" [class.mat-dialog-actions]="isQuickAddDialog">
-        <button mat-raised-button color="primary" type="submit" [disabled]="accountForm.invalid || isSaving">
-          <mat-progress-spinner *ngIf="isSaving" diameter="20" class="loading-spinner"></mat-progress-spinner>
-          <span *ngIf="!isSaving">{{ 'ACCOUNTING.SAVE' | translate }}</span>
-          <span *ngIf="isSaving">{{ 'ACCOUNTING.SAVING' | translate }}</span>
-        </button>
-        <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving">
-          {{ 'ACCOUNTING.CANCEL' | translate }}
-        </button>
-      </div>
+        <!-- Form footer: primary save / secondary cancel (same handlers & guards as before) -->
+        <div class="erp-card acc-footer-card">
+          <div class="erp-actions-bar" [class.mat-dialog-actions]="isQuickAddDialog">
+            <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving" class="acc-cancel-btn">
+              {{ 'ACCOUNTING.CANCEL' | translate }}
+            </button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="accountForm.invalid || isSaving">
+              <mat-progress-spinner *ngIf="isSaving" diameter="20" class="loading-spinner"></mat-progress-spinner>
+              <span *ngIf="!isSaving">{{ 'ACCOUNTING.SAVE_ACCOUNT' | translate }}</span>
+              <span *ngIf="isSaving">{{ 'ACCOUNTING.SAVING' | translate }}</span>
+            </button>
+          </div>
+        </div>
 
     </form>
 </ng-template>

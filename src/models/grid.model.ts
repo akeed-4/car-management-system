@@ -91,6 +91,42 @@ export interface dataGridColumnDto{
   filterOperations?: string[];
   customCalculateCellValue?: (rowData: any) => any;
   calculateCellValue?: (rowData: any) => any;
+  /** DevExtreme column.calculateDisplayValue -- computed cell display text. */
+  calculateDisplayValue?: (rowData: any) => any;
+  /** Per-column overrides for the SharedDataGrid (all optional; DevExtreme defaults apply). */
+  allowSorting?: boolean;
+  allowFiltering?: boolean;
+  allowHeaderFiltering?: boolean;
+  allowReordering?: boolean;
+  /** Special rendering handled by SharedDataGrid's built-in templates:
+   *  'status' renders an erp-status-badge (trueText/falseText i18n keys or
+   *  COMMON.ACTIVE/COMMON.INACTIVE for booleans); 'check' renders a boolean
+   *  icon; 'actions' renders the configured rowActions. Any other value is
+   *  ignored (plain data column). */
+  type?: 'status' | 'check' | 'actions' | string;
+  /** Optional badge-class resolver for type:'status' columns whose values are
+   *  not simple booleans (e.g. 'Approved'/'Pending'/'Rejected'). Return the
+   *  erp-status-badge modifier ('success'|'warning'|'danger'|'neutral'). */
+  statusClass?: (rowData: any, value: any) => string;
+}
+
+/** One row action rendered by SharedDataGrid's built-in actions template.
+ *  The screen passes the ALREADY-AUTHORIZED list (its existing permission /
+ *  canExecuteAction logic stays in the screen); visibility callbacks handle
+ *  per-row conditions (e.g. only DRAFT vouchers can be posted). */
+export interface sharedGridRowActionDto {
+  /** Stable id emitted on rowAction so the screen can dispatch business behavior. */
+  id: string;
+  /** Material icon name shown inside the action button. */
+  icon?: string;
+  /** i18n key used as tooltip/aria-label. */
+  labelKey?: string;
+  /** Per-row predicate -- return false to hide the action for that row. */
+  visible?: (rowData: any) => boolean;
+  /** Optional per-row disable predicate (button rendered but not clickable). */
+  disabled?: (rowData: any) => boolean;
+  /** Extra CSS class(s) for the button (e.g. 'warn' for destructive actions). */
+  cssClass?: string;
 }
 
 export interface dataGridColumnLookupDto{

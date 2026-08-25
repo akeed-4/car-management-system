@@ -11,11 +11,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../shared/shared-data-grid/shared-data-grid.component';
 import { DocumentNumberingService } from '../../../services/document-numbering.service';
 import { NotificationService } from '../../../services/notification.service';
 import { CurrentSettingService } from '../../../services/current-setting.service';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 import {
   DocumentNumberingSettingDto,
   CreateDocumentNumberingSettingDto,
@@ -49,9 +53,8 @@ const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
     MatSlideToggleModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
-    DxDataGridModule,
-    DxButtonModule,
-    TranslateModule
+    TranslateModule,
+    SharedDataGridComponent
   ],
   templateUrl: './document-numbering-settings.component.html',
   styleUrls: ['./document-numbering-settings.component.css']
@@ -67,6 +70,37 @@ export class DocumentNumberingSettingsComponent implements OnInit {
     this.openEdit = this.openEdit.bind(this);
     this.resetSequence = this.resetSequence.bind(this);
   }
+
+  /** Config-driven columns for the Shared DataGrid (captions are i18n keys). */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'documentType', dataType: 'string', caption: 'DOCUMENT_NUMBERING.DOCUMENT_TYPE' },
+    { dataField: 'format', dataType: 'string', caption: 'DOCUMENT_NUMBERING.FORMAT' },
+    { dataField: 'resetCadence', dataType: 'string', caption: 'DOCUMENT_NUMBERING.RESET_CADENCE' },
+    { dataField: 'prefix', dataType: 'string', caption: 'DOCUMENT_NUMBERING.PREFIX' },
+    { dataField: 'suffix', dataType: 'string', caption: 'DOCUMENT_NUMBERING.SUFFIX' },
+    { dataField: 'digitPadding', dataType: 'number', caption: 'DOCUMENT_NUMBERING.DIGIT_PADDING', width: 100 },
+    { dataField: 'startingNumber', dataType: 'number', caption: 'DOCUMENT_NUMBERING.STARTING_NUMBER', width: 100 },
+    { dataField: 'currentNumber', dataType: 'number', caption: 'DOCUMENT_NUMBERING.CURRENT_NUMBER', width: 100 },
+    { dataField: 'nextNumberPreview', dataType: 'string', caption: 'DOCUMENT_NUMBERING.NEXT_NUMBER' },
+    { dataField: 'autoNumberingEnabled', dataType: 'boolean', caption: 'DOCUMENT_NUMBERING.AUTO_ENABLED', width: 110, type: 'check', allowSorting: false },
+    { dataField: 'isActive', dataType: 'boolean', caption: 'COMMON.ACTIVE', width: 90, type: 'status', allowSorting: false },
+  ];
+
+  /** Row actions -- same edit/reset/delete behavior via the shared template. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
+    { id: 'resetSequence', icon: 'revert', labelKey: 'DOCUMENT_NUMBERING.RESET_SEQUENCE' },
+    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn' },
+  ];
+
+  /** Single dispatcher for the Shared DataGrid's rowAction output. */
+  onGridAction(e: SharedGridRowActionEvent): void {
+    const wrapped = { row: { data: e.row } };
+    if (e.actionId === 'edit') this.openEdit(wrapped);
+    else if (e.actionId === 'resetSequence') this.resetSequence(wrapped);
+    else if (e.actionId === 'delete') this.delete(wrapped);
+  }
+
   documentTypes = DOCUMENT_TYPES;
   formats = FORMATS;
   cadences = CADENCES;

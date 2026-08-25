@@ -3,7 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/materia
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
+import { SharedDataGridComponent } from '../shared-data-grid/shared-data-grid.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { InventoryService } from '../../../services/inventory.service';
 import { Car } from '../../../models/car.model';
 import { buildVehicleDescription } from '../../../models/vehicle-description';
+import { dataGridColumnDto } from '../../../models/grid.model';
 
 @Component({
   selector: 'app-vehicle-lookup-modal',
@@ -20,8 +21,7 @@ import { buildVehicleDescription } from '../../../models/vehicle-description';
     CommonModule,
     ReactiveFormsModule,
     TranslateModule,
-    DxDataGridModule,
-    DxButtonModule,
+    SharedDataGridComponent,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -39,6 +39,26 @@ export class VehicleLookupModalComponent {
 
   // Available vehicles from service
   availableVehicles = this.inventoryService.availableVehicles$;
+
+  // Display value functions for grid columns (declared before `columns`, which uses them)
+  getDisplayVin = (rowData: Car) => rowData.vin || '-';
+  getDisplayModel = (rowData: Car) => buildVehicleDescription({ make: rowData.make, model: rowData.model });
+  getDisplayColor = (rowData: Car) => rowData.exteriorColor || '-';
+  getDisplayPrice = (rowData: Car) => {
+    if (!rowData.salePrice) return '-';
+    return rowData.salePrice.toLocaleString('ar-SA', { style: 'currency', currency: 'SAR' });
+  };
+  getDisplayStatus = (rowData: Car) => 'SALES_INVOICE.VEHICLE_STATUS_AVAILABLE';
+
+  /** Config-driven columns -- same computed display values as before. */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'vin', dataType: 'string', caption: 'SALES_INVOICE.VIN', width: 120, calculateDisplayValue: this.getDisplayVin },
+    { dataField: 'make', dataType: 'string', caption: 'SALES_INVOICE.MANUFACTURER' },
+    { dataField: 'model', dataType: 'string', caption: 'SALES_INVOICE.MODEL' },
+    { dataField: 'year', dataType: 'number', caption: 'SALES_INVOICE.YEAR', width: 80, alignment: 'center' },
+    { dataField: 'exteriorColor', dataType: 'string', caption: 'SALES_INVOICE.COLOR', calculateDisplayValue: this.getDisplayColor },
+    { dataField: 'salePrice', dataType: 'number', format: '#,##0', caption: 'SALES_INVOICE.SUGGESTED_PRICE', calculateDisplayValue: this.getDisplayPrice },
+  ];
 
   // Filter state
   filterForm = new FormGroup({
@@ -115,14 +135,4 @@ export class VehicleLookupModalComponent {
     this.filterForm.reset();
     this.selectedVehicle.set(null);
   }
-
-  // Display value functions for grid columns
-  getDisplayVin = (rowData: Car) => rowData.vin || '-';
-  getDisplayModel = (rowData: Car) => buildVehicleDescription({ make: rowData.make, model: rowData.model });
-  getDisplayColor = (rowData: Car) => rowData.exteriorColor || '-';
-  getDisplayPrice = (rowData: Car) => {
-    if (!rowData.salePrice) return '-';
-    return rowData.salePrice.toLocaleString('ar-SA', { style: 'currency', currency: 'SAR' });
-  };
-  getDisplayStatus = (rowData: Car) => 'SALES_INVOICE.VEHICLE_STATUS_AVAILABLE';
 }

@@ -12,133 +12,27 @@
   </div>
 
   <div class="erp-grid-card">
-    <!-- Mobile (<=840px): rows render as full-width cards instead of the grid's
-         clipped/scrolling columns -- same data, same edit/delete actions. -->
-    @if (isMobile()) {
-      <app-mobile-card-list
-        [items]="mobileReceipts()"
-        [fields]="mobileFields"
-        [titleOf]="mobileTitleOf"
-        [trackByFn]="mobileTrackBy"
-        emptyMessage="COMMON.NO_DATA"
-      >
-        <ng-template let-item>
-          <button type="button" class="btn btn-light" (click)="mobileEdit(item)">{{ 'COMMON.EDIT' | translate }}</button>
-          <button type="button" class="btn btn-light" (click)="mobileDelete(item)">{{ 'COMMON.DELETE' | translate }}</button>
-        </ng-template>
-      </app-mobile-card-list>
-    } @else {
-    <dx-data-grid
+    <!-- Shared DataGrid: owns grid chrome, row actions, and the mobile card-list
+         rendering (same rows/actions as before). -->
+    <app-shared-data-grid
       [dataSource]="dataSource"
-      [remoteOperations]="true"
-      [showBorders]="true"
-      [showRowLines]="true"
-      [showColumnLines]="true"
-      [rtlEnabled]="true"
-      [wordWrapEnabled]="false"
-      [columnAutoWidth]="true"
-      [allowColumnReordering]="true"
-      [allowColumnResizing]="true"
+      [columns]="columns"
+      [rowActions]="rowActions"
+      [summaryItems]="summaryItems"
       keyExpr="id"
-      class="receipts-grid">
+      searchPlaceholder="ACCOUNTS.RECEIPTS.SEARCH_PLACEHOLDER"
+      noDataText="COMMON.NO_DATA"
+      [mobileItems]="mobileReceipts()"
+      [mobileFields]="mobileFields"
+      [mobileTitleOf]="mobileTitleOf"
+      [mobileTrackBy]="mobileTrackBy"
+      (rowAction)="onGridAction($event)">
 
-      <dxo-search-panel
-        [visible]="true">
-      </dxo-search-panel>
-
-      <dxo-grouping [autoExpandAll]="false"></dxo-grouping>
-
-      <dxo-paging
-        [pageSize]="10">
-        <dxo-pager
-          [visible]="true"
-          [allowedPageSizes]="[5, 10, 20]"
-          [displayMode]="'compact'"
-          [showPageSizeSelector]="true"
-          [showInfo]="true"
-          [showNavigationButtons]="true">
-        </dxo-pager>
-      </dxo-paging>
-
-      <dxo-filter-row [visible]="true"></dxo-filter-row>
-
-      <dxo-header-filter [visible]="true"></dxo-header-filter>
-
-      <dxi-column
-        dataField="voucherNumber"
-        [caption]="'ACCOUNTS.RECEIPTS.COL_VOUCHER_NUMBER' | translate"
-        [alignment]="'right'"
-       >
-      </dxi-column>
-
-      <dxi-column
-        dataField="date"
-        [caption]="'ACCOUNTS.RECEIPTS.COL_DATE' | translate"
-        dataType="date"
-        format="yyyy-MM-dd"
-        [alignment]="'right'"
-        >
-      </dxi-column>
-
-      <dxi-column
-        dataField="customerName"
-        [caption]="'ACCOUNTS.RECEIPTS.COL_CUSTOMER' | translate"
-        [alignment]="'right'"
-      >
-      </dxi-column>
-
-      <dxi-column
-        dataField="salesInvoiceNumber"
-        [caption]="'ACCOUNTS.RECEIPTS.COL_INVOICE' | translate"
-        [alignment]="'right'"
-       >
-      </dxi-column>
-
-      <dxi-column
-        dataField="amount"
-        [caption]="'ACCOUNTS.RECEIPTS.COL_AMOUNT' | translate"
-        dataType="number"
-        format="currency"
-        [alignment]="'right'"
-        >
-        <dxo-format
-          type="currency"
-          [precision]="2"
-          currency="SAR">
-        </dxo-format>
-      </dxi-column>
-   <dxi-column
-        type="buttons"
-        [width]="170"
-        [caption]="'ACCOUNTS.RECEIPTS.COL_ACTIONS' | translate">
-        <dxi-button
-        icon="edit"
-          text="Edit"
-          [onClick]="editReceipt">
-        </dxi-button>
-        <dxi-button
-          icon="check"
-          text="Post"
-          hint="Post receipt"
-          [visible]="isDraft"
-          [onClick]="postReceipt">
-        </dxi-button>
-        <dxi-button
-          icon="trash"
-          text="Delete"
-          [onClick]="deleteReceipt">
-        </dxi-button>
-      </dxi-column>
-      <dxo-summary>
-        <dxi-total-item
-          column="amount"
-          summaryType="sum"
-          [alignment]="'right'"
-          [displayFormat]="'ACCOUNTS.RECEIPTS.TOTAL_AMOUNT' | translate">
-        </dxi-total-item>
-      </dxo-summary>
-
-    </dx-data-grid>
-    }
+      <!-- Mobile per-row actions (same edit/delete behavior as before) -->
+      <ng-template let-item>
+        <button type="button" class="btn btn-light" (click)="mobileEdit(item)">{{ 'ACCOUNTS.RECEIPTS.EDIT' | translate }}</button>
+        <button type="button" class="btn btn-light" (click)="mobileDelete(item)">{{ 'ACCOUNTS.RECEIPTS.DELETE' | translate }}</button>
+      </ng-template>
+    </app-shared-data-grid>
   </div>
 </div>

@@ -25,47 +25,17 @@
   </mat-toolbar>
 
   <div class="erp-grid-card grid-container">
-    <dx-data-grid
+    <app-shared-data-grid
       [dataSource]="configurations()"
-      [showBorders]="true"
-      [columnAutoWidth]="true"
-      [rowAlternationEnabled]="true"
-      [rtlEnabled]="true"
-      height="600px"
-      [showRowLines]="true"
-      [allowColumnReordering]="true"
-      [allowColumnResizing]="true"
-      [noDataText]="'STORE_ACCOUNTING_CONFIG.NO_CONFIGURATIONS' | translate"
+      [columns]="columns"
+      [rowActions]="rowActions"
       keyExpr="id"
-      rtlEnabled="true">
-
-      <dxo-search-panel [visible]="true" [width]="240"></dxo-search-panel>
-      <dxo-filter-row [visible]="true"></dxo-filter-row>
-      <dxo-header-filter [visible]="true"></dxo-header-filter>
-      <dxo-paging [pageSize]="10"></dxo-paging>
-      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]" [showInfo]="true"></dxo-pager>
-
-      <dxi-column dataField="storeName" [caption]="'STORE_ACCOUNTING_CONFIG.STORE' | translate"></dxi-column>
-      <dxi-column dataField="inventoryAccountCode" [caption]="'STORE_ACCOUNTING_CONFIG.INVENTORY_ACCOUNT' | translate" [width]="150"></dxi-column>
-      <dxi-column dataField="cogsAccountCode" [caption]="'STORE_ACCOUNTING_CONFIG.COGS_ACCOUNT' | translate" [width]="150"></dxi-column>
-      <dxi-column dataField="inventoryAdjustmentAccountCode" [caption]="'STORE_ACCOUNTING_CONFIG.ADJUSTMENT_ACCOUNT' | translate" [width]="180"></dxi-column>
-      <dxi-column dataField="isActive" dataType="boolean" [caption]="'COMMON.ACTIVE' | translate" [width]="110" cellTemplate="statusTemplate"></dxi-column>
-
-      <div *dxTemplate="let cell of 'statusTemplate'">
-        <span class="erp-status-badge status-badge" [ngClass]="cell.data.isActive ? 'success' : 'neutral'" [class.status-active]="cell.data.isActive" [class.status-inactive]="!cell.data.isActive">
-          {{ (cell.data.isActive ? 'COMMON.ACTIVE' : 'COMMON.INACTIVE') | translate }}
-        </span>
-      </div>
-
-      <dxi-column type="buttons" [caption]="'COMMON.ACTIONS' | translate" [width]="120" cellTemplate="actionsTemplate"></dxi-column>
-      <div *dxTemplate="let cell of 'actionsTemplate'">
-        <button mat-icon-button [matTooltip]="'COMMON.EDIT' | translate" (click)="onEdit({ row: { data: cell.data } })">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-icon-button color="warn" [matTooltip]="'COMMON.DELETE' | translate" (click)="onDelete({ row: { data: cell.data } })">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </div>
-    </dx-data-grid>
+      [loading]="loading()"
+      noDataText="STORE_ACCOUNTING_CONFIG.NO_CONFIGURATIONS"
+      searchPlaceholder="COMMON.SEARCH"
+      [pageSize]="10"
+      [allowedPageSizes]="[10, 20, 50]"
+      (rowAction)="onGridAction($event)">
+    </app-shared-data-grid>
   </div>
 </div>

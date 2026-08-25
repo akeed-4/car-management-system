@@ -6,11 +6,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { DxDataGridModule, DxDataGridComponent, DxTemplateModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { ExchangeRateService } from '../../../../services/exchange-rate.service';
 import { NotificationService } from '../../../../services/notification.service';
 import { CurrencyExchangeRate } from '../../../../models/exchange-rate.model';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 
 @Component({
   selector: 'app-exchange-rate-list',
@@ -23,16 +27,15 @@ import { CurrencyExchangeRate } from '../../../../models/exchange-rate.model';
     MatMenuModule,
     MatToolbarModule,
     MatTooltipModule,
-    DxDataGridModule,
-    DxTemplateModule,
-    TranslateModule
+    TranslateModule,
+    SharedDataGridComponent
   ],
   templateUrl: './exchange-rate-list.component.html',
   styleUrls: ['./exchange-rate-list.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ExchangeRateListComponent implements OnInit {
-  @ViewChild(DxDataGridComponent, { static: false }) grid!: DxDataGridComponent;
+  @ViewChild(SharedDataGridComponent, { static: false }) grid!: SharedDataGridComponent;
 
   private exchangeRateService = inject(ExchangeRateService);
   private notificationService = inject(NotificationService);
@@ -41,6 +44,29 @@ export class ExchangeRateListComponent implements OnInit {
 
   rates = signal<CurrencyExchangeRate[]>([]);
   loading = signal(false);
+
+  /** Config-driven columns -- newest effective date first (as before). */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'fromCurrencyCode', dataType: 'string', caption: 'EXCHANGE_RATE.FROM_CURRENCY', width: 120 },
+    { dataField: 'toCurrencyCode', dataType: 'string', caption: 'EXCHANGE_RATE.TO_CURRENCY', width: 120 },
+    { dataField: 'rate', dataType: 'number', format: '#0.######', caption: 'EXCHANGE_RATE.RATE', width: 120 },
+    { dataField: 'effectiveDate', dataType: 'date', caption: 'EXCHANGE_RATE.EFFECTIVE_DATE', width: 140, sortOrder: 'desc' },
+    { dataField: 'isActive', dataType: 'boolean', caption: 'COMMON.ACTIVE', width: 110, type: 'status' },
+  ];
+
+  /** Row actions -- same edit/delete behavior via the shared actions template. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
+    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn' },
+  ];
+
+  /** Single dispatcher for the Shared DataGrid's rowAction output. */
+  onGridAction(e: SharedGridRowActionEvent): void {
+    const wrapped = { row: { data: e.row } };
+    if (e.actionId === 'edit') this.onEdit(wrapped);
+    else if (e.actionId === 'delete') this.onDelete(wrapped);
+  }
+
 
   ngOnInit(): void {
     this.loadRates();
@@ -96,7 +122,7 @@ export class ExchangeRateListComponent implements OnInit {
       import('exceljs').then(async (ExcelJS) => {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('ExchangeRates');
-        exportDataGrid({ component: this.grid.instance, worksheet }).then(() => {
+        exportDataGrid({ component: this.grid.getInstance(), worksheet }).then(() => {
           workbook.xlsx.writeBuffer().then((buffer: BlobPart) => {
             import('file-saver').then(({ saveAs }) => {
               saveAs(new Blob([buffer], { type: 'application/octet-stream' }), 'ExchangeRates.xlsx');

@@ -6,11 +6,10 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
 import { Customer } from '../../../../models/customer.model';
 import { FormsModule } from '@angular/forms';
 import {
-  DxDataGridModule,
-  DxButtonModule,
-  DxLoadPanelModule,
-  DxScrollViewModule
-} from 'devextreme-angular';
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../../shared/shared-data-grid/shared-data-grid.component';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatIconModule } from '@angular/material/icon';
 import { ToastService } from '../../../../services/toast.service';
@@ -27,10 +26,7 @@ type SortDirection = 'asc' | 'desc' | '';
     RouterModule,
     ModalComponent,
     FormsModule,
-    DxDataGridModule,
-    DxButtonModule,
-    DxLoadPanelModule,
-    DxScrollViewModule,
+    SharedDataGridComponent,
     TranslateModule,
     MatIconModule
   ],
@@ -43,15 +39,41 @@ export class CustomersComponent {
   private router = inject(Router);
   private toastService = inject(NotificationService);
   private translate = inject(TranslateService);
-  
+
   // customers = this.customerService.customers$;
   filter = signal('');
   sortColumn = signal<SortColumn>('');
   sortDirection = signal<SortDirection>('');
-constructor(){
-  this.editCustomer = this.editCustomer.bind(this);
-  this.requestDelete = this.requestDelete.bind(this);
-}
+
+  /** Config-driven columns for the Shared DataGrid -- same fields/visibility the
+   *  inline dxi-column definitions used before (captions are i18n keys). */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'name', dataType: 'string', caption: 'CUSTOMERS.COLUMNS.NAME' },
+    { dataField: 'nationalId', dataType: 'string', caption: 'CUSTOMERS.COLUMNS.NATIONAL_ID', width: 150 },
+    { dataField: 'phone', dataType: 'string', caption: 'CUSTOMERS.COLUMNS.PHONE', width: 140 },
+    { dataField: 'phone2', dataType: 'string', caption: 'CUSTOMERS.COLUMNS.SECONDARY_PHONE', width: 140, visible: false },
+    { dataField: 'email', dataType: 'string', caption: 'CUSTOMERS.COLUMNS.EMAIL', visible: false },
+    { dataField: 'address', dataType: 'string', caption: 'CUSTOMERS.COLUMNS.ADDRESS', width: 200 },
+    { dataField: 'city', dataType: 'string', caption: 'CUSTOMERS.COLUMNS.CITY', visible: false },
+    { dataField: 'occupation', dataType: 'string', caption: 'CUSTOMERS.COLUMNS.OCCUPATION', visible: false },
+    { dataField: 'monthlyIncome', dataType: 'number', format: 'currency', caption: 'CUSTOMERS.COLUMNS.MONTHLY_INCOME', visible: false },
+    { dataField: 'creditScore', dataType: 'number', caption: 'CUSTOMERS.COLUMNS.CREDIT_SCORE', visible: false },
+    { dataField: 'isActive', dataType: 'boolean', type: 'status', trueText: 'CUSTOMERS.STATUS.ACTIVE', falseText: 'CUSTOMERS.STATUS.INACTIVE', caption: 'CUSTOMERS.COLUMNS.STATUS', width: 100 },
+    { dataField: 'actions', dataType: 'string', type: 'actions', caption: 'CUSTOMERS.COLUMNS.ACTIONS', width: 120, allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Already-authorized actions (same edit/delete buttons as before). */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'CUSTOMERS.ACTIONS.EDIT' },
+    { id: 'delete', icon: 'trash', labelKey: 'CUSTOMERS.ACTIONS.DELETE', cssClass: 'btn-danger' },
+  ];
+
+  onGridAction(e: SharedGridRowActionEvent): void {
+    const customer = e.row as Customer;
+    if (e.actionId === 'edit') this.editCustomer(customer.id!);
+    else if (e.actionId === 'delete') this.requestDelete(customer.id!);
+  }
+
   // Modal state
   isDeleteModalOpen = signal(false);
   itemToDeleteId = signal<number | null>(null);
@@ -119,14 +141,11 @@ constructor(){
   }
 
 
-  editCustomer(event: any): void {
-    const id = event.row.data.id;
-    console.log('Navigating to edit customer with id:', id);
+  editCustomer(id: number): void {
     this.router.navigate(['/entities/customers/edit', id]);
   }
 
-  requestDelete(event: any): void {
-    const id = event.row.data.id;
+  requestDelete(id: number): void {
     this.itemToDeleteId.set(id);
     this.isDeleteModalOpen.set(true);
   }

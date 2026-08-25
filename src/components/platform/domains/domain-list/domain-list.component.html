@@ -19,37 +19,12 @@
   <mat-progress-bar mode="indeterminate" *ngIf="loading()"></mat-progress-bar>
 
   <div class="erp-grid-card grid-container" *ngIf="!loading()">
-    <dx-data-grid
+    <app-shared-data-grid
       [dataSource]="domains()"
+      [columns]="columns"
       keyExpr="id"
-      [showBorders]="true"
-      [showRowLines]="true"
-      [rtlEnabled]="true"
-      [columnAutoWidth]="true"
-      [hoverStateEnabled]="true">
-
-      <dxo-search-panel [visible]="true" [width]="240"></dxo-search-panel>
-      <dxo-filter-row [visible]="true"></dxo-filter-row>
-      <dxo-paging [pageSize]="20"></dxo-paging>
-      <dxo-pager [visible]="true" [showPageSizeSelector]="true" [allowedPageSizes]="[10,20,50]"></dxo-pager>
-
-      <dxi-column dataField="domainName" [caption]="'PLATFORM.DOMAINS.HOSTNAME' | translate"></dxi-column>
-
-      <dxi-column dataField="hasSsl" [caption]="'PLATFORM.DOMAINS.SSL' | translate" [width]="100" cellTemplate="sslTemplate"></dxi-column>
-      <div *dxTemplate="let cell of 'sslTemplate'">
-        <mat-icon [style.color]="cell.value ? '#2e7d32' : '#c62828'">{{ cell.value ? 'lock' : 'lock_open' }}</mat-icon>
-      </div>
-
-      <dxi-column dataField="tenantName" [caption]="'PLATFORM.DOMAINS.TENANT' | translate"></dxi-column>
-
-      <dxi-column dataField="isVerified" [caption]="'PLATFORM.DOMAINS.STATUS' | translate" [width]="130" cellTemplate="statusTemplate"></dxi-column>
-      <div *dxTemplate="let cell of 'statusTemplate'">
-        <span class="erp-status-badge chip" [ngClass]="cell.value ? 'success' : 'neutral'">
-          {{ (cell.value ? 'PLATFORM.DOMAINS.VERIFIED' : 'PLATFORM.DOMAINS.PENDING') | translate }}
-        </span>
-      </div>
-
-      <dxi-column dataField="createdAt" dataType="date" format="yyyy-MM-dd" [caption]="'PLATFORM.DOMAINS.CREATED' | translate"></dxi-column>
-    </dx-data-grid>
+      [pageSize]="20"
+      [allowedPageSizes]="[10, 20, 50]">
+    </app-shared-data-grid>
   </div>
 </div>

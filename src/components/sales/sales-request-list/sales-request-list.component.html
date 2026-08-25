@@ -12,33 +12,20 @@
   </div>
 
   <div class="erp-grid-card table-container">
-    <dx-data-grid
+    <!-- Shared DataGrid: owns grid chrome/selection/row actions (same
+         view/edit/delete buttons and page sizes). -->
+    <app-shared-data-grid
       [dataSource]="dataSource"
-      [showBorders]="true"
-      [columnAutoWidth]="true"
-      [rowAlternationEnabled]="true"
-      [rtlEnabled]="true"
-      [height]="500"
-    >
-      <dxi-column dataField="requestNumber" caption="{{ 'SALES_REQUEST.REQUEST_NUMBER' | translate }}"></dxi-column>
-      <dxi-column dataField="requestDate" caption="{{ 'SALES_REQUEST.REQUEST_DATE' | translate }}" dataType="date"></dxi-column>
-      <dxi-column dataField="customerName" caption="{{ 'SALES_REQUEST.CUSTOMER' | translate }}"></dxi-column>
-      <dxi-column dataField="status" caption="{{ 'SALES_REQUEST.STATUS' | translate }}"></dxi-column>
-      <dxi-column dataField="totalItems" caption="{{ 'SALES_REQUEST.TOTAL_ITEMS' | translate }}" dataType="number"></dxi-column>
-
-      <dxi-column type="buttons" caption="{{ 'COMMON.ACTIONS' | translate }}" [width]="150">
-        <dxi-button name="view" icon="eye" [onClick]="viewRequest"></dxi-button>
-        <dxi-button name="edit" icon="edit" [onClick]="editRequest"></dxi-button>
-        <dxi-button name="delete" icon="trash" [onClick]="deleteRequest"></dxi-button>
-      </dxi-column>
-
-      <dxo-filter-row [visible]="true"></dxo-filter-row>
-      <dxo-header-filter [visible]="true"></dxo-header-filter>
-      <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false"
-        [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
-      <dxo-selection mode="single"></dxo-selection>
-      <dxo-paging [pageSize]="10"></dxo-paging>
-      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
-    </dx-data-grid>
+      [columns]="columns"
+      [rowActions]="rowActions"
+      keyExpr="id"
+      height="500"
+      [selectionMode]="'single'"
+      [showSearchPanel]="false"
+      noDataText="COMMON.NO_DATA"
+      [pageSize]="10"
+      [allowedPageSizes]="[5, 10, 20]"
+      (rowAction)="onGridAction($event)">
+    </app-shared-data-grid>
   </div>
 </div>

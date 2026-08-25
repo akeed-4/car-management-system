@@ -1,7 +1,9 @@
 import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DxDataGridModule, DxDropDownBoxModule } from 'devextreme-angular';
+import { DxDropDownBoxModule } from 'devextreme-angular';
+import { SharedDataGridComponent } from '../shared-data-grid/shared-data-grid.component';
+import { dataGridColumnDto } from '../../../models/grid.model';
 
 export interface InvoiceData {
   id: number;
@@ -18,7 +20,7 @@ export interface InvoiceData {
   imports: [
     CommonModule,
     TranslateModule,
-    DxDataGridModule,
+    SharedDataGridComponent,
     DxDropDownBoxModule,
   ],
   templateUrl: './invoice-dropdown-grid.component.html',
@@ -29,6 +31,15 @@ export class InvoiceDropdownGridComponent {
   @Input() placeholder: string = 'Select Invoice';
   @Input() label: string = 'Invoice';
   @Input() disabled: boolean = false;
+
+  /** Config-driven columns for the Shared DataGrid (captions are i18n keys). */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'invoiceNumber', dataType: 'string', caption: 'ACCOUNTS.FORM.INVOICE_NUMBER' },
+    { dataField: 'invoiceDate', dataType: 'date', format: 'dd/MM/yyyy', caption: 'ACCOUNTS.FORM.INVOICE_DATE' },
+    { dataField: 'totalAmount', dataType: 'number', format: 'currency', caption: 'ACCOUNTS.FORM.TOTAL' },
+    { dataField: 'amountPaid', dataType: 'number', format: 'currency', caption: 'ACCOUNTS.FORM.PAID' },
+    { dataField: 'amountDue', dataType: 'number', format: 'currency', caption: 'ACCOUNTS.FORM.DUE', cssClass: 'due-amount' },
+  ];
   
   @Output() selectionChanged = new EventEmitter<InvoiceData>();
   @Output() valueChanged = new EventEmitter<number | null>();

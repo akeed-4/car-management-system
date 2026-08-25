@@ -25,57 +25,17 @@
   </mat-toolbar>
 
   <div class="erp-grid-card grid-container">
-    <dx-data-grid
+    <app-shared-data-grid
       [dataSource]="transfers()"
-      [showBorders]="true"
-      [columnAutoWidth]="true"
-      [rowAlternationEnabled]="true"
-      [rtlEnabled]="true"
-      height="600px"
-      [showRowLines]="true"
-      [allowColumnReordering]="true"
-      [allowColumnResizing]="true"
-      [noDataText]="'STORE_TRANSFER.NO_TRANSFERS' | translate"
+      [columns]="columns"
+      [rowActions]="rowActions"
       keyExpr="id"
-      rtlEnabled="true">
-
-      <dxo-search-panel [visible]="true" [width]="240"></dxo-search-panel>
-      <dxo-filter-row [visible]="true"></dxo-filter-row>
-      <dxo-header-filter [visible]="true"></dxo-header-filter>
-      <dxo-paging [pageSize]="10"></dxo-paging>
-      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]" [showInfo]="true"></dxo-pager>
-
-      <dxi-column dataField="transferNumber" [caption]="'STORE_TRANSFER.TRANSFER_NUMBER' | translate" [width]="150"></dxi-column>
-      <dxi-column dataField="transferDate" dataType="date" [caption]="'STORE_TRANSFER.TRANSFER_DATE' | translate" [width]="130"></dxi-column>
-      <dxi-column dataField="fromStoreName" [caption]="'STORE_TRANSFER.FROM_STORE' | translate"></dxi-column>
-      <dxi-column dataField="toStoreName" [caption]="'STORE_TRANSFER.TO_STORE' | translate"></dxi-column>
-      <dxi-column dataField="status" [caption]="'COMMON.STATUS' | translate" [width]="120" cellTemplate="statusTemplate"></dxi-column>
-
-      <div *dxTemplate="let cell of 'statusTemplate'">
-        <span class="erp-status-badge status-badge"
-              [ngClass]="{
-                'success': cell.data.status === 'Approved',
-                'warning': cell.data.status === 'Pending',
-                'danger': cell.data.status === 'Rejected'
-              }"
-              [class.status-active]="cell.data.status === 'Approved'"
-              [class.status-pending]="cell.data.status === 'Pending'"
-              [class.status-inactive]="cell.data.status === 'Rejected'">
-          {{ cell.data.status }}
-        </span>
-      </div>
-
-      <dxi-column type="buttons" [caption]="'COMMON.ACTIONS' | translate" [width]="130" cellTemplate="actionsTemplate"></dxi-column>
-      <div *dxTemplate="let cell of 'actionsTemplate'">
-        <ng-container *ngIf="cell.data.status === 'Pending'">
-          <button mat-icon-button color="primary" [matTooltip]="'STORE_TRANSFER.APPROVE' | translate" (click)="onApprove({ row: { data: cell.data } })">
-            <mat-icon>check_circle</mat-icon>
-          </button>
-          <button mat-icon-button color="warn" [matTooltip]="'STORE_TRANSFER.REJECT' | translate" (click)="onReject({ row: { data: cell.data } })">
-            <mat-icon>cancel</mat-icon>
-          </button>
-        </ng-container>
-      </div>
-    </dx-data-grid>
+      [loading]="loading()"
+      noDataText="STORE_TRANSFER.NO_TRANSFERS"
+      searchPlaceholder="COMMON.SEARCH"
+      [pageSize]="10"
+      [allowedPageSizes]="[10, 20, 50]"
+      (rowAction)="onGridAction($event)">
+    </app-shared-data-grid>
   </div>
 </div>

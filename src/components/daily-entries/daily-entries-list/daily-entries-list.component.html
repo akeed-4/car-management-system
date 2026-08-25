@@ -121,80 +121,42 @@
   } @else {
   <!-- DataGrid -->
   <div class="erp-grid-card grid-container">
-    <dx-data-grid
-      #dataGrid
-      id="dailyEntriesGrid"
+    <!-- Shared DataGrid: owns grid chrome/group panel/state storing/paging;
+         the CustomStore keeps driving server-side load exactly as before. -->
+    <app-shared-data-grid
       [dataSource]="dataSource"
-      [remoteOperations]="true"
+      [columns]="columns"
+      [rowActions]="rowActions"
+      [cellTemplates]="cellTemplates"
+      [summaryItems]="summaryItems"
+      [dxRemoteOperations]="true"
+      [showGroupPanel]="true"
+      [selectionMode]="'multiple'"
+      [stateStoringKey]="gridStateKey"
+      [loading]="false"
       keyExpr="id"
-      [showBorders]="true"
-      [showRowLines]="true"
-      [showColumnLines]="true"
-      [rtlEnabled]="true"
-      [columnAutoWidth]="true"
-      [allowColumnReordering]="true"
-      [allowColumnResizing]="true"
-      [wordWrapEnabled]="false"
-      [hoverStateEnabled]="true"
-      (onRowDblClick)="openDetails($event)">
+      scrollingMode="virtual"
+      searchPlaceholder="COMMON.SEARCH"
+      noDataText="COMMON.NO_DATA"
+      [pageSize]="20"
+      [allowedPageSizes]="[10, 20, 50, 100]"
+      (rowDblClick)="openDetails($event)"
+      (rowAction)="onGridAction($event)">
 
-      <dxo-load-panel [enabled]="true"></dxo-load-panel>
-      <dxo-search-panel [visible]="true" [width]="280"></dxo-search-panel>
-      <dxo-header-filter [visible]="true"></dxo-header-filter>
-      <dxo-filter-row [visible]="true"></dxo-filter-row>
-      <dxo-grouping [autoExpandAll]="false" [contextMenuEnabled]="true"></dxo-grouping>
-      <dxo-group-panel [visible]="true"></dxo-group-panel>
-      <dxo-column-chooser [enabled]="true" mode="select"></dxo-column-chooser>
-      <dxo-column-fixing [enabled]="true"></dxo-column-fixing>
-      <dxo-state-storing [enabled]="true" type="localStorage" [storageKey]="gridStateKey"></dxo-state-storing>
-      <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
-      <dxo-paging [pageSize]="20"></dxo-paging>
-      <dxo-pager [visible]="true" [allowedPageSizes]="[10, 20, 50, 100]" [showPageSizeSelector]="true" [showInfo]="true" [showNavigationButtons]="true" displayMode="full"></dxo-pager>
-      <dxo-selection mode="multiple" showCheckBoxesMode="onClick"></dxo-selection>
-      <dxo-export [enabled]="false"></dxo-export>
-
-      <dxi-column dataField="referenceNumber" [caption]="'DAILY_ENTRIES.REFERENCE_NUMBER' | translate" [width]="130" [fixed]="true"></dxi-column>
-
-      <dxi-column dataField="entryType" [caption]="'DAILY_ENTRIES.ENTRY_TYPE' | translate" [width]="130" cellTemplate="typeTemplate"></dxi-column>
-      <div *dxTemplate="let cell of 'typeTemplate'">
+      <!-- Entry-type badge (same classes/labels as before) -->
+      <ng-template #typeTemplate let-cell>
         <span class="erp-status-badge chip" [ngClass]="getDailyEntryTypeClass(cell.value)">
           {{ ('DAILY_ENTRIES.TYPE_' + cell.value?.toUpperCase()) | translate }}
         </span>
-      </div>
+      </ng-template>
 
-      <dxi-column dataField="carDescription" [caption]="'DAILY_ENTRIES.VEHICLE' | translate"></dxi-column>
-      <dxi-column dataField="carVin" [caption]="'CONSIGNMENT.VIN' | translate" [width]="150"></dxi-column>
-      <dxi-column dataField="storeName" [caption]="'DAILY_ENTRIES.WAREHOUSE' | translate"></dxi-column>
-      <dxi-column dataField="employeeName" [caption]="'DAILY_ENTRIES.EMPLOYEE' | translate"></dxi-column>
-      <dxi-column dataField="entryDate" dataType="date" format="yyyy-MM-dd" [caption]="'DAILY_ENTRIES.ENTRY_DATE' | translate" [width]="120"></dxi-column>
-
-      <dxi-column dataField="status" [caption]="'DAILY_ENTRIES.STATUS' | translate" [width]="130" cellTemplate="statusTemplate"></dxi-column>
-      <div *dxTemplate="let cell of 'statusTemplate'">
+      <!-- Status badge (same classes/labels as before) -->
+      <ng-template #statusTemplate let-cell>
         <span class="erp-status-badge chip" [ngClass]="getDailyEntryStatusClass(cell.value)">
           {{ ('DAILY_ENTRIES.STATUS_' + cell.value?.toUpperCase()) | translate }}
         </span>
-      </div>
-
-      <dxi-column dataField="remarks" [caption]="'DAILY_ENTRIES.REMARKS' | translate" [visible]="false"></dxi-column>
-      <dxi-column dataField="createdAt" dataType="datetime" [caption]="'REQUESTED_CARS.CREATED_DATE' | translate" [visible]="false"></dxi-column>
-
-      <dxi-column type="buttons" [caption]="'COMMON.ACTIONS' | translate" [width]="120" [fixed]="true" fixedPosition="right" cellTemplate="actionsTemplate"></dxi-column>
-      <div *dxTemplate="let cell of 'actionsTemplate'">
-        <button mat-icon-button [matTooltip]="'COMMON.EDIT' | translate" (click)="editEntry(cell.data.id)" *appHasPermission="'dailyEntry.edit'">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-icon-button [matTooltip]="'AUDIT_HISTORY.TITLE' | translate" (click)="openHistory(cell.data.id)" *appHasPermission="'dailyEntry.history'">
-          <mat-icon>history</mat-icon>
-        </button>
-        <button mat-icon-button color="warn" [matTooltip]="'COMMON.DELETE' | translate" (click)="requestDelete(cell.data.id)" *appHasPermission="'dailyEntry.delete'">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </div>
-
-      <dxo-summary>
-        <dxi-total-item column="referenceNumber" summaryType="count" [displayFormat]="'{0}'"></dxi-total-item>
-      </dxo-summary>
-    </dx-data-grid>
+      </ng-template>
+    </app-shared-data-grid>
   </div>
   }
 

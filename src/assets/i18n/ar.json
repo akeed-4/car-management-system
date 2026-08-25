@@ -2264,7 +2264,11 @@
       "COL_CUSTOMER": "العميل",
       "COL_INVOICE": "رقم الفاتورة",
       "COL_AMOUNT": "المبلغ",
-      "NO_RECEIPTS": "لا توجد سندات قبض مسجلة."
+      "NO_RECEIPTS": "لا توجد سندات قبض مسجلة.",
+      "COL_ACTIONS": "إجراءات",
+      "EDIT": "تعديل",
+      "DELETE": "حذف",
+      "POST": "ترحيل"
     },
     "FLOOR_PLAN_REPORT": {
       "TITLE": "تقرير السيارات الممولة",
@@ -3234,6 +3238,13 @@
     "PARENT_ACCOUNT": "الحساب الأب",
     "PARENT_ACCOUNT_NOT_SELECTED": "لم يتم التحديد بعد",
     "THIS_ACCOUNT": "هذا الحساب",
+    "FORM_SUBTITLE_CREATE": "إنشاء حساب جديد في دليل الحسابات",
+    "FORM_SUBTITLE_EDIT": "تعديل بيانات هذا الحساب في دليل الحسابات",
+    "SECTION_ACCOUNT_INFO": "معلومات الحساب",
+    "SECTION_HIERARCHY": "الموقع في شجرة الحسابات",
+    "SECTION_CONFIG": "الإعدادات المحاسبية",
+    "SECTION_ADDITIONAL_INFO": "معلومات إضافية",
+    "SAVE_ACCOUNT": "حفظ الحساب",
     "CODE_AUTO_GENERATED_HINT": "يتم إنشاؤه تلقائيًا من الحساب الأب، ويمكنك تعديله عند الحاجة",
     "LOCKED_HAS_POSTED_ENTRIES": "يحتوي هذا الحساب على قيود يومية مرحّلة، لذا لا يمكن تغيير رقمه أو نوعه أو عملته أو الحساب الأب. لا يزال بإمكانك تعديل الاسم والملاحظات والحالة وإعدادات مركز التكلفة.",
     "CURRENCY": "العملة",

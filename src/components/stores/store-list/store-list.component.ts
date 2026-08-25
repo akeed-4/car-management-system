@@ -1,29 +1,32 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../shared/shared-data-grid/shared-data-grid.component';
 import { Store } from '../../../models/branch.model';
 import { StoreService } from '../../../services/store.service';
 import { HasPermissionDirective } from '../../shared/permission.directive';
 import { StoreFormComponent } from '../store-form/store-form.component';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 
 @Component({
   selector: 'app-store-list',
   standalone: true,
   imports: [
     CommonModule,
-    DxDataGridModule,
-    DxButtonModule,
     MatDialogModule,
     MatButtonModule,
     MatIconModule,
     TranslateModule,
     FormsModule,
-    HasPermissionDirective
+    HasPermissionDirective,
+    SharedDataGridComponent
   ],
   templateUrl: './store-list.component.html',
   styleUrls: ['./store-list.component.css']
@@ -31,6 +34,7 @@ import { StoreFormComponent } from '../store-form/store-form.component';
 export class StoreListComponent {
   private storeService = inject(StoreService);
   private dialog = inject(MatDialog);
+  private translate = inject(TranslateService);
 
   stores = this.storeService.stores$;
   filter = signal('');
@@ -39,6 +43,52 @@ constructor(){
   this.onDelete=this.onDelete.bind(this);
   this.onEdit=this.onEdit.bind(this);
 }
+
+  /** Config-driven columns -- status renders through a translated lookup, as before. */
+  get columns(): dataGridColumnDto[] {
+    return [
+      { dataField: 'nameAr', dataType: 'string', caption: 'STORES.COLUMNS.NAME_AR' },
+      { dataField: 'description', dataType: 'string', caption: 'STORES.COLUMNS.DESCRIPTION', allowSorting: false },
+      { dataField: 'activityName', dataType: 'string', caption: 'STORES.COLUMNS.ACTIVITY' },
+      { dataField: 'branchName', dataType: 'string', caption: 'STORES.COLUMNS.BRANCH' },
+      {
+        dataField: 'status',
+        dataType: 'string',
+        caption: 'STORES.COLUMNS.STATUS',
+        lookup: {
+          dataSource: [
+            { value: 'active', displayExpr: this.translate.instant('STORES.STATUS.ACTIVE') },
+            { value: 'inactive', displayExpr: this.translate.instant('STORES.STATUS.INACTIVE') },
+            { value: 'suspended', displayExpr: this.translate.instant('STORES.STATUS.SUSPENDED') },
+          ],
+          valueExpr: 'value',
+          displayExpr: 'displayExpr',
+        },
+      },
+      { dataField: 'createdAt', dataType: 'date', format: 'yyyy-MM-dd', caption: 'STORES.COLUMNS.CREATED' },
+      { dataField: '__actions', dataType: 'string', caption: 'STORES.COLUMNS.ACTIONS', type: 'actions', allowSorting: false, allowFiltering: false },
+    ];
+  }
+
+  /** Row actions -- same edit/delete behavior via the shared actions template. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'STORES.ACTIONS.EDIT' },
+    { id: 'delete', icon: 'delete', labelKey: 'STORES.ACTIONS.DELETE', cssClass: 'warn' },
+  ];
+
+  /** Single dispatcher for the Shared DataGrid's rowAction output. */
+  onGridAction(e: SharedGridRowActionEvent): void {
+    if (e.actionId === 'edit') this.onEdit({ row: { data: e.row } });
+    else if (e.actionId === 'delete') this.onDelete({ row: { data: e.row } });
+  }
+
+  /** Row-click opens edit -- same behavior as before, adapted to the shared output. */
+  onGridRowClick(rowData: any): void {
+    if (rowData) {
+      this.onEdit(rowData);
+    }
+  }
+
   filteredStores = computed(() => {
     const searchTerm = this.filter().toLowerCase();
     const stores = this.stores();

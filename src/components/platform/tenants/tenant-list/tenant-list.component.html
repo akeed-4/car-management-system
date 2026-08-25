@@ -90,65 +90,32 @@
   </mat-toolbar>
 
   <div class="erp-grid-card grid-container">
-    <dx-data-grid
-      #dataGrid
-      id="platformTenantsGrid"
+    <!-- Shared DataGrid: owns grid chrome/state storing/paging; the CustomStore
+         keeps driving server-side load exactly as before. -->
+    <app-shared-data-grid
       [dataSource]="dataSource"
-      [remoteOperations]="true"
+      [columns]="columns"
+      [rowActions]="rowActions"
+      [cellTemplates]="cellTemplates"
+      [dxRemoteOperations]="true"
+      [selectionMode]="'multiple'"
+      [stateStoringKey]="gridStateKey"
       keyExpr="id"
-      [showBorders]="true"
-      [showRowLines]="true"
-      [showColumnLines]="true"
-      [rtlEnabled]="true"
-      [columnAutoWidth]="true"
-      [allowColumnReordering]="true"
-      [allowColumnResizing]="true"
-      [hoverStateEnabled]="true"
-      (onRowDblClick)="openDetails($event)">
+      scrollingMode="virtual"
+      searchPlaceholder="COMMON.SEARCH"
+      noDataText="COMMON.NO_DATA"
+      [pageSize]="20"
+      [allowedPageSizes]="[10, 20, 50, 100]"
+      (rowDblClick)="openDetails($event)"
+      (rowAction)="onGridAction($event)">
 
-      <dxo-load-panel [enabled]="true"></dxo-load-panel>
-      <dxo-search-panel [visible]="true" [width]="280"></dxo-search-panel>
-      <dxo-header-filter [visible]="true"></dxo-header-filter>
-      <dxo-filter-row [visible]="true"></dxo-filter-row>
-      <dxo-group-panel [visible]="false"></dxo-group-panel>
-      <dxo-column-chooser [enabled]="true" mode="select"></dxo-column-chooser>
-      <dxo-column-fixing [enabled]="true"></dxo-column-fixing>
-      <dxo-state-storing [enabled]="true" type="localStorage" [storageKey]="gridStateKey"></dxo-state-storing>
-      <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
-      <dxo-paging [pageSize]="20"></dxo-paging>
-      <dxo-pager [visible]="true" [allowedPageSizes]="[10, 20, 50, 100]" [showPageSizeSelector]="true" [showInfo]="true" [showNavigationButtons]="true" displayMode="full"></dxo-pager>
-      <dxo-selection mode="multiple" showCheckBoxesMode="onClick"></dxo-selection>
-      <dxo-export [enabled]="false"></dxo-export>
-
-      <dxi-column dataField="code" [caption]="'PLATFORM.TENANTS.CODE' | translate" [width]="110" [fixed]="true"></dxi-column>
-      <dxi-column dataField="name" [caption]="'PLATFORM.TENANTS.COMPANY' | translate"></dxi-column>
-      <dxi-column dataField="adminFullName" [caption]="'PLATFORM.TENANTS.OWNER' | translate"></dxi-column>
-      <dxi-column dataField="adminEmail" [caption]="'PLATFORM.TENANTS.EMAIL' | translate"></dxi-column>
-      <dxi-column dataField="phone" [caption]="'PLATFORM.TENANTS.PHONE' | translate" [width]="130"></dxi-column>
-      <dxi-column dataField="planName" [caption]="'PLATFORM.TENANTS.PLAN' | translate" [width]="130"></dxi-column>
-
-      <dxi-column dataField="status" [caption]="'PLATFORM.TENANTS.STATUS' | translate" [width]="130" cellTemplate="statusTemplate"></dxi-column>
-      <div *dxTemplate="let cell of 'statusTemplate'">
+      <!-- Status badge (same classes/labels as before) -->
+      <ng-template #statusTemplate let-cell>
         <span class="erp-status-badge chip" [ngClass]="getTenantStatusClass(cell.value)">
           {{ ('PLATFORM.TENANT_STATUS.' + (cell.value === TenantStatus.Active ? 'ACTIVE' : cell.value === TenantStatus.Provisioning ? 'PROVISIONING' : cell.value === TenantStatus.Suspended ? 'SUSPENDED' : 'BLOCKED')) | translate }}
         </span>
-      </div>
-
-      <dxi-column dataField="createdAt" dataType="date" format="yyyy-MM-dd" [caption]="'PLATFORM.TENANTS.CREATED' | translate" [width]="120"></dxi-column>
-
-      <dxi-column type="buttons" [caption]="'COMMON.ACTIONS' | translate" [width]="150" [fixed]="true" fixedPosition="right" cellTemplate="actionsTemplate"></dxi-column>
-      <div *dxTemplate="let cell of 'actionsTemplate'">
-        <button mat-icon-button [matTooltip]="'COMMON.EDIT' | translate" (click)="editTenant(cell.data.id)" *appHasPermission="'platform.tenants.edit'">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-icon-button [matTooltip]="'PLATFORM.TENANTS.TOGGLE_SUSPEND' | translate" (click)="toggleSuspend(cell.data)" *appHasPermission="'platform.tenants.suspend'">
-          <mat-icon>{{ cell.data.status === TenantStatus.Suspended ? 'play_circle' : 'pause_circle' }}</mat-icon>
-        </button>
-        <button mat-icon-button color="warn" [matTooltip]="'COMMON.DELETE' | translate" (click)="requestDelete(cell.data.id)" *appHasPermission="'platform.tenants.delete'">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </div>
-    </dx-data-grid>
+      </ng-template>
+    </app-shared-data-grid>
   </div>
 
   <app-modal

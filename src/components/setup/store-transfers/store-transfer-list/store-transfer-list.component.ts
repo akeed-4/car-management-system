@@ -6,11 +6,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { DxDataGridModule, DxDataGridComponent, DxTemplateModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { StoreTransferService } from '../../../../services/store-transfer.service';
 import { NotificationService } from '../../../../services/notification.service';
 import { StoreTransfer } from '../../../../models/store-transfer.model';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 
 @Component({
   selector: 'app-store-transfer-list',
@@ -23,16 +27,15 @@ import { StoreTransfer } from '../../../../models/store-transfer.model';
     MatMenuModule,
     MatToolbarModule,
     MatTooltipModule,
-    DxDataGridModule,
-    DxTemplateModule,
-    TranslateModule
+    TranslateModule,
+    SharedDataGridComponent
   ],
   templateUrl: './store-transfer-list.component.html',
   styleUrls: ['./store-transfer-list.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StoreTransferListComponent implements OnInit {
-  @ViewChild(DxDataGridComponent, { static: false }) grid!: DxDataGridComponent;
+  @ViewChild(SharedDataGridComponent, { static: false }) grid!: SharedDataGridComponent;
 
   private transferService = inject(StoreTransferService);
   private notificationService = inject(NotificationService);
@@ -41,6 +44,39 @@ export class StoreTransferListComponent implements OnInit {
 
   transfers = signal<StoreTransfer[]>([]);
   loading = signal(false);
+
+  /** Config-driven columns -- tri-state badge via statusClass resolver. */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'transferNumber', dataType: 'string', caption: 'STORE_TRANSFER.TRANSFER_NUMBER', width: 150 },
+    { dataField: 'transferDate', dataType: 'date', caption: 'STORE_TRANSFER.TRANSFER_DATE', width: 130 },
+    { dataField: 'fromStoreName', dataType: 'string', caption: 'STORE_TRANSFER.FROM_STORE' },
+    { dataField: 'toStoreName', dataType: 'string', caption: 'STORE_TRANSFER.TO_STORE' },
+    {
+      dataField: 'status',
+      dataType: 'string',
+      caption: 'COMMON.STATUS',
+      width: 120,
+      type: 'status',
+      allowSorting: false,
+      statusClass: (_row, value) =>
+        value === 'Approved' ? 'success' : value === 'Pending' ? 'warning' : value === 'Rejected' ? 'danger' : 'neutral',
+    },
+    { dataField: '__actions', dataType: 'string', caption: 'COMMON.ACTIONS', width: 130, type: 'actions', allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Row actions -- approve/reject only for Pending transfers, as before. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'approve', icon: 'check_circle', labelKey: 'STORE_TRANSFER.APPROVE', visible: (row) => row.status === 'Pending' },
+    { id: 'reject', icon: 'cancel', labelKey: 'STORE_TRANSFER.REJECT', cssClass: 'warn', visible: (row) => row.status === 'Pending' },
+  ];
+
+  /** Single dispatcher for the Shared DataGrid's rowAction output. */
+  onGridAction(e: SharedGridRowActionEvent): void {
+    const wrapped = { row: { data: e.row } };
+    if (e.actionId === 'approve') this.onApprove(wrapped);
+    else if (e.actionId === 'reject') this.onReject(wrapped);
+  }
+
 
   ngOnInit(): void {
     this.loadTransfers();

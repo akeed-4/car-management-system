@@ -6,11 +6,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { DxDataGridModule, DxDataGridComponent, DxTemplateModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { StoreAccountingConfigurationService } from '../../../../services/store-accounting-configuration.service';
 import { NotificationService } from '../../../../services/notification.service';
 import { StoreAccountingConfiguration } from '../../../../models/store-accounting-configuration.model';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 
 @Component({
   selector: 'app-store-accounting-configuration-list',
@@ -23,16 +27,15 @@ import { StoreAccountingConfiguration } from '../../../../models/store-accountin
     MatMenuModule,
     MatToolbarModule,
     MatTooltipModule,
-    DxDataGridModule,
-    DxTemplateModule,
-    TranslateModule
+    TranslateModule,
+    SharedDataGridComponent
   ],
   templateUrl: './store-accounting-configuration-list.component.html',
   styleUrls: ['./store-accounting-configuration-list.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StoreAccountingConfigurationListComponent implements OnInit {
-  @ViewChild(DxDataGridComponent, { static: false }) grid!: DxDataGridComponent;
+  @ViewChild(SharedDataGridComponent, { static: false }) grid!: SharedDataGridComponent;
 
   private configService = inject(StoreAccountingConfigurationService);
   private notificationService = inject(NotificationService);
@@ -41,6 +44,29 @@ export class StoreAccountingConfigurationListComponent implements OnInit {
 
   configurations = signal<StoreAccountingConfiguration[]>([]);
   loading = signal(false);
+
+  /** Config-driven columns for the Shared DataGrid (captions are i18n keys). */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'storeName', dataType: 'string', caption: 'STORE_ACCOUNTING_CONFIG.STORE' },
+    { dataField: 'inventoryAccountCode', dataType: 'string', caption: 'STORE_ACCOUNTING_CONFIG.INVENTORY_ACCOUNT', width: 150 },
+    { dataField: 'cogsAccountCode', dataType: 'string', caption: 'STORE_ACCOUNTING_CONFIG.COGS_ACCOUNT', width: 150 },
+    { dataField: 'inventoryAdjustmentAccountCode', dataType: 'string', caption: 'STORE_ACCOUNTING_CONFIG.ADJUSTMENT_ACCOUNT', width: 180 },
+    { dataField: 'isActive', dataType: 'boolean', caption: 'COMMON.ACTIVE', width: 110, type: 'status' },
+  ];
+
+  /** Row actions -- same edit/delete behavior via the shared template. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
+    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn' },
+  ];
+
+  /** Single dispatcher for the Shared DataGrid's rowAction output. */
+  onGridAction(e: SharedGridRowActionEvent): void {
+    const wrapped = { row: { data: e.row } };
+    if (e.actionId === 'edit') this.onEdit(wrapped);
+    else if (e.actionId === 'delete') this.onDelete(wrapped);
+  }
+
 
   ngOnInit(): void {
     this.loadConfigurations();

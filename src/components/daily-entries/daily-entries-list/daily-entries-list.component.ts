@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, ViewChild, viewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,18 +13,19 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDialog } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import CustomStore from 'devextreme/data/custom_store';
-import {
-  DxDataGridModule,
-  DxDataGridComponent,
-} from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { DailyEntryService } from '../../../services/daily-entry.service';
-import { HasPermissionDirective } from '../../shared/permission.directive';
+import { PermissionService } from '../../../services/permission.service';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../shared/shared-data-grid/shared-data-grid.component';
 import { ModalComponent } from '../../shared/modal/modal.component';
 import { AuditHistoryPanelComponent } from '../../shared/audit-history-panel/audit-history-panel.component';
 import { DailyEntry } from '../../../models/daily-entry.model';
 import { getDailyEntryStatusClass, getDailyEntryTypeClass } from '../daily-entry-status.util';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 import { ResponsiveService } from '../../../services/responsive.service';
 import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
 
@@ -35,7 +36,6 @@ import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-ca
     CommonModule,
     FormsModule,
     ModalComponent,
-    HasPermissionDirective,
     MatButtonModule,
     MatIconModule,
     MatCardModule,
@@ -45,7 +45,7 @@ import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-ca
     MatFormFieldModule,
     MatSelectModule,
     MatInputModule,
-    DxDataGridModule,
+    SharedDataGridComponent,
     TranslateModule,
     MobileCardListComponent,
   ],
@@ -54,13 +54,14 @@ import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-ca
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DailyEntriesListComponent {
-  @ViewChild(DxDataGridComponent, { static: false }) grid!: DxDataGridComponent;
+  @ViewChild(SharedDataGridComponent, { static: false }) grid!: SharedDataGridComponent;
 
   private dailyEntryService = inject(DailyEntryService);
   private router = inject(Router);
   private dialog = inject(MatDialog);
   private responsiveService = inject(ResponsiveService);
   private translateService = inject(TranslateService);
+  private permissionService = inject(PermissionService);
   isMobile = this.responsiveService.isMobile;
 
   typeFilter = signal<string>('');
@@ -75,6 +76,64 @@ export class DailyEntriesListComponent {
 
   typeOptions = ['Receiving', 'Delivery', 'Transfer', 'Return', 'Inspection', 'Maintenance'];
   statusOptions = ['Pending', 'Completed', 'Cancelled'];
+
+  /** Screen-specific badge renderers passed generically to the Shared DataGrid. */
+  private typeTpl = viewChild<TemplateRef<any>>('typeTemplate');
+  private statusTpl = viewChild<TemplateRef<any>>('statusTemplate');
+
+  get cellTemplates(): Record<string, TemplateRef<any>> {
+    const type = this.typeTpl();
+    const status = this.statusTpl();
+    return {
+      ...(type ? { typeTemplate: type } : {}),
+      ...(status ? { statusTemplate: status } : {}),
+    };
+  }
+
+  /** Config-driven columns -- same fields/fixed positions/visibility as before
+   *  (captions are i18n keys). */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'referenceNumber', dataType: 'string', caption: 'DAILY_ENTRIES.REFERENCE_NUMBER', width: 130, fixed: true },
+    { dataField: 'entryType', dataType: 'string', caption: 'DAILY_ENTRIES.ENTRY_TYPE', width: 130, cellTemplate: 'typeTemplate' },
+    { dataField: 'carDescription', dataType: 'string', caption: 'DAILY_ENTRIES.VEHICLE' },
+    { dataField: 'carVin', dataType: 'string', caption: 'CONSIGNMENT.VIN', width: 150 },
+    { dataField: 'storeName', dataType: 'string', caption: 'DAILY_ENTRIES.WAREHOUSE' },
+    { dataField: 'employeeName', dataType: 'string', caption: 'DAILY_ENTRIES.EMPLOYEE' },
+    { dataField: 'entryDate', dataType: 'date', format: 'yyyy-MM-dd', caption: 'DAILY_ENTRIES.ENTRY_DATE', width: 120 },
+    { dataField: 'status', dataType: 'string', caption: 'DAILY_ENTRIES.STATUS', width: 130, cellTemplate: 'statusTemplate' },
+    { dataField: 'remarks', dataType: 'string', caption: 'DAILY_ENTRIES.REMARKS', visible: false },
+    { dataField: 'createdAt', dataType: 'datetime', caption: 'REQUESTED_CARS.CREATED_DATE', visible: false },
+    { dataField: 'actions', dataType: 'string', type: 'actions', caption: 'COMMON.ACTIONS', width: 120, fixed: true, allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Permission-gated actions -- same appHasPermission rules as before, now
+   *  expressed through per-row visibility predicates. */
+  rowActions: sharedGridRowActionDto[] = [
+    {
+      id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT',
+      visible: () => this.permissionService.hasPermission('dailyEntry.edit'),
+    },
+    {
+      id: 'history', icon: 'history', labelKey: 'AUDIT_HISTORY.TITLE',
+      visible: () => this.permissionService.hasPermission('dailyEntry.history'),
+    },
+    {
+      id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn',
+      visible: () => this.permissionService.hasPermission('dailyEntry.delete'),
+    },
+  ];
+
+  /** Same count total as before (referenceNumber column). */
+  summaryItems: any[] = [
+    { column: 'referenceNumber', summaryType: 'count', displayFormat: '{0}' },
+  ];
+
+  onGridAction(e: SharedGridRowActionEvent): void {
+    const entry = e.row as DailyEntry;
+    if (e.actionId === 'edit') this.editEntry(entry.id);
+    else if (e.actionId === 'history') this.openHistory(entry.id);
+    else if (e.actionId === 'delete') this.requestDelete(entry.id);
+  }
 
   dataSource = new CustomStore<DailyEntry>({
     key: 'id',
@@ -154,9 +213,9 @@ export class DailyEntriesListComponent {
     this.router.navigate(['/daily-entries', id, 'edit']);
   }
 
-  openDetails(e: { data?: DailyEntry }): void {
-    if (e.data) {
-      this.editEntry(e.data.id);
+  openDetails(entry?: DailyEntry): void {
+    if (entry) {
+      this.editEntry(entry.id);
     }
   }
 
@@ -181,7 +240,7 @@ export class DailyEntriesListComponent {
   }
 
   refresh(): void {
-    this.grid?.instance?.refresh();
+    this.grid?.refresh();
   }
 
   onFilterChange(): void {
@@ -191,17 +250,19 @@ export class DailyEntriesListComponent {
   resetFilters(): void {
     this.typeFilter.set('');
     this.statusFilter.set('');
-    this.grid?.instance?.clearFilter();
+    this.grid?.getInstance()?.clearFilter();
     this.refresh();
   }
 
   exportExcel(): void {
+    const component = this.grid?.getInstance();
+    if (!component) return;
     import('devextreme/excel_exporter').then(({ exportDataGrid }) => {
       import('exceljs').then(async (ExcelJS) => {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('DailyEntries');
         exportDataGrid({
-          component: this.grid.instance,
+          component,
           worksheet,
         }).then(() => {
           workbook.xlsx.writeBuffer().then((buffer: BlobPart) => {
@@ -215,11 +276,13 @@ export class DailyEntriesListComponent {
   }
 
   exportPdf(): void {
+    const component = this.grid?.getInstance();
+    if (!component) return;
     Promise.all([import('jspdf'), import('devextreme/pdf_exporter')]).then(([jsPDFModule, { exportDataGrid }]) => {
       const doc = new jsPDFModule.jsPDF();
       exportDataGrid({
         jsPDFDocument: doc,
-        component: this.grid.instance,
+        component,
       }).then(() => {
         doc.save('DailyEntries.pdf');
       });

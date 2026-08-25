@@ -35,49 +35,17 @@
   </mat-toolbar>
 
   <div class="grid-container erp-grid-card">
-    <dx-data-grid
+    <app-shared-data-grid
       [dataSource]="rates()"
-      [showBorders]="true"
-      [columnAutoWidth]="true"
-      [rowAlternationEnabled]="true"
-      [rtlEnabled]="true"
-      height="600px"
-      [showRowLines]="true"
-      [allowColumnReordering]="true"
-      [allowColumnResizing]="true"
-      [noDataText]="'EXCHANGE_RATE.NO_RATES' | translate"
+      [columns]="columns"
+      [rowActions]="rowActions"
       keyExpr="id"
-      rtlEnabled="true">
-
-      <dxo-search-panel [visible]="true" [width]="240"></dxo-search-panel>
-      <dxo-filter-row [visible]="true"></dxo-filter-row>
-      <dxo-header-filter [visible]="true"></dxo-header-filter>
-      <dxo-paging [pageSize]="10"></dxo-paging>
-      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]" [showInfo]="true"></dxo-pager>
-      <dxo-sorting mode="single"></dxo-sorting>
-
-      <dxi-column dataField="fromCurrencyCode" [caption]="'EXCHANGE_RATE.FROM_CURRENCY' | translate" [width]="120"></dxi-column>
-      <dxi-column dataField="toCurrencyCode" [caption]="'EXCHANGE_RATE.TO_CURRENCY' | translate" [width]="120"></dxi-column>
-      <dxi-column dataField="rate" [caption]="'EXCHANGE_RATE.RATE' | translate" [width]="120" format="#0.######"></dxi-column>
-      <dxi-column dataField="effectiveDate" dataType="date" [caption]="'EXCHANGE_RATE.EFFECTIVE_DATE' | translate" [width]="140" sortOrder="desc"></dxi-column>
-      <dxi-column dataField="isActive" dataType="boolean" [caption]="'COMMON.ACTIVE' | translate" [width]="110" cellTemplate="statusTemplate"></dxi-column>
-
-      <div *dxTemplate="let cell of 'statusTemplate'">
-        <span class="status-badge erp-status-badge" [class.status-active]="cell.data.isActive" [class.status-inactive]="!cell.data.isActive"
-              [ngClass]="cell.data.isActive ? 'success' : 'neutral'">
-          {{ (cell.data.isActive ? 'COMMON.ACTIVE' : 'COMMON.INACTIVE') | translate }}
-        </span>
-      </div>
-
-      <dxi-column type="buttons" [caption]="'COMMON.ACTIONS' | translate" [width]="120" cellTemplate="actionsTemplate"></dxi-column>
-      <div *dxTemplate="let cell of 'actionsTemplate'">
-        <button mat-icon-button [matTooltip]="'COMMON.EDIT' | translate" (click)="onEdit({ row: { data: cell.data } })">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-icon-button color="warn" [matTooltip]="'COMMON.DELETE' | translate" (click)="onDelete({ row: { data: cell.data } })">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </div>
-    </dx-data-grid>
+      [loading]="loading()"
+      noDataText="EXCHANGE_RATE.NO_RATES"
+      [pageSize]="10"
+      [allowedPageSizes]="[10, 20, 50]"
+      searchPlaceholder="COMMON.SEARCH"
+      (rowAction)="onGridAction($event)">
+    </app-shared-data-grid>
   </div>
 </div>

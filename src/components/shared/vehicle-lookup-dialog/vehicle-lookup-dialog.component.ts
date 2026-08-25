@@ -3,7 +3,7 @@ import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { DxDataGridModule } from 'devextreme-angular';
+import { SharedDataGridComponent } from '../shared-data-grid/shared-data-grid.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,6 +12,7 @@ import { InventoryService } from '../../../services/inventory.service';
 import { Car } from '../../../models/car.model';
 import { TranslateService } from '@ngx-translate/core';
 import { NotificationService } from '../../../services/notification.service';
+import { dataGridColumnDto } from '../../../models/grid.model';
 
 /**
  * Reusable vehicle-selection popup: search real inventory by VIN/plate/make/model/color/year,
@@ -30,7 +31,7 @@ import { NotificationService } from '../../../services/notification.service';
     CommonModule,
     ReactiveFormsModule,
     TranslateModule,
-    DxDataGridModule,
+    SharedDataGridComponent,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
@@ -60,6 +61,23 @@ export class VehicleLookupDialogComponent {
   loading = signal(false);
   hasSearched = signal(false);
   selectedVehicle = signal<Car | null>(null);
+
+  /** Config-driven columns for the Shared DataGrid (captions are i18n keys). */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'vin', dataType: 'string', caption: 'VEHICLE_LOOKUP.VIN' },
+    { dataField: 'plateNumber', dataType: 'string', caption: 'VEHICLE_LOOKUP.PLATE_NUMBER' },
+    { dataField: 'make', dataType: 'string', caption: 'VEHICLE_LOOKUP.MAKE' },
+    { dataField: 'model', dataType: 'string', caption: 'VEHICLE_LOOKUP.MODEL' },
+    { dataField: 'year', dataType: 'string', caption: 'VEHICLE_LOOKUP.YEAR', width: 80 },
+    { dataField: 'exteriorColor', dataType: 'string', caption: 'VEHICLE_LOOKUP.EXTERIOR_COLOR' },
+    { dataField: 'interiorColor', dataType: 'string', caption: 'VEHICLE_LOOKUP.INTERIOR_COLOR' },
+    { dataField: 'transmission', dataType: 'string', caption: 'VEHICLE_LOOKUP.TRANSMISSION' },
+    { dataField: 'mileage', dataType: 'string', caption: 'VEHICLE_LOOKUP.MILEAGE' },
+    { dataField: 'status', dataType: 'string', caption: 'VEHICLE_LOOKUP.STATUS' },
+    { dataField: 'customerName', dataType: 'string', caption: 'VEHICLE_LOOKUP.CUSTOMER' },
+    { dataField: 'purchasePrice', dataType: 'number', format: 'currency', caption: 'VEHICLE_LOOKUP.PURCHASE_PRICE' },
+    { dataField: 'salePrice', dataType: 'number', format: 'currency', caption: 'VEHICLE_LOOKUP.SALE_PRICE' },
+  ];
 
   search(): void {
     this.loading.set(true);

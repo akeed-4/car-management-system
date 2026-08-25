@@ -49,27 +49,19 @@
   <!-- DataGrid with available vehicles -->
   <div class="grid-section">
     @if (filteredVehicles().length > 0) {
-      <dx-data-grid
+      <!-- Shared DataGrid: single-selection lookup (same selection contract). -->
+      <app-shared-data-grid
         [dataSource]="filteredVehicles()"
-        [showBorders]="true"
-        [showRowLines]="true"
-        [showColumnLines]="true"
-        [rtlEnabled]="true"
-        [allowColumnReordering]="true"
-        [allowColumnResizing]="true"
-        [columnAutoWidth]="true"
-        [wordWrapEnabled]="true"
-        [selection]="{ mode: 'single' }"
-        (onSelectionChanged)="onVehicleSelect($event.selectedRowsData?.[0])">
-
-        <dxi-column dataField="vin" caption="{{ 'SALES_INVOICE.VIN' | translate }}" width="120" [calculateDisplayValue]="getDisplayVin"></dxi-column>
-        <dxi-column dataField="make" caption="{{ 'SALES_INVOICE.MANUFACTURER' | translate }}"></dxi-column>
-        <dxi-column dataField="model" caption="{{ 'SALES_INVOICE.MODEL' | translate }}"></dxi-column>
-        <dxi-column dataField="year" caption="{{ 'SALES_INVOICE.YEAR' | translate }}" dataType="number" width="80" alignment="center"></dxi-column>
-        <dxi-column dataField="exteriorColor" caption="{{ 'SALES_INVOICE.COLOR' | translate }}" [calculateDisplayValue]="getDisplayColor"></dxi-column>
-        <dxi-column dataField="salePrice" caption="{{ 'SALES_INVOICE.SUGGESTED_PRICE' | translate }}" dataType="number" format="#,##0" [calculateDisplayValue]="getDisplayPrice"></dxi-column>
-
-      </dx-data-grid>
+        [columns]="columns"
+        keyExpr="id"
+        [selectionMode]="'single'"
+        [enableMobileCards]="false"
+        [showSearchPanel]="false"
+        [showFilterRow]="false"
+        [showHeaderFilter]="false"
+        [showColumnChooser]="false"
+        (selectionChanged)="onVehicleSelect($event[0])">
+      </app-shared-data-grid>
     } @else {
       <div class="no-vehicles-message">
         <mat-icon class="empty-icon">directions_car</mat-icon>

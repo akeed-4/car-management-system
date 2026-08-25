@@ -6,11 +6,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { DxDataGridModule, DxDataGridComponent, DxTemplateModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { CurrencyService } from '../../../../services/currency.service';
 import { NotificationService } from '../../../../services/notification.service';
 import { Currency } from '../../../../models/currency.model';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 
 @Component({
   selector: 'app-currency-list',
@@ -23,16 +27,15 @@ import { Currency } from '../../../../models/currency.model';
     MatMenuModule,
     MatToolbarModule,
     MatTooltipModule,
-    DxDataGridModule,
-    DxTemplateModule,
-    TranslateModule
+    TranslateModule,
+    SharedDataGridComponent
   ],
   templateUrl: './currency-list.component.html',
   styleUrls: ['./currency-list.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CurrencyListComponent implements OnInit {
-  @ViewChild(DxDataGridComponent, { static: false }) grid!: DxDataGridComponent;
+  @ViewChild(SharedDataGridComponent, { static: false }) grid!: SharedDataGridComponent;
 
   private currencyService = inject(CurrencyService);
   private notificationService = inject(NotificationService);
@@ -41,6 +44,36 @@ export class CurrencyListComponent implements OnInit {
 
   currencies = signal<Currency[]>([]);
   loading = signal(false);
+
+  /** Config-driven columns for the Shared DataGrid (captions are i18n keys). */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'code', dataType: 'string', caption: 'CURRENCY.CODE', width: 100 },
+    { dataField: 'nameEn', dataType: 'string', caption: 'CURRENCY.NAME_ENGLISH' },
+    { dataField: 'nameAr', dataType: 'string', caption: 'CURRENCY.NAME_ARABIC' },
+    { dataField: 'symbol', dataType: 'string', caption: 'CURRENCY.SYMBOL', width: 100 },
+    { dataField: 'decimalPlaces', dataType: 'number', caption: 'CURRENCY.DECIMAL_PLACES', width: 130 },
+    { dataField: 'isActive', dataType: 'boolean', caption: 'COMMON.ACTIVE', width: 110, type: 'status' },
+  ];
+
+  /** Row actions -- deactivate renders disabled for already-inactive rows. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
+    {
+      id: 'deactivate',
+      icon: 'block',
+      labelKey: 'CURRENCY.DEACTIVATE',
+      cssClass: 'warn',
+      disabled: (row) => !row.isActive,
+    },
+  ];
+
+  /** Single dispatcher for the Shared DataGrid's rowAction output. */
+  onGridAction(e: SharedGridRowActionEvent): void {
+    const wrapped = { row: { data: e.row } };
+    if (e.actionId === 'edit') this.onEdit(wrapped);
+    else if (e.actionId === 'deactivate') this.onDeactivate(wrapped);
+  }
+
 
   ngOnInit(): void {
     this.loadCurrencies();
@@ -97,7 +130,7 @@ export class CurrencyListComponent implements OnInit {
       import('exceljs').then(async (ExcelJS) => {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Currencies');
-        exportDataGrid({ component: this.grid.instance, worksheet }).then(() => {
+        exportDataGrid({ component: this.grid.getInstance(), worksheet }).then(() => {
           workbook.xlsx.writeBuffer().then((buffer: BlobPart) => {
             import('file-saver').then(({ saveAs }) => {
               saveAs(new Blob([buffer], { type: 'application/octet-stream' }), 'Currencies.xlsx');

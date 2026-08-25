@@ -11,61 +11,25 @@
     </div>
   </div>
 
-  @if (isMobile()) {
-    <app-mobile-card-list
-      [items]="categories()"
-      [fields]="mobileFields"
-      [titleOf]="mobileTitleOf"
-      [trackByFn]="mobileTrackBy"
-      emptyMessage="CAR_CATEGORY.NO_CATEGORIES"
-    >
-      <ng-template let-cat>
-        <button type="button" class="btn btn-light" (click)="mobileEdit(cat)">{{ 'CAR_CATEGORY.EDIT' | translate }}</button>
-        <button type="button" class="btn btn-light" (click)="mobileDelete(cat)">{{ 'CAR_CATEGORY.DELETE' | translate }}</button>
-      </ng-template>
-    </app-mobile-card-list>
-  } @else {
-  <div class="erp-grid-card">
-  <dx-data-grid
+  <app-shared-data-grid
     [dataSource]="categories()"
-    [showBorders]="true"
-    [showRowLines]="true"
-     [rtlEnabled]="true">
+    [columns]="columns"
+    [rowActions]="rowActions"
+    keyExpr="id"
+    searchPlaceholder="CAR_CATEGORY.SEARCH_PLACEHOLDER"
+    noDataText="CAR_CATEGORY.NO_CATEGORIES"
+    [pageSize]="10"
+    [allowedPageSizes]="[10, 25, 50]"
+    [mobileItems]="categories()"
+    [mobileFields]="mobileFields"
+    [mobileTitleOf]="mobileTitleOf"
+    [mobileTrackBy]="mobileTrackBy"
+    (rowAction)="onGridAction($event)">
 
-    <dxo-filter-row [visible]="true"></dxo-filter-row>
-    <dxo-header-filter [visible]="true"></dxo-header-filter>
-    <dxo-search-panel [visible]="true" [width]="240" placeholder="{{ 'CAR_CATEGORY.SEARCH_PLACEHOLDER' | translate }}"></dxo-search-panel>
-    <dxo-paging [pageSize]="10"></dxo-paging>
-    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 25, 50]" [showInfo]="true"></dxo-pager>
-
-    <dxi-column dataField="id" [caption]="getCaption('ID')" [width]="80" alignment="center"></dxi-column>
-    <dxi-column dataField="name" [caption]="getCaption('NAME')" [minWidth]="200"></dxi-column>
-    <dxi-column dataField="description" [caption]="getCaption('DESCRIPTION')" [minWidth]="300"></dxi-column>
-
-    <dxi-column
-      type="buttons"
-      [caption]="getCaption('ACTIONS')"
-      [width]="120"
-      alignment="center">
-      <dxi-button
-        icon="edit"
-        [hint]="'CAR_CATEGORY.EDIT' | translate"
-        (onClick)="onEdit($event)">
-      </dxi-button>
-      <dxi-button
-        icon="trash"
-        [hint]="'CAR_CATEGORY.DELETE' | translate"
-        (onClick)="deleteCategory($event.row.data.id)">
-      </dxi-button>
-    </dxi-column>
-
-    <div *dxTemplate="let data of 'noDataTemplate'">
-      <div class="empty-state">
-        <mat-icon>category</mat-icon>
-        <p>{{ 'CAR_CATEGORY.NO_CATEGORIES' | translate }}</p>
-      </div>
-    </div>
-  </dx-data-grid>
-  </div>
-  }
+    <!-- Mobile per-row actions (same edit/delete behavior as before) -->
+    <ng-template let-cat>
+      <button type="button" class="btn btn-light" (click)="mobileEdit(cat)">{{ 'CAR_CATEGORY.EDIT' | translate }}</button>
+      <button type="button" class="btn btn-light" (click)="mobileDelete(cat)">{{ 'CAR_CATEGORY.DELETE' | translate }}</button>
+    </ng-template>
+  </app-shared-data-grid>
 </div>

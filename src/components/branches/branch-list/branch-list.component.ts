@@ -1,30 +1,33 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../shared/shared-data-grid/shared-data-grid.component';
 import { Branch } from '../../../models/branch.model';
 import { BranchService } from '../../../services/branch.service';
 import { HasPermissionDirective } from '../../shared/permission.directive';
 import { BranchFormComponent } from '../branch-form/branch-form.component';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 
 @Component({
   selector: 'app-branch-list',
   standalone: true,
   imports: [
     CommonModule,
-    DxDataGridModule,
-    DxButtonModule,
     MatDialogModule,
     MatButtonModule,
     MatIconModule,
     TranslateModule,
     FormsModule,
-    HasPermissionDirective
+    HasPermissionDirective,
+    SharedDataGridComponent
   ],
   templateUrl: './branch-list.component.html',
   styleUrls: ['./branch-list.component.css']
@@ -33,6 +36,7 @@ export class BranchListComponent {
   private branchService = inject(BranchService);
   private dialog = inject(MatDialog);
   private router = inject(Router);
+  private translate = inject(TranslateService);
 
   constructor() {
     this.onEdit = this.onEdit.bind(this);
@@ -41,6 +45,51 @@ export class BranchListComponent {
 
   branches = this.branchService.branches$;
   filter = signal('');
+
+  /** Config-driven columns -- status renders through a translated lookup, as before. */
+  get columns(): dataGridColumnDto[] {
+    return [
+      { dataField: 'nameAr', dataType: 'string', caption: 'BRANCHES.COLUMNS.NAME' },
+      { dataField: 'description', dataType: 'string', caption: 'BRANCHES.COLUMNS.DESCRIPTION', allowSorting: false },
+      {
+        dataField: 'status',
+        dataType: 'string',
+        caption: 'BRANCHES.COLUMNS.STATUS',
+        lookup: {
+          dataSource: [
+            { value: 'active', displayExpr: this.translate.instant('BRANCHES.STATUS.ACTIVE') },
+            { value: 'inactive', displayExpr: this.translate.instant('BRANCHES.STATUS.INACTIVE') },
+            { value: 'suspended', displayExpr: this.translate.instant('BRANCHES.STATUS.SUSPENDED') },
+          ],
+          valueExpr: 'value',
+          displayExpr: 'displayExpr',
+        },
+      },
+      { dataField: 'createdAt', dataType: 'date', format: 'yyyy-MM-dd', caption: 'BRANCHES.COLUMNS.CREATED' },
+      { dataField: '__actions', dataType: 'string', caption: 'BRANCHES.COLUMNS.ACTIONS', type: 'actions', allowSorting: false, allowFiltering: false },
+    ];
+  }
+
+  /** Row actions -- same edit/delete behavior via the shared actions template. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'BRANCHES.ACTIONS.EDIT' },
+    { id: 'delete', icon: 'delete', labelKey: 'BRANCHES.ACTIONS.DELETE', cssClass: 'warn' },
+  ];
+
+  /** Single dispatcher for the Shared DataGrid's rowAction output. */
+  onGridAction(e: SharedGridRowActionEvent): void {
+    const branch = e.row;
+    if (e.actionId === 'edit') this.onEdit({ row: { data: branch } });
+    else if (e.actionId === 'delete') this.onDelete({ row: { data: branch } });
+  }
+
+  /** Row-click opens edit -- same behavior as before, adapted to the shared output. */
+  onGridRowClick(rowData: any): void {
+    if (rowData) {
+      this.onEdit(rowData);
+    }
+  }
+
 
   filteredBranches = computed(() => {
     const searchTerm = this.filter().toLowerCase();

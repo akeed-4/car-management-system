@@ -19,51 +19,33 @@
   <mat-progress-bar mode="indeterminate" *ngIf="loading()"></mat-progress-bar>
 
   <div class="erp-grid-card grid-container" *ngIf="!loading()">
-    <dx-data-grid
+    <!-- Shared DataGrid: owns grid chrome/paging/actions; the status/payment
+         badges keep their exact colors via generic [cellTemplates]. -->
+    <app-shared-data-grid
       [dataSource]="subscriptions()"
+      [columns]="columns"
+      [rowActions]="rowActions"
+      [cellTemplates]="cellTemplates"
       keyExpr="id"
-      [showBorders]="true"
-      [showRowLines]="true"
-      [rtlEnabled]="true"
-      [columnAutoWidth]="true"
-      [hoverStateEnabled]="true">
+      searchPlaceholder="COMMON.SEARCH"
+      noDataText="COMMON.NO_DATA"
+      [pageSize]="20"
+      [allowedPageSizes]="[10, 20, 50]"
+      (rowAction)="onGridAction($event)">
 
-      <dxo-search-panel [visible]="true" [width]="240"></dxo-search-panel>
-      <dxo-filter-row [visible]="true"></dxo-filter-row>
-      <dxo-paging [pageSize]="20"></dxo-paging>
-      <dxo-pager [visible]="true" [showPageSizeSelector]="true" [allowedPageSizes]="[10,20,50]"></dxo-pager>
-
-      <dxi-column dataField="tenantName" [caption]="'PLATFORM.SUBSCRIPTIONS.TENANT' | translate"></dxi-column>
-      <dxi-column dataField="planName" [caption]="'PLATFORM.SUBSCRIPTIONS.PLAN' | translate"></dxi-column>
-
-      <dxi-column dataField="status" [caption]="'PLATFORM.SUBSCRIPTIONS.STATUS' | translate" cellTemplate="statusTemplate"></dxi-column>
-      <div *dxTemplate="let cell of 'statusTemplate'">
+      <!-- Status badge (same colors/labels as before) -->
+      <ng-template #statusTemplate let-cell>
         <span class="erp-status-badge chip" [style.background]="getStatusColor(cell.value) + '22'" [style.color]="getStatusColor(cell.value)">
           {{ getStatusLabel(cell.value) | translate }}
         </span>
-      </div>
+      </ng-template>
 
-      <dxi-column dataField="currentPeriodStart" dataType="date" format="yyyy-MM-dd" [caption]="'PLATFORM.SUBSCRIPTIONS.START' | translate"></dxi-column>
-      <dxi-column dataField="currentPeriodEnd" dataType="date" format="yyyy-MM-dd" [caption]="'PLATFORM.SUBSCRIPTIONS.END' | translate"></dxi-column>
-      <dxi-column dataField="nextRenewalAt" dataType="date" format="yyyy-MM-dd" [caption]="'PLATFORM.SUBSCRIPTIONS.RENEW' | translate"></dxi-column>
-      <dxi-column dataField="amount" dataType="number" format="#,##0.00" [caption]="'PLATFORM.SUBSCRIPTIONS.AMOUNT' | translate"></dxi-column>
-
-      <dxi-column dataField="paymentStatus" [caption]="'PLATFORM.SUBSCRIPTIONS.PAYMENT_STATUS' | translate" cellTemplate="paymentStatusTemplate"></dxi-column>
-      <div *dxTemplate="let cell of 'paymentStatusTemplate'">
+      <!-- Payment-status badge (same colors/labels as before) -->
+      <ng-template #paymentStatusTemplate let-cell>
         <span class="erp-status-badge chip" [style.background]="getPaymentStatusColor(cell.value) + '22'" [style.color]="getPaymentStatusColor(cell.value)">
           {{ getPaymentStatusLabel(cell.value) | translate }}
         </span>
-      </div>
-
-      <dxi-column type="buttons" [caption]="'COMMON.ACTIONS' | translate" [width]="120" cellTemplate="actionsTemplate"></dxi-column>
-      <div *dxTemplate="let cell of 'actionsTemplate'">
-        <button mat-icon-button [matTooltip]="'PLATFORM.SUBSCRIPTIONS.RENEW' | translate" (click)="renew(cell.data)" *appHasPermission="'platform.subscriptions.manage'">
-          <mat-icon>autorenew</mat-icon>
-        </button>
-        <button mat-icon-button color="warn" [matTooltip]="'PLATFORM.SUBSCRIPTIONS.CANCEL' | translate" (click)="cancel(cell.data)" *appHasPermission="'platform.subscriptions.manage'">
-          <mat-icon>cancel</mat-icon>
-        </button>
-      </div>
-    </dx-data-grid>
+      </ng-template>
+    </app-shared-data-grid>
   </div>
 </div>

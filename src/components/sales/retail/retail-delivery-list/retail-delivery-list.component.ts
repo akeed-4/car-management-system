@@ -1,14 +1,17 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { RetailService } from '../../../../services/retail.service';
 import { NotificationService } from '@/src/services/notification.service';
 import { RetailDelivery } from '../../../../models/retail/retail-delivery.model';
-import { HasPermissionDirective } from '../../../shared/permission.directive';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 
 const SALES_CHANNEL_BUNUK = 3;
 
@@ -25,11 +28,10 @@ const SALES_CHANNEL_BUNUK = 3;
   imports: [
     CommonModule,
     RouterModule,
-    DxDataGridModule,
+    SharedDataGridComponent,
     TranslateModule,
     MatButtonModule,
-    MatIconModule,
-    HasPermissionDirective
+    MatIconModule
   ],
   templateUrl: './retail-delivery-list.component.html',
   styleUrls: ['./retail-delivery-list.component.css'],
@@ -44,6 +46,26 @@ export class RetailDeliveryListComponent implements OnInit {
   isBankChannel = false;
   deliveryNotes = signal<RetailDelivery[]>([]);
   loading = signal(false);
+
+  /** Config-driven columns -- same fields as before (i18n keys). */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'deliveryNoteNumber', dataType: 'string', caption: 'CORPORATE.DELIVERY_NOTE_NUMBER' },
+    { dataField: 'vin', dataType: 'string', caption: 'VIN' },
+    { dataField: 'gatePassSerial', dataType: 'string', caption: 'CORPORATE.GATE_PASS_SERIAL' },
+    { dataField: 'deliveryDate', dataType: 'date', caption: 'CORPORATE.DELIVERY_DATE' },
+    { dataField: 'deliveredToName', dataType: 'string', caption: 'CORPORATE.RECEIVER_NAME' },
+    { dataField: 'driverName', dataType: 'string', caption: 'CORPORATE.DRIVER_NAME' },
+    { dataField: 'actions', dataType: 'string', type: 'actions', caption: '', width: 80, allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Same single view button as before. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW' },
+  ];
+
+  onGridAction(e: SharedGridRowActionEvent): void {
+    if (e.actionId === 'view') this.onView(e.row as RetailDelivery);
+  }
 
   ngOnInit(): void {
     this.isBankChannel = this.route.snapshot.data['channel'] === 'bank';
@@ -69,7 +91,7 @@ export class RetailDeliveryListComponent implements OnInit {
   }
 
   onView = (e: any): void => {
-    const id = e.row.data.id;
+    const id = (e?.row?.data ?? e)?.id;
     const base = this.isBankChannel ? '/sales/bank/deliveries/view' : '/sales/retail/deliveries/view';
     this.router.navigate([base, id]);
   };

@@ -10,8 +10,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { DxDataGridModule, DxButtonModule, DxTemplateModule, DxTemplateHost } from 'devextreme-angular';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { AdvancePaymentVoucher } from '@/src/models/advancePaymentVoucher.model';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 
 type SortColumn = keyof AdvancePaymentVoucher | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -30,11 +34,8 @@ type SortDirection = 'asc' | 'desc' | '';
     MatToolbarModule,
     MatFormFieldModule,
     MatInputModule,
-    DxDataGridModule,
-    DxButtonModule,
-    DxTemplateModule
+    SharedDataGridComponent
   ],
-  providers: [DxTemplateHost],
   templateUrl: './deposit-list.component.html',
   styleUrl: './deposit-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,6 +49,30 @@ export class DepositListComponent {
   filter = signal('');
   sortColumn = signal<SortColumn>('date');
   sortDirection = signal<SortDirection>('desc');
+
+  /** Config-driven columns for the Shared DataGrid (captions are i18n keys). */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'voucherNumber', dataType: 'string', caption: 'ACCOUNTS.DEPOSITS.COL_VOUCHER_NUMBER' },
+    { dataField: 'date', dataType: 'date', format: 'yyyy-MM-dd', caption: 'ACCOUNTS.DEPOSITS.COL_DATE' },
+    { dataField: 'customerName', dataType: 'string', caption: 'ACCOUNTS.DEPOSITS.COL_CUSTOMER' },
+    { dataField: 'carDescription', dataType: 'string', caption: 'ACCOUNTS.DEPOSITS.COL_CAR' },
+    { dataField: 'totalAmount', dataType: 'number', format: 'currency', caption: 'ACCOUNTS.DEPOSITS.COL_AMOUNT' },
+  ];
+
+  /** Row actions -- same edit/delete behavior, dispatched via one output. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'ACCOUNTS.DEPOSITS.NOTES_TOOLTIP' },
+    { id: 'delete', icon: 'delete', labelKey: 'ACCOUNTS.DEPOSITS.DELETE_TOOLTIP', cssClass: 'warn' },
+  ];
+
+  /** Single dispatcher for the Shared DataGrid's rowAction output -- routes to
+   *  the exact same handlers the inline dxi-button configs used before. */
+  onGridAction(e: SharedGridRowActionEvent): void {
+    const wrapped = { row: { data: e.row } };
+    if (e.actionId === 'edit') this.Edite(wrapped);
+    else if (e.actionId === 'delete') this.deleteDeposit(wrapped);
+  }
+
 
   filteredAndSortedDeposits = computed(() => {
     let deposits = this.deposits();

@@ -10,7 +10,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
 import { ReceiptService } from '../../../services/receipt.service';
 import { Receipt } from '../../../models/receipt.model';
 import CustomStore from 'devextreme/data/custom_store';
@@ -18,7 +17,12 @@ import { firstValueFrom } from 'rxjs';
 import { ToastService } from '@/src/services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
 import { ResponsiveService } from '../../../services/responsive.service';
-import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
+import { MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../shared/shared-data-grid/shared-data-grid.component';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 
 @Component({
   selector: 'app-receipts',
@@ -33,10 +37,7 @@ import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-ca
     MatToolbarModule,
     MatFormFieldModule,
     MatInputModule,
-    DxDataGridModule,
-    DxButtonModule,
-    DxTemplateModule,
-    MobileCardListComponent,
+    SharedDataGridComponent,
   ],
   templateUrl: './receipts.component.html',
   styleUrl: './receipts.component.css',
@@ -53,6 +54,43 @@ export class ReceiptsComponent implements OnInit {
   private datePipe = inject(DatePipe);
   private currencyPipe = inject(CurrencyPipe);
   isMobile = this.responsiveService.isMobile;
+
+  /** Config-driven columns for the Shared DataGrid -- same fields/formats the
+   *  inline dxi-column definitions used before (captions are i18n keys). */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'voucherNumber', dataType: 'string', alignment: 'right', caption: 'ACCOUNTS.RECEIPTS.COL_VOUCHER_NUMBER' },
+    { dataField: 'date', dataType: 'date', format: 'yyyy-MM-dd', alignment: 'right', caption: 'ACCOUNTS.RECEIPTS.COL_DATE' },
+    { dataField: 'customerName', dataType: 'string', alignment: 'right', caption: 'ACCOUNTS.RECEIPTS.COL_CUSTOMER' },
+    { dataField: 'salesInvoiceNumber', dataType: 'string', alignment: 'right', caption: 'ACCOUNTS.RECEIPTS.COL_INVOICE' },
+    { dataField: 'amount', dataType: 'number', format: { type: 'currency', precision: 2, currency: 'SAR' }, alignment: 'right', caption: 'ACCOUNTS.RECEIPTS.COL_AMOUNT' },
+    { dataField: '__actions', dataType: 'string', alignment: 'center', width: 150, caption: 'ACCOUNTS.RECEIPTS.COL_ACTIONS', type: 'actions', allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Row actions -- identical behavior to the previous dxi-button column. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'ACCOUNTS.RECEIPTS.EDIT' },
+    { id: 'post', icon: 'check', labelKey: 'ACCOUNTS.RECEIPTS.POST', visible: (row) => this.isDraft({ row: { data: row } }) },
+    { id: 'delete', icon: 'delete', labelKey: 'ACCOUNTS.RECEIPTS.DELETE', cssClass: 'warn' },
+  ];
+
+  /** Totals summary -- same amount sum as the previous dxo-summary block. */
+  get summaryItems(): any[] {
+    return [{
+      column: 'amount',
+      summaryType: 'sum',
+      alignment: 'right',
+      displayFormat: this.translate.instant('ACCOUNTS.RECEIPTS.TOTAL_AMOUNT'),
+    }];
+  }
+
+  /** Single dispatcher for the Shared DataGrid's rowAction output -- routes to
+   *  the exact same handlers the dxi-button configs used before. */
+  onGridAction(e: SharedGridRowActionEvent): void {
+    const wrapped = { row: { data: e.row } };
+    if (e.actionId === 'edit') this.editReceipt(wrapped);
+    else if (e.actionId === 'post') this.postReceipt(wrapped);
+    else if (e.actionId === 'delete') this.deleteReceipt(wrapped);
+  }
 
   // Mirrors the same rows the grid's CustomStore loads, kept as a plain signal so the mobile
   // card list (which needs a concrete array, not a DevExtreme data source) can render/refresh

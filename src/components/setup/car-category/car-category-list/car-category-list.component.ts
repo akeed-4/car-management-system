@@ -4,11 +4,12 @@ import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DxDataGridModule } from 'devextreme-angular';
+import { SharedDataGridComponent, SharedGridRowActionEvent } from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { CarCategoryService } from '../../../../services/car-category.service';
 import { CarCategory } from '../../../../types/car-category.model';
 import { ResponsiveService } from '../../../../services/responsive.service';
-import { MobileCardListComponent, MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
+import { MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 
 @Component({
   selector: 'app-car-category-list',
@@ -18,9 +19,8 @@ import { MobileCardListComponent, MobileCardField } from '../../../shared/mobile
     RouterLink,
     MatButtonModule,
     MatIconModule,
-    DxDataGridModule,
     TranslateModule,
-    MobileCardListComponent
+    SharedDataGridComponent
   ],
   templateUrl: './car-category-list.component.html',
   styleUrl: './car-category-list.component.css'
@@ -34,8 +34,24 @@ export class CarCategoryListComponent {
 
   categories = this.carCategoryService.categories$;
 
-  getCaption(key: string): string {
-    return this.translate.instant(`CAR_CATEGORY.COLUMNS.${key}`);
+  /** Config-driven columns for the Shared DataGrid (captions are i18n keys). */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'id', dataType: 'number', caption: 'CAR_CATEGORY.COLUMNS.ID', width: 80, alignment: 'center' },
+    { dataField: 'name', dataType: 'string', caption: 'CAR_CATEGORY.COLUMNS.NAME', minWidth: 200 },
+    { dataField: 'description', dataType: 'string', caption: 'CAR_CATEGORY.COLUMNS.DESCRIPTION', minWidth: 300 },
+    { dataField: '__actions', dataType: 'string', caption: 'CAR_CATEGORY.COLUMNS.ACTIONS', width: 120, alignment: 'center', type: 'actions', allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Row actions -- same edit/delete behavior via the shared actions template. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'CAR_CATEGORY.EDIT' },
+    { id: 'delete', icon: 'delete', labelKey: 'CAR_CATEGORY.DELETE', cssClass: 'warn' },
+  ];
+
+  /** Single dispatcher for the Shared DataGrid's rowAction output. */
+  onGridAction(e: SharedGridRowActionEvent): void {
+    if (e.actionId === 'edit') this.onEdit({ row: { data: e.row } });
+    else if (e.actionId === 'delete') this.deleteCategory(e.row.id);
   }
 
   onEdit(e: any): void {

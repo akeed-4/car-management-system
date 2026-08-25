@@ -33,119 +33,17 @@
     </div>
 
     <div class="grid-section">
-      <dx-data-grid
-        id="usersGrid"
+      <app-shared-data-grid
         [dataSource]="filteredUsers()"
+        [columns]="columns"
+        [rowActions]="rowActions"
         keyExpr="id"
-        [showBorders]="true"
-        [showRowLines]="true"
-        [rowAlternationEnabled]="true"
-        [columnAutoWidth]="true"
-        [hoverStateEnabled]="true"
-        [allowColumnReordering]="true"
-        [allowColumnResizing]="true"
-        [rtlEnabled]="translate.currentLang === 'ar'"
-        [noDataText]="'USERS.LIST.NO_USERS' | translate">
-
-        <dxo-load-panel [enabled]="true"></dxo-load-panel>
-        <dxo-paging [pageSize]="20"></dxo-paging>
-        <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]" [showInfo]="true"></dxo-pager>
-        <dxo-filter-row [visible]="true"></dxo-filter-row>
-        <dxo-header-filter [visible]="true"></dxo-header-filter>
-        <dxo-search-panel [visible]="true" [placeholder]="'USERS.LIST.SEARCH_PLACEHOLDER' | translate"></dxo-search-panel>
-
-        <dxi-column dataField="name" [caption]="translate.instant('USERS.FORM.USERNAME')"></dxi-column>
-
-        <dxi-column
-          dataField="roleName"
-          [caption]="translate.instant('USERS.FORM.ROLE')"
-          cellTemplate="roleTemplate"
-          [width]="160">
-        </dxi-column>
-
-        <dxi-column
-          dataField="status"
-          [caption]="translate.instant('USERS.FORM.STATUS')"
-          cellTemplate="statusTemplate"
-          [width]="130"
-          alignment="center">
-        </dxi-column>
-
-        <dxi-column
-          dataField="isLocked"
-          [caption]="translate.instant('USERS.LIST.LOCK_STATUS')"
-          cellTemplate="lockTemplate"
-          [width]="130"
-          alignment="center">
-        </dxi-column>
-
-        <dxi-column type="buttons" [width]="260" [caption]="translate.instant('USERS.LIST.ACTIONS')">
-          <dxi-button
-            [hint]="translate.instant('USERS.LIST.EDIT')"
-            icon="edit"
-            [visible]="canShowEdit"
-            [onClick]="editClick">
-          </dxi-button>
-          <dxi-button
-            [hint]="translate.instant('USERS.LIST.ASSIGN_ROLE')"
-            icon="user"
-            [visible]="canShowAssignRole"
-            [onClick]="assignRoleClick">
-          </dxi-button>
-          <dxi-button
-            [hint]="translate.instant('USERS.LIST.RESET_PASSWORD')"
-            icon="key"
-            [visible]="canShowResetPassword"
-            [onClick]="resetPasswordClick">
-          </dxi-button>
-          <dxi-button
-            [hint]="translate.instant('USERS.LIST.DEACTIVATE')"
-            icon="close"
-            [visible]="canShowDeactivate"
-            [onClick]="deactivateClick">
-          </dxi-button>
-          <dxi-button
-            [hint]="translate.instant('USERS.LIST.ACTIVATE')"
-            icon="check"
-            [visible]="canShowActivate"
-            [onClick]="activateClick">
-          </dxi-button>
-          <dxi-button
-            [hint]="translate.instant('USERS.LIST.LOCK')"
-            icon="lock"
-            [visible]="canShowLock"
-            [onClick]="lockClick">
-          </dxi-button>
-          <dxi-button
-            [hint]="translate.instant('USERS.LIST.UNLOCK')"
-            icon="unlock"
-            [visible]="canShowUnlock"
-            [onClick]="unlockClick">
-          </dxi-button>
-          <dxi-button
-            [hint]="translate.instant('USERS.LIST.DELETE')"
-            icon="trash"
-            [visible]="canShowDelete"
-            [onClick]="deleteClick">
-          </dxi-button>
-        </dxi-column>
-
-        <div *dxTemplate="let data of 'roleTemplate'">
-          <span class="role-badge" [title]="data.value">{{ data.value }}</span>
-        </div>
-
-        <div *dxTemplate="let data of 'statusTemplate'">
-          <mat-chip [color]="getStatusColor(data.value)" selected>
-            {{ (data.value === 'Active' ? 'USERS.STATUS.ACTIVE' : 'USERS.STATUS.INACTIVE') | translate }}
-          </mat-chip>
-        </div>
-
-        <div *dxTemplate="let data of 'lockTemplate'">
-          <mat-chip [color]="data.value ? 'warn' : 'default'" selected>
-            {{ (data.value ? 'USERS.STATUS.LOCKED' : 'USERS.STATUS.UNLOCKED') | translate }}
-          </mat-chip>
-        </div>
-      </dx-data-grid>
+        searchPlaceholder="USERS.LIST.SEARCH_PLACEHOLDER"
+        noDataText="USERS.LIST.NO_USERS"
+        [pageSize]="20"
+        [allowedPageSizes]="[10, 20, 50]"
+        (rowAction)="onGridAction($event)">
+      </app-shared-data-grid>
     </div>
   </div>
 </div>

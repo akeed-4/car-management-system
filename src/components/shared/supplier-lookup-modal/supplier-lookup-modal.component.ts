@@ -3,13 +3,14 @@ import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { DxDataGridModule } from 'devextreme-angular';
+import { SharedDataGridComponent } from '../shared-data-grid/shared-data-grid.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { SupplierService } from '../../../services/supplier.service';
 import { Supplier } from '../../../models/supplier.model';
+import { dataGridColumnDto } from '../../../models/grid.model';
 
 @Component({
   selector: 'app-supplier-lookup-modal',
@@ -18,7 +19,7 @@ import { Supplier } from '../../../models/supplier.model';
     CommonModule,
     ReactiveFormsModule,
     TranslateModule,
-    DxDataGridModule,
+    SharedDataGridComponent,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
@@ -34,6 +35,15 @@ export class SupplierLookupModalComponent {
   private dialogRef = inject(MatDialogRef<SupplierLookupModalComponent>);
 
   suppliers = this.supplierService.suppliers$;
+
+  /** Config-driven columns for the Shared DataGrid (captions are i18n keys). */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'name', dataType: 'string', caption: 'SUPPLIER_LOOKUP.NAME' },
+    { dataField: 'phone', dataType: 'string', caption: 'SUPPLIER_LOOKUP.PHONE', width: 140 },
+    { dataField: 'crNumber', dataType: 'string', caption: 'SUPPLIER_LOOKUP.CR_NUMBER', width: 140 },
+    { dataField: 'city', dataType: 'string', caption: 'SUPPLIER_LOOKUP.CITY' },
+    { dataField: 'contactPerson', dataType: 'string', caption: 'SUPPLIER_LOOKUP.CONTACT_PERSON' },
+  ];
 
   filterForm = new FormGroup({
     nameSearch: new FormControl(''),

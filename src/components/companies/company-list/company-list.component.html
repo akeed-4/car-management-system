@@ -22,96 +22,20 @@
   </div>
 
   <div class="erp-grid-card">
-    <dx-data-grid
+    <app-shared-data-grid
       [dataSource]="filteredCompanies()"
-      [showBorders]="true"
-      keyexpr="id"
-      [showRowLines]="true"
-      [showColumnLines]="true"
-      [rowAlternationEnabled]="true"
-      [allowColumnReordering]="true"
-      [allowColumnResizing]="true"
-      [columnAutoWidth]="true"
-      [wordWrapEnabled]="true"
-      [rtlEnabled]="true"
-      [hoverStateEnabled]="true"
-      [selection]="{ mode: 'single' }"
-      (onRowClick)="onRowClick($event)"
-      height="70vh">
-
-      <dxo-load-panel [enabled]="true"></dxo-load-panel>
-      <dxo-scrolling mode="virtual"></dxo-scrolling>
-      <dxo-paging [pageSize]="10"></dxo-paging>
-      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
-      <dxo-filter-row [visible]="true"></dxo-filter-row>
-      <dxo-header-filter [visible]="true"></dxo-header-filter>
-      <dxo-search-panel [visible]="true" [placeholder]="'COMPANIES.SEARCH_PLACEHOLDER' | translate"></dxo-search-panel>
-      <dxo-export [enabled]="true" fileName="companies"></dxo-export>
-      <dxo-grouping [autoExpandAll]="false"></dxo-grouping>
-      <dxo-sorting mode="multiple"></dxo-sorting>
-
-
-      <dxi-column
-        dataField="nameAr"
-        [caption]="'COMPANIES.COLUMNS.NAME_AR' | translate"
-        [allowFiltering]="true"
-        [allowSorting]="true"
-        [allowGrouping]="true">
-      </dxi-column>
-
-      <dxi-column
-        dataField="description"
-        [caption]="'COMPANIES.COLUMNS.DESCRIPTION' | translate"
-        [allowFiltering]="true"
-        [allowSorting]="false"
-        [allowGrouping]="true"
-        >
-      </dxi-column>
-
-
-      <dxi-column
-        dataField="status"
-        [caption]="'COMPANIES.COLUMNS.STATUS' | translate"
-        [allowFiltering]="true"
-        [allowSorting]="true"
-        [allowGrouping]="true"
-        [dataType]="'string'"
-        [lookup]="{
-          dataSource: [
-            { value: 'active', displayExpr: 'COMPANIES.STATUS.ACTIVE' | translate },
-            { value: 'inactive', displayExpr: 'COMPANIES.STATUS.INACTIVE' | translate },
-            { value: 'suspended', displayExpr: 'COMPANIES.STATUS.SUSPENDED' | translate }
-          ],
-          valueExpr: 'value',
-          displayExpr: 'displayExpr'
-        }"
-       >
-      </dxi-column>
-
-      <dxi-column
-        dataField="createdAt"
-        [caption]="'COMPANIES.COLUMNS.CREATED' | translate"
-        dataType="date"
-        format="yyyy-MM-dd"
-        >
-      </dxi-column>
-
-      <dxi-column
-        type="buttons"
-        [caption]="'COMPANIES.COLUMNS.ACTIONS' | translate">
-        <dxi-button
-          [hint]="'COMPANIES.ACTIONS.EDIT' | translate"
-          [icon]="'edit'"
-          [onClick]="onEdit"
-          >
-        </dxi-button>
-        <dxi-button
-          [hint]="'COMPANIES.ACTIONS.DELETE' | translate"
-          [icon]="'trash'"
-          [onClick]="onDelete"
-          >
-        </dxi-button>
-      </dxi-column>
-    </dx-data-grid>
+      [columns]="columns"
+      [rowActions]="rowActions"
+      keyExpr="id"
+      selectionMode="single"
+      searchPlaceholder="COMPANIES.SEARCH_PLACEHOLDER"
+      height="70vh"
+      scrollingMode="virtual"
+      exportFileName="companies"
+      [pageSize]="10"
+      [allowedPageSizes]="[5, 10, 20]"
+      (rowAction)="onGridAction($event)"
+      (rowClick)="onGridRowClick($event)">
+    </app-shared-data-grid>
   </div>
 </div>

@@ -20,7 +20,12 @@ import { firstValueFrom, map } from 'rxjs';
 import { ToastService } from '@/src/services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
 import { ResponsiveService } from '../../../services/responsive.service';
-import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
+import { MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../shared/shared-data-grid/shared-data-grid.component';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 
 @Component({
   selector: 'app-payments',
@@ -35,10 +40,7 @@ import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-ca
     MatToolbarModule,
     MatFormFieldModule,
     MatInputModule,
-    DxDataGridModule,
-    DxButtonModule,
-    DxTemplateModule,
-    MobileCardListComponent,
+    SharedDataGridComponent,
   ],
   templateUrl: './payments.component.html',
   styleUrl: './payments.component.css',
@@ -59,6 +61,36 @@ export class PaymentsComponent implements OnDestroy, AfterViewInit, OnInit {
   isMobile = this.responsiveService.isMobile;
 
   @ViewChild('toastContainer') toastContainer!: ElementRef;
+
+  /** Config-driven columns for the Shared DataGrid -- same fields/formats the
+   *  inline dxi-column definitions used before (captions are i18n keys). */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'voucherNumber', dataType: 'string', alignment: 'right', caption: 'ACCOUNTS.PAYMENTS.COL_VOUCHER_NUMBER' },
+    { dataField: 'voucherDate', dataType: 'date', format: 'yyyy-MM-dd', alignment: 'right', caption: 'ACCOUNTS.PAYMENTS.COL_DATE' },
+    { dataField: 'supplierName', dataType: 'string', alignment: 'right', caption: 'ACCOUNTS.PAYMENTS.COL_SUPPLIER' },
+    { dataField: 'purchaseInvoiceNumber', dataType: 'string', alignment: 'right', caption: 'ACCOUNTS.PAYMENTS.COL_INVOICE' },
+    { dataField: 'amount', dataType: 'number', format: { type: 'currency', precision: 2, currency: 'SAR' }, alignment: 'right', caption: 'ACCOUNTS.PAYMENTS.COL_AMOUNT' },
+    { dataField: '__actions', dataType: 'string', alignment: 'center', width: 120, caption: 'ACCOUNTS.PAYMENTS.COL_ACTIONS', type: 'actions', allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Row actions -- same edit/delete behavior via the shared template. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
+    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn' },
+  ];
+
+  /** Totals summary -- same amount sum as the previous dxo-summary block. */
+  get summaryItems(): any[] {
+    return [{ column: 'amount', summaryType: 'sum', alignment: 'right' }];
+  }
+
+  /** Single dispatcher for the Shared DataGrid's rowAction output. */
+  onGridAction(e: SharedGridRowActionEvent): void {
+    const wrapped = { row: { data: e.row } };
+    if (e.actionId === 'edit') this.editPayment(wrapped);
+    else if (e.actionId === 'delete') this.deletePayment(wrapped);
+  }
+
   
   editPayment = (e: any) => {
     const paymentId = e.row.data.id;

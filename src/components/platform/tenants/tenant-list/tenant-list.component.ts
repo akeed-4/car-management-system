@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, ViewChild, viewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,16 +11,20 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import CustomStore from 'devextreme/data/custom_store';
-import { DxDataGridModule, DxDataGridComponent } from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { PlatformService } from '../../../../services/platform.service';
 import { NotificationService } from '../../../../services/notification.service';
-import { HasPermissionDirective } from '../../../shared/permission.directive';
+import { PermissionService } from '../../../../services/permission.service';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { ModalComponent } from '../../../shared/modal/modal.component';
 import { TenantDto } from '../../../../models/platform/tenant.model';
 import { TenantStatus, TenantStatusHelper } from '../../../../models/enums/platform.enums';
 import { getTenantStatusClass } from '../tenant-status.util';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 
 @Component({
   selector: 'app-tenant-list',
@@ -29,7 +33,6 @@ import { getTenantStatusClass } from '../tenant-status.util';
     CommonModule,
     FormsModule,
     ModalComponent,
-    HasPermissionDirective,
     MatButtonModule,
     MatIconModule,
     MatCardModule,
@@ -38,7 +41,7 @@ import { getTenantStatusClass } from '../tenant-status.util';
     MatTooltipModule,
     MatFormFieldModule,
     MatSelectModule,
-    DxDataGridModule,
+    SharedDataGridComponent,
     TranslateModule,
   ],
   templateUrl: './tenant-list.component.html',
@@ -46,11 +49,12 @@ import { getTenantStatusClass } from '../tenant-status.util';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TenantListComponent {
-  @ViewChild(DxDataGridComponent, { static: false }) grid!: DxDataGridComponent;
+  @ViewChild(SharedDataGridComponent, { static: false }) grid!: SharedDataGridComponent;
 
   private platformService = inject(PlatformService);
   private notificationService = inject(NotificationService);
   private router = inject(Router);
+  private permissionService = inject(PermissionService);
 
   statusFilter = signal<TenantStatus | ''>('');
 
@@ -95,6 +99,57 @@ export class TenantListComponent {
 
   getTenantStatusClass = getTenantStatusClass;
 
+  /** Screen-specific badge renderer passed generically to the Shared DataGrid. */
+  private statusTpl = viewChild<TemplateRef<any>>('statusTemplate');
+
+  get cellTemplates(): Record<string, TemplateRef<any>> {
+    const status = this.statusTpl();
+    return status ? { statusTemplate: status } : {};
+  }
+
+  /** Config-driven columns -- same fields/fixed positions as before. */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'code', dataType: 'string', caption: 'PLATFORM.TENANTS.CODE', width: 110, fixed: true },
+    { dataField: 'name', dataType: 'string', caption: 'PLATFORM.TENANTS.COMPANY' },
+    { dataField: 'adminFullName', dataType: 'string', caption: 'PLATFORM.TENANTS.OWNER' },
+    { dataField: 'adminEmail', dataType: 'string', caption: 'PLATFORM.TENANTS.EMAIL' },
+    { dataField: 'phone', dataType: 'string', caption: 'PLATFORM.TENANTS.PHONE', width: 130 },
+    { dataField: 'planName', dataType: 'string', caption: 'PLATFORM.TENANTS.PLAN', width: 130 },
+    { dataField: 'status', dataType: 'string', caption: 'PLATFORM.TENANTS.STATUS', width: 130, cellTemplate: 'statusTemplate' },
+    { dataField: 'createdAt', dataType: 'date', format: 'yyyy-MM-dd', caption: 'PLATFORM.TENANTS.CREATED', width: 120 },
+    { dataField: 'actions', dataType: 'string', type: 'actions', caption: 'COMMON.ACTIONS', width: 150, fixed: true, allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Permission-gated actions -- the suspend/resume pair replaces the old
+   *  dynamic-icon button using the built-in per-row visibility support. */
+  rowActions: sharedGridRowActionDto[] = [
+    {
+      id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT',
+      visible: () => this.permissionService.hasPermission('platform.tenants.edit'),
+    },
+    {
+      id: 'suspend', icon: 'pause_circle', labelKey: 'PLATFORM.TENANTS.TOGGLE_SUSPEND',
+      visible: (row: TenantDto) =>
+        this.permissionService.hasPermission('platform.tenants.suspend') && row.status !== TenantStatus.Suspended,
+    },
+    {
+      id: 'resume', icon: 'play_circle', labelKey: 'PLATFORM.TENANTS.TOGGLE_SUSPEND',
+      visible: (row: TenantDto) =>
+        this.permissionService.hasPermission('platform.tenants.suspend') && row.status === TenantStatus.Suspended,
+    },
+    {
+      id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn',
+      visible: () => this.permissionService.hasPermission('platform.tenants.delete'),
+    },
+  ];
+
+  onGridAction(e: SharedGridRowActionEvent): void {
+    const tenant = e.row as TenantDto;
+    if (e.actionId === 'edit') this.editTenant(tenant.id);
+    else if (e.actionId === 'suspend' || e.actionId === 'resume') this.toggleSuspend(tenant);
+    else if (e.actionId === 'delete') this.requestDelete(tenant.id);
+  }
+
   newTenant(): void {
     this.router.navigate(['/platform/companies/new']);
   }
@@ -103,9 +158,9 @@ export class TenantListComponent {
     this.router.navigate(['/platform/companies/edit', id]);
   }
 
-  openDetails(e: { data?: TenantDto }): void {
-    if (e.data) {
-      this.editTenant(e.data.id);
+  openDetails(tenant?: TenantDto): void {
+    if (tenant) {
+      this.editTenant(tenant.id);
     }
   }
 
@@ -145,7 +200,7 @@ export class TenantListComponent {
   }
 
   refresh(): void {
-    this.grid?.instance?.refresh();
+    this.grid?.refresh();
   }
 
   onStatusFilterChange(): void {
@@ -154,17 +209,19 @@ export class TenantListComponent {
 
   resetFilters(): void {
     this.statusFilter.set('');
-    this.grid?.instance?.clearFilter();
+    this.grid?.getInstance()?.clearFilter();
     this.refresh();
   }
 
   exportExcel(): void {
+    const component = this.grid?.getInstance();
+    if (!component) return;
     import('devextreme/excel_exporter').then(({ exportDataGrid }) => {
       import('exceljs').then(async (ExcelJS) => {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Tenants');
         exportDataGrid({
-          component: this.grid.instance,
+          component,
           worksheet,
         }).then(() => {
           workbook.xlsx.writeBuffer().then((buffer: BlobPart) => {
@@ -178,11 +235,13 @@ export class TenantListComponent {
   }
 
   exportPdf(): void {
+    const component = this.grid?.getInstance();
+    if (!component) return;
     Promise.all([import('jspdf'), import('devextreme/pdf_exporter')]).then(([jsPDFModule, { exportDataGrid }]) => {
       const doc = new jsPDFModule.jsPDF();
       exportDataGrid({
         jsPDFDocument: doc,
-        component: this.grid.instance,
+        component,
       }).then(() => {
         doc.save('Tenants.pdf');
       });

@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, viewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,10 +9,14 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DxDataGridModule } from 'devextreme-angular';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../shared/shared-data-grid/shared-data-grid.component';
 import { ApprovalService } from '../../../services/approval.service';
 import { ApprovalRequest, PendingApprovalSummary } from '../../../models/approval-request.model';
 import { ApprovalActionDialogComponent } from '../approval-action-dialog/approval-action-dialog.component';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 import { ToastService } from '../../../services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
 
@@ -30,7 +34,7 @@ import { NotificationService } from '@/src/services/notification.service';
     MatTooltipModule,
     MatDialogModule,
     TranslateModule,
-    DxDataGridModule
+    SharedDataGridComponent
   ],
   templateUrl: './pending-approvals.component.html',
   styleUrls: ['./pending-approvals.component.css']
@@ -45,17 +49,46 @@ export class PendingApprovalsComponent implements OnInit {
   isLoading = signal(false);
   selectedTab = signal(0);
 
-  constructor() {
-    this.reviewClick = this.reviewClick.bind(this);
+  /** Screen-specific cell renderers passed generically to the Shared DataGrid. */
+  private documentTypeTpl = viewChild<TemplateRef<any>>('documentTypeTemplate');
+  private progressTpl = viewChild<TemplateRef<any>>('progressTemplate');
+  private priorityTpl = viewChild<TemplateRef<any>>('priorityTemplate');
+
+  get cellTemplates(): Record<string, TemplateRef<any>> {
+    const doc = this.documentTypeTpl();
+    const progress = this.progressTpl();
+    const priority = this.priorityTpl();
+    return {
+      ...(doc ? { documentTypeTemplate: doc } : {}),
+      ...(progress ? { progressTemplate: progress } : {}),
+      ...(priority ? { priorityTemplate: priority } : {}),
+    };
+  }
+
+  /** Config-driven columns -- same fields/formats as before (captions are i18n keys). */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'documentNumber', dataType: 'string', caption: 'APPROVALS.DOCUMENT_NUMBER', width: 150 },
+    { dataField: 'documentType', dataType: 'string', caption: 'APPROVALS.DOCUMENT_TYPE', width: 150, cellTemplate: 'documentTypeTemplate' },
+    { dataField: 'amount', dataType: 'number', format: 'currency', caption: 'APPROVALS.AMOUNT', width: 120 },
+    { dataField: 'initiatedByName', dataType: 'string', caption: 'APPROVALS.REQUESTED_BY', width: 150 },
+    { dataField: 'initiatedAt', dataType: 'date', format: 'shortDate', caption: 'APPROVALS.REQUESTED_DATE', width: 120 },
+    { dataField: 'progress', dataType: 'string', caption: 'APPROVALS.PROGRESS', width: 150, cellTemplate: 'progressTemplate', allowSorting: false, allowFiltering: false },
+    { dataField: 'priority', dataType: 'string', caption: 'APPROVALS.PRIORITY', width: 100, alignment: 'center', cellTemplate: 'priorityTemplate' },
+    { dataField: 'actions', dataType: 'string', type: 'actions', caption: 'APPROVALS.ACTIONS', width: 100, allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Already-authorized actions (same review button as before). */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'review', icon: 'check', labelKey: 'APPROVALS.REVIEW' },
+  ];
+
+  onGridAction(e: SharedGridRowActionEvent): void {
+    if (e.actionId === 'review') this.openApprovalDialog(e.row as ApprovalRequest);
   }
 
   ngOnInit(): void {
     this.loadPendingApprovals();
     this.loadSummary();
-  }
-
-  reviewClick(e: any): void {
-    this.openApprovalDialog(e.row.data);
   }
 
   loadPendingApprovals(): void {

@@ -13,81 +13,13 @@
   </div>
 
   <div class="erp-grid-card">
-      <dx-data-grid
-        [dataSource]="deposits()"
-        [showBorders]="true"
-        [showRowLines]="true"
-        [showColumnLines]="true"
-        [rowAlternationEnabled]="true"
-        [allowColumnReordering]="true"
-        [allowColumnResizing]="true"
-        [columnAutoWidth]="true"
-        [rtlEnabled]="true"
-        height="600px"
-        keyExpr="id">
-
-        <dxo-paging [pageSize]="10"></dxo-paging>
-        <dxo-pager
-          [showPageSizeSelector]="true"
-          [allowedPageSizes]="[5, 10, 20]"
-          [showInfo]="true">
-        </dxo-pager>
-
-        <dxo-filter-row [visible]="true"></dxo-filter-row>
-        <dxo-header-filter [visible]="true"></dxo-header-filter>
-        <dxo-search-panel
-          [visible]="true"
-          placeholder="{{ 'ACCOUNTS.DEPOSITS.SEARCH_PLACEHOLDER' | translate }}">
-        </dxo-search-panel>
-
-        <dxi-column
-          dataField="voucherNumber"
-          caption="{{ 'ACCOUNTS.DEPOSITS.COL_VOUCHER_NUMBER' | translate }}"
-          >
-        </dxi-column>
-
-        <dxi-column
-          dataField="date"
-          caption="{{ 'ACCOUNTS.DEPOSITS.COL_DATE' | translate }}"
-          dataType="date"
-          format="yyyy-MM-dd"
-          >
-        </dxi-column>
-
-        <dxi-column
-          dataField="customerName"
-          caption="{{ 'ACCOUNTS.DEPOSITS.COL_CUSTOMER' | translate }}"
-          >
-        </dxi-column>
-
-        <dxi-column
-          dataField="carDescription"
-          caption="{{ 'ACCOUNTS.DEPOSITS.COL_CAR' | translate }}"
-         >
-        </dxi-column>
-
-        <dxi-column
-          dataField="totalAmount"
-          caption="{{ 'ACCOUNTS.DEPOSITS.COL_AMOUNT' | translate }}"
-          dataType="number"
-          format="currency"
-          >
-        </dxi-column>
-
-      
-        <dxi-column
-          type="buttons"  >
-          <dxi-button
-            icon="edit"
-            [onClick]="Edite"
-            [hint]="'ACCOUNTS.DEPOSITS.NOTES_TOOLTIP' | translate">
-          </dxi-button>
-          <dxi-button
-            icon="trash"
-            [onClick]="deleteDeposit"
-            [hint]="'ACCOUNTS.DEPOSITS.DELETE_TOOLTIP' | translate">
-          </dxi-button>
-        </dxi-column>
-      </dx-data-grid>
+    <app-shared-data-grid
+      [dataSource]="deposits()"
+      [columns]="columns"
+      [rowActions]="rowActions"
+      keyExpr="id"
+      searchPlaceholder="ACCOUNTS.DEPOSITS.SEARCH_PLACEHOLDER"
+      (rowAction)="onGridAction($event)">
+    </app-shared-data-grid>
   </div>
 </div>

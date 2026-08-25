@@ -8,8 +8,11 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../shared/shared-data-grid/shared-data-grid.component';
 import { UserService } from '../../../services/user.service';
 import { RoleService } from '../../../services/role.service';
 import { NotificationService } from '@/src/services/notification.service';
@@ -19,6 +22,7 @@ import { ModalComponent } from '../../shared/modal/modal.component';
 import { ResetPasswordDialogComponent } from '../reset-password-dialog/reset-password-dialog.component';
 import { AssignRoleDialogComponent } from '../assign-role-dialog/assign-role-dialog.component';
 import { User } from '../../../models/user.model';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 
 type ConfirmActionType = 'delete' | 'activate' | 'deactivate' | 'lock' | 'unlock';
 
@@ -34,10 +38,10 @@ type ConfirmActionType = 'delete' | 'activate' | 'deactivate' | 'lock' | 'unlock
     MatFormFieldModule,
     MatSelectModule,
     MatDialogModule,
-    DxDataGridModule,
     TranslateModule,
     ModalComponent,
-    HasPermissionDirective
+    HasPermissionDirective,
+    SharedDataGridComponent
   ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css',
@@ -54,6 +58,54 @@ export class UsersComponent implements OnInit {
 
   users = this.userService.users$;
   roles = this.roleService.roles$;
+
+  /** Config-driven columns for the Shared DataGrid -- status/lock render through
+   *  the built-in status-badge template; roleName renders as plain text. */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'name', dataType: 'string', caption: 'USERS.FORM.USERNAME' },
+    { dataField: 'roleName', dataType: 'string', caption: 'USERS.FORM.ROLE', width: 160 },
+    { dataField: 'status', dataType: 'string', caption: 'USERS.FORM.STATUS', width: 130, alignment: 'center', type: 'status', allowSorting: false },
+    {
+      dataField: 'isLocked',
+      dataType: 'boolean',
+      caption: 'USERS.LIST.LOCK_STATUS',
+      width: 130,
+      alignment: 'center',
+      type: 'status',
+      allowSorting: false,
+      trueText: 'USERS.STATUS.LOCKED',
+      falseText: 'USERS.STATUS.UNLOCKED',
+    },
+  ];
+
+  /** Row actions -- each visibility predicate wraps the SAME existing
+   *  permission check (canShowX) so authorization behavior is unchanged. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'USERS.LIST.EDIT', visible: () => this.canShowEdit() },
+    { id: 'assignRole', icon: 'user', labelKey: 'USERS.LIST.ASSIGN_ROLE', visible: () => this.canShowAssignRole() },
+    { id: 'resetPassword', icon: 'key', labelKey: 'USERS.LIST.RESET_PASSWORD', visible: () => this.canShowResetPassword() },
+    { id: 'deactivate', icon: 'close', labelKey: 'USERS.LIST.DEACTIVATE', visible: (row) => this.canShowDeactivate({ row: { data: row } }) },
+    { id: 'activate', icon: 'check', labelKey: 'USERS.LIST.ACTIVATE', visible: (row) => this.canShowActivate({ row: { data: row } }) },
+    { id: 'lock', icon: 'lock', labelKey: 'USERS.LIST.LOCK', visible: (row) => this.canShowLock({ row: { data: row } }) },
+    { id: 'unlock', icon: 'unlock', labelKey: 'USERS.LIST.UNLOCK', visible: (row) => this.canShowUnlock({ row: { data: row } }) },
+    { id: 'delete', icon: 'delete', labelKey: 'USERS.LIST.DELETE', cssClass: 'warn', visible: () => this.canShowDelete() },
+  ];
+
+  /** Single dispatcher for the Shared DataGrid's rowAction output -- routes to
+   *  the exact same handlers the dxi-button configs used before. */
+  onGridAction(e: SharedGridRowActionEvent): void {
+    const wrapped = { row: { data: e.row } };
+    switch (e.actionId) {
+      case 'edit': this.editClick(wrapped); break;
+      case 'assignRole': this.assignRoleClick(wrapped); break;
+      case 'resetPassword': this.resetPasswordClick(wrapped); break;
+      case 'deactivate': this.deactivateClick(wrapped); break;
+      case 'activate': this.activateClick(wrapped); break;
+      case 'lock': this.lockClick(wrapped); break;
+      case 'unlock': this.unlockClick(wrapped); break;
+      case 'delete': this.deleteClick(wrapped); break;
+    }
+  }
 
   // Toolbar filters -- applied on top of DevExtreme's own filter-row/search-panel, not a
   // replacement for them. Both operate on the already-loaded users() array (no backend

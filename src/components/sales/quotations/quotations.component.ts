@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { SalesCycleService } from '../../../services/sales-cycle.service';
 import { Quotation } from '../../../models/quotation.model';
-import { DxDataGridModule } from 'devextreme-angular';
+import { SharedDataGridComponent } from '../../shared/shared-data-grid/shared-data-grid.component';
+import { dataGridColumnDto } from '../../../models/grid.model';
 import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -14,7 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
   standalone: true,
   imports: [
     CommonModule,
-    DxDataGridModule,
+    SharedDataGridComponent,
     TranslateModule,
     MatToolbarModule,
     MatButtonModule,
@@ -25,6 +26,16 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class QuotationsComponent implements OnInit {
   quotations: Quotation[] = [];
+
+  /** Config-driven columns -- same fields/formats as before (i18n keys). */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'quotationNumber', dataType: 'string', caption: 'QUOTATIONS.QUOTATION_NUMBER' },
+    { dataField: 'quotationDate', dataType: 'date', caption: 'QUOTATIONS.QUOTATION_DATE' },
+    { dataField: 'customer.name', dataType: 'string', caption: 'QUOTATIONS.CUSTOMER' },
+    { dataField: 'car.description', dataType: 'string', caption: 'QUOTATIONS.CAR' },
+    { dataField: 'quotedPrice', dataType: 'number', format: 'currency', caption: 'QUOTATIONS.QUOTED_PRICE' },
+    { dataField: 'status', dataType: 'string', caption: 'QUOTATIONS.STATUS' },
+  ];
 
   constructor(private salesCycleService: SalesCycleService, private router: Router) { }
 

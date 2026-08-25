@@ -3,13 +3,14 @@ import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { DxDataGridModule } from 'devextreme-angular';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { SharedDataGridComponent } from '../shared-data-grid/shared-data-grid.component';
 import { CustomerService } from '../../../services/customer.service';
 import { Customer } from '../../../models/customer.model';
+import { dataGridColumnDto } from '../../../models/grid.model';
 
 @Component({
   selector: 'app-customer-lookup-modal',
@@ -18,7 +19,7 @@ import { Customer } from '../../../models/customer.model';
     CommonModule,
     ReactiveFormsModule,
     TranslateModule,
-    DxDataGridModule,
+    SharedDataGridComponent,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
@@ -34,6 +35,16 @@ export class CustomerLookupModalComponent {
   private dialogRef = inject(MatDialogRef<CustomerLookupModalComponent>);
 
   customers = this.customerService.customers$;
+
+  /** Config-driven columns for the Shared DataGrid (captions are i18n keys). */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'name', dataType: 'string', caption: 'CUSTOMER_LOOKUP.NAME' },
+    { dataField: 'phone', dataType: 'string', caption: 'CUSTOMER_LOOKUP.PHONE', width: 140 },
+    { dataField: 'nationalId', dataType: 'string', caption: 'CUSTOMER_LOOKUP.NATIONAL_ID', width: 140 },
+    { dataField: 'city', dataType: 'string', caption: 'CUSTOMER_LOOKUP.CITY' },
+    { dataField: 'email', dataType: 'string', caption: 'CUSTOMER_LOOKUP.EMAIL' },
+  ];
+
 
   filterForm = new FormGroup({
     nameSearch: new FormControl(''),

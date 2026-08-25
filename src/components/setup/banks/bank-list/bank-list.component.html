@@ -35,54 +35,17 @@
   </mat-toolbar>
 
   <div class="grid-container erp-grid-card">
-    <dx-data-grid
+    <app-shared-data-grid
       [dataSource]="banks()"
-      [showBorders]="true"
-      [columnAutoWidth]="true"
-      [rowAlternationEnabled]="true"
-      [rtlEnabled]="true"
-      height="600px"
-      [showRowLines]="true"
-      [allowColumnReordering]="true"
-      [allowColumnResizing]="true"
-      [noDataText]="'BANK.NO_BANKS' | translate"
+      [columns]="columns"
+      [rowActions]="rowActions"
       keyExpr="id"
-      rtlEnabled="true">
-
-      <dxo-search-panel [visible]="true" [width]="240"></dxo-search-panel>
-      <dxo-filter-row [visible]="true"></dxo-filter-row>
-      <dxo-header-filter [visible]="true"></dxo-header-filter>
-      <dxo-column-chooser [enabled]="true" mode="select"></dxo-column-chooser>
-      <dxo-paging [pageSize]="10"></dxo-paging>
-      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]" [showInfo]="true"></dxo-pager>
-
-      <dxi-column dataField="bankCode" [caption]="'BANK.BANK_CODE' | translate" [width]="120"></dxi-column>
-      <dxi-column dataField="bankNameEnglish" [caption]="'BANK.NAME_ENGLISH' | translate"></dxi-column>
-      <dxi-column dataField="bankNameArabic" [caption]="'BANK.NAME_ARABIC' | translate"></dxi-column>
-      <dxi-column dataField="swiftCode" [caption]="'BANK.SWIFT_CODE' | translate" [width]="120"></dxi-column>
-      <dxi-column dataField="country" [caption]="'BANK.COUNTRY' | translate" [width]="130"></dxi-column>
-      <dxi-column dataField="currency" [caption]="'BANK.CURRENCY' | translate" [width]="100"></dxi-column>
-      <dxi-column dataField="isActive" dataType="boolean" [caption]="'COMMON.ACTIVE' | translate" [width]="110" cellTemplate="statusTemplate"></dxi-column>
-
-      <div *dxTemplate="let cell of 'statusTemplate'">
-        <span class="status-badge erp-status-badge" [class.status-active]="cell.data.isActive" [class.status-inactive]="!cell.data.isActive"
-              [ngClass]="cell.data.isActive ? 'success' : 'neutral'">
-          {{ (cell.data.isActive ? 'COMMON.ACTIVE' : 'COMMON.INACTIVE') | translate }}
-        </span>
-      </div>
-
-      <dxi-column type="buttons" [caption]="'COMMON.ACTIONS' | translate" [width]="150"  cellTemplate="actionsTemplate"></dxi-column>
-      <div *dxTemplate="let cell of 'actionsTemplate'">
-        <button mat-icon-button [matTooltip]="'COMMON.VIEW' | translate" (click)="onView({ row: { data: cell.data } })">
-          <mat-icon>visibility</mat-icon>
-        </button>
-        <button mat-icon-button [matTooltip]="'COMMON.EDIT' | translate" (click)="onEdit({ row: { data: cell.data } })">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-icon-button color="warn" [matTooltip]="'COMMON.DELETE' | translate" (click)="onDelete({ row: { data: cell.data } })">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </div>
-    </dx-data-grid>
+      [loading]="loading()"
+      noDataText="BANK.NO_BANKS"
+      [pageSize]="10"
+      [allowedPageSizes]="[10, 20, 50]"
+      searchPlaceholder="COMMON.SEARCH"
+      (rowAction)="onGridAction($event)">
+    </app-shared-data-grid>
   </div>
 </div>

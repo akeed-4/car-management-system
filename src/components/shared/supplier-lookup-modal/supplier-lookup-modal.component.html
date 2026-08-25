@@ -22,26 +22,20 @@
 
   <div class="grid-section">
     @if (filteredSuppliers().length > 0) {
-      <dx-data-grid
+      <!-- Shared DataGrid: single-selection lookup (same contract as before --
+           selectionChanged -> onSupplierSelect). -->
+      <app-shared-data-grid
         [dataSource]="filteredSuppliers()"
-        [showBorders]="true"
-        [showRowLines]="true"
-        [showColumnLines]="true"
-        [rtlEnabled]="true"
-        [allowColumnReordering]="true"
-        [allowColumnResizing]="true"
-        [columnAutoWidth]="true"
-        [wordWrapEnabled]="true"
-        [selection]="{ mode: 'single' }"
-        (onSelectionChanged)="onSupplierSelect($event.selectedRowsData?.[0])">
-
-        <dxi-column dataField="name" caption="{{ 'SUPPLIER_LOOKUP.NAME' | translate }}"></dxi-column>
-        <dxi-column dataField="phone" caption="{{ 'SUPPLIER_LOOKUP.PHONE' | translate }}" width="140"></dxi-column>
-        <dxi-column dataField="crNumber" caption="{{ 'SUPPLIER_LOOKUP.CR_NUMBER' | translate }}" width="140"></dxi-column>
-        <dxi-column dataField="city" caption="{{ 'SUPPLIER_LOOKUP.CITY' | translate }}"></dxi-column>
-        <dxi-column dataField="contactPerson" caption="{{ 'SUPPLIER_LOOKUP.CONTACT_PERSON' | translate }}"></dxi-column>
-
-      </dx-data-grid>
+        [columns]="columns"
+        keyExpr="id"
+        [selectionMode]="'single'"
+        [enableMobileCards]="false"
+        [showSearchPanel]="false"
+        [showFilterRow]="false"
+        [showHeaderFilter]="false"
+        [showColumnChooser]="false"
+        (selectionChanged)="onSupplierSelect($event[0])">
+      </app-shared-data-grid>
     } @else {
       <div class="no-suppliers-message">
         <mat-icon class="empty-icon">store</mat-icon>
