@@ -46,6 +46,8 @@ import { applyFieldLock } from '../../../models/form-field-lock';
 import { VinManagementDialogComponent, VinEntry } from '../vin-management-dialog/vin-management-dialog.component';
 import { PurchaseCycleService } from '../../../services/purchase-cycle.service';
 import { CarReceipt } from '../../../models/car-receipt.model';
+import { StoreAccountingConfigurationService } from '../../../services/store-accounting-configuration.service';
+import { warnIfStoreNotConfigured } from '../../shared/store-accounting-setup-warning-dialog/store-accounting-setup-warning.helper';
 
 const VAT_RATE = 0.15; // 15% VAT
 
@@ -141,6 +143,7 @@ export class PurchaseInvoiceComponent implements OnInit {
   private toastService = inject(NotificationService);
   private route = inject(ActivatedRoute);
   private dialog = inject(MatDialog);
+  private storeAccountingConfigService = inject(StoreAccountingConfigurationService);
   private notificationService = inject(NotificationService);
   private oidcSecurityService = inject(OidcSecurityService);
   /** Shared save-before-print workflow + formatting locale for the shared totals block. */
@@ -816,6 +819,11 @@ export class PurchaseInvoiceComponent implements OnInit {
     } else {
       this.carStocks.set([]);
     }
+
+    // Heads-up only: warns the user immediately if the selected Store has no active
+    // StoreAccountingConfiguration, instead of only finding out after Save fails server-side.
+    const store = this.stores().find(s => s.id === storeId);
+    warnIfStoreNotConfigured(this.storeAccountingConfigService, this.dialog, this.router, storeId, store?.nameAr ?? '').subscribe();
   }
 
   addItemToInvoice(): void {

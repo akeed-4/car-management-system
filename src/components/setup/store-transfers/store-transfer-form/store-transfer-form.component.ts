@@ -8,11 +8,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { StoreTransferService } from '../../../../services/store-transfer.service';
 import { StoreService } from '../../../../services/store.service';
 import { InventoryService } from '../../../../services/inventory.service';
 import { NotificationService } from '../../../../services/notification.service';
+import { StoreAccountingConfigurationService } from '../../../../services/store-accounting-configuration.service';
+import { warnIfStoreNotConfigured } from '../../../shared/store-accounting-setup-warning-dialog/store-accounting-setup-warning.helper';
 import { Store } from '../../../../models/branch.model';
 import { CreateStoreTransferDto } from '../../../../models/store-transfer.model';
 
@@ -34,6 +37,7 @@ const differentStoresValidator: ValidatorFn = (group): ValidationErrors | null =
     MatSelectModule,
     MatButtonModule,
     MatIconModule,
+    MatDialogModule,
     TranslateModule
   ],
   templateUrl: './store-transfer-form.component.html',
@@ -47,6 +51,8 @@ export class StoreTransferFormComponent implements OnInit {
   private inventoryService = inject(InventoryService);
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
+  private storeAccountingConfigService = inject(StoreAccountingConfigurationService);
+  private dialog = inject(MatDialog);
 
   form!: FormGroup;
   isSaving = signal(false);
@@ -84,6 +90,11 @@ export class StoreTransferFormComponent implements OnInit {
 
   removeItem(index: number): void {
     if (this.items.length > 1) this.items.removeAt(index);
+  }
+
+  onStoreSelectionChange(storeId: number): void {
+    const selectedStore = this.stores().find(s => s.id === storeId);
+    warnIfStoreNotConfigured(this.storeAccountingConfigService, this.dialog, this.router, storeId, selectedStore?.nameEn ?? '').subscribe();
   }
 
   ngOnInit(): void {

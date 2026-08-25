@@ -2,10 +2,12 @@ import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@ang
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DailyEntryService } from '../../../services/daily-entry.service';
 import { UserService } from '../../../services/user.service';
 import { StoreService } from '../../../services/store.service';
+import { StoreAccountingConfigurationService } from '../../../services/store-accounting-configuration.service';
+import { warnIfStoreNotConfigured } from '../../shared/store-accounting-setup-warning-dialog/store-accounting-setup-warning.helper';
 import { Car } from '../../../models/car.model';
 import { VehicleLookupModalComponent } from '../../shared/vehicle-lookup-modal/vehicle-lookup-modal.component';
 import { AuditHistoryPanelComponent } from '../../shared/audit-history-panel/audit-history-panel.component';
@@ -35,6 +37,7 @@ import { TranslateModule } from '@ngx-translate/core';
     MatSelectModule,
     TranslateModule,
     MatTooltipModule,
+    MatDialogModule,
   ],
   templateUrl: './daily-entry-form.component.html',
   styleUrl: './daily-entry-form.component.css',
@@ -47,6 +50,7 @@ export class DailyEntryFormComponent implements OnInit {
   private userService = inject(UserService);
   private storeService = inject(StoreService);
   private dialog = inject(MatDialog);
+  private storeAccountingConfigService = inject(StoreAccountingConfigurationService);
 
   entryForm!: FormGroup;
   editMode = signal(false);
@@ -153,5 +157,10 @@ export class DailyEntryFormComponent implements OnInit {
 
   trackByStore(index: number, store: { id: number }): number {
     return store.id;
+  }
+
+  onStoreSelectionChange(storeId: number | null): void {
+    const selectedStore = this.stores().find(s => s.id === storeId);
+    warnIfStoreNotConfigured(this.storeAccountingConfigService, this.dialog, this.router, storeId, selectedStore?.nameEn ?? '').subscribe();
   }
 }

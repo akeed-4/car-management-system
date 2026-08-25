@@ -90,6 +90,14 @@ export class StoreAccountingConfigurationFormComponent implements OnInit {
       // A configuration's Store never changes once created -- correcting it means deleting and
       // re-creating the row (see StoreAccountingConfigurationService, one-per-Store uniqueness).
       this.form.get('storeId')?.disable();
+    } else {
+      // Arrived via the "Configure Store" action on a document form's setup warning
+      // (see store-accounting-setup-warning.helper.ts) -- prefill the Store the user was
+      // actually trying to post against instead of leaving them to find it again.
+      const storeIdParam = this.route.snapshot.queryParamMap.get('storeId');
+      if (storeIdParam) {
+        this.form.patchValue({ storeId: +storeIdParam });
+      }
     }
   }
 

@@ -78,7 +78,7 @@
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>{{ 'CORPORATE.STORE' | translate }}</mat-label>
-                  <mat-select formControlName="storeId" required>
+                  <mat-select formControlName="storeId" required (selectionChange)="onStoreSelectionChange($event.value)">
                     <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_STORE_OPTION' | translate }}</mat-option>
                     <mat-option *ngFor="let store of stores()" [value]="store.id">{{ store.nameAr }}</mat-option>
                   </mat-select>

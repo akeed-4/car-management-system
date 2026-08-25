@@ -1,0 +1,19 @@
+<h2 mat-dialog-title class="warning-title">
+  <mat-icon class="warning-icon">warning</mat-icon>
+  {{ 'STORE_ACCOUNTING_CONFIG.SETUP_WARNING_TITLE' | translate }}
+</h2>
+<mat-dialog-content>
+  <p>{{ 'STORE_ACCOUNTING_CONFIG.SETUP_WARNING_MESSAGE' | translate: { store: data.storeName } }}</p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-stroked-button (click)="cancel()">
+    {{ 'STORE_ACCOUNTING_CONFIG.CANCEL' | translate }}
+  </button>
+  <button mat-stroked-button (click)="change()">
+    {{ 'STORE_ACCOUNTING_CONFIG.CHANGE_STORE' | translate }}
+  </button>
+  <button mat-raised-button color="primary" *appHasPermission="'storeaccountingconfig.view'" (click)="configure()">
+    <mat-icon>settings</mat-icon>
+    {{ 'STORE_ACCOUNTING_CONFIG.CONFIGURE_STORE' | translate }}
+  </button>
+</mat-dialog-actions>

@@ -16,7 +16,7 @@
 
           <mat-form-field appearance="outline">
             <mat-label>{{ 'STORE_TRANSFER.FROM_STORE' | translate }}</mat-label>
-            <mat-select formControlName="fromStoreId" required>
+            <mat-select formControlName="fromStoreId" (selectionChange)="onStoreSelectionChange(+$event.value)" required>
               <mat-option *ngFor="let store of stores()" [value]="store.id">{{ store.nameEn }}</mat-option>
             </mat-select>
             <mat-error *ngIf="form.get('fromStoreId')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
@@ -24,7 +24,7 @@
 
           <mat-form-field appearance="outline">
             <mat-label>{{ 'STORE_TRANSFER.TO_STORE' | translate }}</mat-label>
-            <mat-select formControlName="toStoreId" required>
+            <mat-select formControlName="toStoreId" (selectionChange)="onStoreSelectionChange(+$event.value)" required>
               <mat-option *ngFor="let store of stores()" [value]="store.id">{{ store.nameEn }}</mat-option>
             </mat-select>
             <mat-error *ngIf="form.get('toStoreId')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>

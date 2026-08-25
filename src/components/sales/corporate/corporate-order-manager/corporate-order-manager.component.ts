@@ -10,15 +10,18 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { CorporateFleetService, CreditSummary } from '../../../../services/corporate-fleet.service';
 import { StoreService } from '../../../../services/store.service';
 import { CurrentSettingService } from '../../../../services/current-setting.service';
+import { StoreAccountingConfigurationService } from '../../../../services/store-accounting-configuration.service';
 import { NotificationService } from '@/src/services/notification.service';
 import { CorporateQuotation } from '../../../../models/corporate/corporate-quotation.model';
 import { CreditUtilizationWidgetComponent } from './credit-utilization-widget/credit-utilization-widget.component';
+import { warnIfStoreNotConfigured } from '../../../shared/store-accounting-setup-warning-dialog/store-accounting-setup-warning.helper';
 
 @Component({
   selector: 'app-corporate-order-manager',
@@ -36,6 +39,7 @@ import { CreditUtilizationWidgetComponent } from './credit-utilization-widget/cr
     MatDatepickerModule,
     MatIconModule,
     MatGridListModule,
+    MatDialogModule,
     DxDataGridModule,
     TranslateModule,
     CreditUtilizationWidgetComponent
@@ -49,9 +53,11 @@ export class CorporateOrderManagerComponent implements OnInit {
   private corporateFleetService = inject(CorporateFleetService);
   private storeService = inject(StoreService);
   private currentSettingService = inject(CurrentSettingService);
+  private storeAccountingConfigService = inject(StoreAccountingConfigurationService);
   private notificationService = inject(NotificationService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private dialog = inject(MatDialog);
 
   cardLayout3 = this.currentSettingService.getCardLayout(3);
   stores = this.storeService.stores$;
@@ -90,6 +96,11 @@ export class CorporateOrderManagerComponent implements OnInit {
     if (quotationId) {
       this.orderForm.patchValue({ quotationId });
     }
+  }
+
+  onStoreSelectionChange(storeId: number | null): void {
+    const store = this.stores().find(s => s.id === storeId);
+    warnIfStoreNotConfigured(this.storeAccountingConfigService, this.dialog, this.router, storeId, store?.nameAr ?? '').subscribe();
   }
 
   private loadPendingQuotations(): void {

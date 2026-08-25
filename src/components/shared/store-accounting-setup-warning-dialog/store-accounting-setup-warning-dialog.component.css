@@ -1,0 +1,9 @@
+.warning-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.warning-icon {
+  color: #f59e0b;
+}

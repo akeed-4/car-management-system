@@ -14,6 +14,8 @@ import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { AccountingService } from '../../accounting/accounting.service';
 import { StoreService } from '../../../services/store.service';
+import { StoreAccountingConfigurationService } from '../../../services/store-accounting-configuration.service';
+import { warnIfStoreNotConfigured } from '../../shared/store-accounting-setup-warning-dialog/store-accounting-setup-warning.helper';
 import { CarSelectionDialogComponent } from '../../purchases/purchase-invoice/car-selection-dialog/car-selection-dialog.component';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -63,7 +65,8 @@ export class OpeningBalancesInventoryFormComponent implements OnInit {
     private router: Router,
     private dialog: MatDialog,
     private route: ActivatedRoute,
-    private storeService: StoreService
+    private storeService: StoreService,
+    private storeAccountingConfigService: StoreAccountingConfigurationService
   ) {
     this.form = this.fb.group({
       itemId: ['', Validators.required],
@@ -133,6 +136,8 @@ export class OpeningBalancesInventoryFormComponent implements OnInit {
     if (selectedStore) {
       this.form.patchValue({ location: selectedStore.nameAr });
     }
+
+    warnIfStoreNotConfigured(this.storeAccountingConfigService, this.dialog, this.router, storeId, selectedStore?.nameAr ?? '').subscribe();
   }
 
   trackByStoreId(index: number, store: any): number {

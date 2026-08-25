@@ -106,7 +106,7 @@
                 <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'INVOICE.STORE' | translate }}</mat-label>
-                    <mat-select formControlName="storeId" required>
+                    <mat-select formControlName="storeId" required (selectionChange)="onStoreSelectionChange($event.value)">
                       <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_STORE_OPTION' | translate }}</mat-option>
                       <mat-option *ngFor="let store of stores()" [value]="store.id">
                         {{ store.nameAr }}

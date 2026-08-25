@@ -67,7 +67,7 @@
 
             <mat-form-field appearance="outline">
               <mat-label>{{ 'DAILY_ENTRIES.WAREHOUSE' | translate }}</mat-label>
-              <mat-select formControlName="storeId">
+              <mat-select formControlName="storeId" (selectionChange)="onStoreSelectionChange($event.value)">
                 <mat-option [value]="null">{{ 'COMMON.NONE' | translate }}</mat-option>
                 <mat-option *ngFor="let s of stores(); trackBy: trackByStore" [value]="s.id">
                   {{ s.nameEn }}

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, catchError, map, of } from 'rxjs';
 import { environment } from '../environments/environment';
 import {
   StoreAccountingConfiguration,
@@ -26,6 +26,18 @@ export class StoreAccountingConfigurationService {
 
   getByStoreId(storeId: number): Observable<StoreAccountingConfiguration> {
     return this.http.get<StoreAccountingConfiguration>(`${this.baseUrl}/ByStore/${storeId}`);
+  }
+
+  /** True only when the store has a configuration row AND it's active -- a 404 (never
+   *  configured) and a present-but-inactive row both mean "cannot post", matching how
+   *  JournalEngineService/AccountResolutionService treat `config == null || !config.IsActive`
+   *  server-side. Never throws -- any error (404 included) resolves to false so callers can
+   *  bind this directly to a warning check. */
+  isConfigured(storeId: number): Observable<boolean> {
+    return this.getByStoreId(storeId).pipe(
+      map((config) => !!config?.isActive),
+      catchError(() => of(false))
+    );
   }
 
   create(dto: CreateStoreAccountingConfigurationDto): Observable<StoreAccountingConfiguration> {

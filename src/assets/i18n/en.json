@@ -804,7 +804,12 @@
     "SAVE_ERROR": "Error saving store accounting configuration",
     "DELETE_SUCCESS": "Store accounting configuration deleted successfully",
     "DELETE_ERROR": "Error deleting store accounting configuration",
-    "VALIDATION_ERROR": "Please correct the highlighted fields"
+    "VALIDATION_ERROR": "Please correct the highlighted fields",
+    "SETUP_WARNING_TITLE": "Store Accounting Setup Required",
+    "SETUP_WARNING_MESSAGE": "The store '{{store}}' does not have the required accounting accounts configured. Configure the store before posting inventory transactions.",
+    "CONFIGURE_STORE": "Configure Store",
+    "CHANGE_STORE": "Change Store",
+    "CANCEL": "Cancel"
   },
   "STORE_TRANSFER": {
     "LIST_TITLE": "Store Transfers",

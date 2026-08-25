@@ -23,6 +23,8 @@ import { MatTableModule } from '@angular/material/table';
 import { DxDataGridModule } from 'devextreme-angular';
 import { CarSelectionDialogComponent, SalesCarSelectionCard } from '../../sales/car-selection-dialog/car-selection-dialog.component';
 import { buildVehicleDescription } from '../../../models/vehicle-description';
+import { StoreAccountingConfigurationService } from '../../../services/store-accounting-configuration.service';
+import { warnIfStoreNotConfigured } from '../../shared/store-accounting-setup-warning-dialog/store-accounting-setup-warning.helper';
 
 @Component({
   selector: 'app-stock-taking-form',
@@ -59,6 +61,7 @@ export class StockTakingFormComponent implements OnInit {
   private translate = inject(TranslateService);
   private storeService = inject(StoreService);
   private dialog = inject(MatDialog);
+  private storeAccountingConfigService = inject(StoreAccountingConfigurationService);
   stores$ = this.storeService.stores$;
   stockTakeForm!: FormGroup;
   items = signal<StockTakeItem[]>([]);
@@ -150,6 +153,16 @@ get stores() {
 
   removeItem(index: number) {
     this.items.update(items => items.filter((_, i) => i !== index));
+  }
+
+  /** Heads-up only: warns the user immediately if the selected Store has no active
+   * StoreAccountingConfiguration, instead of only finding out after Save fails server-side. */
+  onStoreSelectionChange(storeId: number | null): void {
+    const store = this.stores.find(s => s.id === storeId);
+    // Store has no `name` field (only nameAr/nameEn) -- cast matches the template's existing
+    // `{{ store.name }}` binding (see stock-taking-form.component.html), which is likewise not a
+    // real property on Store; left as-is here since fixing that display bug is out of scope.
+    warnIfStoreNotConfigured(this.storeAccountingConfigService, this.dialog, this.router, storeId, (store as any)?.name ?? '').subscribe();
   }
 
   updateItemDetails(itemId: number, index: number) {

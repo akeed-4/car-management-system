@@ -10,7 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
@@ -18,8 +18,10 @@ import { BankFinancingService } from '../../../../services/bank-financing.servic
 import { InventoryService } from '../../../../services/inventory.service';
 import { StoreService } from '../../../../services/store.service';
 import { CurrentSettingService } from '../../../../services/current-setting.service';
+import { StoreAccountingConfigurationService } from '../../../../services/store-accounting-configuration.service';
 import { NotificationService } from '@/src/services/notification.service';
 import { CarSelectionDialogComponent } from '../../car-selection-dialog/car-selection-dialog.component';
+import { warnIfStoreNotConfigured } from '../../../shared/store-accounting-setup-warning-dialog/store-accounting-setup-warning.helper';
 
 const VAT_RATE = 0.15;
 
@@ -39,6 +41,7 @@ const VAT_RATE = 0.15;
     MatDatepickerModule,
     MatIconModule,
     MatGridListModule,
+    MatDialogModule,
     DxDataGridModule,
     TranslateModule
   ],
@@ -52,6 +55,7 @@ export class BankQuotationContainerComponent implements OnInit {
   private inventoryService = inject(InventoryService);
   private storeService = inject(StoreService);
   private currentSettingService = inject(CurrentSettingService);
+  private storeAccountingConfigService = inject(StoreAccountingConfigurationService);
   private notificationService = inject(NotificationService);
   private dialog = inject(MatDialog);
   private router = inject(Router);
@@ -84,6 +88,11 @@ export class BankQuotationContainerComponent implements OnInit {
     });
 
     this.quotationForm.get('quantity')!.valueChanges.subscribe(v => this.quantity.set(v > 0 ? v : 1));
+  }
+
+  onStoreSelectionChange(storeId: number | null): void {
+    const store = this.stores().find(s => s.id === storeId);
+    warnIfStoreNotConfigured(this.storeAccountingConfigService, this.dialog, this.router, storeId, store?.nameAr ?? '').subscribe();
   }
 
   openVehicleDialog(): void {
