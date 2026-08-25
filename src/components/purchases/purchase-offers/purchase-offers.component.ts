@@ -1,7 +1,6 @@
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, TemplateRef, inject, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PurchaseCycleService } from '../../../services/purchase-cycle.service';
 import { PurchaseCycleRefreshService } from '../../../services/purchase-cycle-refresh.service';
@@ -10,7 +9,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { PurchaseOfferDto } from '@/src/models/purchase-offer.model';
 import { NotificationService } from '@/src/services/notification.service';
 import { ResponsiveService } from '../../../services/responsive.service';
-import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
+import { MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../shared/shared-data-grid/shared-data-grid.component';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 
 @Component({
   selector: 'app-purchase-offers',
@@ -18,13 +22,10 @@ import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-ca
   imports: [
     CommonModule,
     RouterModule,
-    DxDataGridModule,
-    DxButtonModule,
-    DxTemplateModule,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
-    MobileCardListComponent
+    SharedDataGridComponent
   ],
   templateUrl: './purchase-offers.component.html',
   styleUrls: ['./purchase-offers.component.css']
@@ -109,6 +110,39 @@ export class PurchaseOffersComponent implements OnInit {
         this.notificationService.showError(this.translateService.instant('PURCHASE_OFFERS.REJECT_ERROR') + ': ' + (err?.message || 'Unknown error'));
       }
     });
+  }
+
+  /** Status badge cell, ported via cellTemplates (same classes as before). */
+  private statusTpl = viewChild<TemplateRef<any>>('statusTemplate');
+
+  get cellTemplates(): Record<string, TemplateRef<any>> {
+    const status = this.statusTpl();
+    return status ? { statusTemplate: status } : {};
+  }
+
+  /** Config-driven columns -- same fields/order as before. */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'offerNumber', dataType: 'string', caption: 'PURCHASE_OFFER.OFFER_NUMBER' },
+    { dataField: 'supplierName', dataType: 'string', caption: 'PURCHASE_OFFER.SUPPLIER' },
+    { dataField: 'offerDate', dataType: 'date', caption: 'PURCHASE_OFFER.OFFER_DATE' },
+    { dataField: 'items', dataType: 'string', caption: 'PURCHASE_OFFERS.ITEMS_COUNT', calculateCellValue: this.getItemsCount },
+    { dataField: 'totalAmount', dataType: 'number', format: 'currency', caption: 'PURCHASE_OFFERS.TOTAL_AMOUNT' },
+    { dataField: 'status', dataType: 'string', caption: 'PURCHASE_OFFER.STATUS', cellTemplate: 'statusTemplate' },
+    { dataField: 'actions', dataType: 'string', type: 'actions', caption: '', width: 160, allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Same edit/approve/reject buttons as before (approve/reject only while pending). */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
+    { id: 'approve', icon: 'check', labelKey: 'PURCHASE_OFFERS.APPROVE', visible: (row) => this.isPending({ row: { data: row } }) },
+    { id: 'reject', icon: 'close', labelKey: 'PURCHASE_OFFERS.REJECT', visible: (row) => this.isPending({ row: { data: row } }) },
+  ];
+
+  onGridAction(e: SharedGridRowActionEvent): void {
+    const wrapped = { row: { data: e.row } };
+    if (e.actionId === 'edit') this.onEdit(wrapped);
+    else if (e.actionId === 'approve') this.onApprove(wrapped);
+    else if (e.actionId === 'reject') this.onReject(wrapped);
   }
 
   // --- Mobile card-list rendering ---

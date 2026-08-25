@@ -1,7 +1,6 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, TemplateRef, inject, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,7 +9,12 @@ import { PurchaseOrderService } from '../../../services/purchase-order.service';
 import { PurchaseCycleRefreshService } from '../../../services/purchase-cycle-refresh.service';
 import { PoDto } from '../../../models/purchase-order.model';
 import { ResponsiveService } from '../../../services/responsive.service';
-import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
+import { MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../shared/shared-data-grid/shared-data-grid.component';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 
 @Component({
   selector: 'app-purchase-order-list',
@@ -18,13 +22,10 @@ import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-ca
   imports: [
     CommonModule,
     RouterModule,
-    DxDataGridModule,
-    DxButtonModule,
-    DxTemplateModule,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
-    MobileCardListComponent
+    SharedDataGridComponent
   ],
   templateUrl: './purchase-order-list.component.html',
   styleUrls: ['./purchase-order-list.component.css']
@@ -75,6 +76,35 @@ export class PurchaseOrderListComponent implements OnInit, OnDestroy {
 
   getItemsCount(rowData: PoDto): number {
     return rowData.items ? rowData.items.length : 0;
+  }
+
+  /** Status badge cell, ported via cellTemplates (same classes as before). */
+  private statusTpl = viewChild<TemplateRef<any>>('statusTemplate');
+
+  get cellTemplates(): Record<string, TemplateRef<any>> {
+    const status = this.statusTpl();
+    return status ? { statusTemplate: status } : {};
+  }
+
+  /** Config-driven columns -- same fields/order as before. */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'poNumber', dataType: 'string', caption: 'PURCHASE_ORDER.PO_NUMBER' },
+    { dataField: 'vendorName', dataType: 'string', caption: 'PURCHASE_ORDER.VENDOR' },
+    { dataField: 'quotationNumber', dataType: 'string', caption: 'PURCHASE_ORDER.QUOTATION_NUMBER' },
+    { dataField: 'poDate', dataType: 'date', caption: 'PURCHASE_ORDER.PO_DATE' },
+    { dataField: 'items', dataType: 'string', caption: 'PURCHASE_ORDER.ITEMS_COUNT', calculateCellValue: this.getItemsCount },
+    { dataField: 'totalAmount', dataType: 'number', format: 'currency', caption: 'PURCHASE_ORDER.TOTAL_AMOUNT' },
+    { dataField: 'status', dataType: 'string', caption: 'PURCHASE_ORDER.STATUS', cellTemplate: 'statusTemplate' },
+    { dataField: 'actions', dataType: 'string', type: 'actions', caption: '', width: 90, allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Same single edit button as before. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
+  ];
+
+  onGridAction(e: SharedGridRowActionEvent): void {
+    if (e.actionId === 'edit') this.onEdit({ row: { data: e.row } });
   }
 
   // --- Mobile card-list rendering ---

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, TemplateRef, computed, inject, signal, viewChild, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,18 +13,20 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDialog } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import CustomStore from 'devextreme/data/custom_store';
-import {
-  DxDataGridModule,
-  DxDataGridComponent,
-} from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { DeliveryService } from '../../../services/delivery.service';
 import { HasPermissionDirective } from '../../shared/permission.directive';
+import { PermissionService } from '../../../services/permission.service';
 import { ModalComponent } from '../../shared/modal/modal.component';
 import { AuditHistoryPanelComponent } from '../../shared/audit-history-panel/audit-history-panel.component';
 import { DeliverySchedule } from '../../../models/delivery.model';
 import { getDeliveryStatusClass, isLateDelivery, isTodayDelivery } from '../delivery-status.util';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../shared/shared-data-grid/shared-data-grid.component';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 
 interface DaySchedule {
   date: Date;
@@ -48,7 +50,7 @@ interface DaySchedule {
     MatFormFieldModule,
     MatSelectModule,
     MatButtonToggleModule,
-    DxDataGridModule,
+    SharedDataGridComponent,
     TranslateModule,
   ],
   templateUrl: './delivery-schedule.component.html',
@@ -56,11 +58,12 @@ interface DaySchedule {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeliveryScheduleComponent implements OnInit {
-  @ViewChild(DxDataGridComponent, { static: false }) grid!: DxDataGridComponent;
+  @ViewChild(SharedDataGridComponent, { static: false }) grid!: SharedDataGridComponent;
 
   private deliveryService = inject(DeliveryService);
   private router = inject(Router);
   private dialog = inject(MatDialog);
+  private permissionService = inject(PermissionService);
 
   viewMode = signal<'grid' | 'calendar'>('grid');
   statusFilter = signal<string>('');
@@ -137,6 +140,54 @@ export class DeliveryScheduleComponent implements OnInit {
     });
   }
 
+  // --- Shared DataGrid: config-driven columns (same fields/formats as the previous
+  //     hand-written dx-data-grid) ---
+  columns: dataGridColumnDto[] = [
+    { dataField: 'deliveryNumber', dataType: 'string', caption: 'DELIVERY_SCHEDULE.DELIVERY_NUMBER' },
+    { dataField: 'customerName', dataType: 'string', caption: 'REQUESTED_CARS.CUSTOMER' },
+    { dataField: 'carDescription', dataType: 'string', caption: 'DAILY_ENTRIES.VEHICLE' },
+    { dataField: 'carVin', dataType: 'string', caption: 'CONSIGNMENT.VIN', width: 150 },
+    { dataField: 'driverName', dataType: 'string', caption: 'DELIVERY_SCHEDULE.DRIVER' },
+    { dataField: 'deliveryDate', dataType: 'date', format: 'yyyy-MM-dd', caption: 'DELIVERY_SCHEDULE.DELIVERY_DATE', width: 120 },
+    { dataField: 'deliveryTime', dataType: 'string', caption: 'DELIVERY_SCHEDULE.DELIVERY_TIME', width: 100 },
+    { dataField: 'branchName', dataType: 'string', caption: 'DELIVERY_SCHEDULE.BRANCH' },
+    { dataField: 'status', dataType: 'string', caption: 'DELIVERY_SCHEDULE.STATUS', width: 130, cellTemplate: 'statusTemplate' },
+    { dataField: 'deliveryProgress', dataType: 'number', caption: 'DELIVERY_SCHEDULE.PROGRESS', width: 110, cellTemplate: 'progressTemplate' },
+    { dataField: 'documentsReady', dataType: 'boolean', caption: 'DELIVERY_SCHEDULE.DOCUMENTS_READY', width: 110 },
+    { dataField: 'insuranceReady', dataType: 'boolean', caption: 'DELIVERY_SCHEDULE.INSURANCE_READY', width: 110 },
+    { dataField: 'registrationReady', dataType: 'boolean', caption: 'DELIVERY_SCHEDULE.REGISTRATION_READY', width: 120 },
+    { dataField: 'customerConfirmed', dataType: 'boolean', caption: 'DELIVERY_SCHEDULE.CUSTOMER_CONFIRMED', width: 130 },
+    { dataField: 'notes', dataType: 'string', caption: 'REQUESTED_CARS.NOTES', visible: false },
+    { dataField: '__actions', dataType: 'string', caption: 'COMMON.ACTIONS', type: 'actions', width: 120, allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Same permission-gated actions as before (*appHasPermission), now expressed as
+   *  per-row visibility predicates on the Shared DataGrid's actions template. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('deliverySchedule.edit') },
+    { id: 'history', icon: 'history', labelKey: 'AUDIT_HISTORY.TITLE', visible: () => this.permissionService.hasPermission('deliverySchedule.history') },
+    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('deliverySchedule.delete') },
+  ];
+
+  private statusTpl = viewChild<TemplateRef<any>>('statusTemplate');
+  private progressTpl = viewChild<TemplateRef<any>>('progressTemplate');
+
+  get cellTemplates(): Record<string, TemplateRef<any>> {
+    const status = this.statusTpl();
+    const progress = this.progressTpl();
+    return {
+      ...(status ? { statusTemplate: status } : {}),
+      ...(progress ? { progressTemplate: progress } : {}),
+    };
+  }
+
+  onGridAction(e: SharedGridRowActionEvent): void {
+    const row = e.row as DeliverySchedule;
+    if (e.actionId === 'edit') this.editDelivery(row.id);
+    else if (e.actionId === 'history') this.openHistory(row.id);
+    else if (e.actionId === 'delete') this.requestDelete(row.id);
+  }
+
   newDelivery(): void {
     this.router.navigate(['/deliveries/new']);
   }
@@ -172,7 +223,7 @@ export class DeliveryScheduleComponent implements OnInit {
   }
 
   refresh(): void {
-    this.grid?.instance?.refresh();
+    this.grid?.refresh();
     this.deliveryService.loadDataGrid({ take: 10000 }).subscribe(result => {
       this.lastLoadedRows.set(result.data);
     });
@@ -184,17 +235,19 @@ export class DeliveryScheduleComponent implements OnInit {
 
   resetFilters(): void {
     this.statusFilter.set('');
-    this.grid?.instance?.clearFilter();
+    this.grid?.getInstance()?.clearFilter();
     this.refresh();
   }
 
   exportExcel(): void {
+    const component = this.grid?.getInstance();
+    if (!component) return;
     import('devextreme/excel_exporter').then(({ exportDataGrid }) => {
       import('exceljs').then(async (ExcelJS) => {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('DeliverySchedule');
         exportDataGrid({
-          component: this.grid.instance,
+          component,
           worksheet,
         }).then(() => {
           workbook.xlsx.writeBuffer().then((buffer: BlobPart) => {
@@ -208,11 +261,13 @@ export class DeliveryScheduleComponent implements OnInit {
   }
 
   exportPdf(): void {
+    const component = this.grid?.getInstance();
+    if (!component) return;
     Promise.all([import('jspdf'), import('devextreme/pdf_exporter')]).then(([jsPDFModule, { exportDataGrid }]) => {
       const doc = new jsPDFModule.jsPDF();
       exportDataGrid({
         jsPDFDocument: doc,
-        component: this.grid.instance,
+        component,
       }).then(() => {
         doc.save('DeliverySchedule.pdf');
       });

@@ -1,17 +1,20 @@
 import { ChangeDetectionStrategy, Component, inject, Input, Output, EventEmitter } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
-import { DxDataGridModule } from 'devextreme-angular';
 import { MatIconModule } from '@angular/material/icon';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { SalesService } from '../../../../services/sales.service';
 import { ToastService } from '../../../../services/toast.service';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 import { identity } from 'rxjs';
 
 @Component({
   selector: 'app-sales-return-invoice-list',
   standalone: true,
-  imports: [TranslateModule, DxDataGridModule, MatIconModule],
+  imports: [TranslateModule, MatIconModule, SharedDataGridComponent],
   templateUrl: './sales-return-invoice-list.component.html',
   styleUrl: './sales-return-invoice-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,6 +40,30 @@ export class SalesReturnInvoiceListComponent {
     { value: 'Credit', text: this.translate.instant('SALES.RETURN.CREDIT') }
   ];
 
+  /** Config-driven columns -- same fields/formats/i18n keys as before. */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'returnNo', dataType: 'string', caption: 'SALES.RETURN.RETURN_NUMBER', alignment: 'right' },
+    { dataField: 'returnDate', dataType: 'date', caption: 'SALES.RETURN.RETURN_DATE', format: 'yyyy-MM-dd', alignment: 'right' },
+    { dataField: 'invoiceNo', dataType: 'string', caption: 'SALES.RETURN.ORIGINAL_INVOICE', alignment: 'right' },
+    { dataField: 'refundableAmount', dataType: 'number', caption: 'SALES.RETURN.TOTAL_AMOUNT', format: { type: 'currency', currency: 'SAR' }, alignment: 'right' },
+    { dataField: '__actions', dataType: 'string', type: 'actions', caption: 'SALES.RETURN.ACTIONS', allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Same edit/delete buttons as before ('trash' -> Material's 'delete' icon). */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'SALES.RETURN.EDIT' },
+    { id: 'delete', icon: 'delete', labelKey: 'SALES.RETURN.DELETE', cssClass: 'warn' },
+  ];
+
+  /** Same sum/count totals as before -- SharedDataGrid's summary items don't support a
+   *  customizeText callback, so the previous translated customizeTotalText/customizeCountText
+   *  strings (which already use a literal {0} placeholder) are passed straight through as
+   *  displayFormat, which DevExtreme substitutes with the computed value the same way. */
+  summaryItems: any[] = [
+    { column: 'refundableAmount', summaryType: 'sum', valueFormat: { type: 'currency', currency: 'SAR' }, displayFormat: this.translate.instant('SALES.RETURN.TOTAL_SUMMARY') },
+    { column: 'returnNo', summaryType: 'count', displayFormat: this.translate.instant('SALES.RETURN.COUNT_SUMMARY') },
+  ];
+
   customizeTotalText = (data: any) => {
     return this.translate.instant('SALES.RETURN.TOTAL_SUMMARY', { 0: data.value?.toLocaleString('ar-SA', { style: 'currency', currency: 'SAR' }) || '0 ر.س' });
   };
@@ -49,6 +76,17 @@ constructor() {
   this.onPrintClick = this.onPrintClick.bind(this);
   this.deleteInvoice = this.deleteInvoice.bind(this);
 }
+
+  /** Dispatches the Shared DataGrid's rowAction the same way DevExtreme's own dxi-button
+   *  onClick did -- wrapping the row back into a {row:{data}} shape so onEditClick/
+   *  deleteInvoice (below) don't need to change at all, INCLUDING deleteInvoice's existing
+   *  `invoice.id` access, which already relied on receiving the raw click event, not the
+   *  unwrapped row (see deleteInvoice). */
+  onGridAction(e: SharedGridRowActionEvent): void {
+    if (e.actionId === 'edit') this.onEditClick({ row: { data: e.row } });
+    else if (e.actionId === 'delete') this.deleteInvoice({ row: { data: e.row } });
+  }
+
   // Child-to-parent communication methods
   viewDetails(invoice: any): void {
     this.onViewDetails.emit(invoice);
@@ -96,5 +134,5 @@ constructor() {
   getTitle(): string {
     return this.isCashReturn ? this.translate.instant('SALES.RETURN.CASH_LIST_TITLE') : this.translate.instant('SALES.RETURN.CREDIT_LIST_TITLE');
   }
-  
+
 }

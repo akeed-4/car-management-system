@@ -1,13 +1,17 @@
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, TemplateRef, inject, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PurchaseRequisitionService } from '../../../services/purchase-requisition.service';
 import { NotificationService } from '../../../services/notification.service';
 import { PurchaseRequisitionDto } from '../../../models/purchase-requisition.model';
 import { ResponsiveService } from '../../../services/responsive.service';
-import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
+import { MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../shared/shared-data-grid/shared-data-grid.component';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 
 @Component({
   selector: 'app-purchase-requisition-approval-list',
@@ -15,11 +19,8 @@ import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-ca
   imports: [
     CommonModule,
     RouterModule,
-    DxDataGridModule,
-    DxButtonModule,
-    DxTemplateModule,
     TranslateModule,
-    MobileCardListComponent
+    SharedDataGridComponent
   ],
   templateUrl: './purchase-requisition-approval-list.component.html',
   styleUrls: ['./purchase-requisition-approval-list.component.css']
@@ -97,6 +98,39 @@ export class PurchaseRequisitionApprovalListComponent implements OnInit {
         this.notificationService.showError(this.translateService.instant('PURCHASE_REQUISITION.REJECT_ERROR') + ': ' + (err?.message || 'Unknown error'));
       }
     });
+  }
+
+  /** Status badge cell, ported via cellTemplates (same markup as before -- always the
+   *  "pending" style, since this list only ever contains pending-approval rows). */
+  private statusTpl = viewChild<TemplateRef<any>>('statusTemplate');
+
+  get cellTemplates(): Record<string, TemplateRef<any>> {
+    const status = this.statusTpl();
+    return status ? { statusTemplate: status } : {};
+  }
+
+  /** Config-driven columns -- same fields/order as before. */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'requisitionNumber', dataType: 'string', caption: 'PURCHASE_REQUISITION.REQUISITION_NUMBER' },
+    { dataField: 'requisitionDate', dataType: 'date', caption: 'PURCHASE_REQUISITION.REQUISITION_DATE' },
+    { dataField: 'departmentName', dataType: 'string', caption: 'PURCHASE_REQUISITION.DEPARTMENT' },
+    { dataField: 'items', dataType: 'string', caption: 'PURCHASE_REQUISITION.ITEMS_COUNT', calculateCellValue: this.getItemsCount },
+    { dataField: 'status', dataType: 'string', caption: 'PURCHASE_REQUISITION.STATUS', cellTemplate: 'statusTemplate' },
+    { dataField: 'actions', dataType: 'string', type: 'actions', caption: '', width: 150, allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Same view/approve/reject buttons as before (always visible, unconditionally). */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW' },
+    { id: 'approve', icon: 'check', labelKey: 'PURCHASE_REQUISITION.APPROVE' },
+    { id: 'reject', icon: 'close', labelKey: 'PURCHASE_REQUISITION.REJECT' },
+  ];
+
+  onGridAction(e: SharedGridRowActionEvent): void {
+    const wrapped = { row: { data: e.row } };
+    if (e.actionId === 'view') this.onView(wrapped);
+    else if (e.actionId === 'approve') this.onApprove(wrapped);
+    else if (e.actionId === 'reject') this.onReject(wrapped);
   }
 
   // --- Mobile card-list rendering ---

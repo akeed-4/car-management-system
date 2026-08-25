@@ -101,93 +101,34 @@
 
   <!-- DataGrid -->
   <div class="erp-grid-card grid-container">
-    <dx-data-grid
-      #dataGrid
-      id="consignmentCarsGrid"
+    <!-- Shared DataGrid: owns grid chrome/group panel/state storing/paging;
+         the CustomStore keeps driving server-side load exactly as before. -->
+    <app-shared-data-grid
       [dataSource]="dataSource"
-      [remoteOperations]="true"
+      [columns]="columns"
+      [rowActions]="rowActions"
+      [cellTemplates]="cellTemplates"
+      [summaryItems]="summaryItems"
+      [dxRemoteOperations]="true"
+      [showGroupPanel]="true"
+      [selectionMode]="'multiple'"
+      [stateStoringKey]="gridStateKey"
       keyExpr="id"
-      [showBorders]="true"
-      [showRowLines]="true"
-      [showColumnLines]="true"
       [rtlEnabled]="true"
-      [columnAutoWidth]="true"
-      [allowColumnReordering]="true"
-      [allowColumnResizing]="true"
-      [wordWrapEnabled]="false"
-      [hoverStateEnabled]="true"
-      (onRowDblClick)="openDetails($event)">
+      scrollingMode="virtual"
+      searchPlaceholder="COMMON.SEARCH"
+      [pageSize]="20"
+      [allowedPageSizes]="[10, 20, 50, 100]"
+      (rowDblClick)="openDetails({ data: $event })"
+      (rowAction)="onGridAction($event)">
 
-      <dxo-load-panel [enabled]="true"></dxo-load-panel>
-      <dxo-search-panel [visible]="true" [width]="280"></dxo-search-panel>
-      <dxo-header-filter [visible]="true"></dxo-header-filter>
-      <dxo-filter-row [visible]="true"></dxo-filter-row>
-      <dxo-grouping [autoExpandAll]="false" [contextMenuEnabled]="true"></dxo-grouping>
-      <dxo-group-panel [visible]="true"></dxo-group-panel>
-      <dxo-column-chooser [enabled]="true" mode="select"></dxo-column-chooser>
-      <dxo-column-fixing [enabled]="true"></dxo-column-fixing>
-      <dxo-state-storing [enabled]="true" type="localStorage" [storageKey]="gridStateKey"></dxo-state-storing>
-      <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
-      <dxo-paging [pageSize]="20"></dxo-paging>
-      <dxo-pager [visible]="true" [allowedPageSizes]="[10, 20, 50, 100]" [showPageSizeSelector]="true" [showInfo]="true" [showNavigationButtons]="true" displayMode="full"></dxo-pager>
-      <dxo-selection mode="multiple" showCheckBoxesMode="onClick"></dxo-selection>
-      <dxo-export [enabled]="false"></dxo-export>
-
-      <dxi-column dataField="consignmentNumber" [caption]="'CONSIGNMENT.CONSIGNMENT_NUMBER' | translate" [width]="130" [fixed]="true"></dxi-column>
-      <dxi-column dataField="supplierName" [caption]="'CONSIGNMENT.SUPPLIER' | translate"></dxi-column>
-      <dxi-column dataField="make" [caption]="'REQUESTED_CARS.BRAND' | translate"></dxi-column>
-      <dxi-column dataField="model" [caption]="'REQUESTED_CARS.MODEL' | translate"></dxi-column>
-      <dxi-column dataField="year" dataType="number" [caption]="'REQUESTED_CARS.YEAR' | translate" [width]="90" alignment="center"></dxi-column>
-      <dxi-column dataField="vin" [caption]="'CONSIGNMENT.VIN' | translate" [width]="150"></dxi-column>
-      <dxi-column dataField="engineNumber" [caption]="'CONSIGNMENT.ENGINE_NUMBER' | translate" [width]="140"></dxi-column>
-      <dxi-column dataField="arrivalDate" dataType="date" format="yyyy-MM-dd" [caption]="'CONSIGNMENT.ARRIVAL_DATE' | translate" [width]="120"></dxi-column>
-      <dxi-column dataField="expectedSalePrice" dataType="number" format="#,##0" [caption]="'CONSIGNMENT.EXPECTED_SALE_PRICE' | translate" [width]="140"></dxi-column>
-      <dxi-column dataField="currentCost" dataType="number" format="#,##0" [caption]="'CONSIGNMENT.CURRENT_COST' | translate" [width]="130"></dxi-column>
-      <dxi-column dataField="commissionRate" dataType="number" format="#,##0.##'%'" [caption]="'CONSIGNMENT.COMMISSION_RATE' | translate" [width]="120"></dxi-column>
-      <dxi-column dataField="location" [caption]="'CONSIGNMENT.LOCATION' | translate" [width]="120"></dxi-column>
-      <dxi-column dataField="daysInStock" dataType="number" [caption]="'CONSIGNMENT.DAYS_IN_STOCK' | translate" [width]="120" alignment="center"></dxi-column>
-
-      <dxi-column dataField="status" [caption]="'CONSIGNMENT.STATUS' | translate" [width]="130" cellTemplate="statusTemplate"></dxi-column>
-      <div *dxTemplate="let cell of 'statusTemplate'">
+      <!-- Status badge (same classes/labels as before) -->
+      <ng-template #statusTemplate let-cell>
         <span class="erp-status-badge chip" [ngClass]="getConsignmentStatusClass(cell.value)">
           {{ ('CONSIGNMENT.STATUS_' + cell.value?.toUpperCase()) | translate }}
         </span>
-      </div>
-
-      <dxi-column dataField="notes" [caption]="'REQUESTED_CARS.NOTES' | translate" [visible]="false"></dxi-column>
-      <dxi-column dataField="createdAt" dataType="datetime" [caption]="'REQUESTED_CARS.CREATED_DATE' | translate" [visible]="false"></dxi-column>
-
-      <dxi-column type="buttons" [caption]="'COMMON.ACTIONS' | translate" [width]="200" [fixed]="true" fixedPosition="right" cellTemplate="actionsTemplate"></dxi-column>
-      <div *dxTemplate="let cell of 'actionsTemplate'">
-        <ng-container *ngIf="canSell(cell.data)">
-          <button mat-icon-button [matTooltip]="'CONSIGNMENT.SALE.SELL' | translate" (click)="sellCar(cell.data)" *appHasPermission="'consignmentCar.sell'">
-            <mat-icon>sell</mat-icon>
-          </button>
-        </ng-container>
-        <ng-container *ngIf="cell.data.status === 'Sold'">
-          <button mat-icon-button [matTooltip]="'CONSIGNMENT.SALE.CANCEL_SALE' | translate" (click)="cancelSale(cell.data)" *appHasPermission="'consignmentCar.sell'">
-            <mat-icon>undo</mat-icon>
-          </button>
-          <button mat-icon-button [matTooltip]="'CONSIGNMENT.SALE.RETURN_TO_OWNER' | translate" (click)="returnCar(cell.data)" *appHasPermission="'consignmentCar.sell'">
-            <mat-icon>keyboard_return</mat-icon>
-          </button>
-        </ng-container>
-        <button mat-icon-button [matTooltip]="'COMMON.EDIT' | translate" (click)="editCar(cell.data.id)" *appHasPermission="'consignmentCar.edit'">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-icon-button [matTooltip]="'AUDIT_HISTORY.TITLE' | translate" (click)="openHistory(cell.data.id)" *appHasPermission="'consignmentCar.history'">
-          <mat-icon>history</mat-icon>
-        </button>
-        <button mat-icon-button color="warn" [matTooltip]="'COMMON.DELETE' | translate" (click)="requestDelete(cell.data.id)" *appHasPermission="'consignmentCar.delete'">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </div>
-
-      <dxo-summary>
-        <dxi-total-item column="consignmentNumber" summaryType="count" [displayFormat]="'{0}'"></dxi-total-item>
-        <dxi-total-item column="expectedSalePrice" summaryType="sum" [valueFormat]="'#,##0'" displayFormat="{0}"></dxi-total-item>
-      </dxo-summary>
-    </dx-data-grid>
+      </ng-template>
+    </app-shared-data-grid>
   </div>
 
   <app-modal

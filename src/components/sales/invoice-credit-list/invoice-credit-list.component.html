@@ -13,52 +13,33 @@
     </div>
   </div>
 
-  @if (isMobile()) {
-    <app-mobile-card-list
-      [items]="creditInvoices()"
-      [fields]="mobileFields"
-      [titleOf]="mobileTitleOf"
-      [trackByFn]="mobileTrackBy"
-      emptyMessage="COMMON.NO_DATA"
-    >
-      <ng-template let-item>
-        <button type="button" class="btn btn-light" (click)="mobileEditClick(item)">{{ 'COMMON.EDIT' | translate }}</button>
-        <button type="button" class="btn btn-light" (click)="mobileDeleteClick(item)">{{ 'COMMON.DELETE' | translate }}</button>
-      </ng-template>
-    </app-mobile-card-list>
-  } @else {
   <div class="erp-grid-card card">
     <div class="table-wrapper premium-table">
-      <dx-data-grid
+      <!-- Shared DataGrid: owns grid chrome + the mobile card rendering (same
+           fields/actions the split @if(isMobile()) block used to duplicate). -->
+      <app-shared-data-grid
         [dataSource]="creditInvoices()"
-        [showBorders]="true"
-        [columnAutoWidth]="true"
-        [rowAlternationEnabled]="true"
-        [rtlEnabled]="true"
-        [noDataText]="getCaption('NO_DATA')"
+        [columns]="columns"
+        [rowActions]="rowActions"
+        [mobileItems]="creditInvoices()"
+        [mobileFields]="mobileFields"
+        [mobileTitleOf]="mobileTitleOf"
+        [mobileTrackBy]="mobileTrackBy"
+        keyExpr="id"
         [height]="600"
-      >
-        <dxi-column dataField="invoiceNumber" [caption]="getCaption('INVOICE_NUMBER')" [allowEditing]="false"></dxi-column>
-        <dxi-column dataField="customer.name" [caption]="getCaption('CUSTOMER')" [allowEditing]="false"></dxi-column>
-        <dxi-column dataField="invoiceDate" [caption]="getCaption('INVOICE_DATE')" dataType="date" [allowEditing]="false"></dxi-column>
-        <dxi-column dataField="dueDate" [caption]="getCaption('DUE_DATE')" dataType="date" [allowEditing]="false"></dxi-column>
-        <dxi-column dataField="totalAmount" [caption]="getCaption('TOTAL_AMOUNT')" dataType="number" format="currency" [allowEditing]="false"></dxi-column>
-        <dxi-column dataField="paymentMethod" [caption]="getCaption('PAYMENT_METHOD')" [allowEditing]="false"></dxi-column>
-        <dxi-column dataField="status" [caption]="getCaption('STATUS')" [allowEditing]="false"></dxi-column>
-        <dxi-column type="buttons">
-          <dxi-button name="edit" [onClick]="onEditClick"></dxi-button>
-          <dxi-button name="delete" [onClick]="onDeleteClick"></dxi-button>
-        </dxi-column>
-        <dxo-filter-row [visible]="true"></dxo-filter-row>
-        <dxo-header-filter [visible]="true"></dxo-header-filter>
-        <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false"
-          [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
-        <dxo-selection mode="single"></dxo-selection>
-        <dxo-grouping [autoExpandAll]="false" [contextMenuEnabled]="true"></dxo-grouping>
-        <dxo-paging [pageSize]="10"></dxo-paging>
-        <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
-      </dx-data-grid>
+        [showSearchPanel]="false"
+        [showColumnChooser]="false"
+        selectionMode="single"
+        [noDataText]="getCaption('NO_DATA')"
+        [pageSize]="10"
+        [allowedPageSizes]="[5, 10, 20]"
+        (rowAction)="onGridAction($event)">
+
+        <ng-template let-item>
+          <button type="button" class="btn btn-light" (click)="mobileEditClick(item)">{{ 'COMMON.EDIT' | translate }}</button>
+          <button type="button" class="btn btn-light" (click)="mobileDeleteClick(item)">{{ 'COMMON.DELETE' | translate }}</button>
+        </ng-template>
+      </app-shared-data-grid>
     </div>
   </div>
-  }
 </div>

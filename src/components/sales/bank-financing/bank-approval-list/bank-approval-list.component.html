@@ -12,49 +12,29 @@
   </div>
 
   <div class="erp-grid-card">
-  <dx-data-grid
-    [dataSource]="quotations()"
-    [showBorders]="true"
-    [columnAutoWidth]="true"
-    [rowAlternationEnabled]="true"
-    [rtlEnabled]="true"
-    height="600px"
-    [showRowLines]="true"
-    [allowColumnReordering]="true"
-    [allowColumnResizing]="true"
-    [noDataText]="'BANK_FINANCING.NO_APPROVALS' | translate"
-    (onRowDblClick)="onView($event)"
-    keyExpr="id">
+    <app-shared-data-grid
+      [dataSource]="quotations()"
+      [columns]="columns"
+      [rowActions]="rowActions"
+      [cellTemplates]="cellTemplates"
+      keyExpr="id"
+      height="600px"
+      noDataText="BANK_FINANCING.NO_APPROVALS"
+      [pageSize]="10"
+      [allowedPageSizes]="[10, 20, 50]"
+      (rowDblClick)="onGridRowDblClick($event)"
+      (rowAction)="onGridAction($event)">
 
-    <dxo-search-panel [visible]="true"></dxo-search-panel>
-    <dxo-filter-row [visible]="true"></dxo-filter-row>
-    <dxo-header-filter [visible]="true"></dxo-header-filter>
-    <dxo-paging [pageSize]="10"></dxo-paging>
-    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
-
-    <dxi-column dataField="quotationNumber" [caption]="'CORPORATE.QUOTATION_NUMBER' | translate"></dxi-column>
-    <dxi-column dataField="endUserName" [caption]="'BANK_FINANCING.END_USER_NAME' | translate"></dxi-column>
-    <dxi-column dataField="bankName" [caption]="'BANK_FINANCING.BANK' | translate"></dxi-column>
-    <dxi-column dataField="vin" caption="VIN"></dxi-column>
-    <dxi-column dataField="bankLpoReference" [caption]="'BANK_FINANCING.LPO_REFERENCE' | translate"></dxi-column>
-    <dxi-column dataField="status" [caption]="'CORPORATE.ORDER_STATUS' | translate" cellTemplate="statusCellTemplate"></dxi-column>
-    <div *dxTemplate="let cell of 'statusCellTemplate'">
-      <span class="erp-status-badge" [ngClass]="{
-        'warning': cell.value === 'Locked',
-        'success': cell.value === 'Bank_Approved' || cell.value === 'Finalized',
-        'danger': cell.value === 'Expired' || cell.value === 'Cancelled'
-      }">
-        {{ ('BANK_FINANCING.STATUS_' + cell.value?.toUpperCase()) | translate }}
-      </span>
-    </div>
-
-    <dxi-column type="buttons" [width]="80">
-      <dxi-button
-        icon="find"
-        [hint]="'COMMON.VIEW' | translate"
-        [onClick]="onView">
-      </dxi-button>
-    </dxi-column>
-  </dx-data-grid>
+      <!-- Status badge (same classes/labels as before) -->
+      <ng-template #statusTemplate let-cell>
+        <span class="erp-status-badge" [ngClass]="{
+          'warning': cell.value === 'Locked',
+          'success': cell.value === 'Bank_Approved' || cell.value === 'Finalized',
+          'danger': cell.value === 'Expired' || cell.value === 'Cancelled'
+        }">
+          {{ ('BANK_FINANCING.STATUS_' + cell.value?.toUpperCase()) | translate }}
+        </span>
+      </ng-template>
+    </app-shared-data-grid>
   </div>
 </div>

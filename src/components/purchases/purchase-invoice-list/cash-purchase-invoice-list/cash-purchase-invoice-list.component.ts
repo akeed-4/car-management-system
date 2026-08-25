@@ -1,14 +1,18 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DxDataGridModule } from 'devextreme-angular';
 import { PurchaseInvoice } from '../../../../models/purchase-invoice.model';
 import { PurchasesService } from '../../../../services/purchases.service';
 import { ResponsiveService } from '../../../../services/responsive.service';
-import { MobileCardListComponent, MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
+import { MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../../shared/shared-data-grid/shared-data-grid.component';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 
 type SortColumn = keyof PurchaseInvoice | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -16,7 +20,7 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-cash-purchase-invoice-list',
   standalone: true,
-  imports: [RouterLink, FormsModule, TranslateModule, DxDataGridModule, MobileCardListComponent],
+  imports: [RouterLink, FormsModule, TranslateModule, SharedDataGridComponent],
   templateUrl: './cash-purchase-invoice-list.component.html',
   styleUrl: './cash-purchase-invoice-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,7 +34,7 @@ export class CashPurchaseInvoiceListComponent {
     invoices = toSignal(this.procurementService.getInvoices(), { initialValue: [] });
 constructor() {
   this.onFilter = this.onFilter.bind(this);
-  this.onSort = this.onSort.bind(this); 
+  this.onSort = this.onSort.bind(this);
   this.deleteInvoice = this.deleteInvoice.bind(this);
   this.editInvoice = this.editInvoice.bind(this);
   this.printInvoice = this.printInvoice.bind(this);
@@ -108,6 +112,47 @@ constructor() {
 
       return invoices;
     });
+
+    /** Custom cell templates ported from the original *dxTemplate blocks. */
+    private supplierTpl = viewChild<TemplateRef<any>>('supplierTemplate');
+    private statusTpl = viewChild<TemplateRef<any>>('statusTemplate');
+
+    get cellTemplates(): Record<string, TemplateRef<any>> {
+      const supplier = this.supplierTpl();
+      const status = this.statusTpl();
+      return {
+        ...(supplier ? { supplierTemplate: supplier } : {}),
+        ...(status ? { statusTemplate: status } : {}),
+      };
+    }
+
+    /** Config-driven columns -- same fields/order/formats as before. */
+    columns: dataGridColumnDto[] = [
+      { dataField: 'invoiceNumber', dataType: 'string', caption: 'PURCHASES.INVOICE_NUMBER' },
+      { dataField: 'invoiceDate', dataType: 'date', format: 'yyyy-MM-dd', caption: 'PURCHASES.INVOICE_DATE' },
+      { dataField: 'supplierName', dataType: 'string', caption: 'PURCHASES.SUPPLIER', cellTemplate: 'supplierTemplate' },
+      { dataField: 'totalAmount', dataType: 'number', format: 'currency', caption: 'PURCHASES.TOTAL_COST' },
+      { dataField: 'amountPaid', dataType: 'number', format: 'currency', caption: 'PURCHASES.AMOUNT_PAID', cssClass: 'text-success' },
+      { dataField: 'amountDue', dataType: 'number', format: 'currency', caption: 'PURCHASES.AMOUNT_DUE', cssClass: 'text-danger' },
+      { dataField: 'status', dataType: 'string', caption: 'PURCHASES.STATUS', cellTemplate: 'statusTemplate' },
+      { dataField: 'actions', dataType: 'string', type: 'actions', caption: 'PURCHASES.ACTIONS', width: 200, cssClass: 'no-print', allowSorting: false, allowFiltering: false },
+    ];
+
+    /** Same print/edit/delete/archive buttons as before (archive only when eligible). */
+    rowActions: sharedGridRowActionDto[] = [
+      { id: 'print', icon: 'print', labelKey: 'PURCHASES.PRINT_INVOICE' },
+      { id: 'edit', icon: 'edit', labelKey: 'PURCHASES.EDIT_INVOICE' },
+      { id: 'delete', icon: 'delete', labelKey: 'PURCHASES.DELETE_INVOICE', cssClass: 'warn' },
+      { id: 'archive', icon: 'archive', labelKey: 'PURCHASES.ARCHIVE', visible: (row) => this.isArchiveButtonVisible({ row: { data: row } }) },
+    ];
+
+    onGridAction(e: SharedGridRowActionEvent): void {
+      const wrapped = { row: { data: e.row } };
+      if (e.actionId === 'print') this.onPrintClick(wrapped);
+      else if (e.actionId === 'edit') this.onEditClick(wrapped);
+      else if (e.actionId === 'delete') this.onDeleteClick(wrapped);
+      else if (e.actionId === 'archive') this.onArchiveClick(wrapped);
+    }
 
     // --- Mobile card-list rendering (see `isMobile` field comment above) ---
     mobileTitleOf = (inv: PurchaseInvoice) => inv.invoiceNumber;

@@ -1,7 +1,6 @@
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, TemplateRef, inject, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PurchaseCycleService } from '../../../services/purchase-cycle.service';
 import { NotificationService } from '../../../services/notification.service';
@@ -12,7 +11,12 @@ import { PurchaseRequestDto } from '../../../models/purchase-request.model';
 import { HasPermissionDirective } from '../../shared/permission.directive';
 import { PermissionService } from '../../../services/permission.service';
 import { ResponsiveService } from '../../../services/responsive.service';
-import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
+import { MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../shared/shared-data-grid/shared-data-grid.component';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 
 @Component({
   selector: 'app-purchase-request-list',
@@ -20,15 +24,12 @@ import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-ca
   imports: [
     CommonModule,
     RouterModule,
-    DxDataGridModule,
-    DxButtonModule,
-    DxTemplateModule,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
     HasPermissionDirective,
-    MobileCardListComponent
+    SharedDataGridComponent
   ],
   templateUrl: './purchase-request-list.component.html',
   styleUrls: ['./purchase-request-list.component.css']
@@ -147,6 +148,41 @@ export class PurchaseRequestListComponent implements OnInit {
         this.notificationService.showError(this.translateService.instant('PURCHASE_REQUESTS.DELETE_ERROR') + ': ' + this.describeError(err));
       }
     });
+  }
+
+  /** Status badge cell, ported via cellTemplates (same classes/tooltip as before). */
+  private statusTpl = viewChild<TemplateRef<any>>('statusTemplate');
+
+  get cellTemplates(): Record<string, TemplateRef<any>> {
+    const status = this.statusTpl();
+    return status ? { statusTemplate: status } : {};
+  }
+
+  /** Config-driven columns -- same fields/order as before. */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'requestNumber', dataType: 'string', caption: 'PURCHASE_REQUESTS.REQUEST_NUMBER' },
+    { dataField: 'requestDate', dataType: 'date', caption: 'PURCHASE_REQUESTS.REQUEST_DATE' },
+    { dataField: 'supplierName', dataType: 'string', caption: 'PURCHASE_REQUESTS.SUPPLIER' },
+    { dataField: 'items', dataType: 'string', caption: 'PURCHASE_REQUESTS.ITEMS_COUNT', calculateCellValue: this.getItemsCount },
+    { dataField: 'totalAmount', dataType: 'number', format: 'currency', caption: 'PURCHASE_OFFERS.TOTAL_AMOUNT' },
+    { dataField: 'status', dataType: 'string', caption: 'PURCHASE_REQUESTS.STATUS', cellTemplate: 'statusTemplate' },
+    { dataField: 'actions', dataType: 'string', type: 'actions', caption: '', width: 210, allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Same permission-gated edit/approve/reject/delete buttons as before. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: (row) => this.canEdit({ row: { data: row } }) },
+    { id: 'approve', icon: 'check', labelKey: 'PURCHASE_REQUESTS.APPROVE', visible: (row) => this.canApprove({ row: { data: row } }) },
+    { id: 'reject', icon: 'close', labelKey: 'PURCHASE_REQUESTS.REJECT', visible: (row) => this.canReject({ row: { data: row } }) },
+    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn', visible: (row) => this.canDelete({ row: { data: row } }) },
+  ];
+
+  onGridAction(e: SharedGridRowActionEvent): void {
+    const wrapped = { row: { data: e.row } };
+    if (e.actionId === 'edit') this.onEdit(wrapped);
+    else if (e.actionId === 'approve') this.onApprove(wrapped);
+    else if (e.actionId === 'reject') this.onReject(wrapped);
+    else if (e.actionId === 'delete') this.onDelete(wrapped);
   }
 
   // --- Mobile card-list rendering ---

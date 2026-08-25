@@ -1,15 +1,19 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { CorporateFleetService } from '../../../../services/corporate-fleet.service';
 import { NotificationService } from '@/src/services/notification.service';
 import { DeliveryNoteResult } from '../../../../models/corporate/corporate-dispatch.model';
 import { ResponsiveService } from '../../../../services/responsive.service';
-import { MobileCardListComponent, MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
+import { MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 
 @Component({
   selector: 'app-corporate-delivery-list',
@@ -17,11 +21,10 @@ import { MobileCardListComponent, MobileCardField } from '../../../shared/mobile
   imports: [
     CommonModule,
     RouterModule,
-    DxDataGridModule,
+    SharedDataGridComponent,
     TranslateModule,
     MatButtonModule,
-    MatIconModule,
-    MobileCardListComponent
+    MatIconModule
   ],
   templateUrl: './corporate-delivery-list.component.html',
   styleUrls: ['./corporate-delivery-list.component.css'],
@@ -36,6 +39,26 @@ export class CorporateDeliveryListComponent implements OnInit {
 
   deliveryNotes = signal<DeliveryNoteResult[]>([]);
   loading = signal(false);
+
+  /** Config-driven columns -- same fields as before (i18n keys). */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'deliveryNoteNumber', dataType: 'string', caption: 'CORPORATE.DELIVERY_NOTE_NUMBER' },
+    { dataField: 'vin', dataType: 'string', caption: 'VIN' },
+    { dataField: 'gatePassSerial', dataType: 'string', caption: 'CORPORATE.GATE_PASS_SERIAL' },
+    { dataField: 'deliveryDate', dataType: 'date', caption: 'CORPORATE.DELIVERY_DATE' },
+    { dataField: 'deliveredToName', dataType: 'string', caption: 'CORPORATE.RECEIVER_NAME' },
+    { dataField: 'driverName', dataType: 'string', caption: 'CORPORATE.DRIVER_NAME' },
+    { dataField: 'actions', dataType: 'string', type: 'actions', caption: '', width: 80, allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Same single view button as before. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW' },
+  ];
+
+  onGridAction(e: SharedGridRowActionEvent): void {
+    if (e.actionId === 'view') this.onView(e.row);
+  }
 
   ngOnInit(): void {
     this.loadDeliveryNotes();
@@ -60,7 +83,7 @@ export class CorporateDeliveryListComponent implements OnInit {
   }
 
   onView = (e: any): void => {
-    const id = e.row.data.id;
+    const id = (e?.row?.data ?? e)?.id;
     this.router.navigate(['/sales/corporate/deliveries/view', id]);
   };
 

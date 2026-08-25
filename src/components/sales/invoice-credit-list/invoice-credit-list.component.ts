@@ -1,18 +1,22 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../shared/shared-data-grid/shared-data-grid.component';
 import { SalesService } from '../../../services/sales.service';
 import { SalesInvoice } from '../../../models/sales-invoice.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { CreditInvoiceListItem, creditInvoiceLanguageData } from './invoice-credit-list.model';
 import { ResponsiveService } from '../../../services/responsive.service';
-import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
+import { MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 
 @Component({
   selector: 'app-invoice-credit-list',
   standalone: true,
-  imports: [CommonModule, DxDataGridModule, DxButtonModule, TranslateModule, MobileCardListComponent],
+  imports: [CommonModule, SharedDataGridComponent, TranslateModule],
   templateUrl: './invoice-credit-list.component.html',
   styleUrls: ['./invoice-credit-list.component.css']
 })
@@ -27,6 +31,33 @@ export class InvoiceCreditListComponent implements OnInit {
 
   // Local translations
   translations = creditInvoiceLanguageData.InvoiceCreditListDictionary;
+
+  /** Config-driven columns -- captions come from the local dictionary (not
+   *  ngx-translate keys), so they're resolved to plain text up front, same
+   *  as getCaption() did for the old dxi-column captions. */
+  get columns(): dataGridColumnDto[] {
+    return [
+      { dataField: 'invoiceNumber', dataType: 'string', caption: this.getCaption('INVOICE_NUMBER') },
+      { dataField: 'customer.name', dataType: 'string', caption: this.getCaption('CUSTOMER') },
+      { dataField: 'invoiceDate', dataType: 'date', caption: this.getCaption('INVOICE_DATE') },
+      { dataField: 'dueDate', dataType: 'date', caption: this.getCaption('DUE_DATE') },
+      { dataField: 'totalAmount', dataType: 'number', format: 'currency', caption: this.getCaption('TOTAL_AMOUNT') },
+      { dataField: 'paymentMethod', dataType: 'string', caption: this.getCaption('PAYMENT_METHOD') },
+      { dataField: 'status', dataType: 'string', caption: this.getCaption('STATUS') },
+      { dataField: 'actions', dataType: 'string', type: 'actions', caption: '', allowSorting: false, allowFiltering: false },
+    ];
+  }
+
+  /** Same edit/delete named buttons as before. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
+    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn' },
+  ];
+
+  onGridAction(e: SharedGridRowActionEvent): void {
+    if (e.actionId === 'edit') this.onEditClick(e.row);
+    else if (e.actionId === 'delete') this.onDeleteClick(e.row);
+  }
 
   // --- Mobile card-list rendering ---
   mobileTitleOf = (item: SalesInvoice) => item.invoiceNumber;
@@ -66,13 +97,13 @@ export class InvoiceCreditListComponent implements OnInit {
   }
 
   onEditClick(e: any) {
-    const invoiceId = e.row.data.id;
+    const invoiceId = (e?.row?.data ?? e)?.id;
     // Navigate to edit credit invoice - assuming there's an edit route
     this.router.navigate(['/sales/invoice/edit', invoiceId]);
   }
 
   onDeleteClick(e: any) {
-    const invoiceId = e.row.data.id;
+    const invoiceId = (e?.row?.data ?? e)?.id;
     if (confirm('Are you sure you want to delete this invoice?')) {
       this.salesService.deleteInvoice(invoiceId).subscribe(() => {
         this.loadCreditInvoices(); // Reload the list

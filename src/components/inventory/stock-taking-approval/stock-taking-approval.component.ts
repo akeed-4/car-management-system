@@ -8,9 +8,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../shared/shared-data-grid/shared-data-grid.component';
 import { StockTakeApprovalService } from '@/src/services/stock-take-approval.service';
 import { StockTakeApproval } from '@/src/models/stock-take-approval.model';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 
 @Component({
   selector: 'app-stock-taking-approval',
@@ -22,8 +26,7 @@ import { StockTakeApproval } from '@/src/models/stock-take-approval.model';
     MatIconModule,
     MatCardModule,
     MatToolbarModule,
-    DxDataGridModule,
-    DxButtonModule
+    SharedDataGridComponent
   ],
   templateUrl: './stock-taking-approval.component.html',
   styleUrl: './stock-taking-approval.component.css',
@@ -42,6 +45,26 @@ export class StockTakingApprovalComponent implements OnInit {
 constructor() {
   this.loadStockTakes=(this.loadStockTakes.bind(this));
   this.onEditClick=(this.onEditClick.bind(this));}
+
+  /** Config-driven columns -- same fields/captions as before. */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'documentDate', dataType: 'date', format: 'yyyy-MM-dd', caption: 'STOCK_TAKING_APPROVAL.APPROVAL_DATE' },
+    { dataField: 'status', dataType: 'string', caption: 'STOCK_TAKING_APPROVAL.STATUS' },
+    { dataField: 'createdBy', dataType: 'string', caption: 'STOCK_TAKING_APPROVAL.APPROVER_NAME' },
+    { dataField: '__actions', dataType: 'string', type: 'actions', caption: 'STOCK_TAKING_APPROVAL.ACTIONS', allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Same edit/view buttons (in the same order) as before ('eye' -> Material's 'visibility'). */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'STOCK_TAKING_APPROVAL.EDIT' },
+    { id: 'view', icon: 'visibility', labelKey: 'STOCK_TAKING_APPROVAL.VIEW' },
+  ];
+
+  onGridAction(e: SharedGridRowActionEvent): void {
+    if (e.actionId === 'edit') this.onEditClick({ row: { data: e.row } });
+    else if (e.actionId === 'view') this.onViewClick({ row: { data: e.row } });
+  }
+
   loadStockTakes() {
     this.stockTakeApprovalService.getApprovals().subscribe(result => {
       this.stockTakesApproval.set(result);

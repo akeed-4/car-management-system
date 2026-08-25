@@ -16,16 +16,28 @@
         <input type="checkbox" id="showArchived" [checked]="showArchived()" (change)="showArchived.set(!showArchived())">
       </div>
     </div>
-    <!-- Mobile (<=768px): the grid's clipped/scrolling columns are unusable on a phone,
-         so rows render as full-width cards instead -- same data, same actions. -->
-    @if (isMobile()) {
-      <app-mobile-card-list
-        [items]="filteredAndSortedInvoices()"
-        [fields]="mobileFields"
-        [titleOf]="mobileTitleOf"
-        [trackByFn]="mobileTrackBy"
-        emptyMessage="PURCHASE_INVOICE.NO_CASH_INVOICES"
-      >
+    <div class="erp-grid-card table-wrapper premium-table">
+      <!-- Shared DataGrid: same columns/status badge/print-edit-delete-archive actions as
+           before; on mobile it renders the same card list (mobileFields/mobileTitleOf/
+           mobileTrackBy) in place of the clipped grid columns. -->
+      <app-shared-data-grid
+        [dataSource]="filteredAndSortedInvoices()"
+        [columns]="columns"
+        [rowActions]="rowActions"
+        [cellTemplates]="cellTemplates"
+        [mobileItems]="filteredAndSortedInvoices()"
+        [mobileFields]="mobileFields"
+        [mobileTitleOf]="mobileTitleOf"
+        [mobileTrackBy]="mobileTrackBy"
+        keyExpr="id"
+        height="600px"
+        [showSearchPanel]="false"
+        selectionMode="single"
+        noDataText="PURCHASE_INVOICE.NO_CASH_INVOICES"
+        [pageSize]="10"
+        [allowedPageSizes]="[5, 10, 20]"
+        (rowAction)="onGridAction($event)">
+
         <ng-template let-inv>
           <button type="button" class="btn btn-light" (click)="mobilePrint(inv)">{{ 'PURCHASES.PRINT_INVOICE' | translate }}</button>
           <button type="button" class="btn btn-light" (click)="mobileEdit(inv)">{{ 'PURCHASES.EDIT_INVOICE' | translate }}</button>
@@ -34,92 +46,21 @@
             <button type="button" class="btn btn-light" (click)="mobileArchive(inv)">{{ 'PURCHASES.ARCHIVE' | translate }}</button>
           }
         </ng-template>
-      </app-mobile-card-list>
-    } @else {
-    <div class="erp-grid-card table-wrapper premium-table">
-      <dx-data-grid
-        [dataSource]="filteredAndSortedInvoices()"
-        [showBorders]="true"
-        [columnAutoWidth]="true"
-        [rowAlternationEnabled]="true"
-        [rtlEnabled]="true"
-        height="600px"
-        [showRowLines]="true"
 
-        [allowColumnReordering]="true"
-        [allowColumnResizing]="true"
-        keyExpr="id"
-      >
-        <dxi-column dataField="invoiceNumber" caption="{{ 'PURCHASES.INVOICE_NUMBER' | translate }}" [allowSorting]="true"></dxi-column>
-        <dxi-column dataField="invoiceDate" caption="{{ 'PURCHASES.INVOICE_DATE' | translate }}" dataType="date" format="yyyy-MM-dd" [allowSorting]="true"></dxi-column>
-        <dxi-column dataField="supplierName" caption="{{ 'PURCHASES.SUPPLIER' | translate }}" [allowSorting]="true" cellTemplate="supplierTemplate"></dxi-column>
-        <dxi-column dataField="totalAmount" caption="{{ 'PURCHASES.TOTAL_COST' | translate }}" dataType="number" format="currency" [allowSorting]="true"></dxi-column>
-        <dxi-column dataField="amountPaid" caption="{{ 'PURCHASES.AMOUNT_PAID' | translate }}" dataType="number" format="currency" [allowSorting]="true" cssClass="text-success"></dxi-column>
-        <dxi-column dataField="amountDue" caption="{{ 'PURCHASES.AMOUNT_DUE' | translate }}" dataType="number" format="currency" [allowSorting]="true" cssClass="text-danger"></dxi-column>
-        <dxi-column dataField="status" caption="{{ 'PURCHASES.STATUS' | translate }}" [allowSorting]="true" cellTemplate="statusTemplate"></dxi-column>
-        <dxi-column type="buttons" caption="{{ 'PURCHASES.ACTIONS' | translate }}" [width]="200" cssClass="no-print">
-          <dxi-button
-            icon="print"
-            hint="{{ 'PURCHASES.PRINT_INVOICE' | translate }}"
-            [onClick]="onPrintClick">
-          </dxi-button>
-          <dxi-button
-            icon="edit"
-            hint="{{ 'PURCHASES.EDIT_INVOICE' | translate }}"
-            [onClick]="onEditClick">
-          </dxi-button>
-          <dxi-button
-            icon="trash"
-            hint="{{ 'PURCHASES.DELETE_INVOICE' | translate }}"
-            [onClick]="onDeleteClick">
-          </dxi-button>
-          <dxi-button
-            icon="box"
-            hint="{{ 'PURCHASES.ARCHIVE' | translate }}"
-            [visible]="isArchiveButtonVisible"
-            [onClick]="onArchiveClick">
-          </dxi-button>
-          <!-- <dxi-button
-            icon="undo"
-            hint="{{ 'PURCHASES.UNARCHIVE' | translate }}"
-            [visible]="isUnarchiveButtonVisible"
-            [onClick]="onUnarchiveClick">
-          </dxi-button> -->
-        </dxi-column>
+        <ng-template #supplierTemplate let-cell>
+          {{ cell.data.supplier?.name || 'N/A' }}
+        </ng-template>
 
-        <div *dxTemplate="let data of 'contentsTemplate'">
-          @if(data.data.items.length > 0) {
-            {{ data.data.items[0].carDescription }}
-            @if(data.data.items.length > 1) {
-              <span class="more-items">+ {{ data.data.items.length - 1 }}</span>
-            }
-          }
-        </div>
-
-        <div *dxTemplate="let data of 'supplierTemplate'">
-          {{ data.data.supplier?.name || 'N/A' }}
-        </div>
-
-        <div *dxTemplate="let data of 'statusTemplate'">
+        <ng-template #statusTemplate let-cell>
           <span class="erp-status-badge badge"
-                [class.success]="data.data.status === 'Paid'"
-                [class.badge-green]="data.data.status === 'Paid'"
-                [class.danger]="data.data.status === 'Unpaid'"
-                [class.badge-red]="data.data.status === 'Unpaid'">
-            {{ data.data.status }}
+                [class.success]="cell.data.status === 'Paid'"
+                [class.badge-green]="cell.data.status === 'Paid'"
+                [class.danger]="cell.data.status === 'Unpaid'"
+                [class.badge-red]="cell.data.status === 'Unpaid'">
+            {{ cell.data.status }}
           </span>
-        </div>
-
-        <dxo-filter-row [visible]="true"></dxo-filter-row>
-        <dxo-header-filter [visible]="true"></dxo-header-filter>
-        <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false"
-          [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
-        <dxo-selection mode="single"></dxo-selection>
-        <dxo-grouping [autoExpandAll]="false" [contextMenuEnabled]="true"></dxo-grouping>
-        <dxo-paging [pageSize]="10"></dxo-paging>
-        <dxo-pager [visible]="true" [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
-      </dx-data-grid>
+        </ng-template>
+      </app-shared-data-grid>
     </div>
-    }
   </div>
 </div>

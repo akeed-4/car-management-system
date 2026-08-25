@@ -1,6 +1,6 @@
 
 
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
@@ -8,9 +8,12 @@ import { PurchaseInvoice } from '../../../models/purchase-invoice.model';
 import { FormsModule } from '@angular/forms';
 import { PurchasesService } from '../../../services/purchases.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DxDataGridModule } from 'devextreme-angular';
-import { ResponsiveService } from '../../../services/responsive.service';
-import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../shared/shared-data-grid/shared-data-grid.component';
+import { MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 
 type SortColumn = keyof PurchaseInvoice | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -18,7 +21,7 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-purchases',
   standalone: true,
-  imports: [RouterLink, FormsModule, TranslateModule, DxDataGridModule, MobileCardListComponent],
+  imports: [RouterLink, FormsModule, TranslateModule, SharedDataGridComponent],
   templateUrl: './purchases.component.html',
   styleUrl: './purchases.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,12 +30,6 @@ export class PurchasesComponent {
     private procurementService = inject(PurchasesService);
   private translate = inject(TranslateService);
   private router = inject(Router);
-  private responsiveService = inject(ResponsiveService);
-  /** Reference pattern: below 768px the dx-data-grid (unusable -- clipped
-   * columns, forced horizontal scroll) is swapped for app-mobile-card-list,
-   * which renders the exact same rows as full-width cards instead. The grid
-   * remains the single source of truth for data/filtering/sorting either way. */
-  isMobile = this.responsiveService.isMobile;
     invoices = toSignal(this.procurementService.getInvoices(), { initialValue: [] });
 
     filter = signal('');
@@ -50,7 +47,7 @@ export class PurchasesComponent {
 
       // Filter
       if (searchTerm) {
-        invoices = invoices.filter(invoice => 
+        invoices = invoices.filter(invoice =>
           invoice.invoiceNumber.toLowerCase().includes(searchTerm) ||
           (invoice.supplier?.name || '').toLowerCase().includes(searchTerm) ||
           invoice.status.toLowerCase().includes(searchTerm) ||
@@ -104,7 +101,7 @@ export class PurchasesComponent {
       return invoices;
     });
 
-    // --- Mobile card-list rendering (see `isMobile` field comment above) ---
+    // --- Mobile card-list rendering (reused as the SharedDataGrid's [mobileItems] view) ---
     mobileTitleOf = (inv: PurchaseInvoice) => inv.invoiceNumber;
     mobileTrackBy = (_index: number, inv: PurchaseInvoice) => inv.id;
 
@@ -141,6 +138,54 @@ export class PurchasesComponent {
 
     mobileCanArchive(inv: PurchaseInvoice): boolean {
       return !this.showArchived() && inv.status === 'Paid';
+    }
+
+    // --- Shared DataGrid: config-driven columns (same fields/formats as the previous
+    //     hand-written dx-data-grid) ---
+    columns: dataGridColumnDto[] = [
+      { dataField: 'invoiceNumber', dataType: 'string', caption: 'PURCHASES.INVOICE_NUMBER' },
+      { dataField: 'invoiceDate', dataType: 'date', format: 'yyyy-MM-dd', caption: 'PURCHASES.INVOICE_DATE' },
+      { dataField: 'supplierName', dataType: 'string', caption: 'PURCHASES.SUPPLIER', cellTemplate: 'supplierTemplate' },
+      { dataField: '__contents', dataType: 'string', caption: 'PURCHASES.CONTENTS', cellTemplate: 'contentsTemplate', allowSorting: false, allowFiltering: false },
+      { dataField: 'totalAmount', dataType: 'number', format: 'currency', caption: 'PURCHASES.TOTAL_COST' },
+      { dataField: 'amountPaid', dataType: 'number', format: 'currency', caption: 'PURCHASES.AMOUNT_PAID', cssClass: 'text-success' },
+      { dataField: 'amountDue', dataType: 'number', format: 'currency', caption: 'PURCHASES.AMOUNT_DUE', cssClass: 'text-danger' },
+      { dataField: 'status', dataType: 'string', caption: 'PURCHASES.STATUS', cellTemplate: 'statusTemplate' },
+      { dataField: '__actions', dataType: 'string', caption: 'PURCHASES.ACTIONS', type: 'actions', width: 200, cssClass: 'no-print', allowSorting: false, allowFiltering: false },
+    ];
+
+    /** Same 5 row buttons as before (print/edit/delete/archive/unarchive), same visibility rules. */
+    rowActions: sharedGridRowActionDto[] = [
+      { id: 'print', icon: 'print', labelKey: 'PURCHASES.PRINT_INVOICE' },
+      { id: 'edit', icon: 'edit', labelKey: 'PURCHASES.EDIT_INVOICE' },
+      { id: 'delete', icon: 'delete', labelKey: 'PURCHASES.DELETE_INVOICE', cssClass: 'warn' },
+      { id: 'archive', icon: 'archive', labelKey: 'PURCHASES.ARCHIVE', visible: (row) => !this.showArchived() && row.status === 'Paid' },
+      { id: 'unarchive', icon: 'undo', labelKey: 'PURCHASES.UNARCHIVE', visible: () => this.showArchived() },
+    ];
+
+    /** Custom cell templates ported 1:1 from the previous *dxTemplate blocks. */
+    private supplierTpl = viewChild<TemplateRef<any>>('supplierTemplate');
+    private contentsTpl = viewChild<TemplateRef<any>>('contentsTemplate');
+    private statusTpl = viewChild<TemplateRef<any>>('statusTemplate');
+
+    get cellTemplates(): Record<string, TemplateRef<any>> {
+      const supplier = this.supplierTpl();
+      const contents = this.contentsTpl();
+      const status = this.statusTpl();
+      return {
+        ...(supplier ? { supplierTemplate: supplier } : {}),
+        ...(contents ? { contentsTemplate: contents } : {}),
+        ...(status ? { statusTemplate: status } : {}),
+      };
+    }
+
+    onGridAction(e: SharedGridRowActionEvent): void {
+      const inv = e.row as PurchaseInvoice;
+      if (e.actionId === 'print') this.mobilePrint(inv);
+      else if (e.actionId === 'edit') this.mobileEdit(inv);
+      else if (e.actionId === 'delete') this.mobileDelete(inv);
+      else if (e.actionId === 'archive') this.mobileArchive(inv);
+      else if (e.actionId === 'unarchive') this.mobileUnarchive(inv);
     }
 
     onFilter(event: Event) {
@@ -222,7 +267,7 @@ export class PurchasesComponent {
     isUnarchiveButtonVisible = (e: any) => {
       return this.showArchived();
     }
-    
+
 
     printInvoice(data: any) {
       window.open(`/purchases/invoice/print/${data.row.data.id}`, '_blank');

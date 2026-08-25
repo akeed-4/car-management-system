@@ -44,32 +44,22 @@
   </mat-toolbar>
 
   <div class="erp-grid-card grid-container">
-    <dx-data-grid
+    <app-shared-data-grid
       [dataSource]="quotations()"
-      [showBorders]="true"
-      [columnAutoWidth]="true"
-      [rowAlternationEnabled]="true"
-      [rtlEnabled]="true"
+      [columns]="columns"
+      [rowActions]="rowActions"
+      [cellTemplates]="cellTemplates"
+      [loading]="loading()"
+      keyExpr="id"
       height="600px"
-      [showRowLines]="true"
-      [allowColumnReordering]="true"
-      [allowColumnResizing]="true"
-      [noDataText]="'CORPORATE.NO_QUOTATIONS' | translate"
-      keyExpr="id">
+      noDataText="CORPORATE.NO_QUOTATIONS"
+      [showColumnChooser]="false"
+      [pageSize]="10"
+      [allowedPageSizes]="[10, 20, 50]"
+      (rowAction)="onGridAction($event)">
 
-      <dxo-search-panel [visible]="true"></dxo-search-panel>
-      <dxo-filter-row [visible]="true"></dxo-filter-row>
-      <dxo-header-filter [visible]="true"></dxo-header-filter>
-      <dxo-paging [pageSize]="10"></dxo-paging>
-      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
-
-      <dxi-column dataField="quotationNumber" [caption]="'CORPORATE.QUOTATION_NUMBER' | translate" [width]="140"></dxi-column>
-      <dxi-column dataField="customerName" [caption]="'CORPORATE.CUSTOMER' | translate"></dxi-column>
-      <dxi-column dataField="quotationDate" [caption]="'CORPORATE.QUOTATION_DATE' | translate" dataType="date"></dxi-column>
-      <dxi-column dataField="expiryDate" [caption]="'CORPORATE.EXPIRY_DATE' | translate" dataType="date"></dxi-column>
-      <dxi-column dataField="totalAmount" [caption]="'INVOICE.TOTAL' | translate" dataType="number" format="currency"></dxi-column>
-      <dxi-column dataField="status" [caption]="'CORPORATE.QUOTATION_STATUS' | translate" cellTemplate="statusCellTemplate"></dxi-column>
-      <div *dxTemplate="let cell of 'statusCellTemplate'">
+      <!-- Status badge (same classes/labels as before) -->
+      <ng-template #statusTemplate let-cell>
         <span class="erp-status-badge" [ngClass]="{
           'neutral': cell.value === 'Draft',
           'warning': cell.value === 'Approved',
@@ -78,16 +68,7 @@
         }">
           {{ ('CORPORATE.QUOTATION_STATUS_' + cell.value?.toUpperCase()) | translate }}
         </span>
-      </div>
-
-      <dxi-column type="buttons" [width]="140" [caption]="'CORPORATE.ACTIONS' | translate">
-        <dxi-button
-          icon="add"
-          [hint]="'CORPORATE.CREATE_ORDER' | translate"
-          [onClick]="onCreateOrder"
-          [visible]="isApproved">
-        </dxi-button>
-      </dxi-column>
-    </dx-data-grid>
+      </ng-template>
+    </app-shared-data-grid>
   </div>
 </div>

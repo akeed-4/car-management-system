@@ -1,7 +1,6 @@
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, TemplateRef, inject, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,7 +8,12 @@ import { CarsReceiptNoteService } from '../../../services/cars-receipt-note.serv
 import { CarsReceiptNoteDto } from '../../../models/cars-receipt-note.model';
 import { DocumentStatusBadgeComponent } from '../../shared/document-status-badge/document-status-badge.component';
 import { ResponsiveService } from '../../../services/responsive.service';
-import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
+import { MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../shared/shared-data-grid/shared-data-grid.component';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 
 @Component({
   selector: 'app-cars-receipt-note-list',
@@ -17,14 +21,11 @@ import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-ca
   imports: [
     CommonModule,
     RouterModule,
-    DxDataGridModule,
-    DxButtonModule,
-    DxTemplateModule,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
     DocumentStatusBadgeComponent,
-    MobileCardListComponent
+    SharedDataGridComponent
   ],
   templateUrl: './cars-receipt-note-list.component.html',
   styleUrls: ['./cars-receipt-note-list.component.css']
@@ -68,6 +69,33 @@ export class CarsReceiptNoteListComponent implements OnInit {
 
   getItemsCount(rowData: CarsReceiptNoteDto): number {
     return rowData.items ? rowData.items.length : 0;
+  }
+
+  /** Status badge cell, ported via cellTemplates (same app-document-status-badge as before). */
+  private statusTpl = viewChild<TemplateRef<any>>('statusTemplate');
+
+  get cellTemplates(): Record<string, TemplateRef<any>> {
+    const status = this.statusTpl();
+    return status ? { statusTemplate: status } : {};
+  }
+
+  /** Config-driven columns -- same fields/order as before (i18n keys). */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'grnNumber', dataType: 'string', caption: 'CARS_RECEIPT_NOTE.GRN_NUMBER' },
+    { dataField: 'receiptDate', dataType: 'date', caption: 'CARS_RECEIPT_NOTE.RECEIPT_DATE' },
+    { dataField: 'poNumber', dataType: 'string', caption: 'CARS_RECEIPT_NOTE.PO_NUMBER' },
+    { dataField: 'items', dataType: 'string', caption: 'CARS_RECEIPT_NOTE.ITEMS_COUNT', calculateCellValue: this.getItemsCount },
+    { dataField: 'status', dataType: 'string', caption: 'CARS_RECEIPT_NOTE.STATUS', cellTemplate: 'statusTemplate' },
+    { dataField: 'actions', dataType: 'string', type: 'actions', caption: '', width: 90, allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Same single view button as before. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW' },
+  ];
+
+  onGridAction(e: SharedGridRowActionEvent): void {
+    if (e.actionId === 'view') this.onView({ row: { data: e.row } });
   }
 
   // --- Mobile card-list rendering ---

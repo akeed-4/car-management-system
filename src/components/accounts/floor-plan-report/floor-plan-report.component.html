@@ -27,93 +27,35 @@
       <mat-card-title>{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.DETAILS_TITLE') }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <dx-data-grid
+      <app-shared-data-grid
         [dataSource]="financedCarsReport()"
-        [showBorders]="true"
-        [showRowLines]="true"
-        [showColumnLines]="true"
-        [rowAlternationEnabled]="true"
-        [allowColumnReordering]="true"
-        [allowColumnResizing]="true"
-        [columnAutoWidth]="true"
+        [columns]="columns"
+        [cellTemplates]="cellTemplates"
+        keyExpr="carId"
         [rtlEnabled]="true"
-        keyExpr="carId">
+        [showColumnChooser]="false"
+        searchPlaceholder="البحث في التقرير..."
+        [pageSize]="10"
+        [allowedPageSizes]="[5, 10, 20]">
 
-        <dxo-paging [pageSize]="10"></dxo-paging>
-        <dxo-pager
-          [showPageSizeSelector]="true"
-          [allowedPageSizes]="[5, 10, 20]"
-          [showInfo]="true">
-        </dxo-pager>
+        <!-- Same templates as the previous dx-data-grid (kept referencing cell.<field>
+             directly, exactly as the original *dxTemplate blocks did). -->
+        <ng-template #planTemplate let-cell>
+          {{ cell.planName }} ({{ cell.financier }})
+        </ng-template>
 
-        <dxo-filter-row [visible]="true"></dxo-filter-row>
-        <dxo-header-filter [visible]="true"></dxo-header-filter>
-        <dxo-search-panel
-          [visible]="true"
-          placeholder="البحث في التقرير...">
-        </dxo-search-panel>
-
-        <dxi-column
-          dataField="carDescription"
-          caption="{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.CAR') }}"
-          >
-        </dxi-column>
-
-        <dxi-column
-          dataField="purchasePrice"
-          caption="{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.PURCHASE_PRICE') }}"
-          dataType="number"
-          format="currency"
-          >
-        </dxi-column>
-
-        <dxi-column
-          dataField="purchaseDate"
-          caption="{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.PURCHASE_DATE') }}"
-          dataType="date"
-          format="yyyy-MM-dd"
-          >
-        </dxi-column>
-
-        <dxi-column
-          caption="{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.PLAN') }}"
-          cellTemplate="planTemplate">
-        </dxi-column>
-
-        <dxi-column
-          dataField="daysInStock"
-          caption="{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.DAYS_IN_STOCK') }}"
-          dataType="number"
-          [width]="120"
-          cellTemplate="daysTemplate">
-        </dxi-column>
-
-        <dxi-column
-          dataField="accruedCost"
-          caption="{{ translate.instant('ACCOUNTS.FLOOR_PLAN_REPORT.ACCRUED_COST') }}"
-          dataType="number"
-          format="currency"
-          
-          cellTemplate="costTemplate">
-        </dxi-column>
-
-        <!-- Templates -->
-        <div *dxTemplate="let data of 'planTemplate'">
-          {{ data.planName }} ({{ data.financier }})
-        </div>
-
-        <div *dxTemplate="let data of 'daysTemplate'">
-          <span class="days-badge" [class.days-warning]="data.daysInStock > 60">
-            {{ data.daysInStock }}
+        <ng-template #daysTemplate let-cell>
+          <span class="days-badge" [class.days-warning]="cell.daysInStock > 60">
+            {{ cell.daysInStock }}
           </span>
-        </div>
+        </ng-template>
 
-        <div *dxTemplate="let data of 'costTemplate'">
+        <ng-template #costTemplate let-cell>
           <span class="cost-value">
-            {{ data.accruedCost | currency:'SAR' }}
+            {{ cell.accruedCost | currency:'SAR' }}
           </span>
-        </div>
-      </dx-data-grid>
+        </ng-template>
+      </app-shared-data-grid>
     </mat-card-content>
   </mat-card>
 </div>

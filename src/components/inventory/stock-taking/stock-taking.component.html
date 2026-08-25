@@ -12,59 +12,32 @@
   </div>
 
   <div class="erp-card">
-    <!-- Mobile (<=768px): rows render as full-width cards instead of the grid's
-         clipped/scrolling columns -- same data, same edit/delete actions. -->
-    @if (isMobile()) {
-      <app-mobile-card-list
-        [items]="stockTakes()"
-        [fields]="mobileFields"
-        [titleOf]="mobileTitleOf"
-        [trackByFn]="mobileTrackBy"
-        emptyMessage="COMMON.NO_DATA"
-      >
+    <div class="erp-grid-card">
+      <!-- Shared DataGrid: owns the desktop/mobile split internally (mobileItems/mobileFields
+           reuse the same data + card config the old @if(isMobile()) branch used). The inert
+           dxo-editing (allowUpdating/allowDeleting/allowAdding all false) is dropped --
+           SharedDataGrid has no inline editing, which is equivalent to it being disabled. -->
+      <app-shared-data-grid
+        [dataSource]="stockTakes()"
+        [columns]="columns"
+        [rowActions]="rowActions"
+        [mobileItems]="stockTakes()"
+        [mobileFields]="mobileFields"
+        [mobileTitleOf]="mobileTitleOf"
+        [mobileTrackBy]="mobileTrackBy"
+        keyExpr="id"
+        height="600px"
+        searchPlaceholder="البحث..."
+        noDataText="COMMON.NO_DATA"
+        [pageSize]="10"
+        [allowedPageSizes]="[5, 10, 20]"
+        (rowAction)="onGridAction($event)">
         <ng-template let-item>
           <button type="button" class="btn btn-light" (click)="mobileEdit(item)">{{ 'COMMON.EDIT' | translate }}</button>
           <button type="button" class="btn btn-light" (click)="mobileDelete(item)">{{ 'COMMON.DELETE' | translate }}</button>
         </ng-template>
-      </app-mobile-card-list>
-    } @else {
-    <div class="erp-grid-card">
-    <dx-data-grid
-      [dataSource]="stockTakes()"
-      [showBorders]="true"
-      [showRowLines]="true"
-      [showColumnLines]="true"
-      [rowAlternationEnabled]="true"
-      [allowColumnReordering]="true"
-      [allowColumnResizing]="true"
-      [columnAutoWidth]="true"
-      height="600px"
-      [wordWrapEnabled]="true"
-      [rtlEnabled]="true">
-
-      <dxo-paging [pageSize]="10"></dxo-paging>
-      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
-      <dxo-filter-row [visible]="true"></dxo-filter-row>
-      <dxo-header-filter [visible]="true"></dxo-header-filter>
-      <dxo-search-panel [visible]="true" [placeholder]="'البحث...'"></dxo-search-panel>
-      <dxi-column dataField="id" visible="false" caption="{{ 'INVENTORY.STOCK_TAKING.DOCUMENT_NAME' | translate }}" ></dxi-column>
-
-      <dxi-column dataField="documentName" caption="{{ 'INVENTORY.STOCK_TAKING.DOCUMENT_NAME' | translate }}" ></dxi-column>
-      <dxi-column dataField="documentDate" caption="{{ 'INVENTORY.STOCK_TAKING.DATE' | translate }}" dataType="date" format="yyyy-MM-dd" ></dxi-column>
-      <dxi-column dataField="createdBy" caption="{{ 'INVENTORY.STOCK_TAKING.CONDUCTED_BY' | translate }}" ></dxi-column>
-      <dxi-column dataField="status" caption="{{ 'INVENTORY.STOCK_TAKING.STATUS' | translate }}" >
-        <dxo-lookup [dataSource]="statusLookup"></dxo-lookup>
-      </dxi-column>
-      <dxi-column type="buttons" caption="{{ 'INVENTORY.STOCK_TAKING.ACTIONS' | translate }}" >
-        <dxi-button  icon="edit"   [onClick]="onEditClick" ></dxi-button>
-        <dxi-button  icon="trash"  [onClick]="onDeleteClick" ></dxi-button>
-      </dxi-column>
-
-      <dxo-editing mode="popup" [allowUpdating]="false" [allowDeleting]="false" [allowAdding]="false"></dxo-editing>
-
-    </dx-data-grid>
+      </app-shared-data-grid>
     </div>
-    }
   </div>
 </div>
 

@@ -43,50 +43,38 @@
     </button>
   </mat-toolbar>
 
-  <!-- Mobile (<=840px): rows render as full-width cards instead of the grid's
-       clipped/scrolling 6 columns -- same data, same approval action. -->
-  @if (isMobile()) {
-    <app-mobile-card-list
-      [items]="quotations()"
-      [fields]="mobileFields"
-      [titleOf]="mobileTitleOf"
-      [trackByFn]="mobileTrackBy"
-      emptyMessage="BANK_FINANCING.NO_APPROVALS"
-    >
+  <div class="erp-grid-card grid-container">
+    <!-- Shared DataGrid: on mobile (<=840px) this renders the same rows as
+         full-width cards (mobileFields/mobileTitleOf/mobileTrackBy), same
+         conditional "record approval" action, instead of the grid's clipped
+         6 columns. -->
+    <app-shared-data-grid
+      [dataSource]="quotations()"
+      [columns]="columns"
+      [rowActions]="rowActions"
+      [cellTemplates]="cellTemplates"
+      [mobileItems]="quotations()"
+      [mobileFields]="mobileFields"
+      [mobileTitleOf]="mobileTitleOf"
+      [mobileTrackBy]="mobileTrackBy"
+      keyExpr="id"
+      height="600px"
+      noDataText="BANK_FINANCING.NO_APPROVALS"
+      [pageSize]="10"
+      [allowedPageSizes]="[10, 20, 50]"
+      (rowAction)="onGridAction($event)">
+
+      <!-- Mobile per-row action (must come first so the SharedDataGrid picks
+           this up as the mobile actions template, not the status template
+           below). -->
       <ng-template let-item>
         @if (mobileIsLocked(item)) {
           <button type="button" class="btn btn-light" (click)="mobileCreateApproval(item)">{{ 'BANK_FINANCING.RECORD_APPROVAL' | translate }}</button>
         }
       </ng-template>
-    </app-mobile-card-list>
-  } @else {
-  <div class="erp-grid-card grid-container">
-    <dx-data-grid
-      [dataSource]="quotations()"
-      [showBorders]="true"
-      [columnAutoWidth]="true"
-      [rowAlternationEnabled]="true"
-      [rtlEnabled]="true"
-      height="600px"
-      [showRowLines]="true"
-      [allowColumnReordering]="true"
-      [allowColumnResizing]="true"
-      [noDataText]="'BANK_FINANCING.NO_APPROVALS' | translate"
-      keyExpr="id">
 
-      <dxo-search-panel [visible]="true"></dxo-search-panel>
-      <dxo-filter-row [visible]="true"></dxo-filter-row>
-      <dxo-header-filter [visible]="true"></dxo-header-filter>
-      <dxo-paging [pageSize]="10"></dxo-paging>
-      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
-
-      <dxi-column dataField="quotationNumber" [caption]="'CORPORATE.QUOTATION_NUMBER' | translate" [width]="140"></dxi-column>
-      <dxi-column dataField="endUserName" [caption]="'BANK_FINANCING.END_USER_NAME' | translate"></dxi-column>
-      <dxi-column dataField="bankName" [caption]="'BANK_FINANCING.BANK' | translate"></dxi-column>
-      <dxi-column dataField="carDescription" [caption]="'PURCHASE_INVOICE.CAR' | translate"></dxi-column>
-      <dxi-column dataField="vehiclePrice" [caption]="'BANK_FINANCING.VEHICLE_PRICE' | translate" dataType="number" format="currency"></dxi-column>
-      <dxi-column dataField="status" [caption]="'BANK_FINANCING.STATUS' | translate" cellTemplate="statusCellTemplate"></dxi-column>
-      <div *dxTemplate="let cell of 'statusCellTemplate'">
+      <!-- Status badge (same classes/labels as before) -->
+      <ng-template #statusTemplate let-cell>
         <span class="erp-status-badge" [ngClass]="{
           'warning': cell.value === 'Locked',
           'success': cell.value === 'Bank_Approved' || cell.value === 'Finalized',
@@ -94,17 +82,7 @@
         }">
           {{ ('BANK_FINANCING.STATUS_' + cell.value?.toUpperCase()) | translate }}
         </span>
-      </div>
-
-      <dxi-column type="buttons" [width]="140" [caption]="'CORPORATE.ACTIONS' | translate">
-        <dxi-button
-          icon="add"
-          [hint]="'BANK_FINANCING.RECORD_APPROVAL' | translate"
-          [onClick]="onCreateApproval"
-          [visible]="isLocked">
-        </dxi-button>
-      </dxi-column>
-    </dx-data-grid>
+      </ng-template>
+    </app-shared-data-grid>
   </div>
-  }
 </div>

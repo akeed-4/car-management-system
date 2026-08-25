@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
@@ -6,7 +6,11 @@ import { PurchaseInvoice } from '../../../../models/purchase-invoice.model';
 import { FormsModule } from '@angular/forms';
 import { PurchasesService } from '../../../../services/purchases.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DxDataGridModule } from 'devextreme-angular';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../../shared/shared-data-grid/shared-data-grid.component';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 
 type SortColumn = keyof PurchaseInvoice | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -14,7 +18,7 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-credit-purchase-invoice-list',
   standalone: true,
-  imports: [RouterLink, FormsModule, TranslateModule, DxDataGridModule],
+  imports: [RouterLink, FormsModule, TranslateModule, SharedDataGridComponent],
   templateUrl: './credit-purchase-invoice-list.component.html',
   styleUrl: './credit-purchase-invoice-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -96,6 +100,49 @@ export class CreditPurchaseInvoiceListComponent {
 
       return invoices;
     });
+
+    /** Custom cell templates ported from the original *dxTemplate blocks. */
+    private supplierTpl = viewChild<TemplateRef<any>>('supplierTemplate');
+    private statusTpl = viewChild<TemplateRef<any>>('statusTemplate');
+
+    get cellTemplates(): Record<string, TemplateRef<any>> {
+      const supplier = this.supplierTpl();
+      const status = this.statusTpl();
+      return {
+        ...(supplier ? { supplierTemplate: supplier } : {}),
+        ...(status ? { statusTemplate: status } : {}),
+      };
+    }
+
+    /** Config-driven columns -- same fields/order/formats as before. */
+    columns: dataGridColumnDto[] = [
+      { dataField: 'invoiceNumber', dataType: 'string', caption: 'PURCHASES.INVOICE_NUMBER' },
+      { dataField: 'invoiceDate', dataType: 'date', format: 'yyyy-MM-dd', caption: 'PURCHASES.INVOICE_DATE' },
+      { dataField: 'supplierName', dataType: 'string', caption: 'PURCHASES.SUPPLIER', cellTemplate: 'supplierTemplate' },
+      { dataField: 'totalAmount', dataType: 'number', format: 'currency', caption: 'PURCHASES.TOTAL_COST' },
+      { dataField: 'amountPaid', dataType: 'number', format: 'currency', caption: 'PURCHASES.AMOUNT_PAID', cssClass: 'text-success' },
+      { dataField: 'amountDue', dataType: 'number', format: 'currency', caption: 'PURCHASES.AMOUNT_DUE', cssClass: 'text-danger' },
+      { dataField: 'status', dataType: 'string', caption: 'PURCHASES.STATUS', cellTemplate: 'statusTemplate' },
+      { dataField: 'actions', dataType: 'string', type: 'actions', caption: 'PURCHASES.ACTIONS', width: 200, cssClass: 'no-print', allowSorting: false, allowFiltering: false },
+    ];
+
+    /** Same print/edit/delete/archive/unarchive buttons as before (archive and unarchive are mutually exclusive per-row). */
+    rowActions: sharedGridRowActionDto[] = [
+      { id: 'print', icon: 'print', labelKey: 'PURCHASES.PRINT_INVOICE' },
+      { id: 'edit', icon: 'edit', labelKey: 'PURCHASES.EDIT_INVOICE' },
+      { id: 'delete', icon: 'delete', labelKey: 'PURCHASES.DELETE_INVOICE', cssClass: 'warn' },
+      { id: 'archive', icon: 'archive', labelKey: 'PURCHASES.ARCHIVE', visible: (row) => this.isArchiveButtonVisible({ row: { data: row } }) },
+      { id: 'unarchive', icon: 'undo', labelKey: 'PURCHASES.UNARCHIVE', visible: (row) => this.isUnarchiveButtonVisible({ row: { data: row } }) },
+    ];
+
+    onGridAction(e: SharedGridRowActionEvent): void {
+      const wrapped = { row: { data: e.row } };
+      if (e.actionId === 'print') this.onPrintClick(wrapped);
+      else if (e.actionId === 'edit') this.onEditClick(wrapped);
+      else if (e.actionId === 'delete') this.onDeleteClick(wrapped);
+      else if (e.actionId === 'archive') this.onArchiveClick(wrapped);
+      else if (e.actionId === 'unarchive') this.onUnarchiveClick(wrapped);
+    }
 
     onFilter(event: Event) {
       const input = event.target as HTMLInputElement;

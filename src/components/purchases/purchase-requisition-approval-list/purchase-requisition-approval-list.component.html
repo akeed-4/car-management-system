@@ -5,72 +5,37 @@
     </div>
   </div>
 
-  @if (isMobile()) {
-    <app-mobile-card-list
-      [items]="requisitions"
-      [fields]="mobileFields"
-      [titleOf]="mobileTitleOf"
-      [trackByFn]="mobileTrackBy"
-      emptyMessage="PURCHASE_REQUISITION.NO_REQUISITIONS"
-    >
+  <div class="erp-grid-card">
+    <!-- Shared DataGrid: same columns/status badge/view-approve-reject actions as before;
+         on mobile it renders the same card list (mobileFields/mobileTitleOf/mobileTrackBy)
+         in place of the clipped grid columns. -->
+    <app-shared-data-grid
+      [dataSource]="requisitions"
+      [columns]="columns"
+      [rowActions]="rowActions"
+      [cellTemplates]="cellTemplates"
+      [mobileItems]="requisitions"
+      [mobileFields]="mobileFields"
+      [mobileTitleOf]="mobileTitleOf"
+      [mobileTrackBy]="mobileTrackBy"
+      keyExpr="id"
+      height="600px"
+      noDataText="PURCHASE_REQUISITION.NO_REQUISITIONS"
+      [pageSize]="10"
+      [allowedPageSizes]="[10, 20, 50]"
+      (rowAction)="onGridAction($event)">
+
       <ng-template let-req>
         <button type="button" class="btn btn-light" (click)="mobileView(req)">{{ 'COMMON.VIEW' | translate }}</button>
         <button type="button" class="btn btn-light" (click)="mobileApprove(req)">{{ 'PURCHASE_REQUISITION.APPROVE' | translate }}</button>
         <button type="button" class="btn btn-light" (click)="mobileReject(req)">{{ 'PURCHASE_REQUISITION.REJECT' | translate }}</button>
       </ng-template>
-    </app-mobile-card-list>
-  } @else {
-  <div class="erp-grid-card">
-  <dx-data-grid
-    [dataSource]="requisitions"
-    [showBorders]="true"
-    [columnAutoWidth]="true"
-    [rowAlternationEnabled]="true"
-    [rtlEnabled]="true"
-    height="600px"
-    [showRowLines]="true"
-    [allowColumnReordering]="true"
-    [allowColumnResizing]="true"
-    keyExpr="id">
 
-    <dxo-search-panel [visible]="true"></dxo-search-panel>
-    <dxo-filter-row [visible]="true"></dxo-filter-row>
-    <dxo-header-filter [visible]="true"></dxo-header-filter>
-    <dxo-paging [pageSize]="10"></dxo-paging>
-    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
-
-    <dxi-column dataField="requisitionNumber" [caption]="'PURCHASE_REQUISITION.REQUISITION_NUMBER' | translate"></dxi-column>
-    <dxi-column dataField="requisitionDate" [caption]="'PURCHASE_REQUISITION.REQUISITION_DATE' | translate" dataType="date"></dxi-column>
-    <dxi-column dataField="departmentName" [caption]="'PURCHASE_REQUISITION.DEPARTMENT' | translate"></dxi-column>
-    <dxi-column dataField="items" [caption]="'PURCHASE_REQUISITION.ITEMS_COUNT' | translate" [calculateCellValue]="getItemsCount"></dxi-column>
-    <dxi-column dataField="status" [caption]="'PURCHASE_REQUISITION.STATUS' | translate" cellTemplate="statusCellTemplate"></dxi-column>
-    <div *dxTemplate="let cell of 'statusCellTemplate'">
-      <span class="erp-status-badge warning status-badge status-pending">
-        {{ ('PURCHASE_REQUISITION.STATUS_' + cell.value?.toUpperCase()) | translate }}
-      </span>
-    </div>
-
-    <dxi-column type="buttons" [width]="150">
-      <dxi-button
-        icon="find"
-        [hint]="'COMMON.VIEW' | translate"
-        [onClick]="onView.bind(this)"
-        >
-      </dxi-button>
-      <dxi-button
-        icon="check"
-        [hint]="'PURCHASE_REQUISITION.APPROVE' | translate"
-        [onClick]="onApprove.bind(this)"
-        >
-      </dxi-button>
-      <dxi-button
-        icon="close"
-        [hint]="'PURCHASE_REQUISITION.REJECT' | translate"
-        [onClick]="onReject.bind(this)"
-        >
-      </dxi-button>
-    </dxi-column>
-  </dx-data-grid>
+      <ng-template #statusTemplate let-cell>
+        <span class="erp-status-badge warning status-badge status-pending">
+          {{ ('PURCHASE_REQUISITION.STATUS_' + cell.value?.toUpperCase()) | translate }}
+        </span>
+      </ng-template>
+    </app-shared-data-grid>
   </div>
-  }
 </div>

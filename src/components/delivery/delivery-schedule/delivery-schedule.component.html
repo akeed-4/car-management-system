@@ -106,82 +106,41 @@
   <!-- Grid View -->
   @if (viewMode() === 'grid') {
     <div class="erp-grid-card grid-container">
-      <dx-data-grid
-        #dataGrid
-        id="deliveryScheduleGrid"
+      <!-- Shared DataGrid: owns grid chrome/group panel/state storing/paging;
+           the CustomStore keeps driving server-side load exactly as before. -->
+      <app-shared-data-grid
         [dataSource]="dataSource"
-        [remoteOperations]="true"
+        [columns]="columns"
+        [rowActions]="rowActions"
+        [cellTemplates]="cellTemplates"
+        [dxRemoteOperations]="true"
+        [showGroupPanel]="true"
+        [selectionMode]="'multiple'"
+        [stateStoringKey]="gridStateKey"
         keyExpr="id"
-        [showBorders]="true"
-        [showRowLines]="true"
-        [showColumnLines]="true"
         [rtlEnabled]="true"
-        [columnAutoWidth]="true"
-        [allowColumnReordering]="true"
-        [allowColumnResizing]="true"
-        [wordWrapEnabled]="false"
-        [hoverStateEnabled]="true"
-        (onRowDblClick)="openDetails($event)">
+        scrollingMode="virtual"
+        searchPlaceholder="COMMON.SEARCH"
+        [pageSize]="20"
+        [allowedPageSizes]="[10, 20, 50, 100]"
+        (rowDblClick)="openDetails({ data: $event })"
+        (rowAction)="onGridAction($event)">
 
-        <dxo-load-panel [enabled]="true"></dxo-load-panel>
-        <dxo-search-panel [visible]="true" [width]="280"></dxo-search-panel>
-        <dxo-header-filter [visible]="true"></dxo-header-filter>
-        <dxo-filter-row [visible]="true"></dxo-filter-row>
-        <dxo-grouping [autoExpandAll]="false" [contextMenuEnabled]="true"></dxo-grouping>
-        <dxo-group-panel [visible]="true"></dxo-group-panel>
-        <dxo-column-chooser [enabled]="true" mode="select"></dxo-column-chooser>
-        <dxo-column-fixing [enabled]="true"></dxo-column-fixing>
-        <dxo-state-storing [enabled]="true" type="localStorage" [storageKey]="gridStateKey"></dxo-state-storing>
-        <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
-        <dxo-paging [pageSize]="20"></dxo-paging>
-        <dxo-pager [visible]="true" [allowedPageSizes]="[10, 20, 50, 100]" [showPageSizeSelector]="true" [showInfo]="true" [showNavigationButtons]="true" displayMode="full"></dxo-pager>
-        <dxo-selection mode="multiple" showCheckBoxesMode="onClick"></dxo-selection>
-        <dxo-export [enabled]="false"></dxo-export>
-
-        <dxi-column dataField="deliveryNumber" [caption]="'DELIVERY_SCHEDULE.DELIVERY_NUMBER' | translate" ></dxi-column>
-        <dxi-column dataField="customerName" [caption]="'REQUESTED_CARS.CUSTOMER' | translate"></dxi-column>
-        <dxi-column dataField="carDescription" [caption]="'DAILY_ENTRIES.VEHICLE' | translate"></dxi-column>
-        <dxi-column dataField="carVin" [caption]="'CONSIGNMENT.VIN' | translate" [width]="150"></dxi-column>
-        <dxi-column dataField="driverName" [caption]="'DELIVERY_SCHEDULE.DRIVER' | translate"></dxi-column>
-        <dxi-column dataField="deliveryDate" dataType="date" format="yyyy-MM-dd" [caption]="'DELIVERY_SCHEDULE.DELIVERY_DATE' | translate" [width]="120"></dxi-column>
-        <dxi-column dataField="deliveryTime" [caption]="'DELIVERY_SCHEDULE.DELIVERY_TIME' | translate" [width]="100"></dxi-column>
-        <dxi-column dataField="branchName" [caption]="'DELIVERY_SCHEDULE.BRANCH' | translate"></dxi-column>
-
-        <dxi-column dataField="status" [caption]="'DELIVERY_SCHEDULE.STATUS' | translate" [width]="130" cellTemplate="statusTemplate"></dxi-column>
-        <div *dxTemplate="let cell of 'statusTemplate'">
+        <!-- Status badge + late flag (same classes/labels as before) -->
+        <ng-template #statusTemplate let-cell>
           <span class="erp-status-badge chip" [ngClass]="getDeliveryStatusClass(cell.value)">
             {{ ('DELIVERY_SCHEDULE.STATUS_' + cell.value?.toUpperCase()) | translate }}
           </span>
           @if (isLateDelivery(cell.data)) {
             <span class="erp-status-badge chip status-chip-late">{{ 'DELIVERY_SCHEDULE.LATE' | translate }}</span>
           }
-        </div>
+        </ng-template>
 
-        <dxi-column dataField="deliveryProgress" [caption]="'DELIVERY_SCHEDULE.PROGRESS' | translate" [width]="110" cellTemplate="progressTemplate"></dxi-column>
-        <div *dxTemplate="let cell of 'progressTemplate'">
+        <!-- Progress percentage (same as before) -->
+        <ng-template #progressTemplate let-cell>
           {{ cell.value }}%
-        </div>
-
-        <dxi-column dataField="documentsReady" dataType="boolean" [caption]="'DELIVERY_SCHEDULE.DOCUMENTS_READY' | translate" [width]="110"></dxi-column>
-        <dxi-column dataField="insuranceReady" dataType="boolean" [caption]="'DELIVERY_SCHEDULE.INSURANCE_READY' | translate" [width]="110"></dxi-column>
-        <dxi-column dataField="registrationReady" dataType="boolean" [caption]="'DELIVERY_SCHEDULE.REGISTRATION_READY' | translate" [width]="120"></dxi-column>
-        <dxi-column dataField="customerConfirmed" dataType="boolean" [caption]="'DELIVERY_SCHEDULE.CUSTOMER_CONFIRMED' | translate" [width]="130"></dxi-column>
-
-        <dxi-column dataField="notes" [caption]="'REQUESTED_CARS.NOTES' | translate" [visible]="false"></dxi-column>
-
-        <dxi-column type="buttons" [caption]="'COMMON.ACTIONS' | translate" [width]="120"  cellTemplate="actionsTemplate"></dxi-column>
-        <div *dxTemplate="let cell of 'actionsTemplate'">
-          <button mat-icon-button [matTooltip]="'COMMON.EDIT' | translate" (click)="editDelivery(cell.data.id)" *appHasPermission="'deliverySchedule.edit'">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button [matTooltip]="'AUDIT_HISTORY.TITLE' | translate" (click)="openHistory(cell.data.id)" *appHasPermission="'deliverySchedule.history'">
-            <mat-icon>history</mat-icon>
-          </button>
-          <button mat-icon-button color="warn" [matTooltip]="'COMMON.DELETE' | translate" (click)="requestDelete(cell.data.id)" *appHasPermission="'deliverySchedule.delete'">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </div>
-      </dx-data-grid>
+        </ng-template>
+      </app-shared-data-grid>
     </div>
   }
 

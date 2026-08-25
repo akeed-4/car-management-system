@@ -1,16 +1,19 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { BankFinancingService } from '../../../../services/bank-financing.service';
 import { NotificationService } from '@/src/services/notification.service';
 import { BankQuotation } from '../../../../models/bank-financing/bank-quotation.model';
 import { HasPermissionDirective } from '../../../shared/permission.directive';
-import { ResponsiveService } from '../../../../services/responsive.service';
-import { MobileCardListComponent, MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
+import { MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 
 @Component({
   selector: 'app-bank-order-list',
@@ -18,12 +21,11 @@ import { MobileCardListComponent, MobileCardField } from '../../../shared/mobile
   imports: [
     CommonModule,
     RouterModule,
-    DxDataGridModule,
+    SharedDataGridComponent,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
-    HasPermissionDirective,
-    MobileCardListComponent
+    HasPermissionDirective
   ],
   providers: [DatePipe, CurrencyPipe],
   templateUrl: './bank-order-list.component.html',
@@ -34,13 +36,39 @@ export class BankOrderListComponent implements OnInit {
   private bankFinancingService = inject(BankFinancingService);
   private notificationService = inject(NotificationService);
   private router = inject(Router);
-  private responsiveService = inject(ResponsiveService);
   private datePipe = inject(DatePipe);
   private currencyPipe = inject(CurrencyPipe);
-  isMobile = this.responsiveService.isMobile;
 
   orders = signal<BankQuotation[]>([]);
   loading = signal(false);
+
+  /** Config-driven columns -- same fields/captions as before (status renders
+   *  as plain text, no badge, matching the original grid). */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'orderNumber', dataType: 'string', caption: 'BANK_FINANCING.ORDER_NUMBER' },
+    { dataField: 'orderDate', dataType: 'date', caption: 'BANK_FINANCING.ORDER_DATE' },
+    { dataField: 'quotationNumber', dataType: 'string', caption: 'CORPORATE.QUOTATION_NUMBER' },
+    { dataField: 'endUserName', dataType: 'string', caption: 'BANK_FINANCING.END_USER_NAME' },
+    { dataField: 'bankName', dataType: 'string', caption: 'BANK_FINANCING.BANK' },
+    { dataField: 'vin', dataType: 'string', caption: 'VIN' },
+    { dataField: 'approvedFinancingAmount', dataType: 'number', format: 'currency', caption: 'BANK_FINANCING.APPROVED_FINANCING_AMOUNT' },
+    { dataField: 'status', dataType: 'string', caption: 'BANK_FINANCING.STATUS' },
+    { dataField: 'actions', dataType: 'string', type: 'actions', caption: '', width: 80, allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Same single view button as before. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW' },
+  ];
+
+  onGridAction(e: SharedGridRowActionEvent): void {
+    if (e.actionId === 'view') this.onView({ row: { data: e.row } });
+  }
+
+  /** Row double-click opens the record -- same behavior, adapted to the shared output. */
+  onGridRowDblClick(row: any): void {
+    this.onView({ row: { data: row } });
+  }
 
   ngOnInit(): void {
     this.loadOrders();

@@ -13,35 +13,18 @@
 
   <div class="erp-card">
     <div class="erp-grid-card">
-    <dx-data-grid
-      [dataSource]="stockTakesApproval()"
-      [showBorders]="true"
-      [showRowLines]="true"
-      [showColumnLines]="true"
-      [rowAlternationEnabled]="true"
-      [allowColumnReordering]="true"
-      [allowColumnResizing]="true"
-      [columnAutoWidth]="true"
-      [wordWrapEnabled]="true"
-      [rtlEnabled]="true">
-
-      <dxo-paging [pageSize]="10"></dxo-paging>
-      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
-      <dxo-filter-row [visible]="true"></dxo-filter-row>
-      <dxo-header-filter [visible]="true"></dxo-header-filter>
-      <dxo-search-panel [visible]="true" [placeholder]="'البحث...'"></dxo-search-panel>
-
-      <dxi-column dataField="documentDate" caption="{{ 'STOCK_TAKING_APPROVAL.APPROVAL_DATE' | translate }}" dataType="date" format="yyyy-MM-dd" ></dxi-column>
-      <dxi-column dataField="status" caption="{{ 'STOCK_TAKING_APPROVAL.STATUS' | translate }}"></dxi-column>
-      <dxi-column dataField="createdBy" caption="{{ 'STOCK_TAKING_APPROVAL.APPROVER_NAME' | translate }}" ></dxi-column>
-
-      <dxi-column type="buttons" caption="{{ 'STOCK_TAKING_APPROVAL.ACTIONS' | translate }}" >
-        <dxi-button name="edit" [onClick]="onEditClick" icon="edit" hint="{{ 'STOCK_TAKING_APPROVAL.EDIT' | translate }}"></dxi-button>
-        <dxi-button name="view" [onClick]="onViewClick" icon="eye" hint="{{ 'STOCK_TAKING_APPROVAL.VIEW' | translate }}"></dxi-button>
-      </dxi-column>
-
-      <dxo-editing mode="popup" [allowUpdating]="false" [allowDeleting]="false" [allowAdding]="false"></dxo-editing>
-    </dx-data-grid>
+      <!-- Shared DataGrid; the inert dxo-editing (allowUpdating/allowDeleting/allowAdding all
+           false) is dropped -- SharedDataGrid has no inline editing, equivalent to disabled. -->
+      <app-shared-data-grid
+        [dataSource]="stockTakesApproval()"
+        [columns]="columns"
+        [rowActions]="rowActions"
+        keyExpr="id"
+        searchPlaceholder="البحث..."
+        [pageSize]="10"
+        [allowedPageSizes]="[5, 10, 20]"
+        (rowAction)="onGridAction($event)">
+      </app-shared-data-grid>
     </div>
   </div>
 </div>

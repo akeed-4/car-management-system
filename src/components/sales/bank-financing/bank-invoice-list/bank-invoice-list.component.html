@@ -44,33 +44,21 @@
   </mat-toolbar>
 
   <div class="erp-grid-card grid-container">
-    <dx-data-grid
+    <app-shared-data-grid
       [dataSource]="invoices()"
-      [showBorders]="true"
-      [columnAutoWidth]="true"
-      [rowAlternationEnabled]="true"
-      [rtlEnabled]="true"
+      [columns]="columns"
+      [rowActions]="rowActions"
+      [cellTemplates]="cellTemplates"
+      keyExpr="id"
       height="600px"
-      [showRowLines]="true"
-      [allowColumnReordering]="true"
-      [allowColumnResizing]="true"
-      [noDataText]="'BANK_FINANCING.NO_INVOICES' | translate"
-      (onRowDblClick)="onEdit($event)"
-      keyExpr="id">
+      noDataText="BANK_FINANCING.NO_INVOICES"
+      [pageSize]="10"
+      [allowedPageSizes]="[10, 20, 50]"
+      (rowDblClick)="onGridRowDblClick($event)"
+      (rowAction)="onGridAction($event)">
 
-      <dxo-search-panel [visible]="true"></dxo-search-panel>
-      <dxo-filter-row [visible]="true"></dxo-filter-row>
-      <dxo-header-filter [visible]="true"></dxo-header-filter>
-      <dxo-paging [pageSize]="10"></dxo-paging>
-      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
-
-      <dxi-column dataField="invoiceNumber" [caption]="'INVOICE.INVOICE_NUMBER' | translate" [width]="140"></dxi-column>
-      <dxi-column dataField="customerName" [caption]="'INVOICE.CUSTOMER' | translate"></dxi-column>
-      <dxi-column dataField="funderBankName" [caption]="'BANK_FINANCING.BANK' | translate"></dxi-column>
-      <dxi-column dataField="invoiceDate" [caption]="'INVOICE.INVOICE_DATE' | translate" dataType="date"></dxi-column>
-      <dxi-column dataField="totalAmount" [caption]="'INVOICE.TOTAL' | translate" dataType="number" format="currency"></dxi-column>
-      <dxi-column dataField="status" [caption]="'INVOICE.STATUS' | translate" cellTemplate="statusCellTemplate"></dxi-column>
-      <div *dxTemplate="let cell of 'statusCellTemplate'">
+      <!-- Status badge (same classes/labels as before) -->
+      <ng-template #statusTemplate let-cell>
         <span class="erp-status-badge" [ngClass]="{
           'success': cell.value === 'Paid',
           'warning': cell.value === 'Pending',
@@ -78,15 +66,7 @@
         }">
           {{ ('INVOICE.STATUS_' + cell.value?.toUpperCase()) | translate }}
         </span>
-      </div>
-
-      <dxi-column type="buttons" [width]="80">
-        <dxi-button
-          icon="edit"
-          [hint]="'COMMON.EDIT' | translate"
-          [onClick]="onEdit">
-        </dxi-button>
-      </dxi-column>
-    </dx-data-grid>
+      </ng-template>
+    </app-shared-data-grid>
   </div>
 </div>

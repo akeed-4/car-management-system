@@ -11,64 +11,40 @@
     </div>
   </div>
 
-  @if (isMobile()) {
-    <app-mobile-card-list
-      [items]="purchaseOrders"
-      [fields]="mobileFields"
-      [titleOf]="mobileTitleOf"
-      [trackByFn]="mobileTrackBy"
-      emptyMessage="PURCHASE_ORDER.NO_ORDERS"
-    >
+  <div class="erp-grid-card">
+    <!-- Shared DataGrid: same columns/status badge/edit action as before; on mobile it
+         renders the same card list (mobileFields/mobileTitleOf/mobileTrackBy) in place of
+         the clipped grid columns. -->
+    <app-shared-data-grid
+      [dataSource]="purchaseOrders"
+      [columns]="columns"
+      [rowActions]="rowActions"
+      [cellTemplates]="cellTemplates"
+      [mobileItems]="purchaseOrders"
+      [mobileFields]="mobileFields"
+      [mobileTitleOf]="mobileTitleOf"
+      [mobileTrackBy]="mobileTrackBy"
+      keyExpr="id"
+      height="600px"
+      noDataText="PURCHASE_ORDER.NO_ORDERS"
+      [pageSize]="10"
+      [allowedPageSizes]="[10, 20, 50]"
+      (rowAction)="onGridAction($event)">
+
       <ng-template let-po>
         <button type="button" class="btn btn-light" (click)="mobileEdit(po)">{{ 'COMMON.EDIT' | translate }}</button>
       </ng-template>
-    </app-mobile-card-list>
-  } @else {
-  <div class="erp-grid-card">
-  <dx-data-grid
-    [dataSource]="purchaseOrders"
-    [showBorders]="true"
-    [columnAutoWidth]="true"
-    [rowAlternationEnabled]="true"
-    [rtlEnabled]="true"
-    height="600px"
-    [showRowLines]="true"
-    [allowColumnReordering]="true"
-    [allowColumnResizing]="true"
-    keyExpr="id">
 
-    <dxo-search-panel [visible]="true"></dxo-search-panel>
-    <dxo-filter-row [visible]="true"></dxo-filter-row>
-    <dxo-header-filter [visible]="true"></dxo-header-filter>
-    <dxo-paging [pageSize]="10"></dxo-paging>
-    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
-
-    <dxi-column dataField="poNumber" [caption]="'PURCHASE_ORDER.PO_NUMBER' | translate"></dxi-column>
-    <dxi-column dataField="vendorName" [caption]="'PURCHASE_ORDER.VENDOR' | translate"></dxi-column>
-    <dxi-column dataField="quotationNumber" [caption]="'PURCHASE_ORDER.QUOTATION_NUMBER' | translate"></dxi-column>
-    <dxi-column dataField="poDate" [caption]="'PURCHASE_ORDER.PO_DATE' | translate" dataType="date"></dxi-column>
-    <dxi-column dataField="items" [caption]="'PURCHASE_ORDER.ITEMS_COUNT' | translate" [calculateCellValue]="getItemsCount"></dxi-column>
-    <dxi-column dataField="totalAmount" [caption]="'PURCHASE_ORDER.TOTAL_AMOUNT' | translate" format="currency"></dxi-column>
-    <dxi-column dataField="status" [caption]="'PURCHASE_ORDER.STATUS' | translate" cellTemplate="statusCellTemplate"></dxi-column>
-    <div *dxTemplate="let cell of 'statusCellTemplate'">
-      <span class="erp-status-badge status-badge" [ngClass]="{
-        'warning': cell.value === 'Open',
-        'info': cell.value === 'PartiallyReceived',
-        'success': cell.value === 'FullyReceived',
-        'neutral': cell.value === 'Closed' || cell.value === 'Cancelled'
-      }">
-        {{ ('PURCHASE_ORDER.STATUS_' + cell.value?.toUpperCase()) | translate }}
-      </span>
-    </div>
-
-    <dxi-column type="buttons" [width]="90">
-      <dxi-button
-        icon="edit"
-        [hint]="'COMMON.EDIT' | translate"
-        [onClick]="onEdit.bind(this)">
-      </dxi-button>
-    </dxi-column>
-  </dx-data-grid>
+      <ng-template #statusTemplate let-cell>
+        <span class="erp-status-badge status-badge" [ngClass]="{
+          'warning': cell.value === 'Open',
+          'info': cell.value === 'PartiallyReceived',
+          'success': cell.value === 'FullyReceived',
+          'neutral': cell.value === 'Closed' || cell.value === 'Cancelled'
+        }">
+          {{ ('PURCHASE_ORDER.STATUS_' + cell.value?.toUpperCase()) | translate }}
+        </span>
+      </ng-template>
+    </app-shared-data-grid>
   </div>
-  }
 </div>

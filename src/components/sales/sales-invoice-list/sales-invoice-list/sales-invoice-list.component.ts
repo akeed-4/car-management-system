@@ -2,21 +2,25 @@ import { ChangeDetectionStrategy, Component, inject, Input, computed } from '@an
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DxDataGridModule } from 'devextreme-angular';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { SalesService } from '../../../../services/sales.service';
 import { ToastService } from '../../../../services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
 import { SalesInvoice } from '../../../../models/sales-invoice.model';
 import { ResponsiveService } from '../../../../services/responsive.service';
-import { MobileCardListComponent, MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
+import { MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 
 @Component({
   selector: 'app-sales-invoice-list',
   standalone: true,
-  imports: [RouterLink, TranslateModule, DxDataGridModule, MatIconModule, MatButtonModule, MatTooltipModule, MobileCardListComponent],
+  imports: [RouterLink, TranslateModule, MatIconModule, MatButtonModule, MatTooltipModule, SharedDataGridComponent],
   templateUrl: './sales-invoice-list.component.html',
   styleUrl: './sales-invoice-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,6 +37,35 @@ export class SalesInvoiceListComponent {
   private responsiveService = inject(ResponsiveService);
   isMobile = this.responsiveService.isMobile;
   allInvoices = toSignal(this.salesService.getInvoices(), { initialValue: [] });
+
+  /** Config-driven columns -- same fields/formats/i18n keys as before. */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'invoiceNumber', dataType: 'string', caption: 'SALES.COL_INVOICE_NUMBER', width: 150, alignment: 'right' },
+    { dataField: 'invoiceDate', dataType: 'date', caption: 'SALES.COL_DATE', format: 'yyyy-MM-dd', width: 120, alignment: 'right' },
+    { dataField: 'customerName', dataType: 'string', caption: 'SALES.COL_CUSTOMER', minWidth: 200, alignment: 'right' },
+    { dataField: 'totalAmount', dataType: 'number', caption: 'SALES.COL_TOTAL', format: { type: 'currency', currency: 'SAR' }, width: 130, alignment: 'right' },
+    { dataField: 'paymentStatus', dataType: 'string', caption: 'SALES.COL_STATUS', width: 120, alignment: 'right' },
+    { dataField: '__actions', dataType: 'string', type: 'actions', caption: 'PURCHASES.ACTIONS', width: 200, cssClass: 'no-print', allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Same print + edit buttons as before (in the same order). */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'print', icon: 'print', labelKey: 'PURCHASES.PRINT_INVOICE' },
+    { id: 'edit', icon: 'edit', labelKey: 'PURCHASES.EDIT_INVOICE' },
+  ];
+
+  /** Same sum/count totals as before -- SharedDataGrid's summary items don't support a
+   *  customizeText callback, so the previous customizeTotalText/customizeCountText
+   *  formatting is reproduced via displayFormat's own {0} placeholder substitution. */
+  summaryItems: any[] = [
+    { column: 'totalAmount', summaryType: 'sum', valueFormat: { type: 'currency', currency: 'SAR' }, displayFormat: 'المجموع: {0}' },
+    { column: 'invoiceNumber', summaryType: 'count', displayFormat: 'عدد الفواتير: {0}' },
+  ];
+
+  onGridAction(e: SharedGridRowActionEvent): void {
+    if (e.actionId === 'print') this.onPrintClick({ row: { data: e.row } });
+    else if (e.actionId === 'edit') this.onEditClick({ row: { data: e.row } });
+  }
 
   // --- Mobile card-list rendering ---
   mobileTitleOf = (item: SalesInvoice) => item.invoiceNumber;
@@ -58,7 +91,7 @@ export class SalesInvoiceListComponent {
     if (this.dataSource) {
       return this.dataSource;
     }
-    
+
     // Otherwise, filter from all invoices
     const all = this.allInvoices();
     if (this.isCashInvoice) {

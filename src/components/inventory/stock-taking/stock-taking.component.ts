@@ -9,10 +9,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../shared/shared-data-grid/shared-data-grid.component';
 import { ResponsiveService } from '../../../services/responsive.service';
-import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
+import { MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
 import { StockTake } from '../../../models/stock-take.model';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 
 @Component({
   selector: 'app-stock-taking',
@@ -25,9 +29,7 @@ import { StockTake } from '../../../models/stock-take.model';
     MatIconModule,
     MatCardModule,
     MatToolbarModule,
-    DxDataGridModule,
-    DxButtonModule,
-    MobileCardListComponent
+    SharedDataGridComponent
   ],
   templateUrl: './stock-taking.component.html',
   styleUrl: './stock-taking.component.css',
@@ -52,6 +54,35 @@ constructor() {
     { value: 'Pending', display: 'معلق' },
     { value: 'Approved', display: 'معتمد' }
   ];
+
+  /** Config-driven columns -- same fields/lookup as before (the hidden `id` column is
+   *  kept as-is, same duplicated DOCUMENT_NAME caption it already had). */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'id', dataType: 'string', caption: 'INVENTORY.STOCK_TAKING.DOCUMENT_NAME', visible: false },
+    { dataField: 'documentName', dataType: 'string', caption: 'INVENTORY.STOCK_TAKING.DOCUMENT_NAME' },
+    { dataField: 'documentDate', dataType: 'date', format: 'yyyy-MM-dd', caption: 'INVENTORY.STOCK_TAKING.DATE' },
+    { dataField: 'createdBy', dataType: 'string', caption: 'INVENTORY.STOCK_TAKING.CONDUCTED_BY' },
+    {
+      dataField: 'status',
+      dataType: 'string',
+      caption: 'INVENTORY.STOCK_TAKING.STATUS',
+      lookup: { dataSource: this.statusLookup, valueExpr: 'value', displayExpr: 'display' },
+    },
+    { dataField: '__actions', dataType: 'string', type: 'actions', caption: 'INVENTORY.STOCK_TAKING.ACTIONS', allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Same edit/delete buttons as before -- unconditionally visible, matching the original
+   *  (isEditVisible/isDeleteVisible below were defined but never actually wired to the
+   *  dxi-buttons, so no status-based gating existed and none is introduced here). */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
+    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn' },
+  ];
+
+  onGridAction(e: SharedGridRowActionEvent): void {
+    if (e.actionId === 'edit') this.onEditClick({ row: { data: e.row } });
+    else if (e.actionId === 'delete') this.onDeleteClick({ row: { data: e.row } });
+  }
 
   onEditClick = (e: any) => {
     this.editStockTake(e.row.data.id);

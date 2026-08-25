@@ -111,95 +111,48 @@
 
   <!-- DataGrid -->
   <div class="erp-grid-card grid-container">
-    <dx-data-grid
-      #dataGrid
-      id="requestedCarsGrid"
+    <!-- Shared DataGrid: owns grid chrome/group panel/state storing/paging;
+         the CustomStore keeps driving server-side load exactly as before. -->
+    <app-shared-data-grid
       [dataSource]="dataSource"
-      [remoteOperations]="true"
+      [columns]="columns"
+      [rowActions]="rowActions"
+      [cellTemplates]="cellTemplates"
+      [summaryItems]="summaryItems"
+      [dxRemoteOperations]="true"
+      [showGroupPanel]="true"
+      [selectionMode]="'multiple'"
+      [stateStoringKey]="gridStateKey"
       keyExpr="id"
-      [showBorders]="true"
-      [showRowLines]="true"
-      [showColumnLines]="true"
       [rtlEnabled]="true"
-      [columnAutoWidth]="true"
-      [allowColumnReordering]="true"
-      [allowColumnResizing]="true"
-      [wordWrapEnabled]="false"
-      [hoverStateEnabled]="true"
-      (onRowDblClick)="openDetails($event)">
+      scrollingMode="virtual"
+      searchPlaceholder="COMMON.SEARCH"
+      [pageSize]="20"
+      [allowedPageSizes]="[10, 20, 50, 100]"
+      (rowDblClick)="openDetails({ data: $event })"
+      (rowAction)="onGridAction($event)">
 
-      <dxo-load-panel [enabled]="true"></dxo-load-panel>
-      <dxo-search-panel [visible]="true" [width]="280"></dxo-search-panel>
-      <dxo-header-filter [visible]="true"></dxo-header-filter>
-      <dxo-filter-row [visible]="true"></dxo-filter-row>
-      <dxo-grouping [autoExpandAll]="false" [contextMenuEnabled]="true"></dxo-grouping>
-      <dxo-group-panel [visible]="true"></dxo-group-panel>
-      <dxo-column-chooser [enabled]="true" mode="select"></dxo-column-chooser>
-      <dxo-column-fixing [enabled]="true"></dxo-column-fixing>
-      <dxo-state-storing [enabled]="true" type="localStorage" [storageKey]="gridStateKey"></dxo-state-storing>
-      <dxo-scrolling mode="virtual" rowRenderingMode="virtual"></dxo-scrolling>
-      <dxo-paging [pageSize]="20"></dxo-paging>
-      <dxo-pager [visible]="true" [allowedPageSizes]="[10, 20, 50, 100]" [showPageSizeSelector]="true" [showInfo]="true" [showNavigationButtons]="true" displayMode="full"></dxo-pager>
-      <dxo-selection mode="multiple" showCheckBoxesMode="onClick"></dxo-selection>
-      <dxo-export [enabled]="false"></dxo-export>
-
-      <dxi-column dataField="requestNumber" [caption]="'REQUESTED_CARS.REQUEST_NUMBER' | translate" [width]="130" [fixed]="true"></dxi-column>
-      <dxi-column dataField="requestDate" dataType="date" format="yyyy-MM-dd" [caption]="'REQUESTED_CARS.REQUEST_DATE' | translate" [width]="120"></dxi-column>
-      <dxi-column dataField="customerName" [caption]="'REQUESTED_CARS.CUSTOMER' | translate"></dxi-column>
-      <dxi-column dataField="customerPhone" [caption]="'REQUESTED_CARS.CUSTOMER_PHONE' | translate" [width]="130"></dxi-column>
-      <dxi-column dataField="salespersonName" [caption]="'REQUESTED_CARS.SALESPERSON' | translate"></dxi-column>
-      <dxi-column dataField="make" [caption]="'REQUESTED_CARS.BRAND' | translate"></dxi-column>
-      <dxi-column dataField="model" [caption]="'REQUESTED_CARS.MODEL' | translate"></dxi-column>
-      <dxi-column dataField="year" dataType="number" [caption]="'REQUESTED_CARS.YEAR' | translate" [width]="90" alignment="center"></dxi-column>
-      <dxi-column dataField="color" [caption]="'REQUESTED_CARS.COLOR' | translate" [width]="110"></dxi-column>
-      <dxi-column dataField="preferredSpecifications" [caption]="'REQUESTED_CARS.PREFERRED_SPECS' | translate" [visible]="false"></dxi-column>
-
-      <dxi-column dataField="priority" [caption]="'REQUESTED_CARS.PRIORITY' | translate" [width]="120" cellTemplate="priorityTemplate"></dxi-column>
-      <div *dxTemplate="let cell of 'priorityTemplate'">
+      <!-- Priority badge (same classes/labels as before) -->
+      <ng-template #priorityTemplate let-cell>
         <span class="erp-status-badge chip" [ngClass]="getPriorityClass(cell.value)">
           {{ ('REQUESTED_CARS.PRIORITY_' + cell.value?.toUpperCase()) | translate }}
         </span>
-      </div>
+      </ng-template>
 
-      <dxi-column dataField="expectedArrival" dataType="date" format="yyyy-MM-dd" [caption]="'REQUESTED_CARS.EXPECTED_ARRIVAL' | translate" [width]="130"></dxi-column>
-
-      <dxi-column dataField="status" [caption]="'REQUESTED_CARS.STATUS' | translate" [width]="130" cellTemplate="statusTemplate"></dxi-column>
-      <div *dxTemplate="let cell of 'statusTemplate'">
+      <!-- Status badge (same classes/labels as before) -->
+      <ng-template #statusTemplate let-cell>
         <span class="erp-status-badge chip" [ngClass]="getStatusClass(cell.value)">
           {{ ('REQUESTED_CARS.STATUS_' + cell.value?.toUpperCase()) | translate }}
         </span>
-      </div>
+      </ng-template>
 
-      <dxi-column dataField="reservationStatus" [caption]="'REQUESTED_CARS.RESERVATION_STATUS' | translate" [width]="140" cellTemplate="reservationTemplate"></dxi-column>
-      <div *dxTemplate="let cell of 'reservationTemplate'">
+      <!-- Reservation-status badge (same classes/labels as before) -->
+      <ng-template #reservationTemplate let-cell>
         <span class="erp-status-badge chip" [ngClass]="getReservationStatusClass(cell.value)">
           {{ ('REQUESTED_CARS.RESERVATION_' + cell.value?.toUpperCase()) | translate }}
         </span>
-      </div>
-
-      <dxi-column dataField="notes" [caption]="'REQUESTED_CARS.NOTES' | translate" [visible]="false"></dxi-column>
-      <dxi-column dataField="createdAt" dataType="datetime" [caption]="'REQUESTED_CARS.CREATED_DATE' | translate" [visible]="false"></dxi-column>
-
-      <dxi-column type="buttons" [caption]="'COMMON.ACTIONS' | translate" [width]="160" [fixed]="true" fixedPosition="right" cellTemplate="actionsTemplate"></dxi-column>
-      <div *dxTemplate="let cell of 'actionsTemplate'">
-        <button mat-icon-button [matTooltip]="'COMMON.EDIT' | translate" (click)="editRequest(cell.data.id)" *appHasPermission="'requestedCar.edit'">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-icon-button [matTooltip]="'AUDIT_HISTORY.TITLE' | translate" (click)="openHistory(cell.data.id)" *appHasPermission="'requestedCar.history'">
-          <mat-icon>history</mat-icon>
-        </button>
-        <button mat-icon-button [matTooltip]="'REQUESTED_CARS.AI_PANEL.TITLE' | translate" (click)="openAiPanel(cell.data)" *appHasPermission="'requestedCar.ai'">
-          <mat-icon>auto_awesome</mat-icon>
-        </button>
-        <button mat-icon-button color="warn" [matTooltip]="'COMMON.DELETE' | translate" (click)="requestDelete(cell.data.id)" *appHasPermission="'requestedCar.delete'">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </div>
-
-      <dxo-summary>
-        <dxi-total-item column="requestNumber" summaryType="count" [displayFormat]="'{0}'"></dxi-total-item>
-      </dxo-summary>
-    </dx-data-grid>
+      </ng-template>
+    </app-shared-data-grid>
   </div>
 
   <app-modal

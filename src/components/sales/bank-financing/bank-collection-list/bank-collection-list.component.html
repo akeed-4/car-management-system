@@ -44,39 +44,17 @@
   </mat-toolbar>
 
   <div class="erp-grid-card grid-container">
-    <dx-data-grid
+    <app-shared-data-grid
       [dataSource]="receipts()"
-      [showBorders]="true"
-      [columnAutoWidth]="true"
-      [rowAlternationEnabled]="true"
-      [rtlEnabled]="true"
+      [columns]="columns"
+      [rowActions]="rowActions"
+      keyExpr="id"
       height="600px"
-      [showRowLines]="true"
-      [allowColumnReordering]="true"
-      [allowColumnResizing]="true"
-      [noDataText]="'BANK_FINANCING.NO_COLLECTIONS' | translate"
-      (onRowDblClick)="onEdit($event)"
-      keyExpr="id">
-
-      <dxo-search-panel [visible]="true"></dxo-search-panel>
-      <dxo-filter-row [visible]="true"></dxo-filter-row>
-      <dxo-header-filter [visible]="true"></dxo-header-filter>
-      <dxo-paging [pageSize]="10"></dxo-paging>
-      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
-
-      <dxi-column dataField="voucherNumber" [caption]="'ACCOUNTS.RECEIPTS.COL_VOUCHER_NUMBER' | translate" [width]="140"></dxi-column>
-      <dxi-column dataField="customerName" [caption]="'ACCOUNTS.RECEIPTS.COL_CUSTOMER' | translate"></dxi-column>
-      <dxi-column dataField="date" [caption]="'ACCOUNTS.RECEIPTS.COL_DATE' | translate" dataType="date"></dxi-column>
-      <dxi-column dataField="amount" [caption]="'ACCOUNTS.RECEIPTS.COL_AMOUNT' | translate" dataType="number" format="currency"></dxi-column>
-      <dxi-column dataField="paymentMethod" [caption]="'INVOICE.PAYMENT_METHOD' | translate"></dxi-column>
-
-      <dxi-column type="buttons" [width]="80">
-        <dxi-button
-          icon="edit"
-          [hint]="'COMMON.EDIT' | translate"
-          [onClick]="onEdit">
-        </dxi-button>
-      </dxi-column>
-    </dx-data-grid>
+      noDataText="BANK_FINANCING.NO_COLLECTIONS"
+      [pageSize]="10"
+      [allowedPageSizes]="[10, 20, 50]"
+      (rowDblClick)="onGridRowDblClick($event)"
+      (rowAction)="onGridAction($event)">
+    </app-shared-data-grid>
   </div>
 </div>

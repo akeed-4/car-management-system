@@ -11,59 +11,29 @@
     </div>
   </div>
 
-  <!-- Mobile (<=840px): rows render as full-width cards instead of the grid's
-       clipped/scrolling 8 columns -- same data, same view action. -->
-  @if (isMobile()) {
-    <app-mobile-card-list
-      [items]="orders()"
-      [fields]="mobileFields"
-      [titleOf]="mobileTitleOf"
-      [trackByFn]="mobileTrackBy"
-      emptyMessage="BANK_FINANCING.NO_ORDERS"
-    >
+  <div class="erp-grid-card">
+    <!-- Shared DataGrid: on mobile (<=840px) this renders the same rows as
+         full-width cards (mobileFields/mobileTitleOf/mobileTrackBy), same
+         single view action, instead of the grid's clipped 8 columns. -->
+    <app-shared-data-grid
+      [dataSource]="orders()"
+      [columns]="columns"
+      [rowActions]="rowActions"
+      [mobileItems]="orders()"
+      [mobileFields]="mobileFields"
+      [mobileTitleOf]="mobileTitleOf"
+      [mobileTrackBy]="mobileTrackBy"
+      keyExpr="id"
+      height="600px"
+      noDataText="BANK_FINANCING.NO_ORDERS"
+      [pageSize]="10"
+      [allowedPageSizes]="[10, 20, 50]"
+      (rowDblClick)="onGridRowDblClick($event)"
+      (rowAction)="onGridAction($event)">
+
       <ng-template let-item>
         <button type="button" class="btn btn-light" (click)="mobileView(item)">{{ 'COMMON.VIEW' | translate }}</button>
       </ng-template>
-    </app-mobile-card-list>
-  } @else {
-  <div class="erp-grid-card">
-  <dx-data-grid
-    [dataSource]="orders()"
-    [showBorders]="true"
-    [columnAutoWidth]="true"
-    [rowAlternationEnabled]="true"
-    [rtlEnabled]="true"
-    height="600px"
-    [showRowLines]="true"
-    [allowColumnReordering]="true"
-    [allowColumnResizing]="true"
-    [noDataText]="'BANK_FINANCING.NO_ORDERS' | translate"
-    (onRowDblClick)="onView($event)"
-    keyExpr="id">
-
-    <dxo-search-panel [visible]="true"></dxo-search-panel>
-    <dxo-filter-row [visible]="true"></dxo-filter-row>
-    <dxo-header-filter [visible]="true"></dxo-header-filter>
-    <dxo-paging [pageSize]="10"></dxo-paging>
-    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
-
-    <dxi-column dataField="orderNumber" [caption]="'BANK_FINANCING.ORDER_NUMBER' | translate"></dxi-column>
-    <dxi-column dataField="orderDate" [caption]="'BANK_FINANCING.ORDER_DATE' | translate" dataType="date"></dxi-column>
-    <dxi-column dataField="quotationNumber" [caption]="'CORPORATE.QUOTATION_NUMBER' | translate"></dxi-column>
-    <dxi-column dataField="endUserName" [caption]="'BANK_FINANCING.END_USER_NAME' | translate"></dxi-column>
-    <dxi-column dataField="bankName" [caption]="'BANK_FINANCING.BANK' | translate"></dxi-column>
-    <dxi-column dataField="vin" caption="VIN"></dxi-column>
-    <dxi-column dataField="approvedFinancingAmount" [caption]="'BANK_FINANCING.APPROVED_FINANCING_AMOUNT' | translate" dataType="number" format="currency"></dxi-column>
-    <dxi-column dataField="status" [caption]="'BANK_FINANCING.STATUS' | translate"></dxi-column>
-
-    <dxi-column type="buttons" [width]="80">
-      <dxi-button
-        icon="find"
-        [hint]="'COMMON.VIEW' | translate"
-        [onClick]="onView">
-      </dxi-button>
-    </dxi-column>
-  </dx-data-grid>
+    </app-shared-data-grid>
   </div>
-  }
 </div>

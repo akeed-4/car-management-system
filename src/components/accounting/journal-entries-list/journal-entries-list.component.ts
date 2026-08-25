@@ -1,19 +1,23 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AccountingService } from '../accounting.service';
 import { JournalEntry } from '../models';
 import { Router } from '@angular/router';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../shared/shared-data-grid/shared-data-grid.component';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 
 @Component({
   selector: 'app-journal-entries-list',
   standalone: true,
   imports: [
     CommonModule,
-    DxDataGridModule,
+    SharedDataGridComponent,
     TranslateModule,
     MatButtonModule,
     MatIconModule
@@ -43,9 +47,34 @@ export class JournalEntriesListComponent implements OnInit {
     return data.isGeneratedDynamically !== true; // Hide edit button for dynamically generated entries
   }
 
-  // DevExtreme DataGrid columns configuration with translation
- 
+  /** Config-driven columns -- same fields/formats/lookup as the previous dx-data-grid. */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'id', dataType: 'number', caption: 'ACCOUNTING.ENTRY_NUMBER', width: 120, alignment: 'right' },
+    { dataField: 'entryDate', dataType: 'date', format: 'yyyy-MM-dd', caption: 'ACCOUNTING.ENTRY_DATE', width: 120, alignment: 'right' },
+    { dataField: 'description', dataType: 'string', caption: 'ACCOUNTING.DESCRIPTION', minWidth: 200, alignment: 'right' },
+    { dataField: 'totalCredit', dataType: 'number', format: { type: 'currency', currency: 'SAR' }, caption: 'ACCOUNTING.AMOUNT', width: 130, alignment: 'right' },
+    {
+      dataField: 'status', dataType: 'string', caption: 'ACCOUNTING.STATUS', width: 100, alignment: 'center',
+      lookup: { dataSource: this.statusOptions, valueExpr: 'value', displayExpr: 'text' },
+    },
+    { dataField: '__actions', dataType: 'string', caption: 'ACCOUNTING.ACTIONS', type: 'actions', width: 120, allowSorting: false, allowFiltering: false },
+  ];
 
+  /** Same edit/delete buttons as before. NOTE: the original `isEditButtonVisible` read
+   *  `data.isGeneratedDynamically` off the DevExtreme button-visibility options object
+   *  (`{component, row, column}`), which has no such property -- so both buttons were
+   *  always visible regardless of isGeneratedDynamically. Preserved that literal (buggy)
+   *  behavior here rather than wiring in a newly-functioning check that would change it. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'ACCOUNTING.EDIT' },
+    { id: 'delete', icon: 'delete', labelKey: 'ACCOUNTING.DELETE' },
+  ];
+
+  onGridAction(e: SharedGridRowActionEvent): void {
+    const wrapped = { row: { data: e.row } };
+    if (e.actionId === 'edit') this.onEdit(wrapped);
+    else if (e.actionId === 'delete') this.onDelete(wrapped);
+  }
 
   ngOnInit(): void {
     this.loadJournalEntries();
@@ -86,7 +115,7 @@ export class JournalEntriesListComponent implements OnInit {
       });
     }
   }
- 
+
 
   onAddNew(): void {
     // Navigate to create form

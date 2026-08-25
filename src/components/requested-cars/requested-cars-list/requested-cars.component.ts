@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, TemplateRef, computed, inject, signal, viewChild, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,19 +13,21 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDialog } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import CustomStore from 'devextreme/data/custom_store';
-import {
-  DxDataGridModule,
-  DxDataGridComponent,
-} from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { RequestedCarService } from '../../../services/requested-car.service';
 import { HasPermissionDirective } from '../../shared/permission.directive';
+import { PermissionService } from '../../../services/permission.service';
 import { ModalComponent } from '../../shared/modal/modal.component';
 import { AuditHistoryPanelComponent } from '../../shared/audit-history-panel/audit-history-panel.component';
 import { RequestedCarAiPanelComponent } from '../requested-car-ai-panel/requested-car-ai-panel.component';
 import { RequestedCar } from '../../../models/requested-car.model';
 import { getStatusClass, getPriorityClass, getReservationStatusClass } from '../requested-car-status.util';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../shared/shared-data-grid/shared-data-grid.component';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 
 @Component({
   selector: 'app-requested-cars',
@@ -44,7 +46,7 @@ import { getStatusClass, getPriorityClass, getReservationStatusClass } from '../
     MatFormFieldModule,
     MatSelectModule,
     MatInputModule,
-    DxDataGridModule,
+    SharedDataGridComponent,
     TranslateModule,
   ],
   templateUrl: './requested-cars.component.html',
@@ -52,12 +54,13 @@ import { getStatusClass, getPriorityClass, getReservationStatusClass } from '../
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RequestedCarsComponent {
-  @ViewChild(DxDataGridComponent, { static: false }) grid!: DxDataGridComponent;
+  @ViewChild(SharedDataGridComponent, { static: false }) grid!: SharedDataGridComponent;
 
   private requestedCarService = inject(RequestedCarService);
   private router = inject(Router);
   private dialog = inject(MatDialog);
   private translate = inject(TranslateService);
+  private permissionService = inject(PermissionService);
 
   statusFilter = signal<string>('');
   priorityFilter = signal<string>('');
@@ -123,6 +126,64 @@ export class RequestedCarsComponent {
   getPriorityClass = getPriorityClass;
   getReservationStatusClass = getReservationStatusClass;
 
+  // --- Shared DataGrid: config-driven columns (same fields/fixed positions/visibility
+  //     as the previous hand-written dx-data-grid) ---
+  columns: dataGridColumnDto[] = [
+    { dataField: 'requestNumber', dataType: 'string', caption: 'REQUESTED_CARS.REQUEST_NUMBER', width: 130, fixed: true },
+    { dataField: 'requestDate', dataType: 'date', format: 'yyyy-MM-dd', caption: 'REQUESTED_CARS.REQUEST_DATE', width: 120 },
+    { dataField: 'customerName', dataType: 'string', caption: 'REQUESTED_CARS.CUSTOMER' },
+    { dataField: 'customerPhone', dataType: 'string', caption: 'REQUESTED_CARS.CUSTOMER_PHONE', width: 130 },
+    { dataField: 'salespersonName', dataType: 'string', caption: 'REQUESTED_CARS.SALESPERSON' },
+    { dataField: 'make', dataType: 'string', caption: 'REQUESTED_CARS.BRAND' },
+    { dataField: 'model', dataType: 'string', caption: 'REQUESTED_CARS.MODEL' },
+    { dataField: 'year', dataType: 'number', caption: 'REQUESTED_CARS.YEAR', width: 90, alignment: 'center' },
+    { dataField: 'color', dataType: 'string', caption: 'REQUESTED_CARS.COLOR', width: 110 },
+    { dataField: 'preferredSpecifications', dataType: 'string', caption: 'REQUESTED_CARS.PREFERRED_SPECS', visible: false },
+    { dataField: 'priority', dataType: 'string', caption: 'REQUESTED_CARS.PRIORITY', width: 120, cellTemplate: 'priorityTemplate' },
+    { dataField: 'expectedArrival', dataType: 'date', format: 'yyyy-MM-dd', caption: 'REQUESTED_CARS.EXPECTED_ARRIVAL', width: 130 },
+    { dataField: 'status', dataType: 'string', caption: 'REQUESTED_CARS.STATUS', width: 130, cellTemplate: 'statusTemplate' },
+    { dataField: 'reservationStatus', dataType: 'string', caption: 'REQUESTED_CARS.RESERVATION_STATUS', width: 140, cellTemplate: 'reservationTemplate' },
+    { dataField: 'notes', dataType: 'string', caption: 'REQUESTED_CARS.NOTES', visible: false },
+    { dataField: 'createdAt', dataType: 'datetime', caption: 'REQUESTED_CARS.CREATED_DATE', visible: false },
+    { dataField: '__actions', dataType: 'string', caption: 'COMMON.ACTIONS', type: 'actions', width: 160, fixed: true, allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Same permission-gated actions as before (*appHasPermission), now expressed as
+   *  per-row visibility predicates on the Shared DataGrid's actions template. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('requestedCar.edit') },
+    { id: 'history', icon: 'history', labelKey: 'AUDIT_HISTORY.TITLE', visible: () => this.permissionService.hasPermission('requestedCar.history') },
+    { id: 'ai', icon: 'auto_awesome', labelKey: 'REQUESTED_CARS.AI_PANEL.TITLE', visible: () => this.permissionService.hasPermission('requestedCar.ai') },
+    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('requestedCar.delete') },
+  ];
+
+  summaryItems: any[] = [
+    { column: 'requestNumber', summaryType: 'count', displayFormat: '{0}' },
+  ];
+
+  private priorityTpl = viewChild<TemplateRef<any>>('priorityTemplate');
+  private statusTpl = viewChild<TemplateRef<any>>('statusTemplate');
+  private reservationTpl = viewChild<TemplateRef<any>>('reservationTemplate');
+
+  get cellTemplates(): Record<string, TemplateRef<any>> {
+    const priority = this.priorityTpl();
+    const status = this.statusTpl();
+    const reservation = this.reservationTpl();
+    return {
+      ...(priority ? { priorityTemplate: priority } : {}),
+      ...(status ? { statusTemplate: status } : {}),
+      ...(reservation ? { reservationTemplate: reservation } : {}),
+    };
+  }
+
+  onGridAction(e: SharedGridRowActionEvent): void {
+    const row = e.row as RequestedCar;
+    if (e.actionId === 'edit') this.editRequest(row.id);
+    else if (e.actionId === 'history') this.openHistory(row.id);
+    else if (e.actionId === 'ai') this.openAiPanel(row);
+    else if (e.actionId === 'delete') this.requestDelete(row.id);
+  }
+
   newRequest(): void {
     this.router.navigate(['/requested-cars/new']);
   }
@@ -158,7 +219,7 @@ export class RequestedCarsComponent {
   }
 
   refresh(): void {
-    this.grid?.instance?.refresh();
+    this.grid?.refresh();
   }
 
   onStatusFilterChange(): void {
@@ -172,17 +233,19 @@ export class RequestedCarsComponent {
   resetFilters(): void {
     this.statusFilter.set('');
     this.priorityFilter.set('');
-    this.grid?.instance?.clearFilter();
+    this.grid?.getInstance()?.clearFilter();
     this.refresh();
   }
 
   exportExcel(): void {
+    const component = this.grid?.getInstance();
+    if (!component) return;
     import('devextreme/excel_exporter').then(({ exportDataGrid }) => {
       import('exceljs').then(async (ExcelJS) => {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('RequestedCars');
         exportDataGrid({
-          component: this.grid.instance,
+          component,
           worksheet,
         }).then(() => {
           workbook.xlsx.writeBuffer().then((buffer: BlobPart) => {
@@ -196,11 +259,13 @@ export class RequestedCarsComponent {
   }
 
   exportPdf(): void {
+    const component = this.grid?.getInstance();
+    if (!component) return;
     Promise.all([import('jspdf'), import('devextreme/pdf_exporter')]).then(([jsPDFModule, { exportDataGrid }]) => {
       const doc = new jsPDFModule.jsPDF();
       exportDataGrid({
         jsPDFDocument: doc,
-        component: this.grid.instance,
+        component,
       }).then(() => {
         doc.save('RequestedCars.pdf');
       });

@@ -7,13 +7,17 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { DxDataGridModule, DxDataGridComponent, DxTemplateModule } from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { ReceiptService } from '../../../../services/receipt.service';
 import { SalesService } from '../../../../services/sales.service';
 import { NotificationService } from '@/src/services/notification.service';
 import { Receipt } from '../../../../models/receipt.model';
 import { SalesChannel } from '../../../../models/enums/sales-channel.enum';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 
 @Component({
   selector: 'app-corporate-receipt-list',
@@ -25,8 +29,7 @@ import { SalesChannel } from '../../../../models/enums/sales-channel.enum';
     MatMenuModule,
     MatToolbarModule,
     MatTooltipModule,
-    DxDataGridModule,
-    DxTemplateModule,
+    SharedDataGridComponent,
     TranslateModule
   ],
   templateUrl: './corporate-receipt-list.component.html',
@@ -34,7 +37,7 @@ import { SalesChannel } from '../../../../models/enums/sales-channel.enum';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CorporateReceiptListComponent implements OnInit {
-  @ViewChild(DxDataGridComponent, { static: false }) grid!: DxDataGridComponent;
+  @ViewChild(SharedDataGridComponent, { static: false }) grid!: SharedDataGridComponent;
 
   private receiptService = inject(ReceiptService);
   private salesService = inject(SalesService);
@@ -43,6 +46,25 @@ export class CorporateReceiptListComponent implements OnInit {
 
   receipts = signal<Receipt[]>([]);
   loading = signal(false);
+
+  /** Config-driven columns -- same fields/formats as before (i18n keys). */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'voucherNumber', dataType: 'string', caption: 'ACCOUNTS.RECEIPTS.COL_VOUCHER_NUMBER', width: 140 },
+    { dataField: 'customerName', dataType: 'string', caption: 'ACCOUNTS.RECEIPTS.COL_CUSTOMER' },
+    { dataField: 'date', dataType: 'date', caption: 'ACCOUNTS.RECEIPTS.COL_DATE' },
+    { dataField: 'amount', dataType: 'number', format: 'currency', caption: 'ACCOUNTS.RECEIPTS.COL_AMOUNT' },
+    { dataField: 'paymentMethod', dataType: 'string', caption: 'INVOICE.PAYMENT_METHOD' },
+    { dataField: 'actions', dataType: 'string', type: 'actions', caption: '', width: 80, allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Same single edit button as before. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
+  ];
+
+  onGridAction(e: SharedGridRowActionEvent): void {
+    if (e.actionId === 'edit') this.onEdit(e.row);
+  }
 
   ngOnInit(): void {
     this.loadReceipts();
@@ -83,15 +105,18 @@ export class CorporateReceiptListComponent implements OnInit {
   }
 
   onEdit = (e: any): void => {
-    this.router.navigate(['/accounts/receipts/edit', e.row.data.id]);
+    const id = (e?.row?.data ?? e)?.id;
+    this.router.navigate(['/accounts/receipts/edit', id]);
   };
 
   exportExcel(): void {
+    const component = this.grid?.getInstance();
+    if (!component) { return; }
     import('devextreme/excel_exporter').then(({ exportDataGrid }) => {
       import('exceljs').then(async (ExcelJS) => {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('CorporateReceipts');
-        exportDataGrid({ component: this.grid.instance, worksheet }).then(() => {
+        exportDataGrid({ component, worksheet }).then(() => {
           workbook.xlsx.writeBuffer().then((buffer: BlobPart) => {
             import('file-saver').then(({ saveAs }) => {
               saveAs(new Blob([buffer], { type: 'application/octet-stream' }), 'CorporateReceipts.xlsx');
@@ -103,9 +128,11 @@ export class CorporateReceiptListComponent implements OnInit {
   }
 
   exportPdf(): void {
+    const component = this.grid?.getInstance();
+    if (!component) { return; }
     Promise.all([import('jspdf'), import('devextreme/pdf_exporter')]).then(([jsPDFModule, { exportDataGrid }]) => {
       const doc = new jsPDFModule.jsPDF();
-      exportDataGrid({ jsPDFDocument: doc, component: this.grid.instance }).then(() => {
+      exportDataGrid({ jsPDFDocument: doc, component }).then(() => {
         doc.save('CorporateReceipts.pdf');
       });
     });

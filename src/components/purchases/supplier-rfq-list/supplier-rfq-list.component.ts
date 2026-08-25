@@ -1,15 +1,18 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, TemplateRef, inject, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../shared/shared-data-grid/shared-data-grid.component';
 import { SupplierRfqService } from '../../../services/supplier-rfq.service';
 import { NotificationService } from '../../../services/notification.service';
 import { SupplierRfqDto } from '../../../models/supplier-rfq.model';
-import { ResponsiveService } from '../../../services/responsive.service';
-import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
+import { MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 
 @Component({
   selector: 'app-supplier-rfq-list',
@@ -17,21 +20,16 @@ import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-ca
   imports: [
     CommonModule,
     RouterModule,
-    DxDataGridModule,
-    DxButtonModule,
-    DxTemplateModule,
+    SharedDataGridComponent,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
-    MobileCardListComponent
   ],
   templateUrl: './supplier-rfq-list.component.html',
   styleUrls: ['./supplier-rfq-list.component.css']
 })
 export class SupplierRfqListComponent implements OnInit {
   quotations: SupplierRfqDto[] = [];
-  private responsiveService = inject(ResponsiveService);
-  isMobile = this.responsiveService.isMobile;
 
   constructor(
     private supplierRfqService: SupplierRfqService,
@@ -121,7 +119,51 @@ export class SupplierRfqListComponent implements OnInit {
     });
   }
 
-  // --- Mobile card-list rendering ---
+  // --- Shared DataGrid: config-driven columns (same fields as before) ---
+  columns: dataGridColumnDto[] = [
+    { dataField: 'quotationNumber', dataType: 'string', caption: 'SUPPLIER_RFQ.QUOTATION_NUMBER' },
+    { dataField: 'quotationDate', dataType: 'date', caption: 'SUPPLIER_RFQ.QUOTATION_DATE' },
+    { dataField: 'vendorName', dataType: 'string', caption: 'SUPPLIER_RFQ.VENDOR' },
+    { dataField: 'requisitionNumber', dataType: 'string', caption: 'SUPPLIER_RFQ.REQUISITION_NUMBER' },
+    { dataField: 'items', dataType: 'number', caption: 'SUPPLIER_RFQ.ITEMS_COUNT', cellTemplate: 'itemsCountTemplate', allowSorting: false, allowFiltering: false },
+    { dataField: 'totalAmount', dataType: 'number', format: 'currency', caption: 'SUPPLIER_RFQ.TOTAL_AMOUNT' },
+    { dataField: 'status', dataType: 'string', caption: 'SUPPLIER_RFQ.STATUS', cellTemplate: 'statusCellTemplate' },
+    // Blank caption (matches the previous buttons column, which had none) -- dataField
+    // 'actions' (rather than a synthetic '__actions') so the caption-fallback in
+    // SharedDataGridComponent (caption || dataField) reads as a plain word if it ever
+    // surfaces, same convention as retail-delivery-list's actions column.
+    { dataField: 'actions', dataType: 'string', caption: '', type: 'actions', width: 200, allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Same edit/submit/approve/reject buttons, same per-row visibility rules. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
+    { id: 'submit', icon: 'upload_file', labelKey: 'SUPPLIER_RFQ.SUBMIT', visible: (row) => this.isDraft({ row: { data: row } }) },
+    { id: 'approve', icon: 'check', labelKey: 'SUPPLIER_RFQ.APPROVE', visible: (row) => this.isPendingApproval({ row: { data: row } }) },
+    { id: 'reject', icon: 'close', labelKey: 'SUPPLIER_RFQ.REJECT', visible: (row) => this.isPendingApproval({ row: { data: row } }) },
+  ];
+
+  private statusTpl = viewChild<TemplateRef<any>>('statusCellTemplate');
+  private itemsCountTpl = viewChild<TemplateRef<any>>('itemsCountTemplate');
+
+  get cellTemplates(): Record<string, TemplateRef<any>> {
+    const status = this.statusTpl();
+    const itemsCount = this.itemsCountTpl();
+    return {
+      ...(status ? { statusCellTemplate: status } : {}),
+      ...(itemsCount ? { itemsCountTemplate: itemsCount } : {}),
+    };
+  }
+
+  onGridAction(e: SharedGridRowActionEvent): void {
+    const wrapped = { row: { data: e.row } };
+    if (e.actionId === 'edit') this.onEdit(wrapped);
+    else if (e.actionId === 'submit') this.onSubmit(wrapped);
+    else if (e.actionId === 'approve') this.onApprove(wrapped);
+    else if (e.actionId === 'reject') this.onReject(wrapped);
+  }
+
+  // --- Mobile card-list rendering (reused as the SharedDataGrid's [mobileItems] view) ---
   mobileTitleOf = (q: SupplierRfqDto) => q.quotationNumber;
   mobileTrackBy = (_index: number, q: SupplierRfqDto) => q.id;
 

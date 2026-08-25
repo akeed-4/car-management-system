@@ -11,55 +11,30 @@
     </div>
   </div>
 
-  @if (isMobile()) {
-    <app-mobile-card-list
-      [items]="deliveryNotes()"
-      [fields]="mobileFields"
-      [titleOf]="mobileTitleOf"
-      [trackByFn]="mobileTrackBy"
-      emptyMessage="CORPORATE.NO_DELIVERIES"
-    >
+  <div class="erp-grid-card">
+    <!-- Shared DataGrid: owns grid chrome + the mobile card rendering (same
+         fields/actions the split @if(isMobile()) block used to duplicate). -->
+    <app-shared-data-grid
+      [dataSource]="deliveryNotes()"
+      [columns]="columns"
+      [rowActions]="rowActions"
+      [loading]="loading()"
+      [mobileItems]="deliveryNotes()"
+      [mobileFields]="mobileFields"
+      [mobileTitleOf]="mobileTitleOf"
+      [mobileTrackBy]="mobileTrackBy"
+      keyExpr="id"
+      height="600px"
+      noDataText="CORPORATE.NO_DELIVERIES"
+      [showColumnChooser]="false"
+      [pageSize]="10"
+      [allowedPageSizes]="[10, 20, 50]"
+      (rowDblClick)="onView($event)"
+      (rowAction)="onGridAction($event)">
+
       <ng-template let-note>
         <button type="button" class="btn btn-light" (click)="mobileView(note)">{{ 'COMMON.VIEW' | translate }}</button>
       </ng-template>
-    </app-mobile-card-list>
-  } @else {
-  <div class="erp-grid-card">
-  <dx-data-grid
-    [dataSource]="deliveryNotes()"
-    [showBorders]="true"
-    [columnAutoWidth]="true"
-    [rowAlternationEnabled]="true"
-    [rtlEnabled]="true"
-    height="600px"
-    [showRowLines]="true"
-    [allowColumnReordering]="true"
-    [allowColumnResizing]="true"
-    [noDataText]="'CORPORATE.NO_DELIVERIES' | translate"
-    (onRowDblClick)="onView($event)"
-    keyExpr="id">
-
-    <dxo-search-panel [visible]="true"></dxo-search-panel>
-    <dxo-filter-row [visible]="true"></dxo-filter-row>
-    <dxo-header-filter [visible]="true"></dxo-header-filter>
-    <dxo-paging [pageSize]="10"></dxo-paging>
-    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
-
-    <dxi-column dataField="deliveryNoteNumber" [caption]="'CORPORATE.DELIVERY_NOTE_NUMBER' | translate"></dxi-column>
-    <dxi-column dataField="vin" caption="VIN"></dxi-column>
-    <dxi-column dataField="gatePassSerial" [caption]="'CORPORATE.GATE_PASS_SERIAL' | translate"></dxi-column>
-    <dxi-column dataField="deliveryDate" [caption]="'CORPORATE.DELIVERY_DATE' | translate" dataType="date"></dxi-column>
-    <dxi-column dataField="deliveredToName" [caption]="'CORPORATE.RECEIVER_NAME' | translate"></dxi-column>
-    <dxi-column dataField="driverName" [caption]="'CORPORATE.DRIVER_NAME' | translate"></dxi-column>
-
-    <dxi-column type="buttons" [width]="80">
-      <dxi-button
-        icon="find"
-        [hint]="'COMMON.VIEW' | translate"
-        [onClick]="onView">
-      </dxi-button>
-    </dxi-column>
-  </dx-data-grid>
+    </app-shared-data-grid>
   </div>
-  }
 </div>

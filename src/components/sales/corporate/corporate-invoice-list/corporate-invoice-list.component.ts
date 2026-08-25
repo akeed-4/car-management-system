@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, ViewChild, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, TemplateRef, ViewChild, inject, signal, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,14 +6,18 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { DxDataGridModule, DxDataGridComponent, DxTemplateModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { SalesService } from '../../../../services/sales.service';
 import { NotificationService } from '@/src/services/notification.service';
 import { SalesInvoice } from '../../../../models/sales-invoice.model';
 import { SalesChannel } from '../../../../models/enums/sales-channel.enum';
 import { ResponsiveService } from '../../../../services/responsive.service';
-import { MobileCardListComponent, MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
+import { MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 
 @Component({
   selector: 'app-corporate-invoice-list',
@@ -25,17 +29,15 @@ import { MobileCardListComponent, MobileCardField } from '../../../shared/mobile
     MatMenuModule,
     MatToolbarModule,
     MatTooltipModule,
-    DxDataGridModule,
-    DxTemplateModule,
-    TranslateModule,
-    MobileCardListComponent
+    SharedDataGridComponent,
+    TranslateModule
   ],
   templateUrl: './corporate-invoice-list.component.html',
   styleUrls: ['./corporate-invoice-list.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CorporateInvoiceListComponent implements OnInit {
-  @ViewChild(DxDataGridComponent, { static: false }) grid!: DxDataGridComponent;
+  @ViewChild(SharedDataGridComponent, { static: false }) grid!: SharedDataGridComponent;
 
   private salesService = inject(SalesService);
   private notificationService = inject(NotificationService);
@@ -46,6 +48,35 @@ export class CorporateInvoiceListComponent implements OnInit {
 
   invoices = signal<SalesInvoice[]>([]);
   loading = signal(false);
+
+  /** Screen-specific status badge, passed generically to the Shared DataGrid. */
+  private statusTpl = viewChild<TemplateRef<any>>('statusTemplate');
+
+  get cellTemplates(): Record<string, TemplateRef<any>> {
+    const status = this.statusTpl();
+    return status ? { statusTemplate: status } : {};
+  }
+
+  /** Config-driven columns -- same fields/formats as before (i18n keys). */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'invoiceNumber', dataType: 'string', caption: 'INVOICE.INVOICE_NUMBER', width: 140 },
+    { dataField: 'customerName', dataType: 'string', caption: 'INVOICE.CUSTOMER' },
+    { dataField: 'invoiceDate', dataType: 'date', caption: 'INVOICE.INVOICE_DATE' },
+    { dataField: 'dueDate', dataType: 'date', caption: 'INVOICE.DUE_DATE' },
+    { dataField: 'totalAmount', dataType: 'number', format: 'currency', caption: 'INVOICE.TOTAL' },
+    { dataField: 'amountDue', dataType: 'number', format: 'currency', caption: 'INVOICE.AMOUNT_DUE' },
+    { dataField: 'status', dataType: 'string', caption: 'INVOICE.STATUS', cellTemplate: 'statusTemplate' },
+    { dataField: 'actions', dataType: 'string', type: 'actions', caption: '', width: 80, allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Same single edit button as before. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
+  ];
+
+  onGridAction(e: SharedGridRowActionEvent): void {
+    if (e.actionId === 'edit') this.onEdit(e.row);
+  }
 
   ngOnInit(): void {
     this.loadInvoices();
@@ -74,16 +105,18 @@ export class CorporateInvoiceListComponent implements OnInit {
   }
 
   onEdit = (e: any): void => {
-    this.router.navigate(['/sales/corporate/invoices/edit', e.row.data.id]);
+    const id = (e?.row?.data ?? e)?.id;
+    this.router.navigate(['/sales/corporate/invoices/edit', id]);
   };
 
   exportExcel(): void {
-    if (!this.grid) { return; }
+    const component = this.grid?.getInstance();
+    if (!component) { return; }
     import('devextreme/excel_exporter').then(({ exportDataGrid }) => {
       import('exceljs').then(async (ExcelJS) => {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('CorporateInvoices');
-        exportDataGrid({ component: this.grid.instance, worksheet }).then(() => {
+        exportDataGrid({ component, worksheet }).then(() => {
           workbook.xlsx.writeBuffer().then((buffer: BlobPart) => {
             import('file-saver').then(({ saveAs }) => {
               saveAs(new Blob([buffer], { type: 'application/octet-stream' }), 'CorporateInvoices.xlsx');
@@ -95,10 +128,11 @@ export class CorporateInvoiceListComponent implements OnInit {
   }
 
   exportPdf(): void {
-    if (!this.grid) { return; }
+    const component = this.grid?.getInstance();
+    if (!component) { return; }
     Promise.all([import('jspdf'), import('devextreme/pdf_exporter')]).then(([jsPDFModule, { exportDataGrid }]) => {
       const doc = new jsPDFModule.jsPDF();
-      exportDataGrid({ jsPDFDocument: doc, component: this.grid.instance }).then(() => {
+      exportDataGrid({ jsPDFDocument: doc, component }).then(() => {
         doc.save('CorporateInvoices.pdf');
       });
     });

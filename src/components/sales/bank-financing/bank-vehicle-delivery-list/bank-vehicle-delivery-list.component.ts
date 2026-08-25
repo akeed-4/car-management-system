@@ -1,15 +1,18 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { BankFinancingService } from '../../../../services/bank-financing.service';
 import { NotificationService } from '@/src/services/notification.service';
 import { BankVehicleDelivery } from '../../../../models/bank-financing/bank-vehicle-delivery.model';
-import { ResponsiveService } from '../../../../services/responsive.service';
-import { MobileCardListComponent, MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
+import { MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 
 @Component({
   selector: 'app-bank-vehicle-delivery-list',
@@ -17,11 +20,10 @@ import { MobileCardListComponent, MobileCardField } from '../../../shared/mobile
   imports: [
     CommonModule,
     RouterModule,
-    DxDataGridModule,
+    SharedDataGridComponent,
     TranslateModule,
     MatButtonModule,
-    MatIconModule,
-    MobileCardListComponent
+    MatIconModule
   ],
   providers: [DatePipe],
   templateUrl: './bank-vehicle-delivery-list.component.html',
@@ -33,11 +35,35 @@ export class BankVehicleDeliveryListComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private router = inject(Router);
   private datePipe = inject(DatePipe);
-  private responsiveService = inject(ResponsiveService);
-  isMobile = this.responsiveService.isMobile;
 
   deliveries = signal<BankVehicleDelivery[]>([]);
   loading = signal(false);
+
+  /** Config-driven columns -- same fields/captions as before. */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'deliveryNumber', dataType: 'string', caption: 'BANK_FINANCING.DELIVERY_NUMBER' },
+    { dataField: 'quotationNumber', dataType: 'string', caption: 'BANK_FINANCING.ORDER_NUMBER' },
+    { dataField: 'endUserName', dataType: 'string', caption: 'BANK_FINANCING.END_USER_NAME' },
+    { dataField: 'bankName', dataType: 'string', caption: 'BANK_FINANCING.BANK' },
+    { dataField: 'vin', dataType: 'string', caption: 'VIN' },
+    { dataField: 'deliveryDate', dataType: 'date', caption: 'CORPORATE.DELIVERY_DATE' },
+    { dataField: 'receiverName', dataType: 'string', caption: 'CORPORATE.RECEIVER_NAME' },
+    { dataField: 'actions', dataType: 'string', type: 'actions', caption: '', width: 80, allowSorting: false, allowFiltering: false },
+  ];
+
+  /** Same single view button as before. */
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW' },
+  ];
+
+  onGridAction(e: SharedGridRowActionEvent): void {
+    if (e.actionId === 'view') this.onView({ row: { data: e.row } });
+  }
+
+  /** Row double-click opens the record -- same behavior, adapted to the shared output. */
+  onGridRowDblClick(row: any): void {
+    this.onView({ row: { data: row } });
+  }
 
   ngOnInit(): void {
     this.loadDeliveries();

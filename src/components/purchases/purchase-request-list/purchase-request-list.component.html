@@ -11,14 +11,26 @@
     </div>
   </div>
 
-  @if (isMobile()) {
-    <app-mobile-card-list
-      [items]="purchaseRequests"
-      [fields]="mobileFields"
-      [titleOf]="mobileTitleOf"
-      [trackByFn]="mobileTrackBy"
-      emptyMessage="PURCHASE_REQUESTS.NO_REQUESTS"
-    >
+  <div class="erp-grid-card">
+    <!-- Shared DataGrid: same columns/status badge (with rejection-reason tooltip)/
+         permission-gated actions as before; on mobile it renders the same card list
+         (mobileFields/mobileTitleOf/mobileTrackBy) in place of the clipped grid columns. -->
+    <app-shared-data-grid
+      [dataSource]="purchaseRequests"
+      [columns]="columns"
+      [rowActions]="rowActions"
+      [cellTemplates]="cellTemplates"
+      [mobileItems]="purchaseRequests"
+      [mobileFields]="mobileFields"
+      [mobileTitleOf]="mobileTitleOf"
+      [mobileTrackBy]="mobileTrackBy"
+      keyExpr="id"
+      height="600px"
+      noDataText="PURCHASE_REQUESTS.NO_REQUESTS"
+      [pageSize]="10"
+      [allowedPageSizes]="[10, 20, 50]"
+      (rowAction)="onGridAction($event)">
+
       <ng-template let-req>
         @if (mobileCanEdit(req)) {
           <button type="button" class="btn btn-light" (click)="mobileEdit(req)">{{ 'COMMON.EDIT' | translate }}</button>
@@ -33,73 +45,19 @@
           <button type="button" class="btn btn-light" (click)="mobileDelete(req)">{{ 'COMMON.DELETE' | translate }}</button>
         }
       </ng-template>
-    </app-mobile-card-list>
-  } @else {
-  <div class="erp-grid-card">
-  <dx-data-grid
-    [dataSource]="purchaseRequests"
-    [showBorders]="true"
-    [columnAutoWidth]="true"
-    [rowAlternationEnabled]="true"
-    [rtlEnabled]="true"
-    height="600px"
-    [showRowLines]="true"
-    [allowColumnReordering]="true"
-    [allowColumnResizing]="true"
-    keyExpr="id">
 
-    <dxo-search-panel [visible]="true"></dxo-search-panel>
-    <dxo-filter-row [visible]="true"></dxo-filter-row>
-    <dxo-header-filter [visible]="true"></dxo-header-filter>
-    <dxo-paging [pageSize]="10"></dxo-paging>
-    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
-
-    <dxi-column dataField="requestNumber" [caption]="'PURCHASE_REQUESTS.REQUEST_NUMBER' | translate"></dxi-column>
-    <dxi-column dataField="requestDate" [caption]="'PURCHASE_REQUESTS.REQUEST_DATE' | translate" dataType="date"></dxi-column>
-    <dxi-column dataField="supplierName" [caption]="'PURCHASE_REQUESTS.SUPPLIER' | translate"></dxi-column>
-    <dxi-column dataField="items" [caption]="'PURCHASE_REQUESTS.ITEMS_COUNT' | translate" [calculateCellValue]="getItemsCount"></dxi-column>
-    <dxi-column dataField="totalAmount" [caption]="'PURCHASE_OFFERS.TOTAL_AMOUNT' | translate" format="currency"></dxi-column>
-    <dxi-column dataField="status" [caption]="'PURCHASE_REQUESTS.STATUS' | translate" cellTemplate="statusCellTemplate"></dxi-column>
-    <div *dxTemplate="let cell of 'statusCellTemplate'">
-      <span class="erp-status-badge status-badge"
-        [ngClass]="{
-          'warning': cell.value === 'Draft' || cell.value === 'Pending' || cell.value === 'PendingApproval',
-          'success': cell.value === 'Approved',
-          'danger': cell.value === 'Rejected'
-        }"
-        [matTooltip]="cell.value === 'Rejected' ? cell.data.rejectionReason : null"
-        matTooltipPosition="above">
-        {{ ('PURCHASE_REQUESTS.STATUS_' + cell.value?.toUpperCase()) | translate }}
-      </span>
-    </div>
-
-    <dxi-column type="buttons" [width]="210">
-      <dxi-button
-        icon="edit"
-        [hint]="'COMMON.EDIT' | translate"
-        [visible]="canEdit"
-        [onClick]="onEdit.bind(this)">
-      </dxi-button>
-      <dxi-button
-        icon="check"
-        [hint]="'PURCHASE_REQUESTS.APPROVE' | translate"
-        [visible]="canApprove"
-        [onClick]="onApprove.bind(this)">
-      </dxi-button>
-      <dxi-button
-        icon="close"
-        [hint]="'PURCHASE_REQUESTS.REJECT' | translate"
-        [visible]="canReject"
-        [onClick]="onReject.bind(this)">
-      </dxi-button>
-      <dxi-button
-        icon="trash"
-        [hint]="'COMMON.DELETE' | translate"
-        [visible]="canDelete"
-        [onClick]="onDelete.bind(this)">
-      </dxi-button>
-    </dxi-column>
-  </dx-data-grid>
+      <ng-template #statusTemplate let-cell>
+        <span class="erp-status-badge status-badge"
+          [ngClass]="{
+            'warning': cell.value === 'Draft' || cell.value === 'Pending' || cell.value === 'PendingApproval',
+            'success': cell.value === 'Approved',
+            'danger': cell.value === 'Rejected'
+          }"
+          [matTooltip]="cell.value === 'Rejected' ? cell.data.rejectionReason : null"
+          matTooltipPosition="above">
+          {{ ('PURCHASE_REQUESTS.STATUS_' + cell.value?.toUpperCase()) | translate }}
+        </span>
+      </ng-template>
+    </app-shared-data-grid>
   </div>
-  }
 </div>
