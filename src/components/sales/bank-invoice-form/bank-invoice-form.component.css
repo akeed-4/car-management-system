@@ -189,3 +189,18 @@ mat-form-field {
   box-shadow: 0 3px 8px rgba(67, 56, 202, 0.25);
   transform: translateY(-1px);
 }
+
+.erp-info-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--erp-text-secondary, #5f6368);
+  font-size: 13px;
+}
+
+.erp-info-note .info-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+

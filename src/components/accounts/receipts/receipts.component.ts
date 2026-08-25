@@ -40,6 +40,9 @@ import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-ca
   ],
   templateUrl: './receipts.component.html',
   styleUrl: './receipts.component.css',
+  // DatePipe/CurrencyPipe are injected below for the mobile card list -- they must be provided
+  // here or construction fails with NullInjectorError (same as bank-order-list.component.ts).
+  providers: [DatePipe, CurrencyPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReceiptsComponent implements OnInit {

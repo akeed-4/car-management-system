@@ -11,12 +11,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { CorporateFleetService } from '../../../services/corporate-fleet.service';
-import { AccountingService } from '../../accounting/accounting.service';
-import { openCreateAccountDialog } from '../../accounting/create-account-dialog.helper';
 import { CurrentSettingService } from '../../../services/current-setting.service';
 import { NotificationService } from '@/src/services/notification.service';
 import { CorporateQuotation } from '../../../models/corporate/corporate-quotation.model';
@@ -55,10 +53,8 @@ type InvoiceSource = 'quotation' | 'delivery';
 })
 export class CompaniesInvoiceFormComponent implements OnInit {
   private corporateFleetService = inject(CorporateFleetService);
-  private accountingService = inject(AccountingService);
   private currentSettingService = inject(CurrentSettingService);
   private notificationService = inject(NotificationService);
-  private dialog = inject(MatDialog);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -82,29 +78,7 @@ export class CompaniesInvoiceFormComponent implements OnInit {
   deliveriesLoading = signal(false);
   selectedDeliveryIds: number[] = [];
 
-  debitAccounts = signal<any[]>([]);
-  creditAccounts = signal<any[]>([]);
-  debitAccountId: number | null = null;
-  creditAccountId: number | null = null;
-
-  submitting = signal(false);
-
-  // --- Requirement 9: "+ Create Account" from this document -----------------------------------
-  openCreateDebitAccountDialog(): void {
-    openCreateAccountDialog(this.dialog).subscribe((created) => {
-      if (!created) return;
-      this.debitAccounts.update(list => [...list, created]);
-      this.debitAccountId = created.id;
-    });
-  }
-
-  openCreateCreditAccountDialog(): void {
-    openCreateAccountDialog(this.dialog).subscribe((created) => {
-      if (!created) return;
-      this.creditAccounts.update(list => [...list, created]);
-      this.creditAccountId = created.id;
-    });
-  }
+submitting = signal(false);
 
   ngOnInit(): void {
     this.editId = Number(this.route.snapshot.params['id']) || null;
@@ -114,10 +88,6 @@ export class CompaniesInvoiceFormComponent implements OnInit {
 
     this.loadApprovedQuotations();
     this.loadUninvoicedDeliveries();
-    // Debit/Credit selectors must only offer leaf/postable accounts -- parent/grouping accounts
-    // are excluded server-side by this endpoint, not filtered client-side from the category list.
-    this.accountingService.getPostableAccounts('debit').subscribe(accounts => this.debitAccounts.set(accounts));
-    this.accountingService.getPostableAccounts('credit').subscribe(accounts => this.creditAccounts.set(accounts));
   }
 
   onSourceChange(source: InvoiceSource): void {
@@ -196,9 +166,6 @@ export class CompaniesInvoiceFormComponent implements OnInit {
   deliveryTotal = computed(() => this.selectedDeliveryLines().reduce((sum, l) => sum + l.unitPrice, 0));
 
   get isFormValid(): boolean {
-    if (!this.debitAccountId || !this.creditAccountId) {
-      return false;
-    }
     if (this.source === 'quotation') {
       return !!this.selectedQuotationId;
     }
