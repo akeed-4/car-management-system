@@ -19,10 +19,6 @@
     </div>
   </div>
 
-  <!-- Unified document toolbar (shared across ALL document screens): Save / Save & Print /
-       Print / Cancel -- rendered per permissions and document state by DocumentToolbarComponent. -->
-  <app-document-toolbar [actions]="toolbarActions()" [busy]="saving()"></app-document-toolbar>
-
   <!-- BAND 1: ACTION & TRACEABILITY HEADER BAR -->
   <div class="trace-bar">
     <div class="trace-bar-selector">
@@ -209,6 +205,26 @@
           <!-- Requirement 2: Cash Amount Calculator (cash sales) -->
           <section class="erp-section form-section" *ngIf="saleType === SaleType.Cash">
             <h3 class="erp-section-title form-section-title">{{ 'CASH_CALCULATOR.TITLE' | translate }}</h3>
+
+            <!-- Settlement leg for CASH sales: Dr Payment Account / Cr Revenue. Options are
+                 active, postable, Cash/Bank-classified accounts from the existing backend
+                 endpoint; the backend re-validates any selection and falls back to its seeded
+                 default Cash when nothing is chosen. Hidden entirely on CREDIT/INSTALLMENT
+                 sales, whose debit leg is the customer's server-resolved AR account. -->
+            <mat-form-field appearance="outline" class="full-width form-field">
+              <mat-label>{{ 'ACCOUNTING.PAYMENT_ACCOUNT' | translate }}</mat-label>
+              <mat-select formControlName="paymentAccountId" required>
+                <mat-option *ngFor="let account of paymentAccounts()" [value]="account.id">
+                  {{ account.accountCode }} - {{ account.accountNameEn || account.accountNameAr }}
+                </mat-option>
+              </mat-select>
+              <mat-icon matPrefix>account_balance_wallet</mat-icon>
+              <mat-hint>{{ 'ACCOUNTING.PAYMENT_ACCOUNT_HINT' | translate }}</mat-hint>
+              <mat-error *ngIf="invoiceForm.get('paymentAccountId')?.invalid">
+                {{ 'ACCOUNTING.PAYMENT_ACCOUNT_REQUIRED' | translate }}
+              </mat-error>
+            </mat-form-field>
+
             <app-cash-amount-calculator
               [invoiceTotal]="totalAmount()"
               [initialAmountReceived]="totalAmount()"
@@ -298,8 +314,11 @@
             <app-document-totals [rows]="totalsRows()"></app-document-totals>
           </mat-card-content>
 
-          <!-- Same shared toolbar as the page top: one action system, rendered twice for
-               reachability (the sticky summary rail keeps Save/Print visible without scrolling). -->
+          <!-- Unified document toolbar (shared across ALL document screens): Save / Save & Print /
+               Print / Cancel -- rendered per permissions and document state by
+               DocumentToolbarComponent. This is the ONLY instance on the page: the sticky summary
+               rail keeps it reachable without scrolling, so a duplicate top-of-page toolbar isn't
+               needed. -->
           <div class="erp-actions-bar form-actions">
             <app-document-toolbar [actions]="toolbarActions()" [busy]="saving()"></app-document-toolbar>
           </div>

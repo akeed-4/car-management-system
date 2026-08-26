@@ -24,6 +24,7 @@ import { CurrentSettingService } from '../../../services/current-setting.service
 import { StoreService } from '../../../services/store.service';
 import { SalesService } from '../../../services/sales.service';
 import { ChartOfAccountsService } from '../../../services/chart-of-accounts.service';
+import { AccountingService } from '../../accounting/accounting.service';
 import { VinService } from '../../../services/vin.service';
 import { PurchaseInvoice, AuctionCharge } from '../../../models/purchase-invoice.model';
 import { InvoiceItem } from '../../../models/invoice-item.model';
@@ -130,6 +131,7 @@ export class PurchaseInvoiceComponent implements OnInit {
   inventoryService = inject(InventoryService);
   private supplierService = inject(SupplierService);
   private procurementService = inject(PurchasesService);
+  private accountingService = inject(AccountingService);
   private currentSettingService = inject(CurrentSettingService);
   private storeService = inject(StoreService);
   private salesService = inject(SalesService);
@@ -325,6 +327,40 @@ export class PurchaseInvoiceComponent implements OnInit {
 
   /** True when the current payment type is cash - drives the auto-paid summary + cash calculator. */
   isCashPayment = computed(() => (this.purchaseInvoiceForm?.get('paymentType')?.value ?? '').toString().toLowerCase() === 'cash');
+
+  /**
+   * Cash/Bank settlement accounts for CASH purchases (credit leg: Dr Inventory / Cr Payment
+   * Account). Loaded ONCE from the existing backend endpoint
+   * `accounts/postable?category=cash-bank` (active + postable + Cash/Bank classified only) --
+   * no client-side accounting classification. The backend re-validates any selected id.
+   */
+  paymentAccounts = signal<Account[]>([]);
+  private paymentAccountsLoaded = false;
+
+  /** Loads the Cash/Bank options exactly once per component instance. */
+  private loadPaymentAccounts(): void {
+    if (this.paymentAccountsLoaded) return;
+    this.paymentAccountsLoaded = true;
+    this.accountingService.getPostableAccounts('cash-bank').subscribe({
+      next: accounts => this.paymentAccounts.set(accounts ?? []),
+      error: () => this.paymentAccounts.set([])
+    });
+  }
+
+  /** Keeps the Payment Account control in sync with the settlement type: required (and kept)
+   * on CASH, cleared + optional on CREDIT so a previously chosen cash account is never sent
+   * with a credit document. */
+  private refreshPaymentAccountValidation(): void {
+    const control = this.purchaseInvoiceForm?.get('paymentAccountId');
+    if (!control) return;
+    if (this.isCashPayment()) {
+      control.setValidators([Validators.required]);
+    } else {
+      control.clearValidators();
+      control.reset({ value: null, emitEvent: false });
+    }
+    control.updateValueAndValidity();
+  }
 
   /** True for either the base route's own dropdown value ('Credit (Deferred)') or, when locked
    * via a Cash/Credit wrapper, the lowercase 'credit' fixedPaymentMethod value -- drives the Due
@@ -681,6 +717,9 @@ export class PurchaseInvoiceComponent implements OnInit {
       invoiceDate: [new Date(), Validators.required],
       paymentMethod: [this.fixedPaymentMethod , Validators.required],
       paymentType: [this.fixedPaymentMethod || 'Bank Transfer'],
+      // Cash/Bank settlement account (CASH purchases only -- see the model doc). The backend
+      // falls back to the tenant's seeded default Cash when this is omitted.
+      paymentAccountId: [null as number | null],
       dueDate: [null], // Optional, required only for credit invoices
       invoiceType: [InvoiceType.Taxable, Validators.required],
       ClassificationId: [0, Validators.required],
@@ -696,6 +735,10 @@ export class PurchaseInvoiceComponent implements OnInit {
 
     // Set initial invoice type
     this.invoiceType.set(InvoiceType.Taxable);
+
+    // Payment Account options + cash/credit validation sync.
+    this.loadPaymentAccounts();
+    this.refreshPaymentAccountValidation();
   }
 
   /** Keeps amountReceivedSignal (used by the live Paid/Due/Status preview) in sync with the
@@ -711,6 +754,9 @@ export class PurchaseInvoiceComponent implements OnInit {
       if (!this.isCashPayment()) {
         this.amountReceivedSignal.set(Number(this.purchaseInvoiceForm.get('initialPayment')?.value) || 0);
       }
+      // Cash -> Credit must drop any previously chosen payment account so it can never leak
+      // into a credit payload; Credit -> Cash re-enables the requirement.
+      this.refreshPaymentAccountValidation();
     });
   }
 
@@ -748,6 +794,11 @@ export class PurchaseInvoiceComponent implements OnInit {
           invoiceDate: [new Date(invoice.invoiceDate), Validators.required],
           paymentMethod: [invoice.paymentMethod || 'Bank Transfer'],
           paymentType: [invoice.paymentType || 'credit'],
+          // Cash invoices persist their payment account in CreditAccountId server-side
+          // (the cash entry's credit leg) -- preselect it so edit mode shows the stored one.
+          paymentAccountId: [
+            (invoice.paymentType || '').toLowerCase() === 'cash' ? (invoice.creditAccountId ?? null) : null
+          ] as [number | null],
           dueDate: [invoice.dueDate ? new Date(invoice.dueDate) : null],
           invoiceType: [invoice.invoiceType || InvoiceType.Taxable, Validators.required],
           ClassificationId: [invoice.ClassificationId || 0, Validators.required],
@@ -768,6 +819,10 @@ export class PurchaseInvoiceComponent implements OnInit {
         this.amountReceivedSignal.set(invoice.initialPayment || invoice.amountPaid || 0);
         this.originalAmountPaid.set(invoice.amountPaid || 0);
         this.watchInitialPaymentControl();
+
+        // Payment Account options + cash/credit validation sync for the edit form.
+        this.loadPaymentAccounts();
+        this.refreshPaymentAccountValidation();
 
         // Set invoice number signal
         this.invoiceNumberSignal.set(invoice.invoiceNumber);
@@ -1188,6 +1243,10 @@ export class PurchaseInvoiceComponent implements OnInit {
       status: 'Unpaid',
       isArchived: false,
       carReceiptIds: this.linkedReceiptIds(),
+      // CASH only: the requested Cash/Bank settlement account. Undefined drops the field from
+      // the JSON payload entirely on credit purchases -- supplier AP is derived server-side
+      // there and a stale payment account must never ride along with a credit document.
+      paymentAccountId: this.isCashPayment() ? (formValue.paymentAccountId ?? undefined) : undefined,
       // Auction fields are only meaningful when the toggle is checked -- otherwise this is a
       // normal supplier purchase and auctionProvider stays null, matching the backend's
       // IsAuctionPurchase(auctionProvider) check.

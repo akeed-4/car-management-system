@@ -84,8 +84,6 @@ export class AccountingService {
   }
 
   createAccount(dto: CreateAccountDto): Observable<Account> {
-    console.log('Making POST request to:', `${this.Url}/CreateAccount`);
-    console.log('Sending DTO:', dto);
     return this.http.post<Account>(`${this.Url}/CreateAccount`, dto, { headers: this.headers }).pipe(
       map(account => {
         // Set parentId for partial accounts
@@ -98,8 +96,13 @@ export class AccountingService {
         this.refreshSubject.next();
         return account;
       }),
+      // Re-throw the real HttpErrorResponse as-is (not a generic Error) -- CreateAccount returns
+      // BadRequest(response.Message) with the actual business-validation reason (duplicate code,
+      // parent not found, entity-link conflict, ...); swallowing it here would leave the UI unable
+      // to show anything but a generic "failed" message. See AddAccountComponent.extractErrorMessage.
       catchError(error => {
-        return throwError(() => new Error('Failed to create account'));
+        console.error('Error creating account:', error);
+        return throwError(() => error);
       })
     );
   }
@@ -121,9 +124,11 @@ export class AccountingService {
         this.refreshSubject.next();
         return account;
       }),
+      // See createAccount's comment -- preserve the real error (e.g. AccountHasPostedEntries)
+      // instead of replacing it with a generic message.
       catchError(error => {
         console.error(`Error updating account ${dto.id}:`, error);
-        return throwError(() => new Error(`Failed to update account ${dto.id}`));
+        return throwError(() => error);
       })
     );
   }

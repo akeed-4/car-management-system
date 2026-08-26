@@ -510,3 +510,149 @@ mat-form-field.form-field {
     padding-inline: var(--space-3);
   }
 }
+
+/* ============================================================
+   Parent Account — first, prominent section of the Add Account
+   form. Structured read-only context for the selected parent;
+   clear root-account state when no parent applies.
+   ============================================================ */
+.acc-parent-card {
+  border-inline-start: 3px solid var(--erp-primary, #1976d2);
+}
+
+/* Parent picker: keep the select visually anchored to the icon */
+.acc-parent-select .mat-select-arrow-wrapper { inset-inline-end: 0; }
+
+/* Root-account state ("main account" mode) */
+.acc-parent-root {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3, 12px);
+  padding: var(--space-3, 12px) var(--space-4, 16px);
+  border: 1px dashed rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.acc-parent-root mat-icon {
+  color: var(--erp-primary, #1976d2);
+  flex-shrink: 0;
+}
+
+.acc-parent-root-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.acc-parent-root-text strong {
+  font-size: 0.95rem;
+}
+
+.acc-parent-root-text span {
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+
+[dir='rtl'] .acc-parent-root { text-align: start; }
+
+/* Read-only selected-parent context panel */
+.acc-parent-context {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3, 12px);
+  margin-block: var(--space-3, 12px);
+  padding: var(--space-4, 16px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.015), transparent);
+}
+
+.acc-parent-context-icon {
+  display: grid;
+  place-items: center;
+  inline-size: 44px;
+  block-size: 44px;
+  border-radius: 10px;
+  background: rgba(25, 118, 210, 0.08);
+  color: var(--erp-primary, #1976d2);
+  flex-shrink: 0;
+}
+
+.acc-parent-context-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-3, 12px) var(--space-4, 16px);
+  flex: 1;
+  margin: 0;
+}
+
+.acc-parent-context-item dt {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.6;
+  margin-block-end: 2px;
+}
+
+.acc-parent-context-item dd {
+  margin: 0;
+  font-size: 0.92rem;
+  overflow-wrap: anywhere;
+}
+
+.acc-parent-context-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: var(--space-3, 12px) 0 0;
+  font-size: 0.82rem;
+  opacity: 0.75;
+}
+
+.acc-parent-context-note mat-icon {
+  font-size: 16px;
+  inline-size: 16px;
+  block-size: 16px;
+}
+
+/* Empty / not-selected state */
+.acc-parent-empty {
+  align-items: center;
+  gap: var(--space-2, 8px);
+  font-style: italic;
+  opacity: 0.75;
+  background: none;
+  border-style: dashed;
+}
+
+/* Auto-number hint states */
+.acc-code-warning {
+  color: #b26a00;
+}
+
+.mat-mdc-form-field .acc-code-warning {
+  color: #b26a00;
+}
+
+/* Responsive: stack the context panel on narrow screens */
+@media (max-width: 720px) {
+  .acc-parent-context {
+    flex-direction: column;
+  }
+
+  .acc-parent-context-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .acc-parent-root,
+  .acc-parent-empty {
+    flex-direction: row;
+  }
+}
+
+@media (max-width: 480px) {
+  .acc-parent-context-grid {
+    grid-template-columns: 1fr;
+  }
+}

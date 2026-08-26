@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Inject, Input, Optional, Output, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
 import { AccountingService } from '../accounting.service';
 import { CreateAccountDto, UpdateAccountDto, Account } from '../models';
@@ -13,6 +14,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { CostCenterService } from '../../../services/cost-center.service';
@@ -49,6 +51,7 @@ export interface AddAccountQuickAddData {
     MatCheckboxModule,
     MatRadioModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
     MatDialogModule,
     TranslateModule
   ]
@@ -110,8 +113,72 @@ export class AddAccountComponent implements OnChanges, OnInit {
    *  stops overwriting their edit. */
   private codeManuallyEdited = false;
 
+  /** Flat account list (code-sorted) powering the Parent Account picker dropdown. */
+  parentOptions: Account[] = [];
+  /** True while the backend resolves the next child account number for the selected parent. */
+  nextCodeLoading = false;
+  /** True when auto-numbering failed -- surfaces a hint; the user can unlock and type a code. */
+  nextCodeFailed = false;
+  /** Add mode: the generated Account Number is read-only by default (backend stays the final
+   *  authority at save time). The lock button lets an advanced user override it manually. */
+  isCodeLocked = true;
+
   customers = this.customerService.customers$;
   suppliers = this.supplierService.suppliers$;
+
+  /** Read-only state of the Account Number input: locked by default on create (auto-generated
+   *  from the parent hierarchy); in edit mode only locked when transactions were posted, which
+   *  matches the existing server-side guard exactly. */
+  get codeReadonly(): boolean {
+    return this.isEditing ? this.hasPostedTransactions : this.isCodeLocked;
+  }
+
+  /** The account currently selected as parent (resolved from the same mainAccountCode control
+   *  the form has always used), for the read-only Parent Account context panel. */
+  get selectedParent(): Account | undefined {
+    const code = this.accountForm?.get('mainAccountCode')?.value as string | null;
+    return code ? this.accountingService.getAccountByCode(code) : undefined;
+  }
+
+  /** i18n key for an account's type/classification (1..5). */
+  accountTypeLabel(typeId: unknown): string {
+    switch (+typeId) {
+      case 1: return 'ACCOUNTING.TYPE_ASSET';
+      case 2: return 'ACCOUNTING.TYPE_LIABILITY';
+      case 3: return 'ACCOUNTING.TYPE_EQUITY';
+      case 4: return 'ACCOUNTING.TYPE_REVENUE';
+      case 5: return 'ACCOUNTING.TYPE_EXPENSE';
+      default: return '';
+    }
+  }
+
+  /** Maps the same 1..5 classification the Account Type dropdown offers to the backend's Type
+   *  string (Account.Type -- "ASSET"/"LIABILITY"/"EQUITY"/"REVENUE"/"EXPENSE"), which the debit/
+   *  credit account pickers and financial reports filter by (AccountRepository.GetByCategoryAsync).
+   *  Distinct from accountTypeId, itself: that field is the account's Cash/Clients/Suppliers/
+   *  Banks/... sub-category (backend AccountType.cs), a different classification the dropdown
+   *  does not set. */
+  private static readonly TYPE_BY_CLASSIFICATION: Record<number, string> = {
+    1: 'ASSET',
+    2: 'LIABILITY',
+    3: 'EQUITY',
+    4: 'REVENUE',
+    5: 'EXPENSE',
+  };
+
+  /** Unlock lets an advanced user type their own number (stops auto-fill from clobbering it);
+   *  re-locking restores auto-generation immediately from the current parent/root context. */
+  toggleCodeLock(): void {
+    if (this.isEditing || this.hasPostedTransactions) return;
+    this.isCodeLocked = !this.isCodeLocked;
+    if (!this.isCodeLocked) {
+      this.codeManuallyEdited = true;
+    } else {
+      this.codeManuallyEdited = false;
+      const selection = this.accountForm.get('accountTypeSelection')?.value;
+      this.fetchAndFillNextCode(selection === 'main' ? null : this.accountForm.get('parentId')?.value ?? null);
+    }
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -169,6 +236,12 @@ export class AddAccountComponent implements OnChanges, OnInit {
       newCustomerPhone: [''],
       newSupplierPhone: [''],
       syncEntityName: [false],
+    });
+
+    // Parent Account picker options: keep a code-sorted snapshot of the chart of accounts.
+    this.accountingService.accounts$.subscribe(accounts => {
+      this.parentOptions = [...(accounts ?? [])].sort((a, b) =>
+        String(a.accountCode).localeCompare(String(b.accountCode)));
     });
 
     // Watch for account type selection changes to update validation
@@ -262,21 +335,28 @@ export class AddAccountComponent implements OnChanges, OnInit {
    *  manual user edit by the tracking subscriber above. */
   private suppressCodeEditTracking = false;
 
-  /** Requirement 1: the user should not have to work out the next account code by hand. Fetches
+  /** Requirement 1/5: the user should not have to work out the next account code by hand. Fetches
    *  the backend-computed next code for the given parent (or root, when null) and fills it in --
-   *  unless the user already typed their own code for this account. */
+   *  unless the user already typed their own code for this account. Shows a loading spinner while
+   *  resolving and a non-blocking hint if generation fails (the backend remains the final
+   *  authority for numbering/validation at save time). */
   private fetchAndFillNextCode(parentId: number | null) {
     if (this.isEditing || this.codeManuallyEdited) return;
 
+    this.nextCodeLoading = true;
+    this.nextCodeFailed = false;
     this.accountingService.getNextAccountCode(parentId).subscribe({
       next: (code) => {
+        this.nextCodeLoading = false;
         if (this.isEditing || this.codeManuallyEdited) return;
         this.suppressCodeEditTracking = true;
         this.accountForm.patchValue({ accountCode: code });
         this.suppressCodeEditTracking = false;
       },
       error: () => {
-        // Auto-numbering is a convenience -- if it fails, the user can still type a code by hand.
+        // Auto-numbering is a convenience -- surface the failure and let the user unlock + type.
+        this.nextCodeLoading = false;
+        this.nextCodeFailed = true;
       }
     });
   }
@@ -495,6 +575,11 @@ export class AddAccountComponent implements OnChanges, OnInit {
       // Set isMainAccount based on accountTypeSelection
       processedData.isMainAccount = accountTypeSelection === 'main';
 
+      // Backend Type ("ASSET"/"LIABILITY"/...) is required and drives debit/credit account-picker
+      // filtering (AccountRepository.GetByCategoryAsync) -- derive it from the same classification
+      // the Account Type dropdown already collects, since the form has no separate Type control.
+      processedData.Type = AddAccountComponent.TYPE_BY_CLASSIFICATION[+processedData.accountTypeId] ?? '';
+
       // For partial accounts, resolve mainAccountId from mainAccountCode
       if (!processedData.isMainAccount && processedData.mainAccountCode) {
         const mainAccount = this.accountingService.getAccountByCode(processedData.mainAccountCode);
@@ -520,7 +605,9 @@ export class AddAccountComponent implements OnChanges, OnInit {
             this.isSaving = false;
           },
           error: (error) => {
-           this.toastService.showError(this.translate.instant('ACCOUNTING.ERROR_UPDATING_ACCOUNT'));
+            // Form data, and the dialog/screen itself, are deliberately left untouched here so the
+            // user can fix the offending field and retry without re-entering everything.
+            this.toastService.showError(this.extractErrorMessage(error, 'ACCOUNTING.ERROR_UPDATING_ACCOUNT'));
             this.isSaving = false;
           }
         });
@@ -534,8 +621,7 @@ export class AddAccountComponent implements OnChanges, OnInit {
             this.isSaving = false;
           },
           error: (error) => {
-            console.error('Error creating account:', error);
-           this.toastService.showError(this.translate.instant('ACCOUNTING.ERROR_CREATING_ACCOUNT'));
+            this.toastService.showError(this.extractErrorMessage(error, 'ACCOUNTING.ERROR_CREATING_ACCOUNT'));
             this.isSaving = false;
           }
         });
@@ -544,6 +630,24 @@ export class AddAccountComponent implements OnChanges, OnInit {
       console.log('Form is invalid:', this.accountForm.errors);
       console.log('Form controls:', this.accountForm.controls);
     }
+  }
+
+  /** Surfaces the real business-validation reason from the backend (e.g. "Account with code '113'
+   *  already exists", "Parent account with ID 42 not found") instead of a generic message --
+   *  CreateAccount/UpdateAccount return BadRequest(response.Message) with that exact text as the
+   *  plain-text/JSON response body, which arrives here as HttpErrorResponse.error. Falls back to a
+   *  translated generic message for anything that isn't a real business error (network failure,
+   *  500, framework-level model-binding rejection) so a raw stack trace is never shown to the user. */
+  private extractErrorMessage(error: unknown, fallbackKey: string): string {
+    if (error instanceof HttpErrorResponse && error.status === 400 && error.error) {
+      if (typeof error.error === 'string' && error.error.trim()) {
+        return error.error;
+      }
+      const message = (error.error as { message?: string; title?: string })?.message
+        ?? (error.error as { title?: string })?.title;
+      if (message) return message;
+    }
+    return this.translate.instant(fallbackKey);
   }
 
   onCancel() {

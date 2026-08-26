@@ -31,6 +31,14 @@ export interface PurchaseInvoice {
   paymentType?: string;
   carReceiptIds?: number[]; // Car Receipts (GRNs) this invoice was generated from
 ClassificationId?: number;
+  /**
+   * CASH purchases only: the requested Cash/Bank settlement account (the entry's credit leg:
+   * Dr Inventory / Cr Payment Account). Purely a *request* -- the backend re-validates it
+   * (tenant/active/postable/Cash-Bank family) and falls back to the tenant's seeded default
+   * Cash account when omitted. Ignored by the backend for CREDIT purchases, whose credit leg
+   * is always the supplier's server-resolved Accounts Payable account.
+   */
+  paymentAccountId?: number;
   // Navigation properties
   supplier?: Supplier;
   debitAccount?: AccountNode;

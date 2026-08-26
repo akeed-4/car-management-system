@@ -135,6 +135,42 @@ export class SalesInvoiceFormComponent implements OnInit {
     get isCash(): boolean {
       return this.saleType === SaleType.Cash;
     }
+
+  /**
+   * Cash/Bank settlement accounts for CASH sales (debit leg: Dr Payment Account / Cr Revenue).
+   * Loaded ONCE from the existing backend endpoint `accounts/postable?category=cash-bank`
+   * (active + postable + Cash/Bank classified only) -- no client-side accounting
+   * classification. The backend re-validates any selected id and falls back to its seeded
+   * default Cash account when nothing is chosen.
+   */
+  paymentAccounts = signal<Account[]>([]);
+  private paymentAccountsLoaded = false;
+
+  /** Loads the Cash/Bank options exactly once per component instance. */
+  private loadPaymentAccounts(): void {
+    if (this.paymentAccountsLoaded) return;
+    this.paymentAccountsLoaded = true;
+    this.accountingService.getPostableAccounts('cash-bank').subscribe({
+      next: accounts => this.paymentAccounts.set(accounts ?? []),
+      error: () => this.paymentAccounts.set([])
+    });
+  }
+
+  /** Keeps the Payment Account control in sync with the settlement type: required (and kept)
+   * on CASH, cleared + optional on CREDIT/INSTALLMENT so a previously chosen cash account is
+   * never sent with a credit document (Customer AR is server-resolved there). */
+  refreshPaymentAccountValidation(): void {
+    const control = this.invoiceForm?.get('paymentAccountId');
+    if (!control) return;
+    if (this.isCash) {
+      control.setValidators([Validators.required]);
+    } else {
+      control.clearValidators();
+      control.reset({ value: null, emitEvent: false });
+    }
+    control.updateValueAndValidity();
+  }
+
   displayedColumns: string[] = ['carDescription', 'quantity', 'unitPrice', 'lineTotal', 'actions'];
 
  cardLayout2 = this.currentSettingService.getCardLayout(2);
@@ -254,10 +290,15 @@ export class SalesInvoiceFormComponent implements OnInit {
         notes: new FormControl(''),
         selectedCostPrice: new FormControl(0, [Validators.required, Validators.min(0)]),
         downPayment: new FormControl(0),
+        // Cash/Bank settlement account (CASH sales only -- see the model doc). The backend
+        // falls back to the tenant's seeded default Cash when this is omitted.
+        paymentAccountId: new FormControl<number | null>(null),
         discountType: new FormControl<DiscountType>('Fixed'),
         discountValue: new FormControl(0, [Validators.min(0), this.discountExceedsSubtotalValidator])
       });
       this.updateDownPaymentValidators();
+      this.loadPaymentAccounts();
+      this.refreshPaymentAccountValidation();
       this.watchAmountReceivedControls();
       this.watchDiscountControls();
       this.watchClassificationAndTypeControls();
@@ -318,6 +359,10 @@ export class SalesInvoiceFormComponent implements OnInit {
       control.clearValidators();
     }
     control.updateValueAndValidity();
+
+    // Same trigger drives the Payment Account requirement (CASH only) so a Cash -> Credit
+    // switch clears any previously chosen account before it can reach the payload.
+    this.refreshPaymentAccountValidation();
   }
 
   /** Keeps amountReceivedSignal (used by the live Paid/Due/Status preview) in sync with the
@@ -497,10 +542,18 @@ export class SalesInvoiceFormComponent implements OnInit {
           notes: new FormControl(invoice.notes || ''),
           selectedCostPrice: new FormControl(0, [Validators.required, Validators.min(0)]),
           downPayment: new FormControl(invoice.downPayment || 0),
+          // Cash invoices persist their payment account in CreditAccountId server-side
+          // (the cash entry's debit leg) -- preselect it so edit mode shows the stored one.
+          paymentAccountId: new FormControl<number | null>(
+            (invoice.saleType ?? (invoice.isCash ? SaleType.Cash : SaleType.Credit)) === SaleType.Cash
+              ? (invoice.creditAccountId ?? null)
+              : null
+          ),
           discountType: new FormControl<DiscountType>(invoice.discountType || 'Fixed'),
           discountValue: new FormControl(invoice.discountValue || 0, [Validators.min(0), this.discountExceedsSubtotalValidator])
         });
         this.updateDownPaymentValidators();
+        this.loadPaymentAccounts();
         this.amountReceivedSignal.set(invoice.isCash ? invoice.totalAmount : (invoice.downPayment || invoice.amountPaid || 0));
         this.originalAmountPaid.set(invoice.amountPaid || 0);
         this.watchAmountReceivedControls();
@@ -1206,6 +1259,13 @@ export class SalesInvoiceFormComponent implements OnInit {
       // SalesInvoiceService.CreateInvoiceEntityAsync / RecalculatePaymentFields.
       ownershipTransferStatus: 'Not Started',
       depositId: this.selectedDeposit()?.id || null,
+      // CASH only: the requested Cash/Bank settlement account (backend re-validates + falls
+      // back to its seeded default Cash). Undefined drops the field from the JSON payload on
+      // credit/installment sales -- Customer AR is server-resolved there and a stale payment
+      // account must never ride along.
+      paymentAccountId: this.isCash
+        ? (this.invoiceForm.get('paymentAccountId')?.value ?? undefined)
+        : undefined,
     };
 
     if (this.channel === SalesChannel.Bunuk) {

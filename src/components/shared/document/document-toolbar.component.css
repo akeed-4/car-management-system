@@ -51,25 +51,21 @@
   pointer-events: none;
 }
 
-/* Handset: keep the toolbar reachable, collapse secondary actions (handled in
-   TS via the overflow menu) and stop buttons from wrapping mid-label. */
+/* Handset: the toolbar lives inside the document's Totals/Summary section (never at the top
+   of the page), so it scrolls with that section rather than pinning itself -- avoids blocking
+   content underneath on small screens. Actions still stay reachable: they wrap onto their own
+   lines instead of overflowing. */
 @media (max-width: 599px) {
   .doc-toolbar {
-    position: sticky;
-    top: 0;
-    z-index: 5;
-    background: var(--surface-card);
-    border-bottom: 1px solid var(--border-default);
     padding-block: var(--space-2);
   }
 
   .doc-toolbar-actions {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    scrollbar-width: none;
+    flex-wrap: wrap;
   }
 
   .doc-action {
-    flex: 0 0 auto;
+    flex: 1 1 auto;
+    justify-content: center;
   }
 }

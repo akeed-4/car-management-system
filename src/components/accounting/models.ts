@@ -3,6 +3,10 @@ export interface Account {
   accountCode: string;
   accountNameAr: string;
   accountNameEn: string;
+  /** Accounting classification ("ASSET" | "LIABILITY" | "EQUITY" | "REVENUE" | "EXPENSE") the
+   * backend groups/filters by -- see CreateAccountDto.Type doc comment for how this differs from
+   * accountTypeId. */
+  Type: string;
   accountId: number;
   companyId: number;
   accountCategoryId: number;
@@ -114,6 +118,12 @@ export interface CreateAccountDto {
   accountCode: string;
   accountNameAr: string;
   accountNameEn: string;
+  /** Accounting classification the backend groups/filters by (debit vs. credit account pickers,
+   * financial reports): "ASSET" | "LIABILITY" | "EQUITY" | "REVENUE" | "EXPENSE". Derived from the
+   * same 1-5 selection as accountTypeId (see TYPE_BY_CLASSIFICATION in add-account.component.ts) --
+   * a distinct field from accountTypeId, which is the account's Cash/Clients/Suppliers/Banks/...
+   * sub-category (see backend AccountType.cs), not this classification. */
+  Type: string;
   accountId: number;
   companyId: number;
   accountCategoryId: number;
@@ -156,6 +166,8 @@ export interface UpdateAccountDto {
   accountCode: string;
   accountNameAr: string;
   accountNameEn: string;
+  /** See CreateAccountDto.Type doc comment. */
+  Type: string;
   accountId: number;
   companyId: number;
   accountCategoryId: number;

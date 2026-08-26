@@ -58,4 +58,11 @@ export interface SalesInvoice {
   status: 'Paid' | 'Pending' | 'Overdue';
   ownershipTransferStatus: OwnershipTransferStatus;
   isArchived?: boolean;
+  /**
+   * CASH sales only: the requested Cash/Bank settlement account (the entry's debit leg:
+   * Dr Payment Account / Cr Revenue). A *request* -- the backend re-validates it and falls
+   * back to the tenant's seeded default Cash account when omitted. Ignored for credit/
+   * installment sales, whose debit leg is always the customer's server-resolved AR account.
+   */
+  paymentAccountId?: number;
 }

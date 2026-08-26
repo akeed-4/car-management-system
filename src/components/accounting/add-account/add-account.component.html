@@ -40,6 +40,135 @@
       <!-- Two-column ERP workspace: form sections + live summary sidebar -->
       <div class="acc-layout">
         <div class="acc-main">
+
+      <!-- ============================================================ -->
+      <!-- PARENT ACCOUNT -- FIRST section of the form. Shows exactly   -->
+      <!-- where this account will be created in the hierarchy, with a  -->
+      <!-- structured read-only context once a parent is selected.      -->
+      <!-- ============================================================ -->
+      <div class="erp-card acc-card acc-parent-card">
+        <div class="erp-section">
+          <div class="section-header">
+            <h3 class="section-title">
+              <mat-icon>account_tree</mat-icon>
+              {{ 'ACCOUNTING.PARENT_ACCOUNT' | translate }}
+            </h3>
+            <p class="section-subtitle">{{ 'ACCOUNTING.PARENT_SECTION_DESC' | translate }}</p>
+          </div>
+
+          <!-- Root-account state: no parent by design -->
+          <div class="acc-parent-root" *ngIf="accountForm.get('accountTypeSelection')?.value === 'main'">
+            <mat-icon aria-hidden="true">flag</mat-icon>
+            <div class="acc-parent-root-text">
+              <strong>{{ 'ACCOUNTING.MAIN_ACCOUNT' | translate }}</strong>
+              <span>{{ 'ACCOUNTING.ROOT_NOTICE' | translate }}</span>
+            </div>
+          </div>
+
+          <!-- Child account: parent picker + read-only parent context -->
+          <ng-container *ngIf="accountForm.get('accountTypeSelection')?.value !== 'main'">
+            <div class="erp-form-grid">
+              <mat-form-field appearance="outline" class="form-field erp-span-2 acc-parent-select">
+                <mat-label>{{ 'ACCOUNTING.PARENT_SELECT_LABEL' | translate }}</mat-label>
+                <mat-select formControlName="mainAccountCode">
+                  <mat-option *ngFor="let acc of parentOptions" [value]="acc.accountCode">
+                    <span dir="ltr">{{ acc.accountCode }}</span> — {{ acc.accountNameEn || acc.accountNameAr }}
+                  </mat-option>
+                </mat-select>
+                <mat-icon matPrefix>account_tree</mat-icon>
+                <mat-hint>{{ 'ACCOUNTING.PARENT_SELECT_HINT' | translate }}</mat-hint>
+              </mat-form-field>
+            </div>
+
+            <!-- Read-only parent context: number / names / classification / level -->
+            <div class="acc-parent-context" *ngIf="selectedParent; else noParentSelected">
+              <div class="acc-parent-context-icon" aria-hidden="true">
+                <mat-icon>folder</mat-icon>
+              </div>
+              <dl class="acc-parent-context-grid">
+                <div class="acc-parent-context-item">
+                  <dt>{{ 'ACCOUNTING.ACCOUNT_CODE' | translate }}</dt>
+                  <dd><span class="acc-code-chip" dir="ltr">{{ selectedParent!.accountCode }}</span></dd>
+                </div>
+                <div class="acc-parent-context-item">
+                  <dt>{{ 'ACCOUNTING.ACCOUNT_NAME_EN' | translate }}</dt>
+                  <dd>{{ selectedParent!.accountNameEn || '—' }}</dd>
+                </div>
+                <div class="acc-parent-context-item">
+                  <dt>{{ 'ACCOUNTING.ACCOUNT_NAME_AR' | translate }}</dt>
+                  <dd>{{ selectedParent!.accountNameAr || '—' }}</dd>
+                </div>
+                <div class="acc-parent-context-item">
+                  <dt>{{ 'ACCOUNTING.ACCOUNT_TYPE' | translate }}</dt>
+                  <dd>{{ accountTypeLabel(selectedParent!.accountTypeId) | translate }}</dd>
+                </div>
+                <div class="acc-parent-context-item">
+                  <dt>{{ 'ACCOUNTING.ACCOUNT_LEVEL' | translate }}</dt>
+                  <dd>{{ selectedParent!.accountLevel }}</dd>
+                </div>
+              </dl>
+              <p class="acc-parent-context-note">
+                <mat-icon inline>subdirectory_arrow_right</mat-icon>
+                {{ 'ACCOUNTING.PARENT_CONTEXT_NOTE' | translate }}
+              </p>
+            </div>
+            <ng-template #noParentSelected>
+              <div class="acc-parent-context acc-parent-empty">
+                <mat-icon aria-hidden="true">info</mat-icon>
+                {{ 'ACCOUNTING.PARENT_ACCOUNT_NOT_SELECTED' | translate }}
+              </div>
+            </ng-template>
+
+            <div class="acc-check-row">
+              <mat-checkbox formControlName="isMainAccount">{{ 'ACCOUNTING.IS_MAIN_ACCOUNT' | translate }}</mat-checkbox>
+            </div>
+
+            <!-- Breadcrumb: parent -> this account (same values as before) -->
+            <div class="parent-account-summary">
+              <div class="parent-account-summary-item">
+                <span class="parent-account-summary-label">{{ 'ACCOUNTING.PARENT_ACCOUNT' | translate }}</span>
+                <span class="parent-account-summary-value" *ngIf="accountForm.get('mainAccountCode')?.value; else noParentBreadcrumb">
+                  <span class="acc-code-chip" dir="ltr">{{ accountForm.get('mainAccountCode')?.value }}</span>
+                  {{ accountForm.get('mainAccountName')?.value }}
+                </span>
+                <ng-template #noParentBreadcrumb>
+                  <span class="parent-account-summary-value parent-account-summary-empty">{{ 'ACCOUNTING.PARENT_ACCOUNT_NOT_SELECTED' | translate }}</span>
+                </ng-template>
+              </div>
+              <mat-icon class="parent-account-summary-arrow" aria-hidden="true">subdirectory_arrow_right</mat-icon>
+              <div class="parent-account-summary-item">
+                <span class="parent-account-summary-label">{{ 'ACCOUNTING.THIS_ACCOUNT' | translate }}</span>
+                <span class="parent-account-summary-value">
+                  <span class="acc-code-chip" dir="ltr">{{ accountForm.get('accountCode')?.value || '—' }}</span>
+                  {{ accountForm.get('accountNameEn')?.value || (accountForm.get('accountNameAr')?.value || '—') }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Account Structure (Hidden - Auto-populated from parent) -->
+            <div class="form-row" style="display: none;">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'ACCOUNTING.ACCOUNT_LEVEL' | translate }}</mat-label>
+                <input matInput type="number" formControlName="accountLevel">
+                <mat-icon matPrefix>layers</mat-icon>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'ACCOUNTING.ACCOUNT_CATEGORY' | translate }}</mat-label>
+                <input matInput type="number" formControlName="accountCategoryId">
+                <mat-icon matPrefix>category</mat-icon>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>{{ 'ACCOUNTING.ACCOUNT_TYPE' | translate }}</mat-label>
+                <input matInput type="number" formControlName="accountTypeId">
+                <mat-icon matPrefix>account_tree</mat-icon>
+              </mat-form-field>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+
       <!-- Account Type Selection - Professional Design -->
       <div class="erp-card acc-card">
         <div class="erp-section">
@@ -112,22 +241,27 @@
           <div class="erp-form-grid">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'ACCOUNTING.ACCOUNT_CODE' | translate }}</mat-label>
-              <input matInput formControlName="accountCode" required dir="ltr" style="text-align: start;">
+              <input matInput formControlName="accountCode" required dir="ltr" style="text-align: start;" [readonly]="codeReadonly">
               <mat-icon matPrefix>tag</mat-icon>
-              <mat-hint>{{ 'ACCOUNTING.CODE_AUTO_GENERATED_HINT' | translate }}</mat-hint>
+              <mat-spinner *ngIf="nextCodeLoading" matSuffix [diameter]="18"></mat-spinner>
+              <button
+                *ngIf="!isEditing && !hasPostedTransactions"
+                mat-icon-button type="button" matSuffix
+                (click)="toggleCodeLock()"
+                [matTooltip]="(isCodeLocked ? 'ACCOUNTING.CODE_UNLOCK_TIP' : 'ACCOUNTING.CODE_LOCK_TIP') | translate">
+                <mat-icon>{{ isCodeLocked ? 'lock' : 'lock_open' }}</mat-icon>
+              </button>
+              <mat-hint *ngIf="nextCodeLoading">{{ 'ACCOUNTING.CODE_GENERATING' | translate }}</mat-hint>
+              <mat-hint *ngIf="!nextCodeLoading && !nextCodeFailed">{{ 'ACCOUNTING.CODE_AUTO_LOCKED_HINT' | translate }}</mat-hint>
+              <mat-hint *ngIf="nextCodeFailed" class="acc-code-warning">{{ 'ACCOUNTING.CODE_GENERATION_FAILED' | translate }}</mat-hint>
               <mat-error *ngIf="accountForm.get('accountCode')?.invalid">{{ 'ACCOUNTING.CODE_REQUIRED' | translate }}</mat-error>
             </mat-form-field>
 
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'ACCOUNTING.ACCOUNT_TYPE' | translate }}</mat-label>
-              <mat-select formControlName="accountTypeId" required>
-                <mat-option value="1">{{ 'ACCOUNTING.TYPE_ASSET' | translate }}</mat-option>
-                <mat-option value="2">{{ 'ACCOUNTING.TYPE_LIABILITY' | translate }}</mat-option>
-                <mat-option value="3">{{ 'ACCOUNTING.TYPE_EQUITY' | translate }}</mat-option>
-                <mat-option value="4">{{ 'ACCOUNTING.TYPE_REVENUE' | translate }}</mat-option>
-                <mat-option value="5">{{ 'ACCOUNTING.TYPE_EXPENSE' | translate }}</mat-option>
-              </mat-select>
-              <mat-icon matPrefix>category</mat-icon>
+            <mat-form-field appearance="outline" class="form-field erp-span-2">
+              <mat-label>{{ 'ACCOUNTING.ACCOUNT_NAME_AR' | translate }}</mat-label>
+              <input matInput formControlName="accountNameAr">
+              <mat-icon matPrefix>label</mat-icon>
+              <mat-hint>{{ 'ACCOUNTING.OPTIONAL_FIELD' | translate }}</mat-hint>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="form-field erp-span-2">
@@ -138,10 +272,15 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="form-field erp-span-2">
-              <mat-label>{{ 'ACCOUNTING.ACCOUNT_NAME_AR' | translate }}</mat-label>
-              <input matInput formControlName="accountNameAr">
-              <mat-icon matPrefix>label</mat-icon>
-              <mat-hint>{{ 'ACCOUNTING.OPTIONAL_FIELD' | translate }}</mat-hint>
+              <mat-label>{{ 'ACCOUNTING.ACCOUNT_TYPE' | translate }}</mat-label>
+              <mat-select formControlName="accountTypeId" required>
+                <mat-option [value]="1">{{ 'ACCOUNTING.TYPE_ASSET' | translate }}</mat-option>
+                <mat-option [value]="2">{{ 'ACCOUNTING.TYPE_LIABILITY' | translate }}</mat-option>
+                <mat-option [value]="3">{{ 'ACCOUNTING.TYPE_EQUITY' | translate }}</mat-option>
+                <mat-option [value]="4">{{ 'ACCOUNTING.TYPE_REVENUE' | translate }}</mat-option>
+                <mat-option [value]="5">{{ 'ACCOUNTING.TYPE_EXPENSE' | translate }}</mat-option>
+              </mat-select>
+              <mat-icon matPrefix>category</mat-icon>
             </mat-form-field>
           </div>
         </div>
@@ -161,17 +300,20 @@
             <div class="erp-form-grid">
               <mat-form-field appearance="outline" class="form-field">
                 <mat-label>{{ 'ACCOUNTING.ACCOUNT_CODE' | translate }}</mat-label>
-                <input matInput formControlName="accountCode" required dir="ltr" style="text-align: start;">
+                <input matInput formControlName="accountCode" required dir="ltr" style="text-align: start;" [readonly]="codeReadonly">
                 <mat-icon matPrefix>tag</mat-icon>
-                <mat-hint>{{ 'ACCOUNTING.CODE_AUTO_GENERATED_HINT' | translate }}</mat-hint>
+                <mat-spinner *ngIf="nextCodeLoading" matSuffix [diameter]="18"></mat-spinner>
+                <button
+                  *ngIf="!isEditing && !hasPostedTransactions"
+                  mat-icon-button type="button" matSuffix
+                  (click)="toggleCodeLock()"
+                  [matTooltip]="(isCodeLocked ? 'ACCOUNTING.CODE_UNLOCK_TIP' : 'ACCOUNTING.CODE_LOCK_TIP') | translate">
+                  <mat-icon>{{ isCodeLocked ? 'lock' : 'lock_open' }}</mat-icon>
+                </button>
+                <mat-hint *ngIf="nextCodeLoading">{{ 'ACCOUNTING.CODE_GENERATING' | translate }}</mat-hint>
+                <mat-hint *ngIf="!nextCodeLoading && !nextCodeFailed">{{ 'ACCOUNTING.CODE_AUTO_LOCKED_HINT' | translate }}</mat-hint>
+                <mat-hint *ngIf="nextCodeFailed" class="acc-code-warning">{{ 'ACCOUNTING.CODE_GENERATION_FAILED' | translate }}</mat-hint>
                 <mat-error *ngIf="accountForm.get('accountCode')?.invalid">{{ 'ACCOUNTING.CODE_REQUIRED' | translate }}</mat-error>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline" class="form-field">
-                <mat-label>{{ 'ACCOUNTING.ACCOUNT_NAME_EN' | translate }}</mat-label>
-                <input matInput formControlName="accountNameEn" required>
-                <mat-icon matPrefix>label</mat-icon>
-                <mat-error *ngIf="accountForm.get('accountNameEn')?.invalid">{{ 'ACCOUNTING.NAME_REQUIRED' | translate }}</mat-error>
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="form-field erp-span-2">
@@ -180,83 +322,19 @@
                 <mat-icon matPrefix>label</mat-icon>
                 <mat-error *ngIf="accountForm.get('accountNameAr')?.invalid">{{ 'ACCOUNTING.NAME_REQUIRED' | translate }}</mat-error>
               </mat-form-field>
-            </div>
-          </div>
-        </div>
 
-        <!-- Account Hierarchy -->
-        <div class="erp-card acc-card">
-          <div class="erp-section">
-            <h3 class="erp-section-title">
-              <mat-icon class="erp-section-icon">account_tree</mat-icon>
-              {{ 'ACCOUNTING.SECTION_HIERARCHY' | translate }}
-            </h3>
-
-            <!-- Requirement 2: parent account summary -- current code/name next to the parent's, so
-                 the user always sees where this account sits without hunting through the tree. -->
-            <div class="parent-account-summary" *ngIf="!accountForm.get('isMainAccount')?.value">
-              <div class="parent-account-summary-item">
-                <span class="parent-account-summary-label">{{ 'ACCOUNTING.PARENT_ACCOUNT' | translate }}</span>
-                <span class="parent-account-summary-value" *ngIf="accountForm.get('mainAccountCode')?.value; else noParent">
-                  <span class="acc-code-chip" dir="ltr">{{ accountForm.get('mainAccountCode')?.value }}</span>
-                  {{ accountForm.get('mainAccountName')?.value }}
-                </span>
-                <ng-template #noParent>
-                  <span class="parent-account-summary-value parent-account-summary-empty">{{ 'ACCOUNTING.PARENT_ACCOUNT_NOT_SELECTED' | translate }}</span>
-                </ng-template>
-              </div>
-              <mat-icon class="parent-account-summary-arrow" aria-hidden="true">subdirectory_arrow_right</mat-icon>
-              <div class="parent-account-summary-item">
-                <span class="parent-account-summary-label">{{ 'ACCOUNTING.THIS_ACCOUNT' | translate }}</span>
-                <span class="parent-account-summary-value">
-                  <span class="acc-code-chip" dir="ltr">{{ accountForm.get('accountCode')?.value || '—' }}</span>
-                  {{ accountForm.get('accountNameEn')?.value || (accountForm.get('accountNameAr')?.value || '—') }}
-                </span>
-              </div>
-            </div>
-
-      <!-- Account Structure (Hidden - Auto-populated from parent) -->
-      <div class="form-row" style="display: none;">
-        <mat-form-field appearance="outline" class="form-field">
-          <mat-label>{{ 'ACCOUNTING.ACCOUNT_LEVEL' | translate }}</mat-label>
-          <input matInput type="number" formControlName="accountLevel">
-          <mat-icon matPrefix>layers</mat-icon>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="form-field">
-          <mat-label>{{ 'ACCOUNTING.ACCOUNT_CATEGORY' | translate }}</mat-label>
-          <input matInput type="number" formControlName="accountCategoryId">
-          <mat-icon matPrefix>category</mat-icon>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="form-field">
-          <mat-label>{{ 'ACCOUNTING.ACCOUNT_TYPE' | translate }}</mat-label>
-          <input matInput type="number" formControlName="accountTypeId">
-          <mat-icon matPrefix>account_tree</mat-icon>
-        </mat-form-field>
-      </div>
-
-            <!-- Main Account Information -->
-            <div class="acc-check-row">
-              <mat-checkbox formControlName="isMainAccount">{{ 'ACCOUNTING.IS_MAIN_ACCOUNT' | translate }}</mat-checkbox>
-            </div>
-
-            <div class="erp-form-grid" *ngIf="!accountForm.get('isMainAccount')?.value">
-              <mat-form-field appearance="outline" class="form-field">
-                <mat-label>{{ 'ACCOUNTING.MAIN_ACCOUNT_CODE' | translate }}</mat-label>
-                <input matInput formControlName="mainAccountCode" dir="ltr" style="text-align: start;">
-                <mat-icon matPrefix>account_balance</mat-icon>
-                <mat-hint>{{ 'ACCOUNTING.MAIN_ACCOUNT_CODE_HINT' | translate }}</mat-hint>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline" class="form-field">
-                <mat-label>{{ 'ACCOUNTING.MAIN_ACCOUNT_NAME' | translate }}</mat-label>
-                <input matInput formControlName="mainAccountName" readonly>
-                <mat-icon matPrefix>account_balance_wallet</mat-icon>
+              <mat-form-field appearance="outline" class="form-field erp-span-2">
+                <mat-label>{{ 'ACCOUNTING.ACCOUNT_NAME_EN' | translate }}</mat-label>
+                <input matInput formControlName="accountNameEn" required>
+                <mat-icon matPrefix>label</mat-icon>
+                <mat-error *ngIf="accountForm.get('accountNameEn')?.invalid">{{ 'ACCOUNTING.NAME_REQUIRED' | translate }}</mat-error>
               </mat-form-field>
             </div>
           </div>
         </div>
+
+        <!-- (Account Hierarchy section relocated to the Parent Account card at the
+             top of the form -- same form controls, better ERP field order.) -->
 
         <!-- Currency and Cost Center + Status and Privacy -->
         <div class="erp-card acc-card">
@@ -481,11 +559,11 @@
                   <dt>{{ 'ACCOUNTING.ACCOUNT_TYPE' | translate }}</dt>
                   <dd>
                     <ng-container [ngSwitch]="accountForm.get('accountTypeId')?.value">
-                      <span *ngSwitchCase="'1'">{{ 'ACCOUNTING.TYPE_ASSET' | translate }}</span>
-                      <span *ngSwitchCase="'2'">{{ 'ACCOUNTING.TYPE_LIABILITY' | translate }}</span>
-                      <span *ngSwitchCase="'3'">{{ 'ACCOUNTING.TYPE_EQUITY' | translate }}</span>
-                      <span *ngSwitchCase="'4'">{{ 'ACCOUNTING.TYPE_REVENUE' | translate }}</span>
-                      <span *ngSwitchCase="'5'">{{ 'ACCOUNTING.TYPE_EXPENSE' | translate }}</span>
+                      <span *ngSwitchCase="1">{{ 'ACCOUNTING.TYPE_ASSET' | translate }}</span>
+                      <span *ngSwitchCase="2">{{ 'ACCOUNTING.TYPE_LIABILITY' | translate }}</span>
+                      <span *ngSwitchCase="3">{{ 'ACCOUNTING.TYPE_EQUITY' | translate }}</span>
+                      <span *ngSwitchCase="4">{{ 'ACCOUNTING.TYPE_REVENUE' | translate }}</span>
+                      <span *ngSwitchCase="5">{{ 'ACCOUNTING.TYPE_EXPENSE' | translate }}</span>
                       <span *ngSwitchDefault>—</span>
                     </ng-container>
                   </dd>
