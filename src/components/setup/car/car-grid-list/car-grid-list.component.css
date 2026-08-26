@@ -4,28 +4,9 @@
   min-height: 100vh;
 }
 
-/* Header Section */
-.header-section {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 32px;
-  padding: 0 8px;
-}
-
-.title-section h2 {
-  margin: 0;
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #1a237e;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.subtitle {
-  margin: 8px 0 0 0;
-  font-size: 1rem;
-  color: #5c6bc0;
-}
+/* Header Section
+   Uses the shared ERP page-header classes (.erp-page-header / .erp-page-title /
+   .erp-page-subtitle) from src/styles/form-system.css — no local overrides. */
 
 .add-button {
   height: 48px;
@@ -410,12 +391,6 @@
 }
 
 @media (max-width: 768px) {
-  .header-section {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-  }
-
   .filters-row {
     flex-direction: column;
   }
@@ -457,10 +432,6 @@
 @media (max-width: 480px) {
   .car-grid-list-container {
     padding: 12px;
-  }
-
-  .title-section h2 {
-    font-size: 1.8rem;
   }
 
   .controls-section {
