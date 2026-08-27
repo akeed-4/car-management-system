@@ -179,21 +179,20 @@
   min-width: 0;
 }
 
-/* Line items grid + Notes share one row instead of stacking, so Notes doesn't push the page taller. */
+/* Line items grid, then Notes stacked directly below it. */
 .lines-row {
   display: flex;
+  flex-direction: column;
   gap: var(--space-4, 1rem);
-  align-items: stretch;
 }
 
 .lines-row .lines-card {
-  flex: 1;
   min-width: 0;
 }
 
 .notes-card {
-  flex: 0 0 260px;
   display: flex;
+  width: 100%;
 }
 
 .notes-card .form-section {
@@ -206,16 +205,6 @@
 .notes-card .full-width {
   flex: 1;
   display: flex;
-}
-
-.notes-card ::ng-deep .mat-mdc-form-field-flex,
-.notes-card ::ng-deep .mat-mdc-text-field-wrapper {
-  height: 100%;
-}
-
-.notes-card ::ng-deep textarea.mat-mdc-input-element {
-  height: 100% !important;
-  resize: none;
 }
 
 .workspace-sidebar {
@@ -497,21 +486,6 @@ mat-form-field.mat-form-field {
 
   .workspace-sidebar {
     position: static;
-  }
-}
-
-@media (max-width: 900px) {
-  .lines-row {
-    flex-direction: column;
-  }
-
-  .notes-card {
-    flex: none;
-    width: 100%;
-  }
-
-  .notes-card ::ng-deep textarea.mat-mdc-input-element {
-    height: auto !important;
   }
 }
 

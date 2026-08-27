@@ -20,6 +20,15 @@
             <mat-error *ngIf="form.get('storeId')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
           </mat-form-field>
 
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'STORE_ACCOUNTING_CONFIG.INVENTORY_METHOD' | translate }}</mat-label>
+            <mat-select formControlName="inventoryAccountingMethod" required>
+              <mat-option value="Perpetual">{{ 'STORE_ACCOUNTING_CONFIG.METHOD_PERPETUAL' | translate }}</mat-option>
+              <mat-option value="Periodic">{{ 'STORE_ACCOUNTING_CONFIG.METHOD_PERIODIC' | translate }}</mat-option>
+            </mat-select>
+            <mat-hint>{{ (form.get('inventoryAccountingMethod')?.value === 'Periodic' ? 'STORE_ACCOUNTING_CONFIG.METHOD_PERIODIC_HINT' : 'STORE_ACCOUNTING_CONFIG.METHOD_PERPETUAL_HINT') | translate }}</mat-hint>
+          </mat-form-field>
+
           <div class="field-with-add">
             <mat-form-field appearance="outline" class="field-with-add-select">
               <mat-label>{{ 'STORE_ACCOUNTING_CONFIG.INVENTORY_ACCOUNT' | translate }}</mat-label>
@@ -55,6 +64,62 @@
               <mat-error *ngIf="form.get('inventoryAdjustmentAccountId')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
             </mat-form-field>
             <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateInventoryAdjustmentAccountDialog()">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+
+          <div class="field-with-add">
+            <mat-form-field appearance="outline" class="field-with-add-select">
+              <mat-label>{{ 'STORE_ACCOUNTING_CONFIG.ADDITIONAL_COST_ACCOUNT' | translate }}</mat-label>
+              <mat-select formControlName="additionalCostAccountId">
+                <mat-option [value]="null">{{ 'STORE_ACCOUNTING_CONFIG.NOT_CONFIGURED' | translate }}</mat-option>
+                <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameEn }}</mat-option>
+              </mat-select>
+              <mat-hint>{{ 'STORE_ACCOUNTING_CONFIG.ADDITIONAL_COST_ACCOUNT_HINT' | translate }}</mat-hint>
+            </mat-form-field>
+            <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateAdditionalCostAccountDialog()">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+
+          <div class="field-with-add">
+            <mat-form-field appearance="outline" class="field-with-add-select">
+              <mat-label>{{ 'STORE_ACCOUNTING_CONFIG.PURCHASE_EXPENSE_ACCOUNT' | translate }}</mat-label>
+              <mat-select formControlName="purchaseExpenseAccountId">
+                <mat-option [value]="null">{{ 'STORE_ACCOUNTING_CONFIG.NOT_CONFIGURED' | translate }}</mat-option>
+                <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameEn }}</mat-option>
+              </mat-select>
+              <mat-hint>{{ 'STORE_ACCOUNTING_CONFIG.PURCHASE_EXPENSE_ACCOUNT_HINT' | translate }}</mat-hint>
+            </mat-form-field>
+            <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreatePurchaseExpenseAccountDialog()">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+
+          <div class="field-with-add">
+            <mat-form-field appearance="outline" class="field-with-add-select">
+              <mat-label>{{ 'STORE_ACCOUNTING_CONFIG.FREIGHT_SHIPPING_ACCOUNT' | translate }}</mat-label>
+              <mat-select formControlName="freightShippingAccountId">
+                <mat-option [value]="null">{{ 'STORE_ACCOUNTING_CONFIG.NOT_CONFIGURED' | translate }}</mat-option>
+                <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameEn }}</mat-option>
+              </mat-select>
+              <mat-hint>{{ 'STORE_ACCOUNTING_CONFIG.FREIGHT_SHIPPING_ACCOUNT_HINT' | translate }}</mat-hint>
+            </mat-form-field>
+            <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateFreightShippingAccountDialog()">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+
+          <div class="field-with-add">
+            <mat-form-field appearance="outline" class="field-with-add-select">
+              <mat-label>{{ 'STORE_ACCOUNTING_CONFIG.CUSTOMS_ACCOUNT' | translate }}</mat-label>
+              <mat-select formControlName="customsAccountId">
+                <mat-option [value]="null">{{ 'STORE_ACCOUNTING_CONFIG.NOT_CONFIGURED' | translate }}</mat-option>
+                <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameEn }}</mat-option>
+              </mat-select>
+              <mat-hint>{{ 'STORE_ACCOUNTING_CONFIG.CUSTOMS_ACCOUNT_HINT' | translate }}</mat-hint>
+            </mat-form-field>
+            <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateCustomsAccountDialog()">
               <mat-icon>add</mat-icon>
             </button>
           </div>

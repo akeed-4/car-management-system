@@ -5,6 +5,7 @@ import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, filter, finalize, switchMap, take } from 'rxjs/operators';
 import { AuthService } from '../services/AuthService.service';
 import { TenantContextService } from '../services/tenant-context.service';
+import { BranchContextService } from '../services/branch-context.service';
 
 /** Endpoints that must never trigger a refresh-and-retry: a 401 from these means "bad credentials
  *  / bad token / bad reset link", not "session expired", and retrying would either loop forever
@@ -17,6 +18,7 @@ const AUTH_ENDPOINTS = ['/api/Users/login', '/api/Users/refresh-token', '/api/Us
 export class JwtInterceptor implements HttpInterceptor {
   private authService = inject(AuthService);
   private tenantContext = inject(TenantContextService);
+  private branchContext = inject(BranchContextService);
   private router = inject(Router);
 
   private isRefreshing = false;
@@ -80,6 +82,7 @@ export class JwtInterceptor implements HttpInterceptor {
   private forceLogout(): void {
     this.authService.logout();
     this.tenantContext.clear();
+    this.branchContext.clear();
     this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
   }
 }

@@ -1,5 +1,5 @@
 
-import { ChangeDetectionStrategy, Component, computed, inject, signal, effect, Input, OnInit, OnChanges, SimpleChanges, LOCALE_ID } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, effect, Injector, Input, OnInit, OnChanges, SimpleChanges, LOCALE_ID } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormsModule, FormGroup, FormBuilder, Validators, AbstractControl, FormControl } from '@angular/forms';
@@ -47,8 +47,11 @@ import { applyFieldLock } from '../../../models/form-field-lock';
 import { VinManagementDialogComponent, VinEntry } from '../vin-management-dialog/vin-management-dialog.component';
 import { PurchaseCycleService } from '../../../services/purchase-cycle.service';
 import { CarReceipt } from '../../../models/car-receipt.model';
+import { extractErrorMessage } from '../../../models/http-error-message';
 import { StoreAccountingConfigurationService } from '../../../services/store-accounting-configuration.service';
 import { warnIfStoreNotConfigured } from '../../shared/store-accounting-setup-warning-dialog/store-accounting-setup-warning.helper';
+import { BranchContextService } from '../../../services/branch-context.service';
+import { scopeStoresToCurrentBranch } from '../../../models/branch-scoped-stores.util';
 
 const VAT_RATE = 0.15; // 15% VAT
 
@@ -146,6 +149,8 @@ export class PurchaseInvoiceComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private dialog = inject(MatDialog);
   private storeAccountingConfigService = inject(StoreAccountingConfigurationService);
+  private branchContext = inject(BranchContextService);
+  private injector = inject(Injector);
   private notificationService = inject(NotificationService);
   private oidcSecurityService = inject(OidcSecurityService);
   /** Shared save-before-print workflow + formatting locale for the shared totals block. */
@@ -164,7 +169,19 @@ export class PurchaseInvoiceComponent implements OnInit {
 
   // Services state
   suppliers = signal<Supplier[]>([]);
-  stores = this.storeService.stores$;
+  /** The form's current storeId, kept in sync explicitly (initial load + onStoreSelectionChange)
+   *  so the Store dropdown can stay scoped to the caller's current branch without losing a
+   *  document's already-saved store when editing across a branch boundary -- see
+   *  scopeStoresToCurrentBranch. */
+  private currentStoreIdValue = signal<number | null>(null);
+  /** Store dropdown options scoped to the caller's current branch (BranchContextService) -- never
+   *  offers a store outside the user's assigned branch on a new document, while still showing an
+   *  already-saved out-of-branch store when editing one. */
+  stores = computed(() => scopeStoresToCurrentBranch(
+    this.storeService.stores$(),
+    this.branchContext.current()?.branchId,
+    this.currentStoreIdValue(),
+  ));
   cars = this.inventoryService.cars$;
   carStocks = signal<StoreCarStockDto[]>([]);
   // Debit (Inventory) / Credit (Accounts Payable) accounts are no longer shown or selected in
@@ -465,6 +482,18 @@ export class PurchaseInvoiceComponent implements OnInit {
     } else {
       this.initForm();
       this.watchInitialPaymentControl();
+
+      // Auto-select the store once the branch-scoped list resolves to exactly one option, so a
+      // user whose branch has a single store never has to manually pick it. Only runs on a new
+      // (never-saved) invoice and only while the field hasn't already been touched by the user.
+      effect(() => {
+        const options = this.stores();
+        const storeIdControl = this.purchaseInvoiceForm.get('storeId');
+        if (options.length === 1 && !storeIdControl?.value && !storeIdControl?.dirty) {
+          storeIdControl?.setValue(options[0].id);
+          this.onStoreSelectionChange(options[0].id);
+        }
+      }, { injector: this.injector });
     }
 
     // Load suppliers
@@ -784,6 +813,7 @@ export class PurchaseInvoiceComponent implements OnInit {
     // now does the unwrapping, `invoice.items` is the correct, and only, way to read it.
     this.procurementService.getInvoiceById(invoiceId).subscribe({
       next: (invoice) => {
+        this.currentStoreIdValue.set(invoice.storeId ?? null);
         // Initialize form with existing invoice data
         this.purchaseInvoiceForm = this.fb.group({
           supplierId: [invoice.supplierId, Validators.required],
@@ -865,6 +895,7 @@ export class PurchaseInvoiceComponent implements OnInit {
   }
 
   onStoreSelectionChange(storeId: number | null): void {
+    this.currentStoreIdValue.set(storeId);
     if (storeId) {
       this.loadCarStocks(storeId);
       // Reset selected car when store changes
@@ -1003,11 +1034,12 @@ export class PurchaseInvoiceComponent implements OnInit {
   }
 
   toggleCarCards(): void {
+    const storeId = this.purchaseInvoiceForm.get('storeId')?.value;
     const dialogRef = this.dialog.open(CarSelectionDialogComponent, {
       width: '90vw',
       maxWidth: '1200px',
       height: '80vh',
-      data: {},
+      data: { storeId },
       panelClass: 'responsive-dialog-panel'
     });
 
@@ -1270,7 +1302,7 @@ export class PurchaseInvoiceComponent implements OnInit {
         }),
         catchError(error => {
           console.error('Error updating purchase invoice:', error);
-          this.notificationService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
+          this.notificationService.showError(extractErrorMessage(error, this.translate, 'TOAST.SAVE_ERROR'));
           return of(null);
         })
       );
@@ -1293,7 +1325,7 @@ export class PurchaseInvoiceComponent implements OnInit {
       }),
       catchError(error => {
         console.error('Error saving purchase invoice:', error);
-        this.notificationService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
+        this.notificationService.showError(extractErrorMessage(error, this.translate, 'TOAST.SAVE_ERROR'));
         return of(null);
       })
     );

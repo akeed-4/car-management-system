@@ -8,6 +8,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -42,6 +43,7 @@ import {
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatRadioModule,
     MatDatepickerModule,
     MatNativeDateModule,
     MatTooltipModule,
@@ -92,7 +94,14 @@ export class PurchaseAdditionalCostFormComponent implements OnInit, OnChanges {
     description: new FormControl(''),
     amount: new FormControl<number | null>(null, [Validators.required, Validators.min(0.01)]),
     allocationMethod: new FormControl<AllocationMethod>('Cost', Validators.required),
-    debitAccountId: new FormControl<number | null>(null, Validators.required),
+    // True (default): capitalize into the allocated cars' inventory value -- existing behavior,
+    // unchanged. False: post as a period expense -- no inventory-value effect.
+    isCapitalized: new FormControl<boolean>(true, { nonNullable: true }),
+    // Optional: when left blank, the backend derives the debit account from the target invoice's
+    // Store accounting configuration (Additional Cost / Purchase Expense / Freight / Customs,
+    // depending on isCapitalized + expenseCategory) -- see AccountResolutionService. An explicit
+    // choice here is still honored and validated as before.
+    debitAccountId: new FormControl<number | null>(null),
     creditAccountId: new FormControl<number | null>(null, Validators.required),
   });
 
@@ -170,6 +179,7 @@ export class PurchaseAdditionalCostFormComponent implements OnInit, OnChanges {
             description: cost.description,
             amount: cost.amount,
             allocationMethod: cost.allocationMethod,
+            isCapitalized: cost.isCapitalized,
             debitAccountId: cost.debitAccountId,
             creditAccountId: cost.creditAccountId,
           });
@@ -196,6 +206,7 @@ export class PurchaseAdditionalCostFormComponent implements OnInit, OnChanges {
         description: '',
         amount: null,
         allocationMethod: 'Cost',
+        isCapitalized: true,
         debitAccountId: null,
         creditAccountId: null,
       });
@@ -290,7 +301,8 @@ export class PurchaseAdditionalCostFormComponent implements OnInit, OnChanges {
         description: v.description || undefined,
         amount: v.amount!,
         allocationMethod: v.allocationMethod!,
-        debitAccountId: v.debitAccountId!,
+        isCapitalized: v.isCapitalized,
+        debitAccountId: v.debitAccountId ?? undefined,
         creditAccountId: v.creditAccountId!,
         manualLines,
       }).subscribe({
@@ -316,7 +328,8 @@ export class PurchaseAdditionalCostFormComponent implements OnInit, OnChanges {
         description: v.description || undefined,
         amount: v.amount!,
         allocationMethod: v.allocationMethod!,
-        debitAccountId: v.debitAccountId!,
+        isCapitalized: v.isCapitalized ?? true,
+        debitAccountId: v.debitAccountId ?? undefined,
         creditAccountId: v.creditAccountId!,
         createdBy: currentUserId,
         manualLines,

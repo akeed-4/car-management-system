@@ -214,8 +214,7 @@
           </section>
         </div>
 
-        <!-- Grid + Notes share a row so Notes sits beside the line items instead of stacking under
-             them -- keeps the whole document on one screen instead of growing the page vertically. -->
+        <!-- Line items grid, with Notes stacked directly below it. -->
         <div class="lines-row">
           <div class="erp-card doc-card lines-card">
             <section class="erp-section">
@@ -240,7 +239,7 @@
                 [noDataText]="'PURCHASE_INVOICE.NO_ITEMS' | translate"
                 [editing]="{ mode: 'cell', allowUpdating: true }"
                 (onRowUpdated)="onInvoiceItemRowUpdated()"
-                [height]="360"
+                [height]="420"
                 keyExpr="carId"
               >
                 <dxo-master-detail [enabled]="true" template="vehicleDetails"></dxo-master-detail>

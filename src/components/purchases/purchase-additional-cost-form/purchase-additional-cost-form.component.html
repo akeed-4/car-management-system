@@ -66,13 +66,24 @@
 
         <div class="erp-section form-section">
           <h3 class="erp-section-title section-title">{{ 'PURCHASE_ADDITIONAL_COST.FORM.POSTING_ACCOUNTS' | translate }}</h3>
+
+          <mat-radio-group formControlName="isCapitalized" class="capitalize-toggle">
+            <mat-radio-button [value]="true">{{ 'PURCHASE_ADDITIONAL_COST.FORM.CAPITALIZED' | translate }}</mat-radio-button>
+            <mat-radio-button [value]="false">{{ 'PURCHASE_ADDITIONAL_COST.FORM.EXPENSED' | translate }}</mat-radio-button>
+          </mat-radio-group>
+          <p class="capitalize-hint">
+            {{ (costForm.get('isCapitalized')?.value ? 'PURCHASE_ADDITIONAL_COST.FORM.CAPITALIZED_HINT' : 'PURCHASE_ADDITIONAL_COST.FORM.EXPENSED_HINT') | translate }}
+          </p>
+
           <div class="erp-form-grid form-grid cols-2">
             <div class="field-with-add">
               <mat-form-field appearance="outline" class="field-with-add-select">
                 <mat-label>{{ 'PURCHASE_ADDITIONAL_COST.DEBIT_ACCOUNT' | translate }}</mat-label>
                 <mat-select formControlName="debitAccountId">
+                  <mat-option [value]="null">{{ 'PURCHASE_ADDITIONAL_COST.FORM.DEBIT_ACCOUNT_AUTO' | translate }}</mat-option>
                   <mat-option *ngFor="let a of debitAccounts()" [value]="a.id">{{ a.accountCode }} - {{ a.accountNameAr }}</mat-option>
                 </mat-select>
+                <mat-hint>{{ 'PURCHASE_ADDITIONAL_COST.FORM.DEBIT_ACCOUNT_HINT' | translate }}</mat-hint>
               </mat-form-field>
               <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateDebitAccountDialog()">
                 <mat-icon>add</mat-icon>

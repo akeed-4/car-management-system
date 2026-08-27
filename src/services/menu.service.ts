@@ -71,7 +71,8 @@ export const menuData = [
       { id: 88, name: 'تمويل المخزون', englishName: 'Floor Plan Financing', route: '/accounts/floor-plan-financing' },
       { id: 89, name: 'العملات', englishName: 'Currencies', route: '/setup/currencies' },
       { id: 90, name: 'أسعار الصرف', englishName: 'Exchange Rates', route: '/setup/exchange-rates' },
-      { id: 91, name: 'إعدادات محاسبة المخازن', englishName: 'Store Accounting Configurations', route: '/setup/store-accounting-configurations' }
+      { id: 91, name: 'إعدادات محاسبة المخازن', englishName: 'Store Accounting Configurations', route: '/setup/store-accounting-configurations' },
+      { id: 10070, name: 'إقفال المخزون الدوري', englishName: 'Periodic Inventory Closing', route: '/setup/inventory-closing' }
     ]
   },
 

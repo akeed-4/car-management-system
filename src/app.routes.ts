@@ -5,6 +5,7 @@ import { subscriptionGuard } from './guards/subscription.guard';
 import { tenantGuard } from './guards/tenant.guard';
 import { guestGuard } from './guards/guest.guard';
 import { companySelectedGuard } from './guards/company-selected.guard';
+import { branchSelectedGuard } from './guards/branch-selected.guard';
 import { DashboardComponent } from './components/dashboard/dashboard-main/dashboard.component';
 import { InventoryListComponent } from './components/inventory/inventory-list/inventory-list.component';
 import { InventoryFormComponent } from './components/inventory/inventory-form/inventory-form.component';
@@ -26,6 +27,7 @@ import { ExchangeRateListComponent } from './components/setup/exchange-rates/exc
 import { ExchangeRateFormComponent } from './components/setup/exchange-rates/exchange-rate-form/exchange-rate-form.component';
 import { StoreAccountingConfigurationListComponent } from './components/setup/store-accounting-configurations/store-accounting-configuration-list/store-accounting-configuration-list.component';
 import { StoreAccountingConfigurationFormComponent } from './components/setup/store-accounting-configurations/store-accounting-configuration-form/store-accounting-configuration-form.component';
+import { InventoryClosingComponent } from './components/setup/inventory-closing/inventory-closing.component';
 import { StoreTransferListComponent } from './components/setup/store-transfers/store-transfer-list/store-transfer-list.component';
 import { StoreTransferFormComponent } from './components/setup/store-transfers/store-transfer-form/store-transfer-form.component';
 import { CarModelsComponent } from './components/setup/car-models/car-models-list/car-models.component';
@@ -87,6 +89,7 @@ import { PaymentComponent } from './components/platform/onboarding/payment/payme
 import { RenewSubscriptionComponent } from './components/platform/onboarding/renew-subscription/renew-subscription.component';
 import { TenantActivationComponent } from './components/platform/onboarding/tenant-activation/tenant-activation.component';
 import { CompanySelectionComponent } from './components/platform/onboarding/company-selection/company-selection.component';
+import { BranchSelectionComponent } from './components/platform/onboarding/branch-selection/branch-selection.component';
 import { ShellComponent } from './components/shared/shell/shell.component';
 import { CarCardComponent } from './components/setup/car/car-card/car-card.component';
 import { CarListComponent } from './components/setup/car/car-list/car-list.component';
@@ -196,6 +199,9 @@ export const APP_ROUTES: Routes = [
   // than one company. Not itself guarded (the guard that sends you here would just send you right
   // back).
   { path: 'select-company', component: CompanySelectionComponent },
+  // Same pattern one level down: reached via branchSelectedGuard when the caller has 2+ branches
+  // in their current company. Not itself guarded, same reason as select-company above.
+  { path: 'select-branch', component: BranchSelectionComponent },
   // Print routes are deliberately siblings of `login`/`registration`, NOT children of
   // LayoutComponent. They render as bare, chrome-free pages (no sidebar/toolbar/menu) so
   // `window.print()` only ever rasterizes the invoice document itself.
@@ -229,7 +235,9 @@ export const APP_ROUTES: Routes = [
     // the caller has already been sent to /select-company -- neither of those two needs any code
     // change for multi-company support as a result. Then a suspended tenant / deactivated user
     // (tenantGuard) is turned away before subscriptionGuard's own status lookup even fires.
-    canActivate: [companySelectedGuard, tenantGuard, subscriptionGuard],
+    // branchSelectedGuard runs last, after a tenant (and therefore the correct ERP database) is
+    // already resolved, since Branch rows live in that per-tenant database.
+    canActivate: [companySelectedGuard, tenantGuard, subscriptionGuard, branchSelectedGuard],
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'setup/manufacturers', component: ManufacturersComponent },
@@ -262,6 +270,7 @@ export const APP_ROUTES: Routes = [
       { path: 'setup/store-accounting-configurations', component: StoreAccountingConfigurationListComponent },
       { path: 'setup/store-accounting-configurations/new', component: StoreAccountingConfigurationFormComponent },
       { path: 'setup/store-accounting-configurations/edit/:id', component: StoreAccountingConfigurationFormComponent },
+      { path: 'setup/inventory-closing', component: InventoryClosingComponent },
       { path: 'setup/store-transfers', component: StoreTransferListComponent },
       { path: 'setup/store-transfers/new', component: StoreTransferFormComponent },
       { path: 'setup/cost-price-settings', component: CostPriceCalculationSettingsComponent },

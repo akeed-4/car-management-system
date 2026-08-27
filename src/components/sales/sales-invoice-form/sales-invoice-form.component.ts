@@ -1,4 +1,4 @@
-﻿import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, OnInit, Input, LOCALE_ID } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, Injector, OnInit, Input, LOCALE_ID } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { AbstractControl, ReactiveFormsModule, FormControl, ValidationErrors, Validators, FormGroup } from '@angular/forms';
@@ -39,7 +39,6 @@ import { applyFieldLock } from '../../../models/form-field-lock';
 import { DxoValueErrorBarComponent } from 'devextreme-angular/ui/nested';
 import { NotificationService } from '@/src/services/notification.service';
 import { AccountingService } from '../../accounting/accounting.service';
-import { openCreateAccountDialog } from '../../accounting/create-account-dialog.helper';
 import { SalesCycleService } from '../../../services/sales-cycle.service';
 import { Quotation } from '../../../models/quotation.model';
 import { SalesChannel } from '../../../models/enums/sales-channel.enum';
@@ -52,6 +51,9 @@ import { formatCurrency } from '@angular/common';
 import { DocumentToolbarComponent, DocumentTotalsComponent, DocumentPrintService, DocumentAction, DocumentTotalsRow } from '../../shared/document';
 import { StoreAccountingConfigurationService } from '../../../services/store-accounting-configuration.service';
 import { warnIfStoreNotConfigured } from '../../shared/store-accounting-setup-warning-dialog/store-accounting-setup-warning.helper';
+import { extractErrorMessage } from '../../../models/http-error-message';
+import { BranchContextService } from '../../../services/branch-context.service';
+import { scopeStoresToCurrentBranch } from '../../../models/branch-scoped-stores.util';
 
 export enum InvoiceType {
   Taxable = 'Taxable',
@@ -114,6 +116,8 @@ export class SalesInvoiceFormComponent implements OnInit {
     private translate = inject(TranslateService);
     private dialog = inject(MatDialog);
     private storeAccountingConfigService = inject(StoreAccountingConfigurationService);
+    private branchContext = inject(BranchContextService);
+    private injector = inject(Injector);
     private route = inject(ActivatedRoute);
     private notificationService = inject(NotificationService);
     private calc = inject(SalesInvoiceCalculationService);
@@ -182,7 +186,19 @@ export class SalesInvoiceFormComponent implements OnInit {
   invoiceForm!: FormGroup;
   // Services state
   customers = this.customerService.customers$;
-  stores = this.storeService.stores$;
+  /** The form's current storeId, kept in sync explicitly (initial load + onStoreSelectionChange)
+   *  so the Store dropdown can stay scoped to the caller's current branch without losing a
+   *  document's already-saved store when editing across a branch boundary -- see
+   *  scopeStoresToCurrentBranch. */
+  private currentStoreIdValue = signal<number | null>(null);
+  /** Store dropdown options scoped to the caller's current branch (BranchContextService) -- never
+   *  offers a store outside the user's assigned branch on a new document, while still showing an
+   *  already-saved out-of-branch store when editing one. */
+  stores = computed(() => scopeStoresToCurrentBranch(
+    this.storeService.stores$(),
+    this.branchContext.current()?.branchId,
+    this.currentStoreIdValue(),
+  ));
   private allCars = signal([
     { id: 1, make: 'Toyota', model: 'Corolla', year: 2022, status: 'Available', condition: 'New', salePrice: 50000, totalCost: 40000, photos: ['https://picsum.photos/seed/toyota/800/600'] },
   ]);
@@ -212,10 +228,6 @@ export class SalesInvoiceFormComponent implements OnInit {
   // Invoice classification signals
   invoiceClassifications = signal<InvoiceClassificationOption[]>([]);
   selectedInvoiceClassification = signal<InvoiceClassificationOption | null>(null);
-
-  // Account signals
-  debitAccounts = signal<Account[]>([]);
-  creditAccounts = signal<Account[]>([]);
 
   // Deposit signals
   selectedDeposit = signal<DepositVoucher | null>(null);
@@ -276,8 +288,6 @@ export class SalesInvoiceFormComponent implements OnInit {
       this.invoiceForm = new FormGroup({
         storeId: new FormControl(null, Validators.required),
         customer: new FormControl(null, Validators.required),
-        debitAccount: new FormControl(null), // Phase 2: server-derived, ignored by backend
-        creditAccount: new FormControl(null), // Phase 2: server-derived, ignored by backend
         invoiceDate: new FormControl(new Date(), Validators.required),
         dueDate: new FormControl(''),
         paymentMethod: new FormControl('Cash'),
@@ -305,6 +315,18 @@ export class SalesInvoiceFormComponent implements OnInit {
       this.watchPaymentTypeControl();
       this.applyPaymentTypeLock();
 
+      // Auto-select the store once the branch-scoped list resolves to exactly one option, so a
+      // user whose branch has a single store never has to manually pick it. Only runs on a new
+      // (never-saved) invoice and only while the field hasn't already been touched by the user.
+      effect(() => {
+        const options = this.stores();
+        const storeIdControl = this.invoiceForm.get('storeId');
+        if (options.length === 1 && !storeIdControl?.value && !storeIdControl?.dirty) {
+          storeIdControl?.setValue(options[0].id);
+          this.onStoreSelectionChange(options[0].id);
+        }
+      }, { injector: this.injector });
+
       // Deep-link from a preceding Sales Order step (Corporate/Bank workflows)
       const orderId = this.route.snapshot.queryParamMap.get('orderId');
       if (orderId) {
@@ -327,9 +349,6 @@ export class SalesInvoiceFormComponent implements OnInit {
       // (see captureDocumentSnapshot) so Print won't save an untouched document.
       this.captureDocumentSnapshot();
     });
-
-    // Load accounts
-    this.loadAccounts();
 
     // Load active quotations for the traceability bar's Parent Quotation dropdown
     this.loadActiveQuotations();
@@ -514,6 +533,7 @@ export class SalesInvoiceFormComponent implements OnInit {
   loadInvoiceForEdit(invoiceId: number) {
     this.salesService.getInvoiceById(invoiceId).subscribe({
       next: (invoice) => {
+        this.currentStoreIdValue.set(invoice.storeId ?? null);
         // Restore channel/saleType from the saved invoice (fall back to legacy isCash/paymentMethod)
         if (invoice.salesChannel !== undefined) {
           this.channel = invoice.salesChannel;
@@ -534,8 +554,6 @@ export class SalesInvoiceFormComponent implements OnInit {
           paymentType: new FormControl(invoice.paymentType || 'Bank Transfer'),
           salesperson: new FormControl(invoice.salesperson || ''),
           ClassificationId: new FormControl(invoice.ClassificationId || 0, Validators.required),
-          debitAccount: new FormControl(null), // Phase 2: server-derived
-          creditAccount: new FormControl(null), // Phase 2: server-derived
           invoiceType: new FormControl(invoice.invoiceType || InvoiceType.Taxable, Validators.required),
           selectedCarId: new FormControl(null),
           selectedQuantity: new FormControl(1, [Validators.required, Validators.min(1)]),
@@ -631,6 +649,7 @@ export class SalesInvoiceFormComponent implements OnInit {
   /** Heads-up only: warns the user immediately if the selected Store has no active
    * StoreAccountingConfiguration, instead of only finding out after Save fails server-side. */
   onStoreSelectionChange(storeId: number | null): void {
+    this.currentStoreIdValue.set(storeId);
     const store = this.stores().find(s => s.id === storeId);
     warnIfStoreNotConfigured(this.storeAccountingConfigService, this.dialog, this.router, storeId, store?.nameAr ?? '').subscribe();
   }
@@ -658,38 +677,6 @@ export class SalesInvoiceFormComponent implements OnInit {
         console.error('Failed to load available cars', error);
         this.availableCars.set([]);
       }
-    });
-  }
-
-  private loadAccounts(): void {
-    // Debit/Credit selectors must only offer leaf/postable accounts -- parent/grouping accounts
-    // are excluded server-side by this endpoint, not filtered client-side from the category list.
-    this.accountingService.getPostableAccounts('debit').subscribe(accounts => {
-      this.debitAccounts.set(accounts);
-    });
-
-    this.accountingService.getPostableAccounts('credit').subscribe(accounts => {
-      this.creditAccounts.set(accounts);
-    });
-  }
-
-  // --- Requirement 9: "+ Create Account" from this document -----------------------------------
-  // Reuses the SAME Chart of Accounts creation form via the shared dialog helper -- see
-  // PurchaseInvoiceComponent's identical pattern for the full rationale.
-
-  openCreateDebitAccountDialog(): void {
-    openCreateAccountDialog(this.dialog).subscribe((created) => {
-      if (!created) return;
-      this.debitAccounts.update(list => [...list, created]);
-      this.invoiceForm.get('debitAccount')?.setValue(created.id);
-    });
-  }
-
-  openCreateCreditAccountDialog(): void {
-    openCreateAccountDialog(this.dialog).subscribe((created) => {
-      if (!created) return;
-      this.creditAccounts.update(list => [...list, created]);
-      this.invoiceForm.get('creditAccount')?.setValue(created.id);
     });
   }
 
@@ -1281,8 +1268,9 @@ export class SalesInvoiceFormComponent implements OnInit {
           this.captureDocumentSnapshot();
           return this.currentInvoiceId();
         }),
-        catchError(() => {
-          this.notificationService.showError('TOAST.SAVE_ERROR');
+        catchError(error => {
+          console.error('Error updating sales invoice:', error);
+          this.notificationService.showError(extractErrorMessage(error, this.translate, 'TOAST.SAVE_ERROR'));
           return of(null);
         })
       );
@@ -1318,8 +1306,8 @@ export class SalesInvoiceFormComponent implements OnInit {
         return savedInvoice.id;
       }),
       catchError(error => {
-        console.log(error);
-        this.notificationService.showError('TOAST.SAVE_ERROR');
+        console.error('Error saving sales invoice:', error);
+        this.notificationService.showError(extractErrorMessage(error, this.translate, 'TOAST.SAVE_ERROR'));
         return of(null);
       })
     );

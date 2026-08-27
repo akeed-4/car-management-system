@@ -233,8 +233,7 @@
           </section>
         </div>
 
-        <!-- Grid + Notes share a row so Notes sits beside the line items instead of stacking under
-             them -- keeps the whole document on one screen instead of growing the page vertically. -->
+        <!-- Line items grid, with Notes stacked directly below it. -->
         <div class="lines-row">
           <div class="erp-card doc-card lines-card">
             <div class="section-header">
@@ -262,7 +261,7 @@
                 (onRowRemoving)="removeItem($event.data.lineKey)"
                 (onRowUpdated)="onInvoiceItemRowUpdated($event)"
                 [noDataText]="'INVOICE.NO_ITEMS' | translate"
-                [height]="360"
+                [height]="420"
               >
                 <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}" [allowEditing]="false"></dxi-column>
                 <dxi-column dataField="quantity" caption="{{ 'PURCHASE_INVOICE.QUANTITY' | translate }}" dataType="number" [setCellValue]="setQuantityValue">

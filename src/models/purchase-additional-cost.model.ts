@@ -31,6 +31,9 @@ export interface PurchaseAdditionalCost {
   debitAccountName: string;
   creditAccountId: number;
   creditAccountName: string;
+  /** True: capitalized into the allocated cars' inventory value. False: posted as a period
+   *  expense with no inventory-value effect. */
+  isCapitalized: boolean;
 
   status: PurchaseAdditionalCostStatus;
   createdBy: number;
@@ -55,7 +58,11 @@ export interface CreatePurchaseAdditionalCostDto {
   amount: number;
   allocationMethod: AllocationMethod;
   supplierId?: number | null;
-  debitAccountId: number;
+  /** True (default): capitalize into inventory. False: post as a period expense. */
+  isCapitalized: boolean;
+  /** Optional -- when omitted, the backend derives it from the target Store's accounting
+   *  configuration based on isCapitalized + expenseCategory. */
+  debitAccountId?: number | null;
   creditAccountId: number;
   createdBy: number;
   /** Required only when allocationMethod is 'Manual'; must sum to amount. */
@@ -69,6 +76,7 @@ export interface UpdatePurchaseAdditionalCostDto {
   amount?: number;
   allocationMethod?: AllocationMethod;
   supplierId?: number | null;
+  isCapitalized?: boolean;
   debitAccountId?: number;
   creditAccountId?: number;
   manualLines?: ManualAllocationLine[];

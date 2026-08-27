@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, Injector, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -8,6 +8,8 @@ import { UserService } from '../../../services/user.service';
 import { StoreService } from '../../../services/store.service';
 import { StoreAccountingConfigurationService } from '../../../services/store-accounting-configuration.service';
 import { warnIfStoreNotConfigured } from '../../shared/store-accounting-setup-warning-dialog/store-accounting-setup-warning.helper';
+import { BranchContextService } from '../../../services/branch-context.service';
+import { scopeStoresToCurrentBranch } from '../../../models/branch-scoped-stores.util';
 import { Car } from '../../../models/car.model';
 import { VehicleLookupModalComponent } from '../../shared/vehicle-lookup-modal/vehicle-lookup-modal.component';
 import { AuditHistoryPanelComponent } from '../../shared/audit-history-panel/audit-history-panel.component';
@@ -51,6 +53,8 @@ export class DailyEntryFormComponent implements OnInit {
   private storeService = inject(StoreService);
   private dialog = inject(MatDialog);
   private storeAccountingConfigService = inject(StoreAccountingConfigurationService);
+  private branchContext = inject(BranchContextService);
+  private injector = inject(Injector);
 
   entryForm!: FormGroup;
   editMode = signal(false);
@@ -60,7 +64,19 @@ export class DailyEntryFormComponent implements OnInit {
   selectedCar = signal<Car | null>(null);
 
   employees = this.userService.activeUsers$;
-  stores = this.storeService.stores$;
+  /** The form's current storeId, kept in sync explicitly (edit-load + onStoreSelectionChange) so
+   *  the Store list can stay scoped to the caller's current branch without losing a document's
+   *  already-saved store when editing across a branch boundary. */
+  private currentStoreIdValue = signal<number | null>(null);
+  /** Store dropdown options scoped to the caller's current branch -- never offers a store outside
+   *  the user's assigned branch on a new entry, while still showing an already-saved out-of-branch
+   *  store when editing one. This field stays optional (no Validators.required), so a "None" choice
+   *  is preserved regardless of scoping -- see the template's own null option. */
+  stores = computed(() => scopeStoresToCurrentBranch(
+    this.storeService.stores$(),
+    this.branchContext.current()?.branchId,
+    this.currentStoreIdValue(),
+  ));
 
   typeOptions = ['Receiving', 'Delivery', 'Transfer', 'Return', 'Inspection', 'Maintenance'];
   statusOptions = ['Pending', 'Completed', 'Cancelled'];
@@ -76,6 +92,7 @@ export class DailyEntryFormComponent implements OnInit {
       this.dailyEntryService.getById(id).subscribe({
         next: (response) => {
           const entry = response.data;
+          this.currentStoreIdValue.set(entry.storeId ?? null);
           this.entryForm.patchValue(entry);
           this.selectedCar.set({
             id: entry.carId,
@@ -88,6 +105,18 @@ export class DailyEntryFormComponent implements OnInit {
           this.router.navigate(['/daily-entries']);
         },
       });
+    } else {
+      // Auto-select the store once the branch-scoped list resolves to exactly one option, so a
+      // user whose branch has a single store never has to manually pick it. Only for a new
+      // (never-saved) entry.
+      effect(() => {
+        const options = this.stores();
+        const storeIdControl = this.entryForm.get('storeId');
+        if (options.length === 1 && !storeIdControl?.value && !storeIdControl?.dirty) {
+          storeIdControl?.setValue(options[0].id);
+          this.onStoreSelectionChange(options[0].id);
+        }
+      }, { injector: this.injector });
     }
   }
 
@@ -160,6 +189,7 @@ export class DailyEntryFormComponent implements OnInit {
   }
 
   onStoreSelectionChange(storeId: number | null): void {
+    this.currentStoreIdValue.set(storeId);
     const selectedStore = this.stores().find(s => s.id === storeId);
     warnIfStoreNotConfigured(this.storeAccountingConfigService, this.dialog, this.router, storeId, selectedStore?.nameEn ?? '').subscribe();
   }

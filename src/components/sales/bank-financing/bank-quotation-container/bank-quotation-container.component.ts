@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, effect, inject, signal, Injector } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -22,6 +22,8 @@ import { StoreAccountingConfigurationService } from '../../../../services/store-
 import { NotificationService } from '@/src/services/notification.service';
 import { CarSelectionDialogComponent } from '../../car-selection-dialog/car-selection-dialog.component';
 import { warnIfStoreNotConfigured } from '../../../shared/store-accounting-setup-warning-dialog/store-accounting-setup-warning.helper';
+import { BranchContextService } from '../../../../services/branch-context.service';
+import { scopeStoresToCurrentBranch } from '../../../../models/branch-scoped-stores.util';
 
 const VAT_RATE = 0.15;
 
@@ -59,10 +61,14 @@ export class BankQuotationContainerComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private dialog = inject(MatDialog);
   private router = inject(Router);
+  private branchContext = inject(BranchContextService);
+  private injector = inject(Injector);
 
   banks = signal<{ id: number; name: string }[]>([]);
   cars = this.inventoryService.cars$;
-  stores = this.storeService.stores$;
+  /** Store dropdown options scoped to the caller's current branch -- this form is create-only
+   *  (no edit mode), so there is no already-saved store to preserve. */
+  stores = computed(() => scopeStoresToCurrentBranch(this.storeService.stores$(), this.branchContext.current()?.branchId, null));
 
   cardLayout3 = this.currentSettingService.getCardLayout(3);
 
@@ -88,6 +94,17 @@ export class BankQuotationContainerComponent implements OnInit {
     });
 
     this.quotationForm.get('quantity')!.valueChanges.subscribe(v => this.quantity.set(v > 0 ? v : 1));
+
+    // Auto-select the store once the branch-scoped list resolves to exactly one option, so a
+    // user whose branch has a single store never has to manually pick it.
+    effect(() => {
+      const options = this.stores();
+      const storeIdControl = this.quotationForm.get('storeId');
+      if (options.length === 1 && !storeIdControl?.value && !storeIdControl?.dirty) {
+        storeIdControl?.setValue(options[0].id);
+        this.onStoreSelectionChange(options[0].id);
+      }
+    }, { injector: this.injector });
   }
 
   onStoreSelectionChange(storeId: number | null): void {

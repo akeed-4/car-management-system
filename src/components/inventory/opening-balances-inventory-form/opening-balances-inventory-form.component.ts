@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, effect, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -16,6 +16,8 @@ import { AccountingService } from '../../accounting/accounting.service';
 import { StoreService } from '../../../services/store.service';
 import { StoreAccountingConfigurationService } from '../../../services/store-accounting-configuration.service';
 import { warnIfStoreNotConfigured } from '../../shared/store-accounting-setup-warning-dialog/store-accounting-setup-warning.helper';
+import { BranchContextService } from '../../../services/branch-context.service';
+import { scopeStoresToCurrentBranch } from '../../../models/branch-scoped-stores.util';
 import { CarSelectionDialogComponent } from '../../purchases/purchase-invoice/car-selection-dialog/car-selection-dialog.component';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -54,9 +56,15 @@ export class OpeningBalancesInventoryFormComponent implements OnInit {
   // locations will be provided by StoreService
   stores$ = this.storeService.stores$;
 
-  // Template-friendly getter to access current stores array
+  /** The form's current storeId, kept in sync explicitly (loadExisting + onStoreSelectionChange)
+   *  so the Store list can stay scoped to the caller's current branch without losing a
+   *  document's already-saved store when editing across a branch boundary. */
+  private currentStoreIdValue = signal<number | null>(null);
+  /** Template-friendly getter to access the branch-scoped stores array -- never offers a store
+   *  outside the user's assigned branch on a new document, while still showing an already-saved
+   *  out-of-branch store when editing one. */
   get stores() {
-    return this.storeService.stores$();
+    return scopeStoresToCurrentBranch(this.storeService.stores$(), this.branchContext.current()?.branchId, this.currentStoreIdValue());
   }
 
   constructor(
@@ -66,7 +74,9 @@ export class OpeningBalancesInventoryFormComponent implements OnInit {
     private dialog: MatDialog,
     private route: ActivatedRoute,
     private storeService: StoreService,
-    private storeAccountingConfigService: StoreAccountingConfigurationService
+    private storeAccountingConfigService: StoreAccountingConfigurationService,
+    private branchContext: BranchContextService,
+    private injector: Injector
   ) {
     this.form = this.fb.group({
       itemId: ['', Validators.required],
@@ -94,6 +104,17 @@ export class OpeningBalancesInventoryFormComponent implements OnInit {
       this.isEditing = true;
       this.editingId = id;
       this.loadExisting(id);
+    } else {
+      // Auto-select the store once the branch-scoped list resolves to exactly one option, so a
+      // user whose branch has a single store never has to manually pick it.
+      effect(() => {
+        const options = this.stores;
+        const storeIdControl = this.form.get('storeId');
+        if (options.length === 1 && !storeIdControl?.value && !storeIdControl?.dirty) {
+          storeIdControl?.setValue(options[0].id);
+          this.onStoreSelectionChange(options[0].id);
+        }
+      }, { injector: this.injector });
     }
   }
 
@@ -104,6 +125,7 @@ export class OpeningBalancesInventoryFormComponent implements OnInit {
         if (item) {
           this.isEditing = true;
           this.editingId = id;
+          this.currentStoreIdValue.set(item.storeId ?? null);
           this.form.patchValue({
             itemId: item.itemId,
             itemName: item.itemName,
@@ -132,6 +154,7 @@ export class OpeningBalancesInventoryFormComponent implements OnInit {
   }
 
   onStoreSelectionChange(storeId: number): void {
+    this.currentStoreIdValue.set(storeId);
     const selectedStore = this.stores.find(s => s.id === storeId);
     if (selectedStore) {
       this.form.patchValue({ location: selectedStore.nameAr });

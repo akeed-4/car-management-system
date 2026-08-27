@@ -72,6 +72,14 @@ export class StoreAccountingConfigurationFormComponent implements OnInit {
       inventoryAccountId: [null, Validators.required],
       cogsAccountId: [null, Validators.required],
       inventoryAdjustmentAccountId: [null, Validators.required],
+      // Optional: null means "not configured yet", not "post to nothing" -- the backend falls
+      // back to inventoryAccountId (capitalized costs) or reports a clear error (expensed costs
+      // with no PurchaseExpenseAccountId) rather than posting to a guessed account.
+      additionalCostAccountId: [null],
+      purchaseExpenseAccountId: [null],
+      freightShippingAccountId: [null],
+      customsAccountId: [null],
+      inventoryAccountingMethod: ['Perpetual', Validators.required],
       isActive: [true]
     });
   }
@@ -140,6 +148,38 @@ export class StoreAccountingConfigurationFormComponent implements OnInit {
     });
   }
 
+  openCreateAdditionalCostAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.accounts.update(list => [...list, created]);
+      this.form.get('additionalCostAccountId')?.setValue(created.id);
+    });
+  }
+
+  openCreatePurchaseExpenseAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.accounts.update(list => [...list, created]);
+      this.form.get('purchaseExpenseAccountId')?.setValue(created.id);
+    });
+  }
+
+  openCreateFreightShippingAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.accounts.update(list => [...list, created]);
+      this.form.get('freightShippingAccountId')?.setValue(created.id);
+    });
+  }
+
+  openCreateCustomsAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.accounts.update(list => [...list, created]);
+      this.form.get('customsAccountId')?.setValue(created.id);
+    });
+  }
+
   loadConfiguration(id: number): void {
     this.isLoading.set(true);
     this.configService.getById(id).subscribe({
@@ -181,6 +221,11 @@ export class StoreAccountingConfigurationFormComponent implements OnInit {
         inventoryAccountId: raw.inventoryAccountId,
         cogsAccountId: raw.cogsAccountId,
         inventoryAdjustmentAccountId: raw.inventoryAdjustmentAccountId,
+        additionalCostAccountId: raw.additionalCostAccountId,
+        purchaseExpenseAccountId: raw.purchaseExpenseAccountId,
+        freightShippingAccountId: raw.freightShippingAccountId,
+        customsAccountId: raw.customsAccountId,
+        inventoryAccountingMethod: raw.inventoryAccountingMethod,
         isActive: raw.isActive
       };
       this.configService.update(this.configId, dto).subscribe({ next: onSuccess, error: onError });

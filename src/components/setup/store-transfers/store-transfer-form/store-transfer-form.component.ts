@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, effect, inject, signal, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -18,6 +18,8 @@ import { StoreAccountingConfigurationService } from '../../../../services/store-
 import { warnIfStoreNotConfigured } from '../../../shared/store-accounting-setup-warning-dialog/store-accounting-setup-warning.helper';
 import { Store } from '../../../../models/branch.model';
 import { CreateStoreTransferDto } from '../../../../models/store-transfer.model';
+import { BranchContextService } from '../../../../services/branch-context.service';
+import { scopeStoresToCurrentBranch } from '../../../../models/branch-scoped-stores.util';
 
 const differentStoresValidator: ValidatorFn = (group): ValidationErrors | null => {
   const from = group.get('fromStoreId')?.value;
@@ -53,10 +55,15 @@ export class StoreTransferFormComponent implements OnInit {
   private translate = inject(TranslateService);
   private storeAccountingConfigService = inject(StoreAccountingConfigurationService);
   private dialog = inject(MatDialog);
+  private branchContext = inject(BranchContextService);
+  private injector = inject(Injector);
 
   form!: FormGroup;
   isSaving = signal(false);
-  stores = signal<Store[]>([]);
+  private allStores = signal<Store[]>([]);
+  /** Store options scoped to the caller's current branch -- this form is create-only (no edit
+   *  mode), so both FROM and TO dropdowns simply show every store in the user's assigned branch. */
+  stores = computed(() => scopeStoresToCurrentBranch(this.allStores(), this.branchContext.current()?.branchId, null));
   cars = this.inventoryService.cars$;
 
   get items(): FormArray {
@@ -99,9 +106,20 @@ export class StoreTransferFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.storeService.getAll().subscribe({
-      next: (data) => this.stores.set(data || []),
+      next: (data) => this.allStores.set(data || []),
       error: () => this.notificationService.showError(this.translate.instant('STORE_TRANSFER.LOAD_STORES_ERROR'))
     });
+
+    // Auto-select FROM store once the branch-scoped list resolves to exactly one option -- TO is
+    // deliberately left for the user to choose (differentStoresValidator requires it to differ
+    // from FROM, so auto-picking both would always fail validation when the branch has one store).
+    effect(() => {
+      const options = this.stores();
+      const fromControl = this.form.get('fromStoreId');
+      if (options.length === 1 && !fromControl?.value && !fromControl?.dirty) {
+        fromControl?.setValue(options[0].id);
+      }
+    }, { injector: this.injector });
   }
 
   save(): void {

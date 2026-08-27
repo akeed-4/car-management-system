@@ -1,0 +1,162 @@
+.page-container {
+  max-width: 560px;
+  margin: 60px auto;
+  padding: 0 20px;
+}
+
+.selection-card {
+  padding: 32px !important;
+  border-radius: var(--rounded-lg);
+}
+
+.selection-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.brand-mark {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--rounded-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-warning-100);
+  color: var(--color-warning-500);
+  margin-bottom: 16px;
+}
+
+.brand-mark mat-icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+:root[data-theme="dark"] .brand-mark {
+  background: color-mix(in srgb, var(--color-warning-500) 18%, transparent);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not([data-theme="dark"]) .brand-mark {
+    background: color-mix(in srgb, var(--color-warning-500) 18%, transparent);
+  }
+}
+
+h1 {
+  margin: 0 0 6px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  margin: 0;
+  font-size: 14px;
+}
+
+mat-progress-bar {
+  border-radius: var(--rounded-full);
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.branches-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.branch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--rounded-md);
+  background: var(--surface-raised);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.branch-row:hover {
+  border-color: var(--color-warning-500);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+.branch-row.is-selecting {
+  border-color: var(--color-warning-500);
+  background: var(--color-warning-100);
+}
+
+:root[data-theme="dark"] .branch-row.is-selecting {
+  background: color-mix(in srgb, var(--color-warning-500) 12%, transparent);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not([data-theme="dark"]) .branch-row.is-selecting {
+    background: color-mix(in srgb, var(--color-warning-500) 12%, transparent);
+  }
+}
+
+.branch-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.branch-icon {
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--rounded-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-sunken);
+  color: var(--text-secondary);
+}
+
+.branch-icon mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.branch-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.select-btn {
+  flex: 0 0 auto;
+  background-color: var(--color-warning-500) !important;
+  color: #ffffff !important;
+  border-radius: var(--rounded-md) !important;
+  min-width: 92px;
+}
+
+.select-btn:disabled {
+  opacity: 0.6;
+}
+
+.select-btn .spin {
+  animation: erp-branch-spin 0.9s linear infinite;
+}
+
+@keyframes erp-branch-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .select-btn .spin { animation: none; }
+  .branch-row { transition: none; }
+}

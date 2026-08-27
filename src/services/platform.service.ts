@@ -23,6 +23,10 @@ import {
   SelectTenantResponseDto,
   TenantMembershipDto,
 } from '../models/platform/tenant-membership.model';
+import {
+  BranchMembershipDto,
+  SelectBranchResponseDto,
+} from '../models/platform/branch-membership.model';
 import { AppLoginResponse } from './AuthService.service';
 
 export interface DxLoadResult<T> {
@@ -100,6 +104,17 @@ export class PlatformService {
    *  membership server-side. */
   selectTenant(tenantId: number): Observable<SelectTenantResponseDto> {
     return this.http.post<SelectTenantResponseDto>(`${this.myUrl}/tenants/${tenantId}/select`, {});
+  }
+
+  /** Every branch the caller may select as their active branch (within their current company). */
+  getMyBranches(): Observable<BranchMembershipDto[]> {
+    return this.http.get<BranchMembershipDto[]>(`${this.myUrl}/branches`);
+  }
+
+  /** Switches the caller's active branch. No token/claim change -- unlike selectTenant, Branch is
+   *  a client-persisted UI scope validated server-side on demand, not baked into the JWT. */
+  selectBranch(branchId: number): Observable<SelectBranchResponseDto> {
+    return this.http.post<SelectBranchResponseDto>(`${this.myUrl}/branches/${branchId}/select`, {});
   }
 
   /** Platform-admin "Grant Access": links an existing user (by email) to a tenant they don't

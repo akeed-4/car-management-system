@@ -1,0 +1,37 @@
+<div class="page-container">
+  <div class="erp-card selection-card">
+    <div class="selection-header">
+      <div class="brand-mark" aria-hidden="true">
+        <mat-icon>directions_car</mat-icon>
+      </div>
+      <h1>{{ 'ONBOARDING.BRANCH_SELECTION.TITLE' | translate }}</h1>
+      <p class="subtitle">{{ 'ONBOARDING.BRANCH_SELECTION.SUBTITLE' | translate }}</p>
+    </div>
+
+    <mat-progress-bar mode="indeterminate" *ngIf="loading()"></mat-progress-bar>
+
+    <div class="branches-list" *ngIf="!loading()">
+      @for (membership of memberships(); track membership.branchId) {
+        <div class="branch-row" [class.is-selecting]="selectingBranchId() === membership.branchId">
+          <div class="branch-info">
+            <div class="branch-icon">
+              <mat-icon>store</mat-icon>
+            </div>
+            <div class="branch-name">{{ membership.nameAr || membership.nameEn }}</div>
+          </div>
+          <button
+            class="select-btn"
+            mat-flat-button
+            [disabled]="selectingBranchId() !== null"
+            (click)="select(membership)">
+            @if (selectingBranchId() === membership.branchId) {
+              <mat-icon class="spin">autorenew</mat-icon>
+            } @else {
+              {{ 'ONBOARDING.BRANCH_SELECTION.SELECT' | translate }}
+            }
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</div>

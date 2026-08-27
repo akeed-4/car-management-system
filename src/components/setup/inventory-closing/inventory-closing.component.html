@@ -1,0 +1,85 @@
+<div class="erp-page page-container">
+  <div class="erp-page-header page-header header-row">
+    <div class="erp-page-header-titles">
+      <h1 class="erp-page-title">{{ 'INVENTORY_CLOSING.TITLE' | translate }}</h1>
+    </div>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="close()">
+    <div class="erp-card form-card">
+      <h3 class="erp-section-title">{{ 'INVENTORY_CLOSING.NEW_CLOSING' | translate }}</h3>
+
+      <div class="erp-form-grid form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'INVENTORY_CLOSING.STORE' | translate }}</mat-label>
+          <mat-select formControlName="storeId" required>
+            <mat-option *ngFor="let store of stores()" [value]="store.id">{{ store.nameEn }}</mat-option>
+          </mat-select>
+          <mat-error *ngIf="form.get('storeId')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'INVENTORY_CLOSING.PERIOD_START' | translate }}</mat-label>
+          <input matInput type="date" formControlName="periodStart" required>
+          <mat-error *ngIf="form.get('periodStart')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'INVENTORY_CLOSING.PERIOD_END' | translate }}</mat-label>
+          <input matInput type="date" formControlName="periodEnd" required>
+          <mat-error *ngIf="form.get('periodEnd')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'INVENTORY_CLOSING.MANUAL_CLOSING_VALUE' | translate }}</mat-label>
+          <input matInput type="number" formControlName="manualClosingInventoryValue">
+          <mat-hint>{{ 'INVENTORY_CLOSING.MANUAL_CLOSING_VALUE_HINT' | translate }}</mat-hint>
+        </mat-form-field>
+      </div>
+
+      <div class="erp-actions-bar form-actions">
+        <button mat-raised-button color="primary" type="submit" [disabled]="isClosing()">
+          <mat-icon>lock</mat-icon>
+          {{ 'INVENTORY_CLOSING.CLOSE_PERIOD' | translate }}
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <div class="erp-card">
+    <h3 class="erp-section-title">{{ 'INVENTORY_CLOSING.HISTORY' | translate }}</h3>
+
+    <div class="loading-row" *ngIf="isLoadingHistory()">
+      <mat-spinner diameter="30"></mat-spinner>
+    </div>
+
+    <table class="erp-table" *ngIf="!isLoadingHistory() && history().length > 0">
+      <thead>
+        <tr>
+          <th>{{ 'INVENTORY_CLOSING.PERIOD_START' | translate }}</th>
+          <th>{{ 'INVENTORY_CLOSING.PERIOD_END' | translate }}</th>
+          <th>{{ 'INVENTORY_CLOSING.OPENING_VALUE' | translate }}</th>
+          <th>{{ 'INVENTORY_CLOSING.PURCHASES_TOTAL' | translate }}</th>
+          <th>{{ 'INVENTORY_CLOSING.CAPITALIZED_COSTS_TOTAL' | translate }}</th>
+          <th>{{ 'INVENTORY_CLOSING.CLOSING_VALUE' | translate }}</th>
+          <th>{{ 'INVENTORY_CLOSING.COMPUTED_COGS' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let period of history()">
+          <td>{{ period.periodStart | date:'yyyy-MM-dd' }}</td>
+          <td>{{ period.periodEnd | date:'yyyy-MM-dd' }}</td>
+          <td>{{ period.openingInventoryValue | number:'1.2-2' }}</td>
+          <td>{{ period.purchasesTotal | number:'1.2-2' }}</td>
+          <td>{{ period.capitalizedCostsTotal | number:'1.2-2' }}</td>
+          <td>{{ period.closingInventoryValue | number:'1.2-2' }}</td>
+          <td>{{ period.computedCogs | number:'1.2-2' }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="no-data" *ngIf="!isLoadingHistory() && history().length === 0">
+      {{ 'INVENTORY_CLOSING.NO_HISTORY' | translate }}
+    </p>
+  </div>
+</div>

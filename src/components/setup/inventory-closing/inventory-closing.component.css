@@ -1,0 +1,59 @@
+.form-card {
+  margin-bottom: 16px;
+}
+
+.erp-section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-gray-700);
+  border-bottom: 1px solid var(--color-gray-200);
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}
+
+.erp-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.erp-actions-bar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.loading-row {
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+}
+
+.erp-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th, td {
+    padding: 10px 14px;
+    text-align: start;
+    border-bottom: 1px solid var(--border-default, #eee);
+    font-size: 13px;
+  }
+
+  th {
+    background: var(--surface-sunken);
+    font-weight: 600;
+  }
+}
+
+.no-data {
+  color: var(--text-secondary);
+  font-size: 13px;
+  padding: 16px 0;
+}
+
+@media (max-width: 768px) {
+  .erp-form-grid {
+    grid-template-columns: 1fr;
+  }
+}

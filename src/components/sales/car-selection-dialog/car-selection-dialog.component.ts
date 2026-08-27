@@ -7,7 +7,8 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { SalesService } from '../../../services/sales.service';
-import { CurrentSettingService } from '../../../services/current-setting.service';
+import { StoreService } from '../../../services/store.service';
+import { BranchContextService } from '../../../services/branch-context.service';
 import { StoreCarStockDto } from '../../../models/store-car-stock.model';
 import { Car } from '../../../models/car.model';
 import { buildVehicleDescription } from '../../../models/vehicle-description';
@@ -44,7 +45,8 @@ export class CarSelectionDialogComponent implements OnInit {
   dialogRef = inject(MatDialogRef<CarSelectionDialogComponent, SalesCarSelectionCard | undefined>);
   data = inject<SalesCarSelectionDialogData>(MAT_DIALOG_DATA);
   salesService = inject(SalesService);
-  currentSettingService = inject(CurrentSettingService);
+  storeService = inject(StoreService);
+  branchContext = inject(BranchContextService);
 
   searchTerm = signal('');
   cars = signal<SalesCarSelectionCard[]>([]);
@@ -105,8 +107,12 @@ export class CarSelectionDialogComponent implements OnInit {
 
   loadCarsFromAPI(): void {
     this.isLoading.set(true);
-    // Get current store from settings or data
-    const storeId = this.data?.storeId || this.currentSettingService.getStoreId() || 1;
+    // A caller should always pass its own selected storeId explicitly (see e.g.
+    // sales-invoice-form.component.ts's toggleCarCards()). Falling back to the stale, unvalidated
+    // CurrentSettingService.getStoreId() -- or worse, a hardcoded store -- risked silently loading
+    // another tenant's/branch's stock. If a caller omits storeId, fall back to the single store in
+    // the user's current branch when there is exactly one; otherwise there is no safe guess to make.
+    const storeId = this.data?.storeId ?? this.singleStoreInCurrentBranch();
     if (storeId) {
       this.salesService.getAvailableCarsByStore(storeId).subscribe({
         next: (response: unknown) => {
@@ -125,6 +131,16 @@ export class CarSelectionDialogComponent implements OnInit {
       this.cars.set([]);
       this.isLoading.set(false);
     }
+  }
+
+  /** Only a safe, non-guessing fallback: the caller's current branch may have exactly one store,
+   * in which case there is no real ambiguity to ask the user about. Two or more stores (or none
+   * selected) returns null rather than picking arbitrarily. */
+  private singleStoreInCurrentBranch(): number | null {
+    const branchId = this.branchContext.current()?.branchId;
+    if (branchId == null) return null;
+    const stores = this.storeService.stores$().filter(s => s.branchId === branchId);
+    return stores.length === 1 ? stores[0].id : null;
   }
 
   /** Backend wraps this endpoint's payload in ApiResponse<T> despite its declared

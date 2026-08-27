@@ -51,7 +51,11 @@ export class PurchasesService {
       isArchived: false,
     };
 
-    return this.http.post<PurchaseInvoice>(this.apiUrl+'/Create', payload);
+    // Create returns the raw ApiResponse<T> envelope ({ success, message, data }), same as
+    // GetById -- without unwrapping, callers reading `savedInvoice.id` (to switch into edit mode,
+    // or to resolve the id for Save & Print) get undefined.
+    return this.http.post<PurchaseInvoice>(this.apiUrl+'/Create', payload)
+      .pipe(map(res => this.unwrap<PurchaseInvoice>(res)));
   }
 
   /** Same exclusion as addInvoice -- on Update the backend re-derives Credit only if SupplierId

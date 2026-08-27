@@ -209,3 +209,15 @@
   box-shadow: 0 3px 8px rgba(67, 56, 202, 0.25);
   transform: translateY(-1px);
 }
+
+.capitalize-toggle {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 4px;
+}
+
+.capitalize-hint {
+  color: var(--text-secondary);
+  font-size: 12px;
+  margin: 0 0 16px;
+}

@@ -5,7 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { DeliveryService } from '../../../services/delivery.service';
 import { UserService } from '../../../services/user.service';
-import { BranchService } from '../../../services/branch.service';
+import { BranchContextService } from '../../../services/branch-context.service';
 import { Customer } from '../../../models/customer.model';
 import { Car } from '../../../models/car.model';
 import { CustomerLookupModalComponent } from '../../shared/customer-lookup-modal/customer-lookup-modal.component';
@@ -49,7 +49,7 @@ export class DeliveryFormComponent implements OnInit {
   private router = inject(Router);
   private deliveryService = inject(DeliveryService);
   private userService = inject(UserService);
-  private branchService = inject(BranchService);
+  private branchContext = inject(BranchContextService);
   private dialog = inject(MatDialog);
 
   deliveryForm!: FormGroup;
@@ -61,7 +61,6 @@ export class DeliveryFormComponent implements OnInit {
   selectedCar = signal<Car | null>(null);
 
   drivers = this.userService.activeUsers$;
-  branches = this.branchService.branches$;
 
   statusOptions = ['Scheduled', 'InProgress', 'Completed', 'Cancelled'];
 
@@ -103,7 +102,6 @@ export class DeliveryFormComponent implements OnInit {
       driverId: new FormControl<number | null>(null),
       deliveryDate: new FormControl(new Date().toISOString().split('T')[0], Validators.required),
       deliveryTime: new FormControl('10:00', Validators.required),
-      branchId: new FormControl<number | null>(null),
       status: new FormControl('Scheduled'),
       documentsReady: new FormControl(false),
       insuranceReady: new FormControl(false),
@@ -150,7 +148,10 @@ export class DeliveryFormComponent implements OnInit {
         error: () => this.saving.set(false),
       });
     } else {
-      const createDto = { ...formValue, createdBy: 1 };
+      // Branch is no longer a user-facing field on this form -- always the caller's current
+      // branch (BranchContextService), never a manual choice. Null when no branch is selected
+      // (e.g. the caller's company has zero branches configured), same as the field's prior default.
+      const createDto = { ...formValue, branchId: this.branchContext.current()?.branchId ?? null, createdBy: 1 };
       this.deliveryService.create(createDto).subscribe({
         next: () => {
           this.saving.set(false);
@@ -173,9 +174,5 @@ export class DeliveryFormComponent implements OnInit {
 
   trackByUser(index: number, user: { id: number }): number {
     return user.id;
-  }
-
-  trackByBranch(index: number, branch: { id: number }): number {
-    return branch.id;
   }
 }

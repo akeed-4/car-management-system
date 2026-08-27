@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, Injector, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormControl, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -25,6 +25,8 @@ import { CarSelectionDialogComponent, SalesCarSelectionCard } from '../../sales/
 import { buildVehicleDescription } from '../../../models/vehicle-description';
 import { StoreAccountingConfigurationService } from '../../../services/store-accounting-configuration.service';
 import { warnIfStoreNotConfigured } from '../../shared/store-accounting-setup-warning-dialog/store-accounting-setup-warning.helper';
+import { BranchContextService } from '../../../services/branch-context.service';
+import { scopeStoresToCurrentBranch } from '../../../models/branch-scoped-stores.util';
 
 @Component({
   selector: 'app-stock-taking-form',
@@ -62,11 +64,20 @@ export class StockTakingFormComponent implements OnInit {
   private storeService = inject(StoreService);
   private dialog = inject(MatDialog);
   private storeAccountingConfigService = inject(StoreAccountingConfigurationService);
+  private branchContext = inject(BranchContextService);
+  private injector = inject(Injector);
   stores$ = this.storeService.stores$;
   stockTakeForm!: FormGroup;
   items = signal<StockTakeItem[]>([]);
-get stores() {
-    return this.storeService.stores$();
+  /** The form's current storeId, kept in sync explicitly (populateForm + onStoreSelectionChange)
+   *  so the Store list can stay scoped to the caller's current branch without losing a
+   *  document's already-saved store when editing across a branch boundary. */
+  private currentStoreIdValue = signal<number | null>(null);
+  /** Store options scoped to the caller's current branch -- never offers a store outside the
+   *  user's assigned branch on a new document, while still showing an already-saved out-of-branch
+   *  store when editing one. */
+  get stores() {
+    return scopeStoresToCurrentBranch(this.storeService.stores$(), this.branchContext.current()?.branchId, this.currentStoreIdValue());
   }
 
   // Table columns
@@ -98,7 +109,7 @@ get stores() {
 
   ngOnInit() {
     this.initForm();
-    
+
     // Handle route params for editing
     const idParam = this.route.snapshot.params['id'];
     if (idParam) {
@@ -112,6 +123,18 @@ get stores() {
         console.error('Error loading stock take:', error);
         this.router.navigate(['/inventory/stock-taking']);
       });
+    } else {
+      // Auto-select the store once the branch-scoped list resolves to exactly one option, so a
+      // user whose branch has a single store never has to manually pick it. Only for a new
+      // (never-saved) document.
+      effect(() => {
+        const options = this.stores;
+        const storeIdControl = this.stockTakeForm.get('storeId');
+        if (options.length === 1 && !storeIdControl?.value && !storeIdControl?.dirty) {
+          storeIdControl?.setValue(options[0].id);
+          this.onStoreSelectionChange(options[0].id);
+        }
+      }, { injector: this.injector });
     }
   }
 
@@ -127,6 +150,7 @@ get stores() {
   }
 
   private populateForm(stockTake: StockTake) {
+    this.currentStoreIdValue.set(stockTake.storeId ?? null);
     this.stockTakeForm.patchValue({
       documentName: stockTake.documentName,
       documentDate: stockTake.documentDate,
@@ -158,6 +182,7 @@ get stores() {
   /** Heads-up only: warns the user immediately if the selected Store has no active
    * StoreAccountingConfiguration, instead of only finding out after Save fails server-side. */
   onStoreSelectionChange(storeId: number | null): void {
+    this.currentStoreIdValue.set(storeId);
     const store = this.stores.find(s => s.id === storeId);
     // Store has no `name` field (only nameAr/nameEn) -- cast matches the template's existing
     // `{{ store.name }}` binding (see stock-taking-form.component.html), which is likewise not a

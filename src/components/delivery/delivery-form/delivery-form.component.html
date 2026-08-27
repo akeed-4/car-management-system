@@ -86,15 +86,6 @@
               </mat-select>
             </mat-form-field>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'DELIVERY_SCHEDULE.BRANCH' | translate }}</mat-label>
-              <mat-select formControlName="branchId">
-                <mat-option [value]="null">{{ 'COMMON.NONE' | translate }}</mat-option>
-                <mat-option *ngFor="let b of branches(); trackBy: trackByBranch" [value]="b.id">
-                  {{ b.nameEn }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
           </div>
         </div>
 
