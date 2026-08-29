@@ -179,7 +179,7 @@
   min-width: 0;
 }
 
-/* Line items grid, then Notes stacked directly below it. */
+/* Line items grid. */
 .lines-row {
   display: flex;
   flex-direction: column;
@@ -208,6 +208,9 @@
 }
 
 .workspace-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 1rem);
   position: sticky;
   top: var(--space-4, 1rem);
   align-self: start;

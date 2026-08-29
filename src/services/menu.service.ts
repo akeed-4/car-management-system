@@ -49,10 +49,11 @@ export const menuData = [
     englishName: 'Setup',
     submenu: [
       { id: 24, name: 'السيارات', englishName: 'Cars', route: '/setup/cars' },
-      { id: 25, name: 'الشركات المصنعة', englishName: 'Manufacturers', route: '/setup/manufacturers' },
+      { id: 25, name: 'الشركات المصنعة', englishName: 'Manufacturers (Make)', route: '/setup/manufacturers' },
       { id: 26, name: 'موديلات السيارات', englishName: 'Car Models', route: '/setup/models' },
       { id: 28, name: 'فئات السيارات', englishName: 'Car Categories', route: '/setup/car-categories' },
       { id: 27, name: 'سنة الصنع', englishName: 'Manufacture Year', route: '/setup/year' },
+      { id: 30, name: 'المواصفات حسب السنة', englishName: 'Year Specifications', route: '/setup/year-specifications' },
       { id: 29, name: 'بطاقة السيارة', englishName: 'Car Card', route: '/setup/car-card' },
     ]
   },

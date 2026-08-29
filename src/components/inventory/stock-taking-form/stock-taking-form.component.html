@@ -48,14 +48,7 @@
             </mat-select>
           </mat-form-field>
 
-           <mat-form-field appearance="outline" class="form-field">
-          <mat-label>{{ 'ACCOUNTING.STORE' | translate }}</mat-label>
-          <mat-select formControlName="storeId" required (selectionChange)="onStoreSelectionChange($event.value)">
-            <mat-option *ngFor="let store of stores" [value]="store.id">
-              {{ store.name }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
+           <!-- Store is no longer user-selectable here -- always the caller's current Showroom. -->
         </div>
 
         <mat-form-field appearance="outline" class="form-field full-width">

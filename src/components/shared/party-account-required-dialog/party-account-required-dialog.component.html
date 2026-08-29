@@ -1,0 +1,19 @@
+<h2 mat-dialog-title class="warning-title">
+  <mat-icon class="warning-icon">warning</mat-icon>
+  {{ (data.partyRole === 'customer' ? 'PARTY_ACCOUNT_WARNING.CUSTOMER_TITLE' : 'PARTY_ACCOUNT_WARNING.SUPPLIER_TITLE') | translate }}
+</h2>
+<mat-dialog-content>
+  <p>{{ (data.partyRole === 'customer' ? 'PARTY_ACCOUNT_WARNING.CUSTOMER_MESSAGE' : 'PARTY_ACCOUNT_WARNING.SUPPLIER_MESSAGE') | translate: { name: data.partyName } }}</p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-stroked-button (click)="cancel()" [disabled]="linking">
+    {{ 'PARTY_ACCOUNT_WARNING.CANCEL' | translate }}
+  </button>
+  <button mat-stroked-button (click)="change()" [disabled]="linking">
+    {{ (data.partyRole === 'customer' ? 'PARTY_ACCOUNT_WARNING.CHANGE_CUSTOMER' : 'PARTY_ACCOUNT_WARNING.CHANGE_SUPPLIER') | translate }}
+  </button>
+  <button mat-raised-button color="primary" (click)="linkAccount()" [disabled]="linking">
+    <mat-icon>account_balance</mat-icon>
+    {{ 'PARTY_ACCOUNT_WARNING.LINK_ACCOUNT' | translate }}
+  </button>
+</mat-dialog-actions>

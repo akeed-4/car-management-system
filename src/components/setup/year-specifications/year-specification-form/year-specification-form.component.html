@@ -1,0 +1,135 @@
+<div class="container" [class.dialog-mode]="isQuickAddDialog">
+  <div class="card">
+    <div class="card-header" [class.erp-page-header]="!isQuickAddDialog">
+      @if (!isQuickAddDialog) {
+        <div class="erp-page-header-titles">
+          <h2 class="erp-page-title">{{ pageTitle() | translate }}</h2>
+        </div>
+        <div class="erp-page-actions">
+          <a routerLink="/setup/year-specifications" class="back-link">
+            <mat-icon>arrow_back</mat-icon>
+            {{ 'YEAR_SPECIFICATION.FORM.BACK_TO_LIST' | translate }}
+          </a>
+        </div>
+      } @else {
+        <h2 mat-dialog-title>{{ 'YEAR_SPECIFICATION.ADD_NEW' | translate }}</h2>
+        <button
+          type="button"
+          class="dialog-close-btn"
+          (click)="cancelDialog()"
+          [attr.aria-label]="'YEAR_SPECIFICATION.FORM.CANCEL' | translate"
+          [title]="'YEAR_SPECIFICATION.FORM.CANCEL' | translate">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </div>
+
+    <form [formGroup]="specForm" class="card-body" [class.mat-dialog-content]="isQuickAddDialog">
+      <!-- Cascading selection: Make -> Model -> Trim -> Model Year (Requirement 5) -->
+      <div class="form-grid">
+        <mat-form-field appearance="outline" class="field-span-1">
+          <mat-label>{{ 'YEAR_SPECIFICATION.FORM.MAKE' | translate }}</mat-label>
+          <mat-select
+            [value]="selectedManufacturerId()"
+            (selectionChange)="onManufacturerChange($event.value)"
+            [disabled]="!!lockedTrimId"
+            required>
+            <mat-option *ngFor="let m of manufacturers()" [value]="m.id">{{ m.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="field-span-1">
+          <mat-label>{{ 'YEAR_SPECIFICATION.FORM.MODEL' | translate }}</mat-label>
+          <mat-select
+            [value]="selectedModelId()"
+            (selectionChange)="onModelChange($event.value)"
+            [disabled]="!!lockedTrimId || !selectedManufacturerId()"
+            required>
+            <mat-option *ngFor="let m of filteredModels()" [value]="m.id">{{ m.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="field-span-1">
+          <mat-label>{{ 'YEAR_SPECIFICATION.FORM.TRIM' | translate }}</mat-label>
+          <mat-select formControlName="trimId" required>
+            <mat-option *ngFor="let t of filteredTrims()" [value]="t.id">
+              {{ t.nameEn || t.name }}
+            </mat-option>
+          </mat-select>
+          <mat-hint *ngIf="!lockedTrimId && !selectedModelId()">{{ 'YEAR_SPECIFICATION.FORM.SELECT_MODEL_FIRST' | translate }}</mat-hint>
+          <mat-error *ngIf="specForm.get('trimId')?.hasError('required')">
+            {{ 'YEAR_SPECIFICATION.FORM.TRIM_REQUIRED' | translate }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="field-span-1">
+          <mat-label>{{ 'YEAR_SPECIFICATION.FORM.MODEL_YEAR' | translate }}</mat-label>
+          <mat-select formControlName="yearId" required>
+            <mat-option *ngFor="let y of years()" [value]="y.id">{{ y.year }}</mat-option>
+          </mat-select>
+          <mat-error *ngIf="specForm.get('yearId')?.hasError('required')">
+            {{ 'YEAR_SPECIFICATION.FORM.YEAR_REQUIRED' | translate }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Technical specification (Requirement 5) -->
+      <h3 class="section-title">{{ 'YEAR_SPECIFICATION.FORM.SPEC_SECTION' | translate }}</h3>
+      <div class="form-grid">
+        <mat-form-field appearance="outline" class="field-span-1">
+          <mat-label>{{ 'YEAR_SPECIFICATION.FORM.ENGINE_TYPE' | translate }}</mat-label>
+          <input matInput formControlName="engineType" [placeholder]="'YEAR_SPECIFICATION.FORM.ENGINE_TYPE_PLACEHOLDER' | translate">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="field-span-1">
+          <mat-label>{{ 'YEAR_SPECIFICATION.FORM.ENGINE_CAPACITY' | translate }}</mat-label>
+          <input matInput formControlName="engineCapacity" [placeholder]="'YEAR_SPECIFICATION.FORM.ENGINE_CAPACITY_PLACEHOLDER' | translate">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="field-span-1">
+          <mat-label>{{ 'YEAR_SPECIFICATION.FORM.CYLINDER_COUNT' | translate }}</mat-label>
+          <input matInput type="number" formControlName="cylinderCount">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="field-span-1">
+          <mat-label>{{ 'YEAR_SPECIFICATION.FORM.HORSEPOWER' | translate }}</mat-label>
+          <input matInput type="number" formControlName="horsepower">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="field-span-1">
+          <mat-label>{{ 'YEAR_SPECIFICATION.FORM.FUEL_TYPE' | translate }}</mat-label>
+          <input matInput formControlName="fuelType" [placeholder]="'YEAR_SPECIFICATION.FORM.FUEL_TYPE_PLACEHOLDER' | translate">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="field-span-1">
+          <mat-label>{{ 'YEAR_SPECIFICATION.FORM.TRANSMISSION' | translate }}</mat-label>
+          <input matInput formControlName="transmission" [placeholder]="'YEAR_SPECIFICATION.FORM.TRANSMISSION_PLACEHOLDER' | translate">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="field-span-1">
+          <mat-label>{{ 'YEAR_SPECIFICATION.FORM.DRIVE_TYPE' | translate }}</mat-label>
+          <input matInput formControlName="driveType" [placeholder]="'YEAR_SPECIFICATION.FORM.DRIVE_TYPE_PLACEHOLDER' | translate">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="field-span-1">
+          <mat-label>{{ 'YEAR_SPECIFICATION.FORM.STANDARD_PRICE' | translate }}</mat-label>
+          <input matInput type="number" formControlName="standardAgencyPrice" required>
+          <mat-error *ngIf="specForm.get('standardAgencyPrice')?.hasError('required')">
+            {{ 'YEAR_SPECIFICATION.FORM.PRICE_REQUIRED' | translate }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </form>
+
+    <div class="form-actions" [class.mat-dialog-actions]="isQuickAddDialog">
+      @if (!isQuickAddDialog) {
+        <a routerLink="/setup/year-specifications" class="btn btn-light">
+          {{ 'YEAR_SPECIFICATION.FORM.CANCEL' | translate }}
+        </a>
+      }
+      <button type="button" (click)="saveSpec()" class="btn btn-primary">
+        {{ editMode() ? ('YEAR_SPECIFICATION.FORM.SAVE_CHANGES' | translate) : ('YEAR_SPECIFICATION.FORM.SAVE' | translate) }}
+      </button>
+    </div>
+  </div>
+</div>

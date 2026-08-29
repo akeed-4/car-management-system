@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, effect, inject, signal, Injector } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -16,14 +16,13 @@ import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { BankFinancingService } from '../../../../services/bank-financing.service';
 import { InventoryService } from '../../../../services/inventory.service';
-import { StoreService } from '../../../../services/store.service';
 import { CurrentSettingService } from '../../../../services/current-setting.service';
 import { StoreAccountingConfigurationService } from '../../../../services/store-accounting-configuration.service';
 import { NotificationService } from '@/src/services/notification.service';
 import { CarSelectionDialogComponent } from '../../car-selection-dialog/car-selection-dialog.component';
 import { warnIfStoreNotConfigured } from '../../../shared/store-accounting-setup-warning-dialog/store-accounting-setup-warning.helper';
-import { BranchContextService } from '../../../../services/branch-context.service';
-import { scopeStoresToCurrentBranch } from '../../../../models/branch-scoped-stores.util';
+import { StoreContextService } from '../../../../services/store-context.service';
+import { resolveStoreDisplayName } from '../../../../models/store-display.util';
 
 const VAT_RATE = 0.15;
 
@@ -55,20 +54,22 @@ const VAT_RATE = 0.15;
 export class BankQuotationContainerComponent implements OnInit {
   private bankFinancingService = inject(BankFinancingService);
   private inventoryService = inject(InventoryService);
-  private storeService = inject(StoreService);
   private currentSettingService = inject(CurrentSettingService);
   private storeAccountingConfigService = inject(StoreAccountingConfigurationService);
   private notificationService = inject(NotificationService);
   private dialog = inject(MatDialog);
   private router = inject(Router);
-  private branchContext = inject(BranchContextService);
-  private injector = inject(Injector);
+  private storeContext = inject(StoreContextService);
 
   banks = signal<{ id: number; name: string }[]>([]);
   cars = this.inventoryService.cars$;
-  /** Store dropdown options scoped to the caller's current branch -- this form is create-only
-   *  (no edit mode), so there is no already-saved store to preserve. */
-  stores = computed(() => scopeStoresToCurrentBranch(this.storeService.stores$(), this.branchContext.current()?.branchId, null));
+  /** Read-only label for the (no-longer-user-editable) Store field. This form is create-only, so
+   *  the storeId always equals the caller's current Showroom. */
+  currentStoreName = computed(() => resolveStoreDisplayName(
+    this.storeContext.memberships(),
+    this.quotationForm?.get('storeId')?.value ?? null,
+    this.storeContext.current()?.nameAr,
+  ));
 
   cardLayout3 = this.currentSettingService.getCardLayout(3);
 
@@ -83,7 +84,8 @@ export class BankQuotationContainerComponent implements OnInit {
       endUserMobile: new FormControl('', [Validators.required, Validators.pattern(/^[0-9+\s-]{7,15}$/)]),
       endUserNationalId: new FormControl('', Validators.required),
       bankId: new FormControl(null, Validators.required),
-      storeId: new FormControl(null, Validators.required),
+      // No Store picker anymore -- always the caller's current Showroom.
+      storeId: new FormControl(this.storeContext.current()?.storeId ?? null, Validators.required),
       quantity: new FormControl(1, [Validators.required, Validators.min(1)]),
       quotationDate: new FormControl(new Date(), Validators.required)
     });
@@ -95,21 +97,12 @@ export class BankQuotationContainerComponent implements OnInit {
 
     this.quotationForm.get('quantity')!.valueChanges.subscribe(v => this.quantity.set(v > 0 ? v : 1));
 
-    // Auto-select the store once the branch-scoped list resolves to exactly one option, so a
-    // user whose branch has a single store never has to manually pick it.
-    effect(() => {
-      const options = this.stores();
-      const storeIdControl = this.quotationForm.get('storeId');
-      if (options.length === 1 && !storeIdControl?.value && !storeIdControl?.dirty) {
-        storeIdControl?.setValue(options[0].id);
-        this.onStoreSelectionChange(options[0].id);
-      }
-    }, { injector: this.injector });
-  }
-
-  onStoreSelectionChange(storeId: number | null): void {
-    const store = this.stores().find(s => s.id === storeId);
-    warnIfStoreNotConfigured(this.storeAccountingConfigService, this.dialog, this.router, storeId, store?.nameAr ?? '').subscribe();
+    // Heads-up only: warns immediately if the current Showroom has no active
+    // StoreAccountingConfiguration, instead of only finding out after Save fails server-side.
+    const storeId = this.quotationForm.get('storeId')?.value;
+    if (storeId) {
+      warnIfStoreNotConfigured(this.storeAccountingConfigService, this.dialog, this.router, storeId, this.currentStoreName()).subscribe();
+    }
   }
 
   openVehicleDialog(): void {
@@ -157,7 +150,7 @@ export class BankQuotationContainerComponent implements OnInit {
     }
 
     const raw = this.quotationForm.getRawValue();
-    const branchId = this.stores().find(s => s.id === raw.storeId)?.branchId;
+    const branchId = this.storeContext.current()?.branchId;
     if (!branchId) {
       this.notificationService.showError('BANK_FINANCING.SELECT_VEHICLE_REQUIRED');
       return;

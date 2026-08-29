@@ -51,7 +51,7 @@ export class StoreAccountingConfigurationFormComponent implements OnInit {
   private storeService = inject(StoreService);
   private accountingService = inject(AccountingService);
   private notificationService = inject(NotificationService);
-  private translate = inject(TranslateService);
+  protected translate = inject(TranslateService);
   private dialog = inject(MatDialog);
 
   form!: FormGroup;
@@ -61,6 +61,12 @@ export class StoreAccountingConfigurationFormComponent implements OnInit {
   isSaving = signal(false);
   stores = signal<Store[]>([]);
   accounts = signal<Account[]>([]);
+  /** Requirement 4: account IDs saved on this configuration before it stopped being a postable
+   *  (leaf) account -- e.g. a child account was added under it afterwards. Merged into `accounts`
+   *  so the field still displays clearly instead of going blank, and flagged here so the template
+   *  can mark that specific option instead of silently treating it as a normal valid choice. */
+  nonPostableAccountIds = signal<Set<number>>(new Set());
+  private reconciledAccountIds = new Set<number>();
 
   constructor() {
     this.initForm();
@@ -79,6 +85,7 @@ export class StoreAccountingConfigurationFormComponent implements OnInit {
       purchaseExpenseAccountId: [null],
       freightShippingAccountId: [null],
       customsAccountId: [null],
+      openingBalanceEquityAccountId: [null],
       inventoryAccountingMethod: ['Perpetual', Validators.required],
       isActive: [true]
     });
@@ -118,9 +125,51 @@ export class StoreAccountingConfigurationFormComponent implements OnInit {
 
   private loadAccounts(): void {
     this.accountingService.getPostableAccounts().subscribe({
-      next: (data) => this.accounts.set(data || []),
+      next: (data) => {
+        this.accounts.set(data || []);
+        this.reconcileConfiguredAccounts();
+      },
       error: () => this.notificationService.showError(this.translate.instant('STORE_ACCOUNTING_CONFIG.LOAD_ACCOUNTS_ERROR'))
     });
+  }
+
+  /** Requirement 4: the account dropdowns only ever list postable (leaf) accounts, but a
+   *  configuration saved earlier can still point to an account that has since gained children and
+   *  is no longer postable. Without this, that field's <mat-select> would render blank (no
+   *  matching option) even though the stored value is untouched -- confusing, and risky if it
+   *  nudges someone into picking a replacement without realizing the original is still saved.
+   *  Runs after BOTH the postable list and the configuration have loaded (each load path calls
+   *  this; the guard below makes it a safe no-op until both are ready), fetches any configured
+   *  account missing from the postable list, and merges it in so it still displays -- never
+   *  clears or changes the stored value itself. */
+  private reconcileConfiguredAccounts(): void {
+    if (this.mode !== 'edit' || this.accounts().length === 0) return;
+
+    const fields = [
+      'inventoryAccountId', 'cogsAccountId', 'inventoryAdjustmentAccountId',
+      'additionalCostAccountId', 'purchaseExpenseAccountId', 'freightShippingAccountId', 'customsAccountId',
+      'openingBalanceEquityAccountId'
+    ];
+    const knownIds = new Set(this.accounts().map(a => a.id));
+    const missingIds = fields
+      .map(name => this.form.get(name)?.value as number | null)
+      .filter((id): id is number => !!id && !knownIds.has(id) && !this.reconciledAccountIds.has(id));
+
+    if (missingIds.length === 0) return;
+    missingIds.forEach(id => this.reconciledAccountIds.add(id));
+
+    missingIds.forEach(id => {
+      this.accountingService.getAccountById(id).subscribe({
+        next: (account) => {
+          if (!account) return;
+          this.accounts.update(list => [...list, account]);
+          this.nonPostableAccountIds.update(ids => new Set(ids).add(id));
+        },
+        error: () => { /* Non-fatal: the field just stays blank, same as before this fix. */ }
+      });
+    });
+
+    this.notificationService.showWarning(this.translate.instant('STORE_ACCOUNTING_CONFIG.NON_POSTABLE_ACCOUNT_WARNING'));
   }
 
   // --- Requirement 9: "+ Create Account" from this document -----------------------------------
@@ -180,12 +229,21 @@ export class StoreAccountingConfigurationFormComponent implements OnInit {
     });
   }
 
+  openCreateOpeningBalanceEquityAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.accounts.update(list => [...list, created]);
+      this.form.get('openingBalanceEquityAccountId')?.setValue(created.id);
+    });
+  }
+
   loadConfiguration(id: number): void {
     this.isLoading.set(true);
     this.configService.getById(id).subscribe({
       next: (config) => {
         this.form.patchValue(config);
         this.isLoading.set(false);
+        this.reconcileConfiguredAccounts();
       },
       error: () => {
         this.isLoading.set(false);
@@ -225,6 +283,7 @@ export class StoreAccountingConfigurationFormComponent implements OnInit {
         purchaseExpenseAccountId: raw.purchaseExpenseAccountId,
         freightShippingAccountId: raw.freightShippingAccountId,
         customsAccountId: raw.customsAccountId,
+        openingBalanceEquityAccountId: raw.openingBalanceEquityAccountId,
         inventoryAccountingMethod: raw.inventoryAccountingMethod,
         isActive: raw.isActive
       };

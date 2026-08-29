@@ -6,6 +6,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
 import { CompanySwitcherComponent } from '../../company-switcher/company-switcher.component';
+import { StoreSwitcherComponent } from '../../store-switcher/store-switcher.component';
 import { AvatarComponent } from '../../avatar/avatar.component';
 import { AppTheme } from '../../../../services/theme.service';
 
@@ -25,6 +26,7 @@ import { AppTheme } from '../../../../services/theme.service';
     MatTooltipModule,
     TranslateModule,
     CompanySwitcherComponent,
+    StoreSwitcherComponent,
     AvatarComponent,
   ],
   templateUrl: './shell-header.component.html',

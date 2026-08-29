@@ -73,15 +73,7 @@
 
             <ng-container *ngIf="cardLayout3 | async as layout">
               <mat-grid-list [cols]="layout.columns" rowHeight="88" gutterSize="16px">
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-                  <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>{{ 'CORPORATE.STORE' | translate }}</mat-label>
-                    <mat-select formControlName="storeId" required (selectionChange)="onStoreSelectionChange($event.value)">
-                      <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_STORE_OPTION' | translate }}</mat-option>
-                      <mat-option *ngFor="let store of stores()" [value]="store.id">{{ store.nameAr }}</mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                </mat-grid-tile>
+                <!-- Store is no longer user-selectable here -- always the caller's current Showroom. -->
               </mat-grid-list>
             </ng-container>
           </section>

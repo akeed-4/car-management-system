@@ -76,13 +76,7 @@
                   <mat-label>{{ 'CORPORATE.SALES_REPRESENTATIVE' | translate }}</mat-label>
                   <input matInput formControlName="salesRepresentative">
                 </mat-form-field>
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>{{ 'CORPORATE.STORE' | translate }}</mat-label>
-                  <mat-select formControlName="storeId" required (selectionChange)="onStoreSelectionChange($event.value)">
-                    <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_STORE_OPTION' | translate }}</mat-option>
-                    <mat-option *ngFor="let store of stores()" [value]="store.id">{{ store.nameAr }}</mat-option>
-                  </mat-select>
-                </mat-form-field>
+                <!-- Store is no longer user-selectable here -- always the caller's current Showroom. -->
               </div>
 
               <mat-form-field appearance="outline" class="full-width notes-field">

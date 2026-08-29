@@ -10,11 +10,26 @@ export class ManufactureYearService {
   private yearsSignal = signal<number[]>([]);
   public years$ = this.yearsSignal.asReadonly();
 
+  /** Unlike years$ (plain year values), carries each Model Year's real Id -- needed as a foreign
+   *  key by the Year Specification screen's Model Year dropdown. */
+  private yearsWithIdsSignal = signal<{ id: number; year: number }[]>([]);
+  public yearsWithIds$ = this.yearsWithIdsSignal.asReadonly();
+
   // ضع رابط API الخاص بك هنا
    private apiUrl = environment.origin+'api/CarModels';
 
   constructor(private http: HttpClient) {
     this.loadYearsFromApi();
+    this.loadYearsWithIdsFromApi();
+  }
+
+  async loadYearsWithIdsFromApi() {
+    try {
+      const years = await firstValueFrom(this.http.get<{ id: number; year: number }[]>(this.apiUrl + '/years-with-ids'));
+      this.yearsWithIdsSignal.set(years.sort((a, b) => b.year - a.year));
+    } catch (error) {
+      console.error('Failed to fetch manufacture years with ids from API', error);
+    }
   }
 
   // تحميل السنوات من API
@@ -33,6 +48,7 @@ export class ManufactureYearService {
       await firstValueFrom(this.http.post(this.apiUrl + '/AddYear',  year ));
       // Reload the list from API
       await this.loadYearsFromApi();
+      await this.loadYearsWithIdsFromApi();
     } catch (error) {
       console.error('Failed to add manufacture year', error);
       throw error;

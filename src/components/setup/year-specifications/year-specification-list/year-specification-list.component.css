@@ -1,0 +1,18 @@
+.empty-state {
+  text-align: center;
+  padding: 48px;
+  color: var(--text-secondary);
+}
+
+.empty-state mat-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+dx-data-grid {
+  background: var(--surface-card);
+  border-radius: 4px;
+}

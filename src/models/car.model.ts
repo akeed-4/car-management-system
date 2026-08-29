@@ -13,6 +13,18 @@ export interface Car {
   make: string;
   model: string;
   year: number;
+  manufacturerId?: number | null;
+  modelId?: number | null;
+  /** The Trim + Model Year technical specification this vehicle was created from -- see
+   *  YearSpecification. Read-only technical-spec fields below are sourced from it. */
+  yearSpecificationId?: number | null;
+  engineType?: string;
+  engineCapacity?: string;
+  cylinderCount?: number | null;
+  horsepower?: number | null;
+  fuelType?: string;
+  driveType?: string;
+  standardAgencyPrice?: number | null;
   condition: CarCondition; // New property
   exteriorColor: string;
   interiorColor: string;

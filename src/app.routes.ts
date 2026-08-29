@@ -5,7 +5,7 @@ import { subscriptionGuard } from './guards/subscription.guard';
 import { tenantGuard } from './guards/tenant.guard';
 import { guestGuard } from './guards/guest.guard';
 import { companySelectedGuard } from './guards/company-selected.guard';
-import { branchSelectedGuard } from './guards/branch-selected.guard';
+import { storeSelectedGuard } from './guards/store-selected.guard';
 import { DashboardComponent } from './components/dashboard/dashboard-main/dashboard.component';
 import { InventoryListComponent } from './components/inventory/inventory-list/inventory-list.component';
 import { InventoryFormComponent } from './components/inventory/inventory-form/inventory-form.component';
@@ -89,7 +89,7 @@ import { PaymentComponent } from './components/platform/onboarding/payment/payme
 import { RenewSubscriptionComponent } from './components/platform/onboarding/renew-subscription/renew-subscription.component';
 import { TenantActivationComponent } from './components/platform/onboarding/tenant-activation/tenant-activation.component';
 import { CompanySelectionComponent } from './components/platform/onboarding/company-selection/company-selection.component';
-import { BranchSelectionComponent } from './components/platform/onboarding/branch-selection/branch-selection.component';
+import { StoreSelectionComponent } from './components/platform/onboarding/store-selection/store-selection.component';
 import { ShellComponent } from './components/shared/shell/shell.component';
 import { CarCardComponent } from './components/setup/car/car-card/car-card.component';
 import { CarListComponent } from './components/setup/car/car-list/car-list.component';
@@ -132,6 +132,8 @@ import { GeneralJournalComponent } from './components/reports/general-journal/ge
 import { TrialBalanceComponent } from './components/reports/trial-balance/trial-balance.component';
 import { CarCategoryListComponent } from './components/setup/car-category/car-category-list/car-category-list.component';
 import { CarCategoryFormComponent } from './components/setup/car-category/car-category-form/car-category-form.component';
+import { YearSpecificationListComponent } from './components/setup/year-specifications/year-specification-list/year-specification-list.component';
+import { YearSpecificationFormComponent } from './components/setup/year-specifications/year-specification-form/year-specification-form.component';
 import { ApprovalWorkflowListComponent } from './components/approvals/approval-workflow-list/approval-workflow-list.component';
 import { ApprovalWorkflowFormComponent } from './components/approvals/approval-workflow-form/approval-workflow-form.component';
 import { PendingApprovalsComponent } from './components/approvals/pending-approvals/pending-approvals.component';
@@ -199,9 +201,10 @@ export const APP_ROUTES: Routes = [
   // than one company. Not itself guarded (the guard that sends you here would just send you right
   // back).
   { path: 'select-company', component: CompanySelectionComponent },
-  // Same pattern one level down: reached via branchSelectedGuard when the caller has 2+ branches
-  // in their current company. Not itself guarded, same reason as select-company above.
-  { path: 'select-branch', component: BranchSelectionComponent },
+  // Same pattern one level down: reached via storeSelectedGuard when the caller has 2+ selectable
+  // stores (Store is the user-facing "Showroom" concept -- Branch is resolved silently underneath
+  // and never gets its own picker). Not itself guarded, same reason as select-company above.
+  { path: 'select-store', component: StoreSelectionComponent },
   // Print routes are deliberately siblings of `login`/`registration`, NOT children of
   // LayoutComponent. They render as bare, chrome-free pages (no sidebar/toolbar/menu) so
   // `window.print()` only ever rasterizes the invoice document itself.
@@ -235,9 +238,9 @@ export const APP_ROUTES: Routes = [
     // the caller has already been sent to /select-company -- neither of those two needs any code
     // change for multi-company support as a result. Then a suspended tenant / deactivated user
     // (tenantGuard) is turned away before subscriptionGuard's own status lookup even fires.
-    // branchSelectedGuard runs last, after a tenant (and therefore the correct ERP database) is
-    // already resolved, since Branch rows live in that per-tenant database.
-    canActivate: [companySelectedGuard, tenantGuard, subscriptionGuard, branchSelectedGuard],
+    // storeSelectedGuard runs last, after a tenant (and therefore the correct ERP database) is
+    // already resolved, since Store/Branch rows live in that per-tenant database.
+    canActivate: [companySelectedGuard, tenantGuard, subscriptionGuard, storeSelectedGuard],
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'setup/manufacturers', component: ManufacturersComponent },
@@ -245,6 +248,9 @@ export const APP_ROUTES: Routes = [
       { path: 'setup/car-categories', component: CarCategoryListComponent },
       { path: 'setup/car-categories/new', component: CarCategoryFormComponent },
       { path: 'setup/car-categories/edit/:id', component: CarCategoryFormComponent },
+      { path: 'setup/year-specifications', component: YearSpecificationListComponent },
+      { path: 'setup/year-specifications/new', component: YearSpecificationFormComponent },
+      { path: 'setup/year-specifications/edit/:id', component: YearSpecificationFormComponent },
       { path: 'setup/year', component: ManufactureYearComponent },
       { path: 'setup/car-card', component :CarCardComponent },
       { path: 'setup/cars', component :CarListComponent },

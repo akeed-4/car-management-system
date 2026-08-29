@@ -38,6 +38,14 @@ export class SupplierService {
     return this.http.get<Supplier[]>(this.apiUrl+'/GetAll');
   }
 
+  /** Proactive check reused by credit invoice/payment forms before save: does this supplier
+   *  already have a usable Accounts Payable account? Backed by the same
+   *  AccountResolutionService.ResolvePayableAccountAsync the backend enforces at save time, so
+   *  this can never say "yes" when the real save would still reject it. */
+  hasPayableAccount(supplierId: number): Observable<{ hasAccount: boolean }> {
+    return this.http.get<{ hasAccount: boolean }>(`${this.apiUrl}/${supplierId}/payable-account-status`);
+  }
+
   // جلب مورد واحد حسب ID
   getSupplierById(id: number): Observable<Supplier> {
     return this.http.get<Supplier>(`${this.apiUrl}/GetById/${id}`);

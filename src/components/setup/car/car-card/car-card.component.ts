@@ -29,6 +29,7 @@ import { ToastService } from '../../../../services/toast.service';
 import { CarCategoryService } from '../../../../services/car-category.service';
 import { PermissionService } from '../../../../services/permission.service';
 import { VehicleColorService } from '../../../../services/vehicle-color.service';
+import { YearSpecificationService } from '../../../../services/year-specification.service';
 
 import { Car, CarCondition } from '../../../../models/car.model';
 import { VehicleColor } from '../../../../models/vehicle-color.model';
@@ -36,6 +37,7 @@ import { PriceSuggestion } from '../../../../models/price-suggestion.model';
 import { CarCategory } from '../../../../types/car-category.model';
 import { Manufacturer } from '../../../../models/manufacturer.model';
 import { CarModel } from '../../../../models/car-model.model';
+import { YearSpecification } from '../../../../models/year-specification.model';
 
 import { ModalComponent } from '../../../shared/modal/modal.component';
 import { VinScannerComponent } from '../../../shared/vin-scanner/vin-scanner.component';
@@ -44,6 +46,7 @@ import { NotificationService } from '@/src/services/notification.service';
 import { ManufacturersComponent } from '../../manufacturers/manufacturers-list/manufacturers.component';
 import { CarModelsComponent, CarModelQuickAddData } from '../../car-models/car-models-list/car-models.component';
 import { CarCategoryFormComponent, CarCategoryQuickAddData } from '../../car-category/car-category-form/car-category-form.component';
+import { YearSpecificationFormComponent, YearSpecificationQuickAddData } from '../../year-specifications/year-specification-form/year-specification-form.component';
 import { VehicleColorFormComponent } from '../../vehicle-colors/vehicle-color-form/vehicle-color-form.component';
 
 /** Requirement 8: VIN/chassis number must not accept Arabic characters -- English letters and
@@ -93,6 +96,7 @@ export class CarCardComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private permissionService = inject(PermissionService);
   private vehicleColorService = inject(VehicleColorService);
+  private yearSpecificationService = inject(YearSpecificationService);
   private dialog = inject(MatDialog);
 private translate = inject(TranslateService);
   layout$ = this.currentSettingService.getCardLayout(3);
@@ -109,6 +113,21 @@ private translate = inject(TranslateService);
   categories = this.carCategoryService.categories$;
   filteredCategories = signal<CarCategory[]>([]);
   vehicleColors = signal<VehicleColor[]>([]);
+
+  /** Year Specifications belonging to the currently selected Trim (categoryId) -- populates the
+   *  Make -> Model -> Trim -> Year Specification cascading dropdown's final level. Loaded fresh
+   *  from the backend on each Trim change rather than client-filtered, since (unlike
+   *  Manufacturer/Model/Category, all small flat dictionaries already loaded in full) Year
+   *  Specifications can grow large across many Trims. */
+  filteredYearSpecs = signal<YearSpecification[]>([]);
+
+  /** The full record for the selected Year Specification -- the single source the read-only
+   *  technical specification fields below are displayed from. */
+  selectedYearSpecification = computed<YearSpecification | null>(() => {
+    const id = this.carForm?.value?.yearSpecificationId;
+    if (!id) return null;
+    return this.filteredYearSpecs().find(s => s.id === id) ?? null;
+  });
 
   // Component state
   editMode = signal(false);
@@ -221,6 +240,9 @@ private translate = inject(TranslateService);
       make: [''],
       modelId: [null],
       categoryId: [null],
+      // Requirement 6: the vehicle's Model Year comes from the selected Year Specification, not a
+      // free-standing dropdown -- see yearSpecificationId below and onYearSpecificationChange.
+      yearSpecificationId: [null, Validators.required],
       year: [new Date().getFullYear()],
       condition: ['Used'],
       exteriorColor: [''],
@@ -228,8 +250,17 @@ private translate = inject(TranslateService);
       exteriorColorId: [null, Validators.required],
       interiorColorId: [null, Validators.required],
       mileage: [0, [Validators.required, Validators.min(0)]],
+      // Transmission/engineSize plus the technical-spec-only fields below are all read-only once a
+      // Year Specification is selected (Requirement 6) -- auto-filled by onYearSpecificationChange,
+      // never hand-typed. cylinderCount/horsepower/fuelType/driveType/standardAgencyPrice have no
+      // pre-existing home on the Car entity; they exist here purely for display.
       transmission: ['Automatic'],
       engineSize: ['', Validators.required],
+      cylinderCount: [null],
+      horsepower: [null],
+      fuelType: [''],
+      driveType: [''],
+      standardAgencyPrice: [null],
       status: ['Available'],
       currentLocation: ['In Showroom'],
       photos: [[]], // Initialize as empty array
@@ -264,23 +295,51 @@ private translate = inject(TranslateService);
           existingCar.photos = existingCar.photos.filter((photo): photo is string => typeof photo === 'string');
         }
         this.carForm.patchValue(existingCar);
-        // Set manufacturerId, modelId, yearId from existing data
-        const manufacturer = this.manufacturers().find(m => m.name === existingCar.make);
-        if (manufacturer) {
-          this.selectedManufacturerId.set(manufacturer.id);
-          this.carForm.patchValue({ manufacturerId: manufacturer.id });
+
+        // Requirement 8: reconstruct the cascading hierarchy from the vehicle's own IDs --
+        // ManufacturerId/ModelId/CategoryId/YearSpecificationId, now returned directly by the
+        // backend -- instead of matching the Make/Model *name* strings, which is fragile (breaks
+        // silently on renames, and can match the wrong record if names collide across Makes).
+        if (existingCar.manufacturerId) {
+          this.selectedManufacturerId.set(existingCar.manufacturerId);
+          this.carForm.patchValue({ manufacturerId: existingCar.manufacturerId });
         }
-        
-        const model = this.allModels().find(m => m.name === existingCar.model);
-        if (model) {
-          this.carForm.patchValue({ modelId: model.id });
-          // Filter categories based on the loaded model
-          const filtered = this.categories().filter(m => m.modelId === model.id);
+
+        if (existingCar.modelId) {
+          this.carForm.patchValue({ modelId: existingCar.modelId });
+          // Filter Trims based on the loaded Model.
+          const filtered = this.categories().filter(c => c.modelId === existingCar.modelId);
           this.filteredCategories.set(filtered);
         }
-        
-    
-        
+
+        if (existingCar.categoryId) {
+          this.carForm.patchValue({ categoryId: existingCar.categoryId }, { emitEvent: false });
+        }
+
+        // Load the Trim's Year Specifications so the dropdown has options, then patch the
+        // vehicle's own already-saved technical-spec fields back in afterward -- onCategoryChange
+        // would otherwise reset yearSpecificationId/tech specs to blank as its normal "Trim
+        // changed" behavior, which is wrong here: the Trim didn't change, it's just loading.
+        if (existingCar.categoryId) {
+          this.yearSpecificationService.getByTrimId(existingCar.categoryId).subscribe({
+            next: (specs) => {
+              this.filteredYearSpecs.set(specs);
+              this.carForm.patchValue({
+                yearSpecificationId: existingCar.yearSpecificationId ?? null,
+                transmission: existingCar.transmission,
+                engineSize: existingCar.engineSize,
+                cylinderCount: existingCar.cylinderCount ?? null,
+                horsepower: existingCar.horsepower ?? null,
+                fuelType: existingCar.fuelType ?? '',
+                driveType: existingCar.driveType ?? '',
+                standardAgencyPrice: existingCar.standardAgencyPrice ?? null
+              }, { emitEvent: false });
+              this.cdr.markForCheck();
+            },
+            error: (error) => console.error('Failed to load year specifications for trim', error)
+          });
+        }
+
         // Update selected photo from loaded car
         if (existingCar.photos && existingCar.photos.length > 0) {
           this.selectedPhoto.set(existingCar.photos[0]);
@@ -311,24 +370,94 @@ backToCard(): void {
     const manufacturer = this.manufacturers().find(m => m.name === manufacturerName);
     if (manufacturer) {
       this.selectedManufacturerId.set(manufacturer.id);
-      this.carForm.patchValue({ 
+      this.carForm.patchValue({
         manufacturerId: manufacturer.id,
-        modelId: null 
+        modelId: null
       }, { emitEvent: true });
+      this.filteredCategories.set([]);
+      this.resetTrimAndBelow();
       this.cdr.markForCheck();
     }
   }
 
-  onModelChange(modelId: number): void {
-    // Reset category when model changes
+  onModelChange(modelId: number | null): void {
+    // Requirement 9: the Model changing invalidates whatever Trim/Year Specification/technical
+    // specs were previously selected -- clear them before loading the new Model's Trims, so a
+    // stale Trim from the old Model is never left selected.
+    this.resetTrimAndBelow();
     if (modelId) {
-      debugger
       const filtered = this.categories().filter(m => m.modelId === modelId);
       this.filteredCategories.set(filtered);
     } else {
       this.filteredCategories.set([]);
     }
     // Model name is computed in selectedModel signal
+  }
+
+  /** Requirement 9: Trim changing invalidates the previously selected Year Specification and
+   *  everything derived from it. Requirement 4/6: loads the Year Specifications belonging to the
+   *  new Trim for the next cascading level. */
+  onCategoryChange(categoryId: number | null): void {
+    this.resetYearSpecAndBelow();
+    if (!categoryId) return;
+    this.yearSpecificationService.getByTrimId(categoryId).subscribe({
+      next: (specs) => this.filteredYearSpecs.set(specs),
+      error: (error) => console.error('Failed to load year specifications for trim', error)
+    });
+  }
+
+  /** Requirement 6: selecting a Year Specification automatically loads its technical
+   *  specifications into the (read-only) fields below -- the user never re-types them per vehicle. */
+  onYearSpecificationChange(yearSpecificationId: number | null): void {
+    const spec = yearSpecificationId
+      ? this.filteredYearSpecs().find(s => s.id === yearSpecificationId)
+      : null;
+
+    if (!spec) {
+      this.resetYearSpecFieldsOnly();
+      return;
+    }
+
+    this.carForm.patchValue({
+      yearSpecificationId: spec.id,
+      year: spec.year,
+      transmission: spec.transmission,
+      engineSize: [spec.engineCapacity, spec.engineType].filter(Boolean).join(' '),
+      cylinderCount: spec.cylinderCount,
+      horsepower: spec.horsepower,
+      fuelType: spec.fuelType,
+      driveType: spec.driveType,
+      standardAgencyPrice: spec.standardAgencyPrice
+    }, { emitEvent: false });
+    this.cdr.markForCheck();
+  }
+
+  /** Clears the Trim + Year Specification + all read-only technical-spec fields (Requirement 9) --
+   *  used when the Model changes, since the previously selected Trim can no longer be valid. */
+  private resetTrimAndBelow(): void {
+    this.carForm.patchValue({ categoryId: null }, { emitEvent: false });
+    this.resetYearSpecAndBelow();
+  }
+
+  /** Clears the Year Specification + technical-spec fields (Requirement 9), leaving categoryId
+   *  itself untouched -- used when the Trim changes to a NEW value the caller is about to set. */
+  private resetYearSpecAndBelow(): void {
+    this.filteredYearSpecs.set([]);
+    this.resetYearSpecFieldsOnly();
+  }
+
+  private resetYearSpecFieldsOnly(): void {
+    this.carForm.patchValue({
+      yearSpecificationId: null,
+      transmission: '',
+      engineSize: '',
+      cylinderCount: null,
+      horsepower: null,
+      fuelType: '',
+      driveType: '',
+      standardAgencyPrice: null
+    }, { emitEvent: false });
+    this.cdr.markForCheck();
   }
 
   // --- Inline "+" quick-add for the Manufacturer/Model/Category lookup dropdowns -----------------
@@ -339,6 +468,7 @@ backToCard(): void {
   canAddManufacturer = computed(() => true); // Always allow adding a new manufacturer
   canAddCarModel = computed(() => true);
   canAddCarCategory = computed(() => true);
+  canAddYearSpecification = computed(() => true);
 
   openAddManufacturerDialog(): void {
     const dialogRef = this.dialog.open(ManufacturersComponent, {
@@ -358,6 +488,7 @@ backToCard(): void {
         modelId: null
       }, { emitEvent: true });
       this.filteredCategories.set([]);
+      this.resetTrimAndBelow();
       this.cdr.markForCheck();
     });
   }
@@ -398,6 +529,32 @@ backToCard(): void {
         list.some(c => c.id === created.id) ? list : [...list, created]
       );
       this.carForm.patchValue({ categoryId: created.id }, { emitEvent: true });
+      this.onCategoryChange(created.id);
+      this.cdr.markForCheck();
+    });
+  }
+
+  openAddYearSpecificationDialog(): void {
+    const trimId = this.carForm.value.categoryId;
+    if (!trimId) return; // Year Specification depends on Trim -- button is disabled in the template for this case too
+
+    const data: YearSpecificationQuickAddData = { trimId };
+    const dialogRef = this.dialog.open(YearSpecificationFormComponent, {
+      // Wider than the other quick-add dialogs (480-600px) -- this form has 12 fields (4
+      // cascading dropdowns + 8 technical-spec inputs) and needs the 2-column layout's full width
+      // to fit without an internal scrollbar (see the component's own CSS comment).
+      width: '760px',
+      maxWidth: '95vw',
+      autoFocus: false,
+      data
+    });
+
+    dialogRef.afterClosed().subscribe((created?: YearSpecification) => {
+      if (!created) return;
+      this.filteredYearSpecs.update(list =>
+        list.some(s => s.id === created.id) ? list : [...list, created]
+      );
+      this.onYearSpecificationChange(created.id);
       this.cdr.markForCheck();
     });
   }
@@ -431,10 +588,14 @@ backToCard(): void {
   async saveCar(): Promise<void> {
     if (this.carForm.valid) {
       const formValue = this.carForm.value;
-      
-      // Remove fields that don't belong in the API request
-      const { id, manufacturerId, modelId, trackByBatch, totalCost, ...carData } = formValue;
-      
+
+      // Remove fields that don't belong in the API request. manufacturerId/modelId/categoryId/
+      // yearSpecificationId are NOT stripped here (a prior version of this method dropped
+      // manufacturerId/modelId entirely, which meant a vehicle's Make/Model were never actually
+      // persisted as real foreign keys -- only the legacy free-text make/model strings were saved,
+      // silently breaking the whole cascading hierarchy and Requirement 8's edit reconstruction).
+      const { id, trackByBatch, totalCost, ...carData } = formValue;
+
       const carToSave = {
         ...carData,
         model: this.selectedModel(),

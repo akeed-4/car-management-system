@@ -1,39 +1,9 @@
-.btn-small {
-  padding: 4px 8px;
-  font-size: 0.8rem;
-  height: 30px;
-}
-
-.btn-small .icon {
-  width: 16px;
-  height: 16px;
-}
-
 /* --- Strong Professional Design --- */
 .container {
   max-width: 1400px;
   margin: 1.5rem auto;
   padding: 0.75rem;
   font-family: 'Roboto', sans-serif;
-}
-
-.page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-  padding: 1rem 1.5rem;
-  background: var(--color-primary-600);
-  color: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-}
-
-.page-header h2 {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .back-link {
@@ -64,17 +34,6 @@
   cursor: pointer;
   transition: all 0.3s ease;
   text-decoration: none;
-}
-
-.btn-primary {
-  background: #4f46e5;
-  color: white;
-}
-
-.btn-primary:hover {
-  background: var(--color-primary-600);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
 }
 
 .card {
@@ -195,12 +154,6 @@
     max-width: none;
     margin: 0;
     padding: 0;
-  }
-
-  .page-header {
-    background: var(--surface-card) !important;
-    color: var(--text-primary) !important;
-    box-shadow: none !important;
   }
 
   .card {

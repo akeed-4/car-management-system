@@ -15,7 +15,7 @@
           <mat-form-field appearance="outline">
             <mat-label>{{ 'STORE_ACCOUNTING_CONFIG.STORE' | translate }}</mat-label>
             <mat-select formControlName="storeId" required>
-              <mat-option *ngFor="let store of stores()" [value]="store.id">{{ store.nameEn }}</mat-option>
+              <mat-option *ngFor="let store of stores()" [value]="store.id">{{ translate.currentLang === 'ar' ? (store.nameAr || store.nameEn) : store.nameEn }}</mat-option>
             </mat-select>
             <mat-error *ngIf="form.get('storeId')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
           </mat-form-field>
@@ -33,7 +33,7 @@
             <mat-form-field appearance="outline" class="field-with-add-select">
               <mat-label>{{ 'STORE_ACCOUNTING_CONFIG.INVENTORY_ACCOUNT' | translate }}</mat-label>
               <mat-select formControlName="inventoryAccountId" required>
-                <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameEn }}</mat-option>
+                <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ translate.currentLang === 'ar' ? (account.accountNameAr || account.accountNameEn) : account.accountNameEn }}{{ nonPostableAccountIds().has(account.id) ? (' ' + ('STORE_ACCOUNTING_CONFIG.NON_POSTABLE_SUFFIX' | translate)) : '' }}</mat-option>
               </mat-select>
               <mat-error *ngIf="form.get('inventoryAccountId')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
             </mat-form-field>
@@ -46,7 +46,7 @@
             <mat-form-field appearance="outline" class="field-with-add-select">
               <mat-label>{{ 'STORE_ACCOUNTING_CONFIG.COGS_ACCOUNT' | translate }}</mat-label>
               <mat-select formControlName="cogsAccountId" required>
-                <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameEn }}</mat-option>
+                <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ translate.currentLang === 'ar' ? (account.accountNameAr || account.accountNameEn) : account.accountNameEn }}{{ nonPostableAccountIds().has(account.id) ? (' ' + ('STORE_ACCOUNTING_CONFIG.NON_POSTABLE_SUFFIX' | translate)) : '' }}</mat-option>
               </mat-select>
               <mat-error *ngIf="form.get('cogsAccountId')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
             </mat-form-field>
@@ -59,7 +59,7 @@
             <mat-form-field appearance="outline" class="field-with-add-select">
               <mat-label>{{ 'STORE_ACCOUNTING_CONFIG.ADJUSTMENT_ACCOUNT' | translate }}</mat-label>
               <mat-select formControlName="inventoryAdjustmentAccountId" required>
-                <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameEn }}</mat-option>
+                <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ translate.currentLang === 'ar' ? (account.accountNameAr || account.accountNameEn) : account.accountNameEn }}{{ nonPostableAccountIds().has(account.id) ? (' ' + ('STORE_ACCOUNTING_CONFIG.NON_POSTABLE_SUFFIX' | translate)) : '' }}</mat-option>
               </mat-select>
               <mat-error *ngIf="form.get('inventoryAdjustmentAccountId')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
             </mat-form-field>
@@ -73,7 +73,7 @@
               <mat-label>{{ 'STORE_ACCOUNTING_CONFIG.ADDITIONAL_COST_ACCOUNT' | translate }}</mat-label>
               <mat-select formControlName="additionalCostAccountId">
                 <mat-option [value]="null">{{ 'STORE_ACCOUNTING_CONFIG.NOT_CONFIGURED' | translate }}</mat-option>
-                <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameEn }}</mat-option>
+                <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ translate.currentLang === 'ar' ? (account.accountNameAr || account.accountNameEn) : account.accountNameEn }}{{ nonPostableAccountIds().has(account.id) ? (' ' + ('STORE_ACCOUNTING_CONFIG.NON_POSTABLE_SUFFIX' | translate)) : '' }}</mat-option>
               </mat-select>
               <mat-hint>{{ 'STORE_ACCOUNTING_CONFIG.ADDITIONAL_COST_ACCOUNT_HINT' | translate }}</mat-hint>
             </mat-form-field>
@@ -87,7 +87,7 @@
               <mat-label>{{ 'STORE_ACCOUNTING_CONFIG.PURCHASE_EXPENSE_ACCOUNT' | translate }}</mat-label>
               <mat-select formControlName="purchaseExpenseAccountId">
                 <mat-option [value]="null">{{ 'STORE_ACCOUNTING_CONFIG.NOT_CONFIGURED' | translate }}</mat-option>
-                <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameEn }}</mat-option>
+                <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ translate.currentLang === 'ar' ? (account.accountNameAr || account.accountNameEn) : account.accountNameEn }}{{ nonPostableAccountIds().has(account.id) ? (' ' + ('STORE_ACCOUNTING_CONFIG.NON_POSTABLE_SUFFIX' | translate)) : '' }}</mat-option>
               </mat-select>
               <mat-hint>{{ 'STORE_ACCOUNTING_CONFIG.PURCHASE_EXPENSE_ACCOUNT_HINT' | translate }}</mat-hint>
             </mat-form-field>
@@ -101,7 +101,7 @@
               <mat-label>{{ 'STORE_ACCOUNTING_CONFIG.FREIGHT_SHIPPING_ACCOUNT' | translate }}</mat-label>
               <mat-select formControlName="freightShippingAccountId">
                 <mat-option [value]="null">{{ 'STORE_ACCOUNTING_CONFIG.NOT_CONFIGURED' | translate }}</mat-option>
-                <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameEn }}</mat-option>
+                <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ translate.currentLang === 'ar' ? (account.accountNameAr || account.accountNameEn) : account.accountNameEn }}{{ nonPostableAccountIds().has(account.id) ? (' ' + ('STORE_ACCOUNTING_CONFIG.NON_POSTABLE_SUFFIX' | translate)) : '' }}</mat-option>
               </mat-select>
               <mat-hint>{{ 'STORE_ACCOUNTING_CONFIG.FREIGHT_SHIPPING_ACCOUNT_HINT' | translate }}</mat-hint>
             </mat-form-field>
@@ -115,11 +115,25 @@
               <mat-label>{{ 'STORE_ACCOUNTING_CONFIG.CUSTOMS_ACCOUNT' | translate }}</mat-label>
               <mat-select formControlName="customsAccountId">
                 <mat-option [value]="null">{{ 'STORE_ACCOUNTING_CONFIG.NOT_CONFIGURED' | translate }}</mat-option>
-                <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ account.accountNameEn }}</mat-option>
+                <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ translate.currentLang === 'ar' ? (account.accountNameAr || account.accountNameEn) : account.accountNameEn }}{{ nonPostableAccountIds().has(account.id) ? (' ' + ('STORE_ACCOUNTING_CONFIG.NON_POSTABLE_SUFFIX' | translate)) : '' }}</mat-option>
               </mat-select>
               <mat-hint>{{ 'STORE_ACCOUNTING_CONFIG.CUSTOMS_ACCOUNT_HINT' | translate }}</mat-hint>
             </mat-form-field>
             <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateCustomsAccountDialog()">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+
+          <div class="field-with-add">
+            <mat-form-field appearance="outline" class="field-with-add-select">
+              <mat-label>{{ 'STORE_ACCOUNTING_CONFIG.OPENING_BALANCE_EQUITY_ACCOUNT' | translate }}</mat-label>
+              <mat-select formControlName="openingBalanceEquityAccountId">
+                <mat-option [value]="null">{{ 'STORE_ACCOUNTING_CONFIG.NOT_CONFIGURED' | translate }}</mat-option>
+                <mat-option *ngFor="let account of accounts()" [value]="account.id">{{ account.accountCode }} - {{ translate.currentLang === 'ar' ? (account.accountNameAr || account.accountNameEn) : account.accountNameEn }}{{ nonPostableAccountIds().has(account.id) ? (' ' + ('STORE_ACCOUNTING_CONFIG.NON_POSTABLE_SUFFIX' | translate)) : '' }}</mat-option>
+              </mat-select>
+              <mat-hint>{{ 'STORE_ACCOUNTING_CONFIG.OPENING_BALANCE_EQUITY_ACCOUNT_HINT' | translate }}</mat-hint>
+            </mat-form-field>
+            <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateOpeningBalanceEquityAccountDialog()">
               <mat-icon>add</mat-icon>
             </button>
           </div>

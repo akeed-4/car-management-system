@@ -99,15 +99,8 @@
                     </mat-select>
                   </mat-form-field>
                 </mat-grid-tile>
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-                  <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>{{ 'PURCHASE_INVOICE.STORE' | translate }}</mat-label>
-                    <mat-select formControlName="storeId" required (selectionChange)="onStoreSelectionChange($event.value)">
-                      <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_STORE' | translate }}</mat-option>
-                      <mat-option *ngFor="let store of stores()" [value]="store.id">{{ store.nameAr }}</mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                </mat-grid-tile>
+                <!-- Store is no longer user-selectable here -- every invoice automatically uses
+                     the caller's current Showroom (see StoreContextService / the header switcher). -->
 
               </mat-grid-list>
             </ng-container>
@@ -179,7 +172,7 @@
               <mat-label>{{ 'ACCOUNTING.PAYMENT_ACCOUNT' | translate }}</mat-label>
               <mat-select formControlName="paymentAccountId" required>
                 <mat-option *ngFor="let account of paymentAccounts()" [value]="account.id">
-                  {{ account.accountCode }} - {{ account.accountNameEn || account.accountNameAr }}
+                  {{ account.accountCode }} - {{ translate.currentLang === 'ar' ? (account.accountNameAr || account.accountNameEn) : account.accountNameEn }}
                 </mat-option>
               </mat-select>
               <mat-icon matPrefix>account_balance_wallet</mat-icon>
@@ -214,7 +207,7 @@
           </section>
         </div>
 
-        <!-- Line items grid, with Notes stacked directly below it. -->
+        <!-- Line items grid. Notes now lives in the sidebar, directly under Invoice Summary. -->
         <div class="lines-row">
           <div class="erp-card doc-card lines-card">
             <section class="erp-section">
@@ -316,15 +309,6 @@
             </div>
             </section>
           </div>
-
-          <div class="erp-card doc-card notes-card">
-            <section class="erp-section notes-section">
-              <h3 class="erp-section-title">{{ 'PURCHASE_INVOICE.NOTES' | translate }}</h3>
-              <mat-form-field appearance="outline" class="full-width">
-                <textarea matInput formControlName="notes" rows="12" placeholder="{{ 'PURCHASE_INVOICE.NOTES_PLACEHOLDER' | translate }}"></textarea>
-              </mat-form-field>
-            </section>
-          </div>
         </div>
 
         <!-- Auction section gets its own full-width row -- previously squeezed into a 3-way flex
@@ -397,6 +381,17 @@
             <app-document-toolbar [actions]="toolbarActions()" [busy]="saving()"></app-document-toolbar>
           </div>
         </mat-card>
+
+        <!-- Notes -- moved directly under Invoice Summary (still within the same sidebar column)
+             so it's reachable without scrolling past the line-items grid. -->
+        <div class="erp-card doc-card notes-card">
+          <section class="erp-section notes-section">
+            <h3 class="erp-section-title">{{ 'PURCHASE_INVOICE.NOTES' | translate }}</h3>
+            <mat-form-field appearance="outline" class="full-width">
+              <textarea matInput formControlName="notes" rows="12" placeholder="{{ 'PURCHASE_INVOICE.NOTES_PLACEHOLDER' | translate }}"></textarea>
+            </mat-form-field>
+          </section>
+        </div>
       </aside>
     </div>
   </form>

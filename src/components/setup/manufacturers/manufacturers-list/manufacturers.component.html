@@ -39,6 +39,38 @@
           />
         </mat-form-field>
 
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'MANUFACTURERS.NAME_AR_LABEL' | translate }}</mat-label>
+          <input matInput type="text" formControlName="nameAr" dir="rtl">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'MANUFACTURERS.NAME_EN_LABEL' | translate }}</mat-label>
+          <input matInput type="text" formControlName="nameEn">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'MANUFACTURERS.COUNTRY_LABEL' | translate }}</mat-label>
+          <input matInput type="text" formControlName="countryOfOrigin">
+        </mat-form-field>
+
+        <div class="logo-upload-row">
+          @if (logoPreview()) {
+            <img [src]="logoPreview()" class="logo-preview" [alt]="'MANUFACTURERS.LOGO_LABEL' | translate">
+          }
+          <label class="btn-mat-height logo-upload-btn">
+            <mat-icon>upload</mat-icon>
+            {{ 'MANUFACTURERS.LOGO_UPLOAD' | translate }}
+            <input type="file" accept="image/*" hidden (change)="onLogoSelected($event)">
+          </label>
+          @if (logoPreview()) {
+            <button type="button" mat-icon-button (click)="removeLogo()" [title]="'MANUFACTURERS.LOGO_REMOVE' | translate">
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </div>
+
+        <mat-checkbox formControlName="isActive">{{ 'MANUFACTURERS.IS_ACTIVE_LABEL' | translate }}</mat-checkbox>
       </form>
         <div class="form-actions" [class.mat-dialog-actions]="isQuickAddDialog">
           <button mat-raised-button color="primary" (click)="addManufacturer()" [disabled]="manufacturerForm.invalid" class="btn-mat-height">
@@ -64,9 +96,18 @@
     } @else {
       <div class="manufacturers-grid">
         @for (manufacturer of filteredAndSortedManufacturers(); track manufacturer.id) {
-          <div class="manufacturer-card">
+          <div class="manufacturer-card" [class.inactive]="manufacturer.isActive === false">
             <div class="manufacturer-card-content">
+              @if (manufacturer.logo) {
+                <img [src]="manufacturer.logo" class="manufacturer-logo-thumb" [alt]="manufacturer.name">
+              }
               <h4 class="manufacturer-name">{{ manufacturer.name }}</h4>
+              @if (manufacturer.countryOfOrigin) {
+                <p class="manufacturer-country">{{ manufacturer.countryOfOrigin }}</p>
+              }
+              @if (manufacturer.isActive === false) {
+                <span class="manufacturer-inactive-badge">{{ 'MANUFACTURERS.INACTIVE_BADGE' | translate }}</span>
+              }
             </div>
             <div class="manufacturer-card-actions">
               <button

@@ -4,6 +4,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { ManufacturerService } from '../../../../services/manufacturer.service';
 import { Manufacturer } from '../../../../models/manufacturer.model';
@@ -19,7 +20,7 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-manufacturers',
   standalone: true,
-  imports: [ReactiveFormsModule, ModalComponent, TranslateModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatDialogModule],
+  imports: [ReactiveFormsModule, ModalComponent, TranslateModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatCheckboxModule, MatDialogModule],
   templateUrl: './manufacturers.component.html',
   styleUrl: './manufacturers.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -60,10 +61,47 @@ export class ManufacturersComponent implements OnInit {
     this.initForm();
   }
 
+  /** Preview for the Logo upload -- base64 data URI, same pattern as the Vehicle Card's photo
+   *  upload (car-card.component.ts's onFileSelected). */
+  logoPreview = signal<string | null>(null);
+
   private initForm(): void {
     this.manufacturerForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(1)]]
+      name: ['', [Validators.required, Validators.minLength(1)]],
+      nameAr: [''],
+      nameEn: [''],
+      logo: [null as string | null],
+      countryOfOrigin: [''],
+      isActive: [true]
     });
+  }
+
+  onLogoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      this.toastService.showError(this.translate.instant('MANUFACTURERS.SELECT_IMAGE_FILE_ERROR'));
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      this.toastService.showError(this.translate.instant('MANUFACTURERS.LOGO_TOO_LARGE_ERROR'));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result as string;
+      this.manufacturerForm.patchValue({ logo: base64 });
+      this.logoPreview.set(base64);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  removeLogo(): void {
+    this.manufacturerForm.patchValue({ logo: null });
+    this.logoPreview.set(null);
   }
   filteredAndSortedManufacturers = computed(() => {
     const searchTerm = this.filter().toLowerCase();
@@ -107,22 +145,32 @@ export class ManufacturersComponent implements OnInit {
 
   async addManufacturer(): Promise<void> {
     if (this.manufacturerForm.valid) {
-      const name = this.manufacturerForm.value.name?.trim();
+      const formValue = this.manufacturerForm.value;
+      const name = formValue.name?.trim();
       if (name) {
+        const payload: Omit<Manufacturer, 'id'> = {
+          name,
+          nameAr: formValue.nameAr?.trim() || undefined,
+          nameEn: formValue.nameEn?.trim() || undefined,
+          logo: formValue.logo,
+          countryOfOrigin: formValue.countryOfOrigin?.trim() || undefined,
+          isActive: formValue.isActive
+        };
         try {
           if (this.isEditMode()) {
             // Update existing manufacturer
             const editingManufacturer = this.editingManufacturer();
             if (editingManufacturer) {
-              await this.manufacturerService.updateManufacturer(editingManufacturer.id, { name });
+              await this.manufacturerService.updateManufacturer(editingManufacturer.id, payload);
               this.toastService.showSuccess('TOAST.EDIT_SUCCESS');
               this.cancelEdit();
             }
           } else {
             // Add new manufacturer
-            const created = await this.manufacturerService.addManufacturer({ name });
+            const created = await this.manufacturerService.addManufacturer(payload);
             this.toastService.showSuccess('TOAST.ADD_SUCCESS');
-            this.manufacturerForm.reset();
+            this.manufacturerForm.reset({ isActive: true });
+            this.logoPreview.set(null);
             // Quick-add dialog mode: hand the newly created manufacturer back to the caller
             // (CarCardComponent) instead of staying open on the list -- routed page usage is
             // unaffected since dialogRef is undefined there.
@@ -151,14 +199,21 @@ export class ManufacturersComponent implements OnInit {
     this.isEditMode.set(true);
     this.editingManufacturer.set(manufacturer);
     this.manufacturerForm.patchValue({
-      name: manufacturer.name
+      name: manufacturer.name,
+      nameAr: manufacturer.nameAr ?? '',
+      nameEn: manufacturer.nameEn ?? '',
+      logo: manufacturer.logo ?? null,
+      countryOfOrigin: manufacturer.countryOfOrigin ?? '',
+      isActive: manufacturer.isActive ?? true
     });
+    this.logoPreview.set(manufacturer.logo ?? null);
   }
 
   cancelEdit(): void {
     this.isEditMode.set(false);
     this.editingManufacturer.set(null);
-    this.manufacturerForm.reset();
+    this.manufacturerForm.reset({ isActive: true });
+    this.logoPreview.set(null);
   }
   async doDelete(id: number): Promise<void> {
     try {

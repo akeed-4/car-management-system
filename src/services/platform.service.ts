@@ -27,6 +27,10 @@ import {
   BranchMembershipDto,
   SelectBranchResponseDto,
 } from '../models/platform/branch-membership.model';
+import {
+  StoreMembershipDto,
+  SelectStoreResponseDto,
+} from '../models/platform/store-membership.model';
 import { AppLoginResponse } from './AuthService.service';
 
 export interface DxLoadResult<T> {
@@ -115,6 +119,18 @@ export class PlatformService {
    *  a client-persisted UI scope validated server-side on demand, not baked into the JWT. */
   selectBranch(branchId: number): Observable<SelectBranchResponseDto> {
     return this.http.post<SelectBranchResponseDto>(`${this.myUrl}/branches/${branchId}/select`, {});
+  }
+
+  /** Every store (Showroom) the caller may select as their active store. Independent of Branch --
+   *  backed by UserStoreAssignment, not derived from the caller's branch memberships. */
+  getMyStores(): Observable<StoreMembershipDto[]> {
+    return this.http.get<StoreMembershipDto[]>(`${this.myUrl}/stores`);
+  }
+
+  /** Switches the caller's active store. No token/claim change -- Store is a client-persisted UI
+   *  scope validated server-side on demand, not baked into the JWT. */
+  selectStore(storeId: number): Observable<SelectStoreResponseDto> {
+    return this.http.post<SelectStoreResponseDto>(`${this.myUrl}/stores/${storeId}/select`, {});
   }
 
   /** Platform-admin "Grant Access": links an existing user (by email) to a tenant they don't

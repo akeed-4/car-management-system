@@ -626,6 +626,19 @@ mat-form-field.form-field {
   border-style: dashed;
 }
 
+/* Parent could not be confirmed -- the inherited parentId failed to resolve to a real account */
+.acc-parent-error {
+  font-style: normal;
+  opacity: 1;
+  color: var(--color-danger-700, #b91c1c);
+  border-color: var(--color-danger-300, #fca5a5);
+  background: var(--color-danger-50, #fef2f2);
+}
+
+.acc-parent-error mat-icon {
+  color: var(--color-danger-600, #dc2626);
+}
+
 /* Auto-number hint states */
 .acc-code-warning {
   color: #b26a00;

@@ -24,6 +24,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { ToastService } from '../../../services/toast.service';
 import { SalesReturnInvoice } from '@/src/models/sales-return-invoice.model';
 import { NotificationService } from '@/src/services/notification.service';
+import { extractErrorMessage } from '@/src/models/http-error-message';
 
 @Component({
   selector: 'app-sales-return-form',
@@ -314,7 +315,6 @@ getTitle(): string {
   }
 
   saveReturn(): void {
-    debugger
     if (!this.returnForm.valid) {
       console.warn('Form is invalid');
       return;
@@ -362,13 +362,14 @@ getTitle(): string {
         error: (error) => {
           console.error('Error updating return:', error);
           this.isSubmitting.set(false);
+          this.toastService.showError(extractErrorMessage(error, this.translate, 'SALES.RETURN.SAVE_ERROR'));
         }
       });
     } else {
       // Create mode - create new return
       this.salesReturnService.createSalesReturn(salesReturn).subscribe({
         next: (response) => {
-         
+
           this.isSubmitting.set(false);
           // Navigate back to list or show success message
           this.toastService.showSuccess('SALES.RETURN.UPDATED_SUCCESS');
@@ -376,6 +377,7 @@ getTitle(): string {
         error: (error) => {
           console.error('Error saving return:', error);
           this.isSubmitting.set(false);
+          this.toastService.showError(extractErrorMessage(error, this.translate, 'SALES.RETURN.SAVE_ERROR'));
         }
       });
     }

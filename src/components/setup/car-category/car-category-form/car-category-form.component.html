@@ -26,13 +26,27 @@
 
     <form [formGroup]="categoryForm" class="card-body" [class.mat-dialog-content]="isQuickAddDialog">
       <div class="form-grid">
-        <mat-form-field appearance="outline" class="field-span-2">
+        <!-- Make -> Model cascading (Requirement 4): selecting a Make narrows the Model list --
+             the actual Trim is still only ever saved with a ModelId, this is purely a filter. -->
+        <mat-form-field appearance="outline" class="field-span-1">
+          <mat-label>{{ 'CAR_CATEGORY.FORM.MAKE' | translate }}</mat-label>
+          <mat-select
+            [value]="selectedManufacturerId()"
+            (selectionChange)="onManufacturerChange($event.value)"
+            [disabled]="!!lockedModelId"
+            required>
+            <mat-option *ngFor="let m of manufacturers()" [value]="m.id">{{ m.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="field-span-1">
           <mat-label>{{ 'CAR_CATEGORY.FORM.MODELS' | translate }}</mat-label>
           <mat-select formControlName="modelId" required>
-            <mat-option *ngFor="let model of models()" [value]="model.id">
+            <mat-option *ngFor="let model of filteredModels()" [value]="model.id">
               {{ model.name }}
             </mat-option>
           </mat-select>
+          <mat-hint *ngIf="!lockedModelId && !selectedManufacturerId()">{{ 'CAR_CATEGORY.FORM.SELECT_MAKE_FIRST' | translate }}</mat-hint>
           <mat-error *ngIf="categoryForm.get('modelId')?.hasError('required')">
             {{ 'CAR_CATEGORY.FORM.MODEL_REQUIRED' | translate }}
           </mat-error>

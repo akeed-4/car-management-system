@@ -71,7 +71,7 @@
                     {{ 'ACCOUNTS.FORM.SELECT_ACCOUNT' | translate }}
                   </mat-option>
                   <mat-option *ngFor="let acc of accounts(); trackBy: trackByAccountId" [value]="acc.id">
-                    {{ acc.accountCode }} - {{ acc.accountNameAr }}
+                    {{ acc.accountCode }} - {{ translate.currentLang === 'ar' ? (acc.accountNameAr || acc.accountNameEn) : acc.accountNameEn }}
                   </mat-option>
                 </mat-select>
                 <mat-error *ngIf="receiptForm.get('debitAccountId')?.hasError('required')">
@@ -94,7 +94,7 @@
                     {{ 'ACCOUNTS.FORM.SELECT_ACCOUNT' | translate }}
                   </mat-option>
                   <mat-option *ngFor="let acc of accounts(); trackBy: trackByAccountId" [value]="acc.id">
-                    {{ acc.accountCode }} - {{ acc.accountNameAr }}
+                    {{ acc.accountCode }} - {{ translate.currentLang === 'ar' ? (acc.accountNameAr || acc.accountNameEn) : acc.accountNameEn }}
                   </mat-option>
                 </mat-select>
                 <mat-error *ngIf="receiptForm.get('creditAccountId')?.hasError('required')">

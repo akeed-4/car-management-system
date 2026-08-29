@@ -1,0 +1,29 @@
+.store-switcher {
+  display: inline-flex;
+  align-items: center;
+  margin-inline-end: 8px;
+}
+
+.store-name {
+  margin: 0 6px;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.store-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+  height: 36px;
+  color: inherit;
+}
+
+/* Same cosmetic tier as the header's search-label/brand-name hiding -- frees space for the
+   icon-heavy actions once labels start competing for room. */
+@media (max-width: 960px) {
+  .store-name {
+    display: none;
+  }
+}

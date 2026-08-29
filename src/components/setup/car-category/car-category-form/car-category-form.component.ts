@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit, Signal } from '@angular/core';
+import { Component, inject, signal, computed, effect, OnInit, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -11,6 +11,7 @@ import { CarCategoryService } from '../../../../services/car-category.service';
 import { CarCategory } from '../../../../types/car-category.model';
 import { CarModelService } from '../../../../services/car-model.service';
 import { CarModel } from '../../../../models/car-model.model';
+import { ManufacturerService } from '../../../../services/manufacturer.service';
 import { MatSelectModule } from '@angular/material/select';
 import { ToastService } from '@/src/services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
@@ -46,6 +47,7 @@ export class CarCategoryFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private carCategoryService = inject(CarCategoryService);
   private carModelService = inject(CarModelService);
+  private manufacturerService = inject(ManufacturerService);
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
   private dialogRef = inject(MatDialogRef<CarCategoryFormComponent, CarCategory | undefined>, { optional: true });
@@ -62,6 +64,25 @@ export class CarCategoryFormComponent implements OnInit {
   editMode = signal(false);
   pageTitle = signal('CAR_CATEGORY.FORM.TITLE_NEW');
   models: Signal<CarModel[]> = this.carModelService.carmodel$;
+  manufacturers = this.manufacturerService.manufacturers$;
+
+  /** Make -> Model cascading (Requirement 4): the Model dropdown only ever offers models
+   *  belonging to the selected Make. Not persisted on the Trim itself (CarCategory only stores
+   *  ModelId) -- purely a filter driving the Model dropdown, same pattern as the Vehicle Add/Edit
+   *  screen's own Make -> Model cascading. Writable directly (user picks a Make in the global-add
+   *  case) and also driven by pendingModelIdToResolve below (edit/quick-add, where the Model --
+   *  and therefore its Make -- is already known and just needs to be displayed). */
+  selectedManufacturerId = signal<number | null>(null);
+  filteredModels = computed(() => {
+    const manufacturerId = this.selectedManufacturerId();
+    if (!manufacturerId) return [];
+    return this.models().filter(m => m.manufacturerId === manufacturerId);
+  });
+
+  /** Set (quick-add's lockedModelId immediately, or the loaded Trim's modelId on edit) whenever a
+   *  Model is already known and its Make just needs deriving for display. A computed `effect`
+   *  re-runs this resolution automatically whenever `models()` finishes loading -- no polling. */
+  private pendingModelIdToResolve = signal<number | null>(this.lockedModelId);
 
   selectedModel = computed(() => {
     const modelId = this.categoryForm?.value?.modelId;
@@ -69,6 +90,17 @@ export class CarCategoryFormComponent implements OnInit {
     const model = this.models().find(m => m.id === modelId);
     return model ? model.name : '';
   });
+
+  constructor() {
+    effect(() => {
+      const targetModelId = this.pendingModelIdToResolve();
+      if (targetModelId == null) return;
+      const model = this.models().find(m => m.id === targetModelId);
+      if (model) {
+        this.selectedManufacturerId.set(model.manufacturerId);
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.initForm();
@@ -78,7 +110,31 @@ export class CarCategoryFormComponent implements OnInit {
       const id = Number(idParam);
       this.editMode.set(true);
       this.pageTitle.set('CAR_CATEGORY.FORM.TITLE_EDIT');
+      this.carCategoryService.getCategoryById(id).subscribe({
+        next: (category) => {
+          this.categoryForm.patchValue({
+            id: category.id,
+            name: category.name,
+            nameAr: category.nameAr ?? '',
+            nameEn: category.nameEn ?? '',
+            description: category.description ?? '',
+            modelId: category.modelId ?? null
+          });
+          this.pendingModelIdToResolve.set(category.modelId ?? null);
+        },
+        error: (error) => {
+          console.error('Error loading Trim for edit', error);
+          this.notificationService.showError(this.translate.instant('CAR_CATEGORY.FORM.LOAD_ERROR'));
+        }
+      });
     }
+  }
+
+  /** Reset the Model whenever the Make changes -- the previously selected Model no longer
+   *  necessarily belongs to the new Make (Requirement 9). */
+  onManufacturerChange(manufacturerId: number | null): void {
+    this.selectedManufacturerId.set(manufacturerId);
+    this.categoryForm.patchValue({ modelId: null });
   }
 
   private initForm(): void {

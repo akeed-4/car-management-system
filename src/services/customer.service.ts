@@ -35,6 +35,14 @@ export class CustomerService {
    return firstValueFrom(this.http.get<Customer>(`${this.apiUrl}/GetById/${id}`));
   }
 
+  /** Proactive check reused by credit invoice/receipt forms before save: does this customer
+   *  already have a usable Accounts Receivable account? Backed by the same
+   *  AccountResolutionService.ResolveReceivableAccountAsync the backend enforces at save time, so
+   *  this can never say "yes" when the real save would still reject it. */
+  hasReceivableAccount(customerId: number): Observable<{ hasAccount: boolean }> {
+    return this.http.get<{ hasAccount: boolean }>(`${this.apiUrl}/${customerId}/receivable-account-status`);
+  }
+
   /** Add new customer */
   addCustomer(customer: Omit<Customer, 'id'>): Observable<Customer> {
     return this.http.post<Customer>(this.apiUrl+'/Create', customer)

@@ -32,6 +32,8 @@ import { VoucherStatus } from '../../../models/payment-voucher.model';
 import { AccountingService } from '../../accounting/accounting.service';
 import { openCreateAccountDialog } from '../../accounting/create-account-dialog.helper';
 import { NotificationService } from '@/src/services/notification.service';
+import { extractErrorMessage } from '@/src/models/http-error-message';
+import { warnIfPartyAccountMissing } from '@/src/components/shared/party-account-required-dialog/party-account-required-warning.helper';
 
 @Component({
   selector: 'app-payment-form',
@@ -65,7 +67,7 @@ import { NotificationService } from '@/src/services/notification.service';
 export class PaymentFormComponent implements OnInit {
   private router         = inject(Router);
   private route          = inject(ActivatedRoute);
-  private translate      = inject(TranslateService);
+  protected translate      = inject(TranslateService);
   private supplierService   = inject(SupplierService);
   private purchasesService  = inject(PurchasesService);
   private paymentService    = inject(PaymentService);
@@ -314,7 +316,9 @@ export class PaymentFormComponent implements OnInit {
   getAccountName(accountId: number | null): string {
     if (!accountId) return '-';
     const acc = (this.accounts() as any[]).find(a => a.id === accountId);
-    return acc ? `${acc.accountCode} - ${acc.accountNameAr}` : '-';
+    if (!acc) return '-';
+    const name = this.translate.currentLang === 'ar' ? (acc.accountNameAr || acc.accountNameEn) : acc.accountNameEn;
+    return `${acc.accountCode} - ${name}`;
   }
 
   // ── Save ─────────────────────────────────────────────────────────────────────
@@ -367,22 +371,39 @@ export class PaymentFormComponent implements OnInit {
       invoiceAllocations: allocationRows.map(r => ({ invoiceId: r.invoiceId, amount: r.amount })),
     };
 
-    const action$ = this.isEditMode()
-      ? this.paymentService.updatePayment(payment, this.editingPayment()!.id!)
-      : this.paymentService.addPayment(payment);
+    const proceedWithSave = () => {
+      const action$ = this.isEditMode()
+        ? this.paymentService.updatePayment(payment, this.editingPayment()!.id!)
+        : this.paymentService.addPayment(payment);
 
-    action$.subscribe({
-      next:  () => {
-        this.notificationService.showSuccess( this.translate.instant(this.isEditMode()
-            ? 'TOAST.UPDATED'
-            : 'TOAST.ADD_SUCCESS')
-        );
-        this.router.navigate(['/accounts/payments']);
-      },
-      error: () => this.notificationService.showError(
-        this.translate.instant('TOAST.ERROR_SAVING')
-      )
-    });
+      action$.subscribe({
+        next:  () => {
+          this.notificationService.showSuccess( this.translate.instant(this.isEditMode()
+              ? 'TOAST.UPDATED'
+              : 'TOAST.ADD_SUCCESS')
+          );
+          this.router.navigate(['/accounts/payments']);
+        },
+        error: (error) => this.notificationService.showError(
+          extractErrorMessage(error, this.translate, 'TOAST.ERROR_SAVING')
+        )
+      });
+    };
+
+    // Payment vouchers are party-settlement documents by nature -- Supplier AP is required
+    // regardless of the payment's own cash/bank method, so check it proactively here rather than
+    // only after a rejected save.
+    const supplierId = v.supplierId;
+    if (supplierId) {
+      const supplier = this.suppliers().find(s => s.id === supplierId);
+      warnIfPartyAccountMissing(this.dialog, this.supplierService.hasPayableAccount(supplierId), 'supplier', supplierId, supplier?.name ?? '')
+        .subscribe(canProceed => {
+          if (canProceed) proceedWithSave();
+        });
+      return;
+    }
+
+    proceedWithSave();
   }
 
   // ── TrackBy ──────────────────────────────────────────────────────────────────

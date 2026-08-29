@@ -55,7 +55,9 @@ export class CarCategoryListComponent {
   }
 
   onEdit(e: any): void {
-    this.router.navigate(['/setup/car-category/edit', e.row.data.id]);
+    // Route is plural ("car-categories", see app.routes.ts) -- this previously pointed at the
+    // singular "car-category" path, which doesn't match any route, silently breaking Edit.
+    this.router.navigate(['/setup/car-categories/edit', e.row.data.id]);
   }
 
   deleteCategory(id: number): void {

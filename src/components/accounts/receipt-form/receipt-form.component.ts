@@ -28,6 +28,8 @@ import { AccountingService } from '../../accounting/accounting.service';
 import { openCreateAccountDialog } from '../../accounting/create-account-dialog.helper';
 import { Account } from '../../accounting/models';
 import { NotificationService } from '@/src/services/notification.service';
+import { extractErrorMessage } from '@/src/models/http-error-message';
+import { warnIfPartyAccountMissing } from '@/src/components/shared/party-account-required-dialog/party-account-required-warning.helper';
 
 @Component({
   selector: 'app-receipt-form',
@@ -63,7 +65,7 @@ export class ReceiptFormComponent implements OnInit {
   private salesService = inject(SalesService);
   private receiptService = inject(ReceiptService);
   private accountingService = inject(AccountingService);
-  private translate = inject(TranslateService);
+  protected translate = inject(TranslateService);
   private notificationService = inject(NotificationService);
   private fb = inject(FormBuilder);
   private dialog = inject(MatDialog);
@@ -248,7 +250,9 @@ export class ReceiptFormComponent implements OnInit {
   getAccountName(accountId: number | null): string {
     if (!accountId) return '-';
     const acc = (this.accounts() as any[]).find(a => a.id === accountId);
-    return acc ? `${acc.accountCode} - ${acc.accountNameAr}` : '-';
+    if (!acc) return '-';
+    const name = this.translate.currentLang === 'ar' ? (acc.accountNameAr || acc.accountNameEn) : acc.accountNameEn;
+    return `${acc.accountCode} - ${name}`;
   }
 
   private initForm() {
@@ -314,6 +318,25 @@ export class ReceiptFormComponent implements OnInit {
       return;
     }
 
+    const customerId = this.receiptForm.get('customerId')?.value;
+    const proceedWithSave = () => this.saveReceiptCore();
+
+    // Customer receipts are party-settlement documents by nature -- Customer AR is required
+    // regardless of the receipt's own cash/bank method, so check it proactively here rather than
+    // only after a rejected save. Non-customer receipts (general/advance/transfer) never need this.
+    if (this.isCustomerReceipt() && customerId) {
+      const customer = (this.customers() as any[]).find(c => c.id === customerId);
+      warnIfPartyAccountMissing(this.dialog, this.customerService.hasReceivableAccount(customerId), 'customer', customerId, customer?.name ?? '')
+        .subscribe(canProceed => {
+          if (canProceed) proceedWithSave();
+        });
+      return;
+    }
+
+    proceedWithSave();
+  }
+
+  private saveReceiptCore(): void {
     const dto = this.buildReceiptDto();
     if (this.isEditMode()) {
       this.receiptService.updateReceipt(dto, this.editingReceipt()!.id).subscribe({
@@ -323,7 +346,7 @@ export class ReceiptFormComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error updating receipt:', error);
-          this.notificationService.showError(this.translate.instant('ACCOUNTS.RECEIPT_FORM.ERROR_UPDATING'));
+          this.notificationService.showError(extractErrorMessage(error, this.translate, 'ACCOUNTS.RECEIPT_FORM.ERROR_UPDATING'));
         }
       });
       return;
@@ -336,7 +359,7 @@ export class ReceiptFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error saving receipt:', error);
-        this.notificationService.showError(this.translate.instant('ACCOUNTS.RECEIPT_FORM.ERROR_SAVING'));
+        this.notificationService.showError(extractErrorMessage(error, this.translate, 'ACCOUNTS.RECEIPT_FORM.ERROR_SAVING'));
       }
     });
   }

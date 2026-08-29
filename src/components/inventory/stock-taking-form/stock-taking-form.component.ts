@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, Injector, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormControl, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -17,7 +17,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { StoreService } from '@/src/services/store.service';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
 import { DxDataGridModule } from 'devextreme-angular';
@@ -25,8 +24,8 @@ import { CarSelectionDialogComponent, SalesCarSelectionCard } from '../../sales/
 import { buildVehicleDescription } from '../../../models/vehicle-description';
 import { StoreAccountingConfigurationService } from '../../../services/store-accounting-configuration.service';
 import { warnIfStoreNotConfigured } from '../../shared/store-accounting-setup-warning-dialog/store-accounting-setup-warning.helper';
-import { BranchContextService } from '../../../services/branch-context.service';
-import { scopeStoresToCurrentBranch } from '../../../models/branch-scoped-stores.util';
+import { StoreContextService } from '../../../services/store-context.service';
+import { resolveStoreDisplayName } from '../../../models/store-display.util';
 
 @Component({
   selector: 'app-stock-taking-form',
@@ -61,24 +60,19 @@ export class StockTakingFormComponent implements OnInit {
   private inventoryService = inject(InventoryService);
   private stockTakeService = inject(StockTakeService);
   private translate = inject(TranslateService);
-  private storeService = inject(StoreService);
   private dialog = inject(MatDialog);
   private storeAccountingConfigService = inject(StoreAccountingConfigurationService);
-  private branchContext = inject(BranchContextService);
-  private injector = inject(Injector);
-  stores$ = this.storeService.stores$;
+  private storeContext = inject(StoreContextService);
   stockTakeForm!: FormGroup;
   items = signal<StockTakeItem[]>([]);
-  /** The form's current storeId, kept in sync explicitly (populateForm + onStoreSelectionChange)
-   *  so the Store list can stay scoped to the caller's current branch without losing a
-   *  document's already-saved store when editing across a branch boundary. */
-  private currentStoreIdValue = signal<number | null>(null);
-  /** Store options scoped to the caller's current branch -- never offers a store outside the
-   *  user's assigned branch on a new document, while still showing an already-saved out-of-branch
-   *  store when editing one. */
-  get stores() {
-    return scopeStoresToCurrentBranch(this.storeService.stores$(), this.branchContext.current()?.branchId, this.currentStoreIdValue());
-  }
+  /** Read-only label for the (no-longer-user-editable) Store field -- resolves the form's storeId
+   *  against every store the caller is authorized for, so an edit-mode document keeps showing its
+   *  real, originally-saved store name even if that store isn't the caller's current one. */
+  currentStoreName = computed(() => resolveStoreDisplayName(
+    this.storeContext.memberships(),
+    this.stockTakeForm?.get('storeId')?.value ?? null,
+    this.storeContext.current()?.nameAr,
+  ));
 
   // Table columns
   // displayedColumns = ['car', 'systemQuantity', 'actualQuantity', 'actions'];
@@ -124,17 +118,12 @@ export class StockTakingFormComponent implements OnInit {
         this.router.navigate(['/inventory/stock-taking']);
       });
     } else {
-      // Auto-select the store once the branch-scoped list resolves to exactly one option, so a
-      // user whose branch has a single store never has to manually pick it. Only for a new
-      // (never-saved) document.
-      effect(() => {
-        const options = this.stores;
-        const storeIdControl = this.stockTakeForm.get('storeId');
-        if (options.length === 1 && !storeIdControl?.value && !storeIdControl?.dirty) {
-          storeIdControl?.setValue(options[0].id);
-          this.onStoreSelectionChange(options[0].id);
-        }
-      }, { injector: this.injector });
+      // Heads-up only: warns immediately if the current Showroom has no active
+      // StoreAccountingConfiguration, instead of only finding out after Save fails server-side.
+      const initialStoreId = this.stockTakeForm.get('storeId')?.value;
+      if (initialStoreId) {
+        this.warnIfCurrentStoreNotConfigured(initialStoreId);
+      }
     }
   }
 
@@ -145,12 +134,12 @@ export class StockTakingFormComponent implements OnInit {
       createdBy: new FormControl('', Validators.required),
       notes: new FormControl(''),
       status: new FormControl('Draft', Validators.required),
-      storeId: new FormControl('', Validators.required)
+      // No Store picker anymore -- a new document always belongs to the caller's current Showroom.
+      storeId: new FormControl(this.storeContext.current()?.storeId ?? '', Validators.required)
     });
   }
 
   private populateForm(stockTake: StockTake) {
-    this.currentStoreIdValue.set(stockTake.storeId ?? null);
     this.stockTakeForm.patchValue({
       documentName: stockTake.documentName,
       documentDate: stockTake.documentDate,
@@ -160,6 +149,9 @@ export class StockTakingFormComponent implements OnInit {
       storeId: stockTake.storeId
     });
     this.items.set([...stockTake.items]);
+    if (stockTake.storeId) {
+      this.warnIfCurrentStoreNotConfigured(stockTake.storeId);
+    }
   }
 
   addNewItemRow() {
@@ -179,15 +171,12 @@ export class StockTakingFormComponent implements OnInit {
     this.items.update(items => items.filter((_, i) => i !== index));
   }
 
-  /** Heads-up only: warns the user immediately if the selected Store has no active
-   * StoreAccountingConfiguration, instead of only finding out after Save fails server-side. */
-  onStoreSelectionChange(storeId: number | null): void {
-    this.currentStoreIdValue.set(storeId);
-    const store = this.stores.find(s => s.id === storeId);
-    // Store has no `name` field (only nameAr/nameEn) -- cast matches the template's existing
-    // `{{ store.name }}` binding (see stock-taking-form.component.html), which is likewise not a
-    // real property on Store; left as-is here since fixing that display bug is out of scope.
-    warnIfStoreNotConfigured(this.storeAccountingConfigService, this.dialog, this.router, storeId, (store as any)?.name ?? '').subscribe();
+  /** Heads-up only: warns the user immediately if the Store has no active
+   * StoreAccountingConfiguration, instead of only finding out after Save fails server-side. Called
+   * once the storeId is known (current Showroom for a new document, saved value for an edit) --
+   * there's no more Store dropdown to hang a (selectionChange) handler off of. */
+  private warnIfCurrentStoreNotConfigured(storeId: number | null): void {
+    warnIfStoreNotConfigured(this.storeAccountingConfigService, this.dialog, this.router, storeId, this.currentStoreName()).subscribe();
   }
 
   updateItemDetails(itemId: number, index: number) {

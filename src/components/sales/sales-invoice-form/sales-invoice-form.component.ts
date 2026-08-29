@@ -1,4 +1,4 @@
-﻿import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, Injector, OnInit, Input, LOCALE_ID } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, OnInit, Input, LOCALE_ID } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { AbstractControl, ReactiveFormsModule, FormControl, ValidationErrors, Validators, FormGroup } from '@angular/forms';
@@ -8,7 +8,6 @@ import { InventoryService } from '../../../services/inventory.service';
 import { CustomerService } from '../../../services/customer.service';
 import { SalesService } from '../../../services/sales.service';
 import { CurrentSettingService } from '../../../services/current-setting.service';
-import { StoreService } from '../../../services/store.service';
 import { DepositService } from '../../../services/deposit.service';
 import { InvoiceItem } from '../../../models/invoice-item.model';
 import { StoreCarStockDto } from '../../../models/store-car-stock.model';
@@ -46,14 +45,15 @@ import { SaleType } from '../../../models/sales-enhancements.model';
 import { CashAmountCalculatorComponent } from '../../shared/cash-amount-calculator/cash-amount-calculator.component';
 import { DiscountType } from '../../../models/sales-invoice-financials';
 import { SalesInvoiceCalculationService } from '../../../services/sales-invoice-calculation.service';
-import { Observable, of, map, tap, catchError, finalize } from 'rxjs';
+import { Observable, of, map, tap, catchError, finalize, switchMap } from 'rxjs';
 import { formatCurrency } from '@angular/common';
 import { DocumentToolbarComponent, DocumentTotalsComponent, DocumentPrintService, DocumentAction, DocumentTotalsRow } from '../../shared/document';
 import { StoreAccountingConfigurationService } from '../../../services/store-accounting-configuration.service';
 import { warnIfStoreNotConfigured } from '../../shared/store-accounting-setup-warning-dialog/store-accounting-setup-warning.helper';
+import { warnIfPartyAccountMissing } from '../../shared/party-account-required-dialog/party-account-required-warning.helper';
 import { extractErrorMessage } from '../../../models/http-error-message';
-import { BranchContextService } from '../../../services/branch-context.service';
-import { scopeStoresToCurrentBranch } from '../../../models/branch-scoped-stores.util';
+import { StoreContextService } from '../../../services/store-context.service';
+import { resolveStoreDisplayName } from '../../../models/store-display.util';
 
 export enum InvoiceType {
   Taxable = 'Taxable',
@@ -109,15 +109,13 @@ export class SalesInvoiceFormComponent implements OnInit {
     private salesCycleService = inject(SalesCycleService);
     private salesService = inject(SalesService);
     private currentSettingService = inject(CurrentSettingService);
-    private storeService = inject(StoreService);
     private accountingService = inject(AccountingService);
     private depositService = inject(DepositService);
     private router = inject(Router);
-    private translate = inject(TranslateService);
+    protected translate = inject(TranslateService);
     private dialog = inject(MatDialog);
     private storeAccountingConfigService = inject(StoreAccountingConfigurationService);
-    private branchContext = inject(BranchContextService);
-    private injector = inject(Injector);
+    private storeContext = inject(StoreContextService);
     private route = inject(ActivatedRoute);
     private notificationService = inject(NotificationService);
     private calc = inject(SalesInvoiceCalculationService);
@@ -186,18 +184,13 @@ export class SalesInvoiceFormComponent implements OnInit {
   invoiceForm!: FormGroup;
   // Services state
   customers = this.customerService.customers$;
-  /** The form's current storeId, kept in sync explicitly (initial load + onStoreSelectionChange)
-   *  so the Store dropdown can stay scoped to the caller's current branch without losing a
-   *  document's already-saved store when editing across a branch boundary -- see
-   *  scopeStoresToCurrentBranch. */
-  private currentStoreIdValue = signal<number | null>(null);
-  /** Store dropdown options scoped to the caller's current branch (BranchContextService) -- never
-   *  offers a store outside the user's assigned branch on a new document, while still showing an
-   *  already-saved out-of-branch store when editing one. */
-  stores = computed(() => scopeStoresToCurrentBranch(
-    this.storeService.stores$(),
-    this.branchContext.current()?.branchId,
-    this.currentStoreIdValue(),
+  /** Read-only label for the (no-longer-user-editable) Store field -- resolves the form's storeId
+   *  against every store the caller is authorized for, so an edit-mode document keeps showing its
+   *  real, originally-saved store name even if that store isn't the caller's current one. */
+  currentStoreName = computed(() => resolveStoreDisplayName(
+    this.storeContext.memberships(),
+    this.invoiceForm?.get('storeId')?.value ?? null,
+    this.storeContext.current()?.nameAr,
   ));
   private allCars = signal([
     { id: 1, make: 'Toyota', model: 'Corolla', year: 2022, status: 'Available', condition: 'New', salePrice: 50000, totalCost: 40000, photos: ['https://picsum.photos/seed/toyota/800/600'] },
@@ -286,7 +279,9 @@ export class SalesInvoiceFormComponent implements OnInit {
     } else {
       // Initialize form group for new invoice
       this.invoiceForm = new FormGroup({
-        storeId: new FormControl(null, Validators.required),
+        // No Store picker anymore -- a new invoice always belongs to the caller's current
+        // Showroom (StoreContextService), selected once after login.
+        storeId: new FormControl(this.storeContext.current()?.storeId ?? null, Validators.required),
         customer: new FormControl(null, Validators.required),
         invoiceDate: new FormControl(new Date(), Validators.required),
         dueDate: new FormControl(''),
@@ -315,17 +310,12 @@ export class SalesInvoiceFormComponent implements OnInit {
       this.watchPaymentTypeControl();
       this.applyPaymentTypeLock();
 
-      // Auto-select the store once the branch-scoped list resolves to exactly one option, so a
-      // user whose branch has a single store never has to manually pick it. Only runs on a new
-      // (never-saved) invoice and only while the field hasn't already been touched by the user.
-      effect(() => {
-        const options = this.stores();
-        const storeIdControl = this.invoiceForm.get('storeId');
-        if (options.length === 1 && !storeIdControl?.value && !storeIdControl?.dirty) {
-          storeIdControl?.setValue(options[0].id);
-          this.onStoreSelectionChange(options[0].id);
-        }
-      }, { injector: this.injector });
+      // Heads-up only: warns immediately if the current Showroom has no active
+      // StoreAccountingConfiguration, instead of only finding out after Save fails server-side.
+      const initialStoreId = this.invoiceForm.get('storeId')?.value;
+      if (initialStoreId) {
+        this.warnIfCurrentStoreNotConfigured(initialStoreId);
+      }
 
       // Deep-link from a preceding Sales Order step (Corporate/Bank workflows)
       const orderId = this.route.snapshot.queryParamMap.get('orderId');
@@ -533,7 +523,6 @@ export class SalesInvoiceFormComponent implements OnInit {
   loadInvoiceForEdit(invoiceId: number) {
     this.salesService.getInvoiceById(invoiceId).subscribe({
       next: (invoice) => {
-        this.currentStoreIdValue.set(invoice.storeId ?? null);
         // Restore channel/saleType from the saved invoice (fall back to legacy isCash/paymentMethod)
         if (invoice.salesChannel !== undefined) {
           this.channel = invoice.salesChannel;
@@ -582,6 +571,9 @@ export class SalesInvoiceFormComponent implements OnInit {
         // wrapper's @Input()), so a Cash invoice opened for edit is locked using its real,
         // persisted classification even if that differs from whatever route/wrapper was used.
         this.applyPaymentTypeLock();
+        if (invoice.storeId) {
+          this.warnIfCurrentStoreNotConfigured(invoice.storeId);
+        }
 
         // Set invoice number and items
         this.invoiceNumber.set(invoice.invoiceNumber);
@@ -646,12 +638,13 @@ export class SalesInvoiceFormComponent implements OnInit {
     }
   }
 
-  /** Heads-up only: warns the user immediately if the selected Store has no active
-   * StoreAccountingConfiguration, instead of only finding out after Save fails server-side. */
-  onStoreSelectionChange(storeId: number | null): void {
-    this.currentStoreIdValue.set(storeId);
-    const store = this.stores().find(s => s.id === storeId);
-    warnIfStoreNotConfigured(this.storeAccountingConfigService, this.dialog, this.router, storeId, store?.nameAr ?? '').subscribe();
+  /** Heads-up only: warns the user immediately if the invoice's Store has no active
+   * StoreAccountingConfiguration, instead of only finding out after Save fails server-side. Called
+   * once the storeId is known (current Showroom for a new invoice, saved value for an edit) --
+   * there's no more Store dropdown to hang a (selectionChange) handler off of. */
+  private warnIfCurrentStoreNotConfigured(storeId: number | null): void {
+    const storeName = this.currentStoreName();
+    warnIfStoreNotConfigured(this.storeAccountingConfigService, this.dialog, this.router, storeId, storeName).subscribe();
   }
 
   loadCarStocks(storeId: number) {
@@ -1260,55 +1253,69 @@ export class SalesInvoiceFormComponent implements OnInit {
       invoiceData.funderBankId = this.selectedCustomerOrder()?.bankId || null;
     }
 
-    if (this.isEditMode()) {
-      return this.salesService.updateInvoice(invoiceData).pipe(
-        map(() => {
-          this.notificationService.showSuccess('TOAST.UPDATE_SUCCESS');
-          // Re-baseline dirty tracking so Print now sees a clean document.
-          this.captureDocumentSnapshot();
-          return this.currentInvoiceId();
-        }),
-        catchError(error => {
-          console.error('Error updating sales invoice:', error);
-          this.notificationService.showError(extractErrorMessage(error, this.translate, 'TOAST.SAVE_ERROR'));
-          return of(null);
-        })
-      );
-    }
+    // Credit/installment sales require the customer's Accounts Receivable account to already be
+    // resolvable server-side -- check proactively so the user finds out (and can fix it inline via
+    // "Link Account") before filling out the whole invoice, instead of only on a rejected save.
+    // Cash sales never need this: their debit leg is the payment account, not the customer's AR.
+    const partyCheck$ = this.isCash
+      ? of(true)
+      : warnIfPartyAccountMissing(this.dialog, this.customerService.hasReceivableAccount(customerId), 'customer', customerId, customer.name);
 
-    return this.salesService.addInvoice(invoiceData).pipe(
-      tap(savedInvoice => {
-        this.notificationService.showSuccess('TOAST.ADD_SUCCESS');
-        // Mark preparation charges as applied
-        this.markPreparationChargesAsApplied(savedInvoice.id);
-        // Mark customer order as invoiced
-        const order = this.selectedCustomerOrder();
-        if (order?.id) {
-          this.salesService.markCustomerOrderAsInvoiced(order.id).subscribe();
+    return partyCheck$.pipe(
+      switchMap(canProceed => {
+        if (!canProceed) return of(null);
+
+        if (this.isEditMode()) {
+          return this.salesService.updateInvoice(invoiceData).pipe(
+            map(() => {
+              this.notificationService.showSuccess('TOAST.UPDATE_SUCCESS');
+              // Re-baseline dirty tracking so Print now sees a clean document.
+              this.captureDocumentSnapshot();
+              return this.currentInvoiceId();
+            }),
+            catchError(error => {
+              console.error('Error updating sales invoice:', error);
+              this.notificationService.showError(extractErrorMessage(error, this.translate, 'TOAST.SAVE_ERROR'));
+              return of(null);
+            })
+          );
         }
-        // Mark deposit as invoiced
-        const deposit = this.selectedDeposit();
-        if (deposit) {
-          this.depositService.markDepositAsInvoiced(deposit.id).subscribe();
-        }
-        if (navigateAfterSave) {
-          if (this.channel === SalesChannel.Bunuk) {
-            // Bank Sales workflow: continue to Vehicle Delivery
-            this.router.navigate(['/sales/bank/deliveries/new'], { queryParams: { invoiceId: savedInvoice.id } });
-          } else {
-            this.router.navigate(['/sales']);
-          }
-        }
-      }),
-      map(savedInvoice => {
-        // Re-baseline dirty tracking so Print now sees a clean document.
-        this.captureDocumentSnapshot();
-        return savedInvoice.id;
-      }),
-      catchError(error => {
-        console.error('Error saving sales invoice:', error);
-        this.notificationService.showError(extractErrorMessage(error, this.translate, 'TOAST.SAVE_ERROR'));
-        return of(null);
+
+        return this.salesService.addInvoice(invoiceData).pipe(
+          tap(savedInvoice => {
+            this.notificationService.showSuccess('TOAST.ADD_SUCCESS');
+            // Mark preparation charges as applied
+            this.markPreparationChargesAsApplied(savedInvoice.id);
+            // Mark customer order as invoiced
+            const order = this.selectedCustomerOrder();
+            if (order?.id) {
+              this.salesService.markCustomerOrderAsInvoiced(order.id).subscribe();
+            }
+            // Mark deposit as invoiced
+            const deposit = this.selectedDeposit();
+            if (deposit) {
+              this.depositService.markDepositAsInvoiced(deposit.id).subscribe();
+            }
+            if (navigateAfterSave) {
+              if (this.channel === SalesChannel.Bunuk) {
+                // Bank Sales workflow: continue to Vehicle Delivery
+                this.router.navigate(['/sales/bank/deliveries/new'], { queryParams: { invoiceId: savedInvoice.id } });
+              } else {
+                this.router.navigate(['/sales']);
+              }
+            }
+          }),
+          map(savedInvoice => {
+            // Re-baseline dirty tracking so Print now sees a clean document.
+            this.captureDocumentSnapshot();
+            return savedInvoice.id;
+          }),
+          catchError(error => {
+            console.error('Error saving sales invoice:', error);
+            this.notificationService.showError(extractErrorMessage(error, this.translate, 'TOAST.SAVE_ERROR'));
+            return of(null);
+          })
+        );
       })
     );
   }

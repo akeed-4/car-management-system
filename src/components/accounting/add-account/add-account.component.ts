@@ -1,6 +1,8 @@
-import { Component, EventEmitter, Inject, Input, Optional, Output, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Inject, Input, Optional, Output, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Subject, EMPTY } from 'rxjs';
+import { switchMap, catchError } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { AccountingService } from '../accounting.service';
 import { CreateAccountDto, UpdateAccountDto, Account } from '../models';
@@ -29,9 +31,18 @@ import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/materia
 
 /** Data passed when opening AddAccountComponent as a quick-add dialog from a financial document
  *  (Requirement 9), e.g. the Purchase Invoice's Debit/Credit Account "+" button. Lets the dialog
- *  pre-select a sensible parent instead of defaulting to "new root account". */
+ *  pre-select a sensible parent instead of defaulting to "new root account". `entityType` +
+ *  `customerId`/`supplierId` additionally pre-fill the Entity Type section so the dialog opens
+ *  ready to link the new account straight to that specific customer/supplier (used by the
+ *  party-account-required warning dialog's "Link Account" action) -- the user still has to fill
+ *  in code/name/type, but doesn't have to re-find and re-select the party. */
 export interface AddAccountQuickAddData {
   parentId?: number | null;
+  entityType?: 'customer' | 'supplier';
+  customerId?: number | null;
+  customerName?: string | null;
+  supplierId?: number | null;
+  supplierName?: string | null;
 }
 
 @Component({
@@ -56,7 +67,7 @@ export interface AddAccountQuickAddData {
     TranslateModule
   ]
 })
-export class AddAccountComponent implements OnChanges, OnInit {
+export class AddAccountComponent implements OnChanges, OnInit, OnDestroy {
   @Input() isEditing = false;
   @Input() editingAccount: Account | null = null;
   @Input() parentId: number | null = null;
@@ -117,11 +128,36 @@ export class AddAccountComponent implements OnChanges, OnInit {
   parentOptions: Account[] = [];
   /** True while the backend resolves the next child account number for the selected parent. */
   nextCodeLoading = false;
+  /** Drives the next-code fetch through switchMap (see the constructor pipeline below) so that a
+   *  newer request -- e.g. the query-params parent replacing the constructor's initial root-level
+   *  default -- always cancels and supersedes an older one still in flight. Without this, two
+   *  near-simultaneous requests (root default, then the real inherited parent moments later) can
+   *  resolve out of order and let the stale root-level code silently overwrite the correct
+   *  parent-based one, since each request was previously an independent, uncancellable subscribe. */
+  private nextCodeRequest$ = new Subject<number | null>();
   /** True when auto-numbering failed -- surfaces a hint; the user can unlock and type a code. */
   nextCodeFailed = false;
   /** Add mode: the generated Account Number is read-only by default (backend stays the final
    *  authority at save time). The lock button lets an advanced user override it manually. */
   isCodeLocked = true;
+  /** True when the parent was inherited from where the user actually was -- the tree's
+   *  "Add Sub Account" action (?parentId=&mode=add) or the quick-add dialog's own parentId --
+   *  rather than the user manually switching this fresh form to "Sub Account" and picking one
+   *  themselves. The template hides the Parent Account picker entirely in that case (the
+   *  read-only breadcrumb below it already shows the inherited parent), so the user is never
+   *  asked to re-select an account they already navigated from. Only the global "Add Account"
+   *  entry point (no incoming parentId) leaves this false and shows the picker, per Requirement 10. */
+  parentInheritedFromContext = false;
+
+  /** The account this new account is a DIRECT child of -- resolved via a single authoritative
+   *  getAccountById fetch (initializeForParent), never from the possibly-not-yet-loaded accounts$
+   *  cache and never from a displayed name. This is the one place the Parent Account section reads
+   *  from; ParentAccountId in the form is set from this same resolved record. */
+  parentAccount: Account | null = null;
+  /** True when an inherited parentId could not be resolved to a real account (e.g. deleted between
+   *  the tree loading and this screen opening) -- blocks Save, since a child must never be created
+   *  without a confirmed, existing parent. */
+  parentLoadFailed = false;
 
   customers = this.customerService.customers$;
   suppliers = this.supplierService.suppliers$;
@@ -133,11 +169,31 @@ export class AddAccountComponent implements OnChanges, OnInit {
     return this.isEditing ? this.hasPostedTransactions : this.isCodeLocked;
   }
 
-  /** The account currently selected as parent (resolved from the same mainAccountCode control
-   *  the form has always used), for the read-only Parent Account context panel. */
-  get selectedParent(): Account | undefined {
-    const code = this.accountForm?.get('mainAccountCode')?.value as string | null;
-    return code ? this.accountingService.getAccountByCode(code) : undefined;
+  /** The account this new account is a DIRECT child of. Thin accessor over `parentAccount`
+   *  (resolved once via the authoritative getAccountById fetch in initializeForParent) -- NOT
+   *  mainAccountCode/mainAccountName, which are deliberately the TOP-LEVEL ancestor (walked up via
+   *  Account.mainAccountId) for denormalized-grouping purposes and can differ from the immediate
+   *  parent for a grandchild+ account (e.g. adding a child under "1100 Current Assets", itself a
+   *  child of "1000 Assets", would show "1000" there, not "1100"). Used for the read-only Parent
+   *  Account breadcrumb so it always shows exactly the account the user actually navigated from. */
+  get directParentAccount(): Account | undefined {
+    return this.parentAccount ?? undefined;
+  }
+
+  /** Localized display name for any account -- Arabic when the app is in Arabic, English
+   *  otherwise, falling back to whichever name is populated. Single place this language switch is
+   *  made; used for both the Parent Account section and the (global-add-only) parent picker
+   *  dropdown. Language changes only ever affect which stored name this returns -- never
+   *  ParentAccountId or Account Number, neither of which this reads. */
+  accountDisplayName(account: Account | null | undefined): string {
+    if (!account) return '';
+    const arabic = (this.translate.currentLang || this.translate.defaultLang || '').startsWith('ar');
+    return (arabic ? account.accountNameAr : account.accountNameEn) || account.accountNameEn || account.accountNameAr || '';
+  }
+
+  /** Parent Account name shown per the active application language -- see accountDisplayName. */
+  get parentAccountDisplayName(): string {
+    return this.accountDisplayName(this.parentAccount);
   }
 
   /** i18n key for an account's type/classification (1..5). */
@@ -326,39 +382,52 @@ export class AddAccountComponent implements OnChanges, OnInit {
       }
     });
 
-    // Set initial selection state and validation
-    this.syncAccountTypeSelection('main');
-    this.updateValidationBasedOnAccountType('main');
+    // switchMap cancels whatever next-code request is still in flight the moment a newer one comes
+    // in (see nextCodeRequest$'s doc comment) -- the single place responses from
+    // getNextAccountCode are ever applied, so only the LATEST requested parent can ever win,
+    // regardless of which HTTP response happens to come back first.
+    this.nextCodeRequest$.pipe(
+      switchMap(parentId => {
+        this.nextCodeLoading = true;
+        this.nextCodeFailed = false;
+        return this.accountingService.getNextAccountCode(parentId).pipe(
+          catchError(() => {
+            this.nextCodeLoading = false;
+            this.nextCodeFailed = true;
+            return EMPTY;
+          })
+        );
+      })
+    ).subscribe(code => {
+      this.nextCodeLoading = false;
+      if (this.isEditing || this.codeManuallyEdited) return;
+      this.suppressCodeEditTracking = true;
+      this.accountForm.patchValue({ accountCode: code });
+      this.suppressCodeEditTracking = false;
+    });
+
+    // Deliberately NOT calling applyDefaultRootAccountState() here: at construction time we don't
+    // yet know whether a parent is about to be inherited from context (dialogData / query params,
+    // both read in ngOnInit, which runs after this). Calling it unconditionally used to fire an
+    // immediate root-level next-code fetch on every load, racing the real parent-based fetch that
+    // follows moments later once the parent is resolved -- ngOnInit now calls it only from the
+    // actual "no parent" branches instead.
   }
 
   /** Set while the component itself patches accountCode, so that patch isn't mistaken for a
    *  manual user edit by the tracking subscriber above. */
   private suppressCodeEditTracking = false;
 
-  /** Requirement 1/5: the user should not have to work out the next account code by hand. Fetches
-   *  the backend-computed next code for the given parent (or root, when null) and fills it in --
-   *  unless the user already typed their own code for this account. Shows a loading spinner while
-   *  resolving and a non-blocking hint if generation fails (the backend remains the final
-   *  authority for numbering/validation at save time). */
+  /** Requirement 1/5: the user should not have to work out the next account code by hand. Requests
+   *  the backend-computed next code for the given parent (or root, when null) through the
+   *  switchMap pipeline set up in the constructor, which fills it in unless the user already typed
+   *  their own code for this account, and cancels any still-pending request for a stale parent so
+   *  it can never overwrite a newer one (see nextCodeRequest$'s doc comment). Shows a loading
+   *  spinner while resolving and a non-blocking hint if generation fails (the backend remains the
+   *  final authority for numbering/validation at save time). */
   private fetchAndFillNextCode(parentId: number | null) {
     if (this.isEditing || this.codeManuallyEdited) return;
-
-    this.nextCodeLoading = true;
-    this.nextCodeFailed = false;
-    this.accountingService.getNextAccountCode(parentId).subscribe({
-      next: (code) => {
-        this.nextCodeLoading = false;
-        if (this.isEditing || this.codeManuallyEdited) return;
-        this.suppressCodeEditTracking = true;
-        this.accountForm.patchValue({ accountCode: code });
-        this.suppressCodeEditTracking = false;
-      },
-      error: () => {
-        // Auto-numbering is a convenience -- surface the failure and let the user unlock + type.
-        this.nextCodeLoading = false;
-        this.nextCodeFailed = true;
-      }
-    });
+    this.nextCodeRequest$.next(parentId);
   }
 
   ngOnInit() {
@@ -371,54 +440,124 @@ export class AddAccountComponent implements OnChanges, OnInit {
     // opened the dialog (e.g. the Purchase Invoice page), not this form's own route.
     if (this.isQuickAddDialog) {
       if (this.dialogData?.parentId) {
-        this.setupForAddSubAccount(this.dialogData.parentId);
+        this.initializeForParent(this.dialogData.parentId);
+      } else {
+        this.applyDefaultRootAccountState();
+      }
+      if (this.dialogData?.entityType === 'customer' && this.dialogData.customerId) {
+        this.accountForm.patchValue({
+          entityType: 'customer',
+          customerId: this.dialogData.customerId,
+          customerName: this.dialogData.customerName ?? ''
+        });
+      } else if (this.dialogData?.entityType === 'supplier' && this.dialogData.supplierId) {
+        this.accountForm.patchValue({
+          entityType: 'supplier',
+          supplierId: this.dialogData.supplierId,
+          supplierName: this.dialogData.supplierName ?? ''
+        });
       }
       return;
     }
 
-    // Handle route parameters for editing
-    this.route.params.subscribe(params => {
-      const accountId = params['id'];
-      if (accountId) {
-        this.loadAccountForEdit(+accountId);
-      }
-    });
+    // Edit-mode loading is intentionally NOT duplicated here: this embedded form is only ever
+    // used inside ChartOfAccountsComponent (routed for /accounts/chart-of-accounts-new(/:id)),
+    // which already reads the :id route param, fetches the account, and passes it down via the
+    // isEditing/editingAccount @Input()s -- picked up by ngOnChanges -> updateFormForEditing(),
+    // the same single code path edit mode always goes through. A second independent fetch here
+    // previously duplicated that network call and could race it, since both resolve
+    // asynchronously and each drove its own form update.
 
-    // Read query params for parentId and mode
+    // Read query params for parentId and mode -- the tree/list's "Add Child Account" action
+    // navigates here with the EXACT clicked account's id (chart-of-accounts-tree.component.ts's
+    // onAddSubAccount reads e.row.data.id, never accounts[0]/a cached/default account). Exactly one
+    // of the two branches runs per emission, so the initial Account Number fetch is only ever
+    // issued for the account actually being inherited -- never a root-level guess racing it.
     this.route.queryParams.subscribe(params => {
       const parentId = params['parentId'];
       const mode = params['mode'];
       if (parentId && mode === 'add') {
-        // Set as partial account with parentId
+        this.initializeForParent(+parentId);
+      } else {
+        this.applyDefaultRootAccountState();
+      }
+    });
+  }
+
+  /** The "new root account" default: no inherited parent, Main Account selected, next root-level
+   *  code fetched. Called explicitly from the actual "no parent in context" branches (never
+   *  unconditionally at construction -- see the comment at the end of the constructor) so it can
+   *  never race the real parent-based fetch that initializeForParent triggers moments later when a
+   *  parent IS being inherited. */
+  private applyDefaultRootAccountState(): void {
+    this.syncAccountTypeSelection('main');
+    this.updateValidationBasedOnAccountType('main');
+  }
+
+  ngOnDestroy(): void {
+    this.nextCodeRequest$.complete();
+  }
+
+  /** Single entry point for inheriting a parent from context (Requirement 1): the tree/list's
+   *  "Add Child Account" action (?parentId=&mode=add), the quick-add dialog's own parentId, and
+   *  the @Input() parentId path (ngOnChanges below) all funnel through here -- previously each had
+   *  its own near-duplicate copy of this resolution logic.
+   *
+   *  Resolves the parent via a direct getAccountById fetch -- the single authoritative source, NOT
+   *  the accounts$ list cache, which may not have finished loading yet when this screen opens (a
+   *  real race, since both the accounts list and this parent lookup are independent HTTP calls
+   *  kicked off around the same time). This also naturally "confirms the parent exists": a 404/null
+   *  response sets parentLoadFailed, blocking Save, instead of silently defaulting to a root/no
+   *  parent state.
+   *
+   *  Deterministic order: resolve + confirm the parent -> patch parentId (this is what the
+   *  parentId valueChanges subscriber above keys the Account Number fetch on, so the request is
+   *  always for the exact resolved parent) -> patch the remaining inherited/display fields with
+   *  emitEvent:false so they can't clobber parentId back to the wrong account (mainAccountCode's
+   *  own valueChanges subscriber exists to resolve parentId when the user *types* a parent code,
+   *  and would otherwise overwrite this already-correct value with the top-level ancestor's id). */
+  private initializeForParent(parentId: number): void {
+    this.parentInheritedFromContext = true;
+    this.parentLoadFailed = false;
+
+    this.accountingService.getAccountById(parentId).subscribe({
+      next: (parent) => {
+        if (!parent) {
+          this.parentLoadFailed = true;
+          this.toastService.showError(this.translate.instant('ACCOUNTING.PARENT_ACCOUNT_NOT_FOUND'));
+          return;
+        }
+
+        this.parentAccount = parent;
         this.accountForm.patchValue({
           accountTypeSelection: 'partial',
           isMainAccount: false,
-          parentId: +parentId // Convert to number
+          parentId: parent.id
         });
-        // Wait for accounts to be loaded, then set main account
-        this.accountingService.accounts$.subscribe(accounts => {
-          if (accounts && accounts.length > 0) {
-            const parentAccount = accounts.find(acc => acc.id === +parentId);
-            if (parentAccount) {
-              // For partial accounts, the main account is the top-level main account
-              let mainAccount = parentAccount;
-              if (!parentAccount.isMainAccount && parentAccount.mainAccountId) {
-                mainAccount = accounts.find(acc => acc.id === parentAccount.mainAccountId) || parentAccount;
-              }
-              // Inherit properties from parent account
-              this.accountForm.patchValue({
-                mainAccountId: mainAccount.id,
-                mainAccountCode: mainAccount.accountCode,
-                mainAccountName: mainAccount.accountNameEn,
-                accountLevel: parentAccount.accountLevel + 1,
-                accountCategoryId: parentAccount.accountCategoryId,
-                accountTypeId: parentAccount.accountTypeId,
-                currencyId: parentAccount.currencyId,
-                companyId: parentAccount.companyId
-              });
-            }
-          }
-        });
+
+        // mainAccountId/mainAccountCode/mainAccountName are the denormalized TOP-LEVEL ancestor
+        // (grouping/display only) -- resolved from the accounts list on a best-effort basis, since
+        // it may still be loading. Never used to identify the actual parent: parentId (patched
+        // above from the same authoritative `parent` record) is that authority.
+        const accounts = this.accountingService.getCurrentAccounts();
+        let mainAccount = parent;
+        if (!parent.isMainAccount && parent.mainAccountId) {
+          mainAccount = accounts.find(acc => acc.id === parent.mainAccountId) || parent;
+        }
+        this.accountForm.patchValue({
+          mainAccountId: mainAccount.id,
+          mainAccountCode: mainAccount.accountCode,
+          mainAccountName: mainAccount.accountNameEn,
+          accountLevel: parent.accountLevel + 1,
+          accountCategoryId: parent.accountCategoryId,
+          accountTypeId: parent.accountTypeId,
+          currencyId: parent.currencyId,
+          companyId: parent.companyId
+        }, { emitEvent: false });
+      },
+      error: () => {
+        this.parentLoadFailed = true;
+        this.toastService.showError(this.translate.instant('ACCOUNTING.PARENT_ACCOUNT_NOT_FOUND'));
       }
     });
   }
@@ -446,19 +585,6 @@ export class AddAccountComponent implements OnChanges, OnInit {
     });
   }
 
-  private loadAccountForEdit(accountId: number) {
-    this.accountingService.getAccountById(accountId).subscribe(account => {
-      if (account) {
-        this.onEditAccount(account);
-      }
-    });
-  }
-
-  private onEditAccount(account: Account) {
-    this.isEditing = true;
-    this.editingAccount = account;
-    this.updateFormForEditing();
-  }
 
   private updateValidationBasedOnAccountType(accountType: string) {
     const accountNameArControl = this.accountForm.get('accountNameAr');
@@ -554,11 +680,16 @@ export class AddAccountComponent implements OnChanges, OnInit {
       this.updateFormForEditing();
     }
     if (changes['parentId'] && this.parentId && !this.isEditing) {
-      this.setupForAddSubAccount();
+      this.initializeForParent(this.parentId);
     }
   }
 
   onSave() {
+    // Mirrors the Save button's [disabled] guard -- a child can never be submitted while the
+    // inherited parent failed to resolve (see initializeForParent), even if something else enabled
+    // the button.
+    if (this.parentLoadFailed) return;
+
     if (this.accountForm.valid) {
       this.isSaving = true;
       // getRawValue(), not .value -- when hasPostedTransactions locks a control (accountCode,
@@ -772,6 +903,16 @@ export class AddAccountComponent implements OnChanges, OnInit {
         }
       }
     } else {
+      // Guard the reset itself: FormGroup.reset() emits valueChanges for every child control
+      // (even when the value is unchanged from its default), so an unguarded reset here fires the
+      // accountCode-tracking subscriber below and permanently marks codeManuallyEdited = true --
+      // before the constructor's initial fetchAndFillNextCode(null) HTTP call has resolved. Any
+      // later auto-fill response (including the one this reset itself re-triggers via the
+      // accountTypeSelection cascade) then gets silently dropped by fetchAndFillNextCode's own
+      // "already manually edited" guard, leaving Account Number permanently empty and Save
+      // disabled. This is the async-timing root cause: suppress tracking for this specific reset,
+      // exactly like fetchAndFillNextCode already does for its own patch.
+      this.suppressCodeEditTracking = true;
       this.accountForm.reset({
         accountTypeSelection: 'main',
         accountCode: '',
@@ -813,45 +954,9 @@ export class AddAccountComponent implements OnChanges, OnInit {
         newSupplierPhone: '',
         syncEntityName: false
       });
+      this.suppressCodeEditTracking = false;
       this.updateValidationBasedOnAccountType('main');
     }
   }
 
-  /** @param parentIdOverride Used by the quick-add dialog (Requirement 9), which has no @Input
-   *  parentId of its own -- falls back to the @Input for the existing embedded-form usage. */
-  private setupForAddSubAccount(parentIdOverride?: number | null) {
-    const parentId = parentIdOverride ?? this.parentId;
-    if (parentId) {
-      // Set as partial account with parentId
-      this.accountForm.patchValue({
-        accountTypeSelection: 'partial',
-        isMainAccount: false,
-        parentId: parentId
-      });
-      // Wait for accounts to be loaded, then set main account
-      this.accountingService.accounts$.subscribe(accounts => {
-        if (accounts && accounts.length > 0) {
-          const parentAccount = accounts.find(acc => acc.id === parentId);
-          if (parentAccount) {
-            // For partial accounts, the main account is the top-level main account
-            let mainAccount = parentAccount;
-            if (!parentAccount.isMainAccount && parentAccount.mainAccountId) {
-              mainAccount = accounts.find(acc => acc.id === parentAccount.mainAccountId) || parentAccount;
-            }
-            // Inherit properties from parent account
-            this.accountForm.patchValue({
-              mainAccountId: mainAccount.id,
-              mainAccountCode: mainAccount.accountCode,
-              mainAccountName: mainAccount.accountNameEn,
-              accountLevel: parentAccount.accountLevel + 1,
-              accountCategoryId: parentAccount.accountCategoryId,
-              accountTypeId: parentAccount.accountTypeId,
-              currencyId: parentAccount.currencyId,
-              companyId: parentAccount.companyId
-            });
-          }
-        }
-      });
-    }
-  }
 }

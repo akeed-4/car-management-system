@@ -148,10 +148,10 @@ mat-progress-bar {
 }
 
 .select-btn .spin {
-  animation: erp-branch-spin 0.9s linear infinite;
+  animation: erp-store-spin 0.9s linear infinite;
 }
 
-@keyframes erp-branch-spin {
+@keyframes erp-store-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }

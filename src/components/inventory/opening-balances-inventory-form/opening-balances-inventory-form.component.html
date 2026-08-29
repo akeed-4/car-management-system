@@ -49,13 +49,7 @@
           <input matInput formControlName="totalCost" readonly>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="form-field">
-          <mat-label>{{ 'ACCOUNTING.STORE' | translate }}</mat-label>
-           <mat-select formControlName="storeId" (selectionChange)="onStoreSelectionChange(+$event.value)" required>
-                    <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_STORE' | translate }}</mat-option>
-                    <mat-option *ngFor="let store of stores; trackBy: trackByStoreId" [value]="store.id">{{ store.nameAr }}</mat-option>
-                  </mat-select>
-        </mat-form-field>
+        <!-- Store is no longer user-selectable here -- always the caller's current Showroom. -->
 
         <mat-form-field appearance="outline" class="form-field">
           <mat-label>{{ 'ACCOUNTING.ENTRY_DATE' | translate }}</mat-label>

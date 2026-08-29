@@ -1,0 +1,24 @@
+<div class="store-switcher" *ngIf="current()">
+  <button *ngIf="hasMultipleStores(); else staticChip" mat-stroked-button color="accent"
+    [matMenuTriggerFor]="storeMenu" [disabled]="switching()">
+    <mat-icon>storefront</mat-icon>
+    <span class="store-name">{{ current()?.nameAr || current()?.nameEn }}</span>
+    <mat-icon>arrow_drop_down</mat-icon>
+  </button>
+
+  <ng-template #staticChip>
+    <div class="store-chip">
+      <mat-icon>storefront</mat-icon>
+      <span class="store-name">{{ current()?.nameAr || current()?.nameEn }}</span>
+    </div>
+  </ng-template>
+
+  <mat-menu #storeMenu="matMenu" xPosition="before">
+    @for (store of memberships(); track store.storeId) {
+      <button mat-menu-item (click)="switchTo(store)" [disabled]="store.storeId === current()?.storeId">
+        <mat-icon>{{ store.storeId === current()?.storeId ? 'check_circle' : 'storefront' }}</mat-icon>
+        <span>{{ store.nameAr || store.nameEn }}</span>
+      </button>
+    }
+  </mat-menu>
+</div>

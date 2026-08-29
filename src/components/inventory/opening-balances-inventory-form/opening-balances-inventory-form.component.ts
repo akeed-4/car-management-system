@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, effect, Injector } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -13,11 +13,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { AccountingService } from '../../accounting/accounting.service';
-import { StoreService } from '../../../services/store.service';
 import { StoreAccountingConfigurationService } from '../../../services/store-accounting-configuration.service';
 import { warnIfStoreNotConfigured } from '../../shared/store-accounting-setup-warning-dialog/store-accounting-setup-warning.helper';
-import { BranchContextService } from '../../../services/branch-context.service';
-import { scopeStoresToCurrentBranch } from '../../../models/branch-scoped-stores.util';
+import { StoreContextService } from '../../../services/store-context.service';
+import { resolveStoreDisplayName } from '../../../models/store-display.util';
 import { CarSelectionDialogComponent } from '../../purchases/purchase-invoice/car-selection-dialog/car-selection-dialog.component';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -53,19 +52,6 @@ export class OpeningBalancesInventoryFormComponent implements OnInit {
   successMessage = signal('');
 
   categories = ['CAR', 'SPARE_PART', 'ACCESSORY'];
-  // locations will be provided by StoreService
-  stores$ = this.storeService.stores$;
-
-  /** The form's current storeId, kept in sync explicitly (loadExisting + onStoreSelectionChange)
-   *  so the Store list can stay scoped to the caller's current branch without losing a
-   *  document's already-saved store when editing across a branch boundary. */
-  private currentStoreIdValue = signal<number | null>(null);
-  /** Template-friendly getter to access the branch-scoped stores array -- never offers a store
-   *  outside the user's assigned branch on a new document, while still showing an already-saved
-   *  out-of-branch store when editing one. */
-  get stores() {
-    return scopeStoresToCurrentBranch(this.storeService.stores$(), this.branchContext.current()?.branchId, this.currentStoreIdValue());
-  }
 
   constructor(
     private fb: FormBuilder,
@@ -73,10 +59,8 @@ export class OpeningBalancesInventoryFormComponent implements OnInit {
     private router: Router,
     private dialog: MatDialog,
     private route: ActivatedRoute,
-    private storeService: StoreService,
     private storeAccountingConfigService: StoreAccountingConfigurationService,
-    private branchContext: BranchContextService,
-    private injector: Injector
+    private storeContext: StoreContextService
   ) {
     this.form = this.fb.group({
       itemId: ['', Validators.required],
@@ -85,8 +69,9 @@ export class OpeningBalancesInventoryFormComponent implements OnInit {
       quantity: [0, [Validators.required, Validators.min(0)]],
       unitCost: [0, [Validators.required, Validators.min(0)]],
       totalCost: [{ value: 0, disabled: true }],
-      storeId: ['', Validators.required],
-      location: [''],
+      // No Store picker anymore -- a new item always belongs to the caller's current Showroom.
+      storeId: [this.storeContext.current()?.storeId ?? '', Validators.required],
+      location: [this.storeContext.current()?.nameAr ?? ''],
       notes: [''],
       entryDate: [new Date(), Validators.required]
     });
@@ -105,16 +90,12 @@ export class OpeningBalancesInventoryFormComponent implements OnInit {
       this.editingId = id;
       this.loadExisting(id);
     } else {
-      // Auto-select the store once the branch-scoped list resolves to exactly one option, so a
-      // user whose branch has a single store never has to manually pick it.
-      effect(() => {
-        const options = this.stores;
-        const storeIdControl = this.form.get('storeId');
-        if (options.length === 1 && !storeIdControl?.value && !storeIdControl?.dirty) {
-          storeIdControl?.setValue(options[0].id);
-          this.onStoreSelectionChange(options[0].id);
-        }
-      }, { injector: this.injector });
+      // Heads-up only: warns immediately if the current Showroom has no active
+      // StoreAccountingConfiguration, instead of only finding out after Save fails server-side.
+      const initialStoreId = this.form.get('storeId')?.value;
+      if (initialStoreId) {
+        this.warnIfCurrentStoreNotConfigured(initialStoreId);
+      }
     }
   }
 
@@ -125,7 +106,6 @@ export class OpeningBalancesInventoryFormComponent implements OnInit {
         if (item) {
           this.isEditing = true;
           this.editingId = id;
-          this.currentStoreIdValue.set(item.storeId ?? null);
           this.form.patchValue({
             itemId: item.itemId,
             itemName: item.itemName,
@@ -138,6 +118,9 @@ export class OpeningBalancesInventoryFormComponent implements OnInit {
             notes: item.notes,
             entryDate: item.entryDate ? new Date(item.entryDate) : new Date()
           });
+          if (item.storeId) {
+            this.warnIfCurrentStoreNotConfigured(item.storeId);
+          }
         }
       },
       error: (err) => {
@@ -153,14 +136,11 @@ export class OpeningBalancesInventoryFormComponent implements OnInit {
     this.form.get('totalCost')?.setValue(totalCost);
   }
 
-  onStoreSelectionChange(storeId: number): void {
-    this.currentStoreIdValue.set(storeId);
-    const selectedStore = this.stores.find(s => s.id === storeId);
-    if (selectedStore) {
-      this.form.patchValue({ location: selectedStore.nameAr });
-    }
-
-    warnIfStoreNotConfigured(this.storeAccountingConfigService, this.dialog, this.router, storeId, selectedStore?.nameAr ?? '').subscribe();
+  /** Called once the storeId is known (current Showroom for a new item, saved value for an edit)
+   *  -- there's no more Store dropdown to hang a (selectionChange) handler off of. */
+  private warnIfCurrentStoreNotConfigured(storeId: number): void {
+    const storeName = resolveStoreDisplayName(this.storeContext.memberships(), storeId, this.storeContext.current()?.nameAr);
+    warnIfStoreNotConfigured(this.storeAccountingConfigService, this.dialog, this.router, storeId, storeName).subscribe();
   }
 
   trackByStoreId(index: number, store: any): number {

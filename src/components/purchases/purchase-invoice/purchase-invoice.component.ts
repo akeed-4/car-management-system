@@ -1,5 +1,5 @@
 
-import { ChangeDetectionStrategy, Component, computed, inject, signal, effect, Injector, Input, OnInit, OnChanges, SimpleChanges, LOCALE_ID } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, Input, OnInit, OnChanges, SimpleChanges, LOCALE_ID } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormsModule, FormGroup, FormBuilder, Validators, AbstractControl, FormControl } from '@angular/forms';
@@ -21,7 +21,6 @@ import { InventoryService } from '../../../services/inventory.service';
 import { SupplierService } from '../../../services/supplier.service';
 import { PurchasesService } from '../../../services/purchases.service';
 import { CurrentSettingService } from '../../../services/current-setting.service';
-import { StoreService } from '../../../services/store.service';
 import { SalesService } from '../../../services/sales.service';
 import { ChartOfAccountsService } from '../../../services/chart-of-accounts.service';
 import { AccountingService } from '../../accounting/accounting.service';
@@ -50,8 +49,9 @@ import { CarReceipt } from '../../../models/car-receipt.model';
 import { extractErrorMessage } from '../../../models/http-error-message';
 import { StoreAccountingConfigurationService } from '../../../services/store-accounting-configuration.service';
 import { warnIfStoreNotConfigured } from '../../shared/store-accounting-setup-warning-dialog/store-accounting-setup-warning.helper';
-import { BranchContextService } from '../../../services/branch-context.service';
-import { scopeStoresToCurrentBranch } from '../../../models/branch-scoped-stores.util';
+import { warnIfPartyAccountMissing } from '../../shared/party-account-required-dialog/party-account-required-warning.helper';
+import { StoreContextService } from '../../../services/store-context.service';
+import { resolveStoreDisplayName } from '../../../models/store-display.util';
 
 const VAT_RATE = 0.15; // 15% VAT
 
@@ -69,7 +69,7 @@ import { CarsReceiptNoteDto } from '@/src/models/cars-receipt-note.model';
 import { CashAmountCalculatorComponent } from '../../shared/cash-amount-calculator/cash-amount-calculator.component';
 import { PurchaseAdditionalCostListComponent } from '../purchase-additional-cost-list/purchase-additional-cost-list.component';
 import { PurchaseAdditionalCostFormComponent } from '../purchase-additional-cost-form/purchase-additional-cost-form.component';
-import { Observable, of, map, tap, catchError, finalize } from 'rxjs';
+import { Observable, of, map, tap, catchError, finalize, switchMap } from 'rxjs';
 import { formatCurrency } from '@angular/common';
 import { DocumentToolbarComponent, DocumentTotalsComponent, DocumentPrintService, DocumentAction, DocumentTotalsRow } from '../../shared/document';
 
@@ -136,31 +136,27 @@ export class PurchaseInvoiceComponent implements OnInit {
   private procurementService = inject(PurchasesService);
   private accountingService = inject(AccountingService);
   private currentSettingService = inject(CurrentSettingService);
-  private storeService = inject(StoreService);
   private salesService = inject(SalesService);
   private languageService = inject(LanguageService);
   private carsReceiptNoteService = inject(CarsReceiptNoteService);
   private vinService = inject(VinService);
   private purchaseCycleService = inject(PurchaseCycleService);
   private router = inject(Router);
-  private translate = inject(TranslateService);
+  protected translate = inject(TranslateService);
   private fb = inject(FormBuilder);
   private toastService = inject(NotificationService);
   private route = inject(ActivatedRoute);
   private dialog = inject(MatDialog);
   private storeAccountingConfigService = inject(StoreAccountingConfigurationService);
-  private branchContext = inject(BranchContextService);
-  private injector = inject(Injector);
+  private storeContext = inject(StoreContextService);
   private notificationService = inject(NotificationService);
   private oidcSecurityService = inject(OidcSecurityService);
   /** Shared save-before-print workflow + formatting locale for the shared totals block. */
   private printWorkflow = inject(DocumentPrintService);
   private localeId = inject(LOCALE_ID);
   
-  // User and showroom information
   private currentUserId = signal<number | null>(null);
-  private currentShowroomId = signal<number>(1); // Default showroom, adjust as needed
-  
+
   cardLayout2 = this.currentSettingService.getCardLayout(2);
   cardLayout3 = this.currentSettingService.getCardLayout(3);
   cardLayout4 = this.currentSettingService.getCardLayout(4);
@@ -169,18 +165,13 @@ export class PurchaseInvoiceComponent implements OnInit {
 
   // Services state
   suppliers = signal<Supplier[]>([]);
-  /** The form's current storeId, kept in sync explicitly (initial load + onStoreSelectionChange)
-   *  so the Store dropdown can stay scoped to the caller's current branch without losing a
-   *  document's already-saved store when editing across a branch boundary -- see
-   *  scopeStoresToCurrentBranch. */
-  private currentStoreIdValue = signal<number | null>(null);
-  /** Store dropdown options scoped to the caller's current branch (BranchContextService) -- never
-   *  offers a store outside the user's assigned branch on a new document, while still showing an
-   *  already-saved out-of-branch store when editing one. */
-  stores = computed(() => scopeStoresToCurrentBranch(
-    this.storeService.stores$(),
-    this.branchContext.current()?.branchId,
-    this.currentStoreIdValue(),
+  /** Read-only label for the (no-longer-user-editable) Store field -- resolves the form's storeId
+   *  against every store the caller is authorized for, so an edit-mode document keeps showing its
+   *  real, originally-saved store name even if that store isn't the caller's current one. */
+  currentStoreName = computed(() => resolveStoreDisplayName(
+    this.storeContext.memberships(),
+    this.purchaseInvoiceForm?.get('storeId')?.value ?? null,
+    this.storeContext.current()?.nameAr,
   ));
   cars = this.inventoryService.cars$;
   carStocks = signal<StoreCarStockDto[]>([]);
@@ -483,17 +474,13 @@ export class PurchaseInvoiceComponent implements OnInit {
       this.initForm();
       this.watchInitialPaymentControl();
 
-      // Auto-select the store once the branch-scoped list resolves to exactly one option, so a
-      // user whose branch has a single store never has to manually pick it. Only runs on a new
-      // (never-saved) invoice and only while the field hasn't already been touched by the user.
-      effect(() => {
-        const options = this.stores();
-        const storeIdControl = this.purchaseInvoiceForm.get('storeId');
-        if (options.length === 1 && !storeIdControl?.value && !storeIdControl?.dirty) {
-          storeIdControl?.setValue(options[0].id);
-          this.onStoreSelectionChange(options[0].id);
-        }
-      }, { injector: this.injector });
+      // A new invoice always belongs to the caller's current Showroom (StoreContextService),
+      // selected once after login -- initialize the derived store state (car stock, heads-up
+      // accounting-config warning) the same way onStoreSelectionChange used to for a user pick.
+      const initialStoreId = this.purchaseInvoiceForm.get('storeId')?.value;
+      if (initialStoreId) {
+        this.initializeStoreState(initialStoreId);
+      }
     }
 
     // Load suppliers
@@ -738,7 +725,8 @@ export class PurchaseInvoiceComponent implements OnInit {
   private initForm(): void {
     this.purchaseInvoiceForm = this.fb.group({
       supplierId: [null, Validators.required],
-      storeId: [null, Validators.required],
+      // No Store picker anymore -- a new invoice always belongs to the caller's current Showroom.
+      storeId: [this.storeContext.current()?.storeId ?? null, Validators.required],
       // No debitAccountId/creditAccountId controls: the backend always derives both accounts
       // (Store's inventory accounting configuration, Supplier's linked account) and never accepts
       // a value from this form -- see saveInvoice()'s newInvoice construction, which no longer
@@ -813,7 +801,6 @@ export class PurchaseInvoiceComponent implements OnInit {
     // now does the unwrapping, `invoice.items` is the correct, and only, way to read it.
     this.procurementService.getInvoiceById(invoiceId).subscribe({
       next: (invoice) => {
-        this.currentStoreIdValue.set(invoice.storeId ?? null);
         // Initialize form with existing invoice data
         this.purchaseInvoiceForm = this.fb.group({
           supplierId: [invoice.supplierId, Validators.required],
@@ -840,6 +827,9 @@ export class PurchaseInvoiceComponent implements OnInit {
         }, { validators: [this.dueDateValidator] });
 
         this.auctionCharges.set(invoice.auctionCharges || []);
+        if (invoice.storeId) {
+          this.initializeStoreState(invoice.storeId);
+        }
 
         // ngOnChanges may have already fired (before this async form existed) and found nothing
         // to lock -- apply the lock explicitly now that the real edit-mode form exists, so a
@@ -894,22 +884,19 @@ export class PurchaseInvoiceComponent implements OnInit {
     });
   }
 
-  onStoreSelectionChange(storeId: number | null): void {
-    this.currentStoreIdValue.set(storeId);
+  /** Loads car stock and warns if the Store has no active StoreAccountingConfiguration -- used to
+   *  run on a user's (selectionChange), now runs once when the storeId is first known (current
+   *  Showroom for a new invoice, saved value for an edit), since there's no more Store dropdown. */
+  private initializeStoreState(storeId: number | null): void {
     if (storeId) {
       this.loadCarStocks(storeId);
-      // Reset selected car when store changes
-      this.selectedCarId.set(null);
-      this.selectedCar.set(null);
-      this.purchasePrice.set(0);
     } else {
       this.carStocks.set([]);
     }
 
     // Heads-up only: warns the user immediately if the selected Store has no active
     // StoreAccountingConfiguration, instead of only finding out after Save fails server-side.
-    const store = this.stores().find(s => s.id === storeId);
-    warnIfStoreNotConfigured(this.storeAccountingConfigService, this.dialog, this.router, storeId, store?.nameAr ?? '').subscribe();
+    warnIfStoreNotConfigured(this.storeAccountingConfigService, this.dialog, this.router, storeId, this.currentStoreName()).subscribe();
   }
 
   addItemToInvoice(): void {
@@ -1287,46 +1274,60 @@ export class PurchaseInvoiceComponent implements OnInit {
       auctionCharges: formValue.isAuctionPurchase ? this.auctionCharges() : []
     };
 
-    if (this.isEditMode()) {
-      const invoiceId = this.currentInvoiceId();
-      if (!invoiceId) {
-        this.notificationService.showError('PURCHASE_INVOICE.ERROR_INVALID_ID');
-        return of(null);
-      }
-      return this.procurementService.updateInvoice(invoiceId, newInvoice).pipe(
-        map(savedInvoice => {
-          this.notificationService.showSuccess(this.translate.instant('TOAST.UPDATE_SUCCESS'));
-          // Re-baseline dirty tracking so Print now sees a clean document.
-          this.captureDocumentSnapshot();
-          return invoiceId;
-        }),
-        catchError(error => {
-          console.error('Error updating purchase invoice:', error);
-          this.notificationService.showError(extractErrorMessage(error, this.translate, 'TOAST.SAVE_ERROR'));
-          return of(null);
-        })
-      );
-    }
+    // Credit purchases require the supplier's Accounts Payable account to already be resolvable
+    // server-side -- check proactively so the user finds out (and can fix it inline via
+    // "Link Account") before filling out the whole invoice, instead of only on a rejected save.
+    // Cash purchases never need this: their credit leg is the payment account, not supplier AP.
+    const partyCheck$ = this.isCashPayment()
+      ? of(true)
+      : warnIfPartyAccountMissing(this.dialog, this.supplierService.hasPayableAccount(supplierId), 'supplier', supplierId, supplier.name);
 
-    return this.procurementService.addInvoice(newInvoice).pipe(
-      tap(savedInvoice => {
-        this.notificationService.showSuccess(this.translate.instant('TOAST.ADD_SUCCESS'));
-        // Switch into edit mode for the invoice just created -- without this, currentInvoiceId()
-        // stays null after a fresh save, so the Additional Costs tab (which requires an existing
-        // PurchaseInvoiceId, same as PurchaseAdditionalCost's backend FK) would stay disabled
-        // forever in the same session instead of unlocking right after Save like it should.
-        this.currentInvoiceId.set(savedInvoice.id);
-        this.isEditMode.set(true);
-      }),
-      map(savedInvoice => {
-        // Re-baseline dirty tracking so Print now sees a clean document.
-        this.captureDocumentSnapshot();
-        return savedInvoice.id;
-      }),
-      catchError(error => {
-        console.error('Error saving purchase invoice:', error);
-        this.notificationService.showError(extractErrorMessage(error, this.translate, 'TOAST.SAVE_ERROR'));
-        return of(null);
+    return partyCheck$.pipe(
+      switchMap(canProceed => {
+        if (!canProceed) return of(null);
+
+        if (this.isEditMode()) {
+          const invoiceId = this.currentInvoiceId();
+          if (!invoiceId) {
+            this.notificationService.showError('PURCHASE_INVOICE.ERROR_INVALID_ID');
+            return of(null);
+          }
+          return this.procurementService.updateInvoice(invoiceId, newInvoice).pipe(
+            map(savedInvoice => {
+              this.notificationService.showSuccess(this.translate.instant('TOAST.UPDATE_SUCCESS'));
+              // Re-baseline dirty tracking so Print now sees a clean document.
+              this.captureDocumentSnapshot();
+              return invoiceId;
+            }),
+            catchError(error => {
+              console.error('Error updating purchase invoice:', error);
+              this.notificationService.showError(extractErrorMessage(error, this.translate, 'TOAST.SAVE_ERROR'));
+              return of(null);
+            })
+          );
+        }
+
+        return this.procurementService.addInvoice(newInvoice).pipe(
+          tap(savedInvoice => {
+            this.notificationService.showSuccess(this.translate.instant('TOAST.ADD_SUCCESS'));
+            // Switch into edit mode for the invoice just created -- without this, currentInvoiceId()
+            // stays null after a fresh save, so the Additional Costs tab (which requires an existing
+            // PurchaseInvoiceId, same as PurchaseAdditionalCost's backend FK) would stay disabled
+            // forever in the same session instead of unlocking right after Save like it should.
+            this.currentInvoiceId.set(savedInvoice.id);
+            this.isEditMode.set(true);
+          }),
+          map(savedInvoice => {
+            // Re-baseline dirty tracking so Print now sees a clean document.
+            this.captureDocumentSnapshot();
+            return savedInvoice.id;
+          }),
+          catchError(error => {
+            console.error('Error saving purchase invoice:', error);
+            this.notificationService.showError(extractErrorMessage(error, this.translate, 'TOAST.SAVE_ERROR'));
+            return of(null);
+          })
+        );
       })
     );
   }

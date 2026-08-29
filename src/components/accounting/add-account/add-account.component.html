@@ -20,7 +20,7 @@
         <mat-icon>arrow_back</mat-icon>
         {{ 'ACCOUNTING.CANCEL' | translate }}
       </button>
-      <button mat-raised-button color="primary" type="button" (click)="onSave()" [disabled]="accountForm.invalid || isSaving">
+      <button mat-raised-button color="primary" type="button" (click)="onSave()" [disabled]="accountForm.invalid || isSaving || parentLoadFailed">
         <mat-icon>save</mat-icon>
         <span *ngIf="!isSaving">{{ 'ACCOUNTING.SAVE_ACCOUNT' | translate }}</span>
         <span *ngIf="isSaving">{{ 'ACCOUNTING.SAVING' | translate }}</span>
@@ -67,12 +67,18 @@
 
           <!-- Child account: parent picker + read-only parent context -->
           <ng-container *ngIf="accountForm.get('accountTypeSelection')?.value !== 'main'">
-            <div class="erp-form-grid">
+            <!-- Parent Account picker: only shown for the global "Add Account" entry point
+                 (Requirement 10). When the parent was inherited from the tree's "Add Sub Account"
+                 action or the quick-add dialog (parentInheritedFromContext), the picker is hidden
+                 entirely -- not just disabled -- and the read-only breadcrumb below is the only
+                 place the parent is shown, so the user is never asked to re-select an account they
+                 already navigated from. -->
+            <div class="erp-form-grid" *ngIf="!parentInheritedFromContext">
               <mat-form-field appearance="outline" class="form-field erp-span-2 acc-parent-select">
                 <mat-label>{{ 'ACCOUNTING.PARENT_SELECT_LABEL' | translate }}</mat-label>
                 <mat-select formControlName="mainAccountCode">
                   <mat-option *ngFor="let acc of parentOptions" [value]="acc.accountCode">
-                    <span dir="ltr">{{ acc.accountCode }}</span> — {{ acc.accountNameEn || acc.accountNameAr }}
+                    <span dir="ltr">{{ acc.accountCode }}</span> — {{ accountDisplayName(acc) }}
                   </mat-option>
                 </mat-select>
                 <mat-icon matPrefix>account_tree</mat-icon>
@@ -81,37 +87,7 @@
             </div>
 
             <!-- Read-only parent context: number / names / classification / level -->
-            <div class="acc-parent-context" *ngIf="selectedParent; else noParentSelected">
-              <div class="acc-parent-context-icon" aria-hidden="true">
-                <mat-icon>folder</mat-icon>
-              </div>
-              <dl class="acc-parent-context-grid">
-                <div class="acc-parent-context-item">
-                  <dt>{{ 'ACCOUNTING.ACCOUNT_CODE' | translate }}</dt>
-                  <dd><span class="acc-code-chip" dir="ltr">{{ selectedParent!.accountCode }}</span></dd>
-                </div>
-                <div class="acc-parent-context-item">
-                  <dt>{{ 'ACCOUNTING.ACCOUNT_NAME_EN' | translate }}</dt>
-                  <dd>{{ selectedParent!.accountNameEn || '—' }}</dd>
-                </div>
-                <div class="acc-parent-context-item">
-                  <dt>{{ 'ACCOUNTING.ACCOUNT_NAME_AR' | translate }}</dt>
-                  <dd>{{ selectedParent!.accountNameAr || '—' }}</dd>
-                </div>
-                <div class="acc-parent-context-item">
-                  <dt>{{ 'ACCOUNTING.ACCOUNT_TYPE' | translate }}</dt>
-                  <dd>{{ accountTypeLabel(selectedParent!.accountTypeId) | translate }}</dd>
-                </div>
-                <div class="acc-parent-context-item">
-                  <dt>{{ 'ACCOUNTING.ACCOUNT_LEVEL' | translate }}</dt>
-                  <dd>{{ selectedParent!.accountLevel }}</dd>
-                </div>
-              </dl>
-              <p class="acc-parent-context-note">
-                <mat-icon inline>subdirectory_arrow_right</mat-icon>
-                {{ 'ACCOUNTING.PARENT_CONTEXT_NOTE' | translate }}
-              </p>
-            </div>
+            
             <ng-template #noParentSelected>
               <div class="acc-parent-context acc-parent-empty">
                 <mat-icon aria-hidden="true">info</mat-icon>
@@ -123,13 +99,27 @@
               <mat-checkbox formControlName="isMainAccount">{{ 'ACCOUNTING.IS_MAIN_ACCOUNT' | translate }}</mat-checkbox>
             </div>
 
-            <!-- Breadcrumb: parent -> this account (same values as before) -->
-            <div class="parent-account-summary">
+            <!-- Parent could not be confirmed (Requirement: "confirm the parent exists") -- blocks
+                 Save (see the button's [disabled] binding and onSave's guard); shown instead of the
+                 breadcrumb since there is no resolved parent to display. -->
+            <div class="acc-parent-context acc-parent-empty acc-parent-error" *ngIf="parentLoadFailed">
+              <mat-icon aria-hidden="true">error_outline</mat-icon>
+              {{ 'ACCOUNTING.PARENT_ACCOUNT_NOT_FOUND' | translate }}
+            </div>
+
+            <!-- Breadcrumb: parent -> this account. Uses directParentAccount (resolved via a single
+                 authoritative getAccountById fetch, not the accounts$ list cache and not
+                 mainAccountCode/mainAccountName -- those hold the TOP-LEVEL ancestor for a
+                 grandchild+ account, which would show the wrong account here once the parent picker
+                 above is hidden and this becomes the only place the parent is shown). Name is
+                 rendered via parentAccountDisplayName, which tracks the active application
+                 language without ever touching ParentAccountId/AccountNumber. -->
+            <div class="parent-account-summary" *ngIf="!parentLoadFailed">
               <div class="parent-account-summary-item">
                 <span class="parent-account-summary-label">{{ 'ACCOUNTING.PARENT_ACCOUNT' | translate }}</span>
-                <span class="parent-account-summary-value" *ngIf="accountForm.get('mainAccountCode')?.value; else noParentBreadcrumb">
-                  <span class="acc-code-chip" dir="ltr">{{ accountForm.get('mainAccountCode')?.value }}</span>
-                  {{ accountForm.get('mainAccountName')?.value }}
+                <span class="parent-account-summary-value" *ngIf="directParentAccount as parent; else noParentBreadcrumb">
+                  <span class="acc-code-chip" dir="ltr">{{ parent.accountCode }}</span>
+                  {{ parentAccountDisplayName }}
                 </span>
                 <ng-template #noParentBreadcrumb>
                   <span class="parent-account-summary-value parent-account-summary-empty">{{ 'ACCOUNTING.PARENT_ACCOUNT_NOT_SELECTED' | translate }}</span>
@@ -289,13 +279,16 @@
       <!-- Partial Account Form (Comprehensive) -->
       <ng-container *ngIf="accountForm.get('accountTypeSelection')?.value === 'partial'">
 
-        <!-- Basic Account Information -->
+        <!-- Generated Child Account Number -- its own section, separate from the name/details
+             fields below, so the auto-numbering result (bound directly to the accountCode form
+             control) is unmistakable at a glance. -->
         <div class="erp-card acc-card">
           <div class="erp-section">
             <h3 class="erp-section-title">
-              <mat-icon class="erp-section-icon">folder</mat-icon>
-              {{ 'ACCOUNTING.SECTION_ACCOUNT_INFO' | translate }}
+              <mat-icon class="erp-section-icon">tag</mat-icon>
+              {{ 'ACCOUNTING.ACCOUNT_NUMBER_SECTION_TITLE' | translate }}
             </h3>
+            <p class="section-subtitle">{{ 'ACCOUNTING.ACCOUNT_NUMBER_SECTION_DESC' | translate }}</p>
 
             <div class="erp-form-grid">
               <mat-form-field appearance="outline" class="form-field">
@@ -315,7 +308,19 @@
                 <mat-hint *ngIf="nextCodeFailed" class="acc-code-warning">{{ 'ACCOUNTING.CODE_GENERATION_FAILED' | translate }}</mat-hint>
                 <mat-error *ngIf="accountForm.get('accountCode')?.invalid">{{ 'ACCOUNTING.CODE_REQUIRED' | translate }}</mat-error>
               </mat-form-field>
+            </div>
+          </div>
+        </div>
 
+        <!-- Child Account Details -->
+        <div class="erp-card acc-card">
+          <div class="erp-section">
+            <h3 class="erp-section-title">
+              <mat-icon class="erp-section-icon">folder</mat-icon>
+              {{ 'ACCOUNTING.SECTION_ACCOUNT_INFO' | translate }}
+            </h3>
+
+            <div class="erp-form-grid">
               <mat-form-field appearance="outline" class="form-field erp-span-2">
                 <mat-label>{{ 'ACCOUNTING.ACCOUNT_NAME_AR' | translate }}</mat-label>
                 <input matInput formControlName="accountNameAr" required>
@@ -608,7 +613,7 @@
             <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving" class="acc-cancel-btn">
               {{ 'ACCOUNTING.CANCEL' | translate }}
             </button>
-            <button mat-raised-button color="primary" type="submit" [disabled]="accountForm.invalid || isSaving">
+            <button mat-raised-button color="primary" type="submit" [disabled]="accountForm.invalid || isSaving || parentLoadFailed">
               <mat-progress-spinner *ngIf="isSaving" diameter="20" class="loading-spinner"></mat-progress-spinner>
               <span *ngIf="!isSaving">{{ 'ACCOUNTING.SAVE_ACCOUNT' | translate }}</span>
               <span *ngIf="isSaving">{{ 'ACCOUNTING.SAVING' | translate }}</span>

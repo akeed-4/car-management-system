@@ -1,0 +1,34 @@
+<div class="container erp-page">
+  <div class="page-header erp-page-header">
+    <div class="erp-page-header-titles">
+      <h2 class="erp-page-title">{{ 'YEAR_SPECIFICATION.LIST_TITLE' | translate }}</h2>
+    </div>
+    <div class="erp-page-actions">
+      <a routerLink="/setup/year-specifications/new" mat-raised-button color="primary">
+        <mat-icon>add</mat-icon>
+        {{ 'YEAR_SPECIFICATION.ADD_NEW' | translate }}
+      </a>
+    </div>
+  </div>
+
+  <app-shared-data-grid
+    [dataSource]="specs()"
+    [columns]="columns"
+    [rowActions]="rowActions"
+    keyExpr="id"
+    searchPlaceholder="YEAR_SPECIFICATION.SEARCH_PLACEHOLDER"
+    noDataText="YEAR_SPECIFICATION.NO_SPECS"
+    [pageSize]="10"
+    [allowedPageSizes]="[10, 25, 50]"
+    [mobileItems]="specs()"
+    [mobileFields]="mobileFields"
+    [mobileTitleOf]="mobileTitleOf"
+    [mobileTrackBy]="mobileTrackBy"
+    (rowAction)="onGridAction($event)">
+
+    <ng-template let-spec>
+      <button type="button" class="btn btn-light" (click)="mobileEdit(spec)">{{ 'YEAR_SPECIFICATION.EDIT' | translate }}</button>
+      <button type="button" class="btn btn-light" (click)="mobileDelete(spec)">{{ 'YEAR_SPECIFICATION.DELETE' | translate }}</button>
+    </ng-template>
+  </app-shared-data-grid>
+</div>

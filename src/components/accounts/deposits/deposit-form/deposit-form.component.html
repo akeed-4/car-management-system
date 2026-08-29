@@ -54,7 +54,7 @@
                   <mat-select formControlName="debitAccountId" required>
                     <mat-option [value]="null" disabled>{{ 'ACCOUNTS.DEPOSITS.FORM.SELECT_DEBIT_ACCOUNT' | translate }}</mat-option>
                     <mat-option *ngFor="let account of debitAccounts()" [value]="account.id">
-                      {{ account.accountCode }} - {{ account.accountNameAr }}
+                      {{ account.accountCode }} - {{ translate.currentLang === 'ar' ? (account.accountNameAr || account.accountNameEn) : account.accountNameEn }}
                     </mat-option>
                   </mat-select>
                 </mat-form-field>
@@ -72,7 +72,7 @@
                   <mat-select formControlName="creditAccountId" required>
                     <mat-option [value]="null" disabled>{{ 'ACCOUNTS.DEPOSITS.FORM.SELECT_CREDIT_ACCOUNT' | translate }}</mat-option>
                     <mat-option *ngFor="let account of creditAccounts()" [value]="account.id">
-                      {{ account.accountCode }} - {{ account.accountNameAr }}
+                      {{ account.accountCode }} - {{ translate.currentLang === 'ar' ? (account.accountNameAr || account.accountNameEn) : account.accountNameEn }}
                     </mat-option>
                   </mat-select>
                 </mat-form-field>

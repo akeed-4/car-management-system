@@ -72,11 +72,12 @@
                         <div class="field-span-1 field-with-add">
                             <mat-form-field appearance="outline" class="field-with-add-select">
                                 <mat-label>{{ 'INVENTORY.FORM.CATEGORY' | translate }}</mat-label>
-                                <mat-select formControlName="categoryId">
+                                <mat-select formControlName="categoryId"
+                                    (selectionChange)="onCategoryChange($event.value)">
                                     <mat-option [value]="null">{{ 'INVENTORY.FORM.SELECT_CATEGORY' | translate
                                         }}</mat-option>
                                     @for (cat of filteredCategories(); track cat.id) {
-                                    <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
+                                    <mat-option [value]="cat.id">{{ cat.nameEn || cat.name }}</mat-option>
                                     }
                                 </mat-select>
                             </mat-form-field>
@@ -90,16 +91,31 @@
                             }
                         </div>
 
-                        <mat-form-field appearance="outline" class="field-span-1">
-                            <mat-label>{{ 'INVENTORY.FORM.YEAR' | translate }}</mat-label>
-                            <mat-select formControlName="year" required>
-                                <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_YEAR' | translate
-                                    }}</mat-option>
-                                @for (y of years(); track y) {
-                                <mat-option [value]="y">{{ y }}</mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
+                        <!-- Requirement 6: Year Specification replaces the free-standing Year
+                             dropdown -- selecting one carries its own Model Year AND
+                             auto-populates the read-only technical specs below. -->
+                        <div class="field-span-1 field-with-add">
+                            <mat-form-field appearance="outline" class="field-with-add-select">
+                                <mat-label>{{ 'INVENTORY.FORM.YEAR_SPECIFICATION' | translate }}</mat-label>
+                                <mat-select formControlName="yearSpecificationId" required
+                                    (selectionChange)="onYearSpecificationChange($event.value)">
+                                    <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_YEAR_SPECIFICATION' | translate
+                                        }}</mat-option>
+                                    @for (spec of filteredYearSpecs(); track spec.id) {
+                                    <mat-option [value]="spec.id">{{ spec.year }}</mat-option>
+                                    }
+                                </mat-select>
+                                <mat-hint *ngIf="!carForm.value.categoryId">{{ 'INVENTORY.FORM.SELECT_CATEGORY_FIRST' | translate }}</mat-hint>
+                            </mat-form-field>
+                            @if (canAddYearSpecification()) {
+                            <button mat-icon-button type="button" class="field-add-btn"
+                                (click)="openAddYearSpecificationDialog()"
+                                [disabled]="!carForm.value.categoryId"
+                                [matTooltip]="!carForm.value.categoryId ? ('INVENTORY.FORM.SELECT_CATEGORY' | translate) : ('YEAR_SPECIFICATION.ADD_NEW' | translate)">
+                                <mat-icon>add</mat-icon>
+                            </button>
+                            }
+                        </div>
 
                         <mat-form-field appearance="outline" class="field-span-1">
                             <mat-label>{{ 'INVENTORY.FORM.CURRENT_LOCATION' | translate }}</mat-label>
@@ -230,18 +246,43 @@
                             </button>
                         </div>
 
+                        <!-- Requirement 6: technical specification fields are read-only once
+                             sourced from the selected Year Specification -- the user never
+                             hand-types them per vehicle; select a different Year Specification to
+                             change them. -->
                         <mat-form-field appearance="outline" class="field-span-1">
                             <mat-label>{{ 'INVENTORY.FORM.TRANSMISSION' | translate }}</mat-label>
-                            <mat-select formControlName="transmission">
-                                <mat-option value="Automatic">{{ 'INVENTORY.FORM.AUTOMATIC' | translate
-                                    }}</mat-option>
-                                <mat-option value="Manual">{{ 'INVENTORY.FORM.MANUAL' | translate }}</mat-option>
-                            </mat-select>
+                            <input matInput type="text" formControlName="transmission" readonly>
                         </mat-form-field>
 
                         <mat-form-field appearance="outline" class="field-span-1">
                             <mat-label>{{ 'INVENTORY.FORM.ENGINE_SIZE' | translate }}</mat-label>
-                            <input matInput type="text" formControlName="engineSize">
+                            <input matInput type="text" formControlName="engineSize" readonly>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="field-span-1">
+                            <mat-label>{{ 'INVENTORY.FORM.CYLINDER_COUNT' | translate }}</mat-label>
+                            <input matInput type="text" formControlName="cylinderCount" readonly>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="field-span-1">
+                            <mat-label>{{ 'INVENTORY.FORM.HORSEPOWER' | translate }}</mat-label>
+                            <input matInput type="text" formControlName="horsepower" readonly>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="field-span-1">
+                            <mat-label>{{ 'INVENTORY.FORM.FUEL_TYPE' | translate }}</mat-label>
+                            <input matInput type="text" formControlName="fuelType" readonly>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="field-span-1">
+                            <mat-label>{{ 'INVENTORY.FORM.DRIVE_TYPE' | translate }}</mat-label>
+                            <input matInput type="text" formControlName="driveType" readonly>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="field-span-1">
+                            <mat-label>{{ 'INVENTORY.FORM.STANDARD_AGENCY_PRICE' | translate }}</mat-label>
+                            <input matInput type="text" formControlName="standardAgencyPrice" readonly>
                         </mat-form-field>
                     </div>
                 </mat-expansion-panel>

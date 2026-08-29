@@ -19,6 +19,8 @@ import { ReturnInvoiceItem } from '../../../models/return-invoice-item.model';
 import { PurchaseReturnInvoice, PurchaseReturnType } from '../../../models/purchase-return-invoice.model';
 import { PurchaseInvoice } from '../../../models/purchase-invoice.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { NotificationService } from '@/src/services/notification.service';
+import { extractErrorMessage } from '@/src/models/http-error-message';
 
 @Component({
   selector: 'app-purchase-return-form',
@@ -36,6 +38,7 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
   private purchaseReturnService = inject(PurchaseReturnService);  private router = inject(Router);
   private translate = inject(TranslateService);
   private fb = inject(FormBuilder);
+  private notificationService = inject(NotificationService);
 
   returnForm!: FormGroup;
 
@@ -171,14 +174,15 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
     const itemsToReturn = this.returnItems().filter(item => item.returnQuantity > 0);
 
     if (!originalInvoice || itemsToReturn.length === 0) {
-      alert(this.translate.instant('PURCHASES.PURCHASE_RETURN.ERROR_NO_ITEMS'));
+      this.notificationService.showWarning(this.translate.instant('PURCHASES.PURCHASE_RETURN.ERROR_NO_ITEMS'));
       return;
     }
 
     if (!this.returnForm.valid) {
-      alert(this.translate.instant('PURCHASES.PURCHASE_RETURN.ERROR_INVALID_FORM'));
+      this.notificationService.showWarning(this.translate.instant('PURCHASES.PURCHASE_RETURN.ERROR_INVALID_FORM'));
       return;
-    }    const totalAmount = this.totalAmount();
+    }
+    const totalAmount = this.totalAmount();
 
     // Phase 2B: no debitAccountId/creditAccountId are sent -- the backend derives both GL
     // accounts server-side at approval time from the Store accounting configuration, the
@@ -199,12 +203,12 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
     // Save the return as a DRAFT -- posting happens server-side when it is approved.
     this.purchaseReturnService.addReturnInvoice(newReturn).subscribe({
       next: (_createdReturn) => {
-        alert(this.translate.instant('PURCHASES.PURCHASE_RETURN.SUCCESS_RETURN_SAVED'));
+        this.notificationService.showSuccess(this.translate.instant('PURCHASES.PURCHASE_RETURN.SUCCESS_RETURN_SAVED'));
         this.router.navigate([this.backRoute()]);
       },
       error: (error) => {
         console.error('Error saving return invoice:', error);
-        alert(this.translate.instant('PURCHASES.PURCHASE_RETURN.ERROR_SAVING_RETURN'));
+        this.notificationService.showError(extractErrorMessage(error, this.translate, 'PURCHASES.PURCHASE_RETURN.ERROR_SAVING_RETURN'));
       }
     });
   }

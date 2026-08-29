@@ -8,6 +8,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from '../../../services/AuthService.service';
 import { TenantContextService } from '../../../services/tenant-context.service';
 import { BranchContextService } from '../../../services/branch-context.service';
+import { StoreContextService } from '../../../services/store-context.service';
 // Toast/confirm-dialog wrapper. Distinct from NotificationFeedService below, which is the
 // persisted notification feed behind the bell -- both are used here.
 import { NotificationService } from '../../../services/notification.service';
@@ -113,6 +114,7 @@ export class ShellComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private tenantContext: TenantContextService,
     private branchContext: BranchContextService,
+    private storeContext: StoreContextService,
     private notificationService: NotificationService,
     private notificationFeed: NotificationFeedService,
     private zone: NgZone,
@@ -300,6 +302,7 @@ export class ShellComponent implements OnInit, OnDestroy {
       this.authService.logout();
       this.tenantContext.clear();
       this.branchContext.clear();
+      this.storeContext.clear();
       this.notificationService.showSuccess('admin.logoutSuccess');
     } catch {
       this.notificationService.showError('admin.logoutError');

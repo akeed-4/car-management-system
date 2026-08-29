@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, effect, inject, signal, Injector } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -15,15 +15,14 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { CorporateFleetService, CreditSummary } from '../../../../services/corporate-fleet.service';
-import { StoreService } from '../../../../services/store.service';
 import { CurrentSettingService } from '../../../../services/current-setting.service';
 import { StoreAccountingConfigurationService } from '../../../../services/store-accounting-configuration.service';
 import { NotificationService } from '@/src/services/notification.service';
 import { CorporateQuotation } from '../../../../models/corporate/corporate-quotation.model';
 import { CreditUtilizationWidgetComponent } from './credit-utilization-widget/credit-utilization-widget.component';
 import { warnIfStoreNotConfigured } from '../../../shared/store-accounting-setup-warning-dialog/store-accounting-setup-warning.helper';
-import { BranchContextService } from '../../../../services/branch-context.service';
-import { scopeStoresToCurrentBranch } from '../../../../models/branch-scoped-stores.util';
+import { StoreContextService } from '../../../../services/store-context.service';
+import { resolveStoreDisplayName } from '../../../../models/store-display.util';
 
 @Component({
   selector: 'app-corporate-order-manager',
@@ -53,20 +52,22 @@ import { scopeStoresToCurrentBranch } from '../../../../models/branch-scoped-sto
 })
 export class CorporateOrderManagerComponent implements OnInit {
   private corporateFleetService = inject(CorporateFleetService);
-  private storeService = inject(StoreService);
   private currentSettingService = inject(CurrentSettingService);
   private storeAccountingConfigService = inject(StoreAccountingConfigurationService);
   private notificationService = inject(NotificationService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private dialog = inject(MatDialog);
-  private branchContext = inject(BranchContextService);
-  private injector = inject(Injector);
+  private storeContext = inject(StoreContextService);
 
   cardLayout3 = this.currentSettingService.getCardLayout(3);
-  /** Store dropdown options scoped to the caller's current branch -- this form is create-only
-   *  (no edit mode), so there is no already-saved store to preserve. */
-  stores = computed(() => scopeStoresToCurrentBranch(this.storeService.stores$(), this.branchContext.current()?.branchId, null));
+  /** Read-only label for the (no-longer-user-editable) Store field. This form is create-only, so
+   *  the storeId always equals the caller's current Showroom. */
+  currentStoreName = computed(() => resolveStoreDisplayName(
+    this.storeContext.memberships(),
+    this.orderForm?.get('storeId')?.value ?? null,
+    this.storeContext.current()?.nameAr,
+  ));
 
   quotation = signal<CorporateQuotation | null>(null);
   creditSummary = signal<CreditSummary | null>(null);
@@ -84,7 +85,8 @@ export class CorporateOrderManagerComponent implements OnInit {
       paymentTerms: new FormControl('', Validators.required),
       expectedDeliveryDate: new FormControl(null),
       salesRepresentative: new FormControl(''),
-      storeId: new FormControl<number | null>(null, Validators.required),
+      // No Store picker anymore -- always the caller's current Showroom.
+      storeId: new FormControl<number | null>(this.storeContext.current()?.storeId ?? null, Validators.required),
       notes: new FormControl('')
     });
 
@@ -103,21 +105,12 @@ export class CorporateOrderManagerComponent implements OnInit {
       this.orderForm.patchValue({ quotationId });
     }
 
-    // Auto-select the store once the branch-scoped list resolves to exactly one option, so a
-    // user whose branch has a single store never has to manually pick it.
-    effect(() => {
-      const options = this.stores();
-      const storeIdControl = this.orderForm.get('storeId');
-      if (options.length === 1 && !storeIdControl?.value && !storeIdControl?.dirty) {
-        storeIdControl?.setValue(options[0].id);
-        this.onStoreSelectionChange(options[0].id);
-      }
-    }, { injector: this.injector });
-  }
-
-  onStoreSelectionChange(storeId: number | null): void {
-    const store = this.stores().find(s => s.id === storeId);
-    warnIfStoreNotConfigured(this.storeAccountingConfigService, this.dialog, this.router, storeId, store?.nameAr ?? '').subscribe();
+    // Heads-up only: warns immediately if the current Showroom has no active
+    // StoreAccountingConfiguration, instead of only finding out after Save fails server-side.
+    const storeId = this.orderForm.get('storeId')?.value;
+    if (storeId) {
+      warnIfStoreNotConfigured(this.storeAccountingConfigService, this.dialog, this.router, storeId, this.currentStoreName()).subscribe();
+    }
   }
 
   private loadPendingQuotations(): void {
@@ -161,7 +154,7 @@ export class CorporateOrderManagerComponent implements OnInit {
     }
 
     const raw = this.orderForm.getRawValue();
-    const branchId = this.stores().find(s => s.id === raw.storeId)?.branchId;
+    const branchId = this.storeContext.current()?.branchId;
     if (!branchId) {
       this.notificationService.showError('CORPORATE.ORDER_CREATE_FAILED');
       return;

@@ -25,6 +25,10 @@ export interface StoreAccountingConfiguration {
   /** Expense-side account for Customs costs -- only used when the cost is expensed. */
   customsAccountId?: number | null;
   customsAccountCode?: string | null;
+  /** Offsetting credit account for an Inventory Opening Balance entry (Dr Inventory / Cr this
+   *  account) -- e.g. "Retained Earnings" or an "Opening Balance Equity" account. */
+  openingBalanceEquityAccountId?: number | null;
+  openingBalanceEquityAccountCode?: string | null;
   /** Perpetual (default): Purchase debits Inventory, a sale immediately posts Dr COGS / Cr
    *  Inventory. Periodic: Purchase debits purchaseExpenseAccountId instead, sales post no COGS
    *  entry, and inventory value is adjusted only via period-end closing. */
@@ -43,6 +47,7 @@ export interface CreateStoreAccountingConfigurationDto {
   purchaseExpenseAccountId?: number | null;
   freightShippingAccountId?: number | null;
   customsAccountId?: number | null;
+  openingBalanceEquityAccountId?: number | null;
   inventoryAccountingMethod: InventoryAccountingMethod;
   isActive: boolean;
 }
@@ -55,6 +60,7 @@ export interface UpdateStoreAccountingConfigurationDto {
   purchaseExpenseAccountId?: number | null;
   freightShippingAccountId?: number | null;
   customsAccountId?: number | null;
+  openingBalanceEquityAccountId?: number | null;
   inventoryAccountingMethod: InventoryAccountingMethod;
   isActive: boolean;
 }

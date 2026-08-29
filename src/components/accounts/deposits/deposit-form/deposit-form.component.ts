@@ -29,6 +29,7 @@ import { AccountingService } from '@/src/components/accounting/accounting.servic
 import { openCreateAccountDialog } from '@/src/components/accounting/create-account-dialog.helper';
 import { Account } from '@/src/components/accounting/models';
 import { NotificationService } from '@/src/services/notification.service';
+import { extractErrorMessage } from '@/src/models/http-error-message';
 
 @Component({
   selector: 'app-deposit-form',
@@ -60,7 +61,7 @@ export class DepositFormComponent implements OnInit {
   private customerService: CustomerService = inject(CustomerService);
   private inventoryService: InventoryService = inject(InventoryService);
   private depositService: DepositService = inject(DepositService);
-  private translate = inject(TranslateService);
+  protected translate = inject(TranslateService);
   private dialog = inject(MatDialog);
 private notificationService = inject(NotificationService);
   private accountingService: AccountingService = inject(AccountingService);
@@ -318,7 +319,7 @@ private notificationService = inject(NotificationService);
     const vehicle = this.selectedVehicle();
 
     if (!vehicle || !formValue.customerName?.trim() || Number(formValue.depositAmount) <= 0) {
-      alert(this.translate.instant('ACCOUNTS.DEPOSITS.FORM.FILL_REQUIRED'));
+      this.notificationService.showWarning(this.translate.instant('ACCOUNTS.DEPOSITS.FORM.FILL_REQUIRED'));
       return;
     }
 
@@ -377,9 +378,7 @@ private notificationService = inject(NotificationService);
       },
       error: (err) => {
         console.error('Save failed', err);
-        const backendMessage = err.error?.message || err.error;
-        const msg = typeof backendMessage === 'string' ? backendMessage : this.translate.instant('ACCOUNTS.DEPOSITS.FORM.SAVE_FAILED');
-        this.notificationService.showError(msg);
+        this.notificationService.showError(extractErrorMessage(err, this.translate, 'ACCOUNTS.DEPOSITS.FORM.SAVE_FAILED'));
       }
     });
   }
@@ -398,8 +397,9 @@ private notificationService = inject(NotificationService);
     return description ? `${plate} - ${description}` : plate;
   }
 
-  getAccountLabel(account: AccountNode): string {
-    return [account.accountCode, account.accountNameAr].filter(Boolean).join(' - ');
+  getAccountLabel(account: Account): string {
+    const name = this.translate.currentLang === 'ar' ? (account.accountNameAr || account.accountNameEn) : account.accountNameEn;
+    return [account.accountCode, name].filter(Boolean).join(' - ');
   }
 
   trackByCustomer(index: number, customer: any): any {
