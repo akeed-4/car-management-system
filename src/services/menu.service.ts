@@ -210,7 +210,8 @@ export const menuData = [
     englishName: 'Users',
     submenu: [
       { id: 111, name: 'قائمة المستخدمين', englishName: 'User List', route: '/users' },
-      { id: 112, name: 'الأدوار والصلاحيات', englishName: 'Roles & Permissions', route: '/users/roles' }
+      { id: 112, name: 'الأدوار والصلاحيات', englishName: 'Roles & Permissions', route: '/users/roles' },
+      { id: 113, name: 'صلاحيات المستخدمين', englishName: 'User Permissions', route: '/users/permissions' }
     ]
   },
   {

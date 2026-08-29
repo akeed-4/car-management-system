@@ -77,6 +77,22 @@
   padding-inline: 2px;
 }
 
+.permission-label-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+/* User Permissions screen only (attributionByKey set) -- "Granted by: RoleA, RoleB" under a
+   checked, read-only permission row. */
+.permission-attribution {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  overflow-wrap: anywhere;
+}
+
 .save-bar {
   display: flex;
   align-items: center;

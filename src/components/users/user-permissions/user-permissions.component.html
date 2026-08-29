@@ -1,0 +1,103 @@
+<div class="user-permissions-page erp-page">
+  <header class="page-header erp-page-header">
+    <mat-icon class="header-icon">admin_panel_settings</mat-icon>
+    <div class="header-text erp-page-header-titles">
+      <nav class="breadcrumb erp-page-eyebrow" aria-label="breadcrumb">
+        <span>{{ 'USERS.PERMISSIONS.PAGE.BREADCRUMB' | translate }}</span>
+      </nav>
+      <h1 class="page-title erp-page-title">{{ 'USERS.PERMISSIONS.PAGE.TITLE' | translate }}</h1>
+      <p class="page-subtitle erp-page-subtitle">{{ 'USERS.PERMISSIONS.PAGE.SUBTITLE' | translate }}</p>
+    </div>
+  </header>
+
+  <div class="user-permissions-grid">
+    <section class="panel user-list-container">
+      <app-user-list-panel
+        [users]="users()"
+        [selectedUserId]="selectedUserId()"
+        [loading]="usersLoading()"
+        (userSelect)="onUserSelect($event)">
+      </app-user-list-panel>
+    </section>
+
+    <section class="panel detail-container">
+      @if (!selectedUser()) {
+        <div class="empty-state large">
+          <mat-icon>touch_app</mat-icon>
+          <p>{{ 'USERS.PERMISSIONS.DETAIL.SELECT_USER_PROMPT' | translate }}</p>
+        </div>
+      } @else {
+        <div class="user-summary">
+          <mat-icon class="user-summary-icon">account_circle</mat-icon>
+          <div class="user-summary-text">
+            <span class="user-summary-name">{{ selectedUser()!.name }}</span>
+            <span class="user-summary-status">
+              {{ (selectedUser()!.status === 'Active' ? 'USERS.STATUS.ACTIVE' : 'USERS.STATUS.INACTIVE') | translate }}
+              @if (selectedUser()!.isLocked) {
+                &middot; {{ 'USERS.STATUS.LOCKED' | translate }}
+              }
+            </span>
+          </div>
+        </div>
+
+        <div class="roles-section">
+          <h3 class="section-title">{{ 'USERS.PERMISSIONS.DETAIL.ROLES_TITLE' | translate }}</h3>
+
+          @if (rolesLoadingForUser() || rolesLoading()) {
+            <div class="roles-checklist-skeleton skeleton-shimmer"></div>
+          } @else if (roles().length === 0) {
+            <p class="no-roles-hint">{{ 'USERS.PERMISSIONS.DETAIL.NO_ROLES_ASSIGNED' | translate }}</p>
+          } @else {
+            <div class="roles-checklist">
+              @for (role of roles(); track role.id) {
+                <mat-checkbox
+                  [checked]="isRoleChecked(role.id)"
+                  [disabled]="!canManageRoles() || savingRoles()"
+                  (change)="toggleRole(role)">
+                  {{ role.name }}
+                </mat-checkbox>
+              }
+            </div>
+          }
+
+          @if (canManageRoles()) {
+            <div class="roles-save-bar">
+              @if (hasUnsavedChanges()) {
+                <span class="unsaved-badge">
+                  <mat-icon>fiber_manual_record</mat-icon>
+                  {{ 'ROLES.PERMISSIONS.UNSAVED_BADGE' | translate }}
+                </span>
+              }
+              <span class="save-bar-spacer"></span>
+              <button mat-stroked-button [disabled]="!hasUnsavedChanges() || savingRoles()" (click)="discardChanges()">
+                {{ 'ROLES.PERMISSIONS.DISCARD' | translate }}
+              </button>
+              <button mat-raised-button color="primary" [disabled]="!hasUnsavedChanges() || savingRoles()" (click)="saveRoles()">
+                @if (savingRoles()) {
+                  <mat-spinner diameter="18"></mat-spinner>
+                } @else {
+                  <mat-icon>save</mat-icon>
+                }
+                {{ 'ROLES.PERMISSIONS.SAVE' | translate }}
+              </button>
+            </div>
+          }
+        </div>
+
+        <div class="permission-panel-container">
+          <h3 class="section-title">{{ 'USERS.PERMISSIONS.DETAIL.PERMISSIONS_TITLE' | translate }}</h3>
+          <app-permission-panel
+            class="permission-panel-body"
+            [permissionsList]="permissionsList()"
+            [currentPermissions]="currentPermissions()"
+            [originalPermissions]="originalPermissions()"
+            [attributionByKey]="attributionByKey()"
+            [readOnlyMode]="true"
+            [disabled]="false"
+            [loading]="rolesLoadingForUser()">
+          </app-permission-panel>
+        </div>
+      }
+    </section>
+  </div>
+</div>

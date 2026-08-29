@@ -57,6 +57,7 @@ import { CreditReturnInvoiceListComponent } from './components/purchases/purchas
 import { SalesCashReturnInvoiceListComponent } from './components/sales/sales-return-invoice-list/cash-return-invoice-list/cash-return-invoice-list.component';
 import { SalesCreditReturnInvoiceListComponent } from './components/sales/sales-return-invoice-list/credit-return-invoice-list/credit-return-invoice-list.component';
 import { RolesComponent } from './components/users/roles/roles.component';
+import { UserPermissionsComponent } from './components/users/user-permissions/user-permissions.component';
 import { RequestedCarsComponent } from './components/requested-cars/requested-cars-list/requested-cars.component';
 import { RequestedCarFormComponent } from './components/requested-cars/requested-car-form/requested-car-form.component';
 import { ExpensesComponent } from './components/expenses/expenses-list/expenses.component';
@@ -454,6 +455,7 @@ export const APP_ROUTES: Routes = [
   { path: 'users/new', component: UserFormComponent,  },
   { path: 'users/edit/:id', component: UserFormComponent,  },
   { path: 'users/roles', component: RolesComponent,  },
+  { path: 'users/permissions', component: UserPermissionsComponent,  },
   { path: 'profile', component: UserProfileComponent },
   { path: 'test-drives', component: TestDrivesComponent },
   { path: 'test-drives/new', component: TestDriveFormComponent },

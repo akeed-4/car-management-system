@@ -4632,6 +4632,39 @@
       "ACTION_FAILED": "Action failed. Please try again.",
       "PASSWORD_RESET_FAILED": "Failed to reset password",
       "ROLE_ASSIGN_FAILED": "Failed to assign role"
+    },
+    "PERMISSIONS": {
+      "PAGE": {
+        "TITLE": "User Permissions",
+        "SUBTITLE": "Select a user to view and manage their assigned roles and effective permissions",
+        "BREADCRUMB": "Security Administration"
+      },
+      "LIST": {
+        "SEARCH_PLACEHOLDER": "Search users...",
+        "NO_USERS": "No users found",
+        "NO_MATCHES": "No users match your search"
+      },
+      "DETAIL": {
+        "SELECT_USER_PROMPT": "Select a user from the list to view their roles and permissions",
+        "ROLES_TITLE": "Assigned Roles",
+        "NO_ROLES_ASSIGNED": "No roles have been created yet",
+        "PERMISSIONS_TITLE": "Effective Permissions"
+      },
+      "GRANTED_BY": "Granted by",
+      "CONFIRM": {
+        "UNSAVED_TITLE": "Unsaved changes",
+        "UNSAVED_MESSAGE": "This user has unsaved role changes. Do you want to save them before switching users?",
+        "SAVE_AND_SWITCH": "Save & switch",
+        "DISCARD_AND_SWITCH": "Discard & switch",
+        "CANCEL": "Cancel"
+      },
+      "SUCCESS": {
+        "ROLES_UPDATED": "User roles updated successfully"
+      },
+      "ERRORS": {
+        "LOAD_ROLES_FAILED": "Failed to load user roles",
+        "UPDATE_ROLES_FAILED": "Failed to update user roles"
+      }
     }
   },
   "ROLES": {
@@ -4646,6 +4679,7 @@
       "NEW_ROLE_PLACEHOLDER": "New role name",
       "NO_ROLES": "No roles have been created yet",
       "NO_MATCHES": "No roles match your search",
+      "DEFAULT_ADMIN_BADGE": "Default Administrator",
       "STATS": {
         "USERS_COUNT": "Users assigned to this role",
         "PERMISSIONS_COUNT": "Granted permissions",

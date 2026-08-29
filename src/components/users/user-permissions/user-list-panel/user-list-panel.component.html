@@ -1,0 +1,51 @@
+<div class="panel-header">
+  <mat-form-field appearance="outline" class="search-field">
+    <mat-icon matPrefix>search</mat-icon>
+    <input
+      matInput
+      [ngModel]="userSearchTerm()"
+      (ngModelChange)="userSearchTerm.set($event)"
+      [placeholder]="'USERS.PERMISSIONS.LIST.SEARCH_PLACEHOLDER' | translate">
+  </mat-form-field>
+</div>
+
+<div class="user-list" role="listbox">
+  @if (loading()) {
+    @for (row of skeletonRows; track row) {
+      <div class="user-card skeleton-shimmer"></div>
+    }
+  } @else if (filteredUsers().length === 0) {
+    <div class="empty-state">
+      <mat-icon>people_outline</mat-icon>
+      <p>{{ (users().length === 0 ? 'USERS.PERMISSIONS.LIST.NO_USERS' : 'USERS.PERMISSIONS.LIST.NO_MATCHES') | translate }}</p>
+    </div>
+  } @else {
+    @for (user of filteredUsers(); track trackByUserId($index, user)) {
+      <div
+        class="user-card"
+        role="option"
+        tabindex="0"
+        [class.selected]="user.id === selectedUserId()"
+        [attr.aria-selected]="user.id === selectedUserId()"
+        (click)="userSelect.emit(user.id)"
+        (keydown.enter)="userSelect.emit(user.id)">
+
+        <div class="user-card-main">
+          <span class="user-name">{{ user.name }}</span>
+          <div class="user-meta">
+            <mat-chip class="stat-chip">
+              <mat-icon matChipAvatar>badge</mat-icon>
+              {{ user.roleName }}
+            </mat-chip>
+            <mat-chip class="stat-chip" [class.status-inactive]="user.status !== 'Active'">
+              {{ (user.status === 'Active' ? 'USERS.STATUS.ACTIVE' : 'USERS.STATUS.INACTIVE') | translate }}
+            </mat-chip>
+            @if (user.isLocked) {
+              <mat-icon class="lock-icon" [matTooltip]="'USERS.STATUS.LOCKED' | translate">lock</mat-icon>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  }
+</div>

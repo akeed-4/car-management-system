@@ -44,7 +44,7 @@
                 <mat-checkbox
                   [checked]="getGroupState(group.allKeys) === 'all'"
                   [indeterminate]="getGroupState(group.allKeys) === 'partial'"
-                  [disabled]="!canManage()"
+                  [disabled]="isReadOnly()"
                   (click)="$event.stopPropagation()"
                   (change)="groupToggle.emit({ group: group.key, checked: $event.checked })"
                   [attr.aria-label]="'ROLES.PERMISSIONS.SELECT_ALL_IN_GROUP' | translate">
@@ -64,14 +64,21 @@
                   [matTooltip]="entry.key">
                   <mat-checkbox
                     [checked]="isChecked(entry.key)"
-                    [disabled]="!canManage()"
+                    [disabled]="isReadOnly()"
                     (change)="permissionToggle.emit(entry.key)">
                   </mat-checkbox>
-                  <span class="permission-label">
-                    @if (splitLabel(entry.label).match) {
-                      {{ splitLabel(entry.label).pre }}<mark>{{ splitLabel(entry.label).match }}</mark>{{ splitLabel(entry.label).post }}
-                    } @else {
-                      {{ entry.label }}
+                  <span class="permission-label-group">
+                    <span class="permission-label">
+                      @if (splitLabel(entry.label).match) {
+                        {{ splitLabel(entry.label).pre }}<mark>{{ splitLabel(entry.label).match }}</mark>{{ splitLabel(entry.label).post }}
+                      } @else {
+                        {{ entry.label }}
+                      }
+                    </span>
+                    @if (isChecked(entry.key) && attributionFor(entry.key).length > 0) {
+                      <span class="permission-attribution">
+                        {{ 'USERS.PERMISSIONS.GRANTED_BY' | translate }}: {{ attributionFor(entry.key).join(', ') }}
+                      </span>
                     }
                   </span>
                 </label>
@@ -83,7 +90,7 @@
     }
   </div>
 
-  @if (canManage()) {
+  @if (canManage() && !readOnlyMode()) {
     <div class="save-bar">
       @if (hasUnsavedChanges()) {
         <span class="unsaved-badge">

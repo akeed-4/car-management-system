@@ -4509,6 +4509,39 @@
       "ACTION_FAILED": "فشل تنفيذ الإجراء. حاول مرة أخرى.",
       "PASSWORD_RESET_FAILED": "فشلت إعادة تعيين كلمة المرور",
       "ROLE_ASSIGN_FAILED": "فشل تعيين الدور"
+    },
+    "PERMISSIONS": {
+      "PAGE": {
+        "TITLE": "صلاحيات المستخدمين",
+        "SUBTITLE": "اختر مستخدمًا لعرض وإدارة الأدوار المعينة له وصلاحياته الفعلية",
+        "BREADCRUMB": "إدارة الأمان"
+      },
+      "LIST": {
+        "SEARCH_PLACEHOLDER": "البحث عن مستخدم...",
+        "NO_USERS": "لا يوجد مستخدمون",
+        "NO_MATCHES": "لا يوجد مستخدمون مطابقون لبحثك"
+      },
+      "DETAIL": {
+        "SELECT_USER_PROMPT": "اختر مستخدمًا من القائمة لعرض أدواره وصلاحياته",
+        "ROLES_TITLE": "الأدوار المعينة",
+        "NO_ROLES_ASSIGNED": "لم يتم إنشاء أي أدوار بعد",
+        "PERMISSIONS_TITLE": "الصلاحيات الفعلية"
+      },
+      "GRANTED_BY": "ممنوحة عن طريق",
+      "CONFIRM": {
+        "UNSAVED_TITLE": "تغييرات غير محفوظة",
+        "UNSAVED_MESSAGE": "توجد تغييرات غير محفوظة على أدوار هذا المستخدم. هل تريد حفظها قبل التبديل إلى مستخدم آخر؟",
+        "SAVE_AND_SWITCH": "حفظ والتبديل",
+        "DISCARD_AND_SWITCH": "تجاهل والتبديل",
+        "CANCEL": "إلغاء"
+      },
+      "SUCCESS": {
+        "ROLES_UPDATED": "تم تحديث أدوار المستخدم بنجاح"
+      },
+      "ERRORS": {
+        "LOAD_ROLES_FAILED": "فشل تحميل أدوار المستخدم",
+        "UPDATE_ROLES_FAILED": "فشل تحديث أدوار المستخدم"
+      }
     }
   },
   "ROLES": {
@@ -4523,6 +4556,7 @@
       "NEW_ROLE_PLACEHOLDER": "اسم الدور الجديد",
       "NO_ROLES": "لم يتم إنشاء أي أدوار بعد",
       "NO_MATCHES": "لا توجد أدوار مطابقة لبحثك",
+      "DEFAULT_ADMIN_BADGE": "المدير الافتراضي",
       "STATS": {
         "USERS_COUNT": "عدد المستخدمين المعينين لهذا الدور",
         "PERMISSIONS_COUNT": "الصلاحيات الممنوحة",

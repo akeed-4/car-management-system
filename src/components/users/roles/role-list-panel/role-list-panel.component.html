@@ -31,7 +31,12 @@
         (keydown.enter)="roleSelect.emit(role.id)">
 
         <div class="role-card-main">
-          <span class="role-name">{{ role.name }}</span>
+          <span class="role-name">
+            {{ role.name }}
+            @if (role.isDefaultAdmin) {
+              <span class="default-admin-badge">{{ 'ROLES.LIST.DEFAULT_ADMIN_BADGE' | translate }}</span>
+            }
+          </span>
 
           <div class="role-stats">
             <mat-chip class="stat-chip" [matTooltip]="'ROLES.LIST.STATS.USERS_COUNT' | translate">
@@ -72,10 +77,12 @@
             <mat-icon>file_download</mat-icon>
             {{ 'ROLES.LIST.ACTIONS.EXPORT' | translate }}
           </button>
-          <button *appHasPermission="'users.roles.manage'" mat-menu-item class="danger-item" (click)="deleteRole.emit(role)">
-            <mat-icon>delete</mat-icon>
-            {{ 'ROLES.LIST.ACTIONS.DELETE' | translate }}
-          </button>
+          @if (!role.isDefaultAdmin) {
+            <button *appHasPermission="'users.roles.manage'" mat-menu-item class="danger-item" (click)="deleteRole.emit(role)">
+              <mat-icon>delete</mat-icon>
+              {{ 'ROLES.LIST.ACTIONS.DELETE' | translate }}
+            </button>
+          }
         </mat-menu>
       </div>
     }

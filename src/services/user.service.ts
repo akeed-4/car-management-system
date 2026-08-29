@@ -1,8 +1,9 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
-import { User } from '../models/user.model';
+import { Observable, finalize, tap } from 'rxjs';
+import { User, UserRoleSummary } from '../models/user.model';
 import { ChangePassword, MyProfile, UpdateMyProfile } from '../models/my-profile.model';
+import { UserEffectivePermission } from '../models/user-permission.model';
 import { environment } from '../environments/environment';
 
 @Injectable({
@@ -14,6 +15,9 @@ export class UserService {
   private users = signal<User[]>([]);
   public users$ = this.users.asReadonly();
 
+  private usersLoading = signal<boolean>(true);
+  public usersLoading$ = this.usersLoading.asReadonly();
+
   private activeUsers = signal<User[]>([]);
   public activeUsers$ = this.activeUsers.asReadonly();
 
@@ -23,7 +27,8 @@ export class UserService {
   }
 
   loadUsers() {
-    this.getUsers().subscribe(users => this.users.set(users));
+    this.usersLoading.set(true);
+    this.getUsers().pipe(finalize(() => this.usersLoading.set(false))).subscribe(users => this.users.set(users));
   }
 
   loadActiveUsers() {
@@ -107,6 +112,32 @@ export class UserService {
     return this.http.post<void>(`${this.apiUrl}/${id}/roles`, { roleId }).pipe(
       tap(() => this.loadUsers())
     );
+  }
+
+  /** Full set of roles assigned to a user -- unlike `roleId`/`roleName` on the User list/get-by-id
+   *  DTOs, which only ever carry the first role. */
+  getUserRoles(id: number): Observable<UserRoleSummary[]> {
+    return this.http.get<UserRoleSummary[]>(`${this.apiUrl}/${id}/roles`);
+  }
+
+  /** Adds one role without disturbing the user's other roles (unlike `assignRole`, which replaces
+   *  the entire role set). */
+  addUserRole(id: number, roleId: number): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/roles/${roleId}`, {}).pipe(
+      tap(() => this.loadUsers())
+    );
+  }
+
+  removeUserRole(id: number, roleId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}/roles/${roleId}`).pipe(
+      tap(() => this.loadUsers())
+    );
+  }
+
+  /** The user's full permission catalog with granted/denied state and role attribution, resolved
+   *  server-side from their current role set -- this system has no direct per-user permission grant. */
+  getUserEffectivePermissions(id: number): Observable<UserEffectivePermission[]> {
+    return this.http.get<UserEffectivePermission[]>(`${this.apiUrl}/${id}/permissions`);
   }
 
   getMyProfile(): Observable<MyProfile> {

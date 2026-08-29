@@ -64,6 +64,20 @@ export class PermissionPanelComponent {
   saving = input<boolean>(false);
   hasUnsavedChanges = input<boolean>(false);
 
+  /** User Permissions screen reuse: permission.key -> role name(s) granting it. When provided,
+   *  each granted permission shows "Granted by: RoleA, RoleB" instead of being freely toggleable --
+   *  this system has no direct per-user permission grant, every one traces back to a role (see
+   *  UserEffectivePermissionDto on the backend). Null/omitted (the Roles screen's own usage)
+   *  changes nothing about existing behavior. */
+  attributionByKey = input<{ [key: string]: string[] } | null>(null);
+  /** Forces the checkboxes read-only and hides the Save/Discard bar regardless of canManage() --
+   *  the User Permissions screen displays effective permissions for information only; editing
+   *  happens by changing the user's roles, not by toggling permissions here directly. */
+  readOnlyMode = input<boolean>(false);
+
+  /** Single place both the checkbox [disabled] bindings and the save-bar visibility read from. */
+  isReadOnly = computed(() => this.readOnlyMode() || !this.canManage());
+
   permissionToggle = output<string>();
   groupToggle = output<{ group: string; checked: boolean }>();
   save = output<void>();
@@ -106,6 +120,10 @@ export class PermissionPanelComponent {
 
   isChecked(key: string): boolean {
     return !!this.currentPermissions()[key];
+  }
+
+  attributionFor(key: string): string[] {
+    return this.attributionByKey()?.[key] ?? [];
   }
 
   isModified(key: string): boolean {
