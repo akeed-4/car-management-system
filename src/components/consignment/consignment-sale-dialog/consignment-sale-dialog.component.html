@@ -76,15 +76,20 @@
     <div class="form-row">
       <div class="field-with-add full-width">
         <mat-form-field appearance="outline" class="field-with-add-select">
-          <mat-label>{{ 'CONSIGNMENT.SALE.DEBIT_ACCOUNT' | translate }}</mat-label>
+          <mat-label>{{ (saleForm.get('isCash')?.value ? 'CONSIGNMENT.SALE.PAYMENT_ACCOUNT' : 'CONSIGNMENT.SALE.CUSTOMER_ACCOUNT') | translate }}</mat-label>
           <mat-select formControlName="debitAccountId" required>
             <mat-option *ngFor="let account of debitAccounts()" [value]="account.id">
               {{ account.accountCode }} - {{ account.accountNameAr }}
             </mat-option>
           </mat-select>
+          <mat-hint *ngIf="!debitAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
         </mat-form-field>
         <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateDebitAccountDialog()">
           <mat-icon>add</mat-icon>
+        </button>
+        <button mat-icon-button type="button" class="field-add-btn" *ngIf="debitAccountManuallyChanged()"
+                [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetDebitAccountToDefault()">
+          <mat-icon>restart_alt</mat-icon>
         </button>
       </div>
     </div>
@@ -114,9 +119,14 @@
               {{ account.accountCode }} - {{ account.accountNameAr }}
             </mat-option>
           </mat-select>
+          <mat-hint *ngIf="!ownerPayableAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
         </mat-form-field>
         <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateOwnerPayableAccountDialog()">
           <mat-icon>add</mat-icon>
+        </button>
+        <button mat-icon-button type="button" class="field-add-btn" *ngIf="ownerPayableAccountManuallyChanged()"
+                [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetOwnerPayableAccountToDefault()">
+          <mat-icon>restart_alt</mat-icon>
         </button>
       </div>
     </div>

@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -19,6 +20,8 @@ import { InventoryService } from '../../../../src/services/inventory.service';
 import { Car } from '../../../../src/models/car.model';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { AccountNode } from '../../../../src/models/account-node.model';
+import { AccountingService, DefaultAccountKind } from '../../../../src/components/accounting/accounting.service';
+import { DefaultAccountTracker } from '../../../../src/components/shared/default-account/default-account.helper';
 
 @Component({
   selector: 'app-receipt-voucher',
@@ -34,6 +37,7 @@ import { AccountNode } from '../../../../src/models/account-node.model';
     MatIconModule,
     MatCardModule,
     MatToolbarModule,
+    MatTooltipModule,
     RouterModule,
     DxDataGridModule,
     DxButtonModule
@@ -46,11 +50,16 @@ export class ReceiptVoucherComponent implements OnInit {
   private accountService = inject(ChartOfAccountsService);
   private paymentService = inject(PaymentService);
   private inventoryService = inject(InventoryService);
+  private accountingService = inject(AccountingService);
 
   form!: FormGroup;
   accounts$!: Observable<AccountNode[]>;
   cars$!: Observable<Car[]>;
   detailsData = new BehaviorSubject<SimpleReceiptDetail[]>([]);
+
+  // ── Default account + manual override (see DefaultAccountTracker) ──────────────────────────
+  private sourceAccountTracker!: DefaultAccountTracker;
+  sourceAccountManuallyChanged = false;
 
   paymentMethods = [
     { value: 'CASH', label: 'Cash' },
@@ -68,6 +77,16 @@ export class ReceiptVoucherComponent implements OnInit {
 
     this.accounts$ = this.accountService.getAccounts();
     this.cars$ = this.inventoryService.getCars();
+
+    this.sourceAccountTracker = new DefaultAccountTracker(this.accountingService, this.form.get('sourceAccountId') as any);
+    this.form.get('sourceAccountId')?.valueChanges.subscribe(() =>
+      this.sourceAccountManuallyChanged = this.sourceAccountTracker.manuallyChanged);
+    this.sourceAccountTracker.recalculate({ kind: DefaultAccountKind.PaymentAccount });
+  }
+
+  resetSourceAccountToDefault(): void {
+    this.sourceAccountTracker.reset();
+    this.sourceAccountManuallyChanged = false;
   }
 
   addDetail(): void {

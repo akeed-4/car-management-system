@@ -23,6 +23,9 @@ export interface SalesInvoice {
   ClassificationId?: number;
   debitAccountId?: number;
   creditAccountId?: number;
+  /** Mixed Sale: the Cash/Bank account the down-payment leg posted to (Credit/Installment sales
+   *  with a down payment only -- see SalesInvoiceDto.DownPaymentAccountId backend doc comment). */
+  downPaymentAccountId?: number;
   isCash?: boolean;
   salesChannel?: SalesChannel;
   saleType?: SaleType;

@@ -29,11 +29,12 @@ import { InventoryService } from '../../../services/inventory.service';
 import { PurchaseInvoice } from '../../../models/purchase-invoice.model';
 import { Payment, BeneficiaryType } from '../../../models/payment.model';
 import { VoucherStatus } from '../../../models/payment-voucher.model';
-import { AccountingService } from '../../accounting/accounting.service';
+import { AccountingService, DefaultAccountKind } from '../../accounting/accounting.service';
 import { openCreateAccountDialog } from '../../accounting/create-account-dialog.helper';
 import { NotificationService } from '@/src/services/notification.service';
 import { extractErrorMessage } from '@/src/models/http-error-message';
 import { warnIfPartyAccountMissing } from '@/src/components/shared/party-account-required-dialog/party-account-required-warning.helper';
+import { DefaultAccountTracker } from '@/src/components/shared/default-account/default-account.helper';
 
 @Component({
   selector: 'app-payment-form',
@@ -120,6 +121,17 @@ export class PaymentFormComponent implements OnInit {
   journalTotalCredit = computed(() => this.paymentForm?.get('totalVoucherAmount')?.value || 0);
   isJournalBalanced = computed(() => this.journalTotalDebit() === this.journalTotalCredit());
 
+  // ── Default account + manual override (see DefaultAccountTracker) ──────────────────────────
+  // Debit leg: Supplier AP, recalculated whenever the supplier changes. Credit leg: the Cash/Bank
+  // settlement account (no per-method account picker exists on this form -- see PaymentService
+  // gap), recalculated once with no explicit override.
+  private debitAccountTracker!: DefaultAccountTracker;
+  private creditAccountTracker!: DefaultAccountTracker;
+  debitAccountManuallyChanged = computed(() => this.debitAccountManuallyChangedSignal());
+  creditAccountManuallyChanged = computed(() => this.creditAccountManuallyChangedSignal());
+  private debitAccountManuallyChangedSignal = signal(false);
+  private creditAccountManuallyChangedSignal = signal(false);
+
   // ── Lifecycle ────────────────────────────────────────────────────────────────
   ngOnInit(): void {
     this.initForm();
@@ -131,6 +143,14 @@ export class PaymentFormComponent implements OnInit {
     this.supplierService.getSuppliers().subscribe(suppliers => {
       this.suppliers.set(suppliers);
     });
+
+    this.debitAccountTracker = new DefaultAccountTracker(this.accountingService, this.paymentForm.get('debitAccountId') as any);
+    this.creditAccountTracker = new DefaultAccountTracker(this.accountingService, this.paymentForm.get('creditAccountId') as any);
+    this.paymentForm.get('debitAccountId')?.valueChanges.subscribe(() =>
+      this.debitAccountManuallyChangedSignal.set(this.debitAccountTracker.manuallyChanged));
+    this.paymentForm.get('creditAccountId')?.valueChanges.subscribe(() =>
+      this.creditAccountManuallyChangedSignal.set(this.creditAccountTracker.manuallyChanged));
+    this.creditAccountTracker.recalculate({ kind: DefaultAccountKind.PaymentAccount });
 
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
@@ -162,6 +182,9 @@ export class PaymentFormComponent implements OnInit {
   onSupplierChange(supplierId: number | null): void {
     this.allocationRows.set([]);
     while (this.details.length) this.details.removeAt(0);
+    if (supplierId) {
+      this.debitAccountTracker.recalculate({ kind: DefaultAccountKind.SupplierPayable, partyId: supplierId });
+    }
     if (!supplierId) {
       this.outstandingInvoices.set([]);
       return;
@@ -174,6 +197,17 @@ export class PaymentFormComponent implements OnInit {
       }))),
       error: () => this.outstandingInvoices.set([])
     });
+  }
+
+  /** "Reset to Default" action next to an overridden account field. */
+  resetDebitAccountToDefault(): void {
+    this.debitAccountTracker.reset();
+    this.debitAccountManuallyChangedSignal.set(false);
+  }
+
+  resetCreditAccountToDefault(): void {
+    this.creditAccountTracker.reset();
+    this.creditAccountManuallyChangedSignal.set(false);
   }
 
   onAllocationRowsChange(rows: InvoiceAllocationRow[]): void {

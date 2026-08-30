@@ -21,6 +21,9 @@ import { AccountNode } from '../../../../src/models/account-node.model';
 import { PurchaseInvoice } from '../../../../src/models/purchase-invoice.model';
 import { Car } from '../../../../src/models/car.model';
 import { Observable, forkJoin, BehaviorSubject } from 'rxjs';
+import { AccountingService, DefaultAccountKind } from '../../../../src/components/accounting/accounting.service';
+import { DefaultAccountTracker } from '../../../../src/components/shared/default-account/default-account.helper';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-car-payment-voucher',
@@ -36,6 +39,7 @@ import { Observable, forkJoin, BehaviorSubject } from 'rxjs';
     MatIconModule,
     MatCardModule,
     MatToolbarModule,
+    MatTooltipModule,
     RouterModule,
     DxDataGridModule,
     DxButtonModule
@@ -49,11 +53,18 @@ export class CarPaymentVoucherComponent implements OnInit {
   private paymentService = inject(PaymentService);
   private purchasesService = inject(PurchasesService);
   private inventoryService = inject(InventoryService);
+  private accountingService = inject(AccountingService);
 
   form!: FormGroup;
   accounts$!: Observable<AccountNode[]>;
   invoices$!: Observable<PurchaseInvoice[]>;
   detailsData = new BehaviorSubject<CarPaymentDetail[]>([]);
+
+  // ── Default account + manual override (see DefaultAccountTracker) ──────────────────────────
+  // Debit ("account") leg: the invoice's supplier AP account once a Purchase Invoice is picked,
+  // else the default Cash/Bank payment account (no invoice = a general/cash car cost payment).
+  private accountTracker!: DefaultAccountTracker;
+  accountManuallyChanged = false;
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -66,6 +77,16 @@ export class CarPaymentVoucherComponent implements OnInit {
 
     this.accounts$ = this.accountService.getAccounts();
     this.invoices$ = this.purchasesService.getInvoices();
+
+    this.accountTracker = new DefaultAccountTracker(this.accountingService, this.form.get('accountId') as any);
+    this.form.get('accountId')?.valueChanges.subscribe(() =>
+      this.accountManuallyChanged = this.accountTracker.manuallyChanged);
+    this.accountTracker.recalculate({ kind: DefaultAccountKind.PaymentAccount });
+  }
+
+  resetAccountToDefault(): void {
+    this.accountTracker.reset();
+    this.accountManuallyChanged = false;
   }
 
   addDetail(): void {
@@ -93,6 +114,9 @@ export class CarPaymentVoucherComponent implements OnInit {
     if (invoiceId) {
       this.purchasesService.getInvoiceById(invoiceId).subscribe(invoice => {
         this.detailsData.next([]);
+        if (invoice.supplierId) {
+          this.accountTracker.recalculate({ kind: DefaultAccountKind.SupplierPayable, partyId: invoice.supplierId });
+        }
         const carIds = invoice.items.map(item => item.carId);
         const carObservables = carIds.map(id => this.inventoryService.getCarById(id));
         forkJoin(carObservables).subscribe(cars => {
@@ -103,6 +127,7 @@ export class CarPaymentVoucherComponent implements OnInit {
       });
     } else {
       this.detailsData.next([]);
+      this.accountTracker.recalculate({ kind: DefaultAccountKind.PaymentAccount });
     }
   }
 

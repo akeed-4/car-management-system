@@ -57,9 +57,14 @@
                       {{ account.accountCode }} - {{ translate.currentLang === 'ar' ? (account.accountNameAr || account.accountNameEn) : account.accountNameEn }}
                     </mat-option>
                   </mat-select>
+                  <mat-hint *ngIf="!debitAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
                 </mat-form-field>
                 <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateDebitAccountDialog()">
                   <mat-icon>add</mat-icon>
+                </button>
+                <button mat-icon-button type="button" class="field-add-btn" *ngIf="debitAccountManuallyChanged()"
+                        [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetDebitAccountToDefault()">
+                  <mat-icon>restart_alt</mat-icon>
                 </button>
               </div>
 
@@ -75,9 +80,14 @@
                       {{ account.accountCode }} - {{ translate.currentLang === 'ar' ? (account.accountNameAr || account.accountNameEn) : account.accountNameEn }}
                     </mat-option>
                   </mat-select>
+                  <mat-hint *ngIf="!creditAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
                 </mat-form-field>
                 <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateCreditAccountDialog()">
                   <mat-icon>add</mat-icon>
+                </button>
+                <button mat-icon-button type="button" class="field-add-btn" *ngIf="creditAccountManuallyChanged()"
+                        [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetCreditAccountToDefault()">
+                  <mat-icon>restart_alt</mat-icon>
                 </button>
               </div>
             </div>

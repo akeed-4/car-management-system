@@ -37,7 +37,8 @@ import { buildVehicleDescription } from '../../../models/vehicle-description';
 import { applyFieldLock } from '../../../models/form-field-lock';
 import { DxoValueErrorBarComponent } from 'devextreme-angular/ui/nested';
 import { NotificationService } from '@/src/services/notification.service';
-import { AccountingService } from '../../accounting/accounting.service';
+import { AccountingService, DefaultAccountKind } from '../../accounting/accounting.service';
+import { DefaultAccountTracker } from '@/src/components/shared/default-account/default-account.helper';
 import { SalesCycleService } from '../../../services/sales-cycle.service';
 import { Quotation } from '../../../models/quotation.model';
 import { SalesChannel } from '../../../models/enums/sales-channel.enum';
@@ -148,6 +149,10 @@ export class SalesInvoiceFormComponent implements OnInit {
   paymentAccounts = signal<Account[]>([]);
   private paymentAccountsLoaded = false;
 
+  // ── Default account + manual override (see DefaultAccountTracker) ──────────────────────────
+  private paymentAccountTracker: DefaultAccountTracker | null = null;
+  paymentAccountManuallyChanged = signal(false);
+
   /** Loads the Cash/Bank options exactly once per component instance. */
   private loadPaymentAccounts(): void {
     if (this.paymentAccountsLoaded) return;
@@ -161,16 +166,47 @@ export class SalesInvoiceFormComponent implements OnInit {
   /** Keeps the Payment Account control in sync with the settlement type: required (and kept)
    * on CASH, cleared + optional on CREDIT/INSTALLMENT so a previously chosen cash account is
    * never sent with a credit document (Customer AR is server-resolved there). */
+  /** Mixed Sale: a Credit/Installment invoice with a down payment posts two debit lines (Cash/Bank
+   *  for the down payment + Customer AR for the remainder) -- see JournalEngineService.
+   *  RegisterSaleJournalAsync. The Payment Account field is shown (optional -- the backend falls
+   *  back to its default Cash account when left blank) whenever there's an actual down-payment
+   *  leg to attach an account to. */
+  hasDownPayment(): boolean {
+    return !this.isCash && Number(this.invoiceForm?.get('downPayment')?.value) > 0;
+  }
+
+  /** "Reset to Default" action next to an overridden Payment Account field. */
+  resetPaymentAccountToDefault(): void {
+    this.paymentAccountTracker?.reset();
+    this.paymentAccountManuallyChanged.set(false);
+  }
+
   refreshPaymentAccountValidation(): void {
     const control = this.invoiceForm?.get('paymentAccountId');
     if (!control) return;
+
+    if (!this.paymentAccountTracker) {
+      this.paymentAccountTracker = new DefaultAccountTracker(this.accountingService, control as any);
+      control.valueChanges.subscribe(() =>
+        this.paymentAccountManuallyChanged.set(this.paymentAccountTracker!.manuallyChanged));
+    }
+
     if (this.isCash) {
+      // Fully cash: the payment account IS the invoice's whole debit leg -- required.
       control.setValidators([Validators.required]);
+      control.updateValueAndValidity();
+      this.paymentAccountTracker.recalculate({ kind: DefaultAccountKind.PaymentAccount });
+    } else if (this.hasDownPayment()) {
+      // Mixed sale: optional override of the down-payment leg's default Cash account.
+      control.clearValidators();
+      control.updateValueAndValidity();
+      this.paymentAccountTracker.recalculate({ kind: DefaultAccountKind.PaymentAccount });
     } else {
+      // Fully credit, nothing paid at creation: no cash leg exists at all.
       control.clearValidators();
       control.reset({ value: null, emitEvent: false });
+      control.updateValueAndValidity();
     }
-    control.updateValueAndValidity();
   }
 
   displayedColumns: string[] = ['carDescription', 'quantity', 'unitPrice', 'lineTotal', 'actions'];
@@ -381,6 +417,9 @@ export class SalesInvoiceFormComponent implements OnInit {
       if (!this.isCash) {
         this.amountReceivedSignal.set(Number(value) || 0);
       }
+      // Mixed Sale: entering/clearing a down payment shows/hides the (optional) Payment Account
+      // field for its cash leg.
+      this.refreshPaymentAccountValidation();
     });
     if (!this.isCash) {
       this.amountReceivedSignal.set(Number(this.invoiceForm.get('downPayment')?.value) || 0);
@@ -551,14 +590,30 @@ export class SalesInvoiceFormComponent implements OnInit {
           downPayment: new FormControl(invoice.downPayment || 0),
           // Cash invoices persist their payment account in CreditAccountId server-side
           // (the cash entry's debit leg) -- preselect it so edit mode shows the stored one.
+          // Credit/Installment invoices with a down payment (Mixed Sale) persist theirs in
+          // DownPaymentAccountId instead -- same idea, different backend field.
           paymentAccountId: new FormControl<number | null>(
             (invoice.saleType ?? (invoice.isCash ? SaleType.Cash : SaleType.Credit)) === SaleType.Cash
               ? (invoice.creditAccountId ?? null)
-              : null
+              : (invoice.downPaymentAccountId ?? null)
           ),
           discountType: new FormControl<DiscountType>(invoice.discountType || 'Fixed'),
           discountValue: new FormControl(invoice.discountValue || 0, [Validators.min(0), this.discountExceedsSubtotalValidator])
         });
+        // Construct the Payment Account tracker BEFORE any recalculate() call can fire (from
+        // updateDownPaymentValidators -> refreshPaymentAccountValidation below), and -- since the
+        // control's initial value was set via the FormControl(...) constructor above rather than
+        // a later patchValue/setValue the tracker would see as a "manual change" -- explicitly
+        // mark it manual right now if a saved account is already present. Otherwise a loaded
+        // invoice's real saved account could be silently overwritten by a freshly resolved default.
+        const paymentAccountControl = this.invoiceForm.get('paymentAccountId') as any;
+        this.paymentAccountTracker = new DefaultAccountTracker(this.accountingService, paymentAccountControl);
+        if (paymentAccountControl.value != null) {
+          this.paymentAccountTracker.markAsManuallyChanged();
+        }
+        this.paymentAccountManuallyChanged.set(this.paymentAccountTracker.manuallyChanged);
+        paymentAccountControl.valueChanges.subscribe(() =>
+          this.paymentAccountManuallyChanged.set(this.paymentAccountTracker!.manuallyChanged));
         this.updateDownPaymentValidators();
         this.loadPaymentAccounts();
         this.amountReceivedSignal.set(invoice.isCash ? invoice.totalAmount : (invoice.downPayment || invoice.amountPaid || 0));
@@ -1239,11 +1294,13 @@ export class SalesInvoiceFormComponent implements OnInit {
       // SalesInvoiceService.CreateInvoiceEntityAsync / RecalculatePaymentFields.
       ownershipTransferStatus: 'Not Started',
       depositId: this.selectedDeposit()?.id || null,
-      // CASH only: the requested Cash/Bank settlement account (backend re-validates + falls
-      // back to its seeded default Cash). Undefined drops the field from the JSON payload on
-      // credit/installment sales -- Customer AR is server-resolved there and a stale payment
-      // account must never ride along.
-      paymentAccountId: this.isCash
+      // CASH: the requested Cash/Bank settlement account (backend re-validates + falls back to
+      // its seeded default Cash). CREDIT/INSTALLMENT with a down payment (Mixed Sale): the
+      // requested Cash/Bank account for the down-payment leg -- Customer AR still carries the
+      // remaining balance and is always server-resolved. Undefined drops the field from the JSON
+      // payload on a credit/installment sale with NO down payment, where there's no cash leg at
+      // all to attach an account to.
+      paymentAccountId: (this.isCash || this.hasDownPayment())
         ? (this.invoiceForm.get('paymentAccountId')?.value ?? undefined)
         : undefined,
     };

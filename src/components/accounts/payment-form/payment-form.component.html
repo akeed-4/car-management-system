@@ -48,7 +48,7 @@
               <mat-form-field appearance="outline" class="form-field debit-field field-with-add-select">
                 <mat-label>
                   <mat-icon class="field-icon">arrow_upward</mat-icon>
-                  {{ 'ACCOUNTS.FORM.DEBIT_ACCOUNT' | translate }}
+                  {{ 'ACCOUNTS.FORM.SUPPLIER_ACCOUNT' | translate }}
                 </mat-label>
                 <mat-select formControlName="debitAccountId" required>
                   <mat-option [value]="null" disabled>{{ 'ACCOUNTS.FORM.SELECT_ACCOUNT' | translate }}</mat-option>
@@ -56,6 +56,7 @@
                     {{ acc.accountCode }} - {{ translate.currentLang === 'ar' ? (acc.accountNameAr || acc.accountNameEn) : acc.accountNameEn }}
                   </mat-option>
                 </mat-select>
+                <mat-hint *ngIf="!debitAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
                 <mat-error *ngIf="paymentForm.get('debitAccountId')?.hasError('required')">
                   {{ 'VALIDATION.REQUIRED' | translate }}
                 </mat-error>
@@ -63,13 +64,17 @@
               <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateDebitAccountDialog()">
                 <mat-icon>add</mat-icon>
               </button>
+              <button mat-icon-button type="button" class="field-add-btn" *ngIf="debitAccountManuallyChanged()"
+                      [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetDebitAccountToDefault()">
+                <mat-icon>restart_alt</mat-icon>
+              </button>
             </div>
 
             <div class="field-with-add">
               <mat-form-field appearance="outline" class="form-field credit-field field-with-add-select">
                 <mat-label>
                   <mat-icon class="field-icon">arrow_downward</mat-icon>
-                  {{ 'ACCOUNTS.FORM.CREDIT_ACCOUNT' | translate }}
+                  {{ 'ACCOUNTS.FORM.PAYMENT_ACCOUNT' | translate }}
                 </mat-label>
                 <mat-select formControlName="creditAccountId" required>
                   <mat-option [value]="null" disabled>{{ 'ACCOUNTS.FORM.SELECT_ACCOUNT' | translate }}</mat-option>
@@ -77,12 +82,17 @@
                     {{ acc.accountCode }} - {{ translate.currentLang === 'ar' ? (acc.accountNameAr || acc.accountNameEn) : acc.accountNameEn }}
                   </mat-option>
                 </mat-select>
+                <mat-hint *ngIf="!creditAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
                 <mat-error *ngIf="paymentForm.get('creditAccountId')?.hasError('required')">
                   {{ 'VALIDATION.REQUIRED' | translate }}
                 </mat-error>
               </mat-form-field>
               <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateCreditAccountDialog()">
                 <mat-icon>add</mat-icon>
+              </button>
+              <button mat-icon-button type="button" class="field-add-btn" *ngIf="creditAccountManuallyChanged()"
+                      [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetCreditAccountToDefault()">
+                <mat-icon>restart_alt</mat-icon>
               </button>
             </div>
           </div>

@@ -24,12 +24,13 @@ import { CustomerService } from '../../../services/customer.service';
 import { SalesService } from '../../../services/sales.service';
 import { ReceiptService } from '../../../services/receipt.service';
 import { Receipt, ReceiptSource, CreateReceiptDto } from '@/src/models/receipt.model';
-import { AccountingService } from '../../accounting/accounting.service';
+import { AccountingService, DefaultAccountKind } from '../../accounting/accounting.service';
 import { openCreateAccountDialog } from '../../accounting/create-account-dialog.helper';
 import { Account } from '../../accounting/models';
 import { NotificationService } from '@/src/services/notification.service';
 import { extractErrorMessage } from '@/src/models/http-error-message';
 import { warnIfPartyAccountMissing } from '@/src/components/shared/party-account-required-dialog/party-account-required-warning.helper';
+import { DefaultAccountTracker } from '@/src/components/shared/default-account/default-account.helper';
 
 @Component({
   selector: 'app-receipt-form',
@@ -112,11 +113,34 @@ export class ReceiptFormComponent implements OnInit {
    *  allocation" only gates whether the grid appears -- not whether it must be fully allocated. */
   requiresAllocation = computed(() => this.isCustomerReceipt() && !this.noInvoiceAllocation());
 
+  // ── Default account + manual override (see DefaultAccountTracker) ──────────────────────────
+  // Credit leg: Customer AR, recalculated whenever the customer changes. Debit leg: the Cash/Bank
+  // settlement account, recalculated whenever the receipt method changes -- there's no per-method
+  // account picker today (see ReceiptService gap), so this simply asks for the default Cash/Bank
+  // account with no explicit override, same account every "Cash" receipt would otherwise need to
+  // be picked by hand for.
+  private creditAccountTracker!: DefaultAccountTracker;
+  private debitAccountTracker!: DefaultAccountTracker;
+  creditAccountManuallyChanged = computed(() => this.creditAccountManuallyChangedSignal());
+  debitAccountManuallyChanged = computed(() => this.debitAccountManuallyChangedSignal());
+  private creditAccountManuallyChangedSignal = signal(false);
+  private debitAccountManuallyChangedSignal = signal(false);
+
   ngOnInit() {
     this.initForm();
     // Debit/Credit selectors must only offer leaf/postable accounts -- parent/grouping accounts
     // are excluded server-side by this endpoint, not filtered client-side from the full account list.
     this.accountingService.getPostableAccounts().subscribe(accounts => this.accounts.set(accounts));
+
+    this.creditAccountTracker = new DefaultAccountTracker(this.accountingService, this.receiptForm.get('creditAccountId') as any);
+    this.debitAccountTracker = new DefaultAccountTracker(this.accountingService, this.receiptForm.get('debitAccountId') as any);
+    this.receiptForm.get('creditAccountId')?.valueChanges.subscribe(() =>
+      this.creditAccountManuallyChangedSignal.set(this.creditAccountTracker.manuallyChanged));
+    this.receiptForm.get('debitAccountId')?.valueChanges.subscribe(() =>
+      this.debitAccountManuallyChangedSignal.set(this.debitAccountTracker.manuallyChanged));
+    // Default Cash/Bank account applies immediately -- it doesn't depend on any field the user
+    // fills in later, unlike the customer-dependent credit leg below.
+    this.debitAccountTracker.recalculate({ kind: DefaultAccountKind.PaymentAccount });
 
     // react to receiptType changes: clear customer/invoices/allocations when not CUSTOMER
     this.receiptForm.get('receiptType')?.valueChanges.subscribe((val: string) => {
@@ -149,11 +173,25 @@ export class ReceiptFormComponent implements OnInit {
   onCustomerChange(customerId: number | null) {
     this.receiptForm.patchValue({ customerId });
     this.allocationRows.set([]);
+    if (customerId) {
+      this.creditAccountTracker.recalculate({ kind: DefaultAccountKind.CustomerReceivable, partyId: customerId });
+    }
     if (!this.isCustomerReceipt() || !customerId) {
       this.customerInvoices.set([]);
       return;
     }
     this.loadCustomerInvoices(customerId);
+  }
+
+  /** "Reset to Default" action next to an overridden account field. */
+  resetCreditAccountToDefault(): void {
+    this.creditAccountTracker.reset();
+    this.creditAccountManuallyChangedSignal.set(false);
+  }
+
+  resetDebitAccountToDefault(): void {
+    this.debitAccountTracker.reset();
+    this.debitAccountManuallyChangedSignal.set(false);
   }
 
   private loadCustomerInvoices(customerId: number) {

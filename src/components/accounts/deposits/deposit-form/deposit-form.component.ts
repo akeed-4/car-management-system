@@ -25,11 +25,12 @@ import { DepositVoucher, DepositPaymentMethod } from '@/src/models/deposit-vouch
 import { ChartOfAccountsService } from '../../../../services/chart-of-accounts.service';
 import { AccountNode } from '../../../../models/account-node.model';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { AccountingService } from '@/src/components/accounting/accounting.service';
+import { AccountingService, DefaultAccountKind } from '@/src/components/accounting/accounting.service';
 import { openCreateAccountDialog } from '@/src/components/accounting/create-account-dialog.helper';
 import { Account } from '@/src/components/accounting/models';
 import { NotificationService } from '@/src/services/notification.service';
 import { extractErrorMessage } from '@/src/models/http-error-message';
+import { DefaultAccountTracker } from '@/src/components/shared/default-account/default-account.helper';
 
 @Component({
   selector: 'app-deposit-form',
@@ -68,6 +69,17 @@ private notificationService = inject(NotificationService);
   accounts = signal<Account[]>([]);
   creditAccounts = computed(() => this.accounts());
   debitAccounts = computed(() => this.accounts());
+
+  // ── Default account + manual override (see DefaultAccountTracker) ──────────────────────────
+  // Debit leg: Cash/Bank settlement account (no per-method mapping exists yet -- see
+  // AccountResolutionService.ResolveDepositDebitAccountAsync). Credit leg: the depositing
+  // customer's AR/deposit-liability account, recalculated whenever the customer changes.
+  private debitAccountTracker!: DefaultAccountTracker;
+  private creditAccountTracker!: DefaultAccountTracker;
+  debitAccountManuallyChanged = computed(() => this.debitAccountManuallyChangedSignal());
+  creditAccountManuallyChanged = computed(() => this.creditAccountManuallyChangedSignal());
+  private debitAccountManuallyChangedSignal = signal(false);
+  private creditAccountManuallyChangedSignal = signal(false);
   openCarSelectionDialog() {
     import('../../../../components/sales/car-selection-dialog/car-selection-dialog.component').then(({ CarSelectionDialogComponent }) => {
       const dialogRef = this.dialog.open(CarSelectionDialogComponent, {
@@ -105,6 +117,17 @@ private notificationService = inject(NotificationService);
       this.accounts.update(list => [...list, created]);
       this.depositForm.get('creditAccountId')?.setValue(created.id);
     });
+  }
+
+  /** "Reset to Default" action next to an overridden account field. */
+  resetDebitAccountToDefault(): void {
+    this.debitAccountTracker.reset();
+    this.debitAccountManuallyChangedSignal.set(false);
+  }
+
+  resetCreditAccountToDefault(): void {
+    this.creditAccountTracker.reset();
+    this.creditAccountManuallyChangedSignal.set(false);
   }
 
   depositForm!: FormGroup;
@@ -184,6 +207,14 @@ private notificationService = inject(NotificationService);
     // accounts, excluded server-side by this endpoint rather than filtered client-side.
     this.accountingService.getPostableAccounts().subscribe(accs => this.accounts.set(accs));
 
+    this.debitAccountTracker = new DefaultAccountTracker(this.accountingService, this.depositForm.get('debitAccountId') as any);
+    this.creditAccountTracker = new DefaultAccountTracker(this.accountingService, this.depositForm.get('creditAccountId') as any);
+    this.depositForm.get('debitAccountId')?.valueChanges.subscribe(() =>
+      this.debitAccountManuallyChangedSignal.set(this.debitAccountTracker.manuallyChanged));
+    this.depositForm.get('creditAccountId')?.valueChanges.subscribe(() =>
+      this.creditAccountManuallyChangedSignal.set(this.creditAccountTracker.manuallyChanged));
+    this.debitAccountTracker.recalculate({ kind: DefaultAccountKind.PaymentAccount });
+
     const routePath = this.route.snapshot.routeConfig?.path ?? '';
 
     // If the route is the edit path, treat the 'id' param as the deposit id to load
@@ -254,6 +285,10 @@ private notificationService = inject(NotificationService);
     this.depositForm.get('customerId')?.valueChanges.subscribe(value => {
       const customerId = value ? Number(value) : null;
       this.selectedCustomerId.set(customerId);
+
+      if (customerId) {
+        this.creditAccountTracker.recalculate({ kind: DefaultAccountKind.CustomerReceivable, partyId: customerId });
+      }
 
       const customer = this.customers().find(item => item.id === customerId);
       if (!customer) {

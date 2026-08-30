@@ -209,6 +209,30 @@
               (amountReceivedChange)="onAmountReceivedChange($event)">
             </app-cash-amount-calculator>
           </section>
+
+          <!-- Mixed Sale: a Credit/Installment invoice with a down payment posts two debit lines
+               (Cash/Bank for the down payment + Customer AR for the remainder). Optional --
+               backend falls back to its default Cash account when left blank. Hidden entirely
+               when there's no down payment at all (single AR line, no cash leg to speak of). -->
+          <section class="erp-section form-section" *ngIf="hasDownPayment()">
+            <h3 class="erp-section-title form-section-title">{{ 'ACCOUNTING.DOWN_PAYMENT_ACCOUNT_SECTION' | translate }}</h3>
+            <div class="field-with-add">
+              <mat-form-field appearance="outline" class="full-width form-field">
+                <mat-label>{{ 'ACCOUNTING.PAYMENT_ACCOUNT' | translate }}</mat-label>
+                <mat-select formControlName="paymentAccountId">
+                  <mat-option *ngFor="let account of paymentAccounts()" [value]="account.id">
+                    {{ account.accountCode }} - {{ translate.currentLang === 'ar' ? (account.accountNameAr || account.accountNameEn) : account.accountNameEn }}
+                  </mat-option>
+                </mat-select>
+                <mat-icon matPrefix>account_balance_wallet</mat-icon>
+                <mat-hint *ngIf="!paymentAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
+              </mat-form-field>
+              <button mat-icon-button type="button" *ngIf="paymentAccountManuallyChanged()"
+                      [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetPaymentAccountToDefault()">
+                <mat-icon>restart_alt</mat-icon>
+              </button>
+            </div>
+          </section>
         </div>
 
         <!-- Line items grid. Notes now lives in the sidebar, directly under Invoice Summary. -->

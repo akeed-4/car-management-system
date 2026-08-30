@@ -15,8 +15,9 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ConsignmentCar, CommissionType } from '../../../models/consignment-car.model';
 import { Customer } from '../../../models/customer.model';
 import { Account } from '../../accounting/models';
-import { AccountingService } from '../../accounting/accounting.service';
+import { AccountingService, DefaultAccountKind } from '../../accounting/accounting.service';
 import { openCreateAccountDialog } from '../../accounting/create-account-dialog.helper';
+import { DefaultAccountTracker } from '@/src/components/shared/default-account/default-account.helper';
 import { CustomerLookupModalComponent } from '../../shared/customer-lookup-modal/customer-lookup-modal.component';
 import { ConsignmentSaleService } from '../../../services/consignment-sale.service';
 import { AuthService } from '../../../services/AuthService.service';
@@ -88,6 +89,20 @@ export class ConsignmentSaleDialogComponent {
     notes: new FormControl(''),
   });
 
+  // ── Default account + manual override (see DefaultAccountTracker) ──────────────────────────
+  // Debit leg: Cash/Bank payment account (isCash) or the buying customer's AR account (credit),
+  // recalculated whenever isCash or customerId changes. Owner Payable: the car's owning supplier's
+  // AP account -- ConsignmentCar.SupplierId is always known up front, so this resolves immediately.
+  // Commission Revenue has NO default source today: ConsignmentCar/ConsignmentSale carry no StoreId
+  // (only an optional BranchId), and ResolveCommissionRevenueAccountAsync needs a StoreId to read
+  // StoreAccountingConfiguration -- left fully manual rather than guessing a store.
+  private debitAccountTracker!: DefaultAccountTracker;
+  private ownerPayableAccountTracker!: DefaultAccountTracker;
+  debitAccountManuallyChanged = computed(() => this.debitAccountManuallyChangedSignal());
+  ownerPayableAccountManuallyChanged = computed(() => this.ownerPayableAccountManuallyChangedSignal());
+  private debitAccountManuallyChangedSignal = signal(false);
+  private ownerPayableAccountManuallyChangedSignal = signal(false);
+
   /** Live preview only -- the authoritative commission amount is recomputed server-side. */
   commissionPreview = computed(() => {
     const salePrice = this.saleForm.get('salePrice')?.value ?? 0;
@@ -136,17 +151,52 @@ export class ConsignmentSaleDialogComponent {
       amountPaid: data.car.expectedSalePrice,
     });
 
+    this.debitAccountTracker = new DefaultAccountTracker(this.accountingService, this.saleForm.get('debitAccountId') as any);
+    this.ownerPayableAccountTracker = new DefaultAccountTracker(this.accountingService, this.saleForm.get('ownerPayableAccountId') as any);
+    this.saleForm.get('debitAccountId')?.valueChanges.subscribe(() =>
+      this.debitAccountManuallyChangedSignal.set(this.debitAccountTracker.manuallyChanged));
+    this.saleForm.get('ownerPayableAccountId')?.valueChanges.subscribe(() =>
+      this.ownerPayableAccountManuallyChangedSignal.set(this.ownerPayableAccountTracker.manuallyChanged));
+
     this.saleForm.get('isCash')?.valueChanges.subscribe((isCash) => {
       if (isCash) {
         this.saleForm.patchValue({ amountPaid: this.saleForm.get('salePrice')?.value ?? 0 }, { emitEvent: false });
       }
+      this.recalculateDebitAccountDefault();
     });
+    this.saleForm.get('customerId')?.valueChanges.subscribe(() => this.recalculateDebitAccountDefault());
+    // Owner Payable never depends on any field the user fills in -- the car's own SupplierId is
+    // always known as soon as the dialog opens.
+    this.ownerPayableAccountTracker.recalculate({ kind: DefaultAccountKind.ConsignmentOwnerPayable, partyId: this.car.supplierId });
 
     this.accountingService.getPostableAccounts('debit').subscribe((accounts) => this.debitAccounts.set(accounts));
     this.accountingService.getPostableAccounts().subscribe((accounts) => {
       this.commissionAccounts.set(accounts);
       this.payableAccounts.set(accounts);
     });
+  }
+
+  private recalculateDebitAccountDefault(): void {
+    const isCash = this.saleForm.get('isCash')?.value ?? true;
+    if (isCash) {
+      this.debitAccountTracker.recalculate({ kind: DefaultAccountKind.PaymentAccount });
+      return;
+    }
+    const customerId = this.saleForm.get('customerId')?.value;
+    if (customerId) {
+      this.debitAccountTracker.recalculate({ kind: DefaultAccountKind.CustomerReceivable, partyId: customerId });
+    }
+  }
+
+  /** "Reset to Default" action next to an overridden account field. */
+  resetDebitAccountToDefault(): void {
+    this.debitAccountTracker.reset();
+    this.debitAccountManuallyChangedSignal.set(false);
+  }
+
+  resetOwnerPayableAccountToDefault(): void {
+    this.ownerPayableAccountTracker.reset();
+    this.ownerPayableAccountManuallyChangedSignal.set(false);
   }
 
   openCustomerLookup(): void {

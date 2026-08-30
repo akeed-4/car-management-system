@@ -31,13 +31,19 @@
             <input matInput type="number" formControlName="totalAmount" required min="0.01">
           </mat-form-field>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Debit Account</mat-label>
-            <mat-select formControlName="accountId" required>
-              <mat-option [value]="null" disabled>Select Account</mat-option>
-              <mat-option *ngFor="let acc of accounts$ | async; trackBy: trackByAccountId" [value]="acc.id">{{ acc.accountCode }} - {{ acc.accountNameAr }}</mat-option>
-            </mat-select>
-          </mat-form-field>
+          <div class="field-with-add">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ form.get('purchaseInvoiceId')?.value ? 'Supplier Account' : 'Payment Account' }}</mat-label>
+              <mat-select formControlName="accountId" required>
+                <mat-option [value]="null" disabled>Select Account</mat-option>
+                <mat-option *ngFor="let acc of accounts$ | async; trackBy: trackByAccountId" [value]="acc.id">{{ acc.accountCode }} - {{ acc.accountNameAr }}</mat-option>
+              </mat-select>
+              <mat-hint *ngIf="!accountManuallyChanged">Default account -- you can change it</mat-hint>
+            </mat-form-field>
+            <button mat-icon-button type="button" *ngIf="accountManuallyChanged" matTooltip="Reset to default account" (click)="resetAccountToDefault()">
+              <mat-icon>restart_alt</mat-icon>
+            </button>
+          </div>
 
           <mat-form-field appearance="outline">
             <mat-label>Purchase Invoice</mat-label>

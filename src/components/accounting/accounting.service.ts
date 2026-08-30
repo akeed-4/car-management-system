@@ -9,6 +9,35 @@ import { environment } from '@/src/environments/environment';
 import { AccountNode } from '@/src/models/account-node.model';
 import { PurchaseReturnJournalEntry } from '@/src/models/sales-return.model';
 
+/** Mirrors backend CarERP.Core.DTOs.Accounting.DefaultAccountKind exactly -- numeric values must
+ *  stay in sync since they're sent as a plain query param. */
+export enum DefaultAccountKind {
+  CustomerReceivable = 0,
+  SupplierPayable = 1,
+  PaymentAccount = 2,
+  AdditionalCostDebit = 3,
+  AdditionalCostCredit = 4,
+  ConsignmentCommissionRevenue = 5,
+  ConsignmentOwnerPayable = 6,
+}
+
+export interface ResolveDefaultAccountRequest {
+  kind: DefaultAccountKind;
+  storeId?: number | null;
+  partyId?: number | null;
+  requestedAccountId?: number | null;
+  isCapitalized?: boolean | null;
+  expenseCategory?: string | null;
+}
+
+export interface DefaultAccountResult {
+  accountId?: number | null;
+  accountCode?: string | null;
+  accountNameEn?: string | null;
+  accountNameAr?: string | null;
+  error?: string | null;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -364,6 +393,29 @@ export class AccountingService {
   getNextAccountCode(parentId: number | null): Observable<string> {
     const url = parentId != null ? `${this.Url}/accounts/next-code?parentId=${parentId}` : `${this.Url}/accounts/next-code`;
     return this.http.get<string>(url, { headers: this.headers });
+  }
+
+  /**
+   * Read-only preview of the default account a Debit/Credit field should be pre-populated with
+   * ("default account + manual override" UX standard). Wraps GET api/Accounting/resolve-default,
+   * the single backend dispatch point over AccountResolutionService -- every screen that needs a
+   * default calls THIS, not a locally re-implemented resolution rule. A resolution failure comes
+   * back as a normal ApiResponse (Data.error set, Data.accountId null/undefined), not an HTTP
+   * error -- callers should leave the field blank and let the user pick manually in that case.
+   */
+  resolveDefaultAccount(request: ResolveDefaultAccountRequest): Observable<DefaultAccountResult> {
+    const params: Record<string, string> = { kind: String(request.kind) };
+    if (request.storeId != null) params['storeId'] = String(request.storeId);
+    if (request.partyId != null) params['partyId'] = String(request.partyId);
+    if (request.requestedAccountId != null) params['requestedAccountId'] = String(request.requestedAccountId);
+    if (request.isCapitalized != null) params['isCapitalized'] = String(request.isCapitalized);
+    if (request.expenseCategory != null) params['expenseCategory'] = request.expenseCategory;
+
+    const query = new URLSearchParams(params).toString();
+    return this.http.get<{ success: boolean; data: DefaultAccountResult }>(`${this.Url}/resolve-default?${query}`).pipe(
+      map(response => response.data),
+      catchError(() => of({ accountId: null, error: 'Failed to resolve the default account.' }))
+    );
   }
 
   /**

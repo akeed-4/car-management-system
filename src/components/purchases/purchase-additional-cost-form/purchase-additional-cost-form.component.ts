@@ -17,8 +17,9 @@ import { TranslateModule } from '@ngx-translate/core';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { PurchaseAdditionalCostService } from '../../../services/purchase-additional-cost.service';
 import { PurchasesService } from '../../../services/purchases.service';
-import { AccountingService } from '../../accounting/accounting.service';
+import { AccountingService, DefaultAccountKind } from '../../accounting/accounting.service';
 import { openCreateAccountDialog } from '../../accounting/create-account-dialog.helper';
+import { DefaultAccountTracker } from '@/src/components/shared/default-account/default-account.helper';
 import { NotificationService } from '../../../services/notification.service';
 import { AuthService } from '../../../services/AuthService.service';
 import { Account } from '../../accounting/models';
@@ -112,6 +113,19 @@ export class PurchaseAdditionalCostFormComponent implements OnInit, OnChanges {
 
   manualTotal = computed(() => Object.values(this.manualAmounts()).reduce((sum, v) => sum + (v || 0), 0));
 
+  // ── Default account + manual override (see DefaultAccountTracker) ──────────────────────────
+  // Debit leg: capitalized-vs-expensed/category-dependent account, recalculated whenever the
+  // invoice/isCapitalized/expenseCategory changes. Credit leg: the invoice's supplier AP account.
+  // The backend still independently re-derives Debit when left null (ResolveAdditionalCostAccountAsync)
+  // -- this tracker only makes that same default visible and overridable in the field itself,
+  // rather than a silent server-side fallback the user never sees.
+  private debitAccountTracker!: DefaultAccountTracker;
+  private creditAccountTracker!: DefaultAccountTracker;
+  debitAccountManuallyChanged = computed(() => this.debitAccountManuallyChangedSignal());
+  creditAccountManuallyChanged = computed(() => this.creditAccountManuallyChangedSignal());
+  private debitAccountManuallyChangedSignal = signal(false);
+  private creditAccountManuallyChangedSignal = signal(false);
+
   // --- Requirement 9: "+ Create Account" from this document -----------------------------------
   openCreateDebitAccountDialog(): void {
     openCreateAccountDialog(this.dialog).subscribe((created) => {
@@ -129,20 +143,71 @@ export class PurchaseAdditionalCostFormComponent implements OnInit, OnChanges {
     });
   }
 
+  /** "Reset to Default" action next to an overridden account field. */
+  resetDebitAccountToDefault(): void {
+    this.debitAccountTracker.reset();
+    this.debitAccountManuallyChangedSignal.set(false);
+  }
+
+  resetCreditAccountToDefault(): void {
+    this.creditAccountTracker.reset();
+    this.creditAccountManuallyChangedSignal.set(false);
+  }
+
   ngOnInit(): void {
     this.purchasesService.getInvoices().subscribe({
-      next: (list) => this.invoices.set(list ?? []),
+      next: (list) => {
+        this.invoices.set(list ?? []);
+        // Invoices load asynchronously -- once available, recalc for a purchaseInvoiceId that was
+        // already set (embedded-in-invoice-tab case) before this list arrived.
+        this.recalculateAccountDefaults();
+      },
       error: () => this.invoices.set([]),
     });
     this.accountingService.getPostableAccounts('debit').subscribe((accounts) => this.debitAccounts.set(accounts));
     this.accountingService.getPostableAccounts().subscribe((accounts) => this.payableAccounts.set(accounts));
+
+    this.debitAccountTracker = new DefaultAccountTracker(this.accountingService, this.costForm.get('debitAccountId') as any);
+    this.creditAccountTracker = new DefaultAccountTracker(this.accountingService, this.costForm.get('creditAccountId') as any);
+    this.costForm.get('debitAccountId')?.valueChanges.subscribe(() =>
+      this.debitAccountManuallyChangedSignal.set(this.debitAccountTracker.manuallyChanged));
+    this.costForm.get('creditAccountId')?.valueChanges.subscribe(() =>
+      this.creditAccountManuallyChangedSignal.set(this.creditAccountTracker.manuallyChanged));
 
     // Set up exactly once (not per loadCost() call) so switching this same instance between
     // new/edit/new again (embedded in a Purchase Invoice tab) never stacks subscriptions;
     // refreshPreview() itself no-ops while locked() so this is safe for a loaded Posted/Cancelled
     // record too.
     this.setupLivePreview();
+    this.setupAccountDefaults();
     this.loadCost(this.costId);
+  }
+
+  /** Recalculates both account defaults from the current invoice/isCapitalized/expenseCategory --
+   * the three inputs ResolveAdditionalCostAccountAsync/ResolvePayableAccountAsync actually depend
+   * on. Wired to fire on every relevant field change; also called once invoices() finishes loading
+   * (see ngOnInit) since a purchaseInvoiceId may already be set before that list arrives. */
+  private setupAccountDefaults(): void {
+    this.costForm.get('purchaseInvoiceId')?.valueChanges.subscribe(() => this.recalculateAccountDefaults());
+    this.costForm.get('isCapitalized')?.valueChanges.subscribe(() => this.recalculateAccountDefaults());
+    this.costForm.get('expenseCategory')?.valueChanges.subscribe(() => this.recalculateAccountDefaults());
+  }
+
+  private recalculateAccountDefaults(): void {
+    const invoiceId = this.costForm.get('purchaseInvoiceId')?.value;
+    if (!invoiceId) return;
+    const invoice = this.invoices().find(i => i.id === invoiceId);
+    if (!invoice) return;
+
+    if (invoice.storeId) {
+      this.debitAccountTracker.recalculate({
+        kind: DefaultAccountKind.AdditionalCostDebit,
+        storeId: invoice.storeId,
+        isCapitalized: !!this.costForm.get('isCapitalized')?.value,
+        expenseCategory: this.costForm.get('expenseCategory')?.value ?? undefined,
+      });
+    }
+    this.creditAccountTracker.recalculate({ kind: DefaultAccountKind.AdditionalCostCredit, partyId: invoice.supplierId });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
