@@ -254,4 +254,11 @@ export interface OpeningBalanceInventory {
   notes: string;
   entryDate: Date;
   storeId: number;
+  /** Stored override for the posting's Inventory (debit) leg, or null/undefined when the Store's
+   *  configured default is used. See AccountingService.resolveDefaultAccount /
+   *  DefaultAccountKind.OpeningBalanceInventory. */
+  inventoryAccountId?: number | null;
+  /** Stored override for the posting's Opening Balance Equity (credit) leg, or null/undefined
+   *  when the Store's configured default is used. See DefaultAccountKind.OpeningBalanceEquity. */
+  openingBalanceEquityAccountId?: number | null;
 }

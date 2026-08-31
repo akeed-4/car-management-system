@@ -96,6 +96,43 @@ mat-card-content {
   margin-right: 8px;
 }
 
+/* Default account + manual override fields (matches purchase-additional-cost-form) */
+.field-with-add {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
+.field-with-add-select {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.field-add-btn {
+  flex: 0 0 auto;
+  margin-top: 4px;
+  width: 36px;
+  height: 36px;
+  padding: 6px;
+  border-radius: 8px;
+  background: #ede9fe;
+  color: var(--color-primary-600);
+  --mdc-icon-button-state-layer-size: 36px;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.field-add-btn .mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.field-add-btn:hover:not(:disabled) {
+  background: #ddd6fe;
+  box-shadow: 0 3px 8px rgba(67, 56, 202, 0.25);
+  transform: translateY(-1px);
+}
+
 /* RTL Support */
 .mat-mdc-toolbar {
   direction: rtl;

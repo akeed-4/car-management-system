@@ -41,12 +41,45 @@
               </mat-select>
             </mat-form-field>
           </div>
-          <!-- Phase 2B: GL accounts are derived server-side at approval time (Store accounting
-               configuration + supplier's linked account / configured cash account). They are
-               intentionally NOT selectable here -- automatically derived accounts are hidden
-               from the UI and never accepted from the client. -->
-          <div class="mt-2 text-sm text-gray-500">
-            {{ 'PURCHASE_RETURN.ACCOUNTS_AUTO_DERIVED' | translate }}
+        </div>
+
+        <!-- GL account override: both legs are still derived server-side at approval time by
+             default (Store accounting configuration + supplier's linked account / configured
+             cash account) -- picking a value here overrides that default, validated server-side. -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-4">
+          <div class="field-with-add">
+            <mat-form-field appearance="outline" class="field-with-add-select">
+              <mat-label>{{ 'PURCHASE_RETURN.CASH_BANK_ACCOUNT' | translate }}</mat-label>
+              <mat-select formControlName="debitAccountId">
+                <mat-option [value]="null">{{ 'PURCHASE_RETURN.SELECT_CASH_BANK_ACCOUNT' | translate }}</mat-option>
+                @for (account of debitAccounts(); track account.id) {
+                <mat-option [value]="account.id">{{ account.accountCode }} - {{ account.accountNameAr }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            @if (debitAccountManuallyChanged()) {
+            <button mat-icon-button type="button" class="field-add-btn"
+                    [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetDebitAccountToDefault()">
+              <mat-icon>restart_alt</mat-icon>
+            </button>
+            }
+          </div>
+          <div class="field-with-add">
+            <mat-form-field appearance="outline" class="field-with-add-select">
+              <mat-label>{{ 'PURCHASE_RETURN.SUPPLIER_ACCOUNT' | translate }}</mat-label>
+              <mat-select formControlName="creditAccountId">
+                <mat-option [value]="null">{{ 'PURCHASE_RETURN.SELECT_SUPPLIER_ACCOUNT' | translate }}</mat-option>
+                @for (account of creditAccounts(); track account.id) {
+                <mat-option [value]="account.id">{{ account.accountCode }} - {{ account.accountNameAr }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            @if (creditAccountManuallyChanged()) {
+            <button mat-icon-button type="button" class="field-add-btn"
+                    [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetCreditAccountToDefault()">
+              <mat-icon>restart_alt</mat-icon>
+            </button>
+            }
           </div>
         </div>
          @if (selectedOriginalInvoice(); as originalInvoice) {

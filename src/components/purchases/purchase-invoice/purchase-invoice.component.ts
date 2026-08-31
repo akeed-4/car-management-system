@@ -23,7 +23,8 @@ import { PurchasesService } from '../../../services/purchases.service';
 import { CurrentSettingService } from '../../../services/current-setting.service';
 import { SalesService } from '../../../services/sales.service';
 import { ChartOfAccountsService } from '../../../services/chart-of-accounts.service';
-import { AccountingService } from '../../accounting/accounting.service';
+import { AccountingService, DefaultAccountKind } from '../../accounting/accounting.service';
+import { DefaultAccountTracker } from '@/src/components/shared/default-account/default-account.helper';
 import { VinService } from '../../../services/vin.service';
 import { PurchaseInvoice, AuctionCharge } from '../../../models/purchase-invoice.model';
 import { InvoiceItem } from '../../../models/invoice-item.model';
@@ -175,11 +176,98 @@ export class PurchaseInvoiceComponent implements OnInit {
   ));
   cars = this.inventoryService.cars$;
   carStocks = signal<StoreCarStockDto[]>([]);
-  // Debit (Inventory) / Credit (Accounts Payable) accounts are no longer shown or selected in
-  // this form -- the backend always derives them (Store's inventory accounting configuration,
-  // Supplier's linked account) and never accepts a value from the client. See
-  // PurchaseInvoiceService.ResolveDebitAccountAsync/ResolveCreditAccountAsync on the backend.
   textDir: Direction = this.languageService.getCurrentLanguage() == 'en' ? 'ltr' : 'rtl';
+
+  /**
+   * Debit (Inventory/Expense) and Credit (Supplier AP or Cash/Bank) account overrides. Default-
+   * preselected via AccountResolutionService.resolve-default (same "default account + manual
+   * override" pattern as paymentAccountId below); the user can still pick a different postable
+   * account. Backend re-validates and falls back to its existing derivation when either is left
+   * null -- see PurchaseInvoiceService.ResolveDebitAccountAsync/ResolveCreditAccountAsync.
+   */
+  debitAccounts = signal<Account[]>([]);
+  creditAccounts = signal<Account[]>([]);
+  private debitAccountsLoaded = false;
+  private creditAccountsLoaded = false;
+
+  private debitAccountTracker: DefaultAccountTracker | null = null;
+  private creditAccountTracker: DefaultAccountTracker | null = null;
+  debitAccountManuallyChanged = signal(false);
+  creditAccountManuallyChanged = signal(false);
+
+  /** Loads the full postable account list once per component instance -- Debit/Credit can be any
+   *  postable account (not limited to Cash/Bank like paymentAccounts), matching the generic
+   *  Journal Entry screen's own account picker. */
+  private loadDebitAccounts(): void {
+    if (this.debitAccountsLoaded) return;
+    this.debitAccountsLoaded = true;
+    this.accountingService.getPostableAccounts().subscribe({
+      next: accounts => this.debitAccounts.set(accounts ?? []),
+      error: () => this.debitAccounts.set([])
+    });
+  }
+
+  private loadCreditAccounts(): void {
+    if (this.creditAccountsLoaded) return;
+    this.creditAccountsLoaded = true;
+    this.accountingService.getPostableAccounts().subscribe({
+      next: accounts => this.creditAccounts.set(accounts ?? []),
+      error: () => this.creditAccounts.set([])
+    });
+  }
+
+  /** "Reset to Default" actions next to an overridden Debit/Credit field. */
+  resetDebitAccountToDefault(): void {
+    this.debitAccountTracker?.reset();
+    this.debitAccountManuallyChanged.set(false);
+  }
+
+  resetCreditAccountToDefault(): void {
+    this.creditAccountTracker?.reset();
+    this.creditAccountManuallyChanged.set(false);
+  }
+
+  /** Re-derives the Debit-leg default from the current Store selection. */
+  refreshDebitAccountDefault(): void {
+    const control = this.purchaseInvoiceForm?.get('debitAccountId');
+    if (!control) return;
+    if (!this.debitAccountTracker) {
+      this.debitAccountTracker = new DefaultAccountTracker(this.accountingService, control as any);
+      control.valueChanges.subscribe(() =>
+        this.debitAccountManuallyChanged.set(this.debitAccountTracker!.manuallyChanged));
+    }
+    const storeId = this.purchaseInvoiceForm.get('storeId')?.value;
+    if (storeId) {
+      this.debitAccountTracker.recalculate({ kind: DefaultAccountKind.PurchaseInvoiceDebit, storeId });
+    }
+  }
+
+  /** Re-derives the Credit-leg default from the current settlement type (Cash -> payment account,
+   *  Credit -> supplier AP). */
+  refreshCreditAccountDefault(): void {
+    const control = this.purchaseInvoiceForm?.get('creditAccountId');
+    if (!control) return;
+    if (!this.creditAccountTracker) {
+      this.creditAccountTracker = new DefaultAccountTracker(this.accountingService, control as any);
+      control.valueChanges.subscribe(() =>
+        this.creditAccountManuallyChanged.set(this.creditAccountTracker!.manuallyChanged));
+    }
+    const isCash = this.isCashPayment();
+    const supplierId = this.purchaseInvoiceForm.get('supplierId')?.value;
+    if (isCash) {
+      this.creditAccountTracker.recalculate({
+        kind: DefaultAccountKind.PurchaseInvoiceCredit,
+        isCash: true,
+        requestedAccountId: this.purchaseInvoiceForm.get('paymentAccountId')?.value ?? null,
+      });
+    } else if (supplierId) {
+      this.creditAccountTracker.recalculate({
+        kind: DefaultAccountKind.PurchaseInvoiceCredit,
+        isCash: false,
+        partyId: supplierId,
+      });
+    }
+  }
 
   // Filter controls for mat-select search
   supplierFilterCtrl = new FormControl('');
@@ -473,6 +561,7 @@ export class PurchaseInvoiceComponent implements OnInit {
     } else {
       this.initForm();
       this.watchInitialPaymentControl();
+      this.watchDebitCreditAccountDefaults();
 
       // A new invoice always belongs to the caller's current Showroom (StoreContextService),
       // selected once after login -- initialize the derived store state (car stock, heads-up
@@ -727,10 +816,12 @@ export class PurchaseInvoiceComponent implements OnInit {
       supplierId: [null, Validators.required],
       // No Store picker anymore -- a new invoice always belongs to the caller's current Showroom.
       storeId: [this.storeContext.current()?.storeId ?? null, Validators.required],
-      // No debitAccountId/creditAccountId controls: the backend always derives both accounts
-      // (Store's inventory accounting configuration, Supplier's linked account) and never accepts
-      // a value from this form -- see saveInvoice()'s newInvoice construction, which no longer
-      // sends either field at all.
+      // Debit (Inventory/Expense) / Credit (Supplier AP or Cash/Bank) account overrides -- default-
+      // preselected via DefaultAccountTracker (see refreshDebitAccountDefault/
+      // refreshCreditAccountDefault), user-editable, and re-validated server-side on save. Null
+      // (never touched) falls back to the backend's existing derivation, unchanged from before.
+      debitAccountId: [null as number | null],
+      creditAccountId: [null as number | null],
       invoiceDate: [new Date(), Validators.required],
       paymentMethod: [this.fixedPaymentMethod , Validators.required],
       paymentType: [this.fixedPaymentMethod || 'Bank Transfer'],
@@ -756,6 +847,12 @@ export class PurchaseInvoiceComponent implements OnInit {
     // Payment Account options + cash/credit validation sync.
     this.loadPaymentAccounts();
     this.refreshPaymentAccountValidation();
+
+    // Debit/Credit account options + default preview.
+    this.loadDebitAccounts();
+    this.loadCreditAccounts();
+    this.refreshDebitAccountDefault();
+    this.refreshCreditAccountDefault();
   }
 
   /** Keeps amountReceivedSignal (used by the live Paid/Due/Status preview) in sync with the
@@ -774,7 +871,19 @@ export class PurchaseInvoiceComponent implements OnInit {
       // Cash -> Credit must drop any previously chosen payment account so it can never leak
       // into a credit payload; Credit -> Cash re-enables the requirement.
       this.refreshPaymentAccountValidation();
+      // Settlement type flip also changes what the Credit leg defaults to (payment account vs.
+      // supplier AP).
+      this.refreshCreditAccountDefault();
     });
+  }
+
+  /** Keeps the Debit/Credit default previews in sync with the business inputs each derivation
+   *  actually depends on: Store for Debit, and settlement type/supplier/payment account for
+   *  Credit. Mirrors refreshPaymentAccountValidation's own trigger wiring. */
+  private watchDebitCreditAccountDefaults(): void {
+    this.purchaseInvoiceForm.get('storeId')?.valueChanges.subscribe(() => this.refreshDebitAccountDefault());
+    this.purchaseInvoiceForm.get('supplierId')?.valueChanges.subscribe(() => this.refreshCreditAccountDefault());
+    this.purchaseInvoiceForm.get('paymentAccountId')?.valueChanges.subscribe(() => this.refreshCreditAccountDefault());
   }
 
   /** paymentMethod holds either the base route's own dropdown value ('Credit (Deferred)') or,
@@ -805,9 +914,11 @@ export class PurchaseInvoiceComponent implements OnInit {
         this.purchaseInvoiceForm = this.fb.group({
           supplierId: [invoice.supplierId, Validators.required],
           storeId: [invoice.storeId, Validators.required],
-          // No debitAccountId/creditAccountId controls here either -- see initForm()'s comment.
-          // The loaded invoice's own invoice.debitAccountId/creditAccountId (already resolved by
-          // the backend) are only used read-only, e.g. on the printable invoice.
+          // Preselect with the invoice's own STORED accounts -- never silently recomputed on load
+          // (Requirement 3). See the tracker markAsManuallyChanged() calls below for why the
+          // control must be told this is already a real saved value, not a freshly resolved default.
+          debitAccountId: [invoice.debitAccountId ?? null] as [number | null],
+          creditAccountId: [invoice.creditAccountId ?? null] as [number | null],
           invoiceDate: [new Date(invoice.invoiceDate), Validators.required],
           paymentMethod: [invoice.paymentMethod || 'Bank Transfer'],
           paymentType: [invoice.paymentType || 'credit'],
@@ -839,10 +950,38 @@ export class PurchaseInvoiceComponent implements OnInit {
         this.amountReceivedSignal.set(invoice.initialPayment || invoice.amountPaid || 0);
         this.originalAmountPaid.set(invoice.amountPaid || 0);
         this.watchInitialPaymentControl();
+        this.watchDebitCreditAccountDefaults();
 
         // Payment Account options + cash/credit validation sync for the edit form.
         this.loadPaymentAccounts();
         this.refreshPaymentAccountValidation();
+
+        // Debit/Credit account options for the edit form. Construct the trackers BEFORE any
+        // recalculate() call can fire, and -- since the controls' initial values were set via the
+        // FormControl(...) constructor above rather than a later patchValue/setValue the tracker's
+        // own valueChanges subscription would see as a "manual change" -- explicitly mark them
+        // manual right now when a saved value is already present. Otherwise a loaded invoice's
+        // real saved account could be silently overwritten by a freshly resolved default the first
+        // time refreshDebitAccountDefault/refreshCreditAccountDefault runs.
+        this.loadDebitAccounts();
+        this.loadCreditAccounts();
+        const debitAccountControl = this.purchaseInvoiceForm.get('debitAccountId') as any;
+        this.debitAccountTracker = new DefaultAccountTracker(this.accountingService, debitAccountControl);
+        if (debitAccountControl.value != null) {
+          this.debitAccountTracker.markAsManuallyChanged();
+        }
+        this.debitAccountManuallyChanged.set(this.debitAccountTracker.manuallyChanged);
+        debitAccountControl.valueChanges.subscribe(() =>
+          this.debitAccountManuallyChanged.set(this.debitAccountTracker!.manuallyChanged));
+
+        const creditAccountControl = this.purchaseInvoiceForm.get('creditAccountId') as any;
+        this.creditAccountTracker = new DefaultAccountTracker(this.accountingService, creditAccountControl);
+        if (creditAccountControl.value != null) {
+          this.creditAccountTracker.markAsManuallyChanged();
+        }
+        this.creditAccountManuallyChanged.set(this.creditAccountTracker.manuallyChanged);
+        creditAccountControl.valueChanges.subscribe(() =>
+          this.creditAccountManuallyChanged.set(this.creditAccountTracker!.manuallyChanged));
 
         // Set invoice number signal
         this.invoiceNumberSignal.set(invoice.invoiceNumber);
@@ -1233,18 +1372,19 @@ export class PurchaseInvoiceComponent implements OnInit {
       return of(null);
     }
 
-    // debitAccountId/creditAccountId are nullable here (unlike PurchaseInvoice's own non-nullable
-    // debitAccountId/creditAccountId are intentionally NOT sent: the backend always derives both
-    // (Debit from the selected Store's inventory accounting configuration, Credit from the
-    // Supplier's linked account) and never reads a client-supplied value for either -- see
-    // PurchaseInvoiceService.ResolveDebitAccountAsync/ResolveCreditAccountAsync. If derivation
-    // isn't possible (missing configuration), Save fails with a clear backend error naming the
-    // store/supplier instead of silently posting to a wrong or empty account.
-    const newInvoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue' | 'createdAt' | 'updatedAt' | 'supplier' | 'debitAccount' | 'creditAccount' | 'debitAccountId' | 'creditAccountId'> = {
+    const newInvoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue' | 'createdAt' | 'updatedAt' | 'supplier' | 'debitAccount' | 'creditAccount'> = {
       invoiceNumber: this.invoiceNumberSignal() || '',
       invoiceDate: formValue.invoiceDate.toISOString(),
       storeId,
       supplierId: supplierId,
+      // Optional client override of the Debit (Inventory/Expense) / Credit (Supplier AP or
+      // Cash/Bank) legs -- re-validated server-side (exists, tenant-scoped, active, postable) and
+      // used verbatim when present; null (never touched, or "Reset to Default" clicked back to a
+      // resolution the tracker couldn't confirm) falls back to the existing derivation
+      // (PurchaseInvoiceService.ResolveDebitAccountAsync/ResolveCreditAccountAsync) -- exactly
+      // what every invoice created before this override existed continues to do.
+      debitAccountId: formValue.debitAccountId ?? undefined,
+      creditAccountId: formValue.creditAccountId ?? undefined,
       paymentType: formValue.paymentType,
       paymentMethod: formValue.paymentMethod,
       dueDate: formValue.dueDate ? formValue.dueDate.toISOString() : undefined,

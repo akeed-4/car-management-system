@@ -7,8 +7,22 @@ export interface PurchaseInvoice {
   invoiceNumber: string;
   invoiceDate: string;
   supplierId: number;
-  debitAccountId: number; // Inventory or expense account
-  creditAccountId: number; // Supplier, cash, or bank account
+  /**
+   * Debit (Inventory/Expense) leg. Always populated on a read (GET) response -- the server's
+   * resolved/stored value. On a Create/Update request body this doubles as an OPTIONAL client
+   * override: when sent, validated server-side (exists, tenant-scoped, active, postable) and
+   * used verbatim for the posted JournalEntryLine; when omitted/undefined, the server falls back
+   * to its existing derivation (Store's inventory accounting configuration) -- exactly what every
+   * invoice created before this override existed continues to do.
+   */
+  debitAccountId?: number;
+  /**
+   * Credit leg (Supplier AP on a credit purchase, Cash/Bank on a cash purchase). Same
+   * read-value/write-override duality as debitAccountId above. As a write override it takes
+   * priority over paymentAccountId (which only feeds the existing derivation used as the
+   * fallback).
+   */
+  creditAccountId?: number;
   paymentMethod?: string; // Cash, Bank Transfer
   storeId?:number;
   branchId?:number;

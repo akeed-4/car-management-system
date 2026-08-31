@@ -180,6 +180,45 @@
             </ng-container>
           </section>
 
+          <!-- Debit (Cash/Bank on a cash sale, else Customer AR) / Credit (Revenue) account
+               overrides. Default-preselected via AccountResolutionService.resolve-default; the
+               user can still pick a different postable account. Independent of the VAT,
+               COGS/Inventory, and Payment/Down-Payment-account lines -- overriding either of these
+               never touches those. -->
+          <section class="erp-section form-section">
+            <h3 class="erp-section-title form-section-title">{{ 'ACCOUNTING.DEBIT_CREDIT_SECTION' | translate }}</h3>
+            <div class="field-with-add">
+              <mat-form-field appearance="outline" class="full-width form-field">
+                <mat-label>{{ 'ACCOUNTING.SALES_DEBIT_ACCOUNT' | translate }}</mat-label>
+                <mat-select formControlName="debitAccountId">
+                  <mat-option *ngFor="let account of debitAccounts()" [value]="account.id">
+                    {{ account.accountCode }} - {{ translate.currentLang === 'ar' ? (account.accountNameAr || account.accountNameEn) : account.accountNameEn }}
+                  </mat-option>
+                </mat-select>
+                <mat-hint *ngIf="!debitAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
+              </mat-form-field>
+              <button mat-icon-button type="button" *ngIf="debitAccountManuallyChanged()"
+                      [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetDebitAccountToDefault()">
+                <mat-icon>restart_alt</mat-icon>
+              </button>
+            </div>
+            <div class="field-with-add">
+              <mat-form-field appearance="outline" class="full-width form-field">
+                <mat-label>{{ 'ACCOUNTING.SALES_CREDIT_ACCOUNT' | translate }}</mat-label>
+                <mat-select formControlName="creditAccountId">
+                  <mat-option *ngFor="let account of creditAccounts()" [value]="account.id">
+                    {{ account.accountCode }} - {{ translate.currentLang === 'ar' ? (account.accountNameAr || account.accountNameEn) : account.accountNameEn }}
+                  </mat-option>
+                </mat-select>
+                <mat-hint *ngIf="!creditAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
+              </mat-form-field>
+              <button mat-icon-button type="button" *ngIf="creditAccountManuallyChanged()"
+                      [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetCreditAccountToDefault()">
+                <mat-icon>restart_alt</mat-icon>
+              </button>
+            </div>
+          </section>
+
           <!-- Requirement 2: Cash Amount Calculator (cash sales) -->
           <section class="erp-section form-section" *ngIf="saleType === SaleType.Cash">
             <h3 class="erp-section-title form-section-title">{{ 'CASH_CALCULATOR.TITLE' | translate }}</h3>

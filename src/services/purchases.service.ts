@@ -36,13 +36,13 @@ export class PurchasesService {
       .pipe(map(res => this.unwrap<PurchaseInvoice>(res)));
   }
 
-  /** debitAccountId/creditAccountId are excluded entirely -- not just made optional. The backend
-   * always derives both accounts server-side (Debit from the selected Store's inventory
-   * accounting configuration, Credit from the Supplier's linked account) and never reads a
-   * client-supplied value for either; CreatePurchaseInvoiceDto doesn't even declare these
-   * properties -- see PurchaseInvoiceService.ResolveDebitAccountAsync/ResolveCreditAccountAsync
-   * on the backend. */
-  addInvoice(invoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue' | 'createdAt' | 'updatedAt' | 'supplier' | 'debitAccount' | 'creditAccount' | 'debitAccountId' | 'creditAccountId'>): Observable<PurchaseInvoice> {
+  /** debitAccountId/creditAccountId are OPTIONAL client overrides of the Debit/Credit GL-posting
+   * accounts -- see PurchaseInvoice.debitAccountId/creditAccountId's own doc comment. Validated
+   * server-side (exists, tenant-scoped, active, postable) and used verbatim when present; omitted
+   * falls back to the existing derivation (Debit from the selected Store's inventory accounting
+   * configuration, Credit from the Supplier's linked account) -- see PurchaseInvoiceService.
+   * ResolveDebitAccountAsync/ResolveCreditAccountAsync on the backend. */
+  addInvoice(invoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue' | 'createdAt' | 'updatedAt' | 'supplier' | 'debitAccount' | 'creditAccount'>): Observable<PurchaseInvoice> {
     // The backend derives amountPaid/amountDue/status itself from paymentType + initialPayment
     // (cash invoices are auto-marked fully paid; credit invoices net off initialPayment) - it
     // does not trust client-sent amountPaid/amountDue on create.
@@ -58,11 +58,11 @@ export class PurchasesService {
       .pipe(map(res => this.unwrap<PurchaseInvoice>(res)));
   }
 
-  /** Same exclusion as addInvoice -- on Update the backend re-derives Credit only if SupplierId
-   * actually changes (UpdatePurchaseInvoiceDto doesn't declare these fields at all); Debit is
-   * immutable after creation since the Store an invoice posted stock into isn't editable via this
-   * DTO. */
-  updateInvoice(id: number, invoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue' | 'createdAt' | 'updatedAt' | 'supplier' | 'debitAccount' | 'creditAccount' | 'debitAccountId' | 'creditAccountId'>): Observable<PurchaseInvoice> {
+  /** Same override contract as addInvoice. On Update, an explicit creditAccountId also takes
+   * priority over the automatic re-derivation that would otherwise run when SupplierId changes;
+   * debitAccountId overrides the otherwise-immutable Debit leg (the Store an invoice posted stock
+   * into isn't editable via this DTO, so without an override Debit never needs to change here). */
+  updateInvoice(id: number, invoice: Omit<PurchaseInvoice, 'id' | 'amountPaid' | 'amountDue' | 'createdAt' | 'updatedAt' | 'supplier' | 'debitAccount' | 'creditAccount'>): Observable<PurchaseInvoice> {
     // Same as addInvoice: let the backend recompute amountPaid/amountDue/status from
     // paymentType + initialPayment rather than forcing them here.
     const payload: any = {

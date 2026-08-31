@@ -58,6 +58,38 @@
             rows="3"
             [placeholder]="'INVENTORY.STOCK_TAKING_FORM.NOTES_PLACEHOLDER' | translate"></textarea>
         </mat-form-field>
+
+        <div class="erp-form-grid form-grid cols-2">
+          <div class="field-with-add">
+            <mat-form-field appearance="outline" class="field-with-add-select">
+              <mat-label>{{ 'INVENTORY.STOCK_TAKING_FORM.INVENTORY_ACCOUNT' | translate }}</mat-label>
+              <mat-select formControlName="inventoryAccountId">
+                <mat-option [value]="null">{{ 'ACCOUNTS.FORM.USE_DEFAULT' | translate }}</mat-option>
+                <mat-option *ngFor="let a of postableAccounts()" [value]="a.id">{{ a.accountCode }} - {{ a.accountNameAr }}</mat-option>
+              </mat-select>
+              <mat-hint *ngIf="!inventoryAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
+            </mat-form-field>
+            <button mat-icon-button type="button" class="field-add-btn" *ngIf="inventoryAccountManuallyChanged() && !locked()"
+                    [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetInventoryAccountToDefault()">
+              <mat-icon>restart_alt</mat-icon>
+            </button>
+          </div>
+
+          <div class="field-with-add">
+            <mat-form-field appearance="outline" class="field-with-add-select">
+              <mat-label>{{ 'INVENTORY.STOCK_TAKING_FORM.INVENTORY_ADJUSTMENT_ACCOUNT' | translate }}</mat-label>
+              <mat-select formControlName="inventoryAdjustmentAccountId">
+                <mat-option [value]="null">{{ 'ACCOUNTS.FORM.USE_DEFAULT' | translate }}</mat-option>
+                <mat-option *ngFor="let a of postableAccounts()" [value]="a.id">{{ a.accountCode }} - {{ a.accountNameAr }}</mat-option>
+              </mat-select>
+              <mat-hint *ngIf="!inventoryAdjustmentAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
+            </mat-form-field>
+            <button mat-icon-button type="button" class="field-add-btn" *ngIf="inventoryAdjustmentAccountManuallyChanged() && !locked()"
+                    [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetInventoryAdjustmentAccountToDefault()">
+              <mat-icon>restart_alt</mat-icon>
+            </button>
+          </div>
+        </div>
       </div>
       <section class="erp-section form-section">
         <div class="section-header">
@@ -135,7 +167,7 @@
         <button mat-stroked-button type="button" routerLink="/inventory/stock-taking" class="cancel-button">
           {{ 'INVENTORY.STOCK_TAKING_FORM.CANCEL' | translate }}
         </button>
-        <button mat-raised-button color="primary" (click)="saveStockTake()" [disabled]="stockTakeForm.invalid || isSaving()">
+        <button mat-raised-button color="primary" (click)="saveStockTake()" [disabled]="stockTakeForm.invalid || isSaving() || locked()">
           <span *ngIf="!isSaving()">{{ editMode() ? ('INVENTORY.STOCK_TAKING_FORM.SAVE_CHANGES' | translate) : ('INVENTORY.STOCK_TAKING_FORM.SAVE_TAKE' | translate) }}</span>
           <mat-spinner *ngIf="isSaving()" diameter="20" color="accent"></mat-spinner>
         </button>

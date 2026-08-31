@@ -18,6 +18,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTableModule } from '@angular/material/table';
 import { DxDataGridModule } from 'devextreme-angular';
 import { CarSelectionDialogComponent, SalesCarSelectionCard } from '../../sales/car-selection-dialog/car-selection-dialog.component';
@@ -26,6 +27,9 @@ import { StoreAccountingConfigurationService } from '../../../services/store-acc
 import { warnIfStoreNotConfigured } from '../../shared/store-accounting-setup-warning-dialog/store-accounting-setup-warning.helper';
 import { StoreContextService } from '../../../services/store-context.service';
 import { resolveStoreDisplayName } from '../../../models/store-display.util';
+import { AccountingService, DefaultAccountKind } from '../../accounting/accounting.service';
+import { DefaultAccountTracker } from '@/src/components/shared/default-account/default-account.helper';
+import { Account } from '../../accounting/models';
 
 @Component({
   selector: 'app-stock-taking-form',
@@ -48,6 +52,7 @@ import { resolveStoreDisplayName } from '../../../models/store-display.util';
     DxDataGridModule
     ,MatDialogModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
     CarSelectionDialogComponent
   ],
   templateUrl: './stock-taking-form.component.html',
@@ -63,8 +68,20 @@ export class StockTakingFormComponent implements OnInit {
   private dialog = inject(MatDialog);
   private storeAccountingConfigService = inject(StoreAccountingConfigurationService);
   private storeContext = inject(StoreContextService);
+  private accountingService = inject(AccountingService);
   stockTakeForm!: FormGroup;
   items = signal<StockTakeItem[]>([]);
+
+  /** true once the loaded document is Approved -- the account fields (and the rest of the form)
+   *  become read-only, matching how purchase-additional-cost-form locks a non-Draft record. */
+  locked = signal(false);
+  postableAccounts = signal<Account[]>([]);
+
+  // ── Default account + manual override (see DefaultAccountTracker) ──────────────────────────
+  private inventoryAccountTracker!: DefaultAccountTracker;
+  private inventoryAdjustmentAccountTracker!: DefaultAccountTracker;
+  inventoryAccountManuallyChanged = signal(false);
+  inventoryAdjustmentAccountManuallyChanged = signal(false);
   /** Read-only label for the (no-longer-user-editable) Store field -- resolves the form's storeId
    *  against every store the caller is authorized for, so an edit-mode document keeps showing its
    *  real, originally-saved store name even if that store isn't the caller's current one. */
@@ -103,6 +120,17 @@ export class StockTakingFormComponent implements OnInit {
 
   ngOnInit() {
     this.initForm();
+    this.accountingService.getPostableAccounts().subscribe(accounts => this.postableAccounts.set(accounts));
+
+    this.inventoryAccountTracker = new DefaultAccountTracker(this.accountingService, this.stockTakeForm.get('inventoryAccountId') as FormControl);
+    this.inventoryAdjustmentAccountTracker = new DefaultAccountTracker(this.accountingService, this.stockTakeForm.get('inventoryAdjustmentAccountId') as FormControl);
+    this.stockTakeForm.get('inventoryAccountId')?.valueChanges.subscribe(() =>
+      this.inventoryAccountManuallyChanged.set(this.inventoryAccountTracker.manuallyChanged));
+    this.stockTakeForm.get('inventoryAdjustmentAccountId')?.valueChanges.subscribe(() =>
+      this.inventoryAdjustmentAccountManuallyChanged.set(this.inventoryAdjustmentAccountTracker.manuallyChanged));
+    // Recalculate whenever the Store changes (there's no Store picker today, but this keeps the
+    // default correct if that ever changes, and covers the initial resolve below).
+    this.stockTakeForm.get('storeId')?.valueChanges.subscribe(() => this.recalculateAccountDefaults());
 
     // Handle route params for editing
     const idParam = this.route.snapshot.params['id'];
@@ -123,6 +151,7 @@ export class StockTakingFormComponent implements OnInit {
       const initialStoreId = this.stockTakeForm.get('storeId')?.value;
       if (initialStoreId) {
         this.warnIfCurrentStoreNotConfigured(initialStoreId);
+        this.recalculateAccountDefaults();
       }
     }
   }
@@ -135,8 +164,30 @@ export class StockTakingFormComponent implements OnInit {
       notes: new FormControl(''),
       status: new FormControl('Draft', Validators.required),
       // No Store picker anymore -- a new document always belongs to the caller's current Showroom.
-      storeId: new FormControl(this.storeContext.current()?.storeId ?? '', Validators.required)
+      storeId: new FormControl(this.storeContext.current()?.storeId ?? '', Validators.required),
+      // Optional overrides: left null, the backend derives both from the Store's accounting
+      // configuration at approval time (StockService.UpdateStockTakeStatusAsync).
+      inventoryAccountId: new FormControl<number | null>(null),
+      inventoryAdjustmentAccountId: new FormControl<number | null>(null)
     });
+  }
+
+  private recalculateAccountDefaults(): void {
+    const storeId = this.stockTakeForm.get('storeId')?.value;
+    if (!storeId) return;
+    this.inventoryAccountTracker.recalculate({ kind: DefaultAccountKind.StockAdjustmentInventory, storeId });
+    this.inventoryAdjustmentAccountTracker.recalculate({ kind: DefaultAccountKind.StockAdjustmentGainLoss, storeId });
+  }
+
+  /** "Reset to Default" action next to an overridden account field. */
+  resetInventoryAccountToDefault(): void {
+    this.inventoryAccountTracker.reset();
+    this.inventoryAccountManuallyChanged.set(false);
+  }
+
+  resetInventoryAdjustmentAccountToDefault(): void {
+    this.inventoryAdjustmentAccountTracker.reset();
+    this.inventoryAdjustmentAccountManuallyChanged.set(false);
   }
 
   private populateForm(stockTake: StockTake) {
@@ -146,11 +197,33 @@ export class StockTakingFormComponent implements OnInit {
       createdBy: stockTake.createdBy,
       notes: stockTake.notes,
       status: stockTake.status,
-      storeId: stockTake.storeId
+      storeId: stockTake.storeId,
+      inventoryAccountId: stockTake.inventoryAccountId ?? null,
+      inventoryAdjustmentAccountId: stockTake.inventoryAdjustmentAccountId ?? null
     });
+    // A loaded document's stored override (if any) must display as-is, never be silently
+    // recomputed/overwritten by the tracker's own recalculate() -- see sales-invoice-form.component.ts
+    // for the same edge case (constructor's valueChanges subscription never sees a patchValue call
+    // that happens after construction, so a real saved value must be marked manual explicitly).
+    if (stockTake.inventoryAccountId != null) {
+      this.inventoryAccountTracker.markAsManuallyChanged();
+      this.inventoryAccountManuallyChanged.set(true);
+    }
+    if (stockTake.inventoryAdjustmentAccountId != null) {
+      this.inventoryAdjustmentAccountTracker.markAsManuallyChanged();
+      this.inventoryAdjustmentAccountManuallyChanged.set(true);
+    }
     this.items.set([...stockTake.items]);
     if (stockTake.storeId) {
       this.warnIfCurrentStoreNotConfigured(stockTake.storeId);
+      this.recalculateAccountDefaults();
+    }
+
+    // Approved stock takes have already posted their adjustment journal -- the account fields (and
+    // the rest of the form) become read-only, matching purchase-additional-cost-form's lock rule.
+    if (stockTake.status === 'Approved') {
+      this.locked.set(true);
+      this.stockTakeForm.disable();
     }
   }
 
@@ -276,15 +349,15 @@ export class StockTakingFormComponent implements OnInit {
     this.items.update(items => [...items, newItem]);
   }
   saveStockTake() {
-    if (this.stockTakeForm.invalid) {
+    if (this.stockTakeForm.invalid || this.locked()) {
       return;
     }
 
     this.isSaving.set(true);
     this.successMessage.set('');
 
-    const formValue = this.stockTakeForm.value;
-    
+    const formValue = this.stockTakeForm.getRawValue();
+
     if (this.items().length === 0) {
       this.isSaving.set(false);
       alert(this.translate.instant('INVENTORY.STOCK_TAKING_FORM.ERROR_NO_ITEMS'));
@@ -306,6 +379,8 @@ export class StockTakingFormComponent implements OnInit {
       notes: formValue.notes,
       status: formValue.status,
       storeId: formValue.storeId,
+      inventoryAccountId: formValue.inventoryAccountId ?? null,
+      inventoryAdjustmentAccountId: formValue.inventoryAdjustmentAccountId ?? null,
       items: this.items()
     };
 

@@ -23,6 +23,22 @@ export interface SalesReturn {
   updatedDate?: Date;
   isCash: boolean;
   items: ReturnInvoiceItem[]; // Added items array
+
+  /** Server-derived, stamped at approval by JournalEngineService.RegisterSalesReturnJournalAsync
+   *  -- the actually-posted accounts. Zero/absent on an unapproved return. */
+  debitAccountId?: number;
+  debitAccountName?: string;
+  creditAccountId?: number;
+  creditAccountName?: string;
+
+  /** Client-selectable override, following the "default + override" pattern used across
+   *  Receipt/Payment/Deposit/PurchaseAdditionalCost/ConsignmentSale. Validated server-side
+   *  (exists, tenant-scoped, active, postable) at Create/Update; consumed instead of the
+   *  resolved default at approval time when present. */
+  debitAccountOverrideId?: number | null;
+  debitAccountOverrideName?: string;
+  creditAccountOverrideId?: number | null;
+  creditAccountOverrideName?: string;
 }
 
 // Purchase Return Model

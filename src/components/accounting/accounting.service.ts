@@ -19,6 +19,20 @@ export enum DefaultAccountKind {
   AdditionalCostCredit = 4,
   ConsignmentCommissionRevenue = 5,
   ConsignmentOwnerPayable = 6,
+  StockAdjustmentInventory = 7,
+  StockAdjustmentGainLoss = 8,
+  OpeningBalanceInventory = 9,
+  OpeningBalanceEquity = 10,
+  /** Sales Invoice Debit leg (Cash/Bank on a cash sale via isCash=true, else the customer's AR
+   *  via partyId=customerId). */
+  SalesInvoiceDebit = 11,
+  /** Sales Invoice Credit leg (Revenue) -- partyId here is the car category id, not a customer. */
+  SalesInvoiceCredit = 12,
+  /** Purchase Invoice Debit leg (Inventory/Expense). */
+  PurchaseInvoiceDebit = 13,
+  /** Purchase Invoice Credit leg (Cash/Bank on a cash purchase via isCash=true, else the
+   *  supplier's AP via partyId=supplierId). */
+  PurchaseInvoiceCredit = 14,
 }
 
 export interface ResolveDefaultAccountRequest {
@@ -28,6 +42,10 @@ export interface ResolveDefaultAccountRequest {
   requestedAccountId?: number | null;
   isCapitalized?: boolean | null;
   expenseCategory?: string | null;
+  /** Settlement-type flag for SalesInvoiceDebit/PurchaseInvoiceCredit -- true routes to the
+   *  Cash/Bank branch (requestedAccountId honored as a request), false to the party (AR/AP)
+   *  branch (partyId required). Ignored by every other Kind. */
+  isCash?: boolean | null;
 }
 
 export interface DefaultAccountResult {
@@ -410,6 +428,7 @@ export class AccountingService {
     if (request.requestedAccountId != null) params['requestedAccountId'] = String(request.requestedAccountId);
     if (request.isCapitalized != null) params['isCapitalized'] = String(request.isCapitalized);
     if (request.expenseCategory != null) params['expenseCategory'] = request.expenseCategory;
+    if (request.isCash != null) params['isCash'] = String(request.isCash);
 
     const query = new URLSearchParams(params).toString();
     return this.http.get<{ success: boolean; data: DefaultAccountResult }>(`${this.Url}/resolve-default?${query}`).pipe(

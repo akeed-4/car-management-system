@@ -21,6 +21,9 @@ import { PurchaseInvoice } from '../../../models/purchase-invoice.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NotificationService } from '@/src/services/notification.service';
 import { extractErrorMessage } from '@/src/models/http-error-message';
+import { AccountingService, DefaultAccountKind } from '../../accounting/accounting.service';
+import { DefaultAccountTracker } from '@/src/components/shared/default-account/default-account.helper';
+import { Account } from '../../accounting/models';
 
 @Component({
   selector: 'app-purchase-return-form',
@@ -39,15 +42,25 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
   private translate = inject(TranslateService);
   private fb = inject(FormBuilder);
   private notificationService = inject(NotificationService);
+  private accountingService = inject(AccountingService);
 
   returnForm!: FormGroup;
 
   // Form State
   returnInvoiceDate = signal(new Date().toISOString().split('T')[0]);
 
-  // Phase 2B: GL account selection was removed entirely -- Debit/Credit accounts are derived
-  // server-side at approval time (Store accounting configuration + supplier's linked account /
-  // configured cash account). The frontend neither shows nor sends them.
+  // Client-selectable Debit/Credit account override (reverses the earlier "Phase 2B: GL account
+  // selection was removed entirely" decision): both accounts are still derived server-side at
+  // approval time by default (Store accounting configuration + supplier's linked account /
+  // configured cash account), but the clerk can now override either leg on the draft, following
+  // the same "default + override" pattern as Receipt/Payment/Deposit/PurchaseAdditionalCost/
+  // ConsignmentSale/SalesReturn.
+  private debitAccountTracker!: DefaultAccountTracker;
+  private creditAccountTracker!: DefaultAccountTracker;
+  debitAccountManuallyChanged = signal(false);
+  creditAccountManuallyChanged = signal(false);
+  debitAccounts = signal<Account[]>([]);
+  creditAccounts = signal<Account[]>([]);
 
   // Mock data for development - replace with actual API call when backend is ready
     invoices = toSignal(this.procurementService.getInvoices(), { initialValue: [] });
@@ -58,9 +71,9 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
     )
   );
   selectedOriginalInvoice = signal<PurchaseInvoice | null>(null);
-  
+
   returnItems = signal<ReturnInvoiceItem[]>([]);
-  
+
   totalAmount = computed(() => this.returnItems().reduce((sum, item) => sum + item.lineTotal, 0));
 
   getTitle(): string {
@@ -87,10 +100,11 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
   private initForm(): void {
     const today = new Date();
 
-    // Phase 2B: no account controls -- only document data the client actually owns.
     this.returnForm = this.fb.group({
       returnDate: [today, Validators.required],
-      originalInvoice: [null, Validators.required]
+      originalInvoice: [null, Validators.required],
+      debitAccountId: [null as number | null],
+      creditAccountId: [null as number | null],
     });
 
     // Listen to return date changes
@@ -106,6 +120,56 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
     this.returnForm.get('originalInvoice')?.valueChanges.subscribe(value => {
       this.onInvoiceSelect(+value);
     });
+
+    this.setupAccountOverrideTrackers();
+    if (!this.debitAccounts().length) {
+      this.accountingService.getPostableAccounts().subscribe(accounts => {
+        this.debitAccounts.set(accounts);
+        this.creditAccounts.set(accounts);
+      });
+    }
+  }
+
+  /** (Re)binds the override trackers to the CURRENT returnForm's controls -- initForm rebuilds
+   *  the FormGroup on every returnType change, and a tracker is bound to a specific FormControl
+   *  object, so this must run again each time. */
+  private setupAccountOverrideTrackers(): void {
+    const debitControl = this.returnForm.get('debitAccountId') as any;
+    const creditControl = this.returnForm.get('creditAccountId') as any;
+    this.debitAccountTracker = new DefaultAccountTracker(this.accountingService, debitControl);
+    this.creditAccountTracker = new DefaultAccountTracker(this.accountingService, creditControl);
+    this.debitAccountManuallyChanged.set(false);
+    this.creditAccountManuallyChanged.set(false);
+    debitControl.valueChanges.subscribe(() => this.debitAccountManuallyChanged.set(this.debitAccountTracker.manuallyChanged));
+    creditControl.valueChanges.subscribe(() => this.creditAccountManuallyChanged.set(this.creditAccountTracker.manuallyChanged));
+  }
+
+  /** Recalculates both account defaults from the current invoice/returnType -- the settlement
+   *  (Debit) leg mirrors the backend's own settlement policy (CASH -> Payment account,
+   *  CREDIT -> supplier AP). The backend still independently re-derives either leg when left
+   *  null; this only makes that same default visible and overridable in the field itself. */
+  private recalculateAccountDefaults(): void {
+    const invoice = this.selectedOriginalInvoice();
+    if (!invoice) return;
+
+    if (this.returnType === 'CASH') {
+      this.debitAccountTracker.recalculate({ kind: DefaultAccountKind.PaymentAccount });
+    } else if (invoice.supplierId) {
+      this.debitAccountTracker.recalculate({ kind: DefaultAccountKind.SupplierPayable, partyId: invoice.supplierId });
+    }
+    // Credit (Inventory) leg has no dedicated resolver preview on this document -- the backend
+    // derives it from the Store's accounting configuration when no override is supplied. The
+    // field stays available for an explicit override, just without a default preview.
+  }
+
+  resetDebitAccountToDefault(): void {
+    this.debitAccountTracker.reset();
+    this.debitAccountManuallyChanged.set(false);
+  }
+
+  resetCreditAccountToDefault(): void {
+    this.creditAccountTracker.reset();
+    this.creditAccountManuallyChanged.set(false);
   }
 
   getQuantityOptions = (rowData: any) => {
@@ -151,6 +215,7 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
       quantity: item.quantity,
     }));
     this.returnItems.set(items);
+    this.recalculateAccountDefaults();
   }
 
   updateReturnQuantity(carId: number, quantity: number): void {
@@ -184,11 +249,12 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
     }
     const totalAmount = this.totalAmount();
 
-    // Phase 2B: no debitAccountId/creditAccountId are sent -- the backend derives both GL
-    // accounts server-side at approval time from the Store accounting configuration, the
-    // supplier's linked account, and (for cash returns) the configured cash account. The
-    // backend also posts the stock decrease at approval; the client must NOT pre-apply
-    // inventory changes itself (that used to double-decrement stock).
+    // Both GL accounts are still derived server-side at approval time by default (Store
+    // accounting configuration, the supplier's linked account, and -- for cash returns -- the
+    // configured cash account). debitAccountOverrideId/creditAccountOverrideId are optional: when
+    // the clerk picked an explicit account above, it is validated server-side and used instead of
+    // the resolved default. The backend still posts the stock decrease at approval; the client
+    // must NOT pre-apply inventory changes itself (that used to double-decrement stock).
     const newReturn: Omit<PurchaseReturnInvoice, 'id'> = {
       returnInvoiceNumber: '',
       returnInvoiceDate: this.returnInvoiceDate(),
@@ -198,6 +264,8 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
       returnType: this.returnType,
       items: itemsToReturn,
       totalAmount: totalAmount,
+      debitAccountOverrideId: this.returnForm.get('debitAccountId')?.value ?? undefined,
+      creditAccountOverrideId: this.returnForm.get('creditAccountId')?.value ?? undefined,
     };
 
     // Save the return as a DRAFT -- posting happens server-side when it is approved.

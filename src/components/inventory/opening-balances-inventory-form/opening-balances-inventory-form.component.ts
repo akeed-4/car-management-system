@@ -1,6 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,9 +10,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
-import { AccountingService } from '../../accounting/accounting.service';
+import { AccountingService, DefaultAccountKind } from '../../accounting/accounting.service';
+import { Account } from '../../accounting/models';
+import { DefaultAccountTracker } from '@/src/components/shared/default-account/default-account.helper';
 import { StoreAccountingConfigurationService } from '../../../services/store-accounting-configuration.service';
 import { warnIfStoreNotConfigured } from '../../shared/store-accounting-setup-warning-dialog/store-accounting-setup-warning.helper';
 import { StoreContextService } from '../../../services/store-context.service';
@@ -38,6 +41,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
     MatNativeDateModule,
     MatDialogModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
     CarSelectionDialogComponent,
   ],
   templateUrl: './opening-balances-inventory-form.component.html',
@@ -52,6 +56,14 @@ export class OpeningBalancesInventoryFormComponent implements OnInit {
   successMessage = signal('');
 
   categories = ['CAR', 'SPARE_PART', 'ACCESSORY'];
+
+  postableAccounts = signal<Account[]>([]);
+
+  // ── Default account + manual override (see DefaultAccountTracker) ──────────────────────────
+  private inventoryAccountTracker!: DefaultAccountTracker;
+  private equityAccountTracker!: DefaultAccountTracker;
+  inventoryAccountManuallyChanged = signal(false);
+  equityAccountManuallyChanged = signal(false);
 
   constructor(
     private fb: FormBuilder,
@@ -73,7 +85,11 @@ export class OpeningBalancesInventoryFormComponent implements OnInit {
       storeId: [this.storeContext.current()?.storeId ?? '', Validators.required],
       location: [this.storeContext.current()?.nameAr ?? ''],
       notes: [''],
-      entryDate: [new Date(), Validators.required]
+      entryDate: [new Date(), Validators.required],
+      // Optional overrides: left null, the backend derives both from the Store's accounting
+      // configuration at posting time (InventoryOpeningBalanceService.GenerateJournalEntryPrivateAsync).
+      inventoryAccountId: new FormControl<number | null>(null),
+      openingBalanceEquityAccountId: new FormControl<number | null>(null)
     });
 
     // Calculate total cost when quantity or unit cost changes
@@ -82,6 +98,16 @@ export class OpeningBalancesInventoryFormComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.accountingService.getPostableAccounts().subscribe(accounts => this.postableAccounts.set(accounts));
+
+    this.inventoryAccountTracker = new DefaultAccountTracker(this.accountingService, this.form.get('inventoryAccountId') as FormControl);
+    this.equityAccountTracker = new DefaultAccountTracker(this.accountingService, this.form.get('openingBalanceEquityAccountId') as FormControl);
+    this.form.get('inventoryAccountId')?.valueChanges.subscribe(() =>
+      this.inventoryAccountManuallyChanged.set(this.inventoryAccountTracker.manuallyChanged));
+    this.form.get('openingBalanceEquityAccountId')?.valueChanges.subscribe(() =>
+      this.equityAccountManuallyChanged.set(this.equityAccountTracker.manuallyChanged));
+    this.form.get('storeId')?.valueChanges.subscribe(() => this.recalculateAccountDefaults());
+
     // Check if editing
     const idParam = this.route.snapshot.params['id'];
     if (idParam) {
@@ -95,8 +121,27 @@ export class OpeningBalancesInventoryFormComponent implements OnInit {
       const initialStoreId = this.form.get('storeId')?.value;
       if (initialStoreId) {
         this.warnIfCurrentStoreNotConfigured(initialStoreId);
+        this.recalculateAccountDefaults();
       }
     }
+  }
+
+  private recalculateAccountDefaults(): void {
+    const storeId = this.form.get('storeId')?.value;
+    if (!storeId) return;
+    this.inventoryAccountTracker.recalculate({ kind: DefaultAccountKind.OpeningBalanceInventory, storeId });
+    this.equityAccountTracker.recalculate({ kind: DefaultAccountKind.OpeningBalanceEquity, storeId });
+  }
+
+  /** "Reset to Default" action next to an overridden account field. */
+  resetInventoryAccountToDefault(): void {
+    this.inventoryAccountTracker.reset();
+    this.inventoryAccountManuallyChanged.set(false);
+  }
+
+  resetEquityAccountToDefault(): void {
+    this.equityAccountTracker.reset();
+    this.equityAccountManuallyChanged.set(false);
   }
 
   private loadExisting(id: number) {
@@ -116,10 +161,24 @@ export class OpeningBalancesInventoryFormComponent implements OnInit {
             storeId: item.storeId,
             location: item.location,
             notes: item.notes,
-            entryDate: item.entryDate ? new Date(item.entryDate) : new Date()
+            entryDate: item.entryDate ? new Date(item.entryDate) : new Date(),
+            inventoryAccountId: item.inventoryAccountId ?? null,
+            openingBalanceEquityAccountId: item.openingBalanceEquityAccountId ?? null
           });
+          // A loaded document's stored override (if any) must display as-is, never be silently
+          // recomputed/overwritten by the tracker's own recalculate() -- see
+          // sales-invoice-form.component.ts for the same edge case.
+          if (item.inventoryAccountId != null) {
+            this.inventoryAccountTracker.markAsManuallyChanged();
+            this.inventoryAccountManuallyChanged.set(true);
+          }
+          if (item.openingBalanceEquityAccountId != null) {
+            this.equityAccountTracker.markAsManuallyChanged();
+            this.equityAccountManuallyChanged.set(true);
+          }
           if (item.storeId) {
             this.warnIfCurrentStoreNotConfigured(item.storeId);
+            this.recalculateAccountDefaults();
           }
         }
       },
@@ -164,6 +223,8 @@ export class OpeningBalancesInventoryFormComponent implements OnInit {
         notes: formValue.notes,
         storeId: formValue.storeId,
         entryDate: formValue.entryDate,
+        inventoryAccountId: formValue.inventoryAccountId ?? null,
+        openingBalanceEquityAccountId: formValue.openingBalanceEquityAccountId ?? null,
         // model uses 'location' field; no storeId in OpeningBalanceInventory
 
       };

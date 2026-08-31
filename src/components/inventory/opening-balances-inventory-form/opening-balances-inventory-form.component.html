@@ -66,6 +66,38 @@
         </mat-form-field>
       </div>
 
+      <div class="form-row">
+        <div class="field-with-add">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'ACCOUNTING.INVENTORY_ACCOUNT' | translate }}</mat-label>
+            <mat-select formControlName="inventoryAccountId">
+              <mat-option [value]="null">{{ 'ACCOUNTS.FORM.USE_DEFAULT' | translate }}</mat-option>
+              <mat-option *ngFor="let a of postableAccounts()" [value]="a.id">{{ a.accountCode }} - {{ a.accountNameAr }}</mat-option>
+            </mat-select>
+            <mat-hint *ngIf="!inventoryAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
+          </mat-form-field>
+          <button mat-icon-button type="button" class="field-add-btn" *ngIf="inventoryAccountManuallyChanged()"
+                  [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetInventoryAccountToDefault()">
+            <mat-icon>restart_alt</mat-icon>
+          </button>
+        </div>
+
+        <div class="field-with-add">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>{{ 'ACCOUNTING.OPENING_BALANCE_EQUITY_ACCOUNT' | translate }}</mat-label>
+            <mat-select formControlName="openingBalanceEquityAccountId">
+              <mat-option [value]="null">{{ 'ACCOUNTS.FORM.USE_DEFAULT' | translate }}</mat-option>
+              <mat-option *ngFor="let a of postableAccounts()" [value]="a.id">{{ a.accountCode }} - {{ a.accountNameAr }}</mat-option>
+            </mat-select>
+            <mat-hint *ngIf="!equityAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
+          </mat-form-field>
+          <button mat-icon-button type="button" class="field-add-btn" *ngIf="equityAccountManuallyChanged()"
+                  [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetEquityAccountToDefault()">
+            <mat-icon>restart_alt</mat-icon>
+          </button>
+        </div>
+      </div>
+
       <div class="erp-actions-bar form-actions">
         <button mat-button type="button" (click)="onCancel()">{{ 'ACCOUNTING.CANCEL' | translate }}</button>
         <button mat-raised-button color="primary" type="submit" [disabled]="!form.valid || isSaving()">

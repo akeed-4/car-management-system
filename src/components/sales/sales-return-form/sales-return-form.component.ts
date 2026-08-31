@@ -11,10 +11,11 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { SalesService } from '../../../services/sales.service';
 import { SalesReturnService } from '../../../services/sales-return.service';
 import { InventoryService } from '../../../services/inventory.service';
-import { AccountingService } from '../../../components/accounting/accounting.service';
+import { AccountingService, DefaultAccountKind } from '../../../components/accounting/accounting.service';
 import { InvoiceIntegrationService } from '../../../services/invoice-integration.service';
 import { ReturnInvoiceItem } from '../../../models/return-invoice-item.model';
 import { SalesReturn } from '../../../models/sales-return.model';
@@ -25,11 +26,13 @@ import { ToastService } from '../../../services/toast.service';
 import { SalesReturnInvoice } from '@/src/models/sales-return-invoice.model';
 import { NotificationService } from '@/src/services/notification.service';
 import { extractErrorMessage } from '@/src/models/http-error-message';
+import { DefaultAccountTracker } from '@/src/components/shared/default-account/default-account.helper';
+import { Account } from '../../accounting/models';
 
 @Component({
   selector: 'app-sales-return-form',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, CommonModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatCheckboxModule, MatIconModule, MatDatepickerModule],
+  imports: [RouterLink, ReactiveFormsModule, CommonModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatCheckboxModule, MatIconModule, MatDatepickerModule, MatTooltipModule],
   templateUrl: './sales-return-form.component.html',
   styleUrl: './sales-return-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,6 +61,19 @@ export class SalesReturnFormComponent implements OnInit {
   refundCalculation = signal<any>(null);
   editMode: boolean=false;
   invoiceId: any;
+  locked = signal(false); // true once the loaded return is posted/approved -- accounts become read-only
+
+  // ── Default account + manual override (see DefaultAccountTracker) ──────────────────────────
+  // Debit leg: settlement account (Cash/Bank for a cash return, customer AR for a credit return).
+  // Credit leg: revenue account being reversed. The backend still independently resolves both
+  // when left null -- this tracker only makes that same default visible and overridable, rather
+  // than a silent server-side fallback the user never sees.
+  private debitAccountTracker!: DefaultAccountTracker;
+  private creditAccountTracker!: DefaultAccountTracker;
+  debitAccountManuallyChanged = signal(false);
+  creditAccountManuallyChanged = signal(false);
+  debitAccounts = signal<Account[]>([]);
+  creditAccounts = signal<Account[]>([]);
 
   constructor() {
     // Initialize form with default empty form to prevent NG01052 error
@@ -67,8 +83,66 @@ export class SalesReturnFormComponent implements OnInit {
       reason: ['', [Validators.required, Validators.minLength(10)]],
       depositRefundable: [false],
       depositAmount: [0, [Validators.min(0)]],
-      notes: ['']
+      notes: [''],
+      debitAccountId: [null as number | null],
+      creditAccountId: [null as number | null],
     });
+    this.accountingService.getPostableAccounts().subscribe(accounts => {
+      this.debitAccounts.set(accounts);
+      this.creditAccounts.set(accounts);
+    });
+  }
+
+  /** (Re)binds the override trackers to the CURRENT returnForm's controls -- must be called
+   *  again whenever returnForm is reassigned to a new FormGroup instance (loadInvoiceForEdit
+   *  builds a fresh one), since a tracker is bound to a specific FormControl object. */
+  private setupAccountOverrideTrackers(preloadedOverride?: { debitAccountOverrideId?: number | null; creditAccountOverrideId?: number | null }): void {
+    const debitControl = this.returnForm.get('debitAccountId') as any;
+    const creditControl = this.returnForm.get('creditAccountId') as any;
+    this.debitAccountTracker = new DefaultAccountTracker(this.accountingService, debitControl);
+    this.creditAccountTracker = new DefaultAccountTracker(this.accountingService, creditControl);
+
+    // Edit mode: the control was seeded with a STORED value via patchValue below, not typed by
+    // the user -- mark it manual immediately so a later recalculate() (e.g. re-selecting the
+    // same invoice) never silently overwrites the saved override. Mirrors
+    // sales-invoice-form.component.ts's paymentAccountTracker.markAsManuallyChanged() pattern.
+    if (preloadedOverride?.debitAccountOverrideId != null) {
+      this.debitAccountTracker.markAsManuallyChanged();
+    }
+    if (preloadedOverride?.creditAccountOverrideId != null) {
+      this.creditAccountTracker.markAsManuallyChanged();
+    }
+
+    this.debitAccountManuallyChanged.set(this.debitAccountTracker.manuallyChanged);
+    this.creditAccountManuallyChanged.set(this.creditAccountTracker.manuallyChanged);
+    debitControl.valueChanges.subscribe(() => this.debitAccountManuallyChanged.set(this.debitAccountTracker.manuallyChanged));
+    creditControl.valueChanges.subscribe(() => this.creditAccountManuallyChanged.set(this.creditAccountTracker.manuallyChanged));
+  }
+
+  private recalculateAccountDefaults(): void {
+    if (this.locked()) return;
+    const invoice = this.selectedOriginalInvoice();
+    const customerId = invoice?.customerId;
+    const settledInCash = this.isCashReturn;
+
+    if (settledInCash) {
+      this.debitAccountTracker.recalculate({ kind: DefaultAccountKind.PaymentAccount });
+    } else if (customerId) {
+      this.debitAccountTracker.recalculate({ kind: DefaultAccountKind.CustomerReceivable, partyId: customerId });
+    }
+    // Credit (revenue) leg has no dedicated resolver preview on this document -- the backend
+    // derives it from the original invoice's own revenue account when no override is supplied.
+    // The field stays available for an explicit override, just without a default preview.
+  }
+
+  resetDebitAccountToDefault(): void {
+    this.debitAccountTracker.reset();
+    this.debitAccountManuallyChanged.set(false);
+  }
+
+  resetCreditAccountToDefault(): void {
+    this.creditAccountTracker.reset();
+    this.creditAccountManuallyChanged.set(false);
   }
 
   // Load invoices from API
@@ -120,8 +194,26 @@ export class SalesReturnFormComponent implements OnInit {
           reason: [invoice.reason || '', [Validators.required, Validators.minLength(10)]],
           depositRefundable: [false],
           depositAmount: [0, [Validators.min(0)]],
-          notes: ['']
+          notes: [''],
+          // Show the STORED override, never silently recompute/overwrite it -- setupAccountOverrideTrackers
+          // marks these controls as manually-changed right below when a stored value is present.
+          debitAccountId: [invoice.debitAccountOverrideId ?? null],
+          creditAccountId: [invoice.creditAccountOverrideId ?? null],
         });
+        this.setupAccountOverrideTrackers({
+          debitAccountOverrideId: invoice.debitAccountOverrideId,
+          creditAccountOverrideId: invoice.creditAccountOverrideId,
+        });
+
+        // Posted documents: the override fields become read-only, same as every other field a
+        // posted return already locks.
+        const posted = invoice.status != null && invoice.status !== 'DRAFT';
+        this.locked.set(posted);
+        if (posted) {
+          this.returnForm.get('debitAccountId')?.disable();
+          this.returnForm.get('creditAccountId')?.disable();
+        }
+
 console.log('Return Form initialized for edit:', invoice.items);
         // Load invoice items
         const items: ReturnInvoiceItem[] = invoice.items.map(item => ({
@@ -134,7 +226,7 @@ console.log('Return Form initialized for edit:', invoice.items);
           returnQuantity: item.returnQuantity || 0,
           lineTotal: (item.salesPrice || 0) * (item.returnQuantity || 0),
         }));
-        
+
         this.returnItems.set(items);
         this.generateReturnNumber();
         this.setupFormListeners();
@@ -184,8 +276,11 @@ getTitle(): string {
       reason: ['', [Validators.required, Validators.minLength(10)]],
       depositRefundable: [false],
       depositAmount: [0, [Validators.min(0)]],
-      notes: ['']
+      notes: [''],
+      debitAccountId: [null as number | null],
+      creditAccountId: [null as number | null],
     });
+    this.setupAccountOverrideTrackers();
 
     this.setupFormListeners();
     // Listen to return items changes for refund calculation
@@ -252,6 +347,7 @@ getTitle(): string {
       console.log(items)
         this.returnItems.set(items);
         this.updateRefundCalculation();
+        this.recalculateAccountDefaults();
       },
       error: (error) => {
         console.error('Failed to load invoice details:', error);
@@ -348,7 +444,9 @@ getTitle(): string {
       rejectionReason: undefined,
       isCash: this.isCashReturn,
       createdBy: 1, // Will be set from current user context
-      items: itemsToReturn
+      items: itemsToReturn,
+      debitAccountOverrideId: this.returnForm.get('debitAccountId')?.value ?? undefined,
+      creditAccountOverrideId: this.returnForm.get('creditAccountId')?.value ?? undefined,
     };
     // Check if we're in edit mode
     if (this.editMode) {

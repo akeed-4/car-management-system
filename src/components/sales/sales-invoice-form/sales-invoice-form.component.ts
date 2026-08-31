@@ -209,6 +209,100 @@ export class SalesInvoiceFormComponent implements OnInit {
     }
   }
 
+  /**
+   * Debit (Cash/Bank on a cash sale, else Customer AR) / Credit (Revenue) account overrides.
+   * Default-preselected via AccountResolutionService.resolve-default; the user can still pick a
+   * different postable account. Entirely independent of the VAT, COGS/Inventory, and
+   * Payment/Down-Payment-account lines above -- overriding either of these never touches those.
+   */
+  debitAccounts = signal<Account[]>([]);
+  creditAccounts = signal<Account[]>([]);
+  private debitAccountsLoaded = false;
+  private creditAccountsLoaded = false;
+
+  private debitAccountTracker: DefaultAccountTracker | null = null;
+  private creditAccountTracker: DefaultAccountTracker | null = null;
+  debitAccountManuallyChanged = signal(false);
+  creditAccountManuallyChanged = signal(false);
+
+  private loadDebitAccounts(): void {
+    if (this.debitAccountsLoaded) return;
+    this.debitAccountsLoaded = true;
+    this.accountingService.getPostableAccounts().subscribe({
+      next: accounts => this.debitAccounts.set(accounts ?? []),
+      error: () => this.debitAccounts.set([])
+    });
+  }
+
+  private loadCreditAccounts(): void {
+    if (this.creditAccountsLoaded) return;
+    this.creditAccountsLoaded = true;
+    this.accountingService.getPostableAccounts().subscribe({
+      next: accounts => this.creditAccounts.set(accounts ?? []),
+      error: () => this.creditAccounts.set([])
+    });
+  }
+
+  resetDebitAccountToDefault(): void {
+    this.debitAccountTracker?.reset();
+    this.debitAccountManuallyChanged.set(false);
+  }
+
+  resetCreditAccountToDefault(): void {
+    this.creditAccountTracker?.reset();
+    this.creditAccountManuallyChanged.set(false);
+  }
+
+  /** Re-derives the Debit-leg default from the current settlement type (Cash -> payment account
+   *  request, Credit/Installment -> customer AR). */
+  refreshDebitAccountDefault(): void {
+    const control = this.invoiceForm?.get('debitAccountId');
+    if (!control) return;
+    if (!this.debitAccountTracker) {
+      this.debitAccountTracker = new DefaultAccountTracker(this.accountingService, control as any);
+      control.valueChanges.subscribe(() =>
+        this.debitAccountManuallyChanged.set(this.debitAccountTracker!.manuallyChanged));
+    }
+    if (this.isCash) {
+      this.debitAccountTracker.recalculate({
+        kind: DefaultAccountKind.SalesInvoiceDebit,
+        isCash: true,
+        requestedAccountId: this.invoiceForm.get('paymentAccountId')?.value ?? null,
+      });
+    } else {
+      const customerId = this.invoiceForm.get('customer')?.value;
+      if (customerId) {
+        this.debitAccountTracker.recalculate({
+          kind: DefaultAccountKind.SalesInvoiceDebit,
+          isCash: false,
+          partyId: customerId,
+        });
+      }
+    }
+  }
+
+  /** Re-derives the Credit-leg (Revenue) default -- car category revenue when the first invoiced
+   *  car has one configured, else the company Sales Revenue account. */
+  refreshCreditAccountDefault(): void {
+    const control = this.invoiceForm?.get('creditAccountId');
+    if (!control) return;
+    if (!this.creditAccountTracker) {
+      this.creditAccountTracker = new DefaultAccountTracker(this.accountingService, control as any);
+      control.valueChanges.subscribe(() =>
+        this.creditAccountManuallyChanged.set(this.creditAccountTracker!.manuallyChanged));
+    }
+    const firstCarId = this.invoiceItems()[0]?.carId ?? null;
+    const category = firstCarId != null ? (this.cars() ?? []).find((c: any) => c.id === firstCarId)?.categoryId ?? null : null;
+    this.creditAccountTracker.recalculate({ kind: DefaultAccountKind.SalesInvoiceCredit, partyId: category });
+  }
+
+  /** Keeps the Debit/Credit default previews in sync with the business inputs each derivation
+   *  actually depends on. Mirrors refreshPaymentAccountValidation's own trigger wiring. */
+  private watchDebitCreditAccountDefaults(): void {
+    this.invoiceForm.get('customer')?.valueChanges.subscribe(() => this.refreshDebitAccountDefault());
+    this.invoiceForm.get('paymentAccountId')?.valueChanges.subscribe(() => this.refreshDebitAccountDefault());
+  }
+
   displayedColumns: string[] = ['carDescription', 'quantity', 'unitPrice', 'lineTotal', 'actions'];
 
  cardLayout2 = this.currentSettingService.getCardLayout(2);
@@ -303,6 +397,16 @@ export class SalesInvoiceFormComponent implements OnInit {
       this.discountTypeSignal();
       this.invoiceForm?.get('discountValue')?.updateValueAndValidity({ emitEvent: false });
     });
+
+    // Credit-account (Revenue) default depends on the first invoiced car's category -- re-preview
+    // whenever the line items change (add/remove/edit), same reactive-effect pattern as above.
+    effect(() => {
+      this.invoiceItems();
+      this.cars();
+      if (this.invoiceForm) {
+        this.refreshCreditAccountDefault();
+      }
+    });
   }
 
   ngOnInit() {
@@ -334,6 +438,11 @@ export class SalesInvoiceFormComponent implements OnInit {
         // Cash/Bank settlement account (CASH sales only -- see the model doc). The backend
         // falls back to the tenant's seeded default Cash when this is omitted.
         paymentAccountId: new FormControl<number | null>(null),
+        // Debit (Cash/Bank or Customer AR) / Credit (Revenue) account overrides -- default-
+        // preselected via DefaultAccountTracker (see refreshDebitAccountDefault/
+        // refreshCreditAccountDefault below), user-editable, and re-validated server-side on save.
+        debitAccountId: new FormControl<number | null>(null),
+        creditAccountId: new FormControl<number | null>(null),
         discountType: new FormControl<DiscountType>('Fixed'),
         discountValue: new FormControl(0, [Validators.min(0), this.discountExceedsSubtotalValidator])
       });
@@ -345,6 +454,11 @@ export class SalesInvoiceFormComponent implements OnInit {
       this.watchClassificationAndTypeControls();
       this.watchPaymentTypeControl();
       this.applyPaymentTypeLock();
+      this.loadDebitAccounts();
+      this.loadCreditAccounts();
+      this.refreshDebitAccountDefault();
+      this.refreshCreditAccountDefault();
+      this.watchDebitCreditAccountDefaults();
 
       // Heads-up only: warns immediately if the current Showroom has no active
       // StoreAccountingConfiguration, instead of only finding out after Save fails server-side.
@@ -408,6 +522,10 @@ export class SalesInvoiceFormComponent implements OnInit {
     // Same trigger drives the Payment Account requirement (CASH only) so a Cash -> Credit
     // switch clears any previously chosen account before it can reach the payload.
     this.refreshPaymentAccountValidation();
+    // isCash also determines the Debit-leg default's branch (Cash/Bank vs. Customer AR).
+    if (this.invoiceForm.get('debitAccountId')) {
+      this.refreshDebitAccountDefault();
+    }
   }
 
   /** Keeps amountReceivedSignal (used by the live Paid/Due/Status preview) in sync with the
@@ -597,6 +715,11 @@ export class SalesInvoiceFormComponent implements OnInit {
               ? (invoice.creditAccountId ?? null)
               : (invoice.downPaymentAccountId ?? null)
           ),
+          // Preselect with the invoice's own STORED Debit/Credit accounts -- never silently
+          // recomputed on load (Requirement 3). See the tracker markAsManuallyChanged() calls
+          // below for why the control must be told this is already a real saved value.
+          debitAccountId: new FormControl<number | null>(invoice.debitAccountId ?? null),
+          creditAccountId: new FormControl<number | null>(invoice.creditAccountId ?? null),
           discountType: new FormControl<DiscountType>(invoice.discountType || 'Fixed'),
           discountValue: new FormControl(invoice.discountValue || 0, [Validators.min(0), this.discountExceedsSubtotalValidator])
         });
@@ -614,6 +737,30 @@ export class SalesInvoiceFormComponent implements OnInit {
         this.paymentAccountManuallyChanged.set(this.paymentAccountTracker.manuallyChanged);
         paymentAccountControl.valueChanges.subscribe(() =>
           this.paymentAccountManuallyChanged.set(this.paymentAccountTracker!.manuallyChanged));
+
+        // Same construct-before-recalculate + explicit markAsManuallyChanged() fix as the Payment
+        // Account tracker above, applied to the new Debit/Credit override fields.
+        const debitAccountControl = this.invoiceForm.get('debitAccountId') as any;
+        this.debitAccountTracker = new DefaultAccountTracker(this.accountingService, debitAccountControl);
+        if (debitAccountControl.value != null) {
+          this.debitAccountTracker.markAsManuallyChanged();
+        }
+        this.debitAccountManuallyChanged.set(this.debitAccountTracker.manuallyChanged);
+        debitAccountControl.valueChanges.subscribe(() =>
+          this.debitAccountManuallyChanged.set(this.debitAccountTracker!.manuallyChanged));
+
+        const creditAccountControl = this.invoiceForm.get('creditAccountId') as any;
+        this.creditAccountTracker = new DefaultAccountTracker(this.accountingService, creditAccountControl);
+        if (creditAccountControl.value != null) {
+          this.creditAccountTracker.markAsManuallyChanged();
+        }
+        this.creditAccountManuallyChanged.set(this.creditAccountTracker.manuallyChanged);
+        creditAccountControl.valueChanges.subscribe(() =>
+          this.creditAccountManuallyChanged.set(this.creditAccountTracker!.manuallyChanged));
+        this.loadDebitAccounts();
+        this.loadCreditAccounts();
+        this.watchDebitCreditAccountDefaults();
+
         this.updateDownPaymentValidators();
         this.loadPaymentAccounts();
         this.amountReceivedSignal.set(invoice.isCash ? invoice.totalAmount : (invoice.downPayment || invoice.amountPaid || 0));
@@ -1303,6 +1450,15 @@ export class SalesInvoiceFormComponent implements OnInit {
       paymentAccountId: (this.isCash || this.hasDownPayment())
         ? (this.invoiceForm.get('paymentAccountId')?.value ?? undefined)
         : undefined,
+      // Optional client override of the Debit (Cash/Bank or Customer AR) / Credit (Revenue) legs
+      // -- re-validated server-side (exists, tenant-scoped, active, postable) and used verbatim
+      // when present; undefined (never touched, or "Reset to Default" clicked back to a
+      // resolution the tracker couldn't confirm) falls back to the existing derivation
+      // (SalesInvoiceService.ResolveSaleDebitAccountIdAsync/ResolveRevenueAccountIdAsync) --
+      // exactly what every invoice created before this override existed continues to do. Entirely
+      // independent of the VAT/COGS/Payment-account fields above.
+      debitAccountId: this.invoiceForm.get('debitAccountId')?.value ?? undefined,
+      creditAccountId: this.invoiceForm.get('creditAccountId')?.value ?? undefined,
     };
 
     if (this.channel === SalesChannel.Bunuk) {
