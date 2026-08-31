@@ -1,6 +1,7 @@
 <div class="report-grid-container erp-grid-card">
   <dx-data-grid
-    [dataSource]="dataSource"
+    [dataSource]="gridDataSource"
+    [remoteOperations]="isRemoteMode ? { filtering: true, sorting: true, paging: true, grouping: true, summary: true } : false"
     [keyExpr]="keyExpr"
     [showBorders]="showBorders"
     [showRowLines]="showRowLines"
@@ -15,7 +16,7 @@
     (onSelectionChanged)="onSelectionChanged($event)">
 
     <!-- Paging -->
-    <dxo-paging [pageSize]="20"></dxo-paging>
+    <dxo-paging [pageSize]="isRemoteMode ? remotePageSize : 20"></dxo-paging>
     <dxo-pager
       [showPageSizeSelector]="true"
       [allowedPageSizes]="[10, 20, 50, 100]"

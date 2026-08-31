@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import CustomStore from 'devextreme/data/custom_store';
 import { ReportContainerComponent } from '../shared/report-container/report-container.component';
 import { ReportGridComponent, GridColumn } from '../shared/report-grid/report-grid.component';
 import { AccountReportService } from '../../../services/account-report.service';
 import { NotificationService } from '../../../services/notification.service';
-import { AccountStatementReport } from '@/src/models/reportmodel/account-statement-report.model';
+import { ReportDataSourceService } from '../../../services/report-data-source.service';
+import { AccountStatementReport, AccountStatementRow } from '@/src/models/reportmodel/account-statement-report.model';
 import { ReportFilter } from '@/src/models/reportmodel/report-filter.model';
 
 @Component({
@@ -19,9 +21,40 @@ import { ReportFilter } from '@/src/models/reportmodel/report-filter.model';
   styleUrls: ['./account-statement.component.css']
 })
 export class AccountStatementComponent implements OnInit {
+  private reportDataSourceService = inject(ReportDataSourceService);
+
+  /** Grid instance, used to trigger a reload after a filter change. */
+  @ViewChild(ReportGridComponent) gridComponent?: ReportGridComponent;
+
   reportData: AccountStatementReport[] = [];
   loading: boolean = false;
   currentFilters: ReportFilter = {};
+
+  /** Opening balance for the selected account/date range, read off the X-Opening-Balance response header. */
+  openingBalance: number = 0;
+
+  /**
+   * Remote-operations mode. ON: `GET api/AccountReports/account-statement/query` (DevExtreme
+   * DataSourceLoadOptions, returns a LoadResult of AccountStatementRowDto with a server-computed
+   * running balance) is finished and stable -- see AccountReportsController.cs /
+   * AccountReportService.GetAccountStatementRowsAsync. The store's load() is a no-op (empty page)
+   * until an account is selected, since AccountId<=0 is a 400 on the backend -- report-container
+   * already gates the "select account" warning for exports; the grid additionally just shows
+   * nothing rather than erroring.
+   */
+  useRemoteMode = true;
+
+  remoteStore: CustomStore = this.reportDataSourceService.createStore<AccountStatementRow>(
+    'AccountReports/account-statement/query',
+    {
+      key: 'lineId',
+      extraParams: () => this.buildAccountStatementRequestParams(),
+      onHeaders: (headers) => {
+        const raw = headers.get('X-Opening-Balance');
+        this.openingBalance = raw ? Number(raw) : 0;
+      },
+    },
+  );
 
   columns: GridColumn[] = [
     {
@@ -33,7 +66,7 @@ export class AccountStatementComponent implements OnInit {
       width: 120
     },
     {
-      dataField: 'transactionNumber',
+      dataField: 'journalEntryNumber',
       caption: 'REPORTS.COLUMNS.REFERENCE',
       dataType: 'string',
       alignment: 'left',
@@ -47,7 +80,7 @@ export class AccountStatementComponent implements OnInit {
       width: 350
     },
     {
-      dataField: 'debit',
+      dataField: 'debitAmount',
       caption: 'REPORTS.COLUMNS.DEBIT',
       dataType: 'number',
       format: '#,##0.00',
@@ -55,7 +88,7 @@ export class AccountStatementComponent implements OnInit {
       width: 150
     },
     {
-      dataField: 'credit',
+      dataField: 'creditAmount',
       caption: 'REPORTS.COLUMNS.CREDIT',
       dataType: 'number',
       format: '#,##0.00',
@@ -78,7 +111,7 @@ export class AccountStatementComponent implements OnInit {
       }
     },
     {
-      dataField: 'reference',
+      dataField: 'referenceNumber',
       caption: 'REPORTS.COLUMNS.REFERENCE',
       dataType: 'string',
       alignment: 'left',
@@ -92,11 +125,30 @@ export class AccountStatementComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Don't load initially - wait for account selection
+    // Don't load initially - wait for account selection. remoteStore.load() runs empty until
+    // buildAccountStatementRequestParams() has an accountId (see below).
   }
 
   /**
-   * Load report data
+   * Maps this screen's ReportFilter (startDate/endDate/accountId/branchId, emitted by
+   * report-container) onto the query param names AccountStatementRequest binds ([FromQuery] on
+   * AccountReportsController.GetAccountStatementQuery): FromDate/ToDate/AccountId. Returns
+   * AccountId: 0 when no account is selected yet so the backend's own AccountId<=0 validation
+   * rejects the call with a clean 400 rather than the grid silently listing every account's lines.
+   */
+  private buildAccountStatementRequestParams(): Record<string, unknown> {
+    const f = this.currentFilters;
+    const params: Record<string, unknown> = {
+      AccountId: f.accountId ?? 0,
+    };
+    if (f.startDate) params['FromDate'] = f.startDate instanceof Date ? f.startDate.toISOString() : f.startDate;
+    if (f.endDate) params['ToDate'] = f.endDate instanceof Date ? f.endDate.toISOString() : f.endDate;
+    return params;
+  }
+
+  /**
+   * Legacy full-array load, kept only as a fallback data source (not currently bound to the
+   * grid, which uses `remoteStore` instead).
    */
   loadReport(): void {
     if (!this.currentFilters.accountId) {
@@ -118,12 +170,15 @@ export class AccountStatementComponent implements OnInit {
   }
 
   /**
-   * Handle filter change
+   * Handle filter change: update currentFilters, then reload the grid if an account is selected
+   * (mirrors the original guard -- avoids a load() that immediately 400s on AccountId<=0).
    */
   onFilterChange(filters: ReportFilter): void {
     this.currentFilters = filters;
     if (filters.accountId) {
-      this.loadReport();
+      this.gridComponent?.refresh();
+    } else {
+      this.notificationService.showWarning('REPORTS.SELECT_ACCOUNT_WARNING');
     }
   }
 
@@ -183,9 +238,9 @@ export class AccountStatementComponent implements OnInit {
   }
 
   /**
-   * Refresh report
+   * Refresh report (re-triggers the remote store's load() with the current filters).
    */
   onRefresh(): void {
-    this.loadReport();
+    this.gridComponent?.refresh();
   }
 }

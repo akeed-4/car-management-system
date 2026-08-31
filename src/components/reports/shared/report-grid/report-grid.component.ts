@@ -1,10 +1,12 @@
 import { Component, Input, Output, EventEmitter, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { 
+import {
   DxDataGridModule,
-  DxDataGridComponent 
+  DxDataGridComponent
 } from 'devextreme-angular/ui/data-grid';
 import { TranslateService } from '@ngx-translate/core';
+import CustomStore from 'devextreme/data/custom_store';
+import DataSource from 'devextreme/data/data_source';
 
 export interface GridColumn {
   dataField: string;
@@ -17,6 +19,9 @@ export interface GridColumn {
   calculateCellValue?: (rowData: any) => any;
   customizeText?: (cellInfo: any) => string;
 }
+
+/** Accepted shapes for `remoteDataSource` -- a ready CustomStore, or a DataSource wrapping one. */
+export type ReportRemoteDataSource = CustomStore | DataSource;
 
 @Component({
     selector: 'app-report-grid',
@@ -31,12 +36,22 @@ export interface GridColumn {
 })
 export class ReportGridComponent implements OnInit {
     private translateService = inject(TranslateService);
-    
+
+    /** Plain-array mode (default, backward compatible with every existing report screen). */
     @Input() dataSource: any[] = [];
+    /**
+     * Remote-operations mode: when set, this CustomStore/DataSource drives the grid instead of
+     * `dataSource`, and `remoteOperations` (filtering/sorting/paging/grouping/summary) is enabled
+     * so DevExtreme delegates all of those to the store's `load()` -- see
+     * report-data-source.service.ts for the shared helper that builds one of these against a
+     * `DataSourceLoadOptions` backend endpoint. Screens not yet converted to server-side paging
+     * simply never set this and keep working exactly as before.
+     */
+    @Input() remoteDataSource?: ReportRemoteDataSource;
     @Input() columns: GridColumn[] = [];
     @Input() keyExpr: string = 'id';
     @ViewChild(DxDataGridComponent, { static: false }) dataGrid!: DxDataGridComponent;
-  
+
     @Input() showBorders: boolean = true;
     @Input() showRowLines: boolean = true;
     @Input() showColumnLines: boolean = true;
@@ -50,7 +65,9 @@ export class ReportGridComponent implements OnInit {
     @Input() showSummary: boolean = true;
     @Input() height: string = '600px';
     @Input() summaryItems: any[] = [];
-  
+    /** Page size used only in remote-operations mode (client-side array mode is unaffected). */
+    @Input() remotePageSize: number = 20;
+
     @Output() rowClick = new EventEmitter<any>();
     @Output() cellClick = new EventEmitter<any>();
     @Output() selectionChanged = new EventEmitter<any>();
@@ -59,6 +76,16 @@ export class ReportGridComponent implements OnInit {
 
     ngOnInit(): void {
         this.setupDefaultSummary();
+    }
+
+    /** True when the grid is bound to a remote CustomStore/DataSource rather than a plain array. */
+    get isRemoteMode(): boolean {
+        return !!this.remoteDataSource;
+    }
+
+    /** `[dataSource]` binding target: remote store when provided, else the plain array as before. */
+    get gridDataSource(): any {
+        return this.remoteDataSource ?? this.dataSource;
     }
 
     /**
@@ -104,12 +131,32 @@ export class ReportGridComponent implements OnInit {
     }
 
   /**
-   * Export grid to Excel (uses DevExtreme built-in export)
+   * Export grid to Excel using DevExtreme's built-in `exportDataGrid` (same dynamic-import
+   * pattern as tenant-list.component.ts's exportExcel, the closest in-house precedent). In
+   * remote-operations mode this re-queries the store unpaged so the export covers every row
+   * matching the current filters/sort, not just the currently-loaded page -- DevExtreme does
+   * this automatically for a CustomStore-backed grid as long as `selectedRowsOnly` is left
+   * false, which is the default here.
    */
   exportToExcel(fileName: string = 'report'): void {
-    if (this.dataGrid) {
-      this.dataGrid.instance.refresh();
-    }
+    const component = this.dataGrid?.instance;
+    if (!component) return;
+    import('devextreme/excel_exporter').then(({ exportDataGrid }) => {
+      import('exceljs').then(async (ExcelJS) => {
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet(fileName);
+        exportDataGrid({
+          component,
+          worksheet,
+        }).then(() => {
+          workbook.xlsx.writeBuffer().then((buffer: BlobPart) => {
+            import('file-saver').then(({ saveAs }) => {
+              saveAs(new Blob([buffer], { type: 'application/octet-stream' }), `${fileName}.xlsx`);
+            });
+          });
+        });
+      });
+    });
   }
 
   /**

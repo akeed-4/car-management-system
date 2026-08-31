@@ -13,9 +13,10 @@
   (refresh)="onRefresh()">
 
   <app-report-grid
-    [dataSource]="reportData"
+    [remoteDataSource]="remoteStore"
     [columns]="columns"
-    [keyExpr]="'transactionDate'"
+    [keyExpr]="'lineId'"
+    [remotePageSize]="20"
     [allowSorting]="true"
     [allowFiltering]="true"
     [allowGrouping]="false"
