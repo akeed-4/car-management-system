@@ -1364,7 +1364,7 @@ export class SalesInvoiceFormComponent implements OnInit {
       isDirty: this.isDocumentDirty(),
       currentId: this.currentInvoiceId(),
       save: () => this.saveInvoiceCore(this.isEditMode() ? false : true),
-      print: id => this.printWorkflow.openPrintRoute(`/sales/invoice/print/${id}`),
+      print: id => this.printWorkflow.openPrintRoute(`/#/sales/invoice/print/${id}`),
       onSettled: () => this.saving.set(false)
     });
   }

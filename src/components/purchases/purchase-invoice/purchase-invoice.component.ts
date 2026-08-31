@@ -1283,7 +1283,7 @@ export class PurchaseInvoiceComponent implements OnInit {
       isDirty: this.isDocumentDirty(),
       currentId: this.currentInvoiceId(),
       save: () => this.saveInvoiceCore(),
-      print: id => this.printWorkflow.openPrintRoute(`/purchases/invoice/print/${id}`),
+      print: id => this.printWorkflow.openPrintRoute(`/#/purchases/invoice/print/${id}`),
       onSettled: () => this.saving.set(false)
     });
   }

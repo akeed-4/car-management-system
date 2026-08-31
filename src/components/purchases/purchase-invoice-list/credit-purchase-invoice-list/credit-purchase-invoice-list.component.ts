@@ -197,7 +197,7 @@ export class CreditPurchaseInvoiceListComponent {
     onPrintClick = (e: any) => {
       // Opens the dedicated print route in its own tab so the printable page never inherits the
       // app's sidebar/toolbar -- see PrintablePurchaseInvoiceComponent.
-      window.open(`/purchases/invoice/print/${e.row.data.id}`, '_blank');
+      window.open(`/#/purchases/invoice/print/${e.row.data.id}`, '_blank');
     }
 
     onEditClick = (e: any) => {
@@ -226,7 +226,7 @@ export class CreditPurchaseInvoiceListComponent {
 
 
     printInvoice(data: any) {
-      window.open(`/purchases/invoice/print/${data.row.data.id}`, '_blank');
+      window.open(`/#/purchases/invoice/print/${data.row.data.id}`, '_blank');
     }
 
     editInvoice(data: any) {
