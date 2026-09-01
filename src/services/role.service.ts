@@ -12,6 +12,13 @@ export interface Permission {
   group: string;
 }
 
+/** Backend envelope every RolesController endpoint returns -- see ApiResponse<T> on the API side. */
+interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
+
 export type PermissionsList = {
   [group: string]: {
     title: string;
@@ -72,18 +79,22 @@ export class RoleService {
   }
 
   getAllRoles(): Observable<Role[]> {
-    return this.http.get<Role[]>(`${this.apiUrl}/GetAll`).pipe(
+    return this.http.get<ApiResponse<Role[]>>(`${this.apiUrl}/GetAll`).pipe(
+      map(response => response.data),
       tap(roles => this.roles.set(roles)),
       finalize(() => this.rolesLoading.set(false))
     );
   }
 
   getRoleByIdFromApi(id: number): Observable<Role> {
-    return this.http.get<Role>(`${this.apiUrl}/${id}`);
+    return this.http.get<ApiResponse<Role>>(`${this.apiUrl}/${id}`).pipe(
+      map(response => response.data)
+    );
   }
 
   createRole(name: string, permissionKeys: string[]): Observable<Role> {
-    return this.http.post<Role>(`${this.apiUrl}/CreateRole`, { name, permissionKeys }).pipe(
+    return this.http.post<ApiResponse<Role>>(`${this.apiUrl}/CreateRole`, { name, permissionKeys }).pipe(
+      map(response => response.data),
       tap(() => this.loadRoles())
     );
   }
@@ -105,8 +116,9 @@ export class RoleService {
   }
 
   getPermissionsList(): Observable<PermissionsList> {
-    return this.http.get<Permission[]>(`${this.permissionsApiUrl}/GetAll`).pipe(
-      map(permissions => {
+    return this.http.get<ApiResponse<Permission[]>>(`${this.permissionsApiUrl}/GetAll`).pipe(
+      map(response => {
+        const permissions = response.data;
         const grouped: PermissionsList = {};
         for (const p of permissions) {
           if (!grouped[p.group]) {
