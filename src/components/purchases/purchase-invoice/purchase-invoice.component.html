@@ -107,13 +107,11 @@
             <ng-container *ngIf="cardLayout3 | async as layout">
               <mat-grid-list [cols]="layout.columns" rowHeight="88" gutterSize="16px">
 
-                <!-- Debit (Inventory) and Credit (Accounts Payable) accounts are no longer shown
-                     here: the backend always derives them (Store's inventory accounting
-                     configuration, Supplier's linked account) and never accepts a value from this
-                     form -- see PurchaseInvoiceService.ResolveDebitAccountAsync/
-                     ResolveCreditAccountAsync. If derivation isn't possible (missing store/supplier
-                     configuration), Save fails with a clear message naming the store/supplier
-                     rather than silently posting to a wrong or empty account. -->
+                <!-- The Supplier Accounts Payable / Cash-Bank settlement leg is this document's
+                     system-resolved side: it is never shown here, always derived server-side --
+                     see PurchaseInvoiceService.ResolveCreditAccountAsync. If derivation isn't
+                     possible (missing supplier/payment configuration), Save fails with a clear
+                     message naming the supplier rather than silently posting to a wrong account. -->
                 <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'PURCHASE_INVOICE.INVOICE_DATE' | translate }}</mat-label>
@@ -159,50 +157,28 @@
             </div>
           </section>
 
-          <!-- Debit (Inventory/Expense) / Credit (Supplier AP or Cash/Bank) account overrides.
-               Default-preselected via AccountResolutionService.resolve-default; the user can still
-               pick a different postable account. Independent of the VAT and Payment Account
-               (below) lines -- overriding either of these never touches those. -->
+          <!-- Business-level Inventory/Expense classification account: default-preselected via
+               AccountResolutionService.resolve-default, user-editable. This is the only account
+               choice this document exposes -- the Supplier Payable/Cash settlement side is an
+               accounting implementation detail the backend always resolves internally and is
+               never shown here. -->
           <section class="erp-section">
-            <h3 class="erp-section-title">{{ 'ACCOUNTING.DEBIT_CREDIT_SECTION' | translate }}</h3>
-            <ng-container *ngIf="cardLayout4 | async as layout">
-              <mat-grid-list [cols]="layout.columns" rowHeight="88" gutterSize="16px">
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-                  <div class="field-with-add full-width">
-                    <mat-form-field appearance="outline" class="full-width">
-                      <mat-label>{{ 'ACCOUNTING.PURCHASE_DEBIT_ACCOUNT' | translate }}</mat-label>
-                      <mat-select formControlName="debitAccountId">
-                        <mat-option *ngFor="let account of debitAccounts()" [value]="account.id">
-                          {{ account.accountCode }} - {{ translate.currentLang === 'ar' ? (account.accountNameAr || account.accountNameEn) : account.accountNameEn }}
-                        </mat-option>
-                      </mat-select>
-                      <mat-hint *ngIf="!debitAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
-                    </mat-form-field>
-                    <button mat-icon-button type="button" *ngIf="debitAccountManuallyChanged()"
-                            [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetDebitAccountToDefault()">
-                      <mat-icon>restart_alt</mat-icon>
-                    </button>
-                  </div>
-                </mat-grid-tile>
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-                  <div class="field-with-add full-width">
-                    <mat-form-field appearance="outline" class="full-width">
-                      <mat-label>{{ 'ACCOUNTING.PURCHASE_CREDIT_ACCOUNT' | translate }}</mat-label>
-                      <mat-select formControlName="creditAccountId">
-                        <mat-option *ngFor="let account of creditAccounts()" [value]="account.id">
-                          {{ account.accountCode }} - {{ translate.currentLang === 'ar' ? (account.accountNameAr || account.accountNameEn) : account.accountNameEn }}
-                        </mat-option>
-                      </mat-select>
-                      <mat-hint *ngIf="!creditAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
-                    </mat-form-field>
-                    <button mat-icon-button type="button" *ngIf="creditAccountManuallyChanged()"
-                            [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetCreditAccountToDefault()">
-                      <mat-icon>restart_alt</mat-icon>
-                    </button>
-                  </div>
-                </mat-grid-tile>
-              </mat-grid-list>
-            </ng-container>
+            <h3 class="erp-section-title">{{ 'ACCOUNTING.INVENTORY_EXPENSE_SECTION' | translate }}</h3>
+            <div class="field-with-add full-width">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'ACCOUNTING.INVENTORY_EXPENSE_ACCOUNT' | translate }}</mat-label>
+                <mat-select formControlName="debitAccountId">
+                  <mat-option *ngFor="let account of debitAccounts()" [value]="account.id">
+                    {{ account.accountCode }} - {{ translate.currentLang === 'ar' ? (account.accountNameAr || account.accountNameEn) : account.accountNameEn }}
+                  </mat-option>
+                </mat-select>
+                <mat-hint *ngIf="!debitAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
+              </mat-form-field>
+              <button mat-icon-button type="button" *ngIf="debitAccountManuallyChanged()"
+                      [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetDebitAccountToDefault()">
+                <mat-icon>restart_alt</mat-icon>
+              </button>
+            </div>
           </section>
 
           <!-- Requirement 2: Cash Amount Calculator (cash invoices) -->

@@ -17,12 +17,11 @@ export interface PurchaseInvoice {
    */
   debitAccountId?: number;
   /**
-   * Credit leg (Supplier AP on a credit purchase, Cash/Bank on a cash purchase). Same
-   * read-value/write-override duality as debitAccountId above. As a write override it takes
-   * priority over paymentAccountId (which only feeds the existing derivation used as the
-   * fallback).
+   * Credit leg (Supplier AP on a credit purchase, Cash/Bank on a cash purchase). This document's
+   * system-resolved side -- always populated on a read response, but never accepted as a client
+   * override on Create/Update; the server always derives it and ignores any value sent here.
    */
-  creditAccountId?: number;
+  creditAccountId: number;
   paymentMethod?: string; // Cash, Bank Transfer
   storeId?:number;
   branchId?:number;

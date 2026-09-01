@@ -195,46 +195,9 @@
         </div>
       </section>
 
-      <!-- Accounting: Debit/Credit account override -->
-      <section class="erp-section form-section">
-        <h3 class="erp-section-title section-title">{{ 'SALES.RETURN.ACCOUNTING_SECTION' | translate }}</h3>
-        <div class="erp-form-grid-3 erp-form-grid form-grid">
-          <div class="form-field field-with-add">
-            <mat-form-field appearance="outline" class="field-with-add-select">
-              <mat-label>{{ 'SALES.RETURN.DEBIT_ACCOUNT' | translate }}</mat-label>
-              <mat-select formControlName="debitAccountId">
-                <mat-option [value]="null">{{ 'SALES.RETURN.USE_DEFAULT_ACCOUNT' | translate }}</mat-option>
-                @for (account of debitAccounts(); track account.id) {
-                <mat-option [value]="account.id">{{ account.accountCode }} - {{ account.accountNameAr }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-            @if (debitAccountManuallyChanged()) {
-            <button mat-icon-button type="button" class="field-add-btn"
-                    [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetDebitAccountToDefault()">
-              <mat-icon>restart_alt</mat-icon>
-            </button>
-            }
-          </div>
-          <div class="form-field field-with-add">
-            <mat-form-field appearance="outline" class="field-with-add-select">
-              <mat-label>{{ 'SALES.RETURN.CREDIT_ACCOUNT' | translate }}</mat-label>
-              <mat-select formControlName="creditAccountId">
-                <mat-option [value]="null">{{ 'SALES.RETURN.USE_DEFAULT_ACCOUNT' | translate }}</mat-option>
-                @for (account of creditAccounts(); track account.id) {
-                <mat-option [value]="account.id">{{ account.accountCode }} - {{ account.accountNameAr }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-            @if (creditAccountManuallyChanged()) {
-            <button mat-icon-button type="button" class="field-add-btn"
-                    [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetCreditAccountToDefault()">
-              <mat-icon>restart_alt</mat-icon>
-            </button>
-            }
-          </div>
-        </div>
-      </section>
+      <!-- No manual accounting fields here: the return's Debit/Credit legs (settlement and
+           Revenue reversal) are entirely server-resolved at approval time -- see
+           JournalEngineService.RegisterSalesReturnJournalAsync on the backend. -->
 
       <!-- Refund Calculation Summary -->
       @if (refundCalculation(); as refund) {
