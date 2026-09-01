@@ -5220,11 +5220,14 @@
       "NO_ITEMS": "No line items on this invoice."
     },
     "TOTALS": {
-      "SUBTOTAL": "Subtotal",
+      "SUBTOTAL": "Amount Before Discount",
       "DISCOUNT": "Discount",
-      "AFTER_DISCOUNT": "Amount after discount",
-      "TAX": "VAT",
-      "GRAND_TOTAL": "Grand Total",
+      "AFTER_DISCOUNT": "Amount Before Tax",
+      "TAX": "Tax",
+      "GRAND_TOTAL": "Amount After Tax",
+      "CUSTOMS": "Customs",
+      "SHIPPING_FREIGHT": "Shipping & Freight",
+      "ADDITIONAL_EXPENSES": "Additional Expenses",
       "PREVIOUS_PAYMENTS": "Previous Payments",
       "DOWN_PAYMENT": "Down Payment",
       "AMOUNT_PAID": "Amount Paid",

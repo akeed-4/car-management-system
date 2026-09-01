@@ -50,7 +50,11 @@
       <!-- Header: company identity + document title/number -->
       <header class="inv-header">
         <div class="inv-header-company">
-          <div class="inv-logo">{{ data()!.company.name?.charAt(0) || 'C' }}</div>
+          @if (data()!.company.logoUrl) {
+            <img class="inv-logo-img" [src]="data()!.company.logoUrl" alt="{{ data()!.company.name }}">
+          } @else {
+            <div class="inv-logo">{{ data()!.company.name?.charAt(0) || 'C' }}</div>
+          }
           <div class="inv-header-company-info">
             <p class="inv-company-name">{{ data()!.company.name }}</p>
             @if (data()!.company.address) { <p class="inv-company-meta">{{ data()!.company.address }}</p> }
@@ -151,7 +155,13 @@
         </table>
       </div>
 
-      <!-- Totals: subtotal / discount / tax / grand total (+ sales payment breakdown) -->
+      <!-- Totals, in the required print order: Amount Before Discount -> Discount ->
+           Amount Before Tax -> Tax -> Amount After Tax -> Customs -> Shipping & Freight ->
+           Additional Expenses (+ sales payment breakdown last). Customs/Shipping/Additional
+           Expenses are Purchase-only real PurchaseAdditionalCost amounts (see
+           InvoicePrintDataService.loadPurchaseAdditionalCostTotals) -- informational annex rows
+           appended after the invoice's own Amount After Tax, not folded into it, since they post
+           as their own separate document/journal entry and must never change grandTotal's value. -->
       <div class="inv-totals-wrap">
         <div class="inv-totals-box">
           <div class="inv-totals-row">
@@ -165,12 +175,12 @@
               </span>
               <span class="inv-totals-value">- {{ data()!.totals.totalDiscount | currency:data()!.currency:'symbol':'1.2-2' }}</span>
             </div>
-            @if (data()!.totals.amountAfterDiscount != null) {
-              <div class="inv-totals-row">
-                <span class="inv-totals-label">{{ 'INVOICE_PRINT.TOTALS.AFTER_DISCOUNT' | translate }}</span>
-                <span class="inv-totals-value">{{ data()!.totals.amountAfterDiscount | currency:data()!.currency:'symbol':'1.2-2' }}</span>
-              </div>
-            }
+          }
+          @if (data()!.totals.amountAfterDiscount != null) {
+            <div class="inv-totals-row">
+              <span class="inv-totals-label">{{ 'INVOICE_PRINT.TOTALS.AFTER_DISCOUNT' | translate }}</span>
+              <span class="inv-totals-value">{{ data()!.totals.amountAfterDiscount | currency:data()!.currency:'symbol':'1.2-2' }}</span>
+            </div>
           }
           <div class="inv-totals-row">
             <span class="inv-totals-label">{{ 'INVOICE_PRINT.TOTALS.TAX' | translate }} ({{ data()!.totals.taxRate }}%)</span>
@@ -180,6 +190,24 @@
             <span class="inv-totals-label">{{ 'INVOICE_PRINT.TOTALS.GRAND_TOTAL' | translate }}</span>
             <span class="inv-totals-value">{{ data()!.totals.grandTotal | currency:data()!.currency:'symbol':'1.2-2' }}</span>
           </div>
+          @if (data()!.totals.customs != null) {
+            <div class="inv-totals-row">
+              <span class="inv-totals-label">{{ 'INVOICE_PRINT.TOTALS.CUSTOMS' | translate }}</span>
+              <span class="inv-totals-value">{{ data()!.totals.customs | currency:data()!.currency:'symbol':'1.2-2' }}</span>
+            </div>
+          }
+          @if (data()!.totals.shippingAndFreight != null) {
+            <div class="inv-totals-row">
+              <span class="inv-totals-label">{{ 'INVOICE_PRINT.TOTALS.SHIPPING_FREIGHT' | translate }}</span>
+              <span class="inv-totals-value">{{ data()!.totals.shippingAndFreight | currency:data()!.currency:'symbol':'1.2-2' }}</span>
+            </div>
+          }
+          @if (data()!.totals.additionalExpenses != null) {
+            <div class="inv-totals-row">
+              <span class="inv-totals-label">{{ 'INVOICE_PRINT.TOTALS.ADDITIONAL_EXPENSES' | translate }}</span>
+              <span class="inv-totals-value">{{ data()!.totals.additionalExpenses | currency:data()!.currency:'symbol':'1.2-2' }}</span>
+            </div>
+          }
           @if (data()!.type === 'sales') {
             @if (data()!.totals.previousPayments! > 0) {
               <div class="inv-totals-row">

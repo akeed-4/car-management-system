@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, forkJoin, map, of } from 'rxjs';
+import { Observable, forkJoin, map, of, switchMap } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { SalesService } from './sales.service';
 import { PurchasesService } from './purchases.service';
@@ -9,10 +9,14 @@ import { SupplierService } from './supplier.service';
 import { CompanyService } from './company.service';
 import { CurrentSettingService } from './current-setting.service';
 import { SalesInvoiceCalculationService } from './sales-invoice-calculation.service';
+import { SettingService } from './setting.service';
+import { PurchaseAdditionalCostService } from './purchase-additional-cost.service';
 import { Company } from '../models/branch.model';
 import { SalesInvoice } from '../models/sales-invoice.model';
 import { PurchaseInvoice } from '../models/purchase-invoice.model';
 import { ServiceInvoice } from '../models/service-invoice.model';
+import { printSettingVm } from '../models/setting.model';
+import { PurchaseAdditionalCost } from '../models/purchase-additional-cost.model';
 import {
   InvoicePrintData,
   InvoicePrintParty,
@@ -42,25 +46,70 @@ export class InvoicePrintDataService {
   private companyService = inject(CompanyService);
   private currentSettingService = inject(CurrentSettingService);
   private calc = inject(SalesInvoiceCalculationService);
+  private settingService = inject(SettingService);
+  private purchaseAdditionalCostService = inject(PurchaseAdditionalCostService);
 
   private static readonly CURRENCY = 'SAR';
 
-  /** Loads the invoice of `type` with `id`, plus its party + company records,
-   *  and maps everything onto the normalized InvoicePrintData shape. */
+  /** Loads the invoice of `type` with `id`, plus its party + company + print-setting (logo)
+   *  records, and maps everything onto the normalized InvoicePrintData shape. */
   load(type: InvoiceType, id: number, options: { isCopy?: boolean } = {}): Observable<InvoicePrintData | null> {
     const company$ = this.companyService
       .getById(this.currentSettingService.getCompanyId())
       .pipe(catchError(() => of<Company | null>(null)));
 
+    // menuCode: null -- the header logo/printInstitutionLogo toggle is a global print setting,
+    // not scoped to a specific report menu.
+    const printSetting$ = this.settingService.getPrintSetting(null)
+      .pipe(catchError(() => of<printSettingVm | null>(null)));
+
     return forkJoin({
       company: company$,
+      printSetting: printSetting$,
       invoice: this.loadInvoice(type, id),
     }).pipe(
-      map(({ company, invoice }) => {
+      map(({ company, printSetting, invoice }) => {
         if (!invoice) return null;
-        return this.normalize(type, invoice, company, options);
+        return this.normalize(type, invoice, company, printSetting, options);
+      }),
+      switchMap(data => {
+        // Purchase invoices only: fetch real Customs/Shipping/Freight/Additional-Expenses amounts
+        // for this invoice and fold them into totals. A separate call (no GetByPurchaseInvoiceId
+        // endpoint exists) rather than blocking the main forkJoin above on an unrelated document.
+        if (!data || type !== 'purchase') return of(data);
+        return this.loadPurchaseAdditionalCostTotals(id).pipe(
+          map(extra => ({ ...data, totals: { ...data.totals, ...extra } })),
+          catchError(() => of(data)),
+        );
       }),
       catchError(() => of(null)),
+    );
+  }
+
+  /** Sums this purchase invoice's posted-or-draft PurchaseAdditionalCost documents by category:
+   *  Customs -> customs, Shipping+Freight -> shippingAndFreight, everything else -> additionalExpenses.
+   *  Returns an empty object (no keys set, so the template hides the rows) when the invoice has no
+   *  additional-cost documents at all -- getAll() has no invoice filter, so this is the only way to
+   *  scope it without a new backend endpoint. */
+  private loadPurchaseAdditionalCostTotals(purchaseInvoiceId: number): Observable<Partial<InvoicePrintTotals>> {
+    return this.purchaseAdditionalCostService.getAll().pipe(
+      map(res => {
+        const costs = (res?.data ?? []).filter((c: PurchaseAdditionalCost) => c.purchaseInvoiceId === purchaseInvoiceId);
+        if (costs.length === 0) return {};
+
+        const sumBy = (predicate: (c: PurchaseAdditionalCost) => boolean) =>
+          costs.filter(predicate).reduce((sum, c) => sum + (c.amount || 0), 0);
+
+        const customs = sumBy(c => c.expenseCategory === 'Customs');
+        const shippingAndFreight = sumBy(c => c.expenseCategory === 'Shipping' || c.expenseCategory === 'Freight');
+        const additionalExpenses = sumBy(c => c.expenseCategory !== 'Customs' && c.expenseCategory !== 'Shipping' && c.expenseCategory !== 'Freight');
+
+        const extra: Partial<InvoicePrintTotals> = {};
+        if (customs > 0) extra.customs = customs;
+        if (shippingAndFreight > 0) extra.shippingAndFreight = shippingAndFreight;
+        if (additionalExpenses > 0) extra.additionalExpenses = additionalExpenses;
+        return extra;
+      }),
     );
   }
 
@@ -81,6 +130,7 @@ export class InvoicePrintDataService {
     type: InvoiceType,
     invoice: SalesInvoice | PurchaseInvoice | ServiceInvoice,
     company: Company | null,
+    printSetting: printSettingVm | null,
     options: { isCopy?: boolean },
   ): InvoicePrintData {
     const base = {
@@ -90,7 +140,7 @@ export class InvoicePrintDataService {
       dueDate: invoice.dueDate,
       status: invoice.status,
       currency: InvoicePrintDataService.CURRENCY,
-      company: this.mapCompany(company),
+      company: this.mapCompany(company, printSetting),
       watermark: this.resolveWatermark(type, invoice.status, options.isCopy),
       paymentMethod: invoice.paymentMethod,
       notes: invoice.notes,
@@ -106,8 +156,11 @@ export class InvoicePrintDataService {
     }
   }
 
-  private mapCompany(company: Company | null): InvoicePrintParty {
-    if (!company) return { name: '' };
+  private mapCompany(company: Company | null, printSetting: printSettingVm | null): InvoicePrintParty {
+    // Logo is independent of whether the Company record itself loaded -- ReportPrintSettings is a
+    // separate, always-available concept -- so it's read even when company is null.
+    const logoUrl = printSetting?.printInstitutionLogo && printSetting?.logo ? printSetting.logo : undefined;
+    if (!company) return { name: '', logoUrl };
     return {
       name: company.nameAr || company.nameEn,
       taxId: company.vatRegistrationNumber,
@@ -119,6 +172,7 @@ export class InvoicePrintDataService {
             .filter(Boolean)
             .join(', ')
         : undefined,
+      logoUrl,
     };
   }
 
@@ -222,6 +276,10 @@ export class InvoicePrintDataService {
     const totals: InvoicePrintTotals = {
       subtotal: taxableAmount,
       totalDiscount: 0,
+      // Purchase invoices have no discount concept in the model (totalDiscount is always 0 above)
+      // -- "Amount Before Tax" therefore equals "Amount Before Discount" exactly, same as Sales
+      // Invoice reduces to when its own discount is 0.
+      amountAfterDiscount: taxableAmount,
       totalTax: vatAmount,
       taxRate: rate,
       grandTotal: inv.totalAmount,

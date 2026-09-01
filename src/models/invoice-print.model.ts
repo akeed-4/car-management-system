@@ -31,6 +31,10 @@ export interface InvoicePrintParty {
   address?: string;
   /** Purchase invoices only: the buyer's PO reference. */
   poReference?: string;
+  /** Company header only: the institution logo (ReportPrintSettings.logo), when
+   *  ReportPrintSettings.printInstitutionLogo is enabled. Absent otherwise -- the header falls
+   *  back to a letter-avatar. */
+  logoUrl?: string;
 }
 
 /** One row of the line-items table. */
@@ -66,6 +70,14 @@ export interface InvoicePrintTotals {
   downPayment?: number;
   currentPayment?: number;
   amountAfterDiscount?: number;
+  /** Purchase invoices only: real PurchaseAdditionalCost amounts for this invoice, summed by
+   *  expenseCategory. Customs = 'Customs'; shippingAndFreight = 'Shipping' + 'Freight' combined;
+   *  additionalExpenses = every other category ('Insurance'/'Handling'/'Registration'/'Other').
+   *  Undefined (not zero) when the invoice has no PurchaseAdditionalCost documents at all -- the
+   *  template hides a row entirely in that case rather than printing a spurious "0.00". */
+  customs?: number;
+  shippingAndFreight?: number;
+  additionalExpenses?: number;
 }
 
 /** Bank account block rendered in the footer. All fields optional; the

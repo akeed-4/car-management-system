@@ -5094,11 +5094,14 @@
       "NO_ITEMS": "لا توجد بنود في هذه الفاتورة."
     },
     "TOTALS": {
-      "SUBTOTAL": "المجموع الفرعي",
+      "SUBTOTAL": "المبلغ قبل الخصم",
       "DISCOUNT": "الخصم",
-      "AFTER_DISCOUNT": "المبلغ بعد الخصم",
-      "TAX": "ضريبة القيمة المضافة",
-      "GRAND_TOTAL": "الإجمالي النهائي",
+      "AFTER_DISCOUNT": "المبلغ قبل الضريبة",
+      "TAX": "الضريبة",
+      "GRAND_TOTAL": "المبلغ بعد الضريبة",
+      "CUSTOMS": "الجمارك",
+      "SHIPPING_FREIGHT": "الشحن والنقل",
+      "ADDITIONAL_EXPENSES": "مصاريف إضافية",
       "PREVIOUS_PAYMENTS": "الدفعات السابقة",
       "DOWN_PAYMENT": "الدفعة الأولى",
       "AMOUNT_PAID": "المبلغ المدفوع",

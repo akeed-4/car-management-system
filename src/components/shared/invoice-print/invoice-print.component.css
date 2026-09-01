@@ -146,6 +146,15 @@
   flex-shrink: 0;
 }
 
+/* Real institution logo (ReportPrintSettings.logo) -- same box size as the letter-avatar it
+   replaces, contained rather than cropped so uploaded logos of any aspect ratio stay legible. */
+.inv-logo-img {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
 .inv-company-name {
   margin: 0 0 2px;
   font-size: 18px;
