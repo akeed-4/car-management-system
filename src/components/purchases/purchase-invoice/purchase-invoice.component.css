@@ -4,6 +4,13 @@
    left, an always-visible summary + actions rail on the right.
    ============================================================ */
 
+.account-field-error {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--status-danger-fg, var(--color-danger-600, #dc2626));
+  margin-top: 4px;
+}
+
 .container {
   max-width: 1600px;
   margin: 0 auto;
@@ -345,6 +352,58 @@
   color: var(--color-primary-700, var(--color-primary-600));
   border-radius: var(--rounded-md, 6px);
   font-size: 0.85rem;
+}
+
+/* --- Header: Supplier (left) / Payment (right) side by side -- keeps both visible together
+   on desktop instead of stacking two full-width bands, per the "minimize scrolling" requirement.
+   Mirrors sales-invoice-form.component.css's .header-columns. */
+.header-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 var(--space-5, 1.25rem);
+  align-items: start;
+}
+
+.header-col + .header-col {
+  border-inline-start: 1px solid var(--border-default);
+  padding-inline-start: var(--space-5, 1.25rem);
+}
+
+.stacked-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.payment-fields-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.15rem 1rem;
+  align-items: start;
+}
+
+.payment-field-span-2 {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 900px) {
+  .header-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .header-col + .header-col {
+    border-inline-start: none;
+    padding-inline-start: 0;
+    margin-top: var(--space-3, 0.75rem);
+    padding-top: var(--space-3, 0.75rem);
+    border-top: 1px solid var(--border-default);
+  }
+}
+
+@media (max-width: 560px) {
+  .payment-fields-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* --- Header field grid --- */

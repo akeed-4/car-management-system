@@ -1,0 +1,23 @@
+<mat-form-field appearance="outline" class="account-autocomplete-field">
+  @if (label) {
+    <mat-label>{{ label | translate }}</mat-label>
+  }
+  <input matInput
+         [value]="searchText()"
+         (input)="onInput($any($event.target).value)"
+         (blur)="onBlur()"
+         [disabled]="isDisabled()"
+         [required]="required"
+         autocomplete="off"
+         [matAutocomplete]="accountAuto">
+  <mat-autocomplete #accountAuto="matAutocomplete" (optionSelected)="onOptionSelected($event)">
+    @for (account of filteredAccounts(); track account.id) {
+      <mat-option [value]="account.id">{{ nameFor(account) }}</mat-option>
+    } @empty {
+      <mat-option disabled>{{ 'COMMON.NO_RESULTS' | translate }}</mat-option>
+    }
+  </mat-autocomplete>
+  @if (hint) {
+    <mat-hint>{{ hint | translate }}</mat-hint>
+  }
+</mat-form-field>

@@ -1,4 +1,7 @@
-import { ChangeDetectorRef, Component, OnInit, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, computed, signal } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { SupplierLookupModalComponent } from '../../shared/supplier-lookup-modal/supplier-lookup-modal.component';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -48,6 +51,7 @@ interface RequestLineItem {
     MatDatepickerModule,
     MatNativeDateModule,
     MatCardModule,
+    MatTooltipModule,
     DxDataGridModule,
     DxButtonModule,
     TranslateModule
@@ -68,6 +72,10 @@ export class PurchaseRequestFormComponent implements OnInit {
   eligibleOrders = signal<PurchaseRequisitionDto[]>([]);
   suppliers = signal<Supplier[]>([]);
 
+  /** Backs the smart supplier selector's summary card, same pattern as payment-form's selectedSupplier. */
+  selectedSupplierId = signal<number | null>(null);
+  selectedSupplier = computed(() => this.suppliers().find(s => s.id === this.selectedSupplierId()) ?? null);
+
   constructor(
     private fb: FormBuilder,
     private purchaseCycleService: PurchaseCycleService,
@@ -78,14 +86,33 @@ export class PurchaseRequestFormComponent implements OnInit {
     private translateService: TranslateService,
     private router: Router,
     private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog
   ) {
     this.initForm();
+  }
+
+  /** Smart searchable supplier selector -- mirrors openSupplierLookup() in payment-form.component.ts. */
+  openSupplierLookup(): void {
+    const dialogRef = this.dialog.open<SupplierLookupModalComponent, unknown, Supplier | null>(SupplierLookupModalComponent, {
+      width: '90vw',
+      maxWidth: '900px',
+      height: '80vh',
+      panelClass: 'responsive-dialog-panel'
+    });
+
+    dialogRef.afterClosed().subscribe(supplier => {
+      if (supplier) {
+        this.requestForm.get('supplierId')?.setValue(supplier.id);
+        this.requestForm.get('supplierId')?.markAsTouched();
+      }
+    });
   }
 
   ngOnInit(): void {
     this.loadRequisitions();
     this.loadSuppliers();
+    this.requestForm.get('supplierId')?.valueChanges.subscribe(id => this.selectedSupplierId.set(id ?? null));
     this.route.params.subscribe(params => {
       if (params['id']) {
         this.isEditMode = true;

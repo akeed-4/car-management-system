@@ -77,14 +77,12 @@
 
           <div class="erp-form-grid form-grid cols-2">
             <div class="field-with-add">
-              <mat-form-field appearance="outline" class="field-with-add-select">
-                <mat-label>{{ 'PURCHASE_ADDITIONAL_COST.DEBIT_ACCOUNT' | translate }}</mat-label>
-                <mat-select formControlName="debitAccountId">
-                  <mat-option [value]="null">{{ 'PURCHASE_ADDITIONAL_COST.FORM.DEBIT_ACCOUNT_AUTO' | translate }}</mat-option>
-                  <mat-option *ngFor="let a of debitAccounts()" [value]="a.id">{{ a.accountCode }} - {{ a.accountNameAr }}</mat-option>
-                </mat-select>
-                <mat-hint *ngIf="!debitAccountManuallyChanged()">{{ 'PURCHASE_ADDITIONAL_COST.FORM.DEBIT_ACCOUNT_HINT' | translate }}</mat-hint>
-              </mat-form-field>
+              <app-account-autocomplete class="field-with-add-select"
+                  formControlName="debitAccountId"
+                  [accounts]="debitAccounts()"
+                  [label]="'PURCHASE_ADDITIONAL_COST.DEBIT_ACCOUNT'"
+                  [hint]="!debitAccountManuallyChanged() ? 'PURCHASE_ADDITIONAL_COST.FORM.DEBIT_ACCOUNT_HINT' : ''">
+              </app-account-autocomplete>
               <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateDebitAccountDialog()">
                 <mat-icon>add</mat-icon>
               </button>
@@ -95,13 +93,12 @@
             </div>
 
             <div class="field-with-add">
-              <mat-form-field appearance="outline" class="field-with-add-select">
-                <mat-label>{{ 'PURCHASE_ADDITIONAL_COST.CREDIT_ACCOUNT' | translate }}</mat-label>
-                <mat-select formControlName="creditAccountId">
-                  <mat-option *ngFor="let a of payableAccounts()" [value]="a.id">{{ a.accountCode }} - {{ a.accountNameAr }}</mat-option>
-                </mat-select>
-                <mat-hint *ngIf="!creditAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
-              </mat-form-field>
+              <app-account-autocomplete class="field-with-add-select"
+                  formControlName="creditAccountId"
+                  [accounts]="payableAccounts()"
+                  [label]="'PURCHASE_ADDITIONAL_COST.CREDIT_ACCOUNT'"
+                  [hint]="!creditAccountManuallyChanged() ? 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' : ''">
+              </app-account-autocomplete>
               <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateCreditAccountDialog()">
                 <mat-icon>add</mat-icon>
               </button>

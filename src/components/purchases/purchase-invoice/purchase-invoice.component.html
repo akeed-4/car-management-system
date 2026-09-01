@@ -72,19 +72,29 @@
       <div class="workspace-main">
 
         <div class="erp-card doc-card">
-          <!-- BAND 2: INVOICE HEADER FORM -->
+          <!-- BAND 2: INVOICE HEADER FORM -- Supplier/document identity (left) and Payment
+               details (right) side by side so both are visible without scrolling on desktop;
+               they stack on tablet/mobile (see .header-columns media query). Mirrors the same
+               restructure applied to sales-invoice-form.component.html for consistency. -->
           <section class="erp-section">
-            <h3 class="erp-section-title">{{ 'PURCHASE_INVOICE.MAIN_DATA' | translate }}</h3>
-            <ng-container *ngIf="cardLayout2 | async as layout">
-              <mat-grid-list [cols]="layout.columns" rowHeight="88" gutterSize="16px">
+            <div class="header-columns">
 
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <!-- LEFT: document identity + supplier -->
+              <div class="header-col">
+                <h3 class="erp-section-title">{{ 'PURCHASE_INVOICE.SUPPLIER_SECTION' | translate }}</h3>
+                <div class="stacked-fields">
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'PURCHASE_INVOICE.INVOICE_NUMBER' | translate }}</mat-label>
                     <input matInput [value]="invoiceNumberSignal() || ('CORPORATE.AUTO_GENERATED' | translate)" disabled readonly>
                   </mat-form-field>
-                </mat-grid-tile>
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'PURCHASE_INVOICE.INVOICE_DATE' | translate }}</mat-label>
+                    <input matInput [matDatepicker]="invoiceDatePicker" formControlName="invoiceDate" required>
+                    <mat-datepicker-toggle matSuffix [for]="invoiceDatePicker"></mat-datepicker-toggle>
+                    <mat-datepicker #invoiceDatePicker></mat-datepicker>
+                  </mat-form-field>
+                  <!-- Store is no longer user-selectable here -- every invoice automatically uses
+                       the caller's current Showroom (see StoreContextService / the header switcher). -->
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'PURCHASE_INVOICE.SUPPLIER' | translate }}</mat-label>
                     <mat-select formControlName="supplierId" required>
@@ -98,29 +108,19 @@
                       <mat-option *ngFor="let supplier of filteredSuppliers()" [value]="supplier.id">{{ supplier.name }}</mat-option>
                     </mat-select>
                   </mat-form-field>
-                </mat-grid-tile>
-                <!-- Store is no longer user-selectable here -- every invoice automatically uses
-                     the caller's current Showroom (see StoreContextService / the header switcher). -->
+                </div>
+              </div>
 
-              </mat-grid-list>
-            </ng-container>
-            <ng-container *ngIf="cardLayout3 | async as layout">
-              <mat-grid-list [cols]="layout.columns" rowHeight="88" gutterSize="16px">
-
-                <!-- The Supplier Accounts Payable / Cash-Bank settlement leg is this document's
-                     system-resolved side: it is never shown here, always derived server-side --
-                     see PurchaseInvoiceService.ResolveCreditAccountAsync. If derivation isn't
-                     possible (missing supplier/payment configuration), Save fails with a clear
-                     message naming the supplier rather than silently posting to a wrong account. -->
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-                  <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>{{ 'PURCHASE_INVOICE.INVOICE_DATE' | translate }}</mat-label>
-                    <input matInput [matDatepicker]="invoiceDatePicker" formControlName="invoiceDate" required>
-                    <mat-datepicker-toggle matSuffix [for]="invoiceDatePicker"></mat-datepicker-toggle>
-                    <mat-datepicker #invoiceDatePicker></mat-datepicker>
-                  </mat-form-field>
-                </mat-grid-tile>
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+              <!-- RIGHT: payment / classification + the Inventory/Expense account (the only
+                   account this document exposes -- see the comment this replaces below). -->
+              <div class="header-col">
+                <h3 class="erp-section-title">{{ 'PURCHASE_INVOICE.PAYMENT_SECTION' | translate }}</h3>
+                <div class="payment-fields-grid">
+                  <!-- The Supplier Accounts Payable / Cash-Bank settlement leg is this document's
+                       system-resolved side: it is never shown here, always derived server-side --
+                       see PurchaseInvoiceService.ResolveCreditAccountAsync. If derivation isn't
+                       possible (missing supplier/payment configuration), Save fails with a clear
+                       message naming the supplier rather than silently posting to a wrong account. -->
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'PURCHASE_INVOICE.INVOICE_TYPE' | translate }}</mat-label>
                     <mat-select formControlName="invoiceType" (selectionChange)="onInvoiceTypeChange($event)">
@@ -129,8 +129,6 @@
                       <mat-option [value]="InvoiceType.Exempt">{{ 'PURCHASE_INVOICE.EXEMPT' | translate }}</mat-option>
                     </mat-select>
                   </mat-form-field>
-                </mat-grid-tile>
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'PURCHASE_INVOICE.INVOICE_CLASSIFICATION' | translate }}</mat-label>
                     <mat-select formControlName="ClassificationId" (selectionChange)="onInvoiceClassificationChange($event)">
@@ -139,45 +137,38 @@
                       </mat-option>
                     </mat-select>
                   </mat-form-field>
-                </mat-grid-tile>
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows" *ngIf="isCreditPayment()">
-                  <mat-form-field appearance="outline" class="full-width">
+                  <mat-form-field appearance="outline" class="full-width" *ngIf="isCreditPayment()">
                     <mat-label>{{ 'PURCHASE_INVOICE.DUE_DATE' | translate }}</mat-label>
                     <input matInput [matDatepicker]="dueDatePicker" formControlName="dueDate">
                     <mat-datepicker-toggle matSuffix [for]="dueDatePicker"></mat-datepicker-toggle>
                     <mat-datepicker #dueDatePicker></mat-datepicker>
                   </mat-form-field>
-                </mat-grid-tile>
-              </mat-grid-list>
-            </ng-container>
+
+                  <!-- Business-level Inventory/Expense classification account: default-preselected
+                       via AccountResolutionService.resolve-default, user-editable. This is the only
+                       account choice this document exposes -- the Supplier Payable/Cash settlement
+                       side is an accounting implementation detail the backend always resolves
+                       internally and is never shown here. -->
+                  <div class="field-with-add payment-field-span-2">
+                    <app-account-autocomplete class="full-width"
+                        formControlName="debitAccountId"
+                        [accounts]="debitAccounts()"
+                        [label]="'ACCOUNTING.INVENTORY_EXPENSE_ACCOUNT'"
+                        [hint]="!debitAccountManuallyChanged() ? 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' : ''">
+                    </app-account-autocomplete>
+                    <button mat-icon-button type="button" *ngIf="debitAccountManuallyChanged()"
+                            [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetDebitAccountToDefault()">
+                      <mat-icon>restart_alt</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
 
             <!-- Validation Errors -->
             <div *ngIf="purchaseInvoiceForm.errors?.['dueDateRequired']" class="error-message">
               <mat-error>{{ 'PURCHASE_INVOICE.DUE_DATE_REQUIRED' | translate }}</mat-error>
-            </div>
-          </section>
-
-          <!-- Business-level Inventory/Expense classification account: default-preselected via
-               AccountResolutionService.resolve-default, user-editable. This is the only account
-               choice this document exposes -- the Supplier Payable/Cash settlement side is an
-               accounting implementation detail the backend always resolves internally and is
-               never shown here. -->
-          <section class="erp-section">
-            <h3 class="erp-section-title">{{ 'ACCOUNTING.INVENTORY_EXPENSE_SECTION' | translate }}</h3>
-            <div class="field-with-add full-width">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'ACCOUNTING.INVENTORY_EXPENSE_ACCOUNT' | translate }}</mat-label>
-                <mat-select formControlName="debitAccountId">
-                  <mat-option *ngFor="let account of debitAccounts()" [value]="account.id">
-                    {{ account.accountCode }} - {{ translate.currentLang === 'ar' ? (account.accountNameAr || account.accountNameEn) : account.accountNameEn }}
-                  </mat-option>
-                </mat-select>
-                <mat-hint *ngIf="!debitAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
-              </mat-form-field>
-              <button mat-icon-button type="button" *ngIf="debitAccountManuallyChanged()"
-                      [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetDebitAccountToDefault()">
-                <mat-icon>restart_alt</mat-icon>
-              </button>
             </div>
           </section>
 
@@ -190,19 +181,16 @@
                  backend endpoint; the backend re-validates any selection and falls back to its
                  seeded default Cash when nothing is chosen. Hidden entirely on CREDIT purchases,
                  whose credit leg is the supplier's server-resolved AP account. -->
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'ACCOUNTING.PAYMENT_ACCOUNT' | translate }}</mat-label>
-              <mat-select formControlName="paymentAccountId" required>
-                <mat-option *ngFor="let account of paymentAccounts()" [value]="account.id">
-                  {{ account.accountCode }} - {{ translate.currentLang === 'ar' ? (account.accountNameAr || account.accountNameEn) : account.accountNameEn }}
-                </mat-option>
-              </mat-select>
-              <mat-icon matPrefix>account_balance_wallet</mat-icon>
-              <mat-hint>{{ 'ACCOUNTING.PAYMENT_ACCOUNT_HINT' | translate }}</mat-hint>
-              <mat-error *ngIf="purchaseInvoiceForm.get('paymentAccountId')?.invalid">
-                {{ 'ACCOUNTING.PAYMENT_ACCOUNT_REQUIRED' | translate }}
-              </mat-error>
-            </mat-form-field>
+            <app-account-autocomplete class="full-width"
+                formControlName="paymentAccountId"
+                [accounts]="paymentAccounts()"
+                [required]="true"
+                [label]="'ACCOUNTING.PAYMENT_ACCOUNT'"
+                [hint]="'ACCOUNTING.PAYMENT_ACCOUNT_HINT'">
+            </app-account-autocomplete>
+            <span class="account-field-error" *ngIf="purchaseInvoiceForm.get('paymentAccountId')?.invalid && purchaseInvoiceForm.get('paymentAccountId')?.touched">
+              {{ 'ACCOUNTING.PAYMENT_ACCOUNT_REQUIRED' | translate }}
+            </span>
 
             <app-cash-amount-calculator
               [invoiceTotal]="totalAmount()"

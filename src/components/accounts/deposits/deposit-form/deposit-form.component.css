@@ -23,12 +23,71 @@ mat-form-field {
 }
 
 /* Debit / credit accent -- inline-start edge so it mirrors correctly in RTL */
-.debit-field .mat-mdc-text-field-wrapper {
+/* Lives on the <app-account-autocomplete> host itself: its inner mat-form-field is inside that
+   component's own encapsulated template, unreachable from here. */
+.debit-field {
   border-inline-start: 3px solid var(--color-danger-500);
 }
 
-.credit-field .mat-mdc-text-field-wrapper {
+.credit-field {
   border-inline-start: 3px solid var(--color-success-500);
+}
+
+/* Smart customer selector (search -> select -> summary card), same pattern used across every
+   other document form for a consistent interaction. */
+.customer-selector-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.customer-selector-label {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+.customer-select-btn {
+  width: 100%;
+  justify-content: flex-start;
+  gap: 6px;
+  color: var(--text-secondary);
+}
+
+.customer-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--rounded-md, 6px);
+  padding: 4px 8px;
+}
+
+.customer-summary-icon {
+  color: var(--color-primary-600, var(--color-primary-500));
+  flex-shrink: 0;
+}
+
+.customer-summary-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.customer-summary-name {
+  font-size: 0.92rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.customer-summary-sub {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .field-icon {

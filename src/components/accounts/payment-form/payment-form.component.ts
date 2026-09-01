@@ -35,6 +35,8 @@ import { NotificationService } from '@/src/services/notification.service';
 import { extractErrorMessage } from '@/src/models/http-error-message';
 import { warnIfPartyAccountMissing } from '@/src/components/shared/party-account-required-dialog/party-account-required-warning.helper';
 import { DefaultAccountTracker } from '@/src/components/shared/default-account/default-account.helper';
+import { SupplierLookupModalComponent } from '@/src/components/shared/supplier-lookup-modal/supplier-lookup-modal.component';
+import { AccountAutocompleteComponent } from '@/src/components/shared/account-autocomplete/account-autocomplete.component';
 
 @Component({
   selector: 'app-payment-form',
@@ -60,6 +62,7 @@ import { DefaultAccountTracker } from '@/src/components/shared/default-account/d
     DxDataGridModule,
     DxButtonModule,
     InvoiceAllocationGridComponent,
+    AccountAutocompleteComponent,
   ],
   templateUrl: './payment-form.component.html',
   styleUrl: './payment-form.component.css',
@@ -94,6 +97,11 @@ export class PaymentFormComponent implements OnInit {
   allocationRows = signal<InvoiceAllocationRow[]>([]);
   isEditMode          = signal(false);
   editingPayment      = signal<Payment | null>(null);
+
+  /** Backs the smart supplier selector's summary card -- kept in sync via valueChanges (set) and
+   *  populateForm (edit mode, where patchValue uses emitEvent:false). */
+  selectedSupplierId  = signal<number | null>(null);
+  selectedSupplier    = computed(() => this.suppliers().find(s => s.id === this.selectedSupplierId()) ?? null);
 
   totalAmount = computed(() =>
     this.details.value.reduce((sum: number, d: any) => sum + (d.amount || 0), 0)
@@ -151,6 +159,7 @@ export class PaymentFormComponent implements OnInit {
     this.paymentForm.get('creditAccountId')?.valueChanges.subscribe(() =>
       this.creditAccountManuallyChangedSignal.set(this.creditAccountTracker.manuallyChanged));
     this.creditAccountTracker.recalculate({ kind: DefaultAccountKind.PaymentAccount });
+    this.paymentForm.get('supplierId')?.valueChanges.subscribe(id => this.selectedSupplierId.set(id ?? null));
 
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
@@ -178,6 +187,27 @@ export class PaymentFormComponent implements OnInit {
   }
 
   // ── Supplier Change ──────────────────────────────────────────────────────────
+  /** Smart searchable supplier selector -- replaces the old plain full-list dropdown. Mirrors
+   *  openCustomerLookup() in sales-invoice-form.component.ts for a consistent interaction pattern. */
+  openSupplierLookup(): void {
+    if (this.paymentForm.get('supplierId')?.disabled) return;
+
+    const dialogRef = this.dialog.open<SupplierLookupModalComponent, unknown, Supplier | null>(SupplierLookupModalComponent, {
+      width: '90vw',
+      maxWidth: '900px',
+      height: '80vh',
+      panelClass: 'responsive-dialog-panel'
+    });
+
+    dialogRef.afterClosed().subscribe(supplier => {
+      if (supplier) {
+        this.paymentForm.get('supplierId')?.setValue(supplier.id);
+        this.paymentForm.get('supplierId')?.markAsTouched();
+        this.onSupplierChange(supplier.id);
+      }
+    });
+  }
+
   /** Selecting a supplier loads only their unpaid/partially-paid invoices for the allocation grid. */
   onSupplierChange(supplierId: number | null): void {
     this.allocationRows.set([]);
@@ -268,6 +298,7 @@ export class PaymentFormComponent implements OnInit {
       // list) -- load the supplier's outstanding invoices and merge in any allocated invoice not
       // already present, so the grid's dropdown still shows every invoice this payment touches.
       this.paymentForm.patchValue({ supplierId: payment.beneficiaryId }, { emitEvent: false });
+      this.selectedSupplierId.set(payment.beneficiaryId ?? null);
       this.purchasesService.getOutstandingInvoicesBySupplierId(payment.beneficiaryId).subscribe(invoices => {
         const options = invoices.map(inv => ({
           invoiceId: inv.id, invoiceNumber: inv.invoiceNumber, amountDue: inv.amountDue,

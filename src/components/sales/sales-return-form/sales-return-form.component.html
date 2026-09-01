@@ -13,9 +13,14 @@
     </div>
   </div>
 
-  <div class="erp-card form-container">
-    <form [formGroup]="returnForm" >
+  <form [formGroup]="returnForm">
+    <!-- ERP-style two-pane workspace: document (header + items) on the left, an always-visible
+         refund summary + actions rail on the right so the total and Save/Cancel never require
+         scrolling. Mirrors sales-invoice-form.component.html's .invoice-workspace. -->
+    <div class="return-workspace">
+      <div class="workspace-main">
 
+      <div class="erp-card form-container">
       <!-- Return Header -->
       <section class="erp-section form-section">
         <h3 class="erp-section-title section-title">{{ 'SALES.RETURN.HEADER' | translate }}</h3>
@@ -38,8 +43,14 @@
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>{{ 'SALES.RETURN.ORIGINAL_INVOICE' | translate }}</mat-label>
               <mat-select formControlName="originalInvoice" required>
+                <mat-option>
+                  <ngx-mat-select-search [formControl]="originalInvoiceFilterCtrl"
+                    placeholderLabel="{{ 'SALES.RETURN.SEARCH_INVOICE' | translate }}"
+                    noEntriesFoundLabel="{{ 'SALES.RETURN.NO_RESULTS' | translate }}">
+                  </ngx-mat-select-search>
+                </mat-option>
                 <mat-option [value]="null" disabled>{{ 'SALES.RETURN.SELECT_INVOICE' | translate }}</mat-option>
-                @for (invoice of originalInvoices(); track invoice.id) {
+                @for (invoice of filteredOriginalInvoices(); track invoice.id) {
                 <mat-option [value]="invoice.id">{{ invoice.invoiceNumber }} - {{ invoice.customerName }}</mat-option>
                 }
               </mat-select>
@@ -89,7 +100,11 @@
             </mat-form-field>
           </div>
         </div>
-      </section>      <!-- Return Items DataGrid -->
+      </section>
+      </div>
+
+      <!-- Return Items DataGrid -->
+      <div class="erp-card form-container lines-card">
       <section class="erp-section form-section">
         <h3 class="erp-section-title section-title">{{ 'SALES.RETURN.ITEMS_HEADER' | translate }}</h3>
         <div class="erp-grid-card datagrid-container">
@@ -174,8 +189,10 @@
           </dx-data-grid>
         </div>
       </section>
+      </div>
 
       <!-- Deposit Refund Section -->
+      <div class="erp-card form-container">
       <section class="erp-section form-section">
         <h3 class="erp-section-title section-title">{{ 'SALES.RETURN.DEPOSIT_SECTION' | translate }}</h3>
         <div class="erp-form-grid form-grid">
@@ -194,73 +211,79 @@
           }
         </div>
       </section>
-
       <!-- No manual accounting fields here: the return's Debit/Credit legs (settlement and
            Revenue reversal) are entirely server-resolved at approval time -- see
            JournalEngineService.RegisterSalesReturnJournalAsync on the backend. -->
-
-      <!-- Refund Calculation Summary -->
-      @if (refundCalculation(); as refund) {
-      <section class="erp-section form-section">
-        <h3 class="erp-section-title section-title">{{ 'SALES.RETURN.REFUND_CALCULATION' | translate }}</h3>
-        <div class="refund-calculation-grid">
-          <div class="refund-item">
-            <span class="refund-label">{{ 'SALES.RETURN.RETURNED_AMOUNT' | translate }}</span>
-            <span class="refund-value">{{ refund.returnedAmount | currency:'SAR':'symbol':'1.0-0' }}</span>
-          </div>
-          <div class="refund-item">
-            <span class="refund-label">{{ 'SALES.RETURN.DEPRECIATION' | translate }}</span>
-            <span class="refund-value negative">-{{ refund.depreciation | currency:'SAR':'symbol':'1.0-0' }}</span>
-          </div>
-          <div class="refund-item">
-            <span class="refund-label">{{ 'SALES.RETURN.RESTOCKING_FEE' | translate }}</span>
-            <span class="refund-value negative">-{{ refund.restockingFee | currency:'SAR':'symbol':'1.0-0' }}</span>
-          </div>
-          <div class="refund-item">
-            <span class="refund-label">{{ 'SALES.RETURN.TAXABLE_REFUND' | translate }}</span>
-            <span class="refund-value">{{ refund.taxableRefund | currency:'SAR':'symbol':'1.0-0' }}</span>
-          </div>
-          <div class="refund-item">
-            <span class="refund-label">{{ 'SALES.RETURN.VAT_ON_REFUND' | translate }}</span>
-            <span class="refund-value negative">-{{ refund.vatOnRefund | currency:'SAR':'symbol':'1.0-0' }}</span>
-          </div>
-          @if (refund.depositAmount > 0) {
-          <div class="refund-item">
-            <span class="refund-label">{{ 'SALES.RETURN.DEPOSIT_REFUND' | translate }}</span>
-            <span class="refund-value positive">+{{ refund.depositAmount | currency:'SAR':'symbol':'1.0-0' }}</span>
-          </div>
-          }
-          <div class="refund-item total">
-            <span class="refund-label">{{ 'SALES.RETURN.NET_REFUND' | translate }}</span>
-            <span class="refund-value-total">{{ refund.netRefund | currency:'SAR':'symbol':'1.0-0' }}</span>
-          </div>
-        </div>
-      </section>
-      }
-
-      <!-- Financial Summary -->
-      <section class="financial-summary">
-        <div class="erp-total-row summary-card">
-          <span class="erp-total-label summary-label">{{ 'SALES.RETURN.TOTAL' | translate }}</span>
-          <span class="erp-total-value summary-amount">{{ totalAmount() | currency:'SAR':'symbol':'1.0-0' }}</span>
-        </div>
-      </section>
-
-      <!-- Form Actions -->
-      <div class="erp-actions-bar form-actions">
-        <a routerLink="/sales/return" class="btn-cancel">
-          {{ 'COMMON.CANCEL' | translate }}
-        </a>
-        <button (click)="saveReturn()"
-          [disabled]="returnForm.invalid || totalAmount() === 0 || isSubmitting()"
-          class="btn-save">
-          @if (isSubmitting()) {
-          <span>{{ 'COMMON.SAVING' | translate }}</span>
-          } @else {
-          <span>{{ 'SALES.RETURN.SAVE_AND_SEND_APPROVAL' | translate }}</span>
-          }
-        </button>
       </div>
+
+      </div>
+
+      <!-- Sticky summary rail: refund breakdown + total + primary actions stay visible without
+           scrolling the page, same pattern as sales-invoice-form.component.html. -->
+      <aside class="workspace-sidebar">
+        <mat-card class="summary-card-panel">
+          <!-- Refund Calculation Summary -->
+          @if (refundCalculation(); as refund) {
+          <mat-card-title>{{ 'SALES.RETURN.REFUND_CALCULATION' | translate }}</mat-card-title>
+          <mat-card-content>
+            <div class="refund-calculation-grid">
+              <div class="refund-item">
+                <span class="refund-label">{{ 'SALES.RETURN.RETURNED_AMOUNT' | translate }}</span>
+                <span class="refund-value">{{ refund.returnedAmount | currency:'SAR':'symbol':'1.0-0' }}</span>
+              </div>
+              <div class="refund-item">
+                <span class="refund-label">{{ 'SALES.RETURN.DEPRECIATION' | translate }}</span>
+                <span class="refund-value negative">-{{ refund.depreciation | currency:'SAR':'symbol':'1.0-0' }}</span>
+              </div>
+              <div class="refund-item">
+                <span class="refund-label">{{ 'SALES.RETURN.RESTOCKING_FEE' | translate }}</span>
+                <span class="refund-value negative">-{{ refund.restockingFee | currency:'SAR':'symbol':'1.0-0' }}</span>
+              </div>
+              <div class="refund-item">
+                <span class="refund-label">{{ 'SALES.RETURN.TAXABLE_REFUND' | translate }}</span>
+                <span class="refund-value">{{ refund.taxableRefund | currency:'SAR':'symbol':'1.0-0' }}</span>
+              </div>
+              <div class="refund-item">
+                <span class="refund-label">{{ 'SALES.RETURN.VAT_ON_REFUND' | translate }}</span>
+                <span class="refund-value negative">-{{ refund.vatOnRefund | currency:'SAR':'symbol':'1.0-0' }}</span>
+              </div>
+              @if (refund.depositAmount > 0) {
+              <div class="refund-item">
+                <span class="refund-label">{{ 'SALES.RETURN.DEPOSIT_REFUND' | translate }}</span>
+                <span class="refund-value positive">+{{ refund.depositAmount | currency:'SAR':'symbol':'1.0-0' }}</span>
+              </div>
+              }
+              <div class="refund-item total">
+                <span class="refund-label">{{ 'SALES.RETURN.NET_REFUND' | translate }}</span>
+                <span class="refund-value-total">{{ refund.netRefund | currency:'SAR':'symbol':'1.0-0' }}</span>
+              </div>
+            </div>
+          </mat-card-content>
+          }
+
+          <!-- Financial Summary -->
+          <div class="erp-total-row summary-card">
+            <span class="erp-total-label summary-label">{{ 'SALES.RETURN.TOTAL' | translate }}</span>
+            <span class="erp-total-value summary-amount">{{ totalAmount() | currency:'SAR':'symbol':'1.0-0' }}</span>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="erp-actions-bar form-actions">
+            <button (click)="saveReturn()"
+              [disabled]="returnForm.invalid || totalAmount() === 0 || isSubmitting()"
+              class="btn-save">
+              @if (isSubmitting()) {
+              <span>{{ 'COMMON.SAVING' | translate }}</span>
+              } @else {
+              <span>{{ 'SALES.RETURN.SAVE_AND_SEND_APPROVAL' | translate }}</span>
+              }
+            </button>
+            <a routerLink="/sales/return" class="btn-cancel">
+              {{ 'COMMON.CANCEL' | translate }}
+            </a>
+          </div>
+        </mat-card>
+      </aside>
+    </div>
     </form>
-  </div>
 </div>

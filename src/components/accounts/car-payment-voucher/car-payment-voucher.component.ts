@@ -24,6 +24,7 @@ import { Observable, forkJoin, BehaviorSubject } from 'rxjs';
 import { AccountingService, DefaultAccountKind } from '../../../../src/components/accounting/accounting.service';
 import { DefaultAccountTracker } from '../../../../src/components/shared/default-account/default-account.helper';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { NotificationService } from '../../../../src/services/notification.service';
 
 @Component({
   selector: 'app-car-payment-voucher',
@@ -54,6 +55,7 @@ export class CarPaymentVoucherComponent implements OnInit {
   private purchasesService = inject(PurchasesService);
   private inventoryService = inject(InventoryService);
   private accountingService = inject(AccountingService);
+  private notificationService = inject(NotificationService);
 
   form!: FormGroup;
   accounts$!: Observable<AccountNode[]>;
@@ -142,12 +144,24 @@ export class CarPaymentVoucherComponent implements OnInit {
   }
 
   save(): void {
-    if (this.form.valid) {
-      const voucher: CarPaymentVoucher = { ...this.form.value, details: this.detailsData.value };
-      this.paymentService.saveCarPaymentVoucher(voucher).subscribe(() => {
-        // Handle success
-      });
+    if (!this.form.valid) {
+      this.form.markAllAsTouched();
+      if (this.form.hasError('sumMismatch')) {
+        this.notificationService.showError('ACCOUNTS.CAR_PAYMENT_FORM.SUM_MISMATCH_ERROR');
+      } else {
+        this.notificationService.showError('ACCOUNTS.CAR_PAYMENT_FORM.FORM_INVALID');
+      }
+      return;
     }
+
+    const voucher: CarPaymentVoucher = { ...this.form.value, details: this.detailsData.value };
+    this.paymentService.saveCarPaymentVoucher(voucher).subscribe({
+      next: () => this.notificationService.showSuccess('ACCOUNTS.CAR_PAYMENT_FORM.SAVE_SUCCESS'),
+      error: (err) => {
+        console.error('Error saving car payment voucher:', err);
+        this.notificationService.showError('ACCOUNTS.CAR_PAYMENT_FORM.SAVE_ERROR');
+      }
+    });
   }
 
   onRowInserted(e: any): void {

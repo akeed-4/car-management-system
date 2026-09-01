@@ -33,6 +33,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
 import { InvoiceItemDialogComponent } from '../invoice-item-dialog/invoice-item-dialog.component';
 import { CarSelectionDialogComponent, SalesCarSelectionCard, SalesCarSelectionDialogData } from '../car-selection-dialog/car-selection-dialog.component';
+import { CustomerLookupModalComponent } from '../../shared/customer-lookup-modal/customer-lookup-modal.component';
 import { buildVehicleDescription } from '../../../models/vehicle-description';
 import { applyFieldLock } from '../../../models/form-field-lock';
 import { DxoValueErrorBarComponent } from 'devextreme-angular/ui/nested';
@@ -1089,6 +1090,29 @@ export class SalesInvoiceFormComponent implements OnInit {
     });
   }
 
+  /** Smart searchable customer selector (Requirement: search by mobile/national ID/name, then
+   * auto-populate). Setting the 'customer' control here re-uses the existing valueChanges
+   * subscription (see ngOnInit) that updates `selectedCustomer` and checks pending orders --
+   * no separate population logic needed. */
+  openCustomerLookup(): void {
+    const customerControl = this.invoiceForm.get('customer');
+    if (customerControl?.disabled) return; // locked once inherited from a quotation
+
+    const dialogRef = this.dialog.open<CustomerLookupModalComponent, unknown, Customer | null>(CustomerLookupModalComponent, {
+      width: '90vw',
+      maxWidth: '900px',
+      height: '80vh',
+      panelClass: 'responsive-dialog-panel'
+    });
+
+    dialogRef.afterClosed().subscribe(customer => {
+      if (customer) {
+        customerControl?.setValue(customer.id);
+        customerControl?.markAsTouched();
+      }
+    });
+  }
+
  addItemToInvoice(): void {
 
   const customerId = this.invoiceForm.get('customer')?.value;
@@ -1098,22 +1122,22 @@ export class SalesInvoiceFormComponent implements OnInit {
 
   // ---- 1. Validate form selections ----
   if (!customerId) {
-    alert(this.translate.instant('INVOICE.SELECT_CUSTOMER'));
+    this.notificationService.showError('INVOICE.SELECT_CUSTOMER');
     return;
   }
 
   if (!carId) {
-    alert(this.translate.instant('INVOICE.SELECT_CAR'));
+    this.notificationService.showError('INVOICE.SELECT_CAR');
     return;
   }
 
   if (!quantity || quantity <= 0) {
-    alert(this.translate.instant('INVOICE.INVALID_QUANTITY'));
+    this.notificationService.showError('INVOICE.INVALID_QUANTITY');
     return;
   }
 
   if (!unitPrice || unitPrice <= 0) {
-    alert(this.translate.instant('INVOICE.INVALID_PRICE'));
+    this.notificationService.showError('INVOICE.INVALID_PRICE');
     return;
   }
 
@@ -1121,12 +1145,12 @@ export class SalesInvoiceFormComponent implements OnInit {
   const stockItem = this.carStocks().find(c => c.carId === carId);
 
   if (!stockItem) {
-    alert(this.translate.instant('INVOICE.CAR_NOT_FOUND'));
+    this.notificationService.showError('INVOICE.CAR_NOT_FOUND');
     return;
   }
 
   if (quantity > stockItem.availableQuantity) {
-    alert(
+    this.notificationService.showError(
       `${this.translate.instant('INVOICE.QUANTITY')} (${quantity}) `
       + `${this.translate.instant('COMMON.STOCK_LESS')} (${stockItem.availableQuantity}).`
     );
@@ -1136,7 +1160,7 @@ export class SalesInvoiceFormComponent implements OnInit {
   // ---- 3. Check if already exists ----
   const alreadyExists = this.invoiceItems().some(item => item.carId === carId);
   if (alreadyExists) {
-    alert(this.translate.instant('INVOICE.ALREADY_ADDED'));
+    this.notificationService.showError('INVOICE.ALREADY_ADDED');
     return;
   }
 
@@ -1319,15 +1343,15 @@ export class SalesInvoiceFormComponent implements OnInit {
     const items = this.invoiceItems();
 
     if (!storeId) {
-      alert(this.translate.instant('INVOICE.SELECT_STORE'));
+      this.notificationService.showError('INVOICE.SELECT_STORE');
       return of(null);
     }
     if (!customerId || !customer) {
-      alert(this.translate.instant('INVOICE.SELECT_CUSTOMER_OPTION'));
+      this.notificationService.showError('INVOICE.SELECT_CUSTOMER_OPTION');
       return of(null);
     }
     if (items.length === 0) {
-      alert(this.translate.instant('INVOICE.ADD_AT_LEAST_ONE'));
+      this.notificationService.showError('INVOICE.ADD_AT_LEAST_ONE');
       return of(null);
     }
 

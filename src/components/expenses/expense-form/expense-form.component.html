@@ -1,66 +1,112 @@
-<div class="erp-page container mx-auto">
-  <div class="erp-page-header flex justify-between items-center mb-6">
+<div class="erp-page">
+  <div class="erp-page-header">
     <div class="erp-page-header-titles">
-      <h2 class="erp-page-title text-xl font-semibold text-gray-800">{{ pageTitle() }}</h2>
+      <h2 class="erp-page-title">{{ pageTitle() }}</h2>
     </div>
     <div class="erp-page-actions">
-      <a routerLink="/expenses" class="text-primary-600 hover:text-primary-800 transition duration-300">&larr; العودة إلى قائمة المصروفات</a>
+      <a mat-stroked-button routerLink="/expenses">
+        <mat-icon>arrow_back</mat-icon>
+        العودة إلى قائمة المصروفات
+      </a>
     </div>
   </div>
 
-  <div class="erp-card bg-white p-8 rounded-lg shadow-md max-w-2xl mx-auto">
+  <div class="erp-card">
     <form #expenseForm="ngForm" (ngSubmit)="saveExpense()">
-      <div class="space-y-6">
-        <div>
-          <label for="date" class="block text-sm font-medium text-gray-700">التاريخ</label>
-          <input type="date" id="date" name="date" #date="ngModel" [ngModel]="expense().date" (ngModelChange)="updateField('date', $event)" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+      <div class="form-container">
+
+        <div class="erp-section">
+          <h3 class="erp-section-title">
+            <mat-icon class="erp-section-icon">receipt_long</mat-icon>
+            بيانات المصروف
+          </h3>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>التاريخ</mat-label>
+              <input matInput type="date" name="date" #date="ngModel"
+                     [ngModel]="expense().date" (ngModelChange)="updateField('date', $event)" required>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>الفئة</mat-label>
+              <mat-select name="category" #category="ngModel"
+                          [ngModel]="expense().category" (ngModelChange)="updateField('category', $event)" required>
+                <mat-option value="Salaries">رواتب</mat-option>
+                <mat-option value="Rent">إيجار</mat-option>
+                <mat-option value="Utilities">فواتير (كهرباء, ماء)</mat-option>
+                <mat-option value="Marketing">تسويق</mat-option>
+                <mat-option value="Maintenance">صيانة</mat-option>
+                <mat-option value="Other">أخرى</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field full-width">
+              <mat-label>الوصف</mat-label>
+              <input matInput type="text" name="description" #description="ngModel"
+                     [ngModel]="expense().description" (ngModelChange)="updateField('description', $event)" required>
+            </mat-form-field>
+          </div>
         </div>
-        <div>
-          <label for="category" class="block text-sm font-medium text-gray-700">الفئة</label>
-          <select id="category" name="category" #category="ngModel" [ngModel]="expense().category" (ngModelChange)="updateField('category', $event)" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
-            <option value="" disabled>-- اختر فئة --</option>
-            <option value="Salaries">رواتب</option>
-            <option value="Rent">إيجار</option>
-            <option value="Utilities">فواتير (كهرباء, ماء)</option>
-            <option value="Marketing">تسويق</option>
-            <option value="Maintenance">صيانة</option>
-            <option value="Other">أخرى</option>
-          </select>
-        </div>
-        <div>
-          <label for="description" class="block text-sm font-medium text-gray-700">الوصف</label>
-          <input type="text" id="description" name="description" #description="ngModel" [ngModel]="expense().description" (ngModelChange)="updateField('description', $event)" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
-        </div>
-         <div>
-          <label for="carId" class="block text-sm font-medium text-gray-700">ربط بمخزون سيارة (اختياري)</label>
-          <select id="carId" name="carId" [ngModel]="expense().carId" (ngModelChange)="updateField('carId', $event ? +$event : undefined)" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
-              <option [ngValue]="undefined">-- بدون ربط --</option>
-              @for (car of cars(); track car.id) {
-                  <option [value]="car.id">{{ car.make }} {{ car.model }} ({{ car.year }}) - {{car.vin}}</option>
-              }
-          </select>
-        </div>
-        <div>
-            <label for="accountId" class="block text-sm font-medium text-gray-700">الحساب المدفوع منه</label>
-            <select id="accountId" name="accountId" [ngModel]="expense().accountId" (ngModelChange)="updateField('accountId', +$event)" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
-                <option [ngValue]="null" disabled>-- اختر الحساب --</option>
-                @for (account of accounts(); track account.id) {
-                    <option [value]="account.id">{{ account.name }}</option>
+
+        <div class="erp-section">
+          <h3 class="erp-section-title">
+            <mat-icon class="erp-section-icon">directions_car</mat-icon>
+            ربط بمخزون سيارة (اختياري)
+          </h3>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field full-width">
+              <mat-label>السيارة المرتبطة</mat-label>
+              <mat-select name="carId" [ngModel]="expense().carId"
+                          (ngModelChange)="updateField('carId', $event ? +$event : undefined)">
+                <mat-option [value]="undefined">-- بدون ربط --</mat-option>
+                @for (car of cars(); track car.id) {
+                  <mat-option [value]="car.id">{{ car.make }} {{ car.model }} ({{ car.year }}) - {{car.vin}}</mat-option>
                 }
-            </select>
+              </mat-select>
+            </mat-form-field>
+          </div>
         </div>
-        <div>
-          <label for="amount" class="block text-sm font-medium text-gray-700">المبلغ</label>
-          <input type="number" id="amount" name="amount" #amount="ngModel" [ngModel]="expense().amount" (ngModelChange)="updateField('amount', +$event)" required min="0" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+
+        <div class="erp-section">
+          <h3 class="erp-section-title">
+            <mat-icon class="erp-section-icon">account_balance_wallet</mat-icon>
+            البيانات المالية
+          </h3>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>الحساب المدفوع منه</mat-label>
+              <mat-select name="accountId" [ngModel]="expense().accountId"
+                          (ngModelChange)="updateField('accountId', +$event)" required>
+                <mat-option [value]="null" disabled>-- اختر الحساب --</mat-option>
+                @for (account of accounts(); track account.id) {
+                  <mat-option [value]="account.id">{{ account.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>المبلغ</mat-label>
+              <input matInput type="number" name="amount" #amount="ngModel"
+                     [ngModel]="expense().amount" (ngModelChange)="updateField('amount', +$event)" required min="0">
+            </mat-form-field>
+          </div>
         </div>
-        <div>
-          <label for="notes" class="block text-sm font-medium text-gray-700">ملاحظات (اختياري)</label>
-          <textarea id="notes" name="notes" #notes="ngModel" [ngModel]="expense().notes" (ngModelChange)="updateField('notes', $event)" rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"></textarea>
+
+        <div class="erp-section notes-section">
+          <mat-form-field appearance="outline" class="notes-field">
+            <mat-label>ملاحظات (اختياري)</mat-label>
+            <textarea matInput name="notes" #notes="ngModel"
+                      [ngModel]="expense().notes" (ngModelChange)="updateField('notes', $event)" rows="3"></textarea>
+          </mat-form-field>
         </div>
+
       </div>
-      <div class="erp-actions-bar mt-8 pt-6 border-t flex justify-end">
-        <a routerLink="/expenses" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg shadow hover:bg-gray-300 transition ml-4 text-sm">إلغاء</a>
-        <button type="submit" [disabled]="expenseForm.invalid" class="bg-primary-600 text-white px-6 py-2 rounded-lg shadow hover:bg-primary-700 transition disabled:opacity-50 text-sm">
+
+      <div class="erp-actions-bar form-actions">
+        <a mat-stroked-button routerLink="/expenses">إلغاء</a>
+        <button mat-raised-button color="primary" type="submit" [disabled]="expenseForm.invalid">
           {{ editMode() ? 'حفظ التغييرات' : 'حفظ المصروف' }}
         </button>
       </div>

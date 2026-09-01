@@ -1,4 +1,6 @@
-import { ChangeDetectorRef, Component, OnInit, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, computed, signal } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { SupplierLookupModalComponent } from '../../shared/supplier-lookup-modal/supplier-lookup-modal.component';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -10,6 +12,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SupplierRfqService } from '../../../services/supplier-rfq.service';
@@ -44,6 +47,7 @@ interface RfqLineItem {
     MatNativeDateModule,
     MatIconModule,
     MatCardModule,
+    MatTooltipModule,
     DxDataGridModule,
     DxButtonModule,
     TranslateModule
@@ -65,6 +69,10 @@ export class SupplierRfqFormComponent implements OnInit {
   /** Pending Purchase Requisitions eligible for quoting by the selected vendor. */
   eligibleRequisitions = signal<PendingRequisitionLookupDto[]>([]);
 
+  /** Backs the smart vendor selector's summary card, same pattern as payment-form's selectedSupplier. */
+  selectedVendorId = signal<number | null>(null);
+  selectedVendor = computed(() => this.suppliers().find(s => s.id === this.selectedVendorId()) ?? null);
+
   constructor(
     private fb: FormBuilder,
     private supplierRfqService: SupplierRfqService,
@@ -73,9 +81,28 @@ export class SupplierRfqFormComponent implements OnInit {
     private translateService: TranslateService,
     private router: Router,
     private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog
   ) {
     this.initForm();
+  }
+
+  /** Smart searchable vendor selector -- mirrors openSupplierLookup() in payment-form.component.ts. */
+  openVendorLookup(): void {
+    const dialogRef = this.dialog.open<SupplierLookupModalComponent, unknown, Supplier | null>(SupplierLookupModalComponent, {
+      width: '90vw',
+      maxWidth: '900px',
+      height: '80vh',
+      panelClass: 'responsive-dialog-panel'
+    });
+
+    dialogRef.afterClosed().subscribe(supplier => {
+      if (supplier) {
+        this.rfqForm.get('vendorId')?.setValue(supplier.id);
+        this.rfqForm.get('vendorId')?.markAsTouched();
+        this.onVendorSelected(supplier.id);
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -83,6 +110,8 @@ export class SupplierRfqFormComponent implements OnInit {
       next: (suppliers) => this.suppliers.set(suppliers || []),
       error: (err) => console.error('Error loading suppliers', err)
     });
+
+    this.rfqForm.get('vendorId')?.valueChanges.subscribe(id => this.selectedVendorId.set(id ?? null));
 
     this.route.params.subscribe(params => {
       if (params['id']) {

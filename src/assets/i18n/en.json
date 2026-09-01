@@ -31,6 +31,8 @@
     "QUOTATION_APPLIED": "Quotation items and customer loaded",
     "DOWN_PAYMENT": "Down Payment",
     "MAIN_DATA": "Main Invoice Data",
+    "CUSTOMER_SECTION": "Document & Customer",
+    "PAYMENT_SECTION": "Payment & Classification",
     "CUSTOMER": "Customer",
     "STORE": "Store",
     "INVOICE_NUMBER": "Invoice Number",
@@ -82,6 +84,7 @@
     "CANCEL": "Cancel",
     "ISSUE": "Issue Invoice",
     "SELECT_CUSTOMER_OPTION": "Please select a customer",
+    "CHANGE_CUSTOMER": "Change customer",
     "SELECT_STORE_OPTION": "-- Select store --",
     "SELECT_DEBIT_ACCOUNT": "-- Select debit account --",
   "ACCOUNTS_AUTO_DERIVED": "Accounts are derived automatically (customer, store and tax configuration) -- no manual selection needed.",
@@ -157,6 +160,8 @@
     "TAB_ADDITIONAL_COSTS": "Additional Costs",
     "ADDITIONAL_COSTS_SAVE_FIRST": "Save the invoice first to add additional costs.",
     "MAIN_DATA": "Main Invoice Data",
+    "SUPPLIER_SECTION": "Document & Supplier",
+    "PAYMENT_SECTION": "Payment & Classification",
     "SUPPLIER": "Supplier",
     "DEBIT_ACCOUNT": "Debit Account",
     "CREDIT_ACCOUNT": "Credit Account",
@@ -399,6 +404,7 @@
     "FIELD_REQUIRED": "This field is required",
     "MIN_LENGTH_10": "Minimum length is 10 characters",
     "SAVING": "Saving...",
+    "NO_RESULTS": "No results found",
     "ALERT": {
       "EXPIRE_REGISTRATION": "Expire Registration",
       "PERIODIC_INSPECTION": "Periodic Inspection"
@@ -1055,6 +1061,7 @@
     "QUOTATION_DATE": "RFQ Date",
     "VALID_UNTIL": "Valid Until",
     "VENDOR": "Vendor",
+    "CHANGE_VENDOR": "Change vendor",
     "REQUISITION_NUMBER": "Requisition Number",
     "SELECT_REQUISITION": "Purchase Requisition",
     "SELECT_REQUISITION_HINT": "Select a pending requisition from this vendor to auto-fill items, remaining quantities and base prices",
@@ -2065,6 +2072,8 @@
       "RETURN_DATE": "Return Date",
       "ORIGINAL_INVOICE": "Original Invoice",
       "SELECT_INVOICE": "-- Select sales invoice --",
+      "SEARCH_INVOICE": "Search by invoice number or customer...",
+      "NO_RESULTS": "No matching invoices found",
       "SUPPLIER": "Supplier",
       "ITEMS_HEADER": "Returned Items",
       "CAR": "Car",
@@ -2361,6 +2370,12 @@
     "UNALLOCATED_BALANCE": "Unallocated Balance"
   },
   "ACCOUNTS": {
+    "CAR_PAYMENT_FORM": {
+      "SUM_MISMATCH_ERROR": "The sum of the per-car amounts must equal the total voucher amount",
+      "FORM_INVALID": "Please fill in all required fields correctly",
+      "SAVE_SUCCESS": "Car payment voucher saved successfully",
+      "SAVE_ERROR": "Error saving the car payment voucher"
+    },
     "RECEIPTS": {
       "LIST_TITLE": "Receipt Vouchers",
       "NEW": "New Receipt Voucher",
@@ -2502,6 +2517,7 @@
       "AUTO_DISTRIBUTE_TOOLTIP": "Automatically distribute the total among car rows",
       "SUPPLIER": "Supplier",
       "SELECT_SUPPLIER": "-- Select supplier --",
+      "CHANGE_SUPPLIER": "Change supplier",
       "RECEIPT_TYPE": "Receipt Type",
       "RECEIPT_TYPE_OPTIONS": {
         "CUSTOMER": "Customer (linked to invoice)",
@@ -3659,7 +3675,9 @@
     "JOURNAL_ENTRY_CREATED": "Journal entry created successfully",
     "JOURNAL_ENTRY_UPDATED": "Journal entry updated successfully",
     "ERROR_CREATING_ENTRY": "Error creating journal entry",
-    "ERROR_UPDATING_ENTRY": "Error updating journal entry"
+    "ERROR_UPDATING_ENTRY": "Error updating journal entry",
+    "MIN_TWO_LINES_REQUIRED": "A journal entry needs at least 2 lines",
+    "FORM_INVALID": "Please fill in the description and all line fields correctly"
   },
   "COST_CENTER": {
     "LIST_TITLE": "Cost Centers",

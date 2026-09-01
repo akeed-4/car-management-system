@@ -55,18 +55,28 @@
           </div>
 
           <div class="flex-1">
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-label>{{ 'PURCHASE_REQUESTS.SUPPLIER' | translate }}</mat-label>
-              <mat-select formControlName="supplierId">
-                <mat-option *ngFor="let s of suppliers()" [value]="s.id">
-                  {{ s.name }}
-                </mat-option>
-              </mat-select>
-              <mat-icon matSuffix>store</mat-icon>
-              <mat-error *ngIf="requestForm.get('supplierId')?.hasError('required')">
-                {{ 'COMMON.REQUIRED' | translate }}
-              </mat-error>
-            </mat-form-field>
+            <div class="supplier-selector-block">
+              @if (selectedSupplier(); as supplier) {
+                <div class="customer-summary">
+                  <mat-icon class="customer-summary-icon">store</mat-icon>
+                  <div class="customer-summary-text">
+                    <span class="customer-summary-name">{{ supplier.name }}</span>
+                    <span class="customer-summary-sub">{{ supplier.phone }} · {{ supplier.crNumber }}</span>
+                  </div>
+                  <button mat-icon-button type="button" [matTooltip]="'ACCOUNTS.FORM.CHANGE_SUPPLIER' | translate" (click)="openSupplierLookup()">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </div>
+              } @else {
+                <button mat-stroked-button type="button" class="customer-select-btn" (click)="openSupplierLookup()">
+                  <mat-icon>store</mat-icon>
+                  {{ 'PURCHASE_REQUESTS.SUPPLIER' | translate }}
+                </button>
+              }
+              @if (requestForm.get('supplierId')?.hasError('required') && requestForm.get('supplierId')?.touched) {
+                <span class="customer-selector-error">{{ 'COMMON.REQUIRED' | translate }}</span>
+              }
+            </div>
           </div>
         </div>
 

@@ -31,6 +31,8 @@ import { NotificationService } from '@/src/services/notification.service';
 import { extractErrorMessage } from '@/src/models/http-error-message';
 import { warnIfPartyAccountMissing } from '@/src/components/shared/party-account-required-dialog/party-account-required-warning.helper';
 import { DefaultAccountTracker } from '@/src/components/shared/default-account/default-account.helper';
+import { CustomerLookupModalComponent } from '@/src/components/shared/customer-lookup-modal/customer-lookup-modal.component';
+import { AccountAutocompleteComponent } from '@/src/components/shared/account-autocomplete/account-autocomplete.component';
 
 @Component({
   selector: 'app-receipt-form',
@@ -54,6 +56,7 @@ import { DefaultAccountTracker } from '@/src/components/shared/default-account/d
     MatTooltipModule,
     MatDialogModule,
     InvoiceAllocationGridComponent,
+    AccountAutocompleteComponent,
   ],
   templateUrl: './receipt-form.component.html',
   styleUrl: './receipt-form.component.css',
@@ -75,6 +78,10 @@ export class ReceiptFormComponent implements OnInit {
 
   customers = this.customerService.customers$;
   accounts = signal<Account[]>([]);
+
+  /** Backs the smart customer selector's summary card, mirrors payment-form's selectedSupplier. */
+  selectedCustomerId = signal<number | null>(null);
+  selectedCustomer   = computed(() => (this.customers() as any[]).find(c => c.id === this.selectedCustomerId()) ?? null);
 
   /** Every outstanding sales invoice for the selected customer -- offered to the allocation
    *  grid's "add invoice" dropdown, in AllocatableInvoice shape. */
@@ -142,6 +149,8 @@ export class ReceiptFormComponent implements OnInit {
     // fills in later, unlike the customer-dependent credit leg below.
     this.debitAccountTracker.recalculate({ kind: DefaultAccountKind.PaymentAccount });
 
+    this.receiptForm.get('customerId')?.valueChanges.subscribe(id => this.selectedCustomerId.set(id ?? null));
+
     // react to receiptType changes: clear customer/invoices/allocations when not CUSTOMER
     this.receiptForm.get('receiptType')?.valueChanges.subscribe((val: string) => {
       if (val !== 'CUSTOMER') {
@@ -166,6 +175,24 @@ export class ReceiptFormComponent implements OnInit {
         this.loadReceipt(+id);
       } else {
         this.isEditMode.set(false);
+      }
+    });
+  }
+
+  /** Smart searchable customer selector -- mirrors openSupplierLookup() in payment-form.component.ts
+   *  for a consistent interaction pattern across documents. */
+  openCustomerLookup(): void {
+    const dialogRef = this.dialog.open<CustomerLookupModalComponent, unknown, { id: number; name: string } | null>(CustomerLookupModalComponent, {
+      width: '90vw',
+      maxWidth: '900px',
+      height: '80vh',
+      panelClass: 'responsive-dialog-panel'
+    });
+
+    dialogRef.afterClosed().subscribe(customer => {
+      if (customer) {
+        this.receiptForm.get('customerId')?.markAsTouched();
+        this.onCustomerChange(customer.id);
       }
     });
   }

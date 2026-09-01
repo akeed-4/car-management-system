@@ -14,6 +14,74 @@
   color: var(--text-primary);
 }
 
+/* Customer smart-selector -- fits the same mat-grid-tile the previous mat-select occupied. */
+.customer-selector-tile {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 0;
+}
+
+.customer-selector-label {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+.required-asterisk {
+  color: var(--color-danger-600, #dc2626);
+}
+
+.customer-select-btn {
+  width: 100%;
+  justify-content: flex-start;
+  gap: 6px;
+  color: var(--text-secondary);
+}
+
+.customer-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--rounded-md, 6px);
+  padding: 4px 8px;
+}
+
+.customer-summary-icon {
+  color: var(--color-primary-600, #3b82f6);
+  flex-shrink: 0;
+}
+
+.customer-summary-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.customer-summary-name {
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.customer-summary-sub {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.customer-selector-error {
+  font-size: 0.72rem;
+  color: var(--color-danger-600, #dc2626);
+}
+
 /* --- Page header: flat document title bar --- */
 .page-header {
   display: flex;
@@ -267,6 +335,57 @@
 
 .section-header h3 {
   margin: 0;
+}
+
+/* --- Header: Customer (left) / Payment (right) side by side -- keeps both visible together
+   on desktop instead of stacking two full-width bands, per the "minimize scrolling" requirement. */
+.header-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 var(--space-5, 1.25rem);
+  align-items: start;
+}
+
+.header-col + .header-col {
+  border-inline-start: 1px solid var(--border-default);
+  padding-inline-start: var(--space-5, 1.25rem);
+}
+
+.stacked-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.payment-fields-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.15rem 1rem;
+  align-items: start;
+}
+
+.payment-field-span-2 {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 900px) {
+  .header-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .header-col + .header-col {
+    border-inline-start: none;
+    padding-inline-start: 0;
+    margin-top: var(--space-3, 0.75rem);
+    padding-top: var(--space-3, 0.75rem);
+    border-top: 1px solid var(--border-default);
+  }
+}
+
+@media (max-width: 560px) {
+  .payment-fields-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* --- Header field grid --- */

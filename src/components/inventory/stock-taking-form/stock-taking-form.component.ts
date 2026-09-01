@@ -6,7 +6,7 @@ import { InventoryService } from '../../../services/inventory.service';
 import { StockTakeService } from '../../../services/stock-take.service';
 import { StockTake } from '../../../models/stock-take.model';
 import { StockTakeItem } from '../../../models/stock-take-item.model';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -30,6 +30,8 @@ import { resolveStoreDisplayName } from '../../../models/store-display.util';
 import { AccountingService, DefaultAccountKind } from '../../accounting/accounting.service';
 import { DefaultAccountTracker } from '@/src/components/shared/default-account/default-account.helper';
 import { Account } from '../../accounting/models';
+import { AccountAutocompleteComponent } from '../../shared/account-autocomplete/account-autocomplete.component';
+import { NotificationService } from '../../../services/notification.service';
 
 @Component({
   selector: 'app-stock-taking-form',
@@ -53,7 +55,8 @@ import { Account } from '../../accounting/models';
     ,MatDialogModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
-    CarSelectionDialogComponent
+    CarSelectionDialogComponent,
+    AccountAutocompleteComponent,
   ],
   templateUrl: './stock-taking-form.component.html',
   styleUrl: './stock-taking-form.component.css',
@@ -64,11 +67,11 @@ export class StockTakingFormComponent implements OnInit {
   private router = inject(Router);
   private inventoryService = inject(InventoryService);
   private stockTakeService = inject(StockTakeService);
-  private translate = inject(TranslateService);
   private dialog = inject(MatDialog);
   private storeAccountingConfigService = inject(StoreAccountingConfigurationService);
   private storeContext = inject(StoreContextService);
   private accountingService = inject(AccountingService);
+  private notificationService = inject(NotificationService);
   stockTakeForm!: FormGroup;
   items = signal<StockTakeItem[]>([]);
 
@@ -330,8 +333,7 @@ export class StockTakingFormComponent implements OnInit {
     // Prevent duplicates by itemId (car.carId)
     const exists = this.items().some(i => i.itemId === car.carId);
     if (exists) {
-      // Optionally show a toast or alert; keep simple for now
-      alert(this.translate.instant ? this.translate.instant('INVENTORY.STOCK_TAKING_FORM.ERROR_ALREADY_ADDED') : 'Item already added');
+      this.notificationService.showError('INVENTORY.STOCK_TAKING_FORM.ERROR_ALREADY_ADDED');
       return;
     }
 
@@ -360,14 +362,14 @@ export class StockTakingFormComponent implements OnInit {
 
     if (this.items().length === 0) {
       this.isSaving.set(false);
-      alert(this.translate.instant('INVENTORY.STOCK_TAKING_FORM.ERROR_NO_ITEMS'));
+      this.notificationService.showError('INVENTORY.STOCK_TAKING_FORM.ERROR_NO_ITEMS');
       return;
     }
 
     // Validate that all rows have an item selected
     if (this.items().some(item => item.itemId === 0)) {
       this.isSaving.set(false);
-      alert(this.translate.instant('INVENTORY.STOCK_TAKING_FORM.ERROR_SELECT_ITEM'));
+      this.notificationService.showError('INVENTORY.STOCK_TAKING_FORM.ERROR_SELECT_ITEM');
       return;
     }
 
@@ -396,7 +398,7 @@ export class StockTakingFormComponent implements OnInit {
         error: (error) => {
           this.isSaving.set(false);
           console.error('Error updating stock take:', error);
-          alert(this.translate.instant('INVENTORY.STOCK_TAKING_FORM.ERROR_UPDATE'));
+          this.notificationService.showError('INVENTORY.STOCK_TAKING_FORM.ERROR_UPDATE');
         }
       });
     } else {
@@ -411,7 +413,7 @@ export class StockTakingFormComponent implements OnInit {
         error: (error) => {
           this.isSaving.set(false);
           console.error('Error creating stock take:', error);
-          alert(this.translate.instant('INVENTORY.STOCK_TAKING_FORM.ERROR_CREATE'));
+          this.notificationService.showError('INVENTORY.STOCK_TAKING_FORM.ERROR_CREATE');
         }
       });
     }

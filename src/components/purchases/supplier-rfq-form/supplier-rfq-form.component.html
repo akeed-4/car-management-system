@@ -46,16 +46,28 @@
 
         <div class="form-row-flex">
           <div class="flex-1">
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-label>{{ 'SUPPLIER_RFQ.VENDOR' | translate }}</mat-label>
-              <mat-select formControlName="vendorId" (selectionChange)="onVendorSelected($event.value)">
-                <mat-option *ngFor="let s of suppliers()" [value]="s.id">{{ s.name }}</mat-option>
-              </mat-select>
-              <mat-icon matSuffix>store</mat-icon>
-              <mat-error *ngIf="rfqForm.get('vendorId')?.hasError('required')">
-                {{ 'COMMON.REQUIRED' | translate }}
-              </mat-error>
-            </mat-form-field>
+            <div class="supplier-selector-block">
+              @if (selectedVendor(); as vendor) {
+                <div class="customer-summary">
+                  <mat-icon class="customer-summary-icon">store</mat-icon>
+                  <div class="customer-summary-text">
+                    <span class="customer-summary-name">{{ vendor.name }}</span>
+                    <span class="customer-summary-sub">{{ vendor.phone }} · {{ vendor.crNumber }}</span>
+                  </div>
+                  <button mat-icon-button type="button" [matTooltip]="'SUPPLIER_RFQ.CHANGE_VENDOR' | translate" (click)="openVendorLookup()">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </div>
+              } @else {
+                <button mat-stroked-button type="button" class="customer-select-btn" (click)="openVendorLookup()">
+                  <mat-icon>store</mat-icon>
+                  {{ 'SUPPLIER_RFQ.VENDOR' | translate }}
+                </button>
+              }
+              @if (rfqForm.get('vendorId')?.hasError('required') && rfqForm.get('vendorId')?.touched) {
+                <span class="customer-selector-error">{{ 'COMMON.REQUIRED' | translate }}</span>
+              }
+            </div>
           </div>
 
           <div class="flex-1">

@@ -17,6 +17,7 @@ import { CustomerService } from '../../../services/customer.service';
 import { InventoryService } from '../../../services/inventory.service';
 import { SalesService } from '../../../services/sales.service';
 import { MatIconModule } from '@angular/material/icon';
+import { NotificationService } from '../../../services/notification.service';
 
 @Component({
   selector: 'app-customer-order-form',
@@ -69,7 +70,8 @@ export class CustomerOrderFormComponent implements OnInit {
     private router: Router,
     private salesService: SalesService,
     private customerService: CustomerService,
-    private inventoryService: InventoryService
+    private inventoryService: InventoryService,
+    private notificationService: NotificationService
   ) {
     this.customerOrderForm = this.fb.group({
       orderNumber: [{ value: '', disabled: true }, Validators.required],
@@ -98,32 +100,38 @@ export class CustomerOrderFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.customerOrderForm.valid) {
-      const formValue: CustomerOrder = {
-        ...this.customerOrderForm.getRawValue(),
-        createdDate: new Date().toISOString(),
-        lastUpdated: new Date().toISOString()
-      };
-
-      // Save the customer order
-      this.salesService.createCustomerOrder(formValue).subscribe({
-        next: (order) => {
-          // Update car status to 'Offered'
-          const vehicleId = formValue.vehicleId;
-          this.inventoryService.updateCarStatus(vehicleId, 'Offered').subscribe({
-            next: () => {
-              // Navigate to Deposit screen with orderId
-              this.router.navigate(['/accounts/deposits'], { queryParams: { orderId: order.id } });
-            },
-            error: (error) => {
-              console.error('Failed to update car status', error);
-            }
-          });
-        },
-        error: (error) => {
-          console.error('Failed to create customer order', error);
-        }
-      });
+    if (!this.customerOrderForm.valid) {
+      this.customerOrderForm.markAllAsTouched();
+      this.notificationService.showError('Please select a customer and a vehicle.');
+      return;
     }
+
+    const formValue: CustomerOrder = {
+      ...this.customerOrderForm.getRawValue(),
+      createdDate: new Date().toISOString(),
+      lastUpdated: new Date().toISOString()
+    };
+
+    // Save the customer order
+    this.salesService.createCustomerOrder(formValue).subscribe({
+      next: (order) => {
+        // Update car status to 'Offered'
+        const vehicleId = formValue.vehicleId;
+        this.inventoryService.updateCarStatus(vehicleId, 'Offered').subscribe({
+          next: () => {
+            // Navigate to Deposit screen with orderId
+            this.router.navigate(['/accounts/deposits'], { queryParams: { orderId: order.id } });
+          },
+          error: (error) => {
+            console.error('Failed to update car status', error);
+            this.notificationService.showError('Order created, but updating the vehicle status failed. Please check the vehicle record.');
+          }
+        });
+      },
+      error: (error) => {
+        console.error('Failed to create customer order', error);
+        this.notificationService.showError('Failed to create the customer order. Please try again.');
+      }
+    });
   }
 }

@@ -46,19 +46,13 @@
 
             <div class="payment-grid">
               <div class="field-with-add">
-                <mat-form-field appearance="outline" class="field-with-add-select debit-field">
-                  <mat-label>
-                    <mat-icon class="field-icon">arrow_upward</mat-icon>
-                    {{ 'ACCOUNTS.DEPOSITS.FORM.DEBIT_ACCOUNT' | translate }}
-                  </mat-label>
-                  <mat-select formControlName="debitAccountId" required>
-                    <mat-option [value]="null" disabled>{{ 'ACCOUNTS.DEPOSITS.FORM.SELECT_DEBIT_ACCOUNT' | translate }}</mat-option>
-                    <mat-option *ngFor="let account of debitAccounts()" [value]="account.id">
-                      {{ account.accountCode }} - {{ translate.currentLang === 'ar' ? (account.accountNameAr || account.accountNameEn) : account.accountNameEn }}
-                    </mat-option>
-                  </mat-select>
-                  <mat-hint *ngIf="!debitAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
-                </mat-form-field>
+                <app-account-autocomplete class="field-with-add-select debit-field"
+                    formControlName="debitAccountId"
+                    [accounts]="debitAccounts()"
+                    [required]="true"
+                    [label]="'ACCOUNTS.DEPOSITS.FORM.DEBIT_ACCOUNT'"
+                    [hint]="!debitAccountManuallyChanged() ? 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' : ''">
+                </app-account-autocomplete>
                 <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateDebitAccountDialog()">
                   <mat-icon>add</mat-icon>
                 </button>
@@ -69,19 +63,13 @@
               </div>
 
               <div class="field-with-add">
-                <mat-form-field appearance="outline" class="field-with-add-select credit-field">
-                  <mat-label>
-                    <mat-icon class="field-icon">arrow_downward</mat-icon>
-                    {{ 'ACCOUNTS.DEPOSITS.FORM.CREDIT_ACCOUNT' | translate }}
-                  </mat-label>
-                  <mat-select formControlName="creditAccountId" required>
-                    <mat-option [value]="null" disabled>{{ 'ACCOUNTS.DEPOSITS.FORM.SELECT_CREDIT_ACCOUNT' | translate }}</mat-option>
-                    <mat-option *ngFor="let account of creditAccounts()" [value]="account.id">
-                      {{ account.accountCode }} - {{ translate.currentLang === 'ar' ? (account.accountNameAr || account.accountNameEn) : account.accountNameEn }}
-                    </mat-option>
-                  </mat-select>
-                  <mat-hint *ngIf="!creditAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
-                </mat-form-field>
+                <app-account-autocomplete class="field-with-add-select credit-field"
+                    formControlName="creditAccountId"
+                    [accounts]="creditAccounts()"
+                    [required]="true"
+                    [label]="'ACCOUNTS.DEPOSITS.FORM.CREDIT_ACCOUNT'"
+                    [hint]="!creditAccountManuallyChanged() ? 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' : ''">
+                </app-account-autocomplete>
                 <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateCreditAccountDialog()">
                   <mat-icon>add</mat-icon>
                 </button>
@@ -107,15 +95,26 @@
               </mat-radio-group>
             </div>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.CUSTOMER_SELECT' | translate }}</mat-label>
-              <mat-select formControlName="customerId" required>
-                <mat-option [value]="null">{{ 'ACCOUNTS.DEPOSITS.FORM.CUSTOMER_SELECT_EMPTY' | translate }}</mat-option>
-                <mat-option *ngFor="let c of customers(); trackBy: trackByCustomer" [value]="c.id">
-                  {{ c.name }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
+            <div class="customer-selector-tile">
+              <label class="customer-selector-label">{{ 'ACCOUNTS.DEPOSITS.FORM.CUSTOMER_SELECT' | translate }}</label>
+              @if (selectedCustomer(); as customer) {
+                <div class="customer-summary">
+                  <mat-icon class="customer-summary-icon">person</mat-icon>
+                  <div class="customer-summary-text">
+                    <span class="customer-summary-name">{{ customer.name }}</span>
+                    <span class="customer-summary-sub">{{ customer.phone }} · {{ customer.nationalId }}</span>
+                  </div>
+                  <button mat-icon-button type="button" [matTooltip]="'INVOICE.CHANGE_CUSTOMER' | translate" (click)="openCustomerLookup()">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </div>
+              } @else {
+                <button mat-stroked-button type="button" class="customer-select-btn" (click)="openCustomerLookup()">
+                  <mat-icon>search</mat-icon>
+                  {{ 'ACCOUNTS.DEPOSITS.FORM.CUSTOMER_SELECT_EMPTY' | translate }}
+                </button>
+              }
+            </div>
 
             <mat-form-field appearance="outline">
               <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.VEHICLE_SEARCH' | translate }}</mat-label>

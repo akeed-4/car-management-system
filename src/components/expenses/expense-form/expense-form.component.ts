@@ -1,6 +1,11 @@
 import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { ExpenseService } from '../../../services/expense.service';
 import { Expense } from '../../../models/expense.model';
 import { TreasuryService } from '../../../services/treasury.service';
@@ -9,7 +14,15 @@ import { InventoryService } from '../../../services/inventory.service';
 @Component({
   selector: 'app-expense-form',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [
+    FormsModule,
+    RouterLink,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatIconModule,
+  ],
   templateUrl: './expense-form.component.html',
   styleUrl: './expense-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
