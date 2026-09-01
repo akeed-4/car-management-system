@@ -2,12 +2,12 @@
 
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { CommonModule, CurrencyPipe, DecimalPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { ModalComponent } from '../../shared/modal/modal.component';
-import { Car, CarCondition, CarLocation } from '../../../models/car.model';
-import { FormsModule } from '@angular/forms'; // Import FormsModule for filter input
+import { Car } from '../../../models/car.model';
+import { FormsModule } from '@angular/forms';
 import { VinScannerComponent } from '../../shared/vin-scanner/vin-scanner.component';
-import { InventoryService } from '../../../services/inventory.service';
+import { InventoryService, CarGridRow } from '../../../services/inventory.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,12 +18,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { DxDataGridModule, DxButtonModule, DxTemplateModule } from 'devextreme-angular';
 import { ResponsiveService } from '../../../services/responsive.service';
 import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
-
-type SortColumn = keyof Car | '';
-type SortDirection = 'asc' | 'desc' | '';
+import {
+  SharedDataGridComponent,
+  SharedGridRowActionEvent,
+} from '../../shared/shared-data-grid/shared-data-grid.component';
+import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 
 @Component({
   selector: 'app-inventory-list',
@@ -44,9 +45,7 @@ type SortDirection = 'asc' | 'desc' | '';
     MatSelectModule,
     MatSlideToggleModule,
     MatTooltipModule,
-    DxDataGridModule,
-    DxButtonModule,
-    DxTemplateModule,
+    SharedDataGridComponent,
     MobileCardListComponent
   ],
   templateUrl: './inventory-list.component.html',
@@ -55,17 +54,63 @@ type SortDirection = 'asc' | 'desc' | '';
 })
 export class InventoryListComponent {
   private inventoryService = inject(InventoryService);
-  // Fix: Injected Router service
   private router = inject(Router);
   private responsiveService = inject(ResponsiveService);
   isMobile = this.responsiveService.isMobile;
 
+  /** Mobile card-list still loads the full array (small screens, no grid) -- unaffected by the
+   *  desktop grid's move to server-side paging below. */
   cars = this.inventoryService.cars$;
-  filter = signal('');
-  sortColumn = signal<SortColumn>('');
-  sortDirection = signal<SortDirection>('');
+
+  /** Mobile-only archived filter -- the desktop grid dropped this column/filter (see comment on
+   *  showArchived below), but the mobile card list keeps it since it still reads from cars$. */
+  mobileFilteredCars = computed(() => {
+    const showArchived = this.showArchived();
+    return this.cars().filter(car => !!car.isArchived === showArchived);
+  });
+
+  /** Server-side paged/sorted/filtered store for the desktop grid -- see
+   *  InventoryService.createCarsGridStore / CarsController.GetGrid. Filtering, sorting and paging
+   *  all happen in SQL now instead of over a fully-loaded in-memory array. */
+  carsGridStore = this.inventoryService.createCarsGridStore();
+
+  statusOptions = [
+    { value: 'Available', text: 'متاح' },
+    { value: 'Reserved', text: 'محجوز' },
+    { value: 'Sold', text: 'مباع' },
+    { value: 'In Maintenance', text: 'في الصيانة' }
+  ];
+
+  /** Desktop grid columns. Native DevExtreme dxi-button command columns don't render in this
+   *  build (confirmed empty even in a minimal isolated grid); SharedDataGrid's Material-icon
+   *  actions template is the proven working pattern (see journal-entries-list, tenant-list). */
+  columns: dataGridColumnDto[] = [
+    { dataField: 'vin', dataType: 'string', caption: 'INVENTORY.VIN' },
+    { dataField: 'make', dataType: 'string', caption: 'INVENTORY.CAR', calculateDisplayValue: (row: CarGridRow) => this.getCarDisplayValue(row) },
+    { dataField: 'salePrice', dataType: 'number', format: { type: 'currency', currency: 'SAR' }, caption: 'INVENTORY.SALE_PRICE', width: 150 },
+    {
+      dataField: 'status', dataType: 'string', caption: 'INVENTORY.STATUS', width: 120, alignment: 'center',
+      lookup: { dataSource: this.statusOptions, valueExpr: 'value', displayExpr: 'text' },
+    },
+    { dataField: '__actions', dataType: 'string', caption: 'INVENTORY.ACTIONS', type: 'actions', width: 150, allowSorting: false, allowFiltering: false },
+  ];
+
+  rowActions: sharedGridRowActionDto[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'INVENTORY.EDIT' },
+    { id: 'delete', icon: 'delete', labelKey: 'INVENTORY.DELETE' },
+    { id: 'deposit', icon: 'payments', labelKey: 'INVENTORY.DEPOSIT_VOUCHER', visible: (row: CarGridRow) => row.status === 'Reserved' },
+  ];
+
+  onGridAction(e: SharedGridRowActionEvent): void {
+    const id = (e.row as CarGridRow).id;
+    if (e.actionId === 'edit') this.editCar(id);
+    else if (e.actionId === 'delete') this.requestDelete(id);
+    else if (e.actionId === 'deposit') this.router.navigate(['/accounts/deposits/new', id]);
+  }
+
+  /** Still used by the mobile card-list path (unaffected by the desktop grid's server-side move)
+   *  and by the archive/unarchive actions there. */
   showArchived = signal(false);
-  conditionFilter = signal<'All' | 'New' | 'Used'>('All');
 
   // Modal state
   isDeleteModalOpen = signal(false);
@@ -73,97 +118,11 @@ export class InventoryListComponent {
 
   // VIN Scanner Modal state
   isScannerOpen = signal(false);
+  vinScannerSearchText = signal('');
 
-  // DataGrid options
-  statusOptions = [
-    { value: 'Available', display: 'متاح' },
-    { value: 'Reserved', display: 'محجوز' },
-    { value: 'Sold', display: 'مباع' },
-    { value: 'In Maintenance', display: 'في الصيانة' }
-  ];
-  
-  filteredAndSortedCars = computed(() => {
-    const searchTerm = this.filter().toLowerCase();
-    const column = this.sortColumn();
-    const direction = this.sortDirection();
-    const showArchived = this.showArchived();
-    const condition = this.conditionFilter();
-
-    let cars = this.cars().filter(car => !!car.isArchived === showArchived);
-
-    // Filter by Condition
-    if (condition !== 'All') {
-      cars = cars.filter(car => car.condition === condition);
-    }
-    
-    // Filter by Search Term
-    if (searchTerm) {
-      cars = cars.filter(car => 
-        car.make.toLowerCase().includes(searchTerm) ||
-        car.model.toLowerCase().includes(searchTerm) ||
-        car.year.toString().includes(searchTerm) ||
-        car.vin.toLowerCase().includes(searchTerm) ||
-        car.status.toLowerCase().includes(searchTerm) ||
-        car.currentLocation.toLowerCase().includes(searchTerm)
-      );
-    }
-
-    // Sort
-    if (column && direction) {
-      cars = [...cars].sort((a, b) => {
-        const aValue = a[column];
-        const bValue = b[column];
-
-        let comparison = 0;
-        if (typeof aValue === 'string' && typeof bValue === 'string') {
-          comparison = aValue.localeCompare(bValue);
-        } else if (typeof aValue === 'number' && typeof bValue === 'number') {
-          comparison = aValue - bValue;
-        }
-
-        return direction === 'asc' ? comparison : -comparison;
-      });
-    }
-
-    return cars;
-  });
-  
-  setConditionFilter(filter: 'All' | 'New' | 'Used') {
-    this.conditionFilter.set(filter);
-  }
-
-  onFilter(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.filter.set(input.value);
-  }
-  
   onVinScanned(vin: string) {
-    this.filter.set(vin);
+    this.vinScannerSearchText.set(vin);
     this.isScannerOpen.set(false);
-  }
-
-  onLocationChange(carId: number, event: Event) {
-    this.inventoryService.updateCarLocation(carId, (event.target as HTMLInputElement).value);
-  }
-
-  onSort(column: SortColumn) {
-    if (this.sortColumn() === column) {
-      this.sortDirection.update(currentDir => {
-        if (currentDir === 'asc') return 'desc';
-        if (currentDir === 'desc') return '';
-        return 'asc';
-      });
-    } else {
-      this.sortColumn.set(column);
-      this.sortDirection.set('asc');
-    }
-  }
-
-  getSortIcon(column: SortColumn) {
-    if (this.sortColumn() !== column) return '';
-    if (this.sortDirection() === 'asc') return '▲';
-    if (this.sortDirection() === 'desc') return '▼';
-    return '';
   }
 
   editCar(id: number) {
@@ -196,54 +155,6 @@ export class InventoryListComponent {
     this.inventoryService.unarchiveCar(id);
   }
 
-  // DataGrid action methods
-  onEditClick = (e: any) => {
-    this.editCar(e.row.data.id);
-  };
-
-  onDeleteClick = (e: any) => {
-    this.requestDelete(e.row.data.id);
-  };
-
-  onArchiveClick = (e: any) => {
-    this.archiveCar(e.row.data.id);
-  };
-
-  onUnarchiveClick = (e: any) => {
-    this.unarchiveCar(e.row.data.id);
-  };
-
-  onDepositClick = (e: any) => {
-    this.router.navigate(['/accounts/deposits/new', e.row.data.id]);
-  };
-
-  onRowUpdated = (e: any) => {
-    if (e.key && e.newData.currentLocation !== undefined) {
-      this.inventoryService.updateCarLocation(e.key, e.newData.currentLocation);
-    }
-  };
-
-  // Visibility functions for DataGrid buttons
-  isEditVisible = (e: any) => {
-    return !this.showArchived();
-  };
-
-  isDeleteVisible = (e: any) => {
-    return !this.showArchived();
-  };
-
-  isArchiveVisible = (e: any) => {
-    return !this.showArchived() && e.row.data.status === 'Sold';
-  };
-
-  isUnarchiveVisible = (e: any) => {
-    return this.showArchived();
-  };
-
-  isDepositVisible = (e: any) => {
-    return !this.showArchived() && e.row.data.status === 'Reserved';
-  };
-
   // Custom display functions
   getCarDisplayValue = (rowData: any) => {
     return `${rowData.make} ${rowData.model} (${rowData.year})`;
@@ -257,10 +168,6 @@ export class InventoryListComponent {
       'In Maintenance': 'في الصيانة'
     };
     return statusMap[rowData.status] || rowData.status;
-  };
-
-  getConditionDisplayValue = (rowData: any) => {
-    return rowData.condition === 'New' ? 'جديدة' : 'مستعملة';
   };
 
   // --- Mobile card-list rendering ---

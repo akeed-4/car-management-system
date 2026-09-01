@@ -1,8 +1,26 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Car, CarStatus, CarLocation } from '../models/car.model';
 import { Observable, tap, switchMap, firstValueFrom } from 'rxjs';
 import { environment } from '../environments/environment';
+import CustomStore from 'devextreme/data/custom_store';
+import { ReportDataSourceService } from './report-data-source.service';
+
+export interface CarGridRow {
+  id: number;
+  vin: string;
+  make: string;
+  model: string;
+  year: number;
+  exteriorColor: string;
+  status: string;
+  mileage: number;
+  purchasePrice: number;
+  salePrice: number;
+  totalCost: number;
+  purchaseDate?: string;
+  createdAt: string;
+}
 
 export interface VehicleLookupFilter {
   vin?: string;
@@ -26,8 +44,20 @@ export class InventoryService {
   // Computed signal for available vehicles (excluding sold or reserved)
   public availableVehicles$ = this.cars.asReadonly();
 
+  private reportDataSourceService = inject(ReportDataSourceService);
+
   constructor(private http: HttpClient) {
     this.loadCars();
+  }
+
+  /**
+   * Server-side paged/sorted/filtered CustomStore for the Inventory List grid, backed by
+   * CarsController's GET api/Cars/grid (DataSourceLoadOptions -> DataSourceLoader.LoadAsync over
+   * ICarReportService.GetCarsQuery). Replaces the old pattern of loading the entire cars$ array
+   * into the browser and filtering/sorting/paging it client-side.
+   */
+  createCarsGridStore(): CustomStore<CarGridRow> {
+    return this.reportDataSourceService.createStore<CarGridRow>('Cars/grid', { key: 'id' });
   }
 
   loadCars() {

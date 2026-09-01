@@ -17,30 +17,20 @@
   </div>
 
   <div class="erp-card">
-    <div class="erp-list-toolbar filters-section">
-      <mat-form-field appearance="outline" class="filter-field">
-        <mat-label>{{ 'INVENTORY.CONDITION_FILTER' | translate }}</mat-label>
-        <mat-select [value]="conditionFilter()" (valueChange)="setConditionFilter($event)">
-          <mat-option value="All">{{ 'INVENTORY.ALL' | translate }}</mat-option>
-          <mat-option value="New">{{ 'INVENTORY.NEW_CARS' | translate }}</mat-option>
-          <mat-option value="Used">{{ 'INVENTORY.USED_CARS' | translate }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-slide-toggle
-        [checked]="showArchived()"
-        (change)="showArchived.set($event.checked)"
-        color="primary">
-        {{ 'INVENTORY.SHOW_ARCHIVED' | translate }}
-      </mat-slide-toggle>
-    </div>
-
     <!-- Mobile (<=768px): rows render as full-width cards instead of the grid's
          clipped/scrolling columns -- same data, same edit/delete/archive/deposit
          actions with the same visibility guards as the desktop grid buttons. -->
     @if (isMobile()) {
+      <div class="erp-list-toolbar filters-section">
+        <mat-slide-toggle
+          [checked]="showArchived()"
+          (change)="showArchived.set($event.checked)"
+          color="primary">
+          {{ 'INVENTORY.SHOW_ARCHIVED' | translate }}
+        </mat-slide-toggle>
+      </div>
       <app-mobile-card-list
-        [items]="filteredAndSortedCars()"
+        [items]="mobileFilteredCars()"
         [fields]="mobileFields"
         [titleOf]="mobileTitleOf"
         [trackByFn]="mobileTrackBy"
@@ -56,48 +46,20 @@
       </app-mobile-card-list>
     } @else {
     <div class="erp-grid-card">
-    <dx-data-grid
-      [dataSource]="filteredAndSortedCars()"
-      [showBorders]="true"
-      [showRowLines]="true"
-      [showColumnLines]="true"
-      [rowAlternationEnabled]="true"
-      [allowColumnReordering]="true"
-      [allowColumnResizing]="true"
-      [columnAutoWidth]="true"
-      [wordWrapEnabled]="true"
-      [rtlEnabled]="true"
-      (onRowUpdated)="onRowUpdated($event)">
-
-      <dxo-paging [pageSize]="10"></dxo-paging>
-      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
-      <dxo-filter-row [visible]="true"></dxo-filter-row>
-      <dxo-header-filter [visible]="true"></dxo-header-filter>
-      <dxo-search-panel [visible]="true" [placeholder]="'البحث...'"></dxo-search-panel>
-
-      <dxi-column dataField="make" caption="{{ 'INVENTORY.CAR' | translate }}" [calculateDisplayValue]="getCarDisplayValue" ></dxi-column>
-
-      <dxi-column dataField="vin" caption="{{ 'INVENTORY.VIN' | translate }}" ></dxi-column>
-
-      <dxi-column dataField="salePrice" caption="{{ 'INVENTORY.SALE_PRICE' | translate }}" dataType="number" format="'$#,##0'" ></dxi-column>
-
-      <dxi-column dataField="status" caption="{{ 'INVENTORY.STATUS' | translate }}" [calculateDisplayValue]="getStatusDisplayValue" >
-        <dxo-lookup [dataSource]="statusOptions"></dxo-lookup>
-      </dxi-column>
-
-      <dxi-column dataField="currentLocation" caption="{{ 'INVENTORY.CURRENT_LOCATION' | translate }}" [width]="150" [allowEditing]="!showArchived()"></dxi-column>
-
-      <dxi-column type="buttons" caption="{{ 'INVENTORY.ACTIONS' | translate }}" [width]="200">
-        <dxi-button name="edit" [onClick]="onEditClick" [visible]="isEditVisible" icon="edit" hint="{{ 'INVENTORY.EDIT' | translate }}"></dxi-button>
-        <dxi-button name="delete" [onClick]="onDeleteClick" [visible]="isDeleteVisible" icon="trash" hint="{{ 'INVENTORY.DELETE' | translate }}"></dxi-button>
-        <dxi-button name="archive" [onClick]="onArchiveClick" [visible]="isArchiveVisible" icon="archive" hint="{{ 'INVENTORY.ARCHIVE' | translate }}"></dxi-button>
-        <dxi-button name="unarchive" [onClick]="onUnarchiveClick" [visible]="isUnarchiveVisible" icon="unarchive" hint="{{ 'INVENTORY.UNARCHIVE' | translate }}"></dxi-button>
-        <dxi-button name="deposit" [onClick]="onDepositClick" [visible]="isDepositVisible" icon="money" hint="{{ 'INVENTORY.DEPOSIT_VOUCHER' | translate }}"></dxi-button>
-      </dxi-column>
-
-      <dxo-editing mode="cell" [allowUpdating]="!showArchived()" [allowDeleting]="false" [allowAdding]="false"></dxo-editing>
-
-    </dx-data-grid>
+      <app-shared-data-grid
+        [dataSource]="carsGridStore"
+        [columns]="columns"
+        [rowActions]="rowActions"
+        [dxRemoteOperations]="true"
+        keyExpr="id"
+        [rtlEnabled]="true"
+        [height]="600"
+        searchPlaceholder="COMMON.SEARCH"
+        noDataText="COMMON.NO_DATA"
+        [pageSize]="20"
+        [allowedPageSizes]="[10, 20, 50]"
+        (rowAction)="onGridAction($event)">
+      </app-shared-data-grid>
     </div>
     }
   </div>
