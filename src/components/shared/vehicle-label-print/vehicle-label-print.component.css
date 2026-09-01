@@ -1,0 +1,152 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #eef1f5;
+  font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+  color: #1a2233;
+}
+
+.vl-page {
+  padding: 24px 16px 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.vl-toolbar {
+  margin-bottom: 16px;
+}
+
+.vl-btn {
+  border: 1px solid #c9d2de;
+  background: #ffffff;
+  color: #1a2233;
+  border-radius: 8px;
+  padding: 8px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.vl-btn-primary {
+  background: #2b5d8c;
+  border-color: #2b5d8c;
+  color: #ffffff;
+}
+
+.vl-status {
+  padding: 40px;
+  font-size: 15px;
+  color: #5b6472;
+}
+
+/* A6 = 105mm x 148mm */
+.vl-label {
+  width: 105mm;
+  height: 148mm;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(28, 34, 51, 0.08), 0 8px 24px rgba(28, 34, 51, 0.08);
+  display: flex;
+  flex-direction: column;
+  padding: 6mm;
+  box-sizing: border-box;
+}
+
+.vl-photo {
+  width: 100%;
+  height: 55mm;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #eef1f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vl-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vl-photo-placeholder {
+  font-size: 40px;
+  color: #9aa4b2;
+}
+
+.vl-info {
+  margin-top: 5mm;
+  text-align: center;
+}
+
+.vl-title {
+  font-size: 16pt;
+  font-weight: 700;
+  margin: 0;
+}
+
+.vl-year {
+  font-size: 11pt;
+  color: #5b6472;
+  margin: 1mm 0 0;
+}
+
+.vl-price {
+  font-size: 18pt;
+  font-weight: 700;
+  color: #2b5d8c;
+  margin: 3mm 0 0;
+}
+
+.vl-vin {
+  font-size: 9pt;
+  color: #9aa4b2;
+  margin: 2mm 0 0;
+  direction: ltr;
+}
+
+.vl-qr {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1mm;
+}
+
+.vl-qr img {
+  width: 30mm;
+  height: 30mm;
+}
+
+.vl-qr-caption {
+  font-size: 8pt;
+  color: #5b6472;
+  margin: 0;
+}
+
+/* ============================================================================
+   PRINT RULES
+   ========================================================================== */
+@media print {
+  @page {
+    size: 105mm 148mm;
+    margin: 0;
+  }
+
+  :host,
+  .vl-page {
+    background: #ffffff !important;
+    padding: 0 !important;
+    min-height: auto !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .vl-label {
+    box-shadow: none !important;
+    width: 105mm;
+    height: 148mm;
+  }
+}

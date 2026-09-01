@@ -97,6 +97,7 @@ export class InventoryListComponent {
 
   rowActions: sharedGridRowActionDto[] = [
     { id: 'edit', icon: 'edit', labelKey: 'INVENTORY.EDIT' },
+    { id: 'label', icon: 'qr_code_2', labelKey: 'VEHICLE_LABEL.PRINT_LABEL' },
     { id: 'delete', icon: 'delete', labelKey: 'INVENTORY.DELETE' },
     { id: 'deposit', icon: 'payments', labelKey: 'INVENTORY.DEPOSIT_VOUCHER', visible: (row: CarGridRow) => row.status === 'Reserved' },
   ];
@@ -106,6 +107,9 @@ export class InventoryListComponent {
     if (e.actionId === 'edit') this.editCar(id);
     else if (e.actionId === 'delete') this.requestDelete(id);
     else if (e.actionId === 'deposit') this.router.navigate(['/accounts/deposits/new', id]);
+    // Opened in its own tab, same convention as invoice printing -- see
+    // VehicleLabelPrintComponent's auto-print-then-close behavior.
+    else if (e.actionId === 'label') window.open(`/#/inventory/label/print/${id}`, '_blank');
   }
 
   /** Still used by the mobile card-list path (unaffected by the desktop grid's server-side move)

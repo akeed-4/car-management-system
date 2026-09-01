@@ -5161,6 +5161,22 @@
       "SWITCH_ERROR": "Could not switch showrooms. Please try again."
     }
   },
+  "PUBLIC_VEHICLE": {
+    "NOT_FOUND": "This vehicle could not be found.",
+    "SOLD_TITLE": "This vehicle has been sold",
+    "SOLD_MESSAGE": "This vehicle is no longer available. Please contact us to see what else we have in stock.",
+    "CURRENCY": "SAR",
+    "MILEAGE": "Mileage",
+    "KM": "km",
+    "COLOR": "Color",
+    "TRANSMISSION": "Transmission",
+    "CONDITION": "Condition",
+    "CONTACT_WHATSAPP": "Contact us on WhatsApp"
+  },
+  "VEHICLE_LABEL": {
+    "PRINT_LABEL": "Print Vehicle Label",
+    "SCAN_TO_VIEW": "Scan to view vehicle details"
+  },
   "INVOICE_PRINT": {
     "STATE": {
       "LOADING": "Loading invoice...",

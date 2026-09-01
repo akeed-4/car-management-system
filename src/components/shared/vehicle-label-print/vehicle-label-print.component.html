@@ -1,0 +1,43 @@
+
+<div class="vl-page">
+  <div class="vl-toolbar no-print">
+    <button type="button" class="vl-btn vl-btn-primary" (click)="print()">
+      {{ 'VEHICLE_LABEL.PRINT_LABEL' | translate }}
+    </button>
+  </div>
+
+  @if (loading()) {
+    <p class="vl-status no-print">…</p>
+  } @else if (notFound()) {
+    <p class="vl-status no-print">404</p>
+  } @else if (car()) {
+    <div class="vl-label">
+      <div class="vl-photo">
+        <ng-container *ngIf="firstPhoto(car()!) as photo; else noPhoto">
+          <img [src]="photo" [alt]="car()!.make + ' ' + car()!.model">
+        </ng-container>
+        <ng-template #noPhoto>
+          <div class="vl-photo-placeholder">🚗</div>
+        </ng-template>
+      </div>
+
+      <div class="vl-info">
+        <h1 class="vl-title">{{ car()!.make }} {{ car()!.model }}</h1>
+        <p class="vl-year">{{ car()!.year }}</p>
+
+        @if (car()!.salePrice) {
+          <p class="vl-price">{{ car()!.salePrice | number:'1.0-0' }} {{ 'PUBLIC_VEHICLE.CURRENCY' | translate }}</p>
+        }
+
+        <p class="vl-vin">{{ car()!.vin }}</p>
+      </div>
+
+      <div class="vl-qr">
+        <ng-container *ngIf="qrDataUrl() as qr">
+          <img [src]="qr" alt="QR">
+          <p class="vl-qr-caption">{{ 'VEHICLE_LABEL.SCAN_TO_VIEW' | translate }}</p>
+        </ng-container>
+      </div>
+    </div>
+  }
+</div>

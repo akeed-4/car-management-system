@@ -1,0 +1,83 @@
+
+<div class="pv-page">
+  @if (loading()) {
+    <div class="pv-state">
+      <div class="pv-spinner"></div>
+    </div>
+  } @else if (notFound()) {
+    <div class="pv-state">
+      <div class="pv-state-icon">🚫</div>
+      <p class="pv-state-text">{{ 'PUBLIC_VEHICLE.NOT_FOUND' | translate }}</p>
+    </div>
+  } @else {
+    <ng-container *ngIf="vehicle() as v">
+      @if (v.isSold) {
+        <div class="pv-state pv-sold">
+          <div class="pv-state-icon">✓</div>
+          <h1 class="pv-sold-title">{{ 'PUBLIC_VEHICLE.SOLD_TITLE' | translate }}</h1>
+          <p class="pv-state-text">{{ 'PUBLIC_VEHICLE.SOLD_MESSAGE' | translate }}</p>
+          <p class="pv-dealership-name">{{ v.dealershipName }}</p>
+        </div>
+      } @else {
+        <div class="pv-card">
+          <div class="pv-gallery">
+            @if (v.photos.length > 0) {
+              <img class="pv-gallery-main" [src]="v.photos[activePhotoIndex()]" [alt]="v.make + ' ' + v.model">
+              @if (v.photos.length > 1) {
+                <div class="pv-thumbs">
+                  @for (photo of v.photos; track $index) {
+                    <button type="button" class="pv-thumb" [class.active]="$index === activePhotoIndex()" (click)="selectPhoto($index)">
+                      <img [src]="photo" [alt]="''">
+                    </button>
+                  }
+                </div>
+              }
+            } @else {
+              <div class="pv-gallery-placeholder">🚗</div>
+            }
+          </div>
+
+          <div class="pv-body">
+            <h1 class="pv-title">{{ v.make }} {{ v.model }} ({{ v.year }})</h1>
+
+            @if (v.salePrice !== null) {
+              <p class="pv-price">{{ v.salePrice | number:'1.0-0' }} {{ 'PUBLIC_VEHICLE.CURRENCY' | translate }}</p>
+            }
+
+            <div class="pv-specs">
+              <div class="pv-spec">
+                <span class="pv-spec-label">{{ 'PUBLIC_VEHICLE.MILEAGE' | translate }}</span>
+                <span class="pv-spec-value">{{ v.mileage | number:'1.0-0' }} {{ 'PUBLIC_VEHICLE.KM' | translate }}</span>
+              </div>
+              <div class="pv-spec">
+                <span class="pv-spec-label">{{ 'PUBLIC_VEHICLE.COLOR' | translate }}</span>
+                <span class="pv-spec-value">{{ v.exteriorColor || '-' }}</span>
+              </div>
+              <div class="pv-spec">
+                <span class="pv-spec-label">{{ 'PUBLIC_VEHICLE.TRANSMISSION' | translate }}</span>
+                <span class="pv-spec-value">{{ v.transmission || '-' }}</span>
+              </div>
+              <div class="pv-spec">
+                <span class="pv-spec-label">{{ 'PUBLIC_VEHICLE.CONDITION' | translate }}</span>
+                <span class="pv-spec-value">{{ v.condition || '-' }}</span>
+              </div>
+            </div>
+
+            @if (v.description) {
+              <p class="pv-description">{{ v.description }}</p>
+            }
+
+            <div class="pv-contact">
+              <p class="pv-dealership-name">{{ v.dealershipName }}</p>
+              <ng-container *ngIf="whatsappLink(v) as link">
+                <a class="pv-whatsapp-btn" [href]="link" target="_blank" rel="noopener">
+                  {{ 'PUBLIC_VEHICLE.CONTACT_WHATSAPP' | translate }}
+                </a>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      }
+    </ng-container>
+  }
+</div>

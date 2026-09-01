@@ -6,6 +6,9 @@ export interface Car {
   imageUrl: string;
   createdAt: any;
   id: number;
+  /** Stable, non-sequential public identifier for the QR code / public vehicle page -- never the
+   *  internal id. See PublicVehiclesController on the backend. */
+  publicId?: string;
   vin: string;
   plateNumber: string;
   istimaraExpiry: string; // Date string e.g., '2025-12-31'

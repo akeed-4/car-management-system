@@ -37,6 +37,8 @@ import { SupplierFormComponent } from './components/entities/suppliers/supplier-
 import { SalesReturnInvoiceListComponent } from './components/sales/sales-return-invoice-list/sales-return-invoice-list/sales-return-invoice-list.component';
 import { PurchaseReturnInvoiceComponent } from './components/purchases/purchase-return-invoice/purchase-return-invoice.component';
 import { InvoicePrintComponent } from './components/shared/invoice-print/invoice-print.component';
+import { PublicVehiclePageComponent } from './components/public/public-vehicle-page/public-vehicle-page.component';
+import { VehicleLabelPrintComponent } from './components/shared/vehicle-label-print/vehicle-label-print.component';
 import { StockTakingComponent } from './components/inventory/stock-taking/stock-taking.component';
 import { StockTakingApprovalComponent } from './components/inventory/stock-taking-approval/stock-taking-approval.component';
 import { SalesReturnFormComponent } from './components/sales/sales-return-form/sales-return-form.component';
@@ -218,6 +220,10 @@ export const APP_ROUTES: Routes = [
   { path: 'purchases/invoice/print/:id', component: InvoicePrintComponent, data: { invoiceType: 'purchase' } },
   { path: 'service/invoice/print/:id', component: InvoicePrintComponent, data: { invoiceType: 'service' } },
   { path: 'invoices/print/:type/:id', component: InvoicePrintComponent },
+  // Anonymous public vehicle page reached by scanning a vehicle's QR code -- bare page like the
+  // print routes above, no LayoutComponent shell, no auth guard. Backend: PublicVehiclesController.
+  { path: 'v/:publicId', component: PublicVehiclePageComponent },
+  { path: 'inventory/label/print/:id', component: VehicleLabelPrintComponent },
   // Must come before the '' + children block below: that block's own wildcard ('**') child would
   // otherwise swallow /platform/* first, since Angular tries top-level routes in array order and
   // '' matches (as an empty prefix) before 'platform' is ever considered. Kept as its own
