@@ -2,6 +2,14 @@
   flex: 1 1 auto;
 }
 
+mat-stepper {
+  background: transparent;
+}
+
+::ng-deep .mat-horizontal-content-container {
+  padding: 1.5rem 0 0;
+}
+
 .form-section {
   margin-bottom: 2rem;
 }

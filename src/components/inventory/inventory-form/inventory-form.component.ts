@@ -1,22 +1,21 @@
 
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { startWith } from 'rxjs';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { InventoryService } from '../../../services/inventory.service';
-import { Car, CarCondition, CarStatus, CarLocation } from '../../../models/car.model';
+import { Car, CarCondition } from '../../../models/car.model';
 import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CurrencyPipe, JsonPipe, CommonModule } from '@angular/common';
+import { CurrencyPipe, CommonModule } from '@angular/common';
 import { GeminiService } from '../../../services/gemini.service';
 import { ManufacturerService } from '../../../services/manufacturer.service';
 import { CarModelService } from '../../../services/car-model.service';
 import { ManufactureYearService } from '../../../services/manufacture-year.service';
 import { VinScannerComponent } from '../../shared/vin-scanner/vin-scanner.component';
-import { PublishModalComponent } from '../../shared/publish-modal/publish-modal.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { FloorPlanService } from '../../../services/floor-plan.service';
 import { ExpenseService } from '../../../services/expense.service';
 import { PriceSuggestion } from '../../../models/price-suggestion.model';
-import { Expense } from '../../../models/expense.model';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -31,9 +30,13 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatStepperModule, MatStepper } from '@angular/material/stepper';
 import { DxDataGridModule } from 'devextreme-angular';
 import { CarCategoryService } from '../../../services/car-category.service';
-import { CarCategory } from '../../../types/car-category.model';
+import { VehicleColorService } from '../../../services/vehicle-color.service';
+import { VehicleColor } from '../../../models/vehicle-color.model';
+import { AttachmentUploaderComponent } from '../../sales/shared/attachment-uploader/attachment-uploader.component';
+import { ToastService } from '../../../services/toast.service';
 
 @Component({
   selector: 'app-inventory-form',
@@ -44,7 +47,6 @@ import { CarCategory } from '../../../types/car-category.model';
     CurrencyPipe,
     CommonModule,
     VinScannerComponent,
-    PublishModalComponent,
     TranslateModule,
     MatButtonModule,
     MatIconModule,
@@ -60,7 +62,9 @@ import { CarCategory } from '../../../types/car-category.model';
     MatNativeDateModule,
     MatTableModule,
     MatTooltipModule,
-    DxDataGridModule
+    MatStepperModule,
+    DxDataGridModule,
+    AttachmentUploaderComponent,
   ],
   templateUrl: './inventory-form.component.html',
   styleUrl: './inventory-form.component.css',
@@ -77,20 +81,34 @@ export class InventoryFormComponent implements OnInit {
   private floorPlanService = inject(FloorPlanService);
   private expenseService = inject(ExpenseService);
   private carCategoryService = inject(CarCategoryService);
+  private vehicleColorService = inject(VehicleColorService);
+  private toast = inject(ToastService);
 
-  carForm!: FormGroup;
+  stepper = viewChild<MatStepper>('stepper');
+
+  // Step 1 -- Basic Info
+  basicInfoForm!: FormGroup;
+  // Step 2 -- Specifications & Media
+  specsForm!: FormGroup;
+  // Step 3 -- Financial
+  financialForm!: FormGroup;
 
   // Signals for dropdowns
   manufacturers = this.manufacturerService.manufacturers$;
   allModels = toSignal(this.carModelService.getCarModels(), { initialValue: [] });
   years = this.yearService.years$;
   floorPlans = this.floorPlanService.floorPlans$;
+  categories = this.carCategoryService.categories$;
+  activeColors = toSignal(this.vehicleColorService.getActive(), { initialValue: [] as VehicleColor[] });
 
-  // Table columns for expenses
   displayedColumns = ['date', 'description', 'amount'];
-  
+
   editMode = signal(false);
   pageTitle = signal('إضافة سيارة جديدة');
+
+  /** Real car id once Step 1 has been saved (editing an existing car, or after Step 1's
+   *  submit creates a new one) -- Step 2's photo/document upload needs this. */
+  carId = signal<number | null>(null);
 
   // AI Price Suggestion State
   isSuggestingPrice = signal(false);
@@ -99,24 +117,35 @@ export class InventoryFormComponent implements OnInit {
 
   // VIN Scanner Modal state
   isScannerOpen = signal(false);
-  isPublishModalOpen = signal(false);
+
+  isSavingStep1 = signal(false);
+  isSavingStep2 = signal(false);
+  isSavingStep3 = signal(false);
 
   // Profitability Tracking
   private allExpenses = this.expenseService.expenses$;
   associatedExpenses = computed(() => {
-    const carId = this.carForm?.get('id')?.value;
-    if (!carId) return [];
-    return this.allExpenses().filter(e => e.carId === carId);
+    const id = this.carId();
+    if (!id) return [];
+    return this.allExpenses().filter(e => e.carId === id);
   });
+
+  /** Reactive mirrors of each form's live value -- a plain `formGroup.value` read inside a
+   *  computed() is invisible to Angular's change tracking (FormControl isn't a signal), so
+   *  filteredModels/calculatedTotalCost/canSuggestPrice previously froze at their initial value
+   *  and never updated as the user filled the form. Initialized in ngOnInit once the forms exist. */
+  private basicInfoValue = signal<any>({});
+  private financialValue = signal<any>({});
+
   calculatedTotalCost = computed(() => {
-    const formValue = this.carForm?.value || {};
+    const formValue = this.financialValue();
     const associatedCost = this.associatedExpenses().reduce((sum, exp) => sum + exp.amount, 0);
     return (formValue.purchasePrice ?? 0) + (formValue.additionalCosts ?? 0) + associatedCost;
   });
 
-  // Computed signal for filtered models
+  // Computed signal for filtered models (Step 1)
   filteredModels = computed(() => {
-    const carMake = this.carForm?.get('make')?.value;
+    const carMake = this.basicInfoValue().make;
     const selectedManufacturer = this.manufacturers().find(m => m.name === carMake);
     if (!selectedManufacturer) {
       return [];
@@ -125,21 +154,30 @@ export class InventoryFormComponent implements OnInit {
   });
 
   canSuggestPrice = computed(() => {
-    const formValue = this.carForm?.value || {};
-    return formValue.make && formValue.model && formValue.year && formValue.mileage;
+    const basic = this.basicInfoValue();
+    return basic.make && basic.model && basic.year && basic.mileage !== null && basic.mileage !== undefined;
   });
 
   ngOnInit() {
-    this.initForm();
-    
-    // Handle route params for editing
+    this.initForms();
+
+    this.basicInfoForm.valueChanges
+      .pipe(startWith(this.basicInfoForm.value))
+      .subscribe(value => this.basicInfoValue.set(value));
+    this.financialForm.valueChanges
+      .pipe(startWith(this.financialForm.value))
+      .subscribe(value => this.financialValue.set(value));
+
     const idParam = this.route.snapshot.params['id'];
     if (idParam) {
       const id = Number(idParam);
       this.editMode.set(true);
       this.pageTitle.set('تعديل بيانات السيارة');
+      this.carId.set(id);
       this.inventoryService.getCarById(id).subscribe(existingCar => {
-        this.carForm.patchValue(existingCar);
+        this.basicInfoForm.patchValue(existingCar);
+        this.specsForm.patchValue(existingCar);
+        this.financialForm.patchValue(existingCar);
       }, error => {
         console.error('Error loading car:', error);
         this.router.navigate(['/inventory']);
@@ -147,92 +185,145 @@ export class InventoryFormComponent implements OnInit {
     }
   }
 
-  private initForm() {
-    this.carForm = new FormGroup({
+  private initForms() {
+    this.basicInfoForm = new FormGroup({
       make: new FormControl('', Validators.required),
       model: new FormControl('', Validators.required),
       year: new FormControl(null, Validators.required),
+      categoryId: new FormControl(null),
       vin: new FormControl(''),
       plateNumber: new FormControl(''),
       istimaraExpiry: new FormControl(''),
       fahasStatus: new FormControl('Valid'),
       mileage: new FormControl(0, Validators.required),
       condition: new FormControl('Used', Validators.required),
-      exteriorColor: new FormControl(''),
-      interiorColor: new FormControl(''),
+      exteriorColorId: new FormControl(null),
+      interiorColorId: new FormControl(null),
+    });
+
+    this.specsForm = new FormGroup({
+      transmission: new FormControl(''),
       engineCapacity: new FormControl(''),
       fuelType: new FormControl(''),
-      transmission: new FormControl(''),
       driveType: new FormControl(''),
-      bodyType: new FormControl(''),
+      description: new FormControl(''),
+    });
+
+    this.financialForm = new FormGroup({
       purchasePrice: new FormControl(0, [Validators.required, Validators.min(0)]),
       additionalCosts: new FormControl(0, Validators.min(0)),
       purchaseDate: new FormControl(new Date().toISOString().split('T')[0], Validators.required),
       salePrice: new FormControl(0, Validators.min(0)),
       calculateVATFromProfitMargin: new FormControl(false),
       trackByBatch: new FormControl(false),
-      description: new FormControl(''),
-      photos: new FormControl(['https://picsum.photos/800/600?random=10']),
+      floorPlanId: new FormControl(null),
       status: new FormControl('Available'),
-      currentLocation: new FormControl('In Showroom'),
-      floorPlanId: new FormControl(null)
     });
   }
 
-  updateCarField<K extends keyof Car>(field: K, value: Car[K]) {
-    this.carForm.patchValue({ [field]: value });
-    // When make changes, reset model
-    if (field === 'make') {
-      this.carForm.patchValue({ model: undefined });
-    }
-  }
-  
   onConditionChange(condition: CarCondition) {
-    this.carForm.patchValue({ condition });
+    this.basicInfoForm.patchValue({ condition });
     if (condition === 'New') {
-      this.carForm.patchValue({ mileage: 0 });
+      this.basicInfoForm.patchValue({ mileage: 0 });
     }
   }
 
   onVinScanned(vin: string) {
-    this.carForm.patchValue({ vin });
+    this.basicInfoForm.patchValue({ vin });
     this.isScannerOpen.set(false);
   }
 
-  saveCar() {
-    if (this.carForm.invalid) {
+  onMakeChange() {
+    this.basicInfoForm.patchValue({ model: undefined });
+  }
+
+  /** Step 1 submit: creates the car (or saves Basic Info fields on an existing one) so a real
+   *  carId exists before Step 2's attachment uploader needs one. */
+  async saveStep1() {
+    if (this.basicInfoForm.invalid) {
+      this.basicInfoForm.markAllAsTouched();
       return;
     }
 
-    const formValue = this.carForm.value;
-    const carToSave = {
-      ...formValue,
-      totalCost: this.calculatedTotalCost()
-    } as Car;
-    
-    if (this.editMode()) {
-        this.inventoryService.updateCar(carToSave);
-    } else {
-        // id is not present on new cars
-        const { id, ...newCar } = carToSave;
-        this.inventoryService.addCar(newCar as Omit<Car, 'id'>);
+    this.isSavingStep1.set(true);
+    try {
+      if (this.editMode() && this.carId()) {
+        const updated = { ...this.basicInfoForm.value, id: this.carId() } as Car;
+        await new Promise<void>((resolve, reject) => {
+          this.inventoryService.updateCar(updated).subscribe({ next: () => resolve(), error: reject });
+        });
+      } else {
+        const created = await this.inventoryService.addCar(this.basicInfoForm.value as Omit<Car, 'id' | 'totalCost'>);
+        this.carId.set(created.id);
+        this.editMode.set(true);
+        this.pageTitle.set('تعديل بيانات السيارة');
+      }
+      this.stepper()?.next();
+    } catch (error) {
+      console.error('Error saving basic info:', error);
+      this.toast.showError('INVENTORY.FORM.SAVE_FAILED');
+    } finally {
+      this.isSavingStep1.set(false);
     }
-    this.router.navigate(['/inventory']);
   }
-  
+
+  saveStep2() {
+    const id = this.carId();
+    if (!id) return;
+
+    this.isSavingStep2.set(true);
+    const updated = { ...this.specsForm.value, id } as Car;
+    this.inventoryService.updateCar(updated).subscribe({
+      next: () => {
+        this.isSavingStep2.set(false);
+        this.stepper()?.next();
+      },
+      error: (error) => {
+        console.error('Error saving specs:', error);
+        this.toast.showError('INVENTORY.FORM.SAVE_FAILED');
+        this.isSavingStep2.set(false);
+      },
+    });
+  }
+
+  saveStep3() {
+    const id = this.carId();
+    if (!id || this.financialForm.invalid) {
+      this.financialForm.markAllAsTouched();
+      return;
+    }
+
+    this.isSavingStep3.set(true);
+    const updated = {
+      ...this.financialForm.value,
+      id,
+      totalCost: this.calculatedTotalCost(),
+    } as Car;
+    this.inventoryService.updateCar(updated).subscribe({
+      next: () => {
+        this.isSavingStep3.set(false);
+        this.router.navigate(['/inventory']);
+      },
+      error: (error) => {
+        console.error('Error saving financial info:', error);
+        this.toast.showError('INVENTORY.FORM.SAVE_FAILED');
+        this.isSavingStep3.set(false);
+      },
+    });
+  }
+
   async suggestPrice() {
     if (!this.canSuggestPrice()) return;
-    
+
     this.isSuggestingPrice.set(true);
     this.priceSuggestionError.set(null);
     this.priceSuggestion.set(null);
 
-    const carDetails = this.carForm.value;
+    const carDetails = { ...this.basicInfoForm.value, ...this.specsForm.value, ...this.financialForm.value };
     try {
       const suggestion = await this.geminiService.suggestPrice(carDetails);
       this.priceSuggestion.set(suggestion);
-      // Automatically apply the average price
-      this.carForm.patchValue({ salePrice: suggestion.average });
+      this.financialForm.patchValue({ salePrice: suggestion.average });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
       this.priceSuggestionError.set(errorMessage);
@@ -242,41 +333,17 @@ export class InventoryFormComponent implements OnInit {
   }
 
   applySuggestedPrice(price: number) {
-    this.updateCarField('salePrice', price);
-  }
-
-  addExpense() {
-    // This method would add an expense to the associated expenses
-    // Implementation depends on how expenses are managed
-  }
-
-  removeExpense(expenseId: string) {
-    // This method would remove an expense from the associated expenses
-    // Implementation depends on how expenses are managed
-  }
-
-  updateExpense<K extends keyof Expense>(expenseId: string, field: K, value: Expense[K]) {
-    // This method would update an expense in the associated expenses
-    // Implementation depends on how expenses are managed
+    this.financialForm.patchValue({ salePrice: price });
   }
 
   calculateAmountCellValue(rowData: any) {
     return rowData.amount;
   }
 
-  resetForm() {
-    this.carForm.reset();
-    this.priceSuggestion.set(null);
-    this.priceSuggestionError.set(null);
-    this.isScannerOpen.set(false);
-    this.isSuggestingPrice.set(false);
-  }
-
   navigateToDepositForm() {
-    const carId = this.carForm.get('id')?.value;
-    if (carId) {
-      this.router.navigate(['/accounts/deposits/new', carId]);
+    const id = this.carId();
+    if (id) {
+      this.router.navigate(['/accounts/deposits/new', id]);
     }
   }
-
 }
