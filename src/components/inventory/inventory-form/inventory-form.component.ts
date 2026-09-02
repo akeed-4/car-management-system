@@ -35,6 +35,8 @@ import { DxDataGridModule } from 'devextreme-angular';
 import { CarCategoryService } from '../../../services/car-category.service';
 import { VehicleColorService } from '../../../services/vehicle-color.service';
 import { VehicleColor } from '../../../models/vehicle-color.model';
+import { StoreService } from '../../../services/store.service';
+import { CarStatus } from '../../../models/car.model';
 import { AttachmentUploaderComponent } from '../../sales/shared/attachment-uploader/attachment-uploader.component';
 import { ToastService } from '../../../services/toast.service';
 
@@ -82,6 +84,7 @@ export class InventoryFormComponent implements OnInit {
   private expenseService = inject(ExpenseService);
   private carCategoryService = inject(CarCategoryService);
   private vehicleColorService = inject(VehicleColorService);
+  private storeService = inject(StoreService);
   private toast = inject(ToastService);
 
   stepper = viewChild<MatStepper>('stepper');
@@ -100,6 +103,13 @@ export class InventoryFormComponent implements OnInit {
   floorPlans = this.floorPlanService.floorPlans$;
   categories = this.carCategoryService.categories$;
   activeColors = toSignal(this.vehicleColorService.getActive(), { initialValue: [] as VehicleColor[] });
+  stores = this.storeService.stores$;
+
+  /** Real DTO fields (CreateCarDto.Status/StoreId/InitialQuantity) -- Status already existed but
+   *  was never a visible form field (silently defaulted to 'Available'); Store/InitialQuantity are
+   *  create-time-only (no Car.StoreId column, consumed once to create a StoreCarStock row), so this
+   *  card is hidden entirely in edit mode rather than shown disabled with a stale/misleading value. */
+  readonly carStatuses: CarStatus[] = ['Available', 'Reserved', 'Sold', 'In Maintenance', 'Offered'];
 
   displayedColumns = ['date', 'description', 'amount'];
 
@@ -199,6 +209,9 @@ export class InventoryFormComponent implements OnInit {
       condition: new FormControl('Used', Validators.required),
       exteriorColorId: new FormControl(null),
       interiorColorId: new FormControl(null),
+      status: new FormControl<CarStatus>('Available', Validators.required),
+      storeId: new FormControl<number | null>(null),
+      initialQuantity: new FormControl<number | null>(1, [Validators.min(1)]),
     });
 
     this.specsForm = new FormGroup({
@@ -248,7 +261,10 @@ export class InventoryFormComponent implements OnInit {
     this.isSavingStep1.set(true);
     try {
       if (this.editMode() && this.carId()) {
-        const updated = { ...this.basicInfoForm.value, id: this.carId() } as Car;
+        // storeId/initialQuantity are create-time-only (no Car.StoreId column -- see the `stores`
+        // field's doc comment) and must never be sent on an update.
+        const { storeId, initialQuantity, ...rest } = this.basicInfoForm.value;
+        const updated = { ...rest, id: this.carId() } as Car;
         await new Promise<void>((resolve, reject) => {
           this.inventoryService.updateCar(updated).subscribe({ next: () => resolve(), error: reject });
         });

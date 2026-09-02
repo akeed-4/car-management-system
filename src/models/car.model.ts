@@ -65,5 +65,11 @@ export interface Car {
   customerId?: number;
   customerName?: string;
   trackByBatch?: boolean;
+  /** Store this car's initial stock is received into -- required to make it reservable via
+   *  quantity-based checks. Create-time only: CreateCarDto carries it, UpdateCarDto does not (the
+   *  backend has no Car.StoreId column; it's consumed once to create a StoreCarStock row). */
+  storeId?: number | null;
+  /** Initial StoreCarStock quantity when storeId is set. Defaults to 1 server-side. Create-time only. */
+  initialQuantity?: number | null;
 }
 

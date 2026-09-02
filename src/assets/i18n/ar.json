@@ -2033,6 +2033,13 @@
     "SALESPERSON": "مندوب المبيعات"
   },
   "INVENTORY": {
+    "STATUS_VALUES": {
+      "AVAILABLE": "متاحة",
+      "RESERVED": "محجوزة",
+      "SOLD": "مباعة",
+      "IN_MAINTENANCE": "قيد الصيانة",
+      "OFFERED": "معروضة"
+    },
     "STOCK_TAKING": {
       "TITLE": "قائمة مستندات الجرد",
       "CREATE_NEW": "إنشاء جرد جديد",
@@ -2145,6 +2152,12 @@
       "TRACK_BY_BATCH_HINT": "تفعيل تتبع الدفعات لهذا الصنف لإدارة المخزون حسب دفعات الإنتاج",
       "CALCULATE_VAT_FROM_PROFIT_MARGIN": "احتساب الضريبة على هامش الربح",
       "CALCULATE_VAT_FROM_PROFIT_MARGIN_HINT": "عند التفعيل، يتم احتساب ضريبة القيمة المضافة على هامش الربح فقط (سعر البيع ناقص التكلفة الإجمالية) بدلاً من سعر البيع الكامل.",
+      "OWNERSHIP_ACQUISITION": "الملكية / الاستحواذ",
+      "STATUS": "حالة المركبة",
+      "STORE": "المتجر",
+      "SELECT_STORE": "اختر المتجر",
+      "STORE_HINT": "يضيف المركبة إلى مخزون هذا المتجر. يمكن تحديده فقط عند إنشاء المركبة.",
+      "INITIAL_QUANTITY": "الكمية الأولية",
       "SELECT_IMAGE_FILE_ERROR": "الرجاء اختيار ملف صورة",
       "IMAGE_TOO_LARGE_ERROR": "يجب ألا يتجاوز حجم الملف 5 ميجابايت",
       "VALIDATION_FAILED_PREFIX": "فشل التحقق من صحة البيانات:",
