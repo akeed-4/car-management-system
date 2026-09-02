@@ -4,6 +4,8 @@ import { Observable, finalize, map, tap } from 'rxjs';
 import { Role } from '../models/role.model';
 import { environment } from '../environments/environment';
 import { UserService } from './user.service';
+import { TranslateService } from '@ngx-translate/core';
+import { permissionTranslationKey } from './permission-translation.util';
 
 export interface Permission {
   id: number;
@@ -25,11 +27,16 @@ export type PermissionsList = {
 export class RoleService {
   private http = inject(HttpClient);
   private userService = inject(UserService);
+  private translate = inject(TranslateService);
   private apiUrl = `${environment.origin}api/Roles`;
   private permissionsApiUrl = `${environment.origin}api/Roles/Permissions`;
 
   private roles = signal<Role[]>([]);
   public roles$ = this.roles.asReadonly();
+
+  /** Raw permissions from the API (Key/Title/Group untranslated) -- kept so labels can be
+   *  re-resolved instantly on a language switch without a network round-trip. */
+  private rawPermissions = signal<Permission[]>([]);
 
   private permissionsListSignal = signal<PermissionsList>({});
   public permissionsList$ = this.permissionsListSignal.asReadonly();
@@ -51,6 +58,20 @@ export class RoleService {
   constructor() {
     this.loadRoles();
     this.loadPermissions();
+    // Runtime language switching (Requirement 4): re-resolve every label from the already-loaded
+    // raw permissions -- no need to re-fetch from the API just to change the display language.
+    // Also re-resolve once the initial translation file finishes loading (translate.instant()
+    // above may have run before ngx-translate's HTTP loader resolved, in which case it silently
+    // fell back to the raw backend Title -- this corrects it as soon as the real translations
+    // are available, without waiting for an actual language switch).
+    this.translate.onLangChange.subscribe(() => this.reresolvePermissionLabels());
+    this.translate.onDefaultLangChange.subscribe(() => this.reresolvePermissionLabels());
+  }
+
+  private reresolvePermissionLabels(): void {
+    if (this.rawPermissions().length > 0) {
+      this.permissionsListSignal.set(this.buildPermissionsList(this.rawPermissions()));
+    }
   }
 
   getRoleById(id: number): Role | undefined {
@@ -106,18 +127,28 @@ export class RoleService {
 
   getPermissionsList(): Observable<PermissionsList> {
     return this.http.get<Permission[]>(`${this.permissionsApiUrl}/GetAll`).pipe(
-      map(permissions => {
-        const grouped: PermissionsList = {};
-        for (const p of permissions) {
-          if (!grouped[p.group]) {
-            grouped[p.group] = { title: p.group, permissions: {} };
-          }
-          grouped[p.group].permissions[p.key] = p.title;
-        }
-        return grouped;
-      }),
+      tap(permissions => this.rawPermissions.set(permissions)),
+      map(permissions => this.buildPermissionsList(permissions)),
       tap(grouped => this.permissionsListSignal.set(grouped)),
       finalize(() => this.permissionsLoading.set(false))
     );
+  }
+
+  /** Permission.key is the stable authorization identity and never changes; only the label shown
+   *  here is localized (Requirement 4), via a translation key derived from the key (see
+   *  permissionTranslationKey) with the raw backend Title as a fallback for any permission not yet
+   *  translated -- never a missing/blank label. Group titles have no seeded translation source
+   *  today (Group is a plain display string, not a stable code), so they render as-is. */
+  private buildPermissionsList(permissions: Permission[]): PermissionsList {
+    const grouped: PermissionsList = {};
+    for (const p of permissions) {
+      if (!grouped[p.group]) {
+        grouped[p.group] = { title: p.group, permissions: {} };
+      }
+      const translationKey = permissionTranslationKey(p.key);
+      const translated = this.translate.instant(translationKey);
+      grouped[p.group].permissions[p.key] = translated !== translationKey ? translated : p.title;
+    }
+    return grouped;
   }
 }
