@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,6 +11,8 @@ import {
   SharedGridRowActionEvent,
 } from '../../shared/shared-data-grid/shared-data-grid.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
+import { PermissionService } from '../../../services/permission.service';
+import { HasPermissionDirective } from '../../shared/permission.directive';
 
 @Component({
   selector: 'app-journal-entries-list',
@@ -20,12 +22,15 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.
     SharedDataGridComponent,
     TranslateModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    HasPermissionDirective
   ],
   templateUrl: './journal-entries-list.component.html',
   styleUrls: ['./journal-entries-list.component.css']
 })
 export class JournalEntriesListComponent implements OnInit {
+
+  permissionService = inject(PermissionService);
 
   journalEntries = signal<JournalEntry[]>([]);
 
@@ -66,8 +71,8 @@ export class JournalEntriesListComponent implements OnInit {
    *  always visible regardless of isGeneratedDynamically. Preserved that literal (buggy)
    *  behavior here rather than wiring in a newly-functioning check that would change it. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'edit', icon: 'edit', labelKey: 'ACCOUNTING.EDIT' },
-    { id: 'delete', icon: 'delete', labelKey: 'ACCOUNTING.DELETE' },
+    { id: 'edit', icon: 'edit', labelKey: 'ACCOUNTING.EDIT', visible: () => this.permissionService.hasPermission('journalentries.view') },
+    { id: 'delete', icon: 'delete', labelKey: 'ACCOUNTING.DELETE', visible: () => this.permissionService.hasPermission('journalentries.view') },
   ];
 
   onGridAction(e: SharedGridRowActionEvent): void {

@@ -25,6 +25,8 @@ import {
   SharedGridRowActionEvent,
 } from '../../shared/shared-data-grid/shared-data-grid.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
+import { PermissionService } from '../../../services/permission.service';
+import { HasPermissionDirective } from '../../shared/permission.directive';
 
 @Component({
   selector: 'app-inventory-list',
@@ -46,7 +48,8 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.
     MatSlideToggleModule,
     MatTooltipModule,
     SharedDataGridComponent,
-    MobileCardListComponent
+    MobileCardListComponent,
+    HasPermissionDirective
   ],
   templateUrl: './inventory-list.component.html',
   styleUrl: './inventory-list.component.css',
@@ -56,6 +59,7 @@ export class InventoryListComponent {
   private inventoryService = inject(InventoryService);
   private router = inject(Router);
   private responsiveService = inject(ResponsiveService);
+  permissionService = inject(PermissionService);
   isMobile = this.responsiveService.isMobile;
 
   /** Mobile card-list still loads the full array (small screens, no grid) -- unaffected by the
@@ -96,10 +100,10 @@ export class InventoryListComponent {
   ];
 
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'edit', icon: 'edit', labelKey: 'INVENTORY.EDIT' },
-    { id: 'label', icon: 'qr_code_2', labelKey: 'VEHICLE_LABEL.PRINT_LABEL' },
-    { id: 'delete', icon: 'delete', labelKey: 'INVENTORY.DELETE' },
-    { id: 'deposit', icon: 'payments', labelKey: 'INVENTORY.DEPOSIT_VOUCHER', visible: (row: CarGridRow) => row.status === 'Reserved' },
+    { id: 'edit', icon: 'edit', labelKey: 'INVENTORY.EDIT', visible: () => this.permissionService.hasPermission('inventory.view') },
+    { id: 'label', icon: 'qr_code_2', labelKey: 'VEHICLE_LABEL.PRINT_LABEL', visible: () => this.permissionService.hasPermission('inventory.view') },
+    { id: 'delete', icon: 'delete', labelKey: 'INVENTORY.DELETE', visible: () => this.permissionService.hasPermission('inventory.view') },
+    { id: 'deposit', icon: 'payments', labelKey: 'INVENTORY.DEPOSIT_VOUCHER', visible: (row: CarGridRow) => row.status === 'Reserved' && this.permissionService.hasPermission('inventory.view') },
   ];
 
   onGridAction(e: SharedGridRowActionEvent): void {

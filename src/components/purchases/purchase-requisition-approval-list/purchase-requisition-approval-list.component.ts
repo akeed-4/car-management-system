@@ -12,6 +12,7 @@ import {
   SharedGridRowActionEvent,
 } from '../../shared/shared-data-grid/shared-data-grid.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
+import { PermissionService } from '../../../services/permission.service';
 
 @Component({
   selector: 'app-purchase-requisition-approval-list',
@@ -28,6 +29,7 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.
 export class PurchaseRequisitionApprovalListComponent implements OnInit {
   requisitions: PurchaseRequisitionDto[] = [];
   private responsiveService = inject(ResponsiveService);
+  private permissionService = inject(PermissionService);
   isMobile = this.responsiveService.isMobile;
 
   constructor(
@@ -121,9 +123,9 @@ export class PurchaseRequisitionApprovalListComponent implements OnInit {
 
   /** Same view/approve/reject buttons as before (always visible, unconditionally). */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW' },
-    { id: 'approve', icon: 'check', labelKey: 'PURCHASE_REQUISITION.APPROVE' },
-    { id: 'reject', icon: 'close', labelKey: 'PURCHASE_REQUISITION.REJECT' },
+    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW', visible: () => this.permissionService.hasPermission('purchases.requisitionapprovals.view') },
+    { id: 'approve', icon: 'check', labelKey: 'PURCHASE_REQUISITION.APPROVE', visible: () => this.permissionService.hasPermission('purchases.requisitionapprovals.view') },
+    { id: 'reject', icon: 'close', labelKey: 'PURCHASE_REQUISITION.REJECT', visible: () => this.permissionService.hasPermission('purchases.requisitionapprovals.view') },
   ];
 
   onGridAction(e: SharedGridRowActionEvent): void {

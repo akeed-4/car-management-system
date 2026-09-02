@@ -4,7 +4,7 @@
       <h2 class="erp-page-title">{{ 'DOCUMENT_NUMBERING.TITLE' | translate }}</h2>
     </div>
     <div class="header-right erp-page-actions">
-      <button mat-raised-button color="primary" (click)="openCreate()">
+      <button *appHasPermission="'settings.documentnumbering.view'" mat-raised-button color="primary" (click)="openCreate()">
         <mat-icon>add</mat-icon>
         {{ 'DOCUMENT_NUMBERING.CREATE_TITLE' | translate }}
       </button>

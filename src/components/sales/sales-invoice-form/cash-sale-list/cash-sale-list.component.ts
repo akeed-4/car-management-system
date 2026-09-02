@@ -13,6 +13,7 @@ import {
 } from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { SalesService } from '../../../../services/sales.service';
 import { NotificationService } from '@/src/services/notification.service';
+import { PermissionService } from '../../../../services/permission.service';
 import { SalesInvoice } from '../../../../models/sales-invoice.model';
 import { SaleType } from '../../../../models/sales-enhancements.model';
 import { SalesChannel } from '../../../../models/enums/sales-channel.enum';
@@ -45,6 +46,7 @@ export class CashSaleListComponent implements OnInit {
   private router = inject(Router);
   private translate = inject(TranslateService);
   private responsiveService = inject(ResponsiveService);
+  permissionService = inject(PermissionService);
   isMobile = this.responsiveService.isMobile;
 
   invoices = signal<SalesInvoice[]>([]);
@@ -63,7 +65,7 @@ export class CashSaleListComponent implements OnInit {
 
   /** Same single edit button as before. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('sales.cash.view') },
   ];
 
   /** Screen-specific status badge, passed generically to the Shared DataGrid. */

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CarReportShellComponent } from '../shared/car-report-shell/car-report-shell.component';
@@ -24,6 +24,7 @@ const NON_CAR_DATA_SOURCES = new Set(['consignment-cars', 'requested-cars']);
 })
 export class ReportViewerComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private dataService = inject(CarReportsDataService);
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
@@ -42,6 +43,14 @@ export class ReportViewerComponent implements OnInit {
   ngOnInit(): void {
     const key = this.route.snapshot.data['reportKey'] as string;
     const config = CAR_REPORTS.find(r => r.key === key);
+    // Each report route carries its reportKey in route data rather than a static path, so the
+    // reusable permissionGuard (a fixed permission string per route) can't gate these ~30 routes
+    // directly -- this mirrors its exact check/redirect (permissionService + router.navigate to
+    // /dashboard) using the per-report .view key instead.
+    if (config && !this.permissionService.hasPermission(`${config.permissionPrefix}.view`)) {
+      this.router.navigate(['/dashboard']);
+      return;
+    }
     this.report.set(config);
     if (config) {
       this.canExportExcel = this.permissionService.hasPermission(`${config.permissionPrefix}.exportExcel`);

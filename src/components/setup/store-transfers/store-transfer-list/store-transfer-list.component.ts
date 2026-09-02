@@ -15,6 +15,8 @@ import { StoreTransferService } from '../../../../services/store-transfer.servic
 import { NotificationService } from '../../../../services/notification.service';
 import { StoreTransfer } from '../../../../models/store-transfer.model';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
+import { PermissionService } from '../../../../services/permission.service';
+import { HasPermissionDirective } from '../../../shared/permission.directive';
 
 @Component({
   selector: 'app-store-transfer-list',
@@ -28,7 +30,8 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/gr
     MatToolbarModule,
     MatTooltipModule,
     TranslateModule,
-    SharedDataGridComponent
+    SharedDataGridComponent,
+    HasPermissionDirective
   ],
   templateUrl: './store-transfer-list.component.html',
   styleUrls: ['./store-transfer-list.component.css'],
@@ -41,6 +44,7 @@ export class StoreTransferListComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private router = inject(Router);
   private translate = inject(TranslateService);
+  private permissionService = inject(PermissionService);
 
   transfers = signal<StoreTransfer[]>([]);
   loading = signal(false);
@@ -66,8 +70,8 @@ export class StoreTransferListComponent implements OnInit {
 
   /** Row actions -- approve/reject only for Pending transfers, as before. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'approve', icon: 'check_circle', labelKey: 'STORE_TRANSFER.APPROVE', visible: (row) => row.status === 'Pending' },
-    { id: 'reject', icon: 'cancel', labelKey: 'STORE_TRANSFER.REJECT', cssClass: 'warn', visible: (row) => row.status === 'Pending' },
+    { id: 'approve', icon: 'check_circle', labelKey: 'STORE_TRANSFER.APPROVE', visible: (row) => row.status === 'Pending' && this.permissionService.hasPermission('storetransfer.view') },
+    { id: 'reject', icon: 'cancel', labelKey: 'STORE_TRANSFER.REJECT', cssClass: 'warn', visible: (row) => row.status === 'Pending' && this.permissionService.hasPermission('storetransfer.view') },
   ];
 
   /** Single dispatcher for the Shared DataGrid's rowAction output. */

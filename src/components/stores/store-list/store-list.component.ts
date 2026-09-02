@@ -12,6 +12,7 @@ import {
 import { Store } from '../../../models/branch.model';
 import { StoreService } from '../../../services/store.service';
 import { HasPermissionDirective } from '../../shared/permission.directive';
+import { PermissionService } from '../../../services/permission.service';
 import { StoreFormComponent } from '../store-form/store-form.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 
@@ -35,6 +36,7 @@ export class StoreListComponent {
   private storeService = inject(StoreService);
   private dialog = inject(MatDialog);
   private translate = inject(TranslateService);
+  private permissionService = inject(PermissionService);
 
   stores = this.storeService.stores$;
   filter = signal('');
@@ -72,8 +74,8 @@ constructor(){
 
   /** Row actions -- same edit/delete behavior via the shared actions template. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'edit', icon: 'edit', labelKey: 'STORES.ACTIONS.EDIT' },
-    { id: 'delete', icon: 'delete', labelKey: 'STORES.ACTIONS.DELETE', cssClass: 'warn' },
+    { id: 'edit', icon: 'edit', labelKey: 'STORES.ACTIONS.EDIT', visible: () => this.permissionService.hasPermission('stores.view') },
+    { id: 'delete', icon: 'delete', labelKey: 'STORES.ACTIONS.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('stores.view') },
   ];
 
   /** Single dispatcher for the Shared DataGrid's rowAction output. */

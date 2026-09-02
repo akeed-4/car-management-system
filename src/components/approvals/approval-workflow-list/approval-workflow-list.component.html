@@ -5,7 +5,7 @@
       <p class="erp-page-subtitle subtitle">{{ 'APPROVALS.WORKFLOW_LIST_SUBTITLE' | translate }}</p>
     </div>
     <div class="erp-page-actions">
-      <button mat-raised-button color="primary" (click)="createWorkflow()">
+      <button mat-raised-button color="primary" (click)="createWorkflow()" appHasPermission="approvals.workflows.view">
         <mat-icon>add</mat-icon>
         {{ 'APPROVALS.CREATE_WORKFLOW' | translate }}
       </button>

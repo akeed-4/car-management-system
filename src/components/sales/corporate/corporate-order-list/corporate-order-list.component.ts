@@ -10,6 +10,7 @@ import {
 } from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { CorporateFleetService } from '../../../../services/corporate-fleet.service';
 import { NotificationService } from '@/src/services/notification.service';
+import { PermissionService } from '../../../../services/permission.service';
 import { CorporateOrder } from '../../../../models/corporate/corporate-order.model';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 
@@ -32,6 +33,7 @@ export class CorporateOrderListComponent implements OnInit {
   private corporateFleetService = inject(CorporateFleetService);
   private notificationService = inject(NotificationService);
   private router = inject(Router);
+  permissionService = inject(PermissionService);
 
   orders = signal<CorporateOrder[]>([]);
   loading = signal(false);
@@ -57,7 +59,7 @@ export class CorporateOrderListComponent implements OnInit {
 
   /** Same single view button as before. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW' },
+    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW', visible: () => this.permissionService.hasPermission('sales.corporate.orders.view') },
   ];
 
   onGridAction(e: SharedGridRowActionEvent): void {

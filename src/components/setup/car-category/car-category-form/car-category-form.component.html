@@ -86,7 +86,7 @@
           {{ 'CAR_CATEGORY.FORM.CANCEL' | translate }}
         </a>
       }
-      <button type="button" (click)="saveCategory()" class="btn btn-primary">
+      <button type="button" (click)="saveCategory()" [disabled]="!canSaveCategory()" class="btn btn-primary">
         {{ editMode() ? ('CAR_CATEGORY.FORM.SAVE_CHANGES' | translate) : ('CAR_CATEGORY.FORM.SAVE' | translate) }}
       </button>
     </div>

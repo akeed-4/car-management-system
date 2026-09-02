@@ -10,6 +10,7 @@ import {
 } from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { CorporateFleetService } from '../../../../services/corporate-fleet.service';
 import { NotificationService } from '@/src/services/notification.service';
+import { PermissionService } from '../../../../services/permission.service';
 import { DeliveryNoteResult } from '../../../../models/corporate/corporate-dispatch.model';
 import { ResponsiveService } from '../../../../services/responsive.service';
 import { MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
@@ -35,6 +36,7 @@ export class CorporateDeliveryListComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private router = inject(Router);
   private responsiveService = inject(ResponsiveService);
+  permissionService = inject(PermissionService);
   isMobile = this.responsiveService.isMobile;
 
   deliveryNotes = signal<DeliveryNoteResult[]>([]);
@@ -53,7 +55,7 @@ export class CorporateDeliveryListComponent implements OnInit {
 
   /** Same single view button as before. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW' },
+    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW', visible: () => this.permissionService.hasPermission('sales.corporate.deliveries.view') },
   ];
 
   onGridAction(e: SharedGridRowActionEvent): void {

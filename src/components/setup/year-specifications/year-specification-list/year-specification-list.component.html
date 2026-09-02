@@ -4,10 +4,12 @@
       <h2 class="erp-page-title">{{ 'YEAR_SPECIFICATION.LIST_TITLE' | translate }}</h2>
     </div>
     <div class="erp-page-actions">
+      @if (canCreate()) {
       <a routerLink="/setup/year-specifications/new" mat-raised-button color="primary">
         <mat-icon>add</mat-icon>
         {{ 'YEAR_SPECIFICATION.ADD_NEW' | translate }}
       </a>
+      }
     </div>
   </div>
 
@@ -27,8 +29,12 @@
     (rowAction)="onGridAction($event)">
 
     <ng-template let-spec>
+      @if (canEdit()) {
       <button type="button" class="btn btn-light" (click)="mobileEdit(spec)">{{ 'YEAR_SPECIFICATION.EDIT' | translate }}</button>
+      }
+      @if (canDelete()) {
       <button type="button" class="btn btn-light" (click)="mobileDelete(spec)">{{ 'YEAR_SPECIFICATION.DELETE' | translate }}</button>
+      }
     </ng-template>
   </app-shared-data-grid>
 </div>

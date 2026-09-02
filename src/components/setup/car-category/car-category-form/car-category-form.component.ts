@@ -15,6 +15,7 @@ import { ManufacturerService } from '../../../../services/manufacturer.service';
 import { MatSelectModule } from '@angular/material/select';
 import { ToastService } from '@/src/services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
+import { PermissionService } from '../../../../services/permission.service';
 
 /** Passed in when CarCategoryFormComponent is opened via MatDialog.open(...) from
  * CarCardComponent's Category "+" button -- Category depends on Model (CarCategory.modelId is
@@ -50,6 +51,7 @@ export class CarCategoryFormComponent implements OnInit {
   private manufacturerService = inject(ManufacturerService);
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
+  private permissionService = inject(PermissionService);
   private dialogRef = inject(MatDialogRef<CarCategoryFormComponent, CarCategory | undefined>, { optional: true });
   private data = inject<CarCategoryQuickAddData | null>(MAT_DIALOG_DATA, { optional: true });
 
@@ -63,6 +65,10 @@ export class CarCategoryFormComponent implements OnInit {
   categoryForm!: FormGroup;
   editMode = signal(false);
   pageTitle = signal('CAR_CATEGORY.FORM.TITLE_NEW');
+
+  canCreate = computed(() => this.permissionService.hasPermission('carCategory.create'));
+  canEdit = computed(() => this.permissionService.hasPermission('carCategory.edit'));
+  canSaveCategory = computed(() => this.editMode() ? this.canEdit() : this.canCreate());
   models: Signal<CarModel[]> = this.carModelService.carmodel$;
   manufacturers = this.manufacturerService.manufacturers$;
 

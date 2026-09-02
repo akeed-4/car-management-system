@@ -4,7 +4,7 @@
       <h2 class="erp-page-title">{{ 'PURCHASE_INVOICE.CASH_INVOICE_LIST_TITLE' | translate }}</h2>
     </div>
     <div class="erp-page-actions">
-      <a routerLink="/purchases/invoice/cash/new" class="btn btn-primary btn-small no-print">
+      <a routerLink="/purchases/invoice/cash/new" class="btn btn-primary btn-small no-print" appHasPermission="purchases.cash.view">
         <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
         <span>{{ 'PURCHASE_INVOICE.NEW_CASH_INVOICE' | translate }}</span>
       </a>

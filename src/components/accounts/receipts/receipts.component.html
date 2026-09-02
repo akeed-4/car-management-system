@@ -4,7 +4,7 @@
       <h2 class="erp-page-title">{{ 'ACCOUNTS.RECEIPTS.LIST_TITLE' | translate }}</h2>
     </div>
     <div class="erp-page-actions">
-      <a mat-raised-button color="primary" routerLink="/accounts/receipts/new">
+      <a *appHasPermission="'receipts.view'" mat-raised-button color="primary" routerLink="/accounts/receipts/new">
         <mat-icon>add</mat-icon>
         {{ 'ACCOUNTS.RECEIPTS.NEW' | translate }}
       </a>

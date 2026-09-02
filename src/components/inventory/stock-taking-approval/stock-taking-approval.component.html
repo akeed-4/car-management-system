@@ -4,7 +4,7 @@
       <h1 class="erp-page-title">{{ 'STOCK_TAKING_APPROVAL.TITLE' | translate }}</h1>
     </div>
     <div class="erp-page-actions">
-      <button mat-raised-button color="accent" routerLink="/inventory/stock-taking-approval/new">
+      <button *appHasPermission="'inventory.approval.view'" mat-raised-button color="accent" routerLink="/inventory/stock-taking-approval/new">
         <mat-icon>add</mat-icon>
         {{ 'STOCK_TAKING_APPROVAL.CREATE_NEW' | translate }}
       </button>

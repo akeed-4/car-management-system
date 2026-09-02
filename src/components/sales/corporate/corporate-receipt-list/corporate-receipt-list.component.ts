@@ -15,6 +15,7 @@ import {
 import { ReceiptService } from '../../../../services/receipt.service';
 import { SalesService } from '../../../../services/sales.service';
 import { NotificationService } from '@/src/services/notification.service';
+import { PermissionService } from '../../../../services/permission.service';
 import { Receipt } from '../../../../models/receipt.model';
 import { SalesChannel } from '../../../../models/enums/sales-channel.enum';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
@@ -43,6 +44,7 @@ export class CorporateReceiptListComponent implements OnInit {
   private salesService = inject(SalesService);
   private notificationService = inject(NotificationService);
   private router = inject(Router);
+  permissionService = inject(PermissionService);
 
   receipts = signal<Receipt[]>([]);
   loading = signal(false);
@@ -59,7 +61,7 @@ export class CorporateReceiptListComponent implements OnInit {
 
   /** Same single edit button as before. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('sales.corporate.receipts.view') },
   ];
 
   onGridAction(e: SharedGridRowActionEvent): void {

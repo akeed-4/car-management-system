@@ -75,7 +75,7 @@
 
       <div class="erp-actions-bar">
         <a routerLink="/users" mat-stroked-button>{{ 'USERS.FORM.CANCEL' | translate }}</a>
-        <button mat-raised-button color="primary" type="submit" [disabled]="saving()">
+        <button mat-raised-button color="primary" type="submit" [disabled]="saving() || !canSaveUser()">
           @if (saving()) {
             <mat-icon class="spin">refresh</mat-icon>
           }

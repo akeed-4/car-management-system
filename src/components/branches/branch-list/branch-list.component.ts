@@ -13,6 +13,7 @@ import {
 import { Branch } from '../../../models/branch.model';
 import { BranchService } from '../../../services/branch.service';
 import { HasPermissionDirective } from '../../shared/permission.directive';
+import { PermissionService } from '../../../services/permission.service';
 import { BranchFormComponent } from '../branch-form/branch-form.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 
@@ -37,6 +38,7 @@ export class BranchListComponent {
   private dialog = inject(MatDialog);
   private router = inject(Router);
   private translate = inject(TranslateService);
+  private permissionService = inject(PermissionService);
 
   constructor() {
     this.onEdit = this.onEdit.bind(this);
@@ -72,8 +74,8 @@ export class BranchListComponent {
 
   /** Row actions -- same edit/delete behavior via the shared actions template. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'edit', icon: 'edit', labelKey: 'BRANCHES.ACTIONS.EDIT' },
-    { id: 'delete', icon: 'delete', labelKey: 'BRANCHES.ACTIONS.DELETE', cssClass: 'warn' },
+    { id: 'edit', icon: 'edit', labelKey: 'BRANCHES.ACTIONS.EDIT', visible: () => this.permissionService.hasPermission('branches.view') },
+    { id: 'delete', icon: 'delete', labelKey: 'BRANCHES.ACTIONS.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('branches.view') },
   ];
 
   /** Single dispatcher for the Shared DataGrid's rowAction output. */

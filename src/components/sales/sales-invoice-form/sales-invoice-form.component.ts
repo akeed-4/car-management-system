@@ -30,6 +30,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { DxDataGridModule } from 'devextreme-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { LanguageService } from '@/src/services/language.service';
+import { Direction } from '@angular/cdk/bidi';
 import { MatDialog } from '@angular/material/dialog';
 import { InvoiceItemDialogComponent } from '../invoice-item-dialog/invoice-item-dialog.component';
 import { CarSelectionDialogComponent, SalesCarSelectionCard, SalesCarSelectionDialogData } from '../car-selection-dialog/car-selection-dialog.component';
@@ -116,6 +118,7 @@ export class SalesInvoiceFormComponent implements OnInit {
     private router = inject(Router);
     private location = inject(Location);
     protected translate = inject(TranslateService);
+    private languageService = inject(LanguageService);
     private dialog = inject(MatDialog);
     private storeAccountingConfigService = inject(StoreAccountingConfigurationService);
     private storeContext = inject(StoreContextService);
@@ -136,6 +139,7 @@ export class SalesInvoiceFormComponent implements OnInit {
     InvoiceType = InvoiceType;
     SalesChannel = SalesChannel;
     SaleType = SaleType;
+    textDir: Direction = this.languageService.getCurrentLanguage() == 'en' ? 'ltr' : 'rtl';
     /** Derived from saleType for backward compatibility with the payload/edit-mode logic below. */
     get isCash(): boolean {
       return this.saleType === SaleType.Cash;

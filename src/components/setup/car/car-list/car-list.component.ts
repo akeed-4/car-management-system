@@ -33,6 +33,7 @@ import { CarDetailsDialogComponent } from '../car-details-dialog/car-details-dia
     MatGridListModule,
     TranslateModule,
     FormsModule,
+    HasPermissionDirective,
   ],
   templateUrl: './car-list.component.html',
   styleUrls: ['./car-list.component.css']

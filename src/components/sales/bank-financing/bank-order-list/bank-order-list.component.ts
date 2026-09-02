@@ -10,6 +10,7 @@ import {
 } from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { BankFinancingService } from '../../../../services/bank-financing.service';
 import { NotificationService } from '@/src/services/notification.service';
+import { PermissionService } from '../../../../services/permission.service';
 import { BankQuotation } from '../../../../models/bank-financing/bank-quotation.model';
 import { HasPermissionDirective } from '../../../shared/permission.directive';
 import { MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
@@ -38,6 +39,7 @@ export class BankOrderListComponent implements OnInit {
   private router = inject(Router);
   private datePipe = inject(DatePipe);
   private currencyPipe = inject(CurrencyPipe);
+  permissionService = inject(PermissionService);
 
   orders = signal<BankQuotation[]>([]);
   loading = signal(false);
@@ -58,7 +60,7 @@ export class BankOrderListComponent implements OnInit {
 
   /** Same single view button as before. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW' },
+    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW', visible: () => this.permissionService.hasPermission('sales.bank.orders.view') },
   ];
 
   onGridAction(e: SharedGridRowActionEvent): void {

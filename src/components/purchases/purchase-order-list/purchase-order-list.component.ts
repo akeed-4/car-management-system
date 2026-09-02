@@ -15,6 +15,8 @@ import {
   SharedGridRowActionEvent,
 } from '../../shared/shared-data-grid/shared-data-grid.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
+import { PermissionService } from '../../../services/permission.service';
+import { HasPermissionDirective } from '../../shared/permission.directive';
 
 @Component({
   selector: 'app-purchase-order-list',
@@ -25,7 +27,8 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.
     TranslateModule,
     MatButtonModule,
     MatIconModule,
-    SharedDataGridComponent
+    SharedDataGridComponent,
+    HasPermissionDirective
   ],
   templateUrl: './purchase-order-list.component.html',
   styleUrls: ['./purchase-order-list.component.css']
@@ -35,6 +38,7 @@ export class PurchaseOrderListComponent implements OnInit, OnDestroy {
   private refreshSubscription?: Subscription;
   private responsiveService = inject(ResponsiveService);
   private translateService = inject(TranslateService);
+  private permissionService = inject(PermissionService);
   isMobile = this.responsiveService.isMobile;
 
   constructor(
@@ -100,7 +104,7 @@ export class PurchaseOrderListComponent implements OnInit, OnDestroy {
 
   /** Same single edit button as before. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('purchases.orders.view') },
   ];
 
   onGridAction(e: SharedGridRowActionEvent): void {

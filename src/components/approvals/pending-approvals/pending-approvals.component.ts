@@ -19,6 +19,7 @@ import { ApprovalActionDialogComponent } from '../approval-action-dialog/approva
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 import { ToastService } from '../../../services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
+import { PermissionService } from '../../../services/permission.service';
 
 @Component({
   selector: 'app-pending-approvals',
@@ -44,6 +45,7 @@ export class PendingApprovalsComponent implements OnInit {
   private dialog = inject(MatDialog);
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
+  private permissionService = inject(PermissionService);
   pendingApprovals = signal<ApprovalRequest[]>([]);
   summary = signal<PendingApprovalSummary | null>(null);
   isLoading = signal(false);
@@ -79,7 +81,7 @@ export class PendingApprovalsComponent implements OnInit {
 
   /** Already-authorized actions (same review button as before). */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'review', icon: 'check', labelKey: 'APPROVALS.REVIEW' },
+    { id: 'review', icon: 'check', labelKey: 'APPROVALS.REVIEW', visible: () => this.permissionService.hasPermission('approvals.pending.view') },
   ];
 
   onGridAction(e: SharedGridRowActionEvent): void {

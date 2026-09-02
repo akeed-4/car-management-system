@@ -82,12 +82,16 @@ export class PurchaseRequestListComponent implements OnInit {
     return status === 'Draft' || status === 'Pending' || status === 'PendingApproval';
   };
 
+  /** purchaseRequest.edit/.approve/.reject/.delete were never seeded in PermissionSeeder.cs --
+   *  falling back to the nearest real catalog keys: requisitions.view for the requester's own
+   *  edit/delete, requisitionapprovals.view for the approve/reject actions (a distinct permission
+   *  group already dedicated to approving requisitions). */
   /** Approved/Rejected requests are locked server-side (UpdateAsync rejects them) -- only Pending is actually editable. */
-  canEdit = (e: any): boolean => this.isDraft(e) && this.permissionService.hasPermission('purchaseRequest.edit');
-  canApprove = (e: any): boolean => this.isDraft(e) && this.permissionService.hasPermission('purchaseRequest.approve');
-  canReject = (e: any): boolean => this.isDraft(e) && this.permissionService.hasPermission('purchaseRequest.reject');
+  canEdit = (e: any): boolean => this.isDraft(e) && this.permissionService.hasPermission('purchases.requisitions.view');
+  canApprove = (e: any): boolean => this.isDraft(e) && this.permissionService.hasPermission('purchases.requisitionapprovals.view');
+  canReject = (e: any): boolean => this.isDraft(e) && this.permissionService.hasPermission('purchases.requisitionapprovals.view');
   /** Approved requests are locked -- everything else (including Rejected, for cleanup) may still be deleted. */
-  canDelete = (e: any): boolean => e?.row?.data?.status !== 'Approved' && this.permissionService.hasPermission('purchaseRequest.delete');
+  canDelete = (e: any): boolean => e?.row?.data?.status !== 'Approved' && this.permissionService.hasPermission('purchases.requisitions.view');
 
   private describeError(err: any): string {
     return err?.error?.message ?? err?.error ?? err?.message ?? 'Unknown error';

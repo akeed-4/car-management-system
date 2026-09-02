@@ -4,7 +4,7 @@
       <h1 class="erp-page-title">{{ 'STORE_ACCOUNTING_CONFIG.LIST_TITLE' | translate }}</h1>
     </div>
     <div class="erp-page-actions">
-      <a routerLink="/setup/store-accounting-configurations/new" mat-raised-button color="primary">
+      <a *appHasPermission="'storeaccountingconfig.view'" routerLink="/setup/store-accounting-configurations/new" mat-raised-button color="primary">
         <mat-icon>add</mat-icon>
         {{ 'STORE_ACCOUNTING_CONFIG.CREATE_TITLE' | translate }}
       </a>

@@ -107,6 +107,9 @@
                       <mat-option [value]="null" disabled>{{ 'PURCHASE_INVOICE.SELECT_SUPPLIER' | translate }}</mat-option>
                       <mat-option *ngFor="let supplier of filteredSuppliers()" [value]="supplier.id">{{ supplier.name }}</mat-option>
                     </mat-select>
+                    <mat-error *ngIf="purchaseInvoiceForm.get('supplierId')?.hasError('required')">
+                      {{ 'VALIDATION.REQUIRED' | translate }}
+                    </mat-error>
                   </mat-form-field>
                 </div>
               </div>
@@ -167,7 +170,7 @@
             </div>
 
             <!-- Validation Errors -->
-            <div *ngIf="purchaseInvoiceForm.errors?.['dueDateRequired']" class="error-message">
+            <div *ngIf="purchaseInvoiceForm.errors?.['dueDateRequired'] && purchaseInvoiceForm.get('dueDate')?.touched" class="error-message">
               <mat-error>{{ 'PURCHASE_INVOICE.DUE_DATE_REQUIRED' | translate }}</mat-error>
             </div>
           </section>
@@ -238,7 +241,7 @@
                 [showBorders]="true"
                 [columnAutoWidth]="true"
                 [rowAlternationEnabled]="true"
-                [rtlEnabled]="true"
+                [rtlEnabled]="textDir === 'rtl'"
                 [noDataText]="'PURCHASE_INVOICE.NO_ITEMS' | translate"
                 [editing]="{ mode: 'cell', allowUpdating: true }"
                 (onRowUpdated)="onInvoiceItemRowUpdated()"
@@ -252,6 +255,14 @@
                 </dxi-column>
                 <dxi-column dataField="unitPrice" [setCellValue]="onUnitPriceCellValue" caption="{{ 'PURCHASE_INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency" [allowEditing]="true"></dxi-column>
                 <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" dataType="number" format="currency" [allowEditing]="false"></dxi-column>
+                <!-- Informational only: this invoice's line price plus its allocated share of any
+                     posted Additional Costs (see the "Additional Costs" tab). Deliberately its own
+                     column, never merged into lineTotal -- the real invoice total/VAT/grand total
+                     are unaffected by this figure. Hidden entirely until there's something to show. -->
+                <dxi-column *ngIf="hasAnyAllocatedCosts()" caption="{{ 'PURCHASE_INVOICE.EST_LANDED_COST' | translate }}"
+                  dataType="number" format="currency" [allowEditing]="false" cssClass="readonly-col"
+                  [calculateCellValue]="estimatedLandedCost">
+                </dxi-column>
                 <dxi-column type="buttons" caption="{{ 'PURCHASE_INVOICE.tools' | translate }}" width="120">
                   <dxi-button
                     icon="edit"

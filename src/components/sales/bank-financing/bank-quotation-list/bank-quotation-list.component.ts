@@ -13,6 +13,7 @@ import {
 } from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { BankFinancingService } from '../../../../services/bank-financing.service';
 import { NotificationService } from '@/src/services/notification.service';
+import { PermissionService } from '../../../../services/permission.service';
 import { BankQuotation } from '../../../../models/bank-financing/bank-quotation.model';
 import { MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
@@ -43,6 +44,7 @@ export class BankQuotationListComponent implements OnInit {
   private router = inject(Router);
   private translate = inject(TranslateService);
   private currencyPipe = inject(CurrencyPipe);
+  permissionService = inject(PermissionService);
 
   quotations = signal<BankQuotation[]>([]);
   loading = signal(false);
@@ -72,7 +74,7 @@ export class BankQuotationListComponent implements OnInit {
   rowActions: sharedGridRowActionDto[] = [
     {
       id: 'createApproval', icon: 'add', labelKey: 'BANK_FINANCING.RECORD_APPROVAL',
-      visible: (rowData) => this.isLocked({ row: { data: rowData } }),
+      visible: (rowData) => this.isLocked({ row: { data: rowData } }) && this.permissionService.hasPermission('sales.bank.quotations.view'),
     },
   ];
 

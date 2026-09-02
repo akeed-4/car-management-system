@@ -10,6 +10,7 @@ import {
 } from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { BankFinancingService } from '../../../../services/bank-financing.service';
 import { NotificationService } from '@/src/services/notification.service';
+import { PermissionService } from '../../../../services/permission.service';
 import { BankQuotation } from '../../../../models/bank-financing/bank-quotation.model';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 
@@ -32,6 +33,7 @@ export class BankApprovalListComponent implements OnInit {
   private bankFinancingService = inject(BankFinancingService);
   private notificationService = inject(NotificationService);
   private router = inject(Router);
+  permissionService = inject(PermissionService);
 
   quotations = signal<BankQuotation[]>([]);
   loading = signal(false);
@@ -58,7 +60,7 @@ export class BankApprovalListComponent implements OnInit {
 
   /** Same single view button as before. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW' },
+    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW', visible: () => this.permissionService.hasPermission('sales.bank.approvals.view') },
   ];
 
   onGridAction(e: SharedGridRowActionEvent): void {

@@ -77,8 +77,13 @@
   text-overflow: ellipsis;
 }
 
+/* Matches Angular Material's default mat-error sizing/spacing so this custom tile's error reads
+   consistently with the rest of the form's mat-error blocks (e.g. discountValue, paymentAccountId). */
 .customer-selector-error {
-  font-size: 0.72rem;
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 16px;
   color: var(--color-danger-600, #dc2626);
 }
 

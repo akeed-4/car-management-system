@@ -10,6 +10,7 @@ import { CarCategory } from '../../../../types/car-category.model';
 import { ResponsiveService } from '../../../../services/responsive.service';
 import { MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
+import { PermissionService } from '../../../../services/permission.service';
 
 @Component({
   selector: 'app-car-category-list',
@@ -30,9 +31,14 @@ export class CarCategoryListComponent {
   private router = inject(Router);
   private translate = inject(TranslateService);
   private responsiveService = inject(ResponsiveService);
+  private permissionService = inject(PermissionService);
   isMobile = this.responsiveService.isMobile;
 
   categories = this.carCategoryService.categories$;
+
+  canCreate = computed(() => this.permissionService.hasPermission('carCategory.create'));
+  canEdit = computed(() => this.permissionService.hasPermission('carCategory.edit'));
+  canDelete = computed(() => this.permissionService.hasPermission('carCategory.delete'));
 
   /** Config-driven columns for the Shared DataGrid (captions are i18n keys). */
   columns: dataGridColumnDto[] = [
@@ -44,8 +50,8 @@ export class CarCategoryListComponent {
 
   /** Row actions -- same edit/delete behavior via the shared actions template. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'edit', icon: 'edit', labelKey: 'CAR_CATEGORY.EDIT' },
-    { id: 'delete', icon: 'delete', labelKey: 'CAR_CATEGORY.DELETE', cssClass: 'warn' },
+    { id: 'edit', icon: 'edit', labelKey: 'CAR_CATEGORY.EDIT', visible: () => this.permissionService.hasPermission('carCategory.edit') },
+    { id: 'delete', icon: 'delete', labelKey: 'CAR_CATEGORY.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('carCategory.delete') },
   ];
 
   /** Single dispatcher for the Shared DataGrid's rowAction output. */

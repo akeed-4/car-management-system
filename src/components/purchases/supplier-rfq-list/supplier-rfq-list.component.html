@@ -4,7 +4,7 @@
       <h2 class="erp-page-title">{{ 'SUPPLIER_RFQ.LIST_TITLE' | translate }}</h2>
     </div>
     <div class="erp-page-actions header-right">
-      <button mat-raised-button color="primary" (click)="onCreateNew()">
+      <button mat-raised-button color="primary" (click)="onCreateNew()" appHasPermission="purchases.quotations.view">
         <mat-icon>add</mat-icon>
         {{ 'SUPPLIER_RFQ.CREATE_TITLE' | translate }}
       </button>

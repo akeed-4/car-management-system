@@ -9,7 +9,7 @@
       <button mat-icon-button (click)="isScannerOpen.set(true)" matTooltip="{{ 'INVENTORY.SCAN_VIN' | translate }}">
         <mat-icon>qr_code_scanner</mat-icon>
       </button>
-      <button mat-raised-button color="accent" routerLink="/inventory/new">
+      <button *appHasPermission="'inventory.view'" mat-raised-button color="accent" routerLink="/inventory/new">
         <mat-icon>add</mat-icon>
         {{ 'INVENTORY.ADD_NEW_CAR' | translate }}
       </button>

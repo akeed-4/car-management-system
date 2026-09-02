@@ -15,6 +15,8 @@ import {
 import { StockTakeApprovalService } from '@/src/services/stock-take-approval.service';
 import { StockTakeApproval } from '@/src/models/stock-take-approval.model';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
+import { PermissionService } from '../../../services/permission.service';
+import { HasPermissionDirective } from '../../shared/permission.directive';
 
 @Component({
   selector: 'app-stock-taking-approval',
@@ -26,7 +28,8 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.
     MatIconModule,
     MatCardModule,
     MatToolbarModule,
-    SharedDataGridComponent
+    SharedDataGridComponent,
+    HasPermissionDirective
   ],
   templateUrl: './stock-taking-approval.component.html',
   styleUrl: './stock-taking-approval.component.css',
@@ -36,6 +39,7 @@ export class StockTakingApprovalComponent implements OnInit {
   private stockTakeService = inject(StockTakeService);
     private stockTakeApprovalService = inject(StockTakeApprovalService);
   private router = inject(Router);
+  permissionService = inject(PermissionService);
 
   stockTakes = signal<StockTake[]>([]);
  stockTakesApproval = signal<StockTakeApproval[]>([]);
@@ -56,8 +60,8 @@ constructor() {
 
   /** Same edit/view buttons (in the same order) as before ('eye' -> Material's 'visibility'). */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'edit', icon: 'edit', labelKey: 'STOCK_TAKING_APPROVAL.EDIT' },
-    { id: 'view', icon: 'visibility', labelKey: 'STOCK_TAKING_APPROVAL.VIEW' },
+    { id: 'edit', icon: 'edit', labelKey: 'STOCK_TAKING_APPROVAL.EDIT', visible: () => this.permissionService.hasPermission('inventory.approval.view') },
+    { id: 'view', icon: 'visibility', labelKey: 'STOCK_TAKING_APPROVAL.VIEW', visible: () => this.permissionService.hasPermission('inventory.approval.view') },
   ];
 
   onGridAction(e: SharedGridRowActionEvent): void {

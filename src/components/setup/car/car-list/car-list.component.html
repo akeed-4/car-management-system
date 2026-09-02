@@ -5,7 +5,7 @@
       <h2 class="erp-page-title page-title">{{ 'CARS.LIST_TITLE' | translate }}</h2>
     </div>
     <div class="erp-page-actions">
-      <button mat-raised-button color="primary" (click)="onCreate()" class="add-button">
+      <button mat-raised-button color="primary" (click)="onCreate()" class="add-button" appHasPermission="car.create">
         <mat-icon>add</mat-icon>
         {{ 'CARS.ADD_NEW' | translate }}
       </button>
@@ -96,11 +96,11 @@
 
             <!-- Action Buttons -->
             <div class="car-actions">
-              <button mat-stroked-button color="primary" (click)="onEdit(car); $event.stopPropagation()" class="action-btn">
+              <button mat-stroked-button color="primary" (click)="onEdit(car); $event.stopPropagation()" class="action-btn" appHasPermission="car.update">
                 <mat-icon>edit</mat-icon>
                 {{ 'CARS.EDIT' | translate }}
               </button>
-              <button mat-stroked-button color="warn" (click)="onDelete(car); $event.stopPropagation()" class="action-btn">
+              <button mat-stroked-button color="warn" (click)="onDelete(car); $event.stopPropagation()" class="action-btn" appHasPermission="car.delete">
                 <mat-icon>delete</mat-icon>
                 {{ 'CARS.DELETE' | translate }}
               </button>

@@ -2,7 +2,7 @@
   <div class="erp-page-header page-header">
     <div class="erp-page-header-titles flex flex-col items-start gap-4">
       <h2 class="erp-page-title text-2xl font-semibold text-gray-800">{{ 'CREDIT_PURCHASE_RETURN.LIST_TITLE' | translate }}</h2>
-      <a routerLink="/purchases/return/credit/new" class="btn-primary">
+      <a routerLink="/purchases/return/credit/new" class="btn-primary" appHasPermission="purchases.returns.credit.view">
 
         {{ 'CREDIT_PURCHASE_RETURN.NEW_RETURN' | translate }}
 

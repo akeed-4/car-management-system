@@ -15,6 +15,8 @@ import { ExchangeRateService } from '../../../../services/exchange-rate.service'
 import { NotificationService } from '../../../../services/notification.service';
 import { CurrencyExchangeRate } from '../../../../models/exchange-rate.model';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
+import { PermissionService } from '../../../../services/permission.service';
+import { HasPermissionDirective } from '../../../shared/permission.directive';
 
 @Component({
   selector: 'app-exchange-rate-list',
@@ -28,7 +30,8 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/gr
     MatToolbarModule,
     MatTooltipModule,
     TranslateModule,
-    SharedDataGridComponent
+    SharedDataGridComponent,
+    HasPermissionDirective
   ],
   templateUrl: './exchange-rate-list.component.html',
   styleUrls: ['./exchange-rate-list.component.css'],
@@ -41,6 +44,7 @@ export class ExchangeRateListComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private router = inject(Router);
   private translate = inject(TranslateService);
+  private permissionService = inject(PermissionService);
 
   rates = signal<CurrencyExchangeRate[]>([]);
   loading = signal(false);
@@ -56,8 +60,8 @@ export class ExchangeRateListComponent implements OnInit {
 
   /** Row actions -- same edit/delete behavior via the shared actions template. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
-    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn' },
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('exchangerates.view') },
+    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('exchangerates.view') },
   ];
 
   /** Single dispatcher for the Shared DataGrid's rowAction output. */

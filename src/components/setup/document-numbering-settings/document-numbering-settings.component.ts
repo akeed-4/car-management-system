@@ -20,6 +20,8 @@ import { DocumentNumberingService } from '../../../services/document-numbering.s
 import { NotificationService } from '../../../services/notification.service';
 import { CurrentSettingService } from '../../../services/current-setting.service';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
+import { PermissionService } from '../../../services/permission.service';
+import { HasPermissionDirective } from '../../shared/permission.directive';
 import {
   DocumentNumberingSettingDto,
   CreateDocumentNumberingSettingDto,
@@ -54,7 +56,8 @@ const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
     MatTooltipModule,
     MatProgressSpinnerModule,
     TranslateModule,
-    SharedDataGridComponent
+    SharedDataGridComponent,
+    HasPermissionDirective
   ],
   templateUrl: './document-numbering-settings.component.html',
   styleUrls: ['./document-numbering-settings.component.css']
@@ -66,6 +69,7 @@ export class DocumentNumberingSettingsComponent implements OnInit {
   private currentSettingService = inject(CurrentSettingService);
   private translate = inject(TranslateService);
   private ngZone = inject(NgZone);
+  private permissionService = inject(PermissionService);
   constructor() {
     this.openEdit = this.openEdit.bind(this);
     this.resetSequence = this.resetSequence.bind(this);
@@ -88,9 +92,9 @@ export class DocumentNumberingSettingsComponent implements OnInit {
 
   /** Row actions -- same edit/reset/delete behavior via the shared template. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
-    { id: 'resetSequence', icon: 'revert', labelKey: 'DOCUMENT_NUMBERING.RESET_SEQUENCE' },
-    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn' },
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('settings.documentnumbering.view') },
+    { id: 'resetSequence', icon: 'revert', labelKey: 'DOCUMENT_NUMBERING.RESET_SEQUENCE', visible: () => this.permissionService.hasPermission('settings.documentnumbering.view') },
+    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('settings.documentnumbering.view') },
   ];
 
   /** Single dispatcher for the Shared DataGrid's rowAction output. */

@@ -50,7 +50,7 @@
 
       </form>
         <div class="form-actions" [class.mat-dialog-actions]="isQuickAddDialog">
-          <button mat-raised-button color="primary" (click)="addCarModel()" [disabled]="carModelForm.invalid" class="btn-mat-height">
+          <button mat-raised-button color="primary" (click)="addCarModel()" [disabled]="carModelForm.invalid || !canSaveModel()" class="btn-mat-height">
             <mat-icon>{{ isEditMode() ? 'update' : 'save' }}</mat-icon>
             {{ isEditMode() ? ('CAR_MODELS.UPDATE_BUTTON' | translate) : ('CAR_MODELS.ADD_BUTTON' | translate) }}
           </button>
@@ -81,6 +81,7 @@
                   <p class="manufacturer-name">{{ model.manufacturerName }}</p>
                 </div>
                 <div class="model-card-actions">
+                  @if (canEdit()) {
                   <button
                     mat-icon-button
                     (click)="editCarModel(model)"
@@ -88,6 +89,8 @@
                     color="primary">
                     <mat-icon>edit</mat-icon>
                   </button>
+                  }
+                  @if (canDelete()) {
                   <button
                     mat-icon-button
                     (click)="requestDelete(model.id)"
@@ -95,6 +98,7 @@
                     color="warn">
                     <mat-icon>delete</mat-icon>
                   </button>
+                  }
                 </div>
               </div>
             </mat-grid-tile>

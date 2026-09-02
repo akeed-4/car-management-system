@@ -4,10 +4,12 @@
       <h1 class="erp-page-title">{{ 'BANK.LIST_TITLE' | translate }}</h1>
     </div>
     <div class="erp-page-actions">
+      @if (canCreate()) {
       <a routerLink="/entities/banks/new" mat-raised-button color="primary">
         <mat-icon>add</mat-icon>
         {{ 'BANK.CREATE_TITLE' | translate }}
       </a>
+      }
     </div>
   </div>
 

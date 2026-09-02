@@ -14,6 +14,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatIconModule } from '@angular/material/icon';
 import { ToastService } from '../../../../services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
+import { PermissionService } from '../../../../services/permission.service';
+import { HasPermissionDirective } from '../../../shared/permission.directive';
 
 type SortColumn = keyof Customer | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -28,7 +30,8 @@ type SortDirection = 'asc' | 'desc' | '';
     FormsModule,
     SharedDataGridComponent,
     TranslateModule,
-    MatIconModule
+    MatIconModule,
+    HasPermissionDirective
   ],
   templateUrl: './customers.component.html',
   styleUrl: './customers.component.css',
@@ -39,6 +42,7 @@ export class CustomersComponent {
   private router = inject(Router);
   private toastService = inject(NotificationService);
   private translate = inject(TranslateService);
+  permissionService = inject(PermissionService);
 
   // customers = this.customerService.customers$;
   filter = signal('');
@@ -64,8 +68,8 @@ export class CustomersComponent {
 
   /** Already-authorized actions (same edit/delete buttons as before). */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'edit', icon: 'edit', labelKey: 'CUSTOMERS.ACTIONS.EDIT' },
-    { id: 'delete', icon: 'trash', labelKey: 'CUSTOMERS.ACTIONS.DELETE', cssClass: 'btn-danger' },
+    { id: 'edit', icon: 'edit', labelKey: 'CUSTOMERS.ACTIONS.EDIT', visible: () => this.permissionService.hasPermission('customers.view') },
+    { id: 'delete', icon: 'trash', labelKey: 'CUSTOMERS.ACTIONS.DELETE', cssClass: 'btn-danger', visible: () => this.permissionService.hasPermission('customers.view') },
   ];
 
   onGridAction(e: SharedGridRowActionEvent): void {

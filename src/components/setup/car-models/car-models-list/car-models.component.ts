@@ -17,6 +17,7 @@ import { ModalComponent } from '../../../shared/modal/modal.component';
 import { ToastService } from '../../../../services/toast.service';
 import { CarModel } from '../../../../models/car-model.model';
 import { NotificationService } from '@/src/services/notification.service';
+import { PermissionService } from '../../../../services/permission.service';
 
 type SortColumn = keyof CarModel | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -44,6 +45,7 @@ export class CarModelsComponent implements OnInit {
   private fb = inject(FormBuilder);
   private toastService = inject(NotificationService);
   private translate = inject(TranslateService);
+  private permissionService = inject(PermissionService);
   private dialogRef = inject(MatDialogRef<CarModelsComponent, CarModel | undefined>, { optional: true });
   private data = inject<CarModelQuickAddData | null>(MAT_DIALOG_DATA, { optional: true });
 
@@ -67,6 +69,11 @@ export class CarModelsComponent implements OnInit {
   // Edit mode
   isEditMode = signal(false);
   editingModel = signal<CarModel | null>(null);
+
+  canCreate = computed(() => this.permissionService.hasPermission('carModel.create'));
+  canEdit = computed(() => this.permissionService.hasPermission('carModel.edit'));
+  canDelete = computed(() => this.permissionService.hasPermission('carModel.delete'));
+  canSaveModel = computed(() => this.isEditMode() ? this.canEdit() : this.canCreate());
 
   // Modal state
   isDeleteModalOpen = signal(false);

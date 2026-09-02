@@ -44,7 +44,7 @@
   </div>
 
   <mat-toolbar class="erp-list-toolbar page-toolbar">
-    <button mat-flat-button color="primary" (click)="newCost()" *appHasPermission="'purchaseAdditionalCost.create'">
+    <button mat-flat-button color="primary" (click)="newCost()" *appHasPermission="'purchases.additionalcosts.view'">
       <mat-icon>add</mat-icon>
       {{ 'COMMON.NEW' | translate }}
     </button>
@@ -78,10 +78,10 @@
       emptyMessage="COMMON.NO_DATA"
     >
       <ng-template let-item>
-        <button type="button" class="btn btn-light" *ngIf="canEdit(item)" appHasPermission="purchaseAdditionalCost.edit" (click)="editCost(item.id)">{{ 'COMMON.EDIT' | translate }}</button>
-        <button type="button" class="btn btn-light" *ngIf="item.status === 'Draft'" appHasPermission="purchaseAdditionalCost.post" (click)="postCost(item)">{{ 'PURCHASE_ADDITIONAL_COST.POST' | translate }}</button>
-        <button type="button" class="btn btn-light" *ngIf="item.status === 'Posted'" appHasPermission="purchaseAdditionalCost.post" (click)="cancelCost(item)">{{ 'PURCHASE_ADDITIONAL_COST.CANCEL' | translate }}</button>
-        <button type="button" class="btn btn-light" *ngIf="canEdit(item)" appHasPermission="purchaseAdditionalCost.delete" (click)="requestDelete(item.id)">{{ 'COMMON.DELETE' | translate }}</button>
+        <button type="button" class="btn btn-light" *ngIf="canEdit(item)" appHasPermission="purchases.additionalcosts.view" (click)="editCost(item.id)">{{ 'COMMON.EDIT' | translate }}</button>
+        <button type="button" class="btn btn-light" *ngIf="item.status === 'Draft'" appHasPermission="purchases.additionalcosts.view" (click)="postCost(item)">{{ 'PURCHASE_ADDITIONAL_COST.POST' | translate }}</button>
+        <button type="button" class="btn btn-light" *ngIf="item.status === 'Posted'" appHasPermission="purchases.additionalcosts.view" (click)="cancelCost(item)">{{ 'PURCHASE_ADDITIONAL_COST.CANCEL' | translate }}</button>
+        <button type="button" class="btn btn-light" *ngIf="canEdit(item)" appHasPermission="purchases.additionalcosts.view" (click)="requestDelete(item.id)">{{ 'COMMON.DELETE' | translate }}</button>
       </ng-template>
     </app-mobile-card-list>
   } @else {
@@ -119,22 +119,22 @@
           </td>
           <td class="actions-cell">
             <ng-container *ngIf="canEdit(item)">
-              <button mat-icon-button [matTooltip]="'COMMON.EDIT' | translate" (click)="editCost(item.id)" *appHasPermission="'purchaseAdditionalCost.edit'">
+              <button mat-icon-button [matTooltip]="'COMMON.EDIT' | translate" (click)="editCost(item.id)" *appHasPermission="'purchases.additionalcosts.view'">
                 <mat-icon>edit</mat-icon>
               </button>
             </ng-container>
             <ng-container *ngIf="item.status === 'Draft'">
-              <button mat-icon-button color="primary" [matTooltip]="'PURCHASE_ADDITIONAL_COST.POST' | translate" (click)="postCost(item)" *appHasPermission="'purchaseAdditionalCost.post'">
+              <button mat-icon-button color="primary" [matTooltip]="'PURCHASE_ADDITIONAL_COST.POST' | translate" (click)="postCost(item)" *appHasPermission="'purchases.additionalcosts.view'">
                 <mat-icon>task_alt</mat-icon>
               </button>
             </ng-container>
             <ng-container *ngIf="item.status === 'Posted'">
-              <button mat-icon-button color="warn" [matTooltip]="'PURCHASE_ADDITIONAL_COST.CANCEL' | translate" (click)="cancelCost(item)" *appHasPermission="'purchaseAdditionalCost.post'">
+              <button mat-icon-button color="warn" [matTooltip]="'PURCHASE_ADDITIONAL_COST.CANCEL' | translate" (click)="cancelCost(item)" *appHasPermission="'purchases.additionalcosts.view'">
                 <mat-icon>undo</mat-icon>
               </button>
             </ng-container>
             <ng-container *ngIf="canEdit(item)">
-              <button mat-icon-button color="warn" [matTooltip]="'COMMON.DELETE' | translate" (click)="requestDelete(item.id)" *appHasPermission="'purchaseAdditionalCost.delete'">
+              <button mat-icon-button color="warn" [matTooltip]="'COMMON.DELETE' | translate" (click)="requestDelete(item.id)" *appHasPermission="'purchases.additionalcosts.view'">
                 <mat-icon>delete</mat-icon>
               </button>
             </ng-container>

@@ -5,6 +5,7 @@ import {
   SharedGridRowActionEvent,
 } from '../../shared/shared-data-grid/shared-data-grid.component';
 import { SalesService } from '../../../services/sales.service';
+import { PermissionService } from '../../../services/permission.service';
 import { SalesInvoice } from '../../../models/sales-invoice.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
@@ -25,6 +26,7 @@ export class InvoiceCreditListComponent implements OnInit {
   private router = inject(Router);
   private translateService = inject(TranslateService);
   private responsiveService = inject(ResponsiveService);
+  permissionService = inject(PermissionService);
   isMobile = this.responsiveService.isMobile;
 
   creditInvoices = signal<SalesInvoice[]>([]);
@@ -50,8 +52,8 @@ export class InvoiceCreditListComponent implements OnInit {
 
   /** Same edit/delete named buttons as before. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
-    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn' },
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('sales.credit.view') },
+    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('sales.credit.view') },
   ];
 
   onGridAction(e: SharedGridRowActionEvent): void {

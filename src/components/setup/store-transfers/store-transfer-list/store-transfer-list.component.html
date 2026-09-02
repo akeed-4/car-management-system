@@ -4,7 +4,7 @@
       <h1 class="erp-page-title">{{ 'STORE_TRANSFER.LIST_TITLE' | translate }}</h1>
     </div>
     <div class="erp-page-actions">
-      <a routerLink="/setup/store-transfers/new" mat-raised-button color="primary">
+      <a *appHasPermission="'storetransfer.view'" routerLink="/setup/store-transfers/new" mat-raised-button color="primary">
         <mat-icon>add</mat-icon>
         {{ 'STORE_TRANSFER.CREATE_TITLE' | translate }}
       </a>

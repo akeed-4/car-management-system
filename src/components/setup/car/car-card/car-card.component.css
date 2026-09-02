@@ -1,90 +1,50 @@
-/* --- Compact, Bold Car Card Design --- */
-.container {
-  max-width: 1400px;
+/* Car Card -- migrated to the shared .erp-* design system (src/styles/form-system.css) for the
+   page shell/card/header/actions-bar; only what that system doesn't cover (the accordion, the
+   denser 4-column grid this form needs, photo upload, price-suggestion box, related-costs table)
+   stays here. */
+
+.car-card-page {
   height: calc(100vh - 2rem);
-  margin: 1rem auto;
-  padding: 0 0.75rem;
-  font-family: 'Roboto', sans-serif;
   display: flex;
   flex-direction: column;
 }
 
-.card {
+.car-card-shell {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
-  background: var(--surface-card);
-  border: 1px solid #dbe4f0;
-  overflow: hidden;
 }
 
-/* --- Sticky header --- */
-.card-header {
+.car-card-header {
   flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.85rem 1.25rem;
-  background: linear-gradient(135deg, var(--color-primary-600) 0%, #6d28d9 100%);
-  color: white;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-  z-index: 2;
-}
-
-.card-header h2 {
-  margin: 0;
-  font-size: 1.15rem;
-  font-weight: 800;
-  letter-spacing: 0.2px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  margin-bottom: 0;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .back-link {
   display: flex;
   align-items: center;
   text-decoration: none;
-  color: white;
+  color: var(--color-primary-600);
   font-weight: 600;
   font-size: 0.85rem;
   padding: 0.4rem 0.85rem;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--rounded-md);
   transition: background-color 0.2s ease;
 }
 
 .back-link:hover {
-  background: rgba(255, 255, 255, 0.28);
+  background: var(--surface-sunken);
 }
 
 /* --- Scrollable body --- */
-.card-body {
+.car-card-body {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
-  padding: 0.85rem 1.25rem;
-  scrollbar-width: thin;
-  scrollbar-color: #a5b4d8 #eef1f8;
-}
-
-.card-body::-webkit-scrollbar {
-  width: 8px;
-}
-
-.card-body::-webkit-scrollbar-track {
-  background: #eef1f8;
-}
-
-.card-body::-webkit-scrollbar-thumb {
-  background-color: #a5b4d8;
-  border-radius: 4px;
-}
-
-.card-body::-webkit-scrollbar-thumb:hover {
-  background-color: #8494c4;
+  padding: var(--space-3) var(--space-4);
 }
 
 /* --- Accordion sections --- */
@@ -154,11 +114,12 @@
   background: #f9fafc;
 }
 
-/* --- Compact responsive form grid --- */
-.form-grid {
-  display: grid;
+/* --- Denser 4-column variant of .erp-form-grid (that system only ships 2- and 3-column
+     variants) -- this form's cascading Manufacturer/Model/Category/Year Specification row needs
+     four narrow columns on desktop. Follows the same span/breakpoint conventions as
+     erp-form-grid-3 in form-system.css. --- */
+.erp-form-grid-4 {
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.6rem 0.7rem;
   align-items: start;
 }
 
@@ -168,6 +129,23 @@
 
 .field-span-2 {
   grid-column: span 2;
+}
+
+@media (max-width: 960px) {
+  .erp-form-grid-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .erp-form-grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .field-span-1,
+  .field-span-2 {
+    grid-column: span 1;
+  }
 }
 
 /* --- Dropdown + inline "Add New" button, visually attached (Manufacturer/Model/Category) --- */
@@ -226,27 +204,6 @@
 
 .sale-price-field {
   width: 100%;
-}
-
-@media (max-width: 1024px) {
-  .form-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .field-span-2 {
-    grid-column: span 2;
-  }
-}
-
-@media (max-width: 640px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .field-span-1,
-  .field-span-2 {
-    grid-column: span 1;
-  }
 }
 
 mat-form-field {
@@ -431,114 +388,17 @@ mat-form-field.mat-form-field {
   font-size: 1.05rem;
 }
 
-.table-wrapper {
-  margin-top: 0.2rem;
-  border-radius: 6px;
-  overflow: hidden;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--surface-card);
-  font-size: 0.8rem;
-}
-
-.table th {
-  background: var(--color-primary-600);
-  color: white;
-  padding: 0.55rem;
+/* erp-table/erp-table-wrapper (form-system.css) cover the Related Costs table's structural
+   styling; only the centered numeric/text alignment this table wants (the shared table defaults
+   to text-align: start) and the monospace amount column stay local. */
+.erp-table th,
+.erp-table td {
   text-align: center;
-  font-weight: 700;
-  border: none;
-}
-
-.table td {
-  padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid var(--border-default);
-  text-align: center;
-}
-
-.table tbody tr:hover {
-  background: #f4f6fb;
 }
 
 .font-mono {
   font-family: 'Courier New', monospace;
   font-weight: bold;
-}
-
-/* --- Sticky footer / action bar --- */
-.form-actions {
-  flex: 0 0 auto;
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  padding: 0.75rem 1.25rem;
-  background: #f8f9fc;
-  border-top: 2px solid #dbe4f0;
-  box-shadow: 0 -4px 12px rgba(15, 23, 42, 0.08);
-  z-index: 2;
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.55rem 1.15rem;
-  border-radius: 7px;
-  font-weight: 700;
-  text-decoration: none;
-  transition: all 0.2s ease;
-  border: none;
-  cursor: pointer;
-  font-size: 0.85rem;
-}
-
-.btn-light {
-  background: #eef1f8;
-  color: var(--text-primary);
-  border: 1px solid #d5dcec;
-}
-
-.btn-light:hover {
-  background: #e2e8f5;
-  transform: translateY(-1px);
-}
-
-.btn-secondary {
-  background: #ff9800;
-  color: white;
-}
-
-.btn-secondary:hover {
-  background: var(--color-warning-600);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
-}
-
-.btn-primary {
-  background: var(--color-primary-600);
-  color: white;
-}
-
-.btn-primary:hover {
-  background: #3730a3;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(67, 56, 202, 0.35);
-}
-
-.btn:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-  transform: none !important;
-  box-shadow: none !important;
-}
-
-.icon {
-  width: 1rem;
-  height: 1rem;
 }
 
 .spin {
@@ -552,20 +412,11 @@ mat-form-field.mat-form-field {
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .container {
+  .car-card-page {
     height: calc(100vh - 1rem);
-    margin: 0.5rem auto;
-    padding: 0 0.4rem;
   }
 
-  .card-header {
-    flex-direction: column;
-    align-items: stretch;
-    text-align: center;
-    gap: 0.5rem;
-  }
-
-  .card-body {
+  .car-card-body {
     padding: 0.7rem;
   }
 
@@ -576,18 +427,6 @@ mat-form-field.mat-form-field {
   .suggestion-box {
     flex-direction: column;
     gap: 0.4rem;
-  }
-
-  .form-actions {
-    flex-direction: column;
-  }
-
-  .btn {
-    justify-content: center;
-    /* 48px minimum touch target (the desktop 0.55rem/1.15rem padding above
-       only reaches ~32px tall) -- large enough to tap reliably, still
-       visually compact via the same font-size/border-radius as desktop. */
-    min-height: 48px;
   }
 
   .browse-photo-btn,
@@ -605,7 +444,7 @@ mat-form-field.mat-form-field {
 }
 
 @media (max-width: 480px) {
-  .card-header h2 {
+  .erp-page-title {
     font-size: 1rem;
   }
 

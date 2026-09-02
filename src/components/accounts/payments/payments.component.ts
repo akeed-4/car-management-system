@@ -26,6 +26,8 @@ import {
   SharedGridRowActionEvent,
 } from '../../shared/shared-data-grid/shared-data-grid.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
+import { PermissionService } from '../../../services/permission.service';
+import { HasPermissionDirective } from '../../shared/permission.directive';
 
 @Component({
   selector: 'app-payments',
@@ -41,6 +43,7 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.
     MatFormFieldModule,
     MatInputModule,
     SharedDataGridComponent,
+    HasPermissionDirective,
   ],
   templateUrl: './payments.component.html',
   styleUrl: './payments.component.css',
@@ -58,6 +61,7 @@ export class PaymentsComponent implements OnDestroy, AfterViewInit, OnInit {
   private responsiveService = inject(ResponsiveService);
   private datePipe = inject(DatePipe);
   private currencyPipe = inject(CurrencyPipe);
+  permissionService = inject(PermissionService);
   isMobile = this.responsiveService.isMobile;
 
   @ViewChild('toastContainer') toastContainer!: ElementRef;
@@ -75,8 +79,8 @@ export class PaymentsComponent implements OnDestroy, AfterViewInit, OnInit {
 
   /** Row actions -- same edit/delete behavior via the shared template. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
-    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn' },
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('payments.view') },
+    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('payments.view') },
   ];
 
   /** Totals summary -- same amount sum as the previous dxo-summary block. */

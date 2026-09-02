@@ -14,6 +14,8 @@ import {
   SharedGridRowActionEvent,
 } from '../../shared/shared-data-grid/shared-data-grid.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
+import { HasPermissionDirective } from '../../shared/permission.directive';
+import { PermissionService } from '../../../services/permission.service';
 
 @Component({
   selector: 'app-cars-receipt-note-list',
@@ -25,7 +27,8 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.
     MatButtonModule,
     MatIconModule,
     DocumentStatusBadgeComponent,
-    SharedDataGridComponent
+    SharedDataGridComponent,
+    HasPermissionDirective
   ],
   templateUrl: './cars-receipt-note-list.component.html',
   styleUrls: ['./cars-receipt-note-list.component.css']
@@ -34,6 +37,7 @@ export class CarsReceiptNoteListComponent implements OnInit {
   receiptNotes: CarsReceiptNoteDto[] = [];
   private responsiveService = inject(ResponsiveService);
   private translateService = inject(TranslateService);
+  private permissionService = inject(PermissionService);
   isMobile = this.responsiveService.isMobile;
 
   constructor(
@@ -91,7 +95,7 @@ export class CarsReceiptNoteListComponent implements OnInit {
 
   /** Same single view button as before. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW' },
+    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW', visible: () => this.permissionService.hasPermission('purchases.receipts.view') },
   ];
 
   onGridAction(e: SharedGridRowActionEvent): void {

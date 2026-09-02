@@ -4,7 +4,7 @@
       <h2 class="erp-page-title">{{ 'CARS_RECEIPT_NOTE.LIST_TITLE' | translate }}</h2>
     </div>
     <div class="erp-page-actions header-right">
-      <button mat-raised-button color="primary" (click)="onCreateNew()">
+      <button mat-raised-button color="primary" (click)="onCreateNew()" appHasPermission="grn.create">
         <mat-icon>add</mat-icon>
         {{ 'CARS_RECEIPT_NOTE.CREATE_TITLE' | translate }}
       </button>

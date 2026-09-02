@@ -13,6 +13,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { ToastService } from '../../../../services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
+import { PermissionService } from '../../../../services/permission.service';
 
 type SortColumn = keyof Manufacturer | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -30,6 +31,7 @@ export class ManufacturersComponent implements OnInit {
   private fb = inject(FormBuilder);
   private toastService = inject(NotificationService);
   private translate = inject(TranslateService);
+  private permissionService = inject(PermissionService);
   /** Present only when this component is opened via MatDialog.open(ManufacturersComponent, ...)
    * (see CarCardComponent's "+" button next to the Manufacturer dropdown) -- absent when it's
    * loaded as the routed /setup/manufacturers page, which is the existing behavior. */
@@ -53,6 +55,13 @@ export class ManufacturersComponent implements OnInit {
   // Edit mode
   isEditMode = signal(false);
   editingManufacturer = signal<Manufacturer | null>(null);
+
+  canCreate = computed(() => this.permissionService.hasPermission('manufacturer.create'));
+  canEdit = computed(() => this.permissionService.hasPermission('manufacturer.edit'));
+  canDelete = computed(() => this.permissionService.hasPermission('manufacturer.delete'));
+  /** Save button's permission gate: create-permission for a new manufacturer, edit-permission
+   *  while editing an existing one. Separate from the form-validity check already on the button. */
+  canSaveManufacturer = computed(() => this.isEditMode() ? this.canEdit() : this.canCreate());
   constructor() {
     this.doDelete=this.doDelete.bind(this);
   }

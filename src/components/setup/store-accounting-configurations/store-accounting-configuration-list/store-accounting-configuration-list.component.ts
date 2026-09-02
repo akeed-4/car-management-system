@@ -15,6 +15,8 @@ import { StoreAccountingConfigurationService } from '../../../../services/store-
 import { NotificationService } from '../../../../services/notification.service';
 import { StoreAccountingConfiguration } from '../../../../models/store-accounting-configuration.model';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
+import { PermissionService } from '../../../../services/permission.service';
+import { HasPermissionDirective } from '../../../shared/permission.directive';
 
 @Component({
   selector: 'app-store-accounting-configuration-list',
@@ -28,7 +30,8 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/gr
     MatToolbarModule,
     MatTooltipModule,
     TranslateModule,
-    SharedDataGridComponent
+    SharedDataGridComponent,
+    HasPermissionDirective
   ],
   templateUrl: './store-accounting-configuration-list.component.html',
   styleUrls: ['./store-accounting-configuration-list.component.css'],
@@ -41,6 +44,7 @@ export class StoreAccountingConfigurationListComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private router = inject(Router);
   private translate = inject(TranslateService);
+  private permissionService = inject(PermissionService);
 
   configurations = signal<StoreAccountingConfiguration[]>([]);
   loading = signal(false);
@@ -56,8 +60,8 @@ export class StoreAccountingConfigurationListComponent implements OnInit {
 
   /** Row actions -- same edit/delete behavior via the shared template. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
-    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn' },
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('storeaccountingconfig.view') },
+    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('storeaccountingconfig.view') },
   ];
 
   /** Single dispatcher for the Shared DataGrid's rowAction output. */

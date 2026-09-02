@@ -15,6 +15,8 @@ import {
   SharedGridRowActionEvent,
 } from '../../shared/shared-data-grid/shared-data-grid.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
+import { PermissionService } from '../../../services/permission.service';
+import { HasPermissionDirective } from '../../shared/permission.directive';
 
 @Component({
   selector: 'app-purchase-offers',
@@ -25,7 +27,8 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.
     TranslateModule,
     MatButtonModule,
     MatIconModule,
-    SharedDataGridComponent
+    SharedDataGridComponent,
+    HasPermissionDirective
   ],
   templateUrl: './purchase-offers.component.html',
   styleUrls: ['./purchase-offers.component.css']
@@ -33,6 +36,7 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.
 export class PurchaseOffersComponent implements OnInit {
   purchaseOffers: PurchaseOfferDto[] = [];
   private responsiveService = inject(ResponsiveService);
+  private permissionService = inject(PermissionService);
   isMobile = this.responsiveService.isMobile;
 
   constructor(
@@ -133,9 +137,9 @@ export class PurchaseOffersComponent implements OnInit {
 
   /** Same edit/approve/reject buttons as before (approve/reject only while pending). */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
-    { id: 'approve', icon: 'check', labelKey: 'PURCHASE_OFFERS.APPROVE', visible: (row) => this.isPending({ row: { data: row } }) },
-    { id: 'reject', icon: 'close', labelKey: 'PURCHASE_OFFERS.REJECT', visible: (row) => this.isPending({ row: { data: row } }) },
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('purchases.offers.view') },
+    { id: 'approve', icon: 'check', labelKey: 'PURCHASE_OFFERS.APPROVE', visible: (row) => this.isPending({ row: { data: row } }) && this.permissionService.hasPermission('purchases.offers.view') },
+    { id: 'reject', icon: 'close', labelKey: 'PURCHASE_OFFERS.REJECT', visible: (row) => this.isPending({ row: { data: row } }) && this.permissionService.hasPermission('purchases.offers.view') },
   ];
 
   onGridAction(e: SharedGridRowActionEvent): void {

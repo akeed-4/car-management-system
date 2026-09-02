@@ -17,6 +17,8 @@ import { ResponsiveService } from '../../../services/responsive.service';
 import { MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
 import { StockTake } from '../../../models/stock-take.model';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
+import { PermissionService } from '../../../services/permission.service';
+import { HasPermissionDirective } from '../../shared/permission.directive';
 
 @Component({
   selector: 'app-stock-taking',
@@ -29,7 +31,8 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.
     MatIconModule,
     MatCardModule,
     MatToolbarModule,
-    SharedDataGridComponent
+    SharedDataGridComponent,
+    HasPermissionDirective
   ],
   templateUrl: './stock-taking.component.html',
   styleUrl: './stock-taking.component.css',
@@ -39,6 +42,7 @@ export class StockTakingComponent {
   private stockTakeService = inject(StockTakeService);
   private router = inject(Router);
   private responsiveService = inject(ResponsiveService);
+  permissionService = inject(PermissionService);
   isMobile = this.responsiveService.isMobile;
 
   stockTakes = toSignal(this.stockTakeService.getStockTakesByStore(1), { initialValue: [] });
@@ -75,8 +79,8 @@ constructor() {
    *  (isEditVisible/isDeleteVisible below were defined but never actually wired to the
    *  dxi-buttons, so no status-based gating existed and none is introduced here). */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
-    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn' },
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('inventory.stocktaking.view') },
+    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('inventory.stocktaking.view') },
   ];
 
   onGridAction(e: SharedGridRowActionEvent): void {

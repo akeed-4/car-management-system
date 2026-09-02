@@ -15,6 +15,8 @@ import { CurrencyService } from '../../../../services/currency.service';
 import { NotificationService } from '../../../../services/notification.service';
 import { Currency } from '../../../../models/currency.model';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
+import { PermissionService } from '../../../../services/permission.service';
+import { HasPermissionDirective } from '../../../shared/permission.directive';
 
 @Component({
   selector: 'app-currency-list',
@@ -28,7 +30,8 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/gr
     MatToolbarModule,
     MatTooltipModule,
     TranslateModule,
-    SharedDataGridComponent
+    SharedDataGridComponent,
+    HasPermissionDirective
   ],
   templateUrl: './currency-list.component.html',
   styleUrls: ['./currency-list.component.css'],
@@ -41,6 +44,7 @@ export class CurrencyListComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private router = inject(Router);
   private translate = inject(TranslateService);
+  private permissionService = inject(PermissionService);
 
   currencies = signal<Currency[]>([]);
   loading = signal(false);
@@ -57,13 +61,14 @@ export class CurrencyListComponent implements OnInit {
 
   /** Row actions -- deactivate renders disabled for already-inactive rows. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('currencies.view') },
     {
       id: 'deactivate',
       icon: 'block',
       labelKey: 'CURRENCY.DEACTIVATE',
       cssClass: 'warn',
       disabled: (row) => !row.isActive,
+      visible: () => this.permissionService.hasPermission('currencies.view'),
     },
   ];
 

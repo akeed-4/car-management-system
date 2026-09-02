@@ -17,6 +17,7 @@ import { CarModel } from '../../../../models/car-model.model';
 import { ManufacturerService } from '../../../../services/manufacturer.service';
 import { ManufactureYearService } from '../../../../services/manufacture-year.service';
 import { NotificationService } from '@/src/services/notification.service';
+import { PermissionService } from '../../../../services/permission.service';
 
 /** Passed in when YearSpecificationFormComponent is opened via MatDialog.open(...) from
  *  CarCardComponent's Year Specification "+" button -- a Year Specification always belongs to a
@@ -57,6 +58,7 @@ export class YearSpecificationFormComponent implements OnInit {
   private manufactureYearService = inject(ManufactureYearService);
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
+  private permissionService = inject(PermissionService);
   private dialogRef = inject(MatDialogRef<YearSpecificationFormComponent, YearSpecification | undefined>, { optional: true });
   private data = inject<YearSpecificationQuickAddData | null>(MAT_DIALOG_DATA, { optional: true });
 
@@ -68,6 +70,10 @@ export class YearSpecificationFormComponent implements OnInit {
   specForm!: FormGroup;
   editMode = signal(false);
   pageTitle = signal('YEAR_SPECIFICATION.FORM.TITLE_NEW');
+
+  canCreate = computed(() => this.permissionService.hasPermission('yearSpecification.create'));
+  canEdit = computed(() => this.permissionService.hasPermission('yearSpecification.edit'));
+  canSaveSpec = computed(() => this.editMode() ? this.canEdit() : this.canCreate());
 
   manufacturers = this.manufacturerService.manufacturers$;
   models: Signal<CarModel[]> = this.carModelService.carmodel$;

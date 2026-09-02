@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal, OnInit, computed, effect, ChangeDetectorRef } from '@angular/core';
-import { ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -13,6 +14,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
@@ -41,7 +43,6 @@ import { YearSpecification } from '../../../../models/year-specification.model';
 
 import { ModalComponent } from '../../../shared/modal/modal.component';
 import { VinScannerComponent } from '../../../shared/vin-scanner/vin-scanner.component';
-import { PublishModalComponent } from '../../../shared/publish-modal/publish-modal.component';
 import { NotificationService } from '@/src/services/notification.service';
 import { ManufacturersComponent } from '../../manufacturers/manufacturers-list/manufacturers.component';
 import { CarModelsComponent, CarModelQuickAddData } from '../../car-models/car-models-list/car-models.component';
@@ -71,9 +72,9 @@ const VIN_PATTERN = /^[A-Za-z0-9]+$/;
     MatSlideToggleModule,
     MatExpansionModule,
     MatTooltipModule,
+    NgxMatSelectSearchModule,
     TranslateModule,
-    VinScannerComponent,
-    PublishModalComponent
+    VinScannerComponent
   ],
   templateUrl: './car-card.component.html',
   styleUrl: './car-card.component.css',
@@ -165,7 +166,6 @@ private translate = inject(TranslateService);
 
   // VIN Scanner Modal state
   isScannerOpen = signal(false);
-  isPublishModalOpen = signal(false);
 
   // Profitability Tracking
   private allExpenses = this.expenseService.expenses$;
@@ -193,6 +193,40 @@ private translate = inject(TranslateService);
       models =  this.allModels().filter(m => catModelIds.includes(m.id));
     }
     return models;
+  });
+
+  // ── Type-ahead search for the Manufacturer/Model/Category/Year Specification selects ──────────
+  // Each list here is already small/cascaded by the logic above; these filter controls only add a
+  // client-side substring narrowing on top (ngx-mat-select-search, same pattern already used for
+  // Purchase Invoice's Supplier field) so long lists don't require scrolling to find an entry.
+  manufacturerFilterCtrl = new FormControl('');
+  modelFilterCtrl = new FormControl('');
+  categoryFilterCtrl = new FormControl('');
+  yearSpecFilterCtrl = new FormControl('');
+
+  private manufacturerFilterSignal = toSignal(this.manufacturerFilterCtrl.valueChanges, { initialValue: '' });
+  private modelFilterSignal = toSignal(this.modelFilterCtrl.valueChanges, { initialValue: '' });
+  private categoryFilterSignal = toSignal(this.categoryFilterCtrl.valueChanges, { initialValue: '' });
+  private yearSpecFilterSignal = toSignal(this.yearSpecFilterCtrl.valueChanges, { initialValue: '' });
+
+  searchedManufacturers = computed(() => {
+    const filter = this.manufacturerFilterSignal()?.toLowerCase() ?? '';
+    return this.manufacturers().filter(m => m.name?.toLowerCase().includes(filter));
+  });
+
+  searchedModels = computed(() => {
+    const filter = this.modelFilterSignal()?.toLowerCase() ?? '';
+    return (this.filteredModels() ?? []).filter(m => m.name?.toLowerCase().includes(filter));
+  });
+
+  searchedCategories = computed(() => {
+    const filter = this.categoryFilterSignal()?.toLowerCase() ?? '';
+    return this.filteredCategories().filter(c => (c.nameEn || c.name)?.toLowerCase().includes(filter));
+  });
+
+  searchedYearSpecs = computed(() => {
+    const filter = this.yearSpecFilterSignal()?.toLowerCase() ?? '';
+    return this.filteredYearSpecs().filter(s => String(s.year).includes(filter));
   });
   constructor() { 
      // Reset model when manufacturer changes and set manufacturerId
@@ -465,10 +499,10 @@ backToCard(): void {
   // /setup/car-categories/new as a MatDialog (see their @Optional() MatDialogRef support), instead
   // of a separate dialog-only component -- no duplicated form markup or duplicated API calls.
 
-  canAddManufacturer = computed(() => true); // Always allow adding a new manufacturer
-  canAddCarModel = computed(() => true);
-  canAddCarCategory = computed(() => true);
-  canAddYearSpecification = computed(() => true);
+  canAddManufacturer = computed(() => this.permissionService.hasPermission('manufacturer.create'));
+  canAddCarModel = computed(() => this.permissionService.hasPermission('carModel.create'));
+  canAddCarCategory = computed(() => this.permissionService.hasPermission('carCategory.create'));
+  canAddYearSpecification = computed(() => this.permissionService.hasPermission('yearSpecification.create'));
 
   openAddManufacturerDialog(): void {
     const dialogRef = this.dialog.open(ManufacturersComponent, {

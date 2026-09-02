@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { UserService } from '../../../services/user.service';
 import { RoleService } from '../../../services/role.service';
 import { NotificationService } from '@/src/services/notification.service';
+import { PermissionService } from '../../../services/permission.service';
 import { User } from '../../../models/user.model';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -54,11 +55,16 @@ export class UserFormComponent {
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
   private fb = inject(FormBuilder);
+  private permissionService = inject(PermissionService);
 
   userForm!: FormGroup;
   editMode = signal(false);
   saving = signal(false);
   hidePassword = signal(true);
+
+  canSaveUser = computed(() => this.editMode()
+    ? this.permissionService.hasPermission('users.edit')
+    : this.permissionService.hasPermission('users.create'));
   pageTitle = signal('USERS.FORM.ADD_TITLE');
 
   private editingUserId: number | null = null;

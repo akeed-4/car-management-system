@@ -4,7 +4,7 @@
       <h2 class="erp-page-title">{{ 'CORPORATE.DELIVERIES_LIST_TITLE' | translate }}</h2>
     </div>
     <div class="erp-page-actions">
-      <button mat-raised-button color="primary" (click)="onCreateNew()">
+      <button *ngIf="permissionService.hasPermission('sales.corporate.deliveries.view')" mat-raised-button color="primary" (click)="onCreateNew()">
         <mat-icon>add</mat-icon>
         {{ 'CORPORATE.DISPATCH_VEHICLES' | translate }}
       </button>

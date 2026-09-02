@@ -4,10 +4,12 @@
       <h2 class="erp-page-title">{{ 'CAR_CATEGORY.LIST_TITLE' | translate }}</h2>
     </div>
     <div class="erp-page-actions">
+      @if (canCreate()) {
       <a routerLink="/setup/car-categories/new" mat-raised-button color="primary">
         <mat-icon>add</mat-icon>
         {{ 'CAR_CATEGORY.ADD_NEW' | translate }}
       </a>
+      }
     </div>
   </div>
 
@@ -28,8 +30,12 @@
 
     <!-- Mobile per-row actions (same edit/delete behavior as before) -->
     <ng-template let-cat>
+      @if (canEdit()) {
       <button type="button" class="btn btn-light" (click)="mobileEdit(cat)">{{ 'CAR_CATEGORY.EDIT' | translate }}</button>
+      }
+      @if (canDelete()) {
       <button type="button" class="btn btn-light" (click)="mobileDelete(cat)">{{ 'CAR_CATEGORY.DELETE' | translate }}</button>
+      }
     </ng-template>
   </app-shared-data-grid>
 </div>

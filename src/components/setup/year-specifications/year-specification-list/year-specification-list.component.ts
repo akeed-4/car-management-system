@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,6 +11,7 @@ import { ResponsiveService } from '../../../../services/responsive.service';
 import { NotificationService } from '@/src/services/notification.service';
 import { MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
+import { PermissionService } from '../../../../services/permission.service';
 
 /** Year Specification list: the Trim + Model Year technical-spec level of the
  *  Make -> Model -> Trim -> YearSpecification -> Vehicle hierarchy. Mirrors
@@ -27,9 +28,14 @@ export class YearSpecificationListComponent {
   private router = inject(Router);
   private notificationService = inject(NotificationService);
   private responsiveService = inject(ResponsiveService);
+  private permissionService = inject(PermissionService);
   isMobile = this.responsiveService.isMobile;
 
   specs = this.yearSpecService.specs$;
+
+  canCreate = computed(() => this.permissionService.hasPermission('yearSpecification.create'));
+  canEdit = computed(() => this.permissionService.hasPermission('yearSpecification.edit'));
+  canDelete = computed(() => this.permissionService.hasPermission('yearSpecification.delete'));
 
   columns: dataGridColumnDto[] = [
     { dataField: 'manufacturerName', dataType: 'string', caption: 'YEAR_SPECIFICATION.COLUMNS.MAKE', minWidth: 120 },
@@ -42,8 +48,8 @@ export class YearSpecificationListComponent {
   ];
 
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'edit', icon: 'edit', labelKey: 'YEAR_SPECIFICATION.EDIT' },
-    { id: 'delete', icon: 'delete', labelKey: 'YEAR_SPECIFICATION.DELETE', cssClass: 'warn' },
+    { id: 'edit', icon: 'edit', labelKey: 'YEAR_SPECIFICATION.EDIT', visible: () => this.permissionService.hasPermission('yearSpecification.edit') },
+    { id: 'delete', icon: 'delete', labelKey: 'YEAR_SPECIFICATION.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('yearSpecification.delete') },
   ];
 
   onGridAction(e: SharedGridRowActionEvent): void {

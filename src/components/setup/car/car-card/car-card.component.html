@@ -1,6 +1,6 @@
-<div class="erp-page container">
-    <div class="erp-card card">
-        <div class="erp-page-header card-header">
+<div class="erp-page car-card-page">
+    <div class="erp-card car-card-shell">
+        <div class="erp-page-header car-card-header">
             <div class="erp-page-header-titles">
                 <h2 class="erp-page-title">{{ pageTitle() | translate }}</h2>
             </div>
@@ -9,7 +9,7 @@
             </div>
         </div>
 
-        <form [formGroup]="carForm" class="card-body">
+        <form [formGroup]="carForm" class="car-card-body">
 
             <mat-accordion multi="true" class="car-accordion">
 
@@ -25,15 +25,21 @@
                         </mat-panel-description>
                     </mat-expansion-panel-header>
 
-                    <div class="erp-form-grid form-grid">
+                    <div class="erp-form-grid erp-form-grid-4">
                         <div class="field-span-1 field-with-add">
                             <mat-form-field appearance="outline" class="field-with-add-select">
                                 <mat-label>{{ 'INVENTORY.FORM.MANUFACTURER' | translate }}</mat-label>
                                 <mat-select formControlName="make" required
                                     (selectionChange)="onManufacturerChange($event.value)">
+                                    <mat-option>
+                                        <ngx-mat-select-search [formControl]="manufacturerFilterCtrl"
+                                            placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
+                                            noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
+                                        </ngx-mat-select-search>
+                                    </mat-option>
                                     <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_MANUFACTURER' |
                                         translate }}</mat-option>
-                                    @for (manufacturer of manufacturers(); track manufacturer.id) {
+                                    @for (manufacturer of searchedManufacturers(); track manufacturer.id) {
                                     <mat-option [value]="manufacturer.name">{{ manufacturer.name }}</mat-option>
                                     }
                                 </mat-select>
@@ -52,9 +58,15 @@
                                 <mat-label>{{ 'INVENTORY.FORM.MODEL' | translate }}</mat-label>
                                 <mat-select formControlName="modelId" required
                                     (selectionChange)="onModelChange($event.value)">
+                                    <mat-option>
+                                        <ngx-mat-select-search [formControl]="modelFilterCtrl"
+                                            placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
+                                            noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
+                                        </ngx-mat-select-search>
+                                    </mat-option>
                                     <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_MODEL' | translate
                                         }}</mat-option>
-                                    @for (carModel of filteredModels(); track carModel.id) {
+                                    @for (carModel of searchedModels(); track carModel.id) {
                                     <mat-option [value]="carModel.id">{{ carModel.name }}</mat-option>
                                     }
                                 </mat-select>
@@ -74,9 +86,15 @@
                                 <mat-label>{{ 'INVENTORY.FORM.CATEGORY' | translate }}</mat-label>
                                 <mat-select formControlName="categoryId"
                                     (selectionChange)="onCategoryChange($event.value)">
+                                    <mat-option>
+                                        <ngx-mat-select-search [formControl]="categoryFilterCtrl"
+                                            placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
+                                            noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
+                                        </ngx-mat-select-search>
+                                    </mat-option>
                                     <mat-option [value]="null">{{ 'INVENTORY.FORM.SELECT_CATEGORY' | translate
                                         }}</mat-option>
-                                    @for (cat of filteredCategories(); track cat.id) {
+                                    @for (cat of searchedCategories(); track cat.id) {
                                     <mat-option [value]="cat.id">{{ cat.nameEn || cat.name }}</mat-option>
                                     }
                                 </mat-select>
@@ -99,13 +117,22 @@
                                 <mat-label>{{ 'INVENTORY.FORM.YEAR_SPECIFICATION' | translate }}</mat-label>
                                 <mat-select formControlName="yearSpecificationId" required
                                     (selectionChange)="onYearSpecificationChange($event.value)">
+                                    <mat-option>
+                                        <ngx-mat-select-search [formControl]="yearSpecFilterCtrl"
+                                            placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
+                                            noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
+                                        </ngx-mat-select-search>
+                                    </mat-option>
                                     <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_YEAR_SPECIFICATION' | translate
                                         }}</mat-option>
-                                    @for (spec of filteredYearSpecs(); track spec.id) {
+                                    @for (spec of searchedYearSpecs(); track spec.id) {
                                     <mat-option [value]="spec.id">{{ spec.year }}</mat-option>
                                     }
                                 </mat-select>
                                 <mat-hint *ngIf="!carForm.value.categoryId">{{ 'INVENTORY.FORM.SELECT_CATEGORY_FIRST' | translate }}</mat-hint>
+                                <mat-error *ngIf="carForm.get('yearSpecificationId')?.hasError('required')">
+                                    {{ 'VALIDATION.REQUIRED' | translate }}
+                                </mat-error>
                             </mat-form-field>
                             @if (canAddYearSpecification()) {
                             <button mat-icon-button type="button" class="field-add-btn"
@@ -154,7 +181,7 @@
                         </mat-panel-description>
                     </mat-expansion-panel-header>
 
-                    <div class="erp-form-grid form-grid">
+                    <div class="erp-form-grid erp-form-grid-4">
                         <mat-form-field appearance="outline" class="field-span-1">
                             <mat-label>{{ 'INVENTORY.FORM.VIN' | translate }}</mat-label>
                             <input matInput type="text" formControlName="vin" required dir="ltr">
@@ -202,7 +229,7 @@
                         </mat-panel-description>
                     </mat-expansion-panel-header>
 
-                    <div class="erp-form-grid form-grid">
+                    <div class="erp-form-grid erp-form-grid-4">
                         <mat-form-field appearance="outline" class="field-span-1">
                             <mat-label>{{ 'INVENTORY.FORM.MILEAGE' | translate }}</mat-label>
                             <input matInput type="number" formControlName="mileage" required min="0"
@@ -221,6 +248,9 @@
                                     <mat-option [value]="color.id">{{ color.nameEn }}</mat-option>
                                     }
                                 </mat-select>
+                                <mat-error *ngIf="carForm.get('exteriorColorId')?.hasError('required')">
+                                    {{ 'VALIDATION.REQUIRED' | translate }}
+                                </mat-error>
                             </mat-form-field>
                             <button type="button" mat-icon-button class="field-add-btn"
                                 [matTooltip]="'INVENTORY.FORM.ADD_COLOR' | translate"
@@ -238,6 +268,9 @@
                                     <mat-option [value]="color.id">{{ color.nameEn }}</mat-option>
                                     }
                                 </mat-select>
+                                <mat-error *ngIf="carForm.get('interiorColorId')?.hasError('required')">
+                                    {{ 'VALIDATION.REQUIRED' | translate }}
+                                </mat-error>
                             </mat-form-field>
                             <button type="button" mat-icon-button class="field-add-btn"
                                 [matTooltip]="'INVENTORY.FORM.ADD_COLOR' | translate"
@@ -258,6 +291,9 @@
                         <mat-form-field appearance="outline" class="field-span-1">
                             <mat-label>{{ 'INVENTORY.FORM.ENGINE_SIZE' | translate }}</mat-label>
                             <input matInput type="text" formControlName="engineSize" readonly>
+                            <mat-error *ngIf="carForm.get('engineSize')?.hasError('required')">
+                                {{ 'INVENTORY.FORM.ENGINE_SIZE_MISSING' | translate }}
+                            </mat-error>
                         </mat-form-field>
 
                         <mat-form-field appearance="outline" class="field-span-1">
@@ -299,7 +335,7 @@
                         </mat-panel-description>
                     </mat-expansion-panel-header>
 
-                    <div class="erp-form-grid form-grid">
+                    <div class="erp-form-grid erp-form-grid-4">
                         <mat-form-field appearance="outline" class="field-span-1">
                             <mat-label>{{ 'INVENTORY.FORM.PURCHASE_PRICE' | translate }}</mat-label>
                             <input matInput type="number" formControlName="purchasePrice" required>
@@ -376,8 +412,8 @@
                         </mat-panel-description>
                     </mat-expansion-panel-header>
 
-                    <div class="table-wrapper">
-                        <table class="table">
+                    <div class="erp-table-wrapper">
+                        <table class="erp-table">
                             <thead>
                                 <tr>
                                     <th>{{ 'INVENTORY.FORM.RELATED_COSTS_DATE' | translate }}</th>
@@ -411,10 +447,13 @@
                         </mat-panel-description>
                     </mat-expansion-panel-header>
 
-                    <div class="erp-form-grid form-grid">
+                    <div class="erp-form-grid erp-form-grid-4">
                         <mat-form-field appearance="outline" class="field-span-2">
                             <mat-label>{{ 'INVENTORY.FORM.MARKETING_DESCRIPTION' | translate }}</mat-label>
-                            <textarea matInput formControlName="description" rows="6"></textarea>
+                            <textarea matInput formControlName="description" rows="6" required></textarea>
+                            <mat-error *ngIf="carForm.get('description')?.hasError('required')">
+                                {{ 'VALIDATION.REQUIRED' | translate }}
+                            </mat-error>
                         </mat-form-field>
 
                         <div class="photo-upload-container field-span-2">
@@ -457,31 +496,22 @@
         </form>
 
         <!-- Form Actions (sticky footer) -->
-        <div class="erp-actions-bar form-actions">
-            <button type="button" (click)="cancelForm()" class="btn btn-light">{{ 'INVENTORY.FORM.CANCEL' |
+        <div class="erp-actions-bar">
+            <button mat-stroked-button type="button" (click)="cancelForm()">{{ 'INVENTORY.FORM.CANCEL' |
                 translate }}</button>
-            <button type="button" (click)="saveCar()" [disabled]="carForm.invalid" class="btn btn-primary">
+            @if(editMode() && car()?.status === 'Reserved') {
+            <button mat-stroked-button type="button" (click)="navigateToDepositForm()" color="accent">
+                <mat-icon>receipt_long</mat-icon>
+                {{ 'INVENTORY.FORM.DEPOSIT_VOUCHER' | translate }}
+            </button>
+            }
+            <button mat-raised-button color="primary" type="button" (click)="saveCar()" [disabled]="carForm.invalid">
                 {{ editMode() ? ( 'INVENTORY.FORM.SAVE_CHANGES' | translate ) : ( 'INVENTORY.FORM.ADD_CAR' |
                 translate ) }}
             </button>
-            @if(editMode()) {
-
-            @if(car()?.status === 'Reserved') {
-            <button type="button" (click)="navigateToDepositForm()" class="btn btn-secondary">
-                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15A2.25 2.25 0 0 0 2.25 6.75v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
-                </svg>
-                <span>{{ 'INVENTORY.FORM.DEPOSIT_VOUCHER' | translate }}</span>
-            </button>
-            }
-            }
         </div>
     </div>
 </div>
 
 <app-vin-scanner [isOpen]="isScannerOpen()" (vinScanned)="onVinScanned($event)" (cancel)="isScannerOpen.set(false)">
 </app-vin-scanner>
-
-<app-publish-modal [isOpen]="isPublishModalOpen()" [car]="car()" (close)="isPublishModalOpen.set(false)">
-</app-publish-modal>

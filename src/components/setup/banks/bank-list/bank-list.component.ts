@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, ViewChild, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, ViewChild, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -15,6 +15,7 @@ import { BankService } from '../../../../services/bank.service';
 import { NotificationService } from '../../../../services/notification.service';
 import { Bank } from '../../../../models/bank.model';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
+import { PermissionService } from '../../../../services/permission.service';
 
 @Component({
   selector: 'app-bank-management-list',
@@ -41,6 +42,9 @@ export class BankManagementListComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private router = inject(Router);
   private translate = inject(TranslateService);
+  private permissionService = inject(PermissionService);
+
+  canCreate = computed(() => this.permissionService.hasPermission('bank.create'));
 
   banks = signal<Bank[]>([]);
   loading = signal(false);
@@ -59,8 +63,8 @@ export class BankManagementListComponent implements OnInit {
   /** Row actions -- dispatched through the grid's single rowAction output. */
   rowActions: sharedGridRowActionDto[] = [
     { id: 'view', icon: 'visibility', labelKey: 'COMMON.VIEW' },
-    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
-    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn' },
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('bank.edit') },
+    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('bank.delete') },
   ];
 
 

@@ -13,6 +13,8 @@ import {
   SharedGridRowActionEvent,
 } from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
+import { PermissionService } from '../../../../services/permission.service';
+import { HasPermissionDirective } from '../../../shared/permission.directive';
 
 type SortColumn = keyof PurchaseInvoice | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -20,7 +22,7 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-cash-purchase-invoice-list',
   standalone: true,
-  imports: [RouterLink, FormsModule, TranslateModule, SharedDataGridComponent],
+  imports: [RouterLink, FormsModule, TranslateModule, SharedDataGridComponent, HasPermissionDirective],
   templateUrl: './cash-purchase-invoice-list.component.html',
   styleUrl: './cash-purchase-invoice-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,6 +32,7 @@ export class CashPurchaseInvoiceListComponent {
   private translate = inject(TranslateService);
   private router = inject(Router);
   private responsiveService = inject(ResponsiveService);
+  private permissionService = inject(PermissionService);
   isMobile = this.responsiveService.isMobile;
     invoices = toSignal(this.procurementService.getInvoices(), { initialValue: [] });
 constructor() {
@@ -140,10 +143,10 @@ constructor() {
 
     /** Same print/edit/delete/archive buttons as before (archive only when eligible). */
     rowActions: sharedGridRowActionDto[] = [
-      { id: 'print', icon: 'print', labelKey: 'PURCHASES.PRINT_INVOICE' },
-      { id: 'edit', icon: 'edit', labelKey: 'PURCHASES.EDIT_INVOICE' },
-      { id: 'delete', icon: 'delete', labelKey: 'PURCHASES.DELETE_INVOICE', cssClass: 'warn' },
-      { id: 'archive', icon: 'archive', labelKey: 'PURCHASES.ARCHIVE', visible: (row) => this.isArchiveButtonVisible({ row: { data: row } }) },
+      { id: 'print', icon: 'print', labelKey: 'PURCHASES.PRINT_INVOICE', visible: () => this.permissionService.hasPermission('purchases.cash.view') },
+      { id: 'edit', icon: 'edit', labelKey: 'PURCHASES.EDIT_INVOICE', visible: () => this.permissionService.hasPermission('purchases.cash.view') },
+      { id: 'delete', icon: 'delete', labelKey: 'PURCHASES.DELETE_INVOICE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('purchases.cash.view') },
+      { id: 'archive', icon: 'archive', labelKey: 'PURCHASES.ARCHIVE', visible: (row) => this.isArchiveButtonVisible({ row: { data: row } }) && this.permissionService.hasPermission('purchases.cash.view') },
     ];
 
     onGridAction(e: SharedGridRowActionEvent): void {

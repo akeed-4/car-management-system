@@ -11,11 +11,13 @@ import {
   SharedGridRowActionEvent,
 } from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
+import { PermissionService } from '../../../../services/permission.service';
+import { HasPermissionDirective } from '../../../shared/permission.directive';
 
 @Component({
   selector: 'app-cash-return-invoice-list',
   standalone: true,
-  imports: [RouterLink, TranslateModule, SharedDataGridComponent],
+  imports: [RouterLink, TranslateModule, SharedDataGridComponent, HasPermissionDirective],
   templateUrl: './cash-return-invoice-list.component.html',
   styleUrl: './cash-return-invoice-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,6 +27,7 @@ export class CashReturnInvoiceListComponent {
   private translate = inject(TranslateService);
   private router = inject(Router);
   private responsiveService = inject(ResponsiveService);
+  private permissionService = inject(PermissionService);
   isMobile = this.responsiveService.isMobile;
   returnInvoices = toSignal(this.purchaseReturnService.getReturnInvoices(), { initialValue: [] });
 
@@ -60,9 +63,9 @@ export class CashReturnInvoiceListComponent {
 
   /** Same print/edit/delete buttons as before. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'print', icon: 'print', labelKey: 'PURCHASE_RETURN.PRINT' },
-    { id: 'edit', icon: 'edit', labelKey: 'PURCHASE_RETURN.EDIT' },
-    { id: 'delete', icon: 'delete', labelKey: 'PURCHASE_RETURN.DELETE', cssClass: 'warn' },
+    { id: 'print', icon: 'print', labelKey: 'PURCHASE_RETURN.PRINT', visible: () => this.permissionService.hasPermission('purchases.returns.cash.view') },
+    { id: 'edit', icon: 'edit', labelKey: 'PURCHASE_RETURN.EDIT', visible: () => this.permissionService.hasPermission('purchases.returns.cash.view') },
+    { id: 'delete', icon: 'delete', labelKey: 'PURCHASE_RETURN.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('purchases.returns.cash.view') },
   ];
 
   /** Same "Total: <sum>" summary row as before (ported via valueFormat/displayFormat --

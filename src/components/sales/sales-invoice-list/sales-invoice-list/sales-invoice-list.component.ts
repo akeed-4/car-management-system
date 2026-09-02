@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, Input, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -12,6 +13,7 @@ import {
 import { SalesService } from '../../../../services/sales.service';
 import { ToastService } from '../../../../services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
+import { PermissionService } from '../../../../services/permission.service';
 import { SalesInvoice } from '../../../../models/sales-invoice.model';
 import { ResponsiveService } from '../../../../services/responsive.service';
 import { MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
@@ -20,7 +22,7 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/gr
 @Component({
   selector: 'app-sales-invoice-list',
   standalone: true,
-  imports: [RouterLink, TranslateModule, MatIconModule, MatButtonModule, MatTooltipModule, SharedDataGridComponent],
+  imports: [CommonModule, RouterLink, TranslateModule, MatIconModule, MatButtonModule, MatTooltipModule, SharedDataGridComponent],
   templateUrl: './sales-invoice-list.component.html',
   styleUrl: './sales-invoice-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,6 +37,7 @@ export class SalesInvoiceListComponent {
   private toastService = inject(NotificationService);
   private translate = inject(TranslateService);
   private responsiveService = inject(ResponsiveService);
+  permissionService = inject(PermissionService);
   isMobile = this.responsiveService.isMobile;
   allInvoices = toSignal(this.salesService.getInvoices(), { initialValue: [] });
 
@@ -48,10 +51,13 @@ export class SalesInvoiceListComponent {
     { dataField: '__actions', dataType: 'string', type: 'actions', caption: 'PURCHASES.ACTIONS', width: 200, cssClass: 'no-print', allowSorting: false, allowFiltering: false },
   ];
 
-  /** Same print + edit buttons as before (in the same order). */
+  /** Same print + edit buttons as before (in the same order).
+   *  This screen renders either cash or credit invoices per instance (never mixed --
+   *  see isCashInvoice, set by the cash-invoice-list / credit-invoice-list wrapper
+   *  components), so the matching per-type permission key gates both actions. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'print', icon: 'print', labelKey: 'PURCHASES.PRINT_INVOICE' },
-    { id: 'edit', icon: 'edit', labelKey: 'PURCHASES.EDIT_INVOICE' },
+    { id: 'print', icon: 'print', labelKey: 'PURCHASES.PRINT_INVOICE', visible: () => this.permissionService.hasPermission(this.isCashInvoice ? 'sales.cash.view' : 'sales.credit.view') },
+    { id: 'edit', icon: 'edit', labelKey: 'PURCHASES.EDIT_INVOICE', visible: () => this.permissionService.hasPermission(this.isCashInvoice ? 'sales.cash.view' : 'sales.credit.view') },
   ];
 
   /** Same sum/count totals as before -- SharedDataGrid's summary items don't support a

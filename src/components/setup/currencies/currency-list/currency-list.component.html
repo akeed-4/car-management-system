@@ -4,7 +4,7 @@
       <h1 class="erp-page-title">{{ 'CURRENCY.LIST_TITLE' | translate }}</h1>
     </div>
     <div class="erp-page-actions">
-      <a routerLink="/setup/currencies/new" mat-raised-button color="primary">
+      <a *appHasPermission="'currencies.view'" routerLink="/setup/currencies/new" mat-raised-button color="primary">
         <mat-icon>add</mat-icon>
         {{ 'CURRENCY.CREATE_TITLE' | translate }}
       </a>

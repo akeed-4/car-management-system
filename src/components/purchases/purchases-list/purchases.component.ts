@@ -14,6 +14,8 @@ import {
 } from '../../shared/shared-data-grid/shared-data-grid.component';
 import { MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
+import { PermissionService } from '../../../services/permission.service';
+import { HasPermissionDirective } from '../../shared/permission.directive';
 
 type SortColumn = keyof PurchaseInvoice | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -21,7 +23,7 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-purchases',
   standalone: true,
-  imports: [RouterLink, FormsModule, TranslateModule, SharedDataGridComponent],
+  imports: [RouterLink, FormsModule, TranslateModule, SharedDataGridComponent, HasPermissionDirective],
   templateUrl: './purchases.component.html',
   styleUrl: './purchases.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,6 +32,7 @@ export class PurchasesComponent {
     private procurementService = inject(PurchasesService);
   private translate = inject(TranslateService);
   private router = inject(Router);
+  private permissionService = inject(PermissionService);
     invoices = toSignal(this.procurementService.getInvoices(), { initialValue: [] });
 
     filter = signal('');
@@ -156,11 +159,11 @@ export class PurchasesComponent {
 
     /** Same 5 row buttons as before (print/edit/delete/archive/unarchive), same visibility rules. */
     rowActions: sharedGridRowActionDto[] = [
-      { id: 'print', icon: 'print', labelKey: 'PURCHASES.PRINT_INVOICE' },
-      { id: 'edit', icon: 'edit', labelKey: 'PURCHASES.EDIT_INVOICE' },
-      { id: 'delete', icon: 'delete', labelKey: 'PURCHASES.DELETE_INVOICE', cssClass: 'warn' },
-      { id: 'archive', icon: 'archive', labelKey: 'PURCHASES.ARCHIVE', visible: (row) => !this.showArchived() && row.status === 'Paid' },
-      { id: 'unarchive', icon: 'undo', labelKey: 'PURCHASES.UNARCHIVE', visible: () => this.showArchived() },
+      { id: 'print', icon: 'print', labelKey: 'PURCHASES.PRINT_INVOICE', visible: () => this.permissionService.hasPermission('purchases.view') },
+      { id: 'edit', icon: 'edit', labelKey: 'PURCHASES.EDIT_INVOICE', visible: () => this.permissionService.hasPermission('purchases.view') },
+      { id: 'delete', icon: 'delete', labelKey: 'PURCHASES.DELETE_INVOICE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('purchases.view') },
+      { id: 'archive', icon: 'archive', labelKey: 'PURCHASES.ARCHIVE', visible: (row) => !this.showArchived() && row.status === 'Paid' && this.permissionService.hasPermission('purchases.view') },
+      { id: 'unarchive', icon: 'undo', labelKey: 'PURCHASES.UNARCHIVE', visible: () => this.showArchived() && this.permissionService.hasPermission('purchases.view') },
     ];
 
     /** Custom cell templates ported 1:1 from the previous *dxTemplate blocks. */

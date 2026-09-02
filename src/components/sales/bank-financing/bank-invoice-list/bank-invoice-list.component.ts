@@ -13,6 +13,7 @@ import {
 } from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { SalesService } from '../../../../services/sales.service';
 import { NotificationService } from '@/src/services/notification.service';
+import { PermissionService } from '../../../../services/permission.service';
 import { SalesInvoice } from '../../../../models/sales-invoice.model';
 import { SalesChannel } from '../../../../models/enums/sales-channel.enum';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
@@ -40,6 +41,7 @@ export class BankInvoiceListComponent implements OnInit {
   private salesService = inject(SalesService);
   private notificationService = inject(NotificationService);
   private router = inject(Router);
+  permissionService = inject(PermissionService);
 
   invoices = signal<SalesInvoice[]>([]);
   loading = signal(false);
@@ -66,7 +68,7 @@ export class BankInvoiceListComponent implements OnInit {
 
   /** Same single edit button as before. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('sales.bank.invoices.view') },
   ];
 
   onGridAction(e: SharedGridRowActionEvent): void {

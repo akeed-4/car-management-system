@@ -5,7 +5,7 @@
       <h2 class="erp-page-title">{{ 'ACCOUNTS.DEPOSITS.LIST_TITLE' | translate }}</h2>
     </div>
     <div class="erp-page-actions">
-      <button mat-raised-button color="primary" routerLink="/accounts/deposits/new">
+      <button *appHasPermission="'deposits.view'" mat-raised-button color="primary" routerLink="/accounts/deposits/new">
         <mat-icon>add</mat-icon>
         <span>{{ 'ACCOUNTS.DEPOSITS.NEW' | translate }}</span>
       </button>

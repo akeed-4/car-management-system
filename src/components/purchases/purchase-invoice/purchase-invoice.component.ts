@@ -70,6 +70,7 @@ import { CarsReceiptNoteDto } from '@/src/models/cars-receipt-note.model';
 import { CashAmountCalculatorComponent } from '../../shared/cash-amount-calculator/cash-amount-calculator.component';
 import { PurchaseAdditionalCostListComponent } from '../purchase-additional-cost-list/purchase-additional-cost-list.component';
 import { PurchaseAdditionalCostFormComponent } from '../purchase-additional-cost-form/purchase-additional-cost-form.component';
+import { PurchaseAdditionalCostService } from '@/src/services/purchase-additional-cost.service';
 import { Observable, of, map, tap, catchError, finalize, switchMap } from 'rxjs';
 import { formatCurrency } from '@angular/common';
 import { DocumentToolbarComponent, DocumentTotalsComponent, DocumentPrintService, DocumentAction, DocumentTotalsRow } from '../../shared/document';
@@ -144,6 +145,7 @@ export class PurchaseInvoiceComponent implements OnInit {
   private carsReceiptNoteService = inject(CarsReceiptNoteService);
   private vinService = inject(VinService);
   private purchaseCycleService = inject(PurchaseCycleService);
+  private purchaseAdditionalCostService = inject(PurchaseAdditionalCostService);
   private router = inject(Router);
   protected translate = inject(TranslateService);
   private fb = inject(FormBuilder);
@@ -305,6 +307,44 @@ export class PurchaseInvoiceComponent implements OnInit {
 
   // Invoice items state
   invoiceItems = signal<InvoiceItem[]>([]);
+
+  /** Per-car allocated Additional Costs (Customs/Shipping/etc.) for THIS invoice, keyed by carId --
+   *  purely informational display data, sourced from the same PurchaseAdditionalCost documents the
+   *  "Additional Costs" tab manages. Never read by totalsRows()/totalAmount()/subtotal/VAT/grand
+   *  total: those keep computing from invoiceItems() alone, unchanged. Only loaded in edit mode
+   *  (Additional Costs can't exist before the invoice itself is saved -- see the tab's own
+   *  *ngIf="currentInvoiceId()" guard). */
+  private allocatedCostsByCarId = signal<Map<number, number>>(new Map());
+
+  private loadAllocatedCostsForDisplay(invoiceId: number): void {
+    this.purchaseAdditionalCostService.getAll().subscribe({
+      next: response => {
+        const docs = (response?.data || []).filter(d => d.purchaseInvoiceId === invoiceId);
+        const byCarId = new Map<number, number>();
+        for (const doc of docs) {
+          for (const line of doc.lines || []) {
+            byCarId.set(line.carId, (byCarId.get(line.carId) ?? 0) + line.allocatedAmount);
+          }
+        }
+        this.allocatedCostsByCarId.set(byCarId);
+      },
+      error: () => this.allocatedCostsByCarId.set(new Map())
+    });
+  }
+
+  /** Est. landed cost for one grid row = its own unit price + this invoice's allocated Additional
+   *  Costs for that car. Informational only -- see allocatedCostsByCarId's comment. Returns null
+   *  when there's nothing allocated yet, so the grid can show a plain dash instead of a misleading
+   *  "+0" figure. */
+  estimatedLandedCost = (rowData: InvoiceItem): number | null => {
+    const allocated = this.allocatedCostsByCarId().get(rowData.carId);
+    if (!allocated) return null;
+    return (rowData.unitPrice ?? 0) + allocated;
+  };
+
+  hasAnyAllocatedCosts(): boolean {
+    return this.allocatedCostsByCarId().size > 0;
+  }
 
   // Auction purchase state -- only meaningful when isAuctionPurchase is checked; the backend's
   // AuctionPurchaseService is the actual authority on provider validation/charge rules, this is
@@ -934,6 +974,9 @@ export class PurchaseInvoiceComponent implements OnInit {
         // invoiceItems() in the template). Re-assigning the signal triggers change detection on
         // its own; no manual ChangeDetectorRef/grid.instance.option() call is needed here.
         this.invoiceItems.set(invoice.items || []);
+
+        // Informational "Est. landed cost" data for the grid -- see allocatedCostsByCarId's comment.
+        this.loadAllocatedCostsForDisplay(invoiceId);
 
         // Baseline the dirty-tracking snapshot for the freshly loaded document.
         this.captureDocumentSnapshot();

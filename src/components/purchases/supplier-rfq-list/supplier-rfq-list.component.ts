@@ -13,6 +13,8 @@ import { NotificationService } from '../../../services/notification.service';
 import { SupplierRfqDto } from '../../../models/supplier-rfq.model';
 import { MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
+import { PermissionService } from '../../../services/permission.service';
+import { HasPermissionDirective } from '../../shared/permission.directive';
 
 @Component({
   selector: 'app-supplier-rfq-list',
@@ -24,12 +26,14 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.
     TranslateModule,
     MatButtonModule,
     MatIconModule,
+    HasPermissionDirective,
   ],
   templateUrl: './supplier-rfq-list.component.html',
   styleUrls: ['./supplier-rfq-list.component.css']
 })
 export class SupplierRfqListComponent implements OnInit {
   quotations: SupplierRfqDto[] = [];
+  private permissionService = inject(PermissionService);
 
   constructor(
     private supplierRfqService: SupplierRfqService,
@@ -137,10 +141,10 @@ export class SupplierRfqListComponent implements OnInit {
 
   /** Same edit/submit/approve/reject buttons, same per-row visibility rules. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
-    { id: 'submit', icon: 'upload_file', labelKey: 'SUPPLIER_RFQ.SUBMIT', visible: (row) => this.isDraft({ row: { data: row } }) },
-    { id: 'approve', icon: 'check', labelKey: 'SUPPLIER_RFQ.APPROVE', visible: (row) => this.isPendingApproval({ row: { data: row } }) },
-    { id: 'reject', icon: 'close', labelKey: 'SUPPLIER_RFQ.REJECT', visible: (row) => this.isPendingApproval({ row: { data: row } }) },
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('purchases.quotations.view') },
+    { id: 'submit', icon: 'upload_file', labelKey: 'SUPPLIER_RFQ.SUBMIT', visible: (row) => this.isDraft({ row: { data: row } }) && this.permissionService.hasPermission('purchases.quotations.view') },
+    { id: 'approve', icon: 'check', labelKey: 'SUPPLIER_RFQ.APPROVE', visible: (row) => this.isPendingApproval({ row: { data: row } }) && this.permissionService.hasPermission('purchases.quotations.view') },
+    { id: 'reject', icon: 'close', labelKey: 'SUPPLIER_RFQ.REJECT', visible: (row) => this.isPendingApproval({ row: { data: row } }) && this.permissionService.hasPermission('purchases.quotations.view') },
   ];
 
   private statusTpl = viewChild<TemplateRef<any>>('statusCellTemplate');

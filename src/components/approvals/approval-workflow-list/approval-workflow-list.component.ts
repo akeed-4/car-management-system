@@ -16,6 +16,8 @@ import { ApprovalWorkflow, DOCUMENT_TYPES } from '../../../models/approval-workf
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 import { ToastService } from '../../../services/toast.service';
 import { NotificationService } from '../../../services/notification.service';
+import { PermissionService } from '../../../services/permission.service';
+import { HasPermissionDirective } from '../../shared/permission.directive';
 
 @Component({
   selector: 'app-approval-workflow-list',
@@ -29,7 +31,8 @@ import { NotificationService } from '../../../services/notification.service';
     MatChipsModule,
     MatTooltipModule,
     TranslateModule,
-    SharedDataGridComponent
+    SharedDataGridComponent,
+    HasPermissionDirective
   ],
   templateUrl: './approval-workflow-list.component.html',
   styleUrls: ['./approval-workflow-list.component.css']
@@ -40,6 +43,7 @@ export class ApprovalWorkflowListComponent implements OnInit {
   private toastService = inject(ToastService);
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
+  private permissionService = inject(PermissionService);
   workflows = signal<ApprovalWorkflow[]>([]);
   isLoading = signal(false);
 
@@ -74,18 +78,18 @@ export class ApprovalWorkflowListComponent implements OnInit {
   /** Already-authorized actions -- the activate/deactivate pair replaces the old
    *  dynamic-icon button using the built-in per-row visibility support. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'edit', icon: 'edit', labelKey: 'APPROVALS.EDIT_WORKFLOW' },
+    { id: 'edit', icon: 'edit', labelKey: 'APPROVALS.EDIT_WORKFLOW', visible: () => this.permissionService.hasPermission('approvals.workflows.view') },
     {
       id: 'deactivate', icon: 'check_circle',
       labelKey: 'APPROVALS.DEACTIVATE_WORKFLOW',
-      visible: (row: ApprovalWorkflow) => !!row.isActive,
+      visible: (row: ApprovalWorkflow) => !!row.isActive && this.permissionService.hasPermission('approvals.workflows.view'),
     },
     {
       id: 'activate', icon: 'cancel',
       labelKey: 'APPROVALS.ACTIVATE_WORKFLOW',
-      visible: (row: ApprovalWorkflow) => !row.isActive,
+      visible: (row: ApprovalWorkflow) => !row.isActive && this.permissionService.hasPermission('approvals.workflows.view'),
     },
-    { id: 'delete', icon: 'trash', labelKey: 'APPROVALS.DELETE_WORKFLOW' },
+    { id: 'delete', icon: 'trash', labelKey: 'APPROVALS.DELETE_WORKFLOW', visible: () => this.permissionService.hasPermission('approvals.workflows.view') },
   ];
 
   onGridAction(e: SharedGridRowActionEvent): void {

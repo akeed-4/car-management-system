@@ -13,6 +13,7 @@ import {
 } from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { CorporateFleetService } from '../../../../services/corporate-fleet.service';
 import { NotificationService } from '@/src/services/notification.service';
+import { PermissionService } from '../../../../services/permission.service';
 import { CorporateQuotation } from '../../../../models/corporate/corporate-quotation.model';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 
@@ -39,6 +40,7 @@ export class CorporateQuotationListComponent implements OnInit {
   private corporateFleetService = inject(CorporateFleetService);
   private notificationService = inject(NotificationService);
   private router = inject(Router);
+  permissionService = inject(PermissionService);
 
   quotations = signal<CorporateQuotation[]>([]);
   loading = signal(false);
@@ -66,7 +68,7 @@ export class CorporateQuotationListComponent implements OnInit {
   rowActions: sharedGridRowActionDto[] = [
     {
       id: 'createOrder', icon: 'add', labelKey: 'CORPORATE.CREATE_ORDER',
-      visible: (rowData) => rowData?.status === 'Approved',
+      visible: (rowData) => rowData?.status === 'Approved' && this.permissionService.hasPermission('sales.corporate.quotations.view'),
     },
   ];
 

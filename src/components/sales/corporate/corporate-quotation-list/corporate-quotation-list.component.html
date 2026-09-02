@@ -12,7 +12,7 @@
   </div>
 
   <mat-toolbar class="erp-list-toolbar page-toolbar">
-    <button mat-flat-button color="primary" (click)="onCreateNew()">
+    <button *ngIf="permissionService.hasPermission('sales.corporate.quotations.view')" mat-flat-button color="primary" (click)="onCreateNew()">
       <mat-icon>add</mat-icon>
       {{ 'CORPORATE.CREATE_QUOTATION' | translate }}
     </button>

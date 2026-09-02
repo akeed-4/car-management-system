@@ -10,6 +10,7 @@ import {
 } from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { BankFinancingService } from '../../../../services/bank-financing.service';
 import { NotificationService } from '@/src/services/notification.service';
+import { PermissionService } from '../../../../services/permission.service';
 import { BankVehicleDelivery } from '../../../../models/bank-financing/bank-vehicle-delivery.model';
 import { MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
@@ -35,6 +36,7 @@ export class BankVehicleDeliveryListComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private router = inject(Router);
   private datePipe = inject(DatePipe);
+  permissionService = inject(PermissionService);
 
   deliveries = signal<BankVehicleDelivery[]>([]);
   loading = signal(false);
@@ -53,7 +55,7 @@ export class BankVehicleDeliveryListComponent implements OnInit {
 
   /** Same single view button as before. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW' },
+    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW', visible: () => this.permissionService.hasPermission('sales.bank.deliveries.view') },
   ];
 
   onGridAction(e: SharedGridRowActionEvent): void {

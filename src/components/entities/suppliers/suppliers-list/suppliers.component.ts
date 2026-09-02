@@ -12,6 +12,8 @@ import {
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { PermissionService } from '../../../../services/permission.service';
+import { HasPermissionDirective } from '../../../shared/permission.directive';
 
 
 type SortColumn = keyof Supplier | '';
@@ -27,7 +29,8 @@ type SortDirection = 'asc' | 'desc' | '';
     FormsModule,
     SharedDataGridComponent,
     TranslateModule,
-    MatIconModule
+    MatIconModule,
+    HasPermissionDirective
   ],
   templateUrl: './suppliers.component.html',
   styleUrl: './suppliers.component.css',
@@ -37,6 +40,7 @@ export class SuppliersComponent {
   private supplierService = inject(SupplierService);
   private router = inject(Router);
   private translate = inject(TranslateService);
+  permissionService = inject(PermissionService);
 
   suppliers = this.supplierService.suppliers$;
   filter = signal('');
@@ -88,8 +92,8 @@ export class SuppliersComponent {
 
   /** Already-authorized actions (same edit/delete buttons as before). */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'edit', icon: 'edit', labelKey: 'SUPPLIERS.ACTIONS.EDIT' },
-    { id: 'delete', icon: 'trash', labelKey: 'SUPPLIERS.ACTIONS.DELETE', cssClass: 'btn-danger' },
+    { id: 'edit', icon: 'edit', labelKey: 'SUPPLIERS.ACTIONS.EDIT', visible: () => this.permissionService.hasPermission('suppliers.view') },
+    { id: 'delete', icon: 'trash', labelKey: 'SUPPLIERS.ACTIONS.DELETE', cssClass: 'btn-danger', visible: () => this.permissionService.hasPermission('suppliers.view') },
   ];
 
   onGridAction(e: SharedGridRowActionEvent): void {

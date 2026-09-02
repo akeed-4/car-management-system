@@ -127,7 +127,7 @@
           {{ 'YEAR_SPECIFICATION.FORM.CANCEL' | translate }}
         </a>
       }
-      <button type="button" (click)="saveSpec()" class="btn btn-primary">
+      <button type="button" (click)="saveSpec()" [disabled]="!canSaveSpec()" class="btn btn-primary">
         {{ editMode() ? ('YEAR_SPECIFICATION.FORM.SAVE_CHANGES' | translate) : ('YEAR_SPECIFICATION.FORM.SAVE' | translate) }}
       </button>
     </div>

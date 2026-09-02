@@ -23,6 +23,8 @@ import {
   SharedGridRowActionEvent,
 } from '../../shared/shared-data-grid/shared-data-grid.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
+import { PermissionService } from '../../../services/permission.service';
+import { HasPermissionDirective } from '../../shared/permission.directive';
 
 @Component({
   selector: 'app-receipts',
@@ -38,6 +40,7 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.
     MatFormFieldModule,
     MatInputModule,
     SharedDataGridComponent,
+    HasPermissionDirective,
   ],
   templateUrl: './receipts.component.html',
   styleUrl: './receipts.component.css',
@@ -53,6 +56,7 @@ export class ReceiptsComponent implements OnInit {
   private responsiveService = inject(ResponsiveService);
   private datePipe = inject(DatePipe);
   private currencyPipe = inject(CurrencyPipe);
+  permissionService = inject(PermissionService);
   isMobile = this.responsiveService.isMobile;
 
   /** Config-driven columns for the Shared DataGrid -- same fields/formats the
@@ -68,9 +72,9 @@ export class ReceiptsComponent implements OnInit {
 
   /** Row actions -- identical behavior to the previous dxi-button column. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'edit', icon: 'edit', labelKey: 'ACCOUNTS.RECEIPTS.EDIT' },
-    { id: 'post', icon: 'check', labelKey: 'ACCOUNTS.RECEIPTS.POST', visible: (row) => this.isDraft({ row: { data: row } }) },
-    { id: 'delete', icon: 'delete', labelKey: 'ACCOUNTS.RECEIPTS.DELETE', cssClass: 'warn' },
+    { id: 'edit', icon: 'edit', labelKey: 'ACCOUNTS.RECEIPTS.EDIT', visible: () => this.permissionService.hasPermission('receipts.view') },
+    { id: 'post', icon: 'check', labelKey: 'ACCOUNTS.RECEIPTS.POST', visible: (row) => this.isDraft({ row: { data: row } }) && this.permissionService.hasPermission('receipts.view') },
+    { id: 'delete', icon: 'delete', labelKey: 'ACCOUNTS.RECEIPTS.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('receipts.view') },
   ];
 
   /** Totals summary -- same amount sum as the previous dxo-summary block. */

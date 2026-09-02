@@ -16,6 +16,8 @@ import {
 } from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { AdvancePaymentVoucher } from '@/src/models/advancePaymentVoucher.model';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
+import { PermissionService } from '../../../../services/permission.service';
+import { HasPermissionDirective } from '../../../shared/permission.directive';
 
 type SortColumn = keyof AdvancePaymentVoucher | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -34,7 +36,8 @@ type SortDirection = 'asc' | 'desc' | '';
     MatToolbarModule,
     MatFormFieldModule,
     MatInputModule,
-    SharedDataGridComponent
+    SharedDataGridComponent,
+    HasPermissionDirective
   ],
   templateUrl: './deposit-list.component.html',
   styleUrl: './deposit-list.component.css',
@@ -44,6 +47,7 @@ export class DepositListComponent {
   // Fix: Explicitly typed depositService to resolve 'unknown' type inference.
   private depositService: DepositService = inject(DepositService);
   private router = inject(Router);
+  permissionService = inject(PermissionService);
 
   deposits = this.depositService.deposits$;
   filter = signal('');
@@ -61,8 +65,8 @@ export class DepositListComponent {
 
   /** Row actions -- same edit/delete behavior, dispatched via one output. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'edit', icon: 'edit', labelKey: 'ACCOUNTS.DEPOSITS.NOTES_TOOLTIP' },
-    { id: 'delete', icon: 'delete', labelKey: 'ACCOUNTS.DEPOSITS.DELETE_TOOLTIP', cssClass: 'warn' },
+    { id: 'edit', icon: 'edit', labelKey: 'ACCOUNTS.DEPOSITS.NOTES_TOOLTIP', visible: () => this.permissionService.hasPermission('deposits.view') },
+    { id: 'delete', icon: 'delete', labelKey: 'ACCOUNTS.DEPOSITS.DELETE_TOOLTIP', cssClass: 'warn', visible: () => this.permissionService.hasPermission('deposits.view') },
   ];
 
   /** Single dispatcher for the Shared DataGrid's rowAction output -- routes to

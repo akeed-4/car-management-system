@@ -9,11 +9,13 @@ import {
   SharedGridRowActionEvent,
 } from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
+import { PermissionService } from '../../../../services/permission.service';
+import { HasPermissionDirective } from '../../../shared/permission.directive';
 
 @Component({
   selector: 'app-credit-return-invoice-list',
   standalone: true,
-  imports: [RouterLink, TranslateModule, SharedDataGridComponent],
+  imports: [RouterLink, TranslateModule, SharedDataGridComponent, HasPermissionDirective],
   templateUrl: './credit-return-invoice-list.component.html',
   styleUrl: './credit-return-invoice-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,6 +24,7 @@ export class CreditReturnInvoiceListComponent {
   private purchaseReturnService = inject(PurchaseReturnService);
   private translate = inject(TranslateService);
   private router = inject(Router);
+  private permissionService = inject(PermissionService);
   returnInvoices = toSignal(this.purchaseReturnService.getReturnInvoices(), { initialValue: [] });
 
   filteredReturnInvoices = computed(() => this.returnInvoices().filter(invoice => invoice.returnType === 'CREDIT'));
@@ -56,9 +59,9 @@ export class CreditReturnInvoiceListComponent {
 
   /** Same print/edit/delete buttons as before. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'print', icon: 'print', labelKey: 'PURCHASE_RETURN.PRINT' },
-    { id: 'edit', icon: 'edit', labelKey: 'PURCHASE_RETURN.EDIT' },
-    { id: 'delete', icon: 'delete', labelKey: 'PURCHASE_RETURN.DELETE', cssClass: 'warn' },
+    { id: 'print', icon: 'print', labelKey: 'PURCHASE_RETURN.PRINT', visible: () => this.permissionService.hasPermission('purchases.returns.credit.view') },
+    { id: 'edit', icon: 'edit', labelKey: 'PURCHASE_RETURN.EDIT', visible: () => this.permissionService.hasPermission('purchases.returns.credit.view') },
+    { id: 'delete', icon: 'delete', labelKey: 'PURCHASE_RETURN.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('purchases.returns.credit.view') },
   ];
 
   /** Same "Total: <sum>" summary row as before (ported via valueFormat/displayFormat --

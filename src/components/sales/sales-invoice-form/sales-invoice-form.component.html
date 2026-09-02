@@ -83,6 +83,9 @@
                     <input matInput [matDatepicker]="invoiceDatePicker" formControlName="invoiceDate" required>
                     <mat-datepicker-toggle matSuffix [for]="invoiceDatePicker"></mat-datepicker-toggle>
                     <mat-datepicker #invoiceDatePicker></mat-datepicker>
+                    <mat-error *ngIf="invoiceForm.get('invoiceDate')?.hasError('required')">
+                      {{ 'VALIDATION.REQUIRED' | translate }}
+                    </mat-error>
                   </mat-form-field>
                   <div class="customer-selector-tile">
                     <label class="customer-selector-label">{{ 'INVOICE.CUSTOMER' | translate }} <span class="required-asterisk">*</span></label>
@@ -122,6 +125,9 @@
                   <mat-form-field appearance="outline" class="full-width" *ngIf="saleType !== SaleType.Cash">
                     <mat-label>{{ 'INVOICE.DOWN_PAYMENT' | translate }}</mat-label>
                     <input matInput type="number" formControlName="downPayment" required>
+                    <mat-error *ngIf="invoiceForm.get('downPayment')?.invalid">
+                      {{ 'VALIDATION.REQUIRED' | translate }}
+                    </mat-error>
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'INVOICE.DISCOUNT_TYPE' | translate }}</mat-label>
@@ -158,19 +164,25 @@
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'INVOICE.INVOICE_TYPE' | translate }}</mat-label>
-                    <mat-select formControlName="invoiceType">
+                    <mat-select formControlName="invoiceType" required>
                       <mat-option [value]="InvoiceType.Taxable">{{ 'INVOICE.TYPE_TAXABLE' | translate }}</mat-option>
                       <mat-option [value]="InvoiceType.ZeroRated">{{ 'INVOICE.TYPE_ZERO_RATED' | translate }}</mat-option>
                       <mat-option [value]="InvoiceType.Exempt">{{ 'INVOICE.TYPE_EXEMPT' | translate }}</mat-option>
                     </mat-select>
+                    <mat-error *ngIf="invoiceForm.get('invoiceType')?.hasError('required')">
+                      {{ 'VALIDATION.REQUIRED' | translate }}
+                    </mat-error>
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'INVOICE.CLASSIFICATION' | translate }}</mat-label>
-                    <mat-select formControlName="ClassificationId">
+                    <mat-select formControlName="ClassificationId" required>
                       <mat-option *ngFor="let classification of invoiceClassifications()" [value]="classification.value">
                         {{ classification.label }}
                       </mat-option>
                     </mat-select>
+                    <mat-error *ngIf="invoiceForm.get('ClassificationId')?.hasError('required')">
+                      {{ 'VALIDATION.REQUIRED' | translate }}
+                    </mat-error>
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'INVOICE.SALESPERSON' | translate }}</mat-label>
@@ -282,7 +294,7 @@
                 [rowAlternationEnabled]="true"
                 [repaintChangesOnly]="true"
                 [editing]="{ mode: 'cell', allowUpdating: true, allowDeleting: true, useIcons: true }"
-                [rtlEnabled]="true"
+                [rtlEnabled]="textDir === 'rtl'"
                 (onRowRemoving)="removeItem($event.data.lineKey)"
                 (onRowUpdated)="onInvoiceItemRowUpdated($event)"
                 [noDataText]="'INVOICE.NO_ITEMS' | translate"

@@ -5,7 +5,7 @@
       <p class="erp-page-subtitle">{{ 'ACCOUNTING.JOURNAL_ENTRIES_LIST_SUBTITLE' | translate }}</p>
     </div>
     <div class="erp-page-actions">
-      <button mat-raised-button color="primary" (click)="onAddNew()">
+      <button *appHasPermission="'journalentries.view'" mat-raised-button color="primary" (click)="onAddNew()">
         <mat-icon>add</mat-icon>
         <span>{{ 'ACCOUNTING.ADD_NEW_ENTRY' | translate }}</span>
       </button>

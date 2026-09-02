@@ -15,6 +15,7 @@ import { CompanyService } from '../../../services/company.service';
 import { HasPermissionDirective } from '../../shared/permission.directive';
 import { CompanyFormComponent } from '../company-form/company-form.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
+import { PermissionService } from '../../../services/permission.service';
 
 @Component({
   selector: 'app-company-list',
@@ -37,6 +38,7 @@ export class CompanyListComponent {
   private dialog = inject(MatDialog);
   private router = inject(Router);
   private translate = inject(TranslateService);
+  private permissionService = inject(PermissionService);
 
 constructor() {
   this.onCreate = this.onCreate.bind(this);
@@ -72,8 +74,8 @@ constructor() {
 
   /** Row actions -- same edit/delete behavior via the shared actions template. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'edit', icon: 'edit', labelKey: 'COMPANIES.ACTIONS.EDIT' },
-    { id: 'delete', icon: 'delete', labelKey: 'COMPANIES.ACTIONS.DELETE', cssClass: 'warn' },
+    { id: 'edit', icon: 'edit', labelKey: 'COMPANIES.ACTIONS.EDIT', visible: () => this.permissionService.hasPermission('companies.view') },
+    { id: 'delete', icon: 'delete', labelKey: 'COMPANIES.ACTIONS.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('companies.view') },
   ];
 
   /** Single dispatcher for the Shared DataGrid's rowAction output. */

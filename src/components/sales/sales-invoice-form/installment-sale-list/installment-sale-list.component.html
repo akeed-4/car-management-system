@@ -12,7 +12,7 @@
   </div>
 
   <mat-toolbar class="erp-list-toolbar page-toolbar">
-    <button mat-flat-button color="primary" (click)="onCreateNew()">
+    <button *ngIf="permissionService.hasPermission('sales.installments.view')" mat-flat-button color="primary" (click)="onCreateNew()">
       <mat-icon>add</mat-icon>
       {{ 'DIRECT_SALES.INSTALLMENT.ADD_NEW' | translate }}
     </button>
