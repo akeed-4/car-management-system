@@ -35,8 +35,15 @@
 </ng-container>
 
 <ng-template #formTemplate>
-    <form [formGroup]="accountForm" (ngSubmit)="onSave()" class="form acc-form" [class.acc-form-dialog]="isQuickAddDialog" [class.mat-dialog-content]="isQuickAddDialog">
+    <form [formGroup]="accountForm" (ngSubmit)="onSave()" class="form acc-form" [class.acc-form-dialog]="isQuickAddDialog">
+    <div mat-dialog-content *ngIf="isQuickAddDialog; else plainContent" class="acc-scroll-content">
+      <ng-container *ngTemplateOutlet="dialogBody"></ng-container>
+    </div>
+    <ng-template #plainContent>
+      <ng-container *ngTemplateOutlet="dialogBody"></ng-container>
+    </ng-template>
 
+    <ng-template #dialogBody>
       <!-- Two-column ERP workspace: form sections + live summary sidebar -->
       <div class="acc-layout">
         <div class="acc-main">
@@ -606,20 +613,31 @@
           </div>
         </aside>
       </div>
+    </ng-template><!-- /dialogBody -->
 
-        <!-- Form footer: primary save / secondary cancel (same handlers & guards as before) -->
-        <div class="erp-card acc-footer-card">
-          <div class="erp-actions-bar" [class.mat-dialog-actions]="isQuickAddDialog">
-            <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving" class="acc-cancel-btn">
-              {{ 'ACCOUNTING.CANCEL' | translate }}
-            </button>
-            <button mat-raised-button color="primary" type="submit" [disabled]="accountForm.invalid || isSaving || parentLoadFailed">
-              <mat-progress-spinner *ngIf="isSaving" diameter="20" class="loading-spinner"></mat-progress-spinner>
-              <span *ngIf="!isSaving">{{ 'ACCOUNTING.SAVE_ACCOUNT' | translate }}</span>
-              <span *ngIf="isSaving">{{ 'ACCOUNTING.SAVING' | translate }}</span>
-            </button>
-          </div>
+        <!-- Form footer: primary save / secondary cancel (same handlers & guards as before).
+             Real mat-dialog-actions in dialog mode so Material pins it outside the scroll
+             region; plain erp-card footer for the routed full-page variant. -->
+        <div *ngIf="isQuickAddDialog; else plainFooter" mat-dialog-actions class="acc-dialog-footer">
+          <ng-container *ngTemplateOutlet="footerButtons"></ng-container>
         </div>
+        <ng-template #plainFooter>
+          <div class="erp-card acc-footer-card">
+            <div class="erp-actions-bar">
+              <ng-container *ngTemplateOutlet="footerButtons"></ng-container>
+            </div>
+          </div>
+        </ng-template>
+        <ng-template #footerButtons>
+          <button mat-button type="button" (click)="onCancel()" [disabled]="isSaving" class="acc-cancel-btn">
+            {{ 'ACCOUNTING.CANCEL' | translate }}
+          </button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="accountForm.invalid || isSaving || parentLoadFailed">
+            <mat-progress-spinner *ngIf="isSaving" diameter="20" class="loading-spinner"></mat-progress-spinner>
+            <span *ngIf="!isSaving">{{ 'ACCOUNTING.SAVE_ACCOUNT' | translate }}</span>
+            <span *ngIf="isSaving">{{ 'ACCOUNTING.SAVING' | translate }}</span>
+          </button>
+        </ng-template>
 
     </form>
 </ng-template>

@@ -18,6 +18,6 @@ import { Account } from './models';
  */
 export function openCreateAccountDialog(dialog: MatDialog, data?: AddAccountQuickAddData): Observable<Account | undefined> {
   return dialog
-    .open(AddAccountComponent, { width: '900px', maxWidth: '95vw', autoFocus: false, data })
+    .open(AddAccountComponent, { width: '900px', maxWidth: '95vw', maxHeight: '90vh', autoFocus: false, data })
     .afterClosed();
 }
