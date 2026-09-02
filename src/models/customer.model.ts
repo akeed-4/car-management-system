@@ -30,4 +30,8 @@ export interface Customer {
   isCreditCustomer: boolean;
   createdDate: string;
   lastUpdated: string;
+  /** Link to a Supplier record representing the same real-world party (each side keeps its own
+   *  separate AR/AP account -- this is a cross-reference, not an account merge). */
+  linkedSupplierId?: number | null;
+  linkedSupplierName?: string;
 }

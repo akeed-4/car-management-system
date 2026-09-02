@@ -3,6 +3,8 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SupplierService } from '../../../../services/supplier.service';
 import { Supplier } from '../../../../models/supplier.model';
+import { PotentialLinkedParty } from '../../../../models/potential-linked-party.model';
+import { debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -69,6 +71,11 @@ export class SupplierFormComponent implements OnInit {
   cities = signal<City[]>([]);
   districts = signal<District[]>([]);
 
+  /** Duplicate-detection: a Customer sharing this supplier's phone number, offered as a "link as
+   *  the same party?" prompt -- mirrors CustomerFormComponent's identical mechanism. */
+  potentialCustomerMatch = signal<PotentialLinkedParty | null>(null);
+  linkedCustomerId = signal<number | null>(null);
+
   /** "Basic Info" (name/CR number/category) starts open since it's filled first; the rest start
    *  collapsed to cut initial scroll. Sections toggle independently (multi: true). */
   expandedSections = signal<Set<string>>(new Set(['basic']));
@@ -88,6 +95,7 @@ export class SupplierFormComponent implements OnInit {
   ngOnInit() {
     this.initializeForm();
     this.setupNationalAddressCascade();
+    this.setupCustomerMatchDetection();
 
     // Check if editing existing supplier
     const idParam = this.route.snapshot.params['id'];
@@ -98,6 +106,7 @@ export class SupplierFormComponent implements OnInit {
       this.supplierService.getSupplierById(id).subscribe(existingSupplier => {
         this.supplier.set({ ...existingSupplier });
         this.supplierForm.patchValue(existingSupplier);
+        this.linkedCustomerId.set(existingSupplier.linkedCustomerId ?? null);
         this.preloadNationalAddressChain(existingSupplier.countryId, existingSupplier.regionId, existingSupplier.cityId);
       }, error => {
         console.error('Error loading supplier:', error);
@@ -137,6 +146,36 @@ export class SupplierFormComponent implements OnInit {
         this.nationalAddressService.getDistricts(cityId).subscribe(districts => this.districts.set(districts));
       }
     });
+  }
+
+  /** As the user types the phone field, checks (debounced) whether a Customer already exists with
+   *  the same number and isn't already linked elsewhere -- mirrors CustomerFormComponent's
+   *  identical mechanism (see erp-customer-supplier-linked-accounts memory). */
+  private setupCustomerMatchDetection(): void {
+    this.supplierForm.get('phone')?.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      switchMap(phone => {
+        this.potentialCustomerMatch.set(null);
+        if (!phone || phone.length < 7) return of(null);
+        return this.supplierService.findPotentialCustomerMatch(phone);
+      })
+    ).subscribe(match => this.potentialCustomerMatch.set(match));
+  }
+
+  linkToCustomerMatch(): void {
+    const match = this.potentialCustomerMatch();
+    if (!match) return;
+    this.linkedCustomerId.set(match.id);
+    this.potentialCustomerMatch.set(null);
+  }
+
+  dismissCustomerMatch(): void {
+    this.potentialCustomerMatch.set(null);
+  }
+
+  unlinkCustomer(): void {
+    this.linkedCustomerId.set(null);
   }
 
   private preloadNationalAddressChain(countryId?: number | null, regionId?: number | null, cityId?: number | null): void {
@@ -193,6 +232,7 @@ export class SupplierFormComponent implements OnInit {
         const updatedSupplier: Supplier = {
           ...this.supplier(),
           ...formValue,
+          linkedCustomerId: this.linkedCustomerId(),
           lastUpdated: currentDate
         } as Supplier;
         this.supplierService.updateSupplier(updatedSupplier).subscribe({
@@ -209,6 +249,7 @@ export class SupplierFormComponent implements OnInit {
         const newSupplier: Omit<Supplier, 'id'> = {
           ...formValue,
           isActive: true,
+          linkedCustomerId: this.linkedCustomerId(),
           createdDate: currentDate,
           lastUpdated: currentDate
         };

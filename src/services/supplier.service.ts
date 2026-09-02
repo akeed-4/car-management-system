@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { Supplier } from '../models/supplier.model';
 import { environment } from '../environments/environment';
 import { tap } from 'rxjs';
+import { PotentialLinkedParty } from '../models/potential-linked-party.model';
 
 @Injectable({
   providedIn: 'root',
@@ -46,6 +47,13 @@ export class SupplierService {
     return this.http.get<{ hasAccount: boolean }>(`${this.apiUrl}/${supplierId}/payable-account-status`);
   }
 
+  /** Advisory duplicate-detection lookup: does a Customer already exist with this phone number
+   *  (and not yet linked to another supplier)? Never rejects -- returns null when there's no
+   *  match, so the caller can offer "link as the same party?" without blocking the form. */
+  findPotentialCustomerMatch(phone: string): Observable<PotentialLinkedParty | null> {
+    return this.http.get<PotentialLinkedParty | null>(`${this.apiUrl}/potential-customer-match`, { params: { phone } });
+  }
+
   // جلب مورد واحد حسب ID
   getSupplierById(id: number): Observable<Supplier> {
     return this.http.get<Supplier>(`${this.apiUrl}/GetById/${id}`);
@@ -61,9 +69,12 @@ export class SupplierService {
       )
   }
 
-  // تحديث مورد موجود
+  // تحديث مورد موجود -- always sends updateLinkedCustomer:true, mirroring
+  // CustomerService.updateCustomer's rationale (the form always carries the current
+  // linkedCustomerId, so the backend's opt-in flag is satisfied every time).
   updateSupplier(supplier: Supplier): Observable<Supplier> {
-    return this.http.put<Supplier>(`${this.apiUrl}/Update/${supplier.id}`, supplier);
+    const payload = { ...supplier, updateLinkedCustomer: true };
+    return this.http.put<Supplier>(`${this.apiUrl}/Update/${supplier.id}`, payload);
   }
 
   // حذف مورد

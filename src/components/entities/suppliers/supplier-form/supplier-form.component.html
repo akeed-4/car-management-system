@@ -98,6 +98,27 @@
               <input matInput formControlName="website" placeholder="https://example.com">
             </mat-form-field>
           </div>
+
+          <!-- Duplicate-detection: a Customer already exists with this phone number -->
+          <div class="erp-status-badge info supplier-match-banner" *ngIf="potentialCustomerMatch() as match">
+            <mat-icon>link</mat-icon>
+            <span>{{ 'SUPPLIERS.FORM.CUSTOMER_MATCH_FOUND' | translate: { name: match.name } }}</span>
+            <button mat-button type="button" color="primary" (click)="linkToCustomerMatch()">
+              {{ 'SUPPLIERS.FORM.LINK_AS_SAME_PARTY' | translate }}
+            </button>
+            <button mat-button type="button" (click)="dismissCustomerMatch()">
+              {{ 'SUPPLIERS.FORM.DISMISS' | translate }}
+            </button>
+          </div>
+
+          <!-- Confirmed link to a Customer record (same real-world party, separate accounts) -->
+          <div class="erp-status-badge success supplier-match-banner" *ngIf="linkedCustomerId()">
+            <mat-icon>link</mat-icon>
+            <span>{{ 'SUPPLIERS.FORM.LINKED_TO_CUSTOMER' | translate }}</span>
+            <button mat-button type="button" (click)="unlinkCustomer()">
+              {{ 'SUPPLIERS.FORM.UNLINK' | translate }}
+            </button>
+          </div>
         </mat-expansion-panel>
 
         <!-- Address Information -->

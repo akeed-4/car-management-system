@@ -56,6 +56,27 @@
               <input matInput formControlName="phone2" placeholder="+966xxxxxxxxx">
             </mat-form-field>
           </div>
+
+          <!-- Duplicate-detection: a Supplier already exists with this phone number -->
+          <div class="erp-status-badge info supplier-match-banner" *ngIf="potentialSupplierMatch() as match">
+            <mat-icon>link</mat-icon>
+            <span>{{ 'CUSTOMERS.FORM.SUPPLIER_MATCH_FOUND' | translate: { name: match.name } }}</span>
+            <button mat-button type="button" color="primary" (click)="linkToSupplierMatch()">
+              {{ 'CUSTOMERS.FORM.LINK_AS_SAME_PARTY' | translate }}
+            </button>
+            <button mat-button type="button" (click)="dismissSupplierMatch()">
+              {{ 'CUSTOMERS.FORM.DISMISS' | translate }}
+            </button>
+          </div>
+
+          <!-- Confirmed link to a Supplier record (same real-world party, separate accounts) -->
+          <div class="erp-status-badge success supplier-match-banner" *ngIf="linkedSupplierId()">
+            <mat-icon>link</mat-icon>
+            <span>{{ 'CUSTOMERS.FORM.LINKED_TO_SUPPLIER' | translate }}</span>
+            <button mat-button type="button" (click)="unlinkSupplier()">
+              {{ 'CUSTOMERS.FORM.UNLINK' | translate }}
+            </button>
+          </div>
         </mat-expansion-panel>
 
         <!-- Contact Information -->

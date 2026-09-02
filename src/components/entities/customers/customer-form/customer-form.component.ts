@@ -5,6 +5,8 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CustomerService } from '../../../../services/customer.service';
 import { Customer } from '../../../../models/customer.model';
+import { PotentialLinkedParty } from '../../../../models/potential-linked-party.model';
+import { debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
 import { SalesService } from '../../../../services/sales.service';
 import { InventoryService } from '../../../../services/inventory.service';
 import { Car } from '../../../../models/car.model';
@@ -89,6 +91,13 @@ export class CustomerFormComponent implements OnInit {
 
   soldCars = signal<(Car & { saleDate: string })[]>([]);
 
+  /** Duplicate-detection: a Supplier sharing this customer's phone number, offered as a "link as
+   *  the same party?" prompt. Cleared once the user accepts/dismisses it or the phone changes
+   *  away from the match. Two separate accounts are still created (see erp-account-standardization
+   *  memory) -- this only sets the cross-reference, never merges accounts. */
+  potentialSupplierMatch = signal<PotentialLinkedParty | null>(null);
+  linkedSupplierId = signal<number | null>(null);
+
   /** "Basic Info" (name/ID/phone) starts open since it's filled first for every customer; the
    *  rest start collapsed to cut initial scroll. Sections toggle independently (multi: true). */
   expandedSections = signal<Set<string>>(new Set(['basic']));
@@ -108,6 +117,7 @@ export class CustomerFormComponent implements OnInit {
   ngOnInit() {
     this.initializeForm();
     this.setupNationalAddressCascade();
+    this.setupSupplierMatchDetection();
 
     // Check if editing existing customer
     const idParam = this.route.snapshot.params['id'];
@@ -121,6 +131,7 @@ export class CustomerFormComponent implements OnInit {
         if (existingCustomer) {
           this.customer.set(existingCustomer);
           this.customerForm.patchValue(existingCustomer);
+          this.linkedSupplierId.set(existingCustomer.linkedSupplierId ?? null);
           this.preloadNationalAddressChain(existingCustomer.countryId, existingCustomer.regionId, existingCustomer.cityId);
 
           // Fetch sold cars for this customer
@@ -190,6 +201,37 @@ export class CustomerFormComponent implements OnInit {
   /** Populates the Region/City/District dropdowns for a customer's existing address when
    *  entering edit mode -- without this, patchValue would set e.g. districtId on a dropdown
    *  whose options were never loaded, leaving the select showing nothing. */
+  /** As the user types the phone field, checks (debounced) whether a Supplier already exists with
+   *  the same number and isn't already linked elsewhere -- surfaces a "link as the same party?"
+   *  prompt instead of silently letting two unrelated-looking records be created for one real
+   *  business (see erp-customer-supplier-linked-accounts memory for the full rationale). */
+  private setupSupplierMatchDetection(): void {
+    this.customerForm.get('phone')?.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      switchMap(phone => {
+        this.potentialSupplierMatch.set(null);
+        if (!phone || !/^\d{10}$/.test(phone)) return of(null);
+        return this.customerService.findPotentialSupplierMatch(phone);
+      })
+    ).subscribe(match => this.potentialSupplierMatch.set(match));
+  }
+
+  linkToSupplierMatch(): void {
+    const match = this.potentialSupplierMatch();
+    if (!match) return;
+    this.linkedSupplierId.set(match.id);
+    this.potentialSupplierMatch.set(null);
+  }
+
+  dismissSupplierMatch(): void {
+    this.potentialSupplierMatch.set(null);
+  }
+
+  unlinkSupplier(): void {
+    this.linkedSupplierId.set(null);
+  }
+
   private preloadNationalAddressChain(countryId?: number | null, regionId?: number | null, cityId?: number | null): void {
     if (countryId) {
       this.nationalAddressService.getRegions(countryId).subscribe(regions => this.regions.set(regions));
@@ -241,6 +283,7 @@ export class CustomerFormComponent implements OnInit {
         const updatedCustomer: Customer = {
           ...this.customer(),
           ...formValue,
+          linkedSupplierId: this.linkedSupplierId(),
           lastUpdated: currentDate
         } as Customer;
         this.customerService.updateCustomer(updatedCustomer).subscribe({
@@ -257,6 +300,7 @@ export class CustomerFormComponent implements OnInit {
         const newCustomer: Omit<Customer, 'id'> = {
           ...formValue,
           isActive: true,
+          linkedSupplierId: this.linkedSupplierId(),
           createdDate: currentDate,
           lastUpdated: currentDate
         };

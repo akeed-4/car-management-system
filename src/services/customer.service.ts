@@ -4,6 +4,7 @@ import { Observable, firstValueFrom } from 'rxjs';
 import { Customer } from '../models/customer.model';
 import { tap } from 'rxjs';
 import { environment } from '../environments/environment';
+import { PotentialLinkedParty } from '../models/potential-linked-party.model';
 @Injectable({
   providedIn: 'root',
 })
@@ -43,6 +44,13 @@ export class CustomerService {
     return this.http.get<{ hasAccount: boolean }>(`${this.apiUrl}/${customerId}/receivable-account-status`);
   }
 
+  /** Advisory duplicate-detection lookup: does a Supplier already exist with this phone number
+   *  (and not yet linked to another customer)? Never rejects -- returns null when there's no
+   *  match, so the caller can offer "link as the same party?" without blocking the form. */
+  findPotentialSupplierMatch(phone: string): Observable<PotentialLinkedParty | null> {
+    return this.http.get<PotentialLinkedParty | null>(`${this.apiUrl}/potential-supplier-match`, { params: { phone } });
+  }
+
   /** Add new customer */
   addCustomer(customer: Omit<Customer, 'id'>): Observable<Customer> {
     return this.http.post<Customer>(this.apiUrl+'/Create', customer)
@@ -53,9 +61,12 @@ export class CustomerService {
       );
   }
 
-  /** Update customer */
+  /** Update customer. Always sends updateLinkedSupplier:true -- the form always carries the
+   *  current linkedSupplierId (possibly null/unchanged), so the backend's "only touch the link
+   *  when this flag is set" opt-in is satisfied every time a full customer object is saved here. */
   updateCustomer(customer: Customer): Observable<Customer> {
-    return this.http.put<Customer>(`${this.apiUrl}/Update/${customer.id}`, customer)
+    const payload = { ...customer, updateLinkedSupplier: true };
+    return this.http.put<Customer>(`${this.apiUrl}/Update/${customer.id}`, payload)
       .pipe(
         tap(updated => {
           this.customers.update(c =>

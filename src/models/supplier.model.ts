@@ -32,4 +32,8 @@ export interface Supplier {
   isActive: boolean;
   createdDate: string;
   lastUpdated: string;
+  /** Link to a Customer record representing the same real-world party. See
+   *  Customer.linkedSupplierId for the full explanation. */
+  linkedCustomerId?: number | null;
+  linkedCustomerName?: string;
 }

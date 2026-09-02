@@ -4,6 +4,21 @@
    tokens so dark mode works automatically, and directional properties are
    logical for RTL/LTR parity. */
 
+/* Customer-link duplicate-detection banner */
+.supplier-match-banner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  width: 100%;
+  margin-block-start: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+}
+
+.supplier-match-banner span {
+  flex: 1 1 auto;
+}
+
 /* Collapsible sections */
 .form-accordion {
   display: flex;
