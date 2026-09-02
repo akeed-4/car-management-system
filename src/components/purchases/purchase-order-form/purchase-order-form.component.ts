@@ -1,4 +1,7 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, computed, signal } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { SupplierLookupModalComponent } from '../../shared/supplier-lookup-modal/supplier-lookup-modal.component';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -47,6 +50,7 @@ interface PoLineItem {
     MatNativeDateModule,
     MatIconModule,
     MatCardModule,
+    MatTooltipModule,
     DxDataGridModule,
     DxButtonModule,
     TranslateModule,
@@ -83,9 +87,32 @@ export class PurchaseOrderFormComponent implements OnInit, OnDestroy {
     private translateService: TranslateService,
     private router: Router,
     private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog
   ) {
     this.initForm();
+  }
+
+  /** Backs the smart vendor selector's summary card, same pattern as payment-form's selectedSupplier. */
+  selectedVendorId = signal<number | null>(null);
+  selectedVendor = computed(() => this.suppliers().find(s => s.id === this.selectedVendorId()) ?? null);
+
+  /** Smart searchable vendor selector -- mirrors openSupplierLookup() in payment-form.component.ts. */
+  openVendorLookup(): void {
+    const dialogRef = this.dialog.open<SupplierLookupModalComponent, unknown, Supplier | null>(SupplierLookupModalComponent, {
+      width: '90vw',
+      maxWidth: '900px',
+      height: '80vh',
+      panelClass: 'responsive-dialog-panel'
+    });
+
+    dialogRef.afterClosed().subscribe(supplier => {
+      if (supplier) {
+        this.poForm.get('vendorId')?.setValue(supplier.id);
+        this.poForm.get('vendorId')?.markAsTouched();
+        this.onVendorSelected(supplier.id);
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -99,6 +126,8 @@ export class PurchaseOrderFormComponent implements OnInit, OnDestroy {
       },
       error: (err) => console.error('Error loading suppliers', err)
     });
+
+    this.poForm.get('vendorId')?.valueChanges.subscribe(id => this.selectedVendorId.set(id ?? null));
 
     this.route.params.subscribe(params => {
       if (params['id']) {
@@ -160,7 +189,6 @@ export class PurchaseOrderFormComponent implements OnInit, OnDestroy {
   private loadEligibleOffers(vendorId: number): void {
     this.purchaseCycleService.getEligibleOffersForPO(vendorId).subscribe({
       next: (offers: any) => {
-        debugger
         this.eligibleQuotations.set(offers || []);
       },
       error: (err) => {
@@ -179,7 +207,6 @@ export class PurchaseOrderFormComponent implements OnInit, OnDestroy {
     this.purchaseCycleService.getItemsForOffer(offerId).subscribe({
       next: (response: any) => {
         const offerItems = response ?? [];
-debugger
         this.poItems = offerItems.map((item: any) => {
           const remainingQuantity = item.remainingQuantity ?? 0;
           const unitPrice = item.unitPrice ?? 0;

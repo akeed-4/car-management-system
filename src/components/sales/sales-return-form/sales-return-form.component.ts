@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, Input, OnChanges, SimpleChanges, Inject } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CurrencyPipe, DatePipe, CommonModule } from '@angular/common';
@@ -12,6 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatCardModule } from '@angular/material/card';
 import { SalesService } from '../../../services/sales.service';
 import { SalesReturnService } from '../../../services/sales-return.service';
 import { InventoryService } from '../../../services/inventory.service';
@@ -29,7 +32,7 @@ import { extractErrorMessage } from '@/src/models/http-error-message';
 @Component({
   selector: 'app-sales-return-form',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, CommonModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatCheckboxModule, MatIconModule, MatDatepickerModule, MatTooltipModule],
+  imports: [RouterLink, ReactiveFormsModule, CommonModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatCheckboxModule, MatIconModule, MatDatepickerModule, MatTooltipModule, NgxMatSelectSearchModule, MatCardModule],
   templateUrl: './sales-return-form.component.html',
   styleUrl: './sales-return-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -76,7 +79,19 @@ export class SalesReturnFormComponent implements OnInit {
   selectedOriginalInvoice = signal<SalesInvoice | null>(null);
   selectedOriginalInvoicereturn = signal<SalesReturnInvoice | null>(null);
   returnItems = signal<ReturnInvoiceItem[]>([]);
-  
+
+  /** Smart searchable reference-document selector (search-as-you-type inside the mat-select),
+   *  same ngx-mat-select-search pattern already used for Supplier in purchase-invoice.component.ts. */
+  originalInvoiceFilterCtrl = new FormControl('');
+  private originalInvoiceFilterSignal = toSignal(this.originalInvoiceFilterCtrl.valueChanges, { initialValue: '' });
+  filteredOriginalInvoices = computed(() => {
+    const filter = this.originalInvoiceFilterSignal()?.toLowerCase() ?? '';
+    if (!filter) return this.originalInvoices();
+    return this.originalInvoices().filter(inv =>
+      inv.invoiceNumber?.toLowerCase().includes(filter) || inv.customerName?.toLowerCase().includes(filter)
+    );
+  });
+
   totalAmount = computed(() => this.returnItems().reduce((sum, item) => sum + item.lineTotal, 0));
 
   ngOnInit() {
@@ -322,7 +337,8 @@ getTitle(): string {
 
   saveReturn(): void {
     if (!this.returnForm.valid) {
-      console.warn('Form is invalid');
+      this.returnForm.markAllAsTouched();
+      this.toastService.showError('SALES.RETURN.ERROR_INVALID_FORM');
       return;
     }
 
@@ -330,7 +346,7 @@ getTitle(): string {
     const itemsToReturn = this.returnItems().filter(item => item.returnQuantity > 0);
 
     if (!originalInvoice || itemsToReturn.length === 0) {
-      console.warn('No items to return');
+      this.toastService.showError('SALES.RETURN.ERROR_NO_ITEMS');
       return;
     }
 

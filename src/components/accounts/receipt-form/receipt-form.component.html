@@ -61,24 +61,13 @@
           <!-- Debit / Credit Accounts Row -->
           <div class="form-row">
             <div class="field-with-add">
-              <mat-form-field appearance="outline" class="form-field debit-field field-with-add-select">
-                <mat-label>
-                  <mat-icon class="field-icon">arrow_upward</mat-icon>
-                  {{ 'ACCOUNTS.FORM.PAYMENT_ACCOUNT' | translate }}
-                </mat-label>
-                <mat-select formControlName="debitAccountId" required>
-                  <mat-option [value]="null" disabled>
-                    {{ 'ACCOUNTS.FORM.SELECT_ACCOUNT' | translate }}
-                  </mat-option>
-                  <mat-option *ngFor="let acc of accounts(); trackBy: trackByAccountId" [value]="acc.id">
-                    {{ acc.accountCode }} - {{ translate.currentLang === 'ar' ? (acc.accountNameAr || acc.accountNameEn) : acc.accountNameEn }}
-                  </mat-option>
-                </mat-select>
-                <mat-hint *ngIf="!debitAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
-                <mat-error *ngIf="receiptForm.get('debitAccountId')?.hasError('required')">
-                  {{ 'VALIDATION.REQUIRED' | translate }}
-                </mat-error>
-              </mat-form-field>
+              <app-account-autocomplete class="form-field debit-field field-with-add-select"
+                  formControlName="debitAccountId"
+                  [accounts]="accounts()"
+                  [required]="true"
+                  [label]="'ACCOUNTS.FORM.PAYMENT_ACCOUNT'"
+                  [hint]="!debitAccountManuallyChanged() ? 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' : ''">
+              </app-account-autocomplete>
               <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateDebitAccountDialog()">
                 <mat-icon>add</mat-icon>
               </button>
@@ -87,26 +76,18 @@
                 <mat-icon>restart_alt</mat-icon>
               </button>
             </div>
+            <span class="customer-selector-error" *ngIf="receiptForm.get('debitAccountId')?.hasError('required') && receiptForm.get('debitAccountId')?.touched">
+              {{ 'VALIDATION.REQUIRED' | translate }}
+            </span>
 
             <div class="field-with-add">
-              <mat-form-field appearance="outline" class="form-field credit-field field-with-add-select">
-                <mat-label>
-                  <mat-icon class="field-icon">arrow_downward</mat-icon>
-                  {{ (isCustomerReceipt() ? 'ACCOUNTS.FORM.CUSTOMER_ACCOUNT' : 'ACCOUNTS.FORM.CREDIT_ACCOUNT') | translate }}
-                </mat-label>
-                <mat-select formControlName="creditAccountId" required>
-                  <mat-option [value]="null" disabled>
-                    {{ 'ACCOUNTS.FORM.SELECT_ACCOUNT' | translate }}
-                  </mat-option>
-                  <mat-option *ngFor="let acc of accounts(); trackBy: trackByAccountId" [value]="acc.id">
-                    {{ acc.accountCode }} - {{ translate.currentLang === 'ar' ? (acc.accountNameAr || acc.accountNameEn) : acc.accountNameEn }}
-                  </mat-option>
-                </mat-select>
-                <mat-hint *ngIf="!creditAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
-                <mat-error *ngIf="receiptForm.get('creditAccountId')?.hasError('required')">
-                  {{ 'VALIDATION.REQUIRED' | translate }}
-                </mat-error>
-              </mat-form-field>
+              <app-account-autocomplete class="form-field credit-field field-with-add-select"
+                  formControlName="creditAccountId"
+                  [accounts]="accounts()"
+                  [required]="true"
+                  [label]="(isCustomerReceipt() ? 'ACCOUNTS.FORM.CUSTOMER_ACCOUNT' : 'ACCOUNTS.FORM.CREDIT_ACCOUNT')"
+                  [hint]="!creditAccountManuallyChanged() ? 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' : ''">
+              </app-account-autocomplete>
               <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateCreditAccountDialog()">
                 <mat-icon>add</mat-icon>
               </button>
@@ -115,6 +96,9 @@
                 <mat-icon>restart_alt</mat-icon>
               </button>
             </div>
+            <span class="customer-selector-error" *ngIf="receiptForm.get('creditAccountId')?.hasError('required') && receiptForm.get('creditAccountId')?.touched">
+              {{ 'VALIDATION.REQUIRED' | translate }}
+            </span>
           </div>
         </div>
 
@@ -125,21 +109,28 @@
             {{ 'ACCOUNTS.FORM.CUSTOMER_SELECTION' | translate }}
           </h3>
           <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>{{ 'ACCOUNTS.FORM.CUSTOMER' | translate }}</mat-label>
-              <mat-select formControlName="customerId"
-                          (selectionChange)="onCustomerChange($event.value)" >
-                <mat-option [value]="null" disabled>
+            <div class="supplier-selector-block">
+              @if (selectedCustomer(); as customer) {
+                <div class="customer-summary">
+                  <mat-icon class="customer-summary-icon">person</mat-icon>
+                  <div class="customer-summary-text">
+                    <span class="customer-summary-name">{{ customer.name }}</span>
+                    <span class="customer-summary-sub">{{ customer.phone }} · {{ customer.nationalId }}</span>
+                  </div>
+                  <button mat-icon-button type="button" [matTooltip]="'INVOICE.CHANGE_CUSTOMER' | translate" (click)="openCustomerLookup()">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </div>
+              } @else {
+                <button mat-stroked-button type="button" class="customer-select-btn" (click)="openCustomerLookup()">
+                  <mat-icon>search</mat-icon>
                   {{ 'ACCOUNTS.FORM.SELECT_CUSTOMER' | translate }}
-                </mat-option>
-                <mat-option *ngFor="let c of customers(); trackBy: trackByCustomerId" [value]="c.id">
-                  {{ c.name }}
-                </mat-option>
-              </mat-select>
-              <mat-error *ngIf="receiptForm.get('customerId')?.hasError('required')">
-                {{ 'VALIDATION.REQUIRED' | translate }}
-              </mat-error>
-            </mat-form-field>
+                </button>
+              }
+              @if (receiptForm.get('customerId')?.invalid && receiptForm.get('customerId')?.touched) {
+                <span class="customer-selector-error">{{ 'VALIDATION.REQUIRED' | translate }}</span>
+              }
+            </div>
           </div>
 
           <!-- Advance payment: customer pays with no invoice selected (business rule scenario 1) --

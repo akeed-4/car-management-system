@@ -73,6 +73,7 @@ import { PurchaseAdditionalCostFormComponent } from '../purchase-additional-cost
 import { Observable, of, map, tap, catchError, finalize, switchMap } from 'rxjs';
 import { formatCurrency } from '@angular/common';
 import { DocumentToolbarComponent, DocumentTotalsComponent, DocumentPrintService, DocumentAction, DocumentTotalsRow } from '../../shared/document';
+import { AccountAutocompleteComponent } from '../../shared/account-autocomplete/account-autocomplete.component';
 
 @Component({
   selector: 'app-purchase-invoice',
@@ -103,6 +104,7 @@ import { DocumentToolbarComponent, DocumentTotalsComponent, DocumentPrintService
     PurchaseAdditionalCostFormComponent,
     DocumentToolbarComponent,
     DocumentTotalsComponent,
+    AccountAutocompleteComponent,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './purchase-invoice.component.html',
@@ -980,7 +982,7 @@ export class PurchaseInvoiceComponent implements OnInit {
   addItemToInvoice(): void {
     const carId = this.selectedCarId();
     if (!carId) {
-      alert(this.translate.instant('PURCHASE_INVOICE.ERROR_SELECT_CAR'));
+      this.notificationService.showError('PURCHASE_INVOICE.ERROR_SELECT_CAR');
       return;
     }
     const car = this.selectedCar();
@@ -993,7 +995,7 @@ export class PurchaseInvoiceComponent implements OnInit {
 
     const existingItem = this.invoiceItems().find(item => item.carId === car.id);
     if (existingItem) {
-      alert(this.translate.instant('PURCHASE_INVOICE.ERROR_ALREADY_ADDED'));
+      this.notificationService.showError('PURCHASE_INVOICE.ERROR_ALREADY_ADDED');
       return;
     }
 

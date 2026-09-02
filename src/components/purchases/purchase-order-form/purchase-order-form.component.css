@@ -4,6 +4,64 @@
   padding: 1rem;
 }
 
+/* Smart vendor selector (search -> select -> summary card), same pattern used across every other
+   document form for a consistent interaction. */
+.supplier-selector-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.customer-select-btn {
+  width: 100%;
+  justify-content: flex-start;
+  gap: 6px;
+  color: var(--text-secondary);
+}
+
+.customer-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--rounded-md, 6px);
+  padding: 4px 8px;
+}
+
+.customer-summary-icon {
+  color: var(--color-primary-600, var(--color-primary-500));
+  flex-shrink: 0;
+}
+
+.customer-summary-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.customer-summary-name {
+  font-size: 0.92rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.customer-summary-sub {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.customer-selector-error {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--color-danger-600, #dc2626);
+}
+
 .styled-card {
   border-radius: 12px;
   overflow: hidden;

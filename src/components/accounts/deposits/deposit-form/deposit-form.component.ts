@@ -31,6 +31,8 @@ import { Account } from '@/src/components/accounting/models';
 import { NotificationService } from '@/src/services/notification.service';
 import { extractErrorMessage } from '@/src/models/http-error-message';
 import { DefaultAccountTracker } from '@/src/components/shared/default-account/default-account.helper';
+import { CustomerLookupModalComponent } from '@/src/components/shared/customer-lookup-modal/customer-lookup-modal.component';
+import { AccountAutocompleteComponent } from '@/src/components/shared/account-autocomplete/account-autocomplete.component';
 
 @Component({
   selector: 'app-deposit-form',
@@ -50,7 +52,8 @@ import { DefaultAccountTracker } from '@/src/components/shared/default-account/d
     MatCheckboxModule,
     MatRadioModule,
     MatTooltipModule,
-    MatDialogModule
+    MatDialogModule,
+    AccountAutocompleteComponent,
   ],
   templateUrl: './deposit-form.component.html',
   styleUrl: './deposit-form.component.css',
@@ -99,6 +102,26 @@ private notificationService = inject(NotificationService);
           this.selectedVehicleId.set(selectedCar.carId);
         }
       });
+    });
+  }
+
+  /** Smart searchable customer selector -- mirrors openSupplierLookup()/openCustomerLookup() in
+   *  payment-form/receipt-form for a consistent interaction pattern. Setting the control re-uses
+   *  the existing watchFormControls() subscription (customerName/phone/nationalId auto-fill, AR
+   *  account recalculation) -- no separate population logic needed. */
+  openCustomerLookup(): void {
+    const dialogRef = this.dialog.open<CustomerLookupModalComponent, unknown, { id: number; name: string } | null>(CustomerLookupModalComponent, {
+      width: '90vw',
+      maxWidth: '900px',
+      height: '80vh',
+      panelClass: 'responsive-dialog-panel'
+    });
+
+    dialogRef.afterClosed().subscribe(customer => {
+      if (customer) {
+        this.depositForm.get('customerId')?.setValue(customer.id);
+        this.depositForm.get('customerId')?.markAsTouched();
+      }
     });
   }
 

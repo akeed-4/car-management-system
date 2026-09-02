@@ -283,6 +283,8 @@
     "QUOTATION_APPLIED": "تم تحميل بيانات العميل وعناصر عرض السعر",
     "DOWN_PAYMENT": "الدفعة المقدمة",
     "MAIN_DATA": "البيانات الرئيسية للفاتورة",
+    "CUSTOMER_SECTION": "بيانات المستند والعميل",
+    "PAYMENT_SECTION": "الدفع والتصنيف",
     "CUSTOMER": "العميل",
     "STORE": "المتجر",
     "INVOICE_NUMBER": "رقم الفاتورة",
@@ -334,6 +336,7 @@
     "CANCEL": "إلغاء",
     "ISSUE": "إصدار الفاتورة",
     "SELECT_CUSTOMER_OPTION": "يرجى اختيار العميل",
+    "CHANGE_CUSTOMER": "تغيير العميل",
     "SELECT_STORE_OPTION": "-- اختر متجر --",
     "SELECT_DEBIT_ACCOUNT": "-- اختر الحساب المدين --",
     "ACCOUNTS_AUTO_DERIVED": "يتم اشتقاق الحسابات تلقائياً (العميل والمخزن وإعدادات الضريبة) -- لا حاجة للاختيار اليدوي.",
@@ -409,6 +412,8 @@
     "TAB_ADDITIONAL_COSTS": "التكاليف الإضافية",
     "ADDITIONAL_COSTS_SAVE_FIRST": "يرجى حفظ الفاتورة أولاً لإضافة تكاليف إضافية.",
     "MAIN_DATA": "البيانات الرئيسية للفاتورة",
+    "SUPPLIER_SECTION": "بيانات المستند والمورد",
+    "PAYMENT_SECTION": "الدفع والتصنيف",
     "SUPPLIER": "المورد",
     "DEBIT_ACCOUNT": "الحساب المدين",
     "CREDIT_ACCOUNT": "الحساب الدائن",
@@ -647,6 +652,7 @@
     "FIELD_REQUIRED": "هذا الحقل مطلوب",
     "MIN_LENGTH_10": "الحد الأدنى للطول هو 10 أحرف",
     "SAVING": "جاري الحفظ...",
+    "NO_RESULTS": "لا توجد نتائج",
     "ALERT": {
       "EXPIRE_REGISTRATION": "انتهاء الاستمارة",
       "PERIODIC_INSPECTION": "فحص دوري"
@@ -1301,6 +1307,7 @@
     "QUOTATION_DATE": "تاريخ طلب العرض",
     "VALID_UNTIL": "صالح حتى",
     "VENDOR": "المورد",
+    "CHANGE_VENDOR": "تغيير المورد",
     "REQUISITION_NUMBER": "رقم طلب الشراء",
     "SELECT_REQUISITION": "طلب الشراء",
     "SELECT_REQUISITION_HINT": "اختر طلب شراء معلق من هذا المورد لتعبئة العناصر والكميات المتبقية والأسعار الأساسية تلقائيًا",
@@ -2370,6 +2377,8 @@
       "RETURN_DATE": "تاريخ المرتجع",
       "ORIGINAL_INVOICE": "الفاتورة الأصلية",
       "SELECT_INVOICE": "-- اختر فاتورة بيع --",
+      "SEARCH_INVOICE": "ابحث برقم الفاتورة أو اسم العميل...",
+      "NO_RESULTS": "لا توجد فواتير مطابقة",
       "SUPPLIER": "المورد",
       "ITEMS_HEADER": "تفاصيل الأصناف المرتجعة",
       "CAR": "السيارة",
@@ -2666,6 +2675,12 @@
     "UNALLOCATED_BALANCE": "الرصيد غير الموزع"
   },
   "ACCOUNTS": {
+    "CAR_PAYMENT_FORM": {
+      "SUM_MISMATCH_ERROR": "يجب أن يساوي مجموع مبالغ السيارات إجمالي مبلغ السند",
+      "FORM_INVALID": "يرجى ملء جميع الحقول المطلوبة بشكل صحيح",
+      "SAVE_SUCCESS": "تم حفظ سند دفع السيارة بنجاح",
+      "SAVE_ERROR": "خطأ في حفظ سند دفع السيارة"
+    },
     "RECEIPTS": {
       "LIST_TITLE": "قائمة سندات القبض",
       "NEW": "إضافة سند قبض جديد",
@@ -2766,6 +2781,7 @@
       "AUTO_DISTRIBUTE_TOOLTIP": "توزيع الإجمالي تلقائيًا بين صفوف السيارات",
       "SUPPLIER": "المورد",
       "SELECT_SUPPLIER": "-- اختر المورد --",
+      "CHANGE_SUPPLIER": "تغيير المورد",
       "RECEIPT_TYPE": "نوع سند القبض",
       "RECEIPT_TYPE_OPTIONS": {
         "CUSTOMER": "عميل (مرتبط بفاتورة)",
@@ -3871,7 +3887,9 @@
     "JOURNAL_ENTRY_CREATED": "تم إنشاء القيد اليومي بنجاح",
     "JOURNAL_ENTRY_UPDATED": "تم تحديث القيد اليومي بنجاح",
     "ERROR_CREATING_ENTRY": "خطأ في إنشاء القيد اليومي",
-    "ERROR_UPDATING_ENTRY": "خطأ في تحديث القيد اليومي"
+    "ERROR_UPDATING_ENTRY": "خطأ في تحديث القيد اليومي",
+    "MIN_TWO_LINES_REQUIRED": "يجب أن يحتوي القيد اليومي على سطرين على الأقل",
+    "FORM_INVALID": "يرجى ملء البيان وجميع حقول السطور بشكل صحيح"
   },
   "COST_CENTER": {
     "LIST_TITLE": "مراكز التكلفة",

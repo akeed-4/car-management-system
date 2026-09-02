@@ -310,7 +310,20 @@ export class JournalEntriesComponent implements OnInit {
   }
 
   onSaveEntry() {
-    if (this.journalEntryForm.valid && this.isBalanced && this.lines.length >= 2) {
+    if (!this.journalEntryForm.valid) {
+      this.journalEntryForm.markAllAsTouched();
+      this.toastService.showError(this.translate.instant('ACCOUNTING.FORM_INVALID'));
+      return;
+    }
+    if (this.lines.length < 2) {
+      this.toastService.showError(this.translate.instant('ACCOUNTING.MIN_TWO_LINES_REQUIRED'));
+      return;
+    }
+    if (!this.isBalanced) {
+      this.toastService.showError(this.translate.instant('ACCOUNTING.UNBALANCED'));
+      return;
+    }
+    {
       const formValue = this.journalEntryForm.value;
       const lines: CreateJournalEntryLineDto[] = formValue.lines.map((line: any) => ({
         AccountId: line.accountId,
@@ -363,19 +376,20 @@ export class JournalEntriesComponent implements OnInit {
     }
   }
 
-  onDeleteEntry(entry: JournalEntry) {
-    if (confirm(this.translate.instant('ACCOUNTING.CONFIRM_DELETE_ENTRY'))) {
-      this.accountingService.deleteJournalEntry(entry.id).subscribe({
-        next: () => {
-          this.toastService.showSuccess(this.translate.instant('ACCOUNTING.JOURNAL_ENTRY_DELETED'));
-          // Refresh the list
-          this.accountingService.getJournalEntries().subscribe();
-        },
-        error: (error) => {
-         this.toastService.showError(this.translate.instant('ACCOUNTING.ERROR_DELETING_ENTRY'));
-        }
-      });
-    }
+  async onDeleteEntry(entry: JournalEntry) {
+    const result = await this.toastService.confirmAlert(this.translate.instant('ACCOUNTING.CONFIRM_DELETE_ENTRY'));
+    if (!result.isConfirmed) return;
+
+    this.accountingService.deleteJournalEntry(entry.id).subscribe({
+      next: () => {
+        this.toastService.showSuccess(this.translate.instant('ACCOUNTING.JOURNAL_ENTRY_DELETED'));
+        // Refresh the list
+        this.accountingService.getJournalEntries().subscribe();
+      },
+      error: (error) => {
+       this.toastService.showError(this.translate.instant('ACCOUNTING.ERROR_DELETING_ENTRY'));
+      }
+    });
   }
 
   onCancel() {

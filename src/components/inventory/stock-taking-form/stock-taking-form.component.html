@@ -61,14 +61,12 @@
 
         <div class="erp-form-grid form-grid cols-2">
           <div class="field-with-add">
-            <mat-form-field appearance="outline" class="field-with-add-select">
-              <mat-label>{{ 'INVENTORY.STOCK_TAKING_FORM.INVENTORY_ACCOUNT' | translate }}</mat-label>
-              <mat-select formControlName="inventoryAccountId">
-                <mat-option [value]="null">{{ 'ACCOUNTS.FORM.USE_DEFAULT' | translate }}</mat-option>
-                <mat-option *ngFor="let a of postableAccounts()" [value]="a.id">{{ a.accountCode }} - {{ a.accountNameAr }}</mat-option>
-              </mat-select>
-              <mat-hint *ngIf="!inventoryAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
-            </mat-form-field>
+            <app-account-autocomplete class="field-with-add-select"
+                formControlName="inventoryAccountId"
+                [accounts]="postableAccounts()"
+                [label]="'INVENTORY.STOCK_TAKING_FORM.INVENTORY_ACCOUNT'"
+                [hint]="!inventoryAccountManuallyChanged() ? 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' : ''">
+            </app-account-autocomplete>
             <button mat-icon-button type="button" class="field-add-btn" *ngIf="inventoryAccountManuallyChanged() && !locked()"
                     [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetInventoryAccountToDefault()">
               <mat-icon>restart_alt</mat-icon>
@@ -76,14 +74,12 @@
           </div>
 
           <div class="field-with-add">
-            <mat-form-field appearance="outline" class="field-with-add-select">
-              <mat-label>{{ 'INVENTORY.STOCK_TAKING_FORM.INVENTORY_ADJUSTMENT_ACCOUNT' | translate }}</mat-label>
-              <mat-select formControlName="inventoryAdjustmentAccountId">
-                <mat-option [value]="null">{{ 'ACCOUNTS.FORM.USE_DEFAULT' | translate }}</mat-option>
-                <mat-option *ngFor="let a of postableAccounts()" [value]="a.id">{{ a.accountCode }} - {{ a.accountNameAr }}</mat-option>
-              </mat-select>
-              <mat-hint *ngIf="!inventoryAdjustmentAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
-            </mat-form-field>
+            <app-account-autocomplete class="field-with-add-select"
+                formControlName="inventoryAdjustmentAccountId"
+                [accounts]="postableAccounts()"
+                [label]="'INVENTORY.STOCK_TAKING_FORM.INVENTORY_ADJUSTMENT_ACCOUNT'"
+                [hint]="!inventoryAdjustmentAccountManuallyChanged() ? 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' : ''">
+            </app-account-autocomplete>
             <button mat-icon-button type="button" class="field-add-btn" *ngIf="inventoryAdjustmentAccountManuallyChanged() && !locked()"
                     [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetInventoryAdjustmentAccountToDefault()">
               <mat-icon>restart_alt</mat-icon>

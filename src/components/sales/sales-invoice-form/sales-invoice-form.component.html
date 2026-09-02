@@ -64,52 +64,65 @@
       <div class="workspace-main">
 
         <div class="erp-card doc-card">
-          <!-- BAND 2: INVOICE HEADER FORM -->
+          <!-- BAND 2: INVOICE HEADER FORM -- Customer/document identity (left) and Payment
+               details (right) side by side so both are visible without scrolling on desktop;
+               they stack on tablet/mobile (see .header-columns media query). -->
           <section class="erp-section form-section">
-            <h3 class="erp-section-title form-section-title">{{ 'INVOICE.MAIN_DATA' | translate }}</h3>
-            <ng-container *ngIf="cardLayout3 | async as layout">
-              <mat-grid-list [cols]="layout.columns" rowHeight="88" gutterSize="16px">
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
+            <div class="header-columns">
+
+              <!-- LEFT: document identity + customer -->
+              <div class="header-col">
+                <h3 class="erp-section-title form-section-title">{{ 'INVOICE.CUSTOMER_SECTION' | translate }}</h3>
+                <div class="stacked-fields">
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'INVOICE.INVOICE_NUMBER' | translate }}</mat-label>
                     <input matInput [value]="invoiceNumber() || ('CORPORATE.AUTO_GENERATED' | translate)" disabled readonly>
                   </mat-form-field>
-                </mat-grid-tile>
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'INVOICE.INVOICE_DATE' | translate }}</mat-label>
                     <input matInput [matDatepicker]="invoiceDatePicker" formControlName="invoiceDate" required>
                     <mat-datepicker-toggle matSuffix [for]="invoiceDatePicker"></mat-datepicker-toggle>
                     <mat-datepicker #invoiceDatePicker></mat-datepicker>
                   </mat-form-field>
-                </mat-grid-tile>
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
-                  <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>{{ 'INVOICE.CUSTOMER' | translate }}</mat-label>
-                    <mat-select formControlName="customer" required>
-                      <mat-option [value]="null" disabled>{{ 'INVOICE.SELECT_CUSTOMER_OPTION' | translate }}</mat-option>
-                      <mat-option *ngFor="let customer of customers()" [value]="customer.id">
-                        {{ customer.name }} ({{ customer.nationalId }})
-                      </mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                </mat-grid-tile>
-              </mat-grid-list>
-            </ng-container>
+                  <div class="customer-selector-tile">
+                    <label class="customer-selector-label">{{ 'INVOICE.CUSTOMER' | translate }} <span class="required-asterisk">*</span></label>
+                    @if (selectedCustomer(); as customer) {
+                      <div class="customer-summary">
+                        <mat-icon class="customer-summary-icon">person</mat-icon>
+                        <div class="customer-summary-text">
+                          <span class="customer-summary-name">{{ customer.name }}</span>
+                          <span class="customer-summary-sub">{{ customer.phone }} · {{ customer.nationalId }}</span>
+                        </div>
+                        <button mat-icon-button type="button" *ngIf="!invoiceForm.get('customer')?.disabled"
+                                [matTooltip]="'INVOICE.CHANGE_CUSTOMER' | translate" (click)="openCustomerLookup()">
+                          <mat-icon>edit</mat-icon>
+                        </button>
+                      </div>
+                    } @else {
+                      <button mat-stroked-button type="button" class="customer-select-btn" (click)="openCustomerLookup()">
+                        <mat-icon>search</mat-icon>
+                        {{ 'INVOICE.SELECT_CUSTOMER_OPTION' | translate }}
+                      </button>
+                    }
+                    @if (invoiceForm.get('customer')?.invalid && invoiceForm.get('customer')?.touched) {
+                      <span class="customer-selector-error">{{ 'VALIDATION.REQUIRED' | translate }}</span>
+                    }
+                  </div>
+                </div>
+              </div>
 
-
-            <ng-container *ngIf="cardLayout3 | async as layout">
-              <mat-grid-list [cols]="layout.columns" rowHeight="88" gutterSize="16px">
-                <!-- Payment Method has no UI of its own: Payment Type below is the single payment
-                     selector the user picks from, and Payment Method is derived from it
-                     automatically (see derivePaymentMethodFromType in the component). -->
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows" *ngIf="saleType !== SaleType.Cash">
-                  <mat-form-field appearance="outline" class="full-width">
+              <!-- RIGHT: payment / discount / classification + the Revenue Account (the only
+                   account this document exposes -- see the comment this replaces below). -->
+              <div class="header-col">
+                <h3 class="erp-section-title form-section-title">{{ 'INVOICE.PAYMENT_SECTION' | translate }}</h3>
+                <div class="payment-fields-grid">
+                  <!-- Payment Method has no UI of its own: Payment Type below is the single payment
+                       selector the user picks from, and Payment Method is derived from it
+                       automatically (see derivePaymentMethodFromType in the component). -->
+                  <mat-form-field appearance="outline" class="full-width" *ngIf="saleType !== SaleType.Cash">
                     <mat-label>{{ 'INVOICE.DOWN_PAYMENT' | translate }}</mat-label>
                     <input matInput type="number" formControlName="downPayment" required>
                   </mat-form-field>
-                </mat-grid-tile>
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'INVOICE.DISCOUNT_TYPE' | translate }}</mat-label>
                     <mat-select formControlName="discountType">
@@ -117,8 +130,6 @@
                       <mat-option value="Percentage">{{ 'INVOICE.DISCOUNT_PERCENTAGE' | translate }}</mat-option>
                     </mat-select>
                   </mat-form-field>
-                </mat-grid-tile>
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'INVOICE.DISCOUNT_VALUE' | translate }}</mat-label>
                     <input matInput type="number" min="0" formControlName="discountValue">
@@ -128,29 +139,23 @@
                       {{ (invoiceForm.get('discountType')?.value === 'Percentage' ? 'INVOICE.DISCOUNT_EXCEEDS_100' : 'INVOICE.DISCOUNT_EXCEEDS_SUBTOTAL') | translate }}
                     </mat-error>
                   </mat-form-field>
-                </mat-grid-tile>
-                <!-- Cash invoices have exactly one valid Payment Type ("Cash"), locked and
-                     disabled via applyPaymentTypeLock() in the component. Credit/Installments
-                     have no single fixed instrument (none of Bank Transfer/Check/Cash applies
-                     until the credit is actually repaid), so the field doesn't apply and is
-                     hidden entirely rather than shown with an arbitrary locked value. -->
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows" *ngIf="saleType === SaleType.Cash">
-                  <mat-form-field appearance="outline" class="full-width">
+                  <!-- Cash invoices have exactly one valid Payment Type ("Cash"), locked and
+                       disabled via applyPaymentTypeLock() in the component. Credit/Installments
+                       have no single fixed instrument (none of Bank Transfer/Check/Cash applies
+                       until the credit is actually repaid), so the field doesn't apply and is
+                       hidden entirely rather than shown with an arbitrary locked value. -->
+                  <mat-form-field appearance="outline" class="full-width" *ngIf="saleType === SaleType.Cash">
                     <mat-label>{{ 'INVOICE.PAYMENT_TYPE' | translate }}</mat-label>
                     <mat-select formControlName="paymentType" required>
                       <mat-option *ngFor="let opt of paymentTypeOptions()" [value]="opt.value">{{ opt.labelKey | translate }}</mat-option>
                     </mat-select>
                   </mat-form-field>
-                </mat-grid-tile>
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows" *ngIf="selectedCustomer()?.isCreditCustomer">
-                  <mat-form-field appearance="outline" class="full-width">
+                  <mat-form-field appearance="outline" class="full-width" *ngIf="selectedCustomer()?.isCreditCustomer">
                     <mat-label>{{ 'INVOICE.DUE_DATE' | translate }}</mat-label>
                     <input matInput [matDatepicker]="dueDatePicker" formControlName="dueDate">
                     <mat-datepicker-toggle matSuffix [for]="dueDatePicker"></mat-datepicker-toggle>
                     <mat-datepicker #dueDatePicker></mat-datepicker>
                   </mat-form-field>
-                </mat-grid-tile>
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'INVOICE.INVOICE_TYPE' | translate }}</mat-label>
                     <mat-select formControlName="invoiceType">
@@ -159,8 +164,6 @@
                       <mat-option [value]="InvoiceType.Exempt">{{ 'INVOICE.TYPE_EXEMPT' | translate }}</mat-option>
                     </mat-select>
                   </mat-form-field>
-                </mat-grid-tile>
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'INVOICE.CLASSIFICATION' | translate }}</mat-label>
                     <mat-select formControlName="ClassificationId">
@@ -169,38 +172,34 @@
                       </mat-option>
                     </mat-select>
                   </mat-form-field>
-                </mat-grid-tile>
-                <mat-grid-tile [colspan]="layout.miniCard.cols" [rowspan]="layout.miniCard.rows">
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'INVOICE.SALESPERSON' | translate }}</mat-label>
                     <input matInput formControlName="salesperson">
                   </mat-form-field>
-                </mat-grid-tile>
-              </mat-grid-list>
-            </ng-container>
-          </section>
 
-          <!-- Business-level Revenue classification account: default-preselected via
-               AccountResolutionService.resolve-default, user-editable. This is the only account
-               choice this document exposes -- the Cash/Bank-or-Customer-Receivable settlement
-               side is an accounting implementation detail the backend always resolves internally
-               (from Payment Method / Customer) and is never shown here. -->
-          <section class="erp-section form-section">
-            <h3 class="erp-section-title form-section-title">{{ 'ACCOUNTING.REVENUE_ACCOUNT_SECTION' | translate }}</h3>
-            <div class="field-with-add">
-              <mat-form-field appearance="outline" class="full-width form-field">
-                <mat-label>{{ 'ACCOUNTING.REVENUE_ACCOUNT' | translate }}</mat-label>
-                <mat-select formControlName="creditAccountId">
-                  <mat-option *ngFor="let account of creditAccounts()" [value]="account.id">
-                    {{ account.accountCode }} - {{ translate.currentLang === 'ar' ? (account.accountNameAr || account.accountNameEn) : account.accountNameEn }}
-                  </mat-option>
-                </mat-select>
-                <mat-hint *ngIf="!creditAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
-              </mat-form-field>
-              <button mat-icon-button type="button" *ngIf="creditAccountManuallyChanged()"
-                      [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetCreditAccountToDefault()">
-                <mat-icon>restart_alt</mat-icon>
-              </button>
+                  <!-- Business-level Revenue classification account: default-preselected via
+                       AccountResolutionService.resolve-default, user-editable. This is the only
+                       account choice this document exposes -- the Cash/Bank-or-Customer-Receivable
+                       settlement side is an accounting implementation detail the backend always
+                       resolves internally (from Payment Method / Customer) and is never shown here. -->
+                  <div class="field-with-add payment-field-span-2">
+                    <mat-form-field appearance="outline" class="full-width form-field">
+                      <mat-label>{{ 'ACCOUNTING.REVENUE_ACCOUNT' | translate }}</mat-label>
+                      <mat-select formControlName="creditAccountId">
+                        <mat-option *ngFor="let account of creditAccounts()" [value]="account.id">
+                          {{ account.accountCode }} - {{ translate.currentLang === 'ar' ? (account.accountNameAr || account.accountNameEn) : account.accountNameEn }}
+                        </mat-option>
+                      </mat-select>
+                      <mat-hint *ngIf="!creditAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
+                    </mat-form-field>
+                    <button mat-icon-button type="button" *ngIf="creditAccountManuallyChanged()"
+                            [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetCreditAccountToDefault()">
+                      <mat-icon>restart_alt</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </section>
 

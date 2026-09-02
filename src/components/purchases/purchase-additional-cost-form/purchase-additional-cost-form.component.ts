@@ -24,6 +24,7 @@ import { NotificationService } from '../../../services/notification.service';
 import { AuthService } from '../../../services/AuthService.service';
 import { Account } from '../../accounting/models';
 import { PurchaseInvoice } from '../../../models/purchase-invoice.model';
+import { AccountAutocompleteComponent } from '../../shared/account-autocomplete/account-autocomplete.component';
 import {
   AllocationMethod,
   ExpenseCategory,
@@ -50,6 +51,7 @@ import {
     MatTooltipModule,
     MatDialogModule,
     TranslateModule,
+    AccountAutocompleteComponent,
   ],
   templateUrl: './purchase-additional-cost-form.component.html',
   styleUrl: './purchase-additional-cost-form.component.css',
