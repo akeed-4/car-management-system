@@ -3,7 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { AbstractControl, ReactiveFormsModule, FormControl, ValidationErrors, Validators, FormGroup } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
-import { CommonModule, CurrencyPipe } from '@angular/common';
+import { CommonModule, CurrencyPipe, Location } from '@angular/common';
 import { InventoryService } from '../../../services/inventory.service';
 import { CustomerService } from '../../../services/customer.service';
 import { SalesService } from '../../../services/sales.service';
@@ -114,6 +114,7 @@ export class SalesInvoiceFormComponent implements OnInit {
     private accountingService = inject(AccountingService);
     private depositService = inject(DepositService);
     private router = inject(Router);
+    private location = inject(Location);
     protected translate = inject(TranslateService);
     private dialog = inject(MatDialog);
     private storeAccountingConfigService = inject(StoreAccountingConfigurationService);
@@ -1325,7 +1326,9 @@ export class SalesInvoiceFormComponent implements OnInit {
     });
   }
 
-  /** Issue/Save entry point -- keeps the exact previous behavior (navigate after create). */
+  /** Issue/Save entry point. `navigateAfterSave=true` only actually navigates for the Bank Sales
+   *  (Bunuk) workflow, which continues to Vehicle Delivery as its next deliberate step; every other
+   *  channel stays on this screen and switches in place into editing the newly created invoice. */
   saveInvoice(): void {
     this.saving.set(true);
     this.saveInvoiceCore(true).pipe(finalize(() => this.saving.set(false))).subscribe();
@@ -1466,10 +1469,22 @@ export class SalesInvoiceFormComponent implements OnInit {
             }
             if (navigateAfterSave) {
               if (this.channel === SalesChannel.Bunuk) {
-                // Bank Sales workflow: continue to Vehicle Delivery
+                // Bank Sales workflow: continue to Vehicle Delivery -- a deliberate next step in a
+                // multi-step process, not an accidental redirect, left untouched.
                 this.router.navigate(['/sales/bank/deliveries/new'], { queryParams: { invoiceId: savedInvoice.id } });
               } else {
-                this.router.navigate(['/sales']);
+                // Stay on this screen: switch in place from "new" to "editing the invoice just
+                // created" instead of leaving to the sales list. currentInvoiceId/isEditMode drive
+                // every downstream save/print/edit decision in this component (toolbar labels,
+                // saveInvoiceCore's `id` field, printInvoice's isPersisted flag), so flipping them
+                // here makes the rest of the screen behave exactly as if the user had navigated to
+                // the edit route -- without an actual navigation/reload. The URL is updated to match
+                // via replaceState (no NavigationEnd event, no component teardown) so a refresh or
+                // back-button still lands on/leaves the right place.
+                this.currentInvoiceId.set(savedInvoice.id);
+                this.isEditMode.set(true);
+                const newUrl = this.router.url.replace(/\/new(\?|$)/, `/edit/${savedInvoice.id}$1`);
+                this.location.replaceState(newUrl);
               }
             }
           }),
