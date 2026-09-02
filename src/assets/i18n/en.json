@@ -693,7 +693,7 @@
     "SECTION_LOCATION": "Location",
     "SECTION_ADDRESS": "Address Information",
     "SECTION_LEGAL": "Legal & Financial",
-    "NO_DATA": "No records found"
+    "NO_DATA": "No data"
   },
   "VALIDATION": {
     "REQUIRED": "This field is required"
@@ -3769,6 +3769,7 @@
     "SECTION_CONFIG": "Accounting Configuration",
     "SECTION_ADDITIONAL_INFO": "Additional Information",
     "SAVE_ACCOUNT": "Save Account",
+    "SAVING": "Saving",
     "CODE_AUTO_GENERATED_HINT": "Auto-generated from the parent account; you can edit it if needed",
     "PARENT_SECTION_DESC": "This account will be created under the selected parent account",
     "PARENT_SELECT_LABEL": "Select Parent Account",

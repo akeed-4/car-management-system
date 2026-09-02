@@ -3710,6 +3710,7 @@
     "SECTION_CONFIG": "الإعدادات المحاسبية",
     "SECTION_ADDITIONAL_INFO": "معلومات إضافية",
     "SAVE_ACCOUNT": "حفظ الحساب",
+    "SAVING": "جاري الحفظ",
     "CODE_AUTO_GENERATED_HINT": "يتم إنشاؤه تلقائيًا من الحساب الأب، ويمكنك تعديله عند الحاجة",
     "PARENT_SECTION_DESC": "سيتم إنشاء هذا الحساب تحت الحساب الأب المحدد",
     "PARENT_SELECT_LABEL": "اختر الحساب الأب",
