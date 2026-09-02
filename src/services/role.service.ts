@@ -137,7 +137,8 @@ export class RoleService {
   }
 
   getPermissionsList(): Observable<PermissionsList> {
-    return this.http.get<Permission[]>(`${this.permissionsApiUrl}/GetAll`).pipe(
+    return this.http.get<ApiResponse<Permission[]>>(`${this.permissionsApiUrl}/GetAll`).pipe(
+      map(response => response.data),
       tap(permissions => this.rawPermissions.set(permissions)),
       map(permissions => this.buildPermissionsList(permissions)),
       tap(grouped => this.permissionsListSignal.set(grouped)),
