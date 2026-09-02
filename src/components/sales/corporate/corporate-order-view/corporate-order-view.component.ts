@@ -12,6 +12,7 @@ import { CurrentSettingService } from '../../../../services/current-setting.serv
 import { NotificationService } from '@/src/services/notification.service';
 import { CorporateOrder } from '../../../../models/corporate/corporate-order.model';
 import { AttachmentUploaderComponent } from '../../shared/attachment-uploader/attachment-uploader.component';
+import { HasPermissionDirective } from '../../../shared/permission.directive';
 
 @Component({
   selector: 'app-corporate-order-view',
@@ -26,7 +27,8 @@ import { AttachmentUploaderComponent } from '../../shared/attachment-uploader/at
     MatGridListModule,
     DxDataGridModule,
     TranslateModule,
-    AttachmentUploaderComponent
+    AttachmentUploaderComponent,
+    HasPermissionDirective
   ],
   templateUrl: './corporate-order-view.component.html',
   styleUrls: ['./corporate-order-view.component.css'],

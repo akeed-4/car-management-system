@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { firstValueFrom, Observable } from 'rxjs';
 import CustomStore from 'devextreme/data/custom_store';
 import { environment } from '../environments/environment';
@@ -67,6 +67,25 @@ export type ReportExtraParams =
  *                             selected accountId) -- sent alongside, not instead of, the
  *                             serialized LoadOptions.
  */
+/** Extracts a human-readable message from whatever `firstValueFrom(http.get(...))` rejects with,
+ *  so a CustomStore `load()` failure always rejects with a real Error carrying a real `.message`
+ *  -- never the raw HttpErrorResponse object. DevExtreme's grid displays a failed load's
+ *  rejection reason directly; an object with no meaningful `toString()` renders as the literal
+ *  string "[object Object]" in the grid, which is exactly what an unwrapped HttpErrorResponse
+ *  does (it doesn't extend Error, so it has no useful message representation of its own). */
+function extractErrorMessage(error: unknown): string {
+  if (error instanceof HttpErrorResponse) {
+    if (typeof error.error === 'string' && error.error.trim()) return error.error;
+    const body = error.error as { message?: string; title?: string } | null;
+    if (body?.message) return body.message;
+    if (body?.title) return body.title;
+    if (error.status === 0) return 'Network error: unable to reach the server';
+    return `Request failed (${error.status})`;
+  }
+  if (error instanceof Error) return error.message;
+  return 'An unexpected error occurred';
+}
+
 export function createReportRemoteStore<T = unknown>(
   http: HttpClient,
   url: string,
@@ -79,11 +98,22 @@ export function createReportRemoteStore<T = unknown>(
      * `X-Opening-Balance` header (see AccountReportsController.GetAccountStatementQuery).
      */
     onHeaders?: (headers: import('@angular/common/http').HttpHeaders) => void;
+    /**
+     * Checked at the start of every load(); when true, returns an empty page immediately without
+     * making the HTTP call. For a report that requires a selection the backend validates (e.g.
+     * Account Statement's AccountId <= 0 -> 400), the grid otherwise fires that doomed request
+     * the moment it renders -- before the user has picked anything -- surfacing a raw error in
+     * the grid instead of just... not loading yet.
+     */
+    shouldSkip?: () => boolean;
   },
 ): CustomStore<T> {
   return new CustomStore<T>({
     key: options?.key ?? 'id',
     load: async (loadOptions) => {
+      if (options?.shouldSkip?.()) {
+        return { data: [], totalCount: 0 };
+      }
       let params = toLoadOptionsParams(loadOptions as Record<string, unknown>);
       const extra = typeof options?.extraParams === 'function' ? options.extraParams() : options?.extraParams;
       if (extra) {
@@ -94,9 +124,14 @@ export function createReportRemoteStore<T = unknown>(
           }
         }
       }
-      const response = await firstValueFrom(
-        http.get<DxLoadResult<T>>(url, { params, observe: 'response' }),
-      );
+      let response;
+      try {
+        response = await firstValueFrom(
+          http.get<DxLoadResult<T>>(url, { params, observe: 'response' }),
+        );
+      } catch (error) {
+        throw new Error(extractErrorMessage(error));
+      }
       if (options?.onHeaders && response.headers) {
         options.onHeaders(response.headers);
       }
@@ -126,10 +161,9 @@ export class ReportDataSourceService {
    * this is deliberately `api`, not `reports` -- every report controller in this codebase is
    * `[Route("api/[controller]")]` (see AccountReportsController.cs / CarReportsController.cs),
    * so a path passed to `createStore` must be controller-relative, e.g.
-   * `'AccountReports/general-journal/query'`. (The older `AccountReportService.apiUrl`, which
-   * points at `${environment.origin}reports`, predates the `api/[controller]` convention and
-   * appears to be a pre-existing dead route for the legacy full-array endpoints -- out of scope
-   * here; this service intentionally does not reuse that base.)
+   * `'AccountReports/general-journal/query'`. (`AccountReportService.apiUrl` is a separate,
+   * now-also-fixed base for that service's own POST report-generation endpoints -- this service
+   * intentionally does not reuse it, since those are a different route shape entirely.)
    */
   readonly reportsBaseUrl = `${environment.origin}api`.replace(/\/+$/, '');
 
@@ -143,6 +177,7 @@ export class ReportDataSourceService {
       key?: string | string[];
       extraParams?: ReportExtraParams;
       onHeaders?: (headers: import('@angular/common/http').HttpHeaders) => void;
+      shouldSkip?: () => boolean;
     },
   ): CustomStore<T> {
     const url = /^https?:\/\//i.test(path) ? path : `${this.reportsBaseUrl}/${path.replace(/^\/+/, '')}`;

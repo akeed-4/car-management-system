@@ -67,6 +67,24 @@ export class ReportGridComponent implements OnInit {
     @Input() summaryItems: any[] = [];
     /** Page size used only in remote-operations mode (client-side array mode is unaffected). */
     @Input() remotePageSize: number = 20;
+    /**
+     * Distinguishes this grid's persisted column state (order/width/visibility, via DevExtreme
+     * stateStoring) from every other report's. Every consumer of this shared component previously
+     * persisted to the exact same hardcoded localStorage key ("reportGridState") regardless of
+     * which report it was -- so reordering/resizing a column on one report (e.g. General Journal)
+     * would silently corrupt another report's column layout the next time it loaded (e.g. Account
+     * Statement), since DevExtreme would try to restore a state blob shaped for a completely
+     * different set of columns. State storing is now opt-in per report: pass a key unique to this
+     * screen (e.g. `'general-journal'`) to persist column customization scoped to it; omit it to
+     * leave state storing off entirely, same as if this feature never existed for that screen.
+     */
+    @Input() stateStorageKey: string = '';
+
+    /** Full localStorage key actually passed to dxo-state-storing -- prefixed so it can never
+     *  collide with an unrelated key some other part of the app happens to also store under. */
+    get resolvedStateStorageKey(): string {
+        return `reportGrid_${this.stateStorageKey}`;
+    }
 
     @Output() rowClick = new EventEmitter<any>();
     @Output() cellClick = new EventEmitter<any>();
