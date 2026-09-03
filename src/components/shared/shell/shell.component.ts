@@ -202,6 +202,10 @@ export class ShellComponent implements OnInit, OnDestroy {
   }
 
   private updateMenusForLanguage(): void {
+    // Re-derive labels for whichever source is active -- the dynamic API menus (already loaded
+    // into DynamicMenuService) get their display `name` recomputed from name/englishName without
+    // a refetch; only the static fallback still has no data yet and needs (re-)loading.
+    this.dynamicMenuService.setLanguage(this.currentLanguage);
     const current = this.dynamicMenuService.getCurrentMenus();
     if (current?.length) {
       this.menusSignal.set(current);

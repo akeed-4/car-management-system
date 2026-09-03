@@ -10,18 +10,27 @@ import { environment } from '../environments/environment';
 })
 export class DynamicMenuService {
   private apiUrl = environment.origin || 'http://localhost:5000';
-  
+
   // BehaviorSubject to store and emit menu data
   private menuSubject = new BehaviorSubject<MenuItem[]>([]);
   public menu$ = this.menuSubject.asObservable();
-  
+
   // Loading state
   private loadingSubject = new BehaviorSubject<boolean>(false);
   public loading$ = this.loadingSubject.asObservable();
-  
+
   // Error state
   private errorSubject = new BehaviorSubject<string | null>(null);
   public error$ = this.errorSubject.asObservable();
+
+  // Raw hierarchy as returned by the API (both name/englishName kept intact) -- kept separate
+  // from menuSubject so switching language can re-derive display labels instantly, with no
+  // extra HTTP round-trip.
+  private rawMenus: MenuItem[] = [];
+  // Same storage key/fallback as LanguageService.getCurrentLanguage() -- read directly rather
+  // than injecting LanguageService, so the very first loadMenus() (which can fire before Shell
+  // subscribes to any language stream) already resolves labels in the app's actual boot language.
+  private currentLanguage = localStorage.getItem('currentLanguage') || 'ar';
 
   constructor(private http: HttpClient) {}
 
@@ -44,11 +53,34 @@ export class DynamicMenuService {
       map(menus => this.buildHierarchy(menus)),
       map(menus => this.filterByPermission(menus)),
       tap(menus => {
-        this.menuSubject.next(menus);
+        this.rawMenus = menus;
+        this.menuSubject.next(this.applyLanguage(menus, this.currentLanguage));
         this.loadingSubject.next(false);
       }),
       catchError(error => this.handleError(error))
     );
+  }
+
+  /**
+   * Re-derive every item's displayed `name` for the given language from its own name/
+   * englishName pair (same source fields the static menu.service.ts fallback uses), without
+   * refetching from the API. Called whenever the app language changes so menu/submenu labels
+   * switch immediately and consistently, matching the rest of the app.
+   */
+  setLanguage(language: string): void {
+    this.currentLanguage = language;
+    if (this.rawMenus.length) {
+      this.menuSubject.next(this.applyLanguage(this.rawMenus, language));
+    }
+  }
+
+  private applyLanguage(items: MenuItem[], language: string): MenuItem[] {
+    const useEnglish = language === 'en';
+    return items.map(item => ({
+      ...item,
+      name: useEnglish ? (item.englishName || item.name) : item.name,
+      children: item.children?.length ? this.applyLanguage(item.children, language) : item.children,
+    }));
   }
 
   /**

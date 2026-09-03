@@ -1,5 +1,20 @@
 {
   "PERMISSIONS": {
+    "GROUPS": {
+      "DASHBOARD": "لوحة التحكم",
+      "MASTER_DATA": "البيانات الأساسية",
+      "ACCOUNTS": "الحسابات",
+      "INVENTORY": "المخزون",
+      "CARS": "السيارات",
+      "ENTITIES": "الكيانات",
+      "PURCHASES": "المشتريات",
+      "SALES": "المبيعات",
+      "OPERATIONS": "العمليات",
+      "REPORTS": "التقارير",
+      "USERS": "المستخدمون",
+      "APPROVALS": "الموافقات",
+      "SETTINGS": "الإعدادات"
+    },
     "DASHBOARD_VIEW": "عرض لوحة التحكم",
     "MASTERDATA_VIEW": "عرض البيانات الأساسية",
     "COMPANIES_VIEW": "عرض الشركات",
@@ -2075,6 +2090,10 @@
       "STEP1_TITLE": "البيانات الأساسية",
       "STEP2_TITLE": "المواصفات والوسائط",
       "STEP3_TITLE": "البيانات المالية",
+      "CARD_STEP1_TITLE": "المركبة والتصنيف",
+      "CARD_STEP2_TITLE": "المواصفات الفنية",
+      "REVIEW": "المراجعة",
+      "PHOTO_ATTACHED": "مرفقة",
       "NEXT": "التالي",
       "BACK": "السابق",
       "TECHNICAL_SPECS": "المواصفات الفنية",

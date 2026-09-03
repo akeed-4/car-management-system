@@ -1,5 +1,20 @@
 {
   "PERMISSIONS": {
+    "GROUPS": {
+      "DASHBOARD": "Dashboard",
+      "MASTER_DATA": "Master Data",
+      "ACCOUNTS": "Accounts",
+      "INVENTORY": "Inventory",
+      "CARS": "Cars",
+      "ENTITIES": "Entities",
+      "PURCHASES": "Purchases",
+      "SALES": "Sales",
+      "OPERATIONS": "Operations",
+      "REPORTS": "Reports",
+      "USERS": "Users",
+      "APPROVALS": "Approvals",
+      "SETTINGS": "Settings"
+    },
     "DASHBOARD_VIEW": "View Dashboard",
     "MASTERDATA_VIEW": "View Master Data",
     "COMPANIES_VIEW": "View Companies",
@@ -3546,6 +3561,10 @@
       "STEP1_TITLE": "Basic Info",
       "STEP2_TITLE": "Specifications & Media",
       "STEP3_TITLE": "Financial Info",
+      "CARD_STEP1_TITLE": "Vehicle & Classification",
+      "CARD_STEP2_TITLE": "Technical Specs",
+      "REVIEW": "Review",
+      "PHOTO_ATTACHED": "Attached",
       "NEXT": "Next",
       "BACK": "Back",
       "TECHNICAL_SPECS": "Technical Specifications",

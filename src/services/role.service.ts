@@ -5,7 +5,7 @@ import { Role } from '../models/role.model';
 import { environment } from '../environments/environment';
 import { UserService } from './user.service';
 import { TranslateService } from '@ngx-translate/core';
-import { permissionTranslationKey } from './permission-translation.util';
+import { permissionTranslationKey, permissionGroupTranslationKey } from './permission-translation.util';
 
 export interface Permission {
   id: number;
@@ -149,13 +149,16 @@ export class RoleService {
   /** Permission.key is the stable authorization identity and never changes; only the label shown
    *  here is localized (Requirement 4), via a translation key derived from the key (see
    *  permissionTranslationKey) with the raw backend Title as a fallback for any permission not yet
-   *  translated -- never a missing/blank label. Group titles have no seeded translation source
-   *  today (Group is a plain display string, not a stable code), so they render as-is. */
+   *  translated -- never a missing/blank label. Group titles are localized the same way, via
+   *  permissionGroupTranslationKey, so section headers follow the app language too instead of
+   *  always showing the backend's raw (English) Group string. */
   private buildPermissionsList(permissions: Permission[]): PermissionsList {
     const grouped: PermissionsList = {};
     for (const p of permissions) {
       if (!grouped[p.group]) {
-        grouped[p.group] = { title: p.group, permissions: {} };
+        const groupKey = permissionGroupTranslationKey(p.group);
+        const translatedGroup = this.translate.instant(groupKey);
+        grouped[p.group] = { title: translatedGroup !== groupKey ? translatedGroup : p.group, permissions: {} };
       }
       const translationKey = permissionTranslationKey(p.key);
       const translated = this.translate.instant(translationKey);
