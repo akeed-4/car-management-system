@@ -9,506 +9,589 @@
             </div>
         </div>
 
-        <form [formGroup]="carForm" class="car-card-body">
+        <!-- Compact step progress header -->
+        <div class="erp-wizard-steps">
+            @for (label of stepLabels; track label; let i = $index) {
+            <button type="button" class="erp-wizard-step-pill"
+                [class.active]="currentStep() === i"
+                [class.done]="currentStep() > i"
+                [disabled]="i > currentStep() && !isStepReachable(i)"
+                (click)="goToStep(i)">
+                <span class="erp-wizard-step-index">
+                    @if (currentStep() > i) {
+                    <mat-icon>check</mat-icon>
+                    } @else {
+                    {{ i + 1 }}
+                    }
+                </span>
+                <span class="erp-wizard-step-label">{{ label | translate }}</span>
+            </button>
+            }
+        </div>
 
-            <mat-accordion multi="true" class="car-accordion">
+        <form [formGroup]="carForm" class="car-card-body erp-wizard-step-body">
 
-                <!-- Main Details Section -->
-                <mat-expansion-panel [expanded]="true" class="section-panel">
-                    <mat-expansion-panel-header>
-                        <mat-panel-title>
-                            <mat-icon class="panel-icon">directions_car</mat-icon>
-                            {{ 'INVENTORY.FORM.MAIN_DETAILS' | translate }}
-                        </mat-panel-title>
-                        <mat-panel-description class="panel-summary">
-                            {{ carForm.value.make || '—' }}<span *ngIf="selectedModel()"> • {{ selectedModel() }}</span><span *ngIf="carForm.value.year"> • {{ carForm.value.year }}</span>
-                        </mat-panel-description>
-                    </mat-expansion-panel-header>
-
-                    <div class="erp-form-grid erp-form-grid-4">
-                        <div class="field-span-1 field-with-add">
-                            <mat-form-field appearance="outline" class="field-with-add-select">
-                                <mat-label>{{ 'INVENTORY.FORM.MANUFACTURER' | translate }}</mat-label>
-                                <mat-select formControlName="make" required
-                                    (selectionChange)="onManufacturerChange($event.value)">
-                                    <mat-option>
-                                        <ngx-mat-select-search [formControl]="manufacturerFilterCtrl"
-                                            placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
-                                            noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
-                                        </ngx-mat-select-search>
-                                    </mat-option>
-                                    <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_MANUFACTURER' |
-                                        translate }}</mat-option>
-                                    @for (manufacturer of searchedManufacturers(); track manufacturer.id) {
-                                    <mat-option [value]="manufacturer.name">{{ manufacturer.name }}</mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                            @if (canAddManufacturer()) {
-                            <button mat-icon-button type="button" class="field-add-btn"
-                                (click)="openAddManufacturerDialog()"
-                                [matTooltip]="'MANUFACTURERS.ADD_NEW' | translate">
-                                <mat-icon>add</mat-icon>
-                            </button>
-                            }
-                        </div>
-
-                        <div class="field-span-1 field-with-add">
-                            <mat-form-field appearance="outline" class="field-with-add-select">
-                                <mat-label>{{ 'INVENTORY.FORM.MODEL' | translate }}</mat-label>
-                                <mat-select formControlName="modelId" required
-                                    (selectionChange)="onModelChange($event.value)">
-                                    <mat-option>
-                                        <ngx-mat-select-search [formControl]="modelFilterCtrl"
-                                            placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
-                                            noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
-                                        </ngx-mat-select-search>
-                                    </mat-option>
-                                    <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_MODEL' | translate
-                                        }}</mat-option>
-                                    @for (carModel of searchedModels(); track carModel.id) {
-                                    <mat-option [value]="carModel.id">{{ carModel.name }}</mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                            @if (canAddCarModel()) {
-                            <button mat-icon-button type="button" class="field-add-btn"
-                                (click)="openAddCarModelDialog()"
-                                [disabled]="!selectedManufacturerId()"
-                                [matTooltip]="!selectedManufacturerId() ? ('INVENTORY.FORM.SELECT_MANUFACTURER' | translate) : ('CAR_MODELS.ADD_NEW' | translate)">
-                                <mat-icon>add</mat-icon>
-                            </button>
-                            }
-                        </div>
-
-                        <div class="field-span-1 field-with-add">
-                            <mat-form-field appearance="outline" class="field-with-add-select">
-                                <mat-label>{{ 'INVENTORY.FORM.CATEGORY' | translate }}</mat-label>
-                                <mat-select formControlName="categoryId"
-                                    (selectionChange)="onCategoryChange($event.value)">
-                                    <mat-option>
-                                        <ngx-mat-select-search [formControl]="categoryFilterCtrl"
-                                            placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
-                                            noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
-                                        </ngx-mat-select-search>
-                                    </mat-option>
-                                    <mat-option [value]="null">{{ 'INVENTORY.FORM.SELECT_CATEGORY' | translate
-                                        }}</mat-option>
-                                    @for (cat of searchedCategories(); track cat.id) {
-                                    <mat-option [value]="cat.id">{{ cat.nameEn || cat.name }}</mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                            @if (canAddCarCategory()) {
-                            <button mat-icon-button type="button" class="field-add-btn"
-                                (click)="openAddCarCategoryDialog()"
-                                [disabled]="!carForm.value.modelId"
-                                [matTooltip]="!carForm.value.modelId ? ('INVENTORY.FORM.SELECT_MODEL' | translate) : ('CAR_CATEGORY.ADD_NEW' | translate)">
-                                <mat-icon>add</mat-icon>
-                            </button>
-                            }
-                        </div>
-
-                        <!-- Requirement 6: Year Specification replaces the free-standing Year
-                             dropdown -- selecting one carries its own Model Year AND
-                             auto-populates the read-only technical specs below. -->
-                        <div class="field-span-1 field-with-add">
-                            <mat-form-field appearance="outline" class="field-with-add-select">
-                                <mat-label>{{ 'INVENTORY.FORM.YEAR_SPECIFICATION' | translate }}</mat-label>
-                                <mat-select formControlName="yearSpecificationId" required
-                                    (selectionChange)="onYearSpecificationChange($event.value)">
-                                    <mat-option>
-                                        <ngx-mat-select-search [formControl]="yearSpecFilterCtrl"
-                                            placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
-                                            noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
-                                        </ngx-mat-select-search>
-                                    </mat-option>
-                                    <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_YEAR_SPECIFICATION' | translate
-                                        }}</mat-option>
-                                    @for (spec of searchedYearSpecs(); track spec.id) {
-                                    <mat-option [value]="spec.id">{{ spec.year }}</mat-option>
-                                    }
-                                </mat-select>
-                                <mat-hint *ngIf="!carForm.value.categoryId">{{ 'INVENTORY.FORM.SELECT_CATEGORY_FIRST' | translate }}</mat-hint>
-                                <mat-error *ngIf="carForm.get('yearSpecificationId')?.hasError('required')">
-                                    {{ 'VALIDATION.REQUIRED' | translate }}
-                                </mat-error>
-                            </mat-form-field>
-                            @if (canAddYearSpecification()) {
-                            <button mat-icon-button type="button" class="field-add-btn"
-                                (click)="openAddYearSpecificationDialog()"
-                                [disabled]="!carForm.value.categoryId"
-                                [matTooltip]="!carForm.value.categoryId ? ('INVENTORY.FORM.SELECT_CATEGORY' | translate) : ('YEAR_SPECIFICATION.ADD_NEW' | translate)">
-                                <mat-icon>add</mat-icon>
-                            </button>
-                            }
-                        </div>
-
-                        <mat-form-field appearance="outline" class="field-span-1">
-                            <mat-label>{{ 'INVENTORY.FORM.CURRENT_LOCATION' | translate }}</mat-label>
-                            <input matInput type="text" formControlName="currentLocation" required
-                                [placeholder]="'INVENTORY.FORM.CURRENT_LOCATION_PLACEHOLDER' | translate">
-                        </mat-form-field>
-
-                        <div class="radio-group-container field-span-1">
-                            <label class="form-label" id="condition-label">{{ 'INVENTORY.FORM.CONDITION' | translate }}</label>
-                            <mat-radio-group formControlName="condition" class="radio-group" aria-labelledby="condition-label">
-                                <mat-radio-button value="Used">{{ 'INVENTORY.FORM.USED' | translate
-                                    }}</mat-radio-button>
-                                <mat-radio-button value="New">{{ 'INVENTORY.FORM.NEW' | translate
-                                    }}</mat-radio-button>
-                            </mat-radio-group>
-                        </div>
-
-                        <div class="toggle-container field-span-2">
-                            <mat-slide-toggle formControlName="calculateVATFromProfitMargin" color="primary">
-                                {{ 'INVENTORY.FORM.CALCULATE_VAT_FROM_PROFIT_MARGIN' | translate }}
-                            </mat-slide-toggle>
-                            <p class="toggle-hint">{{ 'INVENTORY.FORM.CALCULATE_VAT_FROM_PROFIT_MARGIN_HINT' | translate }}</p>
-                        </div>
-                    </div>
-                </mat-expansion-panel>
-
-                <!-- Saudi Specific Details -->
-                <mat-expansion-panel [expanded]="true" class="section-panel">
-                    <mat-expansion-panel-header>
-                        <mat-panel-title>
-                            <mat-icon class="panel-icon">badge</mat-icon>
-                            {{ 'INVENTORY.FORM.SAUDI_DETAILS' | translate }}
-                        </mat-panel-title>
-                        <mat-panel-description class="panel-summary">
-                            {{ carForm.value.plateNumber || '—' }}
-                        </mat-panel-description>
-                    </mat-expansion-panel-header>
-
-                    <div class="erp-form-grid erp-form-grid-4">
-                        <mat-form-field appearance="outline" class="field-span-1">
-                            <mat-label>{{ 'INVENTORY.FORM.VIN' | translate }}</mat-label>
-                            <input matInput type="text" formControlName="vin" required dir="ltr">
-                            <button matSuffix mat-icon-button (click)="isScannerOpen.set(true)" type="button">
-                                <mat-icon>qr_code_scanner</mat-icon>
-                            </button>
-                            <mat-error *ngIf="carForm.get('vin')?.hasError('pattern')">
-                                {{ 'INVENTORY.FORM.VIN_INVALID' | translate }}
-                            </mat-error>
-                        </mat-form-field>
-
-                        <mat-form-field appearance="outline" class="field-span-1">
-                            <mat-label>{{ 'INVENTORY.FORM.PLATE_NUMBER' | translate }}</mat-label>
-                            <input matInput type="text" formControlName="plateNumber" required>
-                        </mat-form-field>
-
-                        <mat-form-field appearance="outline" class="field-span-1">
-                            <mat-label>{{ 'INVENTORY.FORM.ISTIMARA_EXPIRY' | translate }}</mat-label>
-                            <input matInput type="date" formControlName="istimaraExpiry">
-                        </mat-form-field>
-
-                        <mat-form-field appearance="outline" class="field-span-1">
-                            <mat-label>{{ 'INVENTORY.FORM.FAHAS_STATUS' | translate }}</mat-label>
-                            <mat-select formControlName="fahasStatus">
-                                <mat-option value="Valid">{{ 'INVENTORY.FORM.FAHAS_VALID' | translate
-                                    }}</mat-option>
-                                <mat-option value="Expired">{{ 'INVENTORY.FORM.FAHAS_EXPIRED' | translate
-                                    }}</mat-option>
-                                <mat-option value="Not Required">{{ 'INVENTORY.FORM.FAHAS_NOT_REQUIRED' | translate
-                                    }}</mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                    </div>
-                </mat-expansion-panel>
-
-                <!-- Technical & Visual Details -->
-                <mat-expansion-panel [expanded]="true" class="section-panel">
-                    <mat-expansion-panel-header>
-                        <mat-panel-title>
-                            <mat-icon class="panel-icon">build_circle</mat-icon>
-                            {{ 'INVENTORY.FORM.TECHNICAL' | translate }}
-                        </mat-panel-title>
-                        <mat-panel-description class="panel-summary">
-                            {{ selectedExteriorColorName() || '—' }}<span *ngIf="carForm.value.transmission"> • {{ carForm.value.transmission }}</span>
-                        </mat-panel-description>
-                    </mat-expansion-panel-header>
-
-                    <div class="erp-form-grid erp-form-grid-4">
-                        <mat-form-field appearance="outline" class="field-span-1">
-                            <mat-label>{{ 'INVENTORY.FORM.MILEAGE' | translate }}</mat-label>
-                            <input matInput type="number" formControlName="mileage" required min="0"
-                                [attr.disabled]="carForm.value.condition === 'New' ? true : null">
-                            <mat-error *ngIf="carForm.get('mileage')?.hasError('min')">
-                                {{ 'INVENTORY.FORM.MILEAGE_INVALID' | translate }}
-                            </mat-error>
-                        </mat-form-field>
-
-                        <div class="field-span-1 field-with-add">
-                            <mat-form-field appearance="outline" class="field-with-add-select">
-                                <mat-label>{{ 'INVENTORY.FORM.EXTERIOR_COLOR' | translate }}</mat-label>
-                                <mat-select formControlName="exteriorColorId" required>
-                                    <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_COLOR' | translate }}</mat-option>
-                                    @for (color of vehicleColors(); track color.id) {
-                                    <mat-option [value]="color.id">{{ color.nameEn }}</mat-option>
-                                    }
-                                </mat-select>
-                                <mat-error *ngIf="carForm.get('exteriorColorId')?.hasError('required')">
-                                    {{ 'VALIDATION.REQUIRED' | translate }}
-                                </mat-error>
-                            </mat-form-field>
-                            <button type="button" mat-icon-button class="field-add-btn"
-                                [matTooltip]="'INVENTORY.FORM.ADD_COLOR' | translate"
-                                (click)="openAddVehicleColorDialog('exteriorColorId')">
-                                <mat-icon>add</mat-icon>
-                            </button>
-                        </div>
-
-                        <div class="field-span-1 field-with-add">
-                            <mat-form-field appearance="outline" class="field-with-add-select">
-                                <mat-label>{{ 'INVENTORY.FORM.INTERIOR_COLOR' | translate }}</mat-label>
-                                <mat-select formControlName="interiorColorId" required>
-                                    <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_COLOR' | translate }}</mat-option>
-                                    @for (color of vehicleColors(); track color.id) {
-                                    <mat-option [value]="color.id">{{ color.nameEn }}</mat-option>
-                                    }
-                                </mat-select>
-                                <mat-error *ngIf="carForm.get('interiorColorId')?.hasError('required')">
-                                    {{ 'VALIDATION.REQUIRED' | translate }}
-                                </mat-error>
-                            </mat-form-field>
-                            <button type="button" mat-icon-button class="field-add-btn"
-                                [matTooltip]="'INVENTORY.FORM.ADD_COLOR' | translate"
-                                (click)="openAddVehicleColorDialog('interiorColorId')">
-                                <mat-icon>add</mat-icon>
-                            </button>
-                        </div>
-
-                        <!-- Requirement 6: technical specification fields are read-only once
-                             sourced from the selected Year Specification -- the user never
-                             hand-types them per vehicle; select a different Year Specification to
-                             change them. -->
-                        <mat-form-field appearance="outline" class="field-span-1">
-                            <mat-label>{{ 'INVENTORY.FORM.TRANSMISSION' | translate }}</mat-label>
-                            <input matInput type="text" formControlName="transmission" readonly>
-                        </mat-form-field>
-
-                        <mat-form-field appearance="outline" class="field-span-1">
-                            <mat-label>{{ 'INVENTORY.FORM.ENGINE_SIZE' | translate }}</mat-label>
-                            <input matInput type="text" formControlName="engineSize" readonly>
-                            <mat-error *ngIf="carForm.get('engineSize')?.hasError('required')">
-                                {{ 'INVENTORY.FORM.ENGINE_SIZE_MISSING' | translate }}
-                            </mat-error>
-                        </mat-form-field>
-
-                        <mat-form-field appearance="outline" class="field-span-1">
-                            <mat-label>{{ 'INVENTORY.FORM.CYLINDER_COUNT' | translate }}</mat-label>
-                            <input matInput type="text" formControlName="cylinderCount" readonly>
-                        </mat-form-field>
-
-                        <mat-form-field appearance="outline" class="field-span-1">
-                            <mat-label>{{ 'INVENTORY.FORM.HORSEPOWER' | translate }}</mat-label>
-                            <input matInput type="text" formControlName="horsepower" readonly>
-                        </mat-form-field>
-
-                        <mat-form-field appearance="outline" class="field-span-1">
-                            <mat-label>{{ 'INVENTORY.FORM.FUEL_TYPE' | translate }}</mat-label>
-                            <input matInput type="text" formControlName="fuelType" readonly>
-                        </mat-form-field>
-
-                        <mat-form-field appearance="outline" class="field-span-1">
-                            <mat-label>{{ 'INVENTORY.FORM.DRIVE_TYPE' | translate }}</mat-label>
-                            <input matInput type="text" formControlName="driveType" readonly>
-                        </mat-form-field>
-
-                        <mat-form-field appearance="outline" class="field-span-1">
-                            <mat-label>{{ 'INVENTORY.FORM.STANDARD_AGENCY_PRICE' | translate }}</mat-label>
-                            <input matInput type="text" formControlName="standardAgencyPrice" readonly>
-                        </mat-form-field>
-                    </div>
-                </mat-expansion-panel>
-
-                <!-- Financials -->
-                <mat-expansion-panel [expanded]="true" class="section-panel">
-                    <mat-expansion-panel-header>
-                        <mat-panel-title>
-                            <mat-icon class="panel-icon">payments</mat-icon>
-                            {{ 'INVENTORY.FORM.FINANCIALS' | translate }}
-                        </mat-panel-title>
-                        <mat-panel-description class="panel-summary">
-                            {{ calculatedTotalCost() | currency:'SAR':'symbol':'1.0-0' }}
-                        </mat-panel-description>
-                    </mat-expansion-panel-header>
-
-                    <div class="erp-form-grid erp-form-grid-4">
-                        <mat-form-field appearance="outline" class="field-span-1">
-                            <mat-label>{{ 'INVENTORY.FORM.PURCHASE_PRICE' | translate }}</mat-label>
-                            <input matInput type="number" formControlName="purchasePrice" required>
-                        </mat-form-field>
-
-                        <mat-form-field appearance="outline" class="field-span-1">
-                            <mat-label>{{ 'INVENTORY.FORM.ADDITIONAL_COSTS' | translate }}</mat-label>
-                            <input matInput type="number" formControlName="additionalCosts">
-                        </mat-form-field>
-
-                        <mat-form-field appearance="outline" class="field-span-1">
-                            <mat-label>{{ 'INVENTORY.FORM.TRUE_TOTAL_COST' | translate }}</mat-label>
-                            <input matInput type="text" [value]="calculatedTotalCost() | currency:'SAR'" readonly>
-                        </mat-form-field>
-
-                        <mat-form-field appearance="outline" class="field-span-1">
-                            <mat-label>{{ 'INVENTORY.FORM.PURCHASE_DATE' | translate }}</mat-label>
-                            <input matInput type="date" formControlName="purchaseDate">
-                        </mat-form-field>
-
-                        <div class="field-span-2 sale-price-block">
-                            <mat-form-field appearance="outline" class="sale-price-field">
-                                <mat-label>{{ 'INVENTORY.FORM.SALE_PRICE' | translate }}</mat-label>
-                                <input matInput type="number" formControlName="salePrice" required>
-                                <button matSuffix mat-icon-button type="button" (click)="suggestPrice()"
-                                    [disabled]="isSuggestingPrice() || !canSuggestPrice()"
-                                    [title]="'INVENTORY.FORM.SUGGEST_PRICE_AI' | translate">
-                                    <mat-icon *ngIf="!isSuggestingPrice()">auto_awesome</mat-icon>
-                                    <mat-icon *ngIf="isSuggestingPrice()" class="spin">refresh</mat-icon>
-                                </button>
-                            </mat-form-field>
-                            @if (priceSuggestion(); as suggestion) {
-                            <div class="suggestion-box">
-                                <button type="button" (click)="applySuggestedPrice(suggestion.low)"
-                                    class="suggestion-item low">{{ 'INVENTORY.FORM.SUGGESTION_LOW' | translate }}:
-                                    {{suggestion.low | currency:'SAR':'symbol':'1.0-0'}}</button>
-                                <button type="button" (click)="applySuggestedPrice(suggestion.average)"
-                                    class="suggestion-item average">{{ 'INVENTORY.FORM.SUGGESTION_AVG' | translate }}:
-                                    {{suggestion.average | currency:'SAR':'symbol':'1.0-0'}}</button>
-                                <button type="button" (click)="applySuggestedPrice(suggestion.high)"
-                                    class="suggestion-item high">{{ 'INVENTORY.FORM.SUGGESTION_HIGH' | translate }}:
-                                    {{suggestion.high | currency:'SAR':'symbol':'1.0-0'}}</button>
-                            </div>
-                            }
-                            @if(priceSuggestionError()) {
-                            <p class="error-text">{{ priceSuggestionError() }}</p>
-                            }
-                        </div>
-
-                        <mat-form-field appearance="outline" class="field-span-1">
-                            <mat-label>{{ 'INVENTORY.FORM.FLOOR_PLAN' | translate }}</mat-label>
-                            <mat-select formControlName="floorPlanId">
-                                <mat-option [value]="null">{{ 'INVENTORY.FORM.NO_FINANCING' | translate
-                                    }}</mat-option>
-                                @for (plan of floorPlans(); track plan.id) {
-                                <mat-option [value]="plan.id">{{ plan.planName }} - {{ plan.financier
-                                    }}</mat-option>
+            <!-- Step 1: Vehicle & Classification -->
+            @if (currentStep() === 0) {
+            <div class="erp-section">
+                <h3 class="erp-section-title">
+                    <mat-icon class="erp-section-icon">directions_car</mat-icon>
+                    {{ 'INVENTORY.FORM.MAIN_DETAILS' | translate }}
+                </h3>
+                <div class="erp-wizard-grid cols-4">
+                    <div class="field-with-add">
+                        <mat-form-field appearance="outline" class="field-with-add-select">
+                            <mat-label>{{ 'INVENTORY.FORM.MANUFACTURER' | translate }}</mat-label>
+                            <mat-select formControlName="make" required
+                                (selectionChange)="onManufacturerChange($event.value)">
+                                <mat-option>
+                                    <ngx-mat-select-search [formControl]="manufacturerFilterCtrl"
+                                        placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
+                                        noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
+                                    </ngx-mat-select-search>
+                                </mat-option>
+                                <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_MANUFACTURER' |
+                                    translate }}</mat-option>
+                                @for (manufacturer of searchedManufacturers(); track manufacturer.id) {
+                                <mat-option [value]="manufacturer.name">{{ manufacturer.name }}</mat-option>
                                 }
                             </mat-select>
                         </mat-form-field>
+                        @if (canAddManufacturer()) {
+                        <button mat-icon-button type="button" class="field-add-btn"
+                            (click)="openAddManufacturerDialog()"
+                            [matTooltip]="'MANUFACTURERS.ADD_NEW' | translate">
+                            <mat-icon>add</mat-icon>
+                        </button>
+                        }
                     </div>
-                </mat-expansion-panel>
 
-                <!-- Related Costs -->
-                @if (editMode() && associatedExpenses().length > 0) {
-                <mat-expansion-panel [expanded]="true" class="section-panel">
-                    <mat-expansion-panel-header>
-                        <mat-panel-title>
-                            <mat-icon class="panel-icon">receipt_long</mat-icon>
-                            {{ 'INVENTORY.FORM.RELATED_COSTS' | translate }}
-                        </mat-panel-title>
-                        <mat-panel-description class="panel-summary">
-                            {{ associatedExpenses().length }}
-                        </mat-panel-description>
-                    </mat-expansion-panel-header>
-
-                    <div class="erp-table-wrapper">
-                        <table class="erp-table">
-                            <thead>
-                                <tr>
-                                    <th>{{ 'INVENTORY.FORM.RELATED_COSTS_DATE' | translate }}</th>
-                                    <th>{{ 'INVENTORY.FORM.RELATED_COSTS_DESCRIPTION' | translate }}</th>
-                                    <th>{{ 'INVENTORY.FORM.RELATED_COSTS_AMOUNT' | translate }}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @for(expense of associatedExpenses(); track expense.id) {
-                                <tr>
-                                    <td>{{expense.date}}</td>
-                                    <td>{{expense.description}}</td>
-                                    <td class="font-mono">{{expense.amount | currency:'SAR'}}</td>
-                                </tr>
+                    <div class="field-with-add">
+                        <mat-form-field appearance="outline" class="field-with-add-select">
+                            <mat-label>{{ 'INVENTORY.FORM.MODEL' | translate }}</mat-label>
+                            <mat-select formControlName="modelId" required
+                                (selectionChange)="onModelChange($event.value)">
+                                <mat-option>
+                                    <ngx-mat-select-search [formControl]="modelFilterCtrl"
+                                        placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
+                                        noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
+                                    </ngx-mat-select-search>
+                                </mat-option>
+                                <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_MODEL' | translate
+                                    }}</mat-option>
+                                @for (carModel of searchedModels(); track carModel.id) {
+                                <mat-option [value]="carModel.id">{{ carModel.name }}</mat-option>
                                 }
-                            </tbody>
-                        </table>
+                            </mat-select>
+                        </mat-form-field>
+                        @if (canAddCarModel()) {
+                        <button mat-icon-button type="button" class="field-add-btn"
+                            (click)="openAddCarModelDialog()"
+                            [disabled]="!selectedManufacturerId()"
+                            [matTooltip]="!selectedManufacturerId() ? ('INVENTORY.FORM.SELECT_MANUFACTURER' | translate) : ('CAR_MODELS.ADD_NEW' | translate)">
+                            <mat-icon>add</mat-icon>
+                        </button>
+                        }
                     </div>
-                </mat-expansion-panel>
-                }
 
-                <!-- Description and Photos -->
-                <mat-expansion-panel [expanded]="false" class="section-panel">
-                    <mat-expansion-panel-header>
-                        <mat-panel-title>
-                            <mat-icon class="panel-icon">photo_library</mat-icon>
-                            {{ 'INVENTORY.FORM.DESCRIPTION_PHOTOS' | translate }}
-                        </mat-panel-title>
-                        <mat-panel-description class="panel-summary">
-                            <mat-icon class="panel-summary-icon" *ngIf="selectedPhoto()">check_circle</mat-icon>
-                        </mat-panel-description>
-                    </mat-expansion-panel-header>
+                    <div class="field-with-add">
+                        <mat-form-field appearance="outline" class="field-with-add-select">
+                            <mat-label>{{ 'INVENTORY.FORM.CATEGORY' | translate }}</mat-label>
+                            <mat-select formControlName="categoryId"
+                                (selectionChange)="onCategoryChange($event.value)">
+                                <mat-option>
+                                    <ngx-mat-select-search [formControl]="categoryFilterCtrl"
+                                        placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
+                                        noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
+                                    </ngx-mat-select-search>
+                                </mat-option>
+                                <mat-option [value]="null">{{ 'INVENTORY.FORM.SELECT_CATEGORY' | translate
+                                    }}</mat-option>
+                                @for (cat of searchedCategories(); track cat.id) {
+                                <mat-option [value]="cat.id">{{ cat.nameEn || cat.name }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                        @if (canAddCarCategory()) {
+                        <button mat-icon-button type="button" class="field-add-btn"
+                            (click)="openAddCarCategoryDialog()"
+                            [disabled]="!carForm.value.modelId"
+                            [matTooltip]="!carForm.value.modelId ? ('INVENTORY.FORM.SELECT_MODEL' | translate) : ('CAR_CATEGORY.ADD_NEW' | translate)">
+                            <mat-icon>add</mat-icon>
+                        </button>
+                        }
+                    </div>
 
-                    <div class="erp-form-grid erp-form-grid-4">
-                        <mat-form-field appearance="outline" class="field-span-2">
-                            <mat-label>{{ 'INVENTORY.FORM.MARKETING_DESCRIPTION' | translate }}</mat-label>
-                            <textarea matInput formControlName="description" rows="6" required></textarea>
-                            <mat-error *ngIf="carForm.get('description')?.hasError('required')">
+                    <!-- Requirement 6: Year Specification replaces the free-standing Year
+                         dropdown -- selecting one carries its own Model Year AND
+                         auto-populates the read-only technical specs below. -->
+                    <div class="field-with-add">
+                        <mat-form-field appearance="outline" class="field-with-add-select">
+                            <mat-label>{{ 'INVENTORY.FORM.YEAR_SPECIFICATION' | translate }}</mat-label>
+                            <mat-select formControlName="yearSpecificationId" required
+                                (selectionChange)="onYearSpecificationChange($event.value)">
+                                <mat-option>
+                                    <ngx-mat-select-search [formControl]="yearSpecFilterCtrl"
+                                        placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
+                                        noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
+                                    </ngx-mat-select-search>
+                                </mat-option>
+                                <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_YEAR_SPECIFICATION' | translate
+                                    }}</mat-option>
+                                @for (spec of searchedYearSpecs(); track spec.id) {
+                                <mat-option [value]="spec.id">{{ spec.year }}</mat-option>
+                                }
+                            </mat-select>
+                            <mat-hint *ngIf="!carForm.value.categoryId">{{ 'INVENTORY.FORM.SELECT_CATEGORY_FIRST' | translate }}</mat-hint>
+                            <mat-error *ngIf="carForm.get('yearSpecificationId')?.hasError('required')">
                                 {{ 'VALIDATION.REQUIRED' | translate }}
                             </mat-error>
                         </mat-form-field>
+                        @if (canAddYearSpecification()) {
+                        <button mat-icon-button type="button" class="field-add-btn"
+                            (click)="openAddYearSpecificationDialog()"
+                            [disabled]="!carForm.value.categoryId"
+                            [matTooltip]="!carForm.value.categoryId ? ('INVENTORY.FORM.SELECT_CATEGORY' | translate) : ('YEAR_SPECIFICATION.ADD_NEW' | translate)">
+                            <mat-icon>add</mat-icon>
+                        </button>
+                        }
+                    </div>
 
-                        <div class="photo-upload-container field-span-2">
-                            <label class="form-label">{{ 'INVENTORY.FORM.PHOTOS' | translate }}</label>
-                            <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)"
-                                style="display: none;">
+                    <mat-form-field appearance="outline">
+                        <mat-label>{{ 'INVENTORY.FORM.CURRENT_LOCATION' | translate }}</mat-label>
+                        <input matInput type="text" formControlName="currentLocation" required
+                            [placeholder]="'INVENTORY.FORM.CURRENT_LOCATION_PLACEHOLDER' | translate">
+                    </mat-form-field>
 
-                            @if(selectedPhoto()) {
-                            <div class="photo-display-wrapper">
-                                <img [src]="selectedPhoto()" [attr.alt]="'INVENTORY.FORM.CAR_IMAGE_ALT' | translate" class="photo-preview-professional">
-                                <div class="photo-button-group">
-                                    <button mat-raised-button color="primary" type="button"
-                                        (click)="fileInput.click()" class="browse-photo-btn">
-                                        <mat-icon>add_photo_alternate</mat-icon>
-                                        {{ 'INVENTORY.FORM.BROWSE_IMAGE' | translate }}
-                                    </button>
-                                    <button mat-raised-button color="warn" type="button" (click)="removePhoto()"
-                                        class="delete-photo-btn">
-                                        <mat-icon>delete</mat-icon>
-                                        {{ 'INVENTORY.FORM.REMOVE' | translate }}
-                                    </button>
-                                </div>
-                            </div>
-                            } @else {
-                            <div class="photo-upload-empty">
-                                <mat-icon class="upload-placeholder-icon">image</mat-icon>
-                                <p class="upload-placeholder-text">{{ 'INVENTORY.FORM.NO_IMAGE' | translate }}</p>
-                                <button mat-raised-button color="primary" type="button" class="upload-btn-main"
-                                    (click)="fileInput.click()">
+                    <div class="radio-group-container">
+                        <label class="form-label" id="condition-label">{{ 'INVENTORY.FORM.CONDITION' | translate }}</label>
+                        <mat-radio-group formControlName="condition" class="radio-group" aria-labelledby="condition-label">
+                            <mat-radio-button value="Used">{{ 'INVENTORY.FORM.USED' | translate
+                                }}</mat-radio-button>
+                            <mat-radio-button value="New">{{ 'INVENTORY.FORM.NEW' | translate
+                                }}</mat-radio-button>
+                        </mat-radio-group>
+                    </div>
+
+                    <div class="toggle-container erp-span-2">
+                        <mat-slide-toggle formControlName="calculateVATFromProfitMargin" color="primary">
+                            {{ 'INVENTORY.FORM.CALCULATE_VAT_FROM_PROFIT_MARGIN' | translate }}
+                        </mat-slide-toggle>
+                        <p class="toggle-hint">{{ 'INVENTORY.FORM.CALCULATE_VAT_FROM_PROFIT_MARGIN_HINT' | translate }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="erp-section">
+                <h3 class="erp-section-title">
+                    <mat-icon class="erp-section-icon">badge</mat-icon>
+                    {{ 'INVENTORY.FORM.SAUDI_DETAILS' | translate }}
+                </h3>
+                <div class="erp-wizard-grid cols-4">
+                    <mat-form-field appearance="outline">
+                        <mat-label>{{ 'INVENTORY.FORM.VIN' | translate }}</mat-label>
+                        <input matInput type="text" formControlName="vin" required dir="ltr">
+                        <button matSuffix mat-icon-button (click)="isScannerOpen.set(true)" type="button">
+                            <mat-icon>qr_code_scanner</mat-icon>
+                        </button>
+                        <mat-error *ngIf="carForm.get('vin')?.hasError('pattern')">
+                            {{ 'INVENTORY.FORM.VIN_INVALID' | translate }}
+                        </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>{{ 'INVENTORY.FORM.PLATE_NUMBER' | translate }}</mat-label>
+                        <input matInput type="text" formControlName="plateNumber" required>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>{{ 'INVENTORY.FORM.ISTIMARA_EXPIRY' | translate }}</mat-label>
+                        <input matInput type="date" formControlName="istimaraExpiry">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>{{ 'INVENTORY.FORM.FAHAS_STATUS' | translate }}</mat-label>
+                        <mat-select formControlName="fahasStatus">
+                            <mat-option value="Valid">{{ 'INVENTORY.FORM.FAHAS_VALID' | translate
+                                }}</mat-option>
+                            <mat-option value="Expired">{{ 'INVENTORY.FORM.FAHAS_EXPIRED' | translate
+                                }}</mat-option>
+                            <mat-option value="Not Required">{{ 'INVENTORY.FORM.FAHAS_NOT_REQUIRED' | translate
+                                }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </div>
+            }
+
+            <!-- Step 2: Technical Specs -->
+            @if (currentStep() === 1) {
+            <div class="erp-section">
+                <h3 class="erp-section-title">
+                    <mat-icon class="erp-section-icon">build_circle</mat-icon>
+                    {{ 'INVENTORY.FORM.TECHNICAL' | translate }}
+                </h3>
+                <div class="erp-wizard-grid cols-4">
+                    <mat-form-field appearance="outline">
+                        <mat-label>{{ 'INVENTORY.FORM.MILEAGE' | translate }}</mat-label>
+                        <input matInput type="number" formControlName="mileage" required min="0"
+                            [attr.disabled]="carForm.value.condition === 'New' ? true : null">
+                        <mat-error *ngIf="carForm.get('mileage')?.hasError('min')">
+                            {{ 'INVENTORY.FORM.MILEAGE_INVALID' | translate }}
+                        </mat-error>
+                    </mat-form-field>
+
+                    <div class="field-with-add">
+                        <mat-form-field appearance="outline" class="field-with-add-select">
+                            <mat-label>{{ 'INVENTORY.FORM.EXTERIOR_COLOR' | translate }}</mat-label>
+                            <mat-select formControlName="exteriorColorId" required>
+                                <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_COLOR' | translate }}</mat-option>
+                                @for (color of vehicleColors(); track color.id) {
+                                <mat-option [value]="color.id">{{ color.nameEn }}</mat-option>
+                                }
+                            </mat-select>
+                            <mat-error *ngIf="carForm.get('exteriorColorId')?.hasError('required')">
+                                {{ 'VALIDATION.REQUIRED' | translate }}
+                            </mat-error>
+                        </mat-form-field>
+                        <button type="button" mat-icon-button class="field-add-btn"
+                            [matTooltip]="'INVENTORY.FORM.ADD_COLOR' | translate"
+                            (click)="openAddVehicleColorDialog('exteriorColorId')">
+                            <mat-icon>add</mat-icon>
+                        </button>
+                    </div>
+
+                    <div class="field-with-add">
+                        <mat-form-field appearance="outline" class="field-with-add-select">
+                            <mat-label>{{ 'INVENTORY.FORM.INTERIOR_COLOR' | translate }}</mat-label>
+                            <mat-select formControlName="interiorColorId" required>
+                                <mat-option [value]="null" disabled>{{ 'INVENTORY.FORM.SELECT_COLOR' | translate }}</mat-option>
+                                @for (color of vehicleColors(); track color.id) {
+                                <mat-option [value]="color.id">{{ color.nameEn }}</mat-option>
+                                }
+                            </mat-select>
+                            <mat-error *ngIf="carForm.get('interiorColorId')?.hasError('required')">
+                                {{ 'VALIDATION.REQUIRED' | translate }}
+                            </mat-error>
+                        </mat-form-field>
+                        <button type="button" mat-icon-button class="field-add-btn"
+                            [matTooltip]="'INVENTORY.FORM.ADD_COLOR' | translate"
+                            (click)="openAddVehicleColorDialog('interiorColorId')">
+                            <mat-icon>add</mat-icon>
+                        </button>
+                    </div>
+
+                    <!-- Requirement 6: technical specification fields are read-only once
+                         sourced from the selected Year Specification -- the user never
+                         hand-types them per vehicle. Select a different Year Specification to
+                         change them (back on Step 1). -->
+                    <mat-form-field appearance="outline">
+                        <mat-label>{{ 'INVENTORY.FORM.TRANSMISSION' | translate }}</mat-label>
+                        <input matInput type="text" formControlName="transmission" readonly>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>{{ 'INVENTORY.FORM.ENGINE_SIZE' | translate }}</mat-label>
+                        <input matInput type="text" formControlName="engineSize" readonly>
+                        <mat-error *ngIf="carForm.get('engineSize')?.hasError('required')">
+                            {{ 'INVENTORY.FORM.ENGINE_SIZE_MISSING' | translate }}
+                        </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>{{ 'INVENTORY.FORM.CYLINDER_COUNT' | translate }}</mat-label>
+                        <input matInput type="text" formControlName="cylinderCount" readonly>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>{{ 'INVENTORY.FORM.HORSEPOWER' | translate }}</mat-label>
+                        <input matInput type="text" formControlName="horsepower" readonly>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>{{ 'INVENTORY.FORM.FUEL_TYPE' | translate }}</mat-label>
+                        <input matInput type="text" formControlName="fuelType" readonly>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>{{ 'INVENTORY.FORM.DRIVE_TYPE' | translate }}</mat-label>
+                        <input matInput type="text" formControlName="driveType" readonly>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>{{ 'INVENTORY.FORM.STANDARD_AGENCY_PRICE' | translate }}</mat-label>
+                        <input matInput type="text" formControlName="standardAgencyPrice" readonly>
+                    </mat-form-field>
+                </div>
+            </div>
+            }
+
+            <!-- Step 3: Financials -->
+            @if (currentStep() === 2) {
+            <div class="erp-section">
+                <h3 class="erp-section-title">
+                    <mat-icon class="erp-section-icon">payments</mat-icon>
+                    {{ 'INVENTORY.FORM.FINANCIALS' | translate }}
+                </h3>
+                <div class="erp-wizard-grid cols-4">
+                    <mat-form-field appearance="outline">
+                        <mat-label>{{ 'INVENTORY.FORM.PURCHASE_PRICE' | translate }}</mat-label>
+                        <input matInput type="number" formControlName="purchasePrice" required>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>{{ 'INVENTORY.FORM.ADDITIONAL_COSTS' | translate }}</mat-label>
+                        <input matInput type="number" formControlName="additionalCosts">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>{{ 'INVENTORY.FORM.TRUE_TOTAL_COST' | translate }}</mat-label>
+                        <input matInput type="text" [value]="calculatedTotalCost() | currency:'SAR'" readonly>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>{{ 'INVENTORY.FORM.PURCHASE_DATE' | translate }}</mat-label>
+                        <input matInput type="date" formControlName="purchaseDate">
+                    </mat-form-field>
+
+                    <div class="erp-span-2 sale-price-block">
+                        <mat-form-field appearance="outline" class="sale-price-field">
+                            <mat-label>{{ 'INVENTORY.FORM.SALE_PRICE' | translate }}</mat-label>
+                            <input matInput type="number" formControlName="salePrice" required>
+                            <button matSuffix mat-icon-button type="button" (click)="suggestPrice()"
+                                [disabled]="isSuggestingPrice() || !canSuggestPrice()"
+                                [title]="'INVENTORY.FORM.SUGGEST_PRICE_AI' | translate">
+                                <mat-icon *ngIf="!isSuggestingPrice()">auto_awesome</mat-icon>
+                                <mat-icon *ngIf="isSuggestingPrice()" class="spin">refresh</mat-icon>
+                            </button>
+                        </mat-form-field>
+                        @if (priceSuggestion(); as suggestion) {
+                        <div class="suggestion-box">
+                            <button type="button" (click)="applySuggestedPrice(suggestion.low)"
+                                class="suggestion-item low">{{ 'INVENTORY.FORM.SUGGESTION_LOW' | translate }}:
+                                {{suggestion.low | currency:'SAR':'symbol':'1.0-0'}}</button>
+                            <button type="button" (click)="applySuggestedPrice(suggestion.average)"
+                                class="suggestion-item average">{{ 'INVENTORY.FORM.SUGGESTION_AVG' | translate }}:
+                                {{suggestion.average | currency:'SAR':'symbol':'1.0-0'}}</button>
+                            <button type="button" (click)="applySuggestedPrice(suggestion.high)"
+                                class="suggestion-item high">{{ 'INVENTORY.FORM.SUGGESTION_HIGH' | translate }}:
+                                {{suggestion.high | currency:'SAR':'symbol':'1.0-0'}}</button>
+                        </div>
+                        }
+                        @if(priceSuggestionError()) {
+                        <p class="error-text">{{ priceSuggestionError() }}</p>
+                        }
+                    </div>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>{{ 'INVENTORY.FORM.FLOOR_PLAN' | translate }}</mat-label>
+                        <mat-select formControlName="floorPlanId">
+                            <mat-option [value]="null">{{ 'INVENTORY.FORM.NO_FINANCING' | translate
+                                }}</mat-option>
+                            @for (plan of floorPlans(); track plan.id) {
+                            <mat-option [value]="plan.id">{{ plan.planName }} - {{ plan.financier
+                                }}</mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </div>
+
+            @if (editMode() && associatedExpenses().length > 0) {
+            <div class="erp-section">
+                <h3 class="erp-section-title">
+                    <mat-icon class="erp-section-icon">receipt_long</mat-icon>
+                    {{ 'INVENTORY.FORM.RELATED_COSTS' | translate }}
+                </h3>
+                <div class="erp-table-wrapper">
+                    <table class="erp-table">
+                        <thead>
+                            <tr>
+                                <th>{{ 'INVENTORY.FORM.RELATED_COSTS_DATE' | translate }}</th>
+                                <th>{{ 'INVENTORY.FORM.RELATED_COSTS_DESCRIPTION' | translate }}</th>
+                                <th>{{ 'INVENTORY.FORM.RELATED_COSTS_AMOUNT' | translate }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for(expense of associatedExpenses(); track expense.id) {
+                            <tr>
+                                <td>{{expense.date}}</td>
+                                <td>{{expense.description}}</td>
+                                <td class="font-mono">{{expense.amount | currency:'SAR'}}</td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            }
+            }
+
+            <!-- Step 4: Media -->
+            @if (currentStep() === 3) {
+            <div class="erp-section">
+                <h3 class="erp-section-title">
+                    <mat-icon class="erp-section-icon">photo_library</mat-icon>
+                    {{ 'INVENTORY.FORM.DESCRIPTION_PHOTOS' | translate }}
+                </h3>
+                <div class="erp-wizard-grid cols-2">
+                    <mat-form-field appearance="outline">
+                        <mat-label>{{ 'INVENTORY.FORM.MARKETING_DESCRIPTION' | translate }}</mat-label>
+                        <textarea matInput formControlName="description" rows="6" required></textarea>
+                        <mat-error *ngIf="carForm.get('description')?.hasError('required')">
+                            {{ 'VALIDATION.REQUIRED' | translate }}
+                        </mat-error>
+                    </mat-form-field>
+
+                    <div class="photo-upload-container">
+                        <label class="form-label">{{ 'INVENTORY.FORM.PHOTOS' | translate }}</label>
+                        <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)"
+                            style="display: none;">
+
+                        @if(selectedPhoto()) {
+                        <div class="photo-display-wrapper">
+                            <img [src]="selectedPhoto()" [attr.alt]="'INVENTORY.FORM.CAR_IMAGE_ALT' | translate" class="photo-preview-professional">
+                            <div class="photo-button-group">
+                                <button mat-raised-button color="primary" type="button"
+                                    (click)="fileInput.click()" class="browse-photo-btn">
                                     <mat-icon>add_photo_alternate</mat-icon>
                                     {{ 'INVENTORY.FORM.BROWSE_IMAGE' | translate }}
                                 </button>
+                                <button mat-raised-button color="warn" type="button" (click)="removePhoto()"
+                                    class="delete-photo-btn">
+                                    <mat-icon>delete</mat-icon>
+                                    {{ 'INVENTORY.FORM.REMOVE' | translate }}
+                                </button>
                             </div>
-                            }
+                        </div>
+                        } @else {
+                        <div class="photo-upload-empty">
+                            <mat-icon class="upload-placeholder-icon">image</mat-icon>
+                            <p class="upload-placeholder-text">{{ 'INVENTORY.FORM.NO_IMAGE' | translate }}</p>
+                            <button mat-raised-button color="primary" type="button" class="upload-btn-main"
+                                (click)="fileInput.click()">
+                                <mat-icon>add_photo_alternate</mat-icon>
+                                {{ 'INVENTORY.FORM.BROWSE_IMAGE' | translate }}
+                            </button>
+                        </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            }
+
+            <!-- Step 5: Review -->
+            @if (currentStep() === 4) {
+            <div class="erp-section">
+                <h3 class="erp-section-title">
+                    <mat-icon class="erp-section-icon">fact_check</mat-icon>
+                    {{ 'INVENTORY.FORM.REVIEW' | translate }}
+                </h3>
+                <div class="erp-wizard-review-grid">
+                    <div class="erp-wizard-review-group">
+                        <p class="erp-wizard-review-group-title">{{ 'INVENTORY.FORM.MAIN_DETAILS' | translate }}</p>
+                        <div class="erp-info-field">
+                            <span class="erp-info-label">{{ 'INVENTORY.FORM.MANUFACTURER' | translate }}</span>
+                            <span class="erp-info-value">{{ carForm.value.make || '—' }}</span>
+                        </div>
+                        <div class="erp-info-field">
+                            <span class="erp-info-label">{{ 'INVENTORY.FORM.MODEL' | translate }}</span>
+                            <span class="erp-info-value">{{ selectedModel() || '—' }}</span>
+                        </div>
+                        <div class="erp-info-field">
+                            <span class="erp-info-label">{{ 'INVENTORY.FORM.YEAR' | translate }}</span>
+                            <span class="erp-info-value">{{ carForm.value.year || '—' }}</span>
+                        </div>
+                        <div class="erp-info-field">
+                            <span class="erp-info-label">{{ 'INVENTORY.FORM.PLATE_NUMBER' | translate }}</span>
+                            <span class="erp-info-value">{{ carForm.value.plateNumber || '—' }}</span>
+                        </div>
+                        <div class="erp-info-field">
+                            <span class="erp-info-label">{{ 'INVENTORY.FORM.VIN' | translate }}</span>
+                            <span class="erp-info-value" dir="ltr">{{ carForm.value.vin || '—' }}</span>
                         </div>
                     </div>
-                </mat-expansion-panel>
 
-            </mat-accordion>
+                    <div class="erp-wizard-review-group">
+                        <p class="erp-wizard-review-group-title">{{ 'INVENTORY.FORM.TECHNICAL' | translate }}</p>
+                        <div class="erp-info-field">
+                            <span class="erp-info-label">{{ 'INVENTORY.FORM.MILEAGE' | translate }}</span>
+                            <span class="erp-info-value">{{ carForm.value.mileage ?? '—' }}</span>
+                        </div>
+                        <div class="erp-info-field">
+                            <span class="erp-info-label">{{ 'INVENTORY.FORM.EXTERIOR_COLOR' | translate }}</span>
+                            <span class="erp-info-value">{{ selectedExteriorColorName() || '—' }}</span>
+                        </div>
+                        <div class="erp-info-field">
+                            <span class="erp-info-label">{{ 'INVENTORY.FORM.TRANSMISSION' | translate }}</span>
+                            <span class="erp-info-value">{{ carForm.value.transmission || '—' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="erp-wizard-review-group">
+                        <p class="erp-wizard-review-group-title">{{ 'INVENTORY.FORM.FINANCIALS' | translate }}</p>
+                        <div class="erp-info-field">
+                            <span class="erp-info-label">{{ 'INVENTORY.FORM.PURCHASE_PRICE' | translate }}</span>
+                            <span class="erp-info-value">{{ carForm.value.purchasePrice | currency:'SAR' }}</span>
+                        </div>
+                        <div class="erp-info-field">
+                            <span class="erp-info-label">{{ 'INVENTORY.FORM.SALE_PRICE' | translate }}</span>
+                            <span class="erp-info-value">{{ carForm.value.salePrice | currency:'SAR' }}</span>
+                        </div>
+                        <div class="erp-info-field">
+                            <span class="erp-info-label">{{ 'INVENTORY.FORM.TRUE_TOTAL_COST' | translate }}</span>
+                            <span class="erp-info-value">{{ calculatedTotalCost() | currency:'SAR' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="erp-wizard-review-group">
+                        <p class="erp-wizard-review-group-title">{{ 'INVENTORY.FORM.DESCRIPTION_PHOTOS' | translate }}</p>
+                        <div class="erp-info-field">
+                            <span class="erp-info-label">{{ 'INVENTORY.FORM.PHOTOS' | translate }}</span>
+                            <span class="erp-info-value">{{ selectedPhoto() ? ('INVENTORY.FORM.PHOTO_ATTACHED' | translate) : ('INVENTORY.FORM.NO_IMAGE' | translate) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            }
+
         </form>
 
-        <!-- Form Actions (sticky footer) -->
-        <div class="erp-actions-bar">
-            <button mat-stroked-button type="button" (click)="cancelForm()">{{ 'INVENTORY.FORM.CANCEL' |
-                translate }}</button>
-            @if(editMode() && car()?.status === 'Reserved') {
-            <button mat-stroked-button type="button" (click)="navigateToDepositForm()" color="accent">
-                <mat-icon>receipt_long</mat-icon>
-                {{ 'INVENTORY.FORM.DEPOSIT_VOUCHER' | translate }}
+        <!-- Wizard footer actions -->
+        <div class="erp-wizard-actions">
+            <button mat-stroked-button type="button" (click)="cancelForm()">
+                <mat-icon>cancel</mat-icon>
+                {{ 'INVENTORY.FORM.CANCEL' | translate }}
             </button>
-            }
-            <button mat-raised-button color="primary" type="button" (click)="saveCar()" [disabled]="carForm.invalid">
-                {{ editMode() ? ( 'INVENTORY.FORM.SAVE_CHANGES' | translate ) : ( 'INVENTORY.FORM.ADD_CAR' |
-                translate ) }}
-            </button>
+
+            <div class="erp-wizard-actions-end">
+                @if (currentStep() > 0) {
+                <button mat-stroked-button type="button" (click)="goBack()">
+                    <mat-icon>arrow_back</mat-icon>
+                    {{ 'INVENTORY.FORM.BACK' | translate }}
+                </button>
+                }
+
+                @if(editMode() && car()?.status === 'Reserved') {
+                <button mat-stroked-button type="button" (click)="navigateToDepositForm()" color="accent">
+                    <mat-icon>receipt_long</mat-icon>
+                    {{ 'INVENTORY.FORM.DEPOSIT_VOUCHER' | translate }}
+                </button>
+                }
+
+                @if (currentStep() < stepCount - 1) {
+                <button mat-raised-button color="primary" type="button" [disabled]="!stepValid()" (click)="goNext()">
+                    <mat-icon>arrow_forward</mat-icon>
+                    {{ 'INVENTORY.FORM.NEXT' | translate }}
+                </button>
+                } @else {
+                <button mat-raised-button color="primary" type="button" (click)="saveCar()" [disabled]="carForm.invalid">
+                    <mat-icon>save</mat-icon>
+                    {{ editMode() ? ( 'INVENTORY.FORM.SAVE_CHANGES' | translate ) : ( 'INVENTORY.FORM.ADD_CAR' |
+                    translate ) }}
+                </button>
+                }
+            </div>
         </div>
     </div>
 </div>

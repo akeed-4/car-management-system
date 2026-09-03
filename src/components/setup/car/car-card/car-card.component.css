@@ -1,7 +1,7 @@
-/* Car Card -- migrated to the shared .erp-* design system (src/styles/form-system.css) for the
-   page shell/card/header/actions-bar; only what that system doesn't cover (the accordion, the
-   denser 4-column grid this form needs, photo upload, price-suggestion box, related-costs table)
-   stays here. */
+/* Car Card -- migrated to the shared .erp-* design system (src/styles/form-system.css) and the
+   reusable .erp-wizard-* wizard shell (src/styles/erp-wizard.css) for the page shell/card/
+   header/step-header/actions-bar/grids; only what those systems don't cover (photo upload,
+   price-suggestion box, related-costs table alignment) stays here. */
 
 .car-card-page {
   height: calc(100vh - 2rem);
@@ -47,46 +47,72 @@
   padding: var(--space-3) var(--space-4);
 }
 
-/* --- Accordion sections --- */
-.car-accordion {
-  display: block;
-}
-
-.section-panel {
-  margin-bottom: 0.55rem !important;
-  border-radius: 6px !important;
-  border-inline-start: 3px solid var(--color-primary-600);
-  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08) !important;
-}
-
-.section-panel:last-child {
-  margin-bottom: 0 !important;
-}
-
-.section-panel .mat-expansion-panel-header {
-  height: 48px;
-  padding: 0 0.9rem;
-}
-
-.section-panel .mat-expansion-panel-header-title {
-  font-size: 0.8rem;
-  font-weight: 800;
-  color: var(--color-primary-600);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+/* --- Wizard step progress header (compact pill style) --- */
+.erp-wizard-steps {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.6rem 1rem;
+  background: var(--surface-sunken);
+  border-bottom: 1px solid var(--border-default);
+  overflow-x: auto;
   flex: 0 0 auto;
-  align-items: center;
-  gap: 0.5rem;
 }
 
-.section-panel .mat-expansion-panel-header-description {
-  font-size: 0.78rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  text-transform: none;
-  letter-spacing: normal;
-  justify-content: flex-end;
+.car-card-shell .erp-wizard-actions {
+  flex: 0 0 auto;
+}
+
+.erp-wizard-step-pill {
+  display: flex;
   align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--border-default);
+  border-radius: var(--rounded-full);
+  background: var(--surface-card);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.erp-wizard-step-pill:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.erp-wizard-step-pill:hover:not(:disabled):not(.active) {
+  border-color: var(--color-primary-500);
+  color: var(--color-primary-600);
+}
+
+.erp-wizard-step-pill.active {
+  background: var(--color-primary-600);
+  border-color: var(--color-primary-600);
+  color: #fff;
+}
+
+.erp-wizard-step-pill.done {
+  border-color: var(--color-success-600);
+  color: var(--color-success-600);
+}
+
+.erp-wizard-step-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  font-size: 0.7rem;
+}
+
+.erp-wizard-step-index mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
 }
 
 .panel-icon {
@@ -94,58 +120,6 @@
   width: 1.15rem;
   height: 1.15rem;
   color: var(--color-primary-600);
-}
-
-.panel-summary {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.panel-summary-icon {
-  font-size: 1.05rem;
-  width: 1.05rem;
-  height: 1.05rem;
-  color: var(--color-success-600);
-}
-
-.section-panel .mat-expansion-panel-body {
-  padding: 0.75rem 0.9rem 0.9rem;
-  background: #f9fafc;
-}
-
-/* --- Denser 4-column variant of .erp-form-grid (that system only ships 2- and 3-column
-     variants) -- this form's cascading Manufacturer/Model/Category/Year Specification row needs
-     four narrow columns on desktop. Follows the same span/breakpoint conventions as
-     erp-form-grid-3 in form-system.css. --- */
-.erp-form-grid-4 {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  align-items: start;
-}
-
-.field-span-1 {
-  grid-column: span 1;
-}
-
-.field-span-2 {
-  grid-column: span 2;
-}
-
-@media (max-width: 960px) {
-  .erp-form-grid-4 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 720px) {
-  .erp-form-grid-4 {
-    grid-template-columns: 1fr;
-  }
-
-  .field-span-1,
-  .field-span-2 {
-    grid-column: span 1;
-  }
 }
 
 /* --- Dropdown + inline "Add New" button, visually attached (Manufacturer/Model/Category) --- */
@@ -420,8 +394,12 @@ mat-form-field.mat-form-field {
     padding: 0.7rem;
   }
 
-  .section-panel .mat-expansion-panel-header-description {
+  .erp-wizard-step-label {
     display: none;
+  }
+
+  .erp-wizard-step-pill {
+    padding: 0.4rem;
   }
 
   .suggestion-box {

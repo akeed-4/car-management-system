@@ -11,13 +11,12 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, startWith } from 'rxjs';
 
 import { InventoryService } from '../../../../services/inventory.service';
 import { GeminiService } from '../../../../services/gemini.service';
@@ -70,7 +69,6 @@ const VIN_PATTERN = /^[A-Za-z0-9]+$/;
     MatGridListModule,
     MatRadioModule,
     MatSlideToggleModule,
-    MatExpansionModule,
     MatTooltipModule,
     NgxMatSelectSearchModule,
     TranslateModule,
@@ -136,6 +134,38 @@ private translate = inject(TranslateService);
   selectedManufacturerId = signal<number | null>(null);
   selectedCategoryId = signal<number | null>(null);
   categoryModelIds = signal<number[]>([]);
+
+  // ── Wizard step state ─────────────────────────────────────────────────────────────────────
+  // carForm stays a single flat FormGroup (unchanged FormControl names/validators/business
+  // logic); the wizard only groups its controls into steps for display and gates Next by
+  // checking the validity of each step's own control subset.
+  currentStep = signal(0);
+
+  readonly stepFieldNames: string[][] = [
+    ['make', 'modelId', 'categoryId', 'yearSpecificationId', 'currentLocation', 'condition', 'vin', 'plateNumber', 'istimaraExpiry', 'fahasStatus'],
+    ['mileage', 'exteriorColorId', 'interiorColorId', 'engineSize'],
+    ['purchasePrice', 'salePrice'],
+    ['description'],
+  ];
+
+  readonly stepLabels: string[] = [
+    'INVENTORY.FORM.CARD_STEP1_TITLE',
+    'INVENTORY.FORM.CARD_STEP2_TITLE',
+    'INVENTORY.FORM.STEP3_TITLE',
+    'INVENTORY.FORM.DESCRIPTION_PHOTOS',
+    'INVENTORY.FORM.REVIEW',
+  ];
+
+  private stepControlsValue = signal<any>({});
+
+  stepValid = computed(() => {
+    const value = this.stepControlsValue();
+    const fields = this.stepFieldNames[this.currentStep()] ?? [];
+    return fields.every(name => {
+      const control = this.carForm?.get(name);
+      return !control || control.valid;
+    });
+  });
 
   // Current car being edited (for modals)
   car = computed(() => this.carForm?.value || {});
@@ -252,6 +282,10 @@ private translate = inject(TranslateService);
     this.initForm();
     this.filteredCategories.set([]);
     this.loadVehicleColors();
+
+    this.carForm.valueChanges
+      .pipe(startWith(this.carForm.value))
+      .subscribe(value => this.stepControlsValue.set(value));
 
     // Check if editing existing car
     const idParam = this.route.snapshot.queryParams['id'];
@@ -793,5 +827,59 @@ backToCard(): void {
 
   cancelForm(): void {
     this.router.navigate(['/setup/cars']);
+  }
+
+  // ── Wizard navigation ────────────────────────────────────────────────────────────────────────
+  readonly stepCount = this.stepFieldNames.length + 1; // +1 for the Review step
+
+  goNext(): void {
+    if (!this.stepValid()) {
+      this.markStepTouched(this.currentStep());
+      return;
+    }
+    if (this.currentStep() < this.stepCount - 1) {
+      this.currentStep.update(i => i + 1);
+    }
+  }
+
+  goBack(): void {
+    if (this.currentStep() > 0) {
+      this.currentStep.update(i => i - 1);
+    }
+  }
+
+  goToStep(index: number): void {
+    if (index === this.currentStep()) return;
+    // Only allow jumping forward past a step that's already valid, mirroring the linear-stepper
+    // behavior this replaces; jumping backward is always allowed.
+    if (index > this.currentStep()) {
+      for (let i = this.currentStep(); i < index; i++) {
+        if (!this.isStepValidIndex(i)) {
+          this.markStepTouched(i);
+          return;
+        }
+      }
+    }
+    this.currentStep.set(index);
+  }
+
+  isStepReachable(index: number): boolean {
+    for (let i = 0; i < index; i++) {
+      if (!this.isStepValidIndex(i)) return false;
+    }
+    return true;
+  }
+
+  private isStepValidIndex(index: number): boolean {
+    const fields = this.stepFieldNames[index] ?? [];
+    return fields.every(name => {
+      const control = this.carForm?.get(name);
+      return !control || control.valid;
+    });
+  }
+
+  private markStepTouched(index: number): void {
+    const fields = this.stepFieldNames[index] ?? [];
+    fields.forEach(name => this.carForm?.get(name)?.markAsTouched());
   }
 }

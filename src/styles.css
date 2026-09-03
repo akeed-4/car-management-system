@@ -3,6 +3,8 @@
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 /* Phase 5: shared Form/Info screen design system (token-based, RTL-safe) */
 @import './styles/form-system.css';
+/* Reusable compact Wizard/Stepper presentation (built on mat-stepper) */
+@import './styles/erp-wizard.css';
 /* --- GLOBAL DESIGN SYSTEM --- */
 
 /* 1. CSS Variables */

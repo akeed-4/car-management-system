@@ -1,0 +1,182 @@
+/* ==========================================================================
+   ERP Wizard / Stepper Design System
+   Reusable, compact stepper presentation built on top of Angular Material's
+   mat-stepper (keeps CDK linear-validation, keyboard nav and stepControl
+   behavior; this file only restyles the header/body/footer chrome).
+
+   Usage: add class "erp-wizard" to the <mat-stepper> element, wrap each
+   step's content in a div.erp-wizard-step-body, and use .erp-wizard-actions
+   for the Back/Next/Cancel/Save footer.
+   ========================================================================== */
+
+.erp-wizard {
+  background: transparent;
+}
+
+/* ---- Compact custom header (replaces Material's bulky default) ------------ */
+.erp-wizard ::ng-deep .mat-horizontal-stepper-header-container {
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-sunken);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.erp-wizard ::ng-deep .mat-horizontal-stepper-header {
+  height: 40px;
+  padding: 0 var(--space-2);
+}
+
+.erp-wizard ::ng-deep .mat-step-icon {
+  width: 24px;
+  height: 24px;
+  font-size: 0.8rem;
+}
+
+.erp-wizard ::ng-deep .mat-step-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.erp-wizard ::ng-deep .mat-stepper-horizontal-line {
+  min-width: 16px;
+  margin: 0 4px;
+}
+
+.erp-wizard ::ng-deep .mat-horizontal-content-container {
+  padding: 0;
+}
+
+/* ---- Step body: compact padding, no nested scrollbars --------------------- */
+.erp-wizard-step-body {
+  padding: var(--space-4);
+  max-height: none;
+  overflow: visible;
+}
+
+.erp-wizard-step-body .erp-section {
+  padding: var(--space-3) 0;
+}
+
+.erp-wizard-step-body .erp-section + .erp-section {
+  border-top: 1px solid var(--border-default);
+  margin-top: var(--space-1);
+}
+
+.erp-wizard-step-body .erp-section-title {
+  margin-bottom: var(--space-2);
+}
+
+/* ---- Compact responsive grid: 3 columns desktop, 2 tablet, 1 mobile ------- */
+.erp-wizard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2) var(--space-4);
+  align-items: start;
+}
+
+.erp-wizard-grid.cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.erp-wizard-grid.cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+/* ---- Footer actions --------------------------------------------------------- */
+.erp-wizard-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--border-default);
+  background: var(--surface-sunken);
+}
+
+.erp-wizard-actions .erp-wizard-actions-end {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-inline-start: auto;
+}
+
+/* ---- Review step: compact key/value summary -------------------------------- */
+.erp-wizard-review-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-3) var(--space-4);
+}
+
+.erp-wizard-review-group {
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-default);
+  border-radius: var(--rounded-md);
+  padding: var(--space-3);
+}
+
+.erp-wizard-review-group-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 var(--space-2);
+}
+
+/* ---- RTL --------------------------------------------------------------------- */
+[dir="rtl"] .erp-wizard-actions .erp-wizard-actions-end {
+  margin-inline-start: auto;
+}
+
+/* ---- Responsive ---------------------------------------------------------------- */
+@media (max-width: 960px) {
+  .erp-wizard-grid,
+  .erp-wizard-grid.cols-3,
+  .erp-wizard-grid.cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .erp-wizard ::ng-deep .mat-horizontal-stepper-header {
+    padding: 0 4px;
+  }
+
+  .erp-wizard ::ng-deep .mat-step-label {
+    font-size: 0.7rem;
+    max-width: 72px;
+  }
+
+  .erp-wizard-step-body {
+    padding: var(--space-3);
+  }
+
+  .erp-wizard-grid,
+  .erp-wizard-grid.cols-2,
+  .erp-wizard-grid.cols-3,
+  .erp-wizard-grid.cols-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .erp-wizard-actions {
+    justify-content: stretch;
+  }
+
+  .erp-wizard-actions > *,
+  .erp-wizard-actions .erp-wizard-actions-end {
+    width: 100%;
+  }
+
+  .erp-wizard-actions .erp-wizard-actions-end {
+    flex-direction: column;
+  }
+
+  .erp-wizard-actions .erp-wizard-actions-end > * {
+    width: 100%;
+  }
+
+  .erp-wizard-review-grid {
+    grid-template-columns: 1fr;
+  }
+}
