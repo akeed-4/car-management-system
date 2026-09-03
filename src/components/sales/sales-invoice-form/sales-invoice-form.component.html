@@ -195,7 +195,7 @@
                        settlement side is an accounting implementation detail the backend always
                        resolves internally (from Payment Method / Customer) and is never shown here. -->
                   <div class="field-with-add payment-field-span-2">
-                    <mat-form-field appearance="outline" class="full-width form-field">
+                    <mat-form-field appearance="outline" class="full-width field-with-add-select">
                       <mat-label>{{ 'ACCOUNTING.REVENUE_ACCOUNT' | translate }}</mat-label>
                       <mat-select formControlName="creditAccountId">
                         <mat-option *ngFor="let account of creditAccounts()" [value]="account.id">

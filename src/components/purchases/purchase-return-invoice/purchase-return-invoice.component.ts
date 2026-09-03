@@ -24,6 +24,10 @@ export class PurchaseReturnInvoiceComponent {
     return `${this.translate.instant('PURCHASE_RETURN.TOTAL')}: ${data.value?.toLocaleString('ar-SA', { style: 'currency', currency: 'SAR' }) || '0 ر.س'}`;
   };
 
+  customizeCountText = (data: any) => {
+    return this.translate.instant('PURCHASE_RETURN.COUNT_SUMMARY', { 0: data.value || 0 });
+  };
+
   /** Phase 2B: only unposted (draft/pending) returns can be approved or rejected. */
   isUnposted = (e: any): boolean => {
     const status = e?.row?.data?.status ?? 'DRAFT';

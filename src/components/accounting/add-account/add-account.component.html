@@ -286,19 +286,19 @@
       <!-- Partial Account Form (Comprehensive) -->
       <ng-container *ngIf="accountForm.get('accountTypeSelection')?.value === 'partial'">
 
-        <!-- Generated Child Account Number -- its own section, separate from the name/details
-             fields below, so the auto-numbering result (bound directly to the accountCode form
-             control) is unmistakable at a glance. -->
+        <!-- Account Number + Details merged into one card -- the auto-numbering result (bound
+             directly to the accountCode control) stays its own labeled field, immediately
+             followed by the name fields, instead of paying for a separate card's chrome/padding
+             just to hold a single input. -->
         <div class="erp-card acc-card">
           <div class="erp-section">
             <h3 class="erp-section-title">
-              <mat-icon class="erp-section-icon">tag</mat-icon>
-              {{ 'ACCOUNTING.ACCOUNT_NUMBER_SECTION_TITLE' | translate }}
+              <mat-icon class="erp-section-icon">folder</mat-icon>
+              {{ 'ACCOUNTING.SECTION_ACCOUNT_INFO' | translate }}
             </h3>
-            <p class="section-subtitle">{{ 'ACCOUNTING.ACCOUNT_NUMBER_SECTION_DESC' | translate }}</p>
 
             <div class="erp-form-grid">
-              <mat-form-field appearance="outline" class="form-field">
+              <mat-form-field appearance="outline" class="form-field erp-span-2">
                 <mat-label>{{ 'ACCOUNTING.ACCOUNT_CODE' | translate }}</mat-label>
                 <input matInput formControlName="accountCode" required dir="ltr" style="text-align: start;" [readonly]="codeReadonly">
                 <mat-icon matPrefix>tag</mat-icon>
@@ -315,19 +315,7 @@
                 <mat-hint *ngIf="nextCodeFailed" class="acc-code-warning">{{ 'ACCOUNTING.CODE_GENERATION_FAILED' | translate }}</mat-hint>
                 <mat-error *ngIf="accountForm.get('accountCode')?.invalid">{{ 'ACCOUNTING.CODE_REQUIRED' | translate }}</mat-error>
               </mat-form-field>
-            </div>
-          </div>
-        </div>
 
-        <!-- Child Account Details -->
-        <div class="erp-card acc-card">
-          <div class="erp-section">
-            <h3 class="erp-section-title">
-              <mat-icon class="erp-section-icon">folder</mat-icon>
-              {{ 'ACCOUNTING.SECTION_ACCOUNT_INFO' | translate }}
-            </h3>
-
-            <div class="erp-form-grid">
               <mat-form-field appearance="outline" class="form-field erp-span-2">
                 <mat-label>{{ 'ACCOUNTING.ACCOUNT_NAME_AR' | translate }}</mat-label>
                 <input matInput formControlName="accountNameAr" required>
@@ -357,7 +345,7 @@
             </h3>
 
             <div class="erp-form-grid">
-              <mat-form-field appearance="outline" class="form-field erp-span-2">
+              <mat-form-field appearance="outline" class="form-field">
                 <mat-label>{{ 'ACCOUNTING.CURRENCY' | translate }}</mat-label>
                 <mat-select formControlName="currencyId">
                   <mat-option [value]="null">{{ 'ACCOUNTING.CURRENCY_MULTI' | translate }}</mat-option>
@@ -365,6 +353,16 @@
                 </mat-select>
                 <mat-icon matPrefix>attach_money</mat-icon>
                 <mat-hint>{{ 'ACCOUNTING.CURRENCY_HINT' | translate }}</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="form-field" *ngIf="accountForm.get('hasCostCenter')?.value">
+                <mat-label>{{ 'ACCOUNTING.COST_CENTER' | translate }}</mat-label>
+                <mat-select formControlName="costCenterId">
+                  <mat-option *ngFor="let costCenter of costCenters" [value]="costCenter.id">
+                    {{ costCenter.code }} - {{ costCenter.nameAr || costCenter.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-icon matPrefix>business</mat-icon>
               </mat-form-field>
             </div>
 
@@ -374,18 +372,6 @@
               <mat-checkbox formControlName="isActive">{{ 'ACCOUNTING.IS_ACTIVE' | translate }}</mat-checkbox>
               <mat-checkbox formControlName="isRetired">{{ 'ACCOUNTING.IS_RETIRED' | translate }}</mat-checkbox>
               <mat-checkbox formControlName="isPrivate">{{ 'ACCOUNTING.IS_PRIVATE' | translate }}</mat-checkbox>
-            </div>
-
-            <div class="erp-form-grid" *ngIf="accountForm.get('hasCostCenter')?.value">
-              <mat-form-field appearance="outline" class="form-field">
-                <mat-label>{{ 'ACCOUNTING.COST_CENTER' | translate }}</mat-label>
-                <mat-select formControlName="costCenterId">
-                  <mat-option *ngFor="let costCenter of costCenters" [value]="costCenter.id">
-                    {{ costCenter.code }} - {{ costCenter.nameAr || costCenter.name }}
-                  </mat-option>
-                </mat-select>
-                <mat-icon matPrefix>business</mat-icon>
-              </mat-form-field>
             </div>
 
             <div class="erp-form-grid" *ngIf="!accountForm.get('isActive')?.value">

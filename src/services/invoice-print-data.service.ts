@@ -63,14 +63,23 @@ export class InvoicePrintDataService {
     const printSetting$ = this.settingService.getPrintSetting(null)
       .pipe(catchError(() => of<printSettingVm | null>(null)));
 
+    // Sales-only, but cheap enough to always fetch: lets mapSales() recover the true VAT rate
+    // from the invoice's own ClassificationId when the persisted VatRate/VATAmount are stale/zero
+    // (older records from creation flows that once skipped stamping VatRate) -- the exact same
+    // classification lookup the edit form's `vatRate` signal already uses, so print never
+    // disagrees with what the screen shows for the same invoice.
+    const invoiceClassifications$ = this.currentSettingService.getInvoiceClassifications()
+      .pipe(catchError(() => of<{ value: number; label: string; vatRate: number }[]>([])));
+
     return forkJoin({
       company: company$,
       printSetting: printSetting$,
       invoice: this.loadInvoice(type, id),
+      invoiceClassifications: invoiceClassifications$,
     }).pipe(
-      switchMap(({ company, printSetting, invoice }) => {
+      switchMap(({ company, printSetting, invoice, invoiceClassifications }) => {
         if (!invoice) return of(null);
-        const data = this.normalize(type, invoice, company, printSetting, options);
+        const data = this.normalize(type, invoice, company, printSetting, options, invoiceClassifications);
         // mapSales/mapPurchase/mapService only have the invoice DTO's denormalized party id +
         // name string to work with (e.g. PurchaseInvoiceDto.SupplierId/SupplierName -- there is
         // no nested Supplier/Customer object on the wire), so `party` above only ever gets a
@@ -180,6 +189,7 @@ export class InvoicePrintDataService {
     company: Company | null,
     printSetting: printSettingVm | null,
     options: { isCopy?: boolean },
+    invoiceClassifications: { value: number; label: string; vatRate: number }[] = [],
   ): InvoicePrintData {
     const base = {
       type,
@@ -196,7 +206,7 @@ export class InvoicePrintDataService {
 
     switch (type) {
       case 'sales':
-        return this.mapSales(base, invoice as SalesInvoice, company);
+        return this.mapSales(base, invoice as SalesInvoice, company, invoiceClassifications);
       case 'purchase':
         return this.mapPurchase(base, invoice as PurchaseInvoice, company);
       case 'service':
@@ -239,20 +249,32 @@ export class InvoicePrintDataService {
     base: Omit<InvoicePrintData, 'party' | 'items' | 'totals' | 'metaCells' | 'paymentTerms' | 'qr'>,
     inv: SalesInvoice,
     company: Company | null,
+    invoiceClassifications: { value: number; label: string; vatRate: number }[] = [],
   ): InvoicePrintData {
     const discountType = inv.discountType ?? 'Fixed';
     const discountValue = inv.discountValue ?? 0;
     const discountAmount =
       inv.discountAmount ?? this.calc.calculateDiscountAmount(inv.subtotal, discountType, discountValue);
     const amountAfterDiscount = inv.amountAfterDiscount ?? Math.max(0, inv.subtotal - discountAmount);
-    // A persisted 0 with a nonzero vatAmount means the rate was never stamped on the invoice
-    // (older records from certain creation flows) -- recover it from the actual amounts rather
-    // than printing a misleading 0% next to a real tax charge.
+    // A persisted 0 means the rate was never stamped on the invoice (older records from creation
+    // flows that once skipped it) -- recover it exactly the way the edit form's `vatRate` signal
+    // does: look up the invoice's own ClassificationId first (the true source of truth), then fall
+    // back to the amount-derived rate, then to the invoiceType guess. Never trust a stored 0 at
+    // face value when a classification or a real tax amount says otherwise.
+    const classificationVatRate = invoiceClassifications.find(c => c.value === inv.ClassificationId)?.vatRate;
+    const amountDerivedVatRate =
+      inv.vatAmount > 0 && amountAfterDiscount > 0
+        ? Math.round((inv.vatAmount / amountAfterDiscount) * 100)
+        : undefined;
     const vatRate =
       inv.vatRate ||
-      (inv.vatAmount > 0 && amountAfterDiscount > 0
-        ? Math.round((inv.vatAmount / amountAfterDiscount) * 100)
-        : this.calc.resolveVatRate(null, inv.invoiceType ?? null));
+      classificationVatRate ||
+      amountDerivedVatRate ||
+      this.calc.resolveVatRate(null, inv.invoiceType ?? null);
+    // If the stored VATAmount is itself stale/zero (same root cause as VatRate), but a
+    // classification/type-derived rate says tax should apply, recompute the money amount too --
+    // a recovered nonzero rate next to a printed "0.00" tax amount would be equally misleading.
+    const vatAmount = inv.vatAmount > 0 ? inv.vatAmount : this.calc.calculateVatAmount(amountAfterDiscount, vatRate);
     const previousPayments = inv.previousPayments ?? 0;
     const downPayment = inv.downPayment ?? 0;
     const currentPayment = inv.currentPayment ?? Math.max(0, inv.amountPaid - previousPayments);
@@ -268,13 +290,20 @@ export class InvoicePrintDataService {
       lineTotal: item.lineTotal,
     }));
 
+    // grandTotal follows inv.totalAmount (the persisted, presumably-collected amount) unless the
+    // tax amount itself had to be recovered above -- in that case inv.totalAmount was computed
+    // from the same stale zero tax, so it must be recomputed too to stay internally consistent
+    // (subtotal - discount + tax === grand total) rather than printing a total that silently
+    // excludes the now-recovered tax.
+    const grandTotal = inv.vatAmount > 0 ? inv.totalAmount : amountAfterDiscount + vatAmount;
+
     const totals: InvoicePrintTotals = {
       subtotal: inv.subtotal,
       totalDiscount: discountAmount,
       discountLabel: discountType === 'Percentage' ? `${discountValue}%` : undefined,
-      totalTax: inv.vatAmount,
+      totalTax: vatAmount,
       taxRate: vatRate,
-      grandTotal: inv.totalAmount,
+      grandTotal,
       amountPaid: inv.amountPaid,
       amountDue: inv.remainingBalance ?? inv.amountDue,
       previousPayments,
@@ -301,7 +330,7 @@ export class InvoicePrintDataService {
       metaCells,
       paymentTerms: [],
       qr: this.buildQr(company?.nameAr || company?.nameEn, company?.vatRegistrationNumber, company?.crNumber,
-        inv.invoiceNumber, inv.invoiceDate, inv.customerName, undefined, amountAfterDiscount, inv.vatAmount, inv.totalAmount),
+        inv.invoiceNumber, inv.invoiceDate, inv.customerName, undefined, amountAfterDiscount, vatAmount, grandTotal),
     };
   }
 

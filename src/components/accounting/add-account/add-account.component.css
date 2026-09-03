@@ -17,8 +17,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  inline-size: 48px;
-  block-size: 48px;
+  inline-size: 40px;
+  block-size: 40px;
   flex-shrink: 0;
   border-radius: var(--shell-radius-md, 12px);
   background: var(--color-primary-100);
@@ -26,9 +26,9 @@
 }
 
 .acc-title-icon mat-icon {
-  font-size: 26px;
-  width: 26px;
-  height: 26px;
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
 }
 
 /* ---- Two-column workspace layout ------------------------------------------ */
@@ -44,17 +44,45 @@
 }
 
 .acc-main > .acc-card {
-  margin-block-start: var(--space-4);
+  margin-block-start: var(--space-3);
 }
 
 .acc-main > .acc-card:first-child {
   margin-block-start: 0;
 }
 
+/* Compact section padding -- the default .erp-section padding (var(--space-4) = 16px on all
+   sides) is generous for a stand-alone info screen but adds up fast across 5-6 stacked cards on
+   this form; tighten it here without touching the shared design-system default other screens
+   rely on. */
+.acc-main .erp-section {
+  padding: var(--space-3) var(--space-4);
+}
+
+.acc-main .erp-form-grid {
+  gap: var(--space-1) var(--space-3);
+}
+
 /* ---- Fields ---------------------------------------------------------------- */
 mat-form-field.form-field {
   width: 100%;
   min-width: 0;
+  /* Compact density via Material's own supported tokens (not a global override) --
+     shrinks field height/label spacing so more fields fit per screen without touching
+     mat-form-field elsewhere in the app. */
+  --mat-form-field-container-height: 48px;
+  --mat-form-field-container-vertical-padding: 8px;
+  font-size: 0.92rem;
+}
+
+/* Decorative prefix icons on every field add visual weight without much functional value at
+   full size -- keep them, but shrink and mute them so the label/value text carries the field. */
+mat-form-field.form-field .mat-icon[matPrefix] {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--text-muted);
+  margin-inline-end: 4px;
 }
 
 /* Checkbox rows / groups */
@@ -65,8 +93,8 @@ mat-form-field.form-field {
 .acc-check-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--grid-2, 8px) var(--grid-6, 24px);
-  padding: var(--grid-2, 8px) 0;
+  gap: var(--grid-1, 4px) var(--grid-6, 24px);
+  padding: var(--grid-1, 4px) 0;
 }
 
 /* ---- Summary sidebar -------------------------------------------------------- */
@@ -80,20 +108,26 @@ mat-form-field.form-field {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 6px;
-  padding: var(--space-2) 0 var(--space-3);
+  gap: 4px;
+  padding: var(--space-1) 0 var(--space-2);
 }
 
 .acc-summary-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  inline-size: 56px;
-  block-size: 56px;
+  inline-size: 44px;
+  block-size: 44px;
   border-radius: 50%;
   background: var(--color-primary-100);
   color: var(--color-primary-800);
   margin-bottom: 2px;
+}
+
+.acc-summary-icon mat-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
 }
 
 .acc-summary-code {
@@ -120,7 +154,7 @@ mat-form-field.form-field {
   justify-content: space-between;
   align-items: baseline;
   gap: var(--space-2);
-  padding: 9px 0;
+  padding: 6px 0;
   border-top: 1px solid var(--border-default);
 }
 
@@ -178,7 +212,7 @@ mat-form-field.form-field {
 /* ---- Account type selection ------------------------------------------------- */
 .section-header {
   text-align: start;
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-1);
 }
 
 .section-title {
@@ -186,29 +220,29 @@ mat-form-field.form-field {
   align-items: center;
   gap: var(--grid-2, 8px);
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--text-primary);
 }
 
 .section-title mat-icon {
   color: var(--color-primary-600);
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
 }
 
 .section-subtitle {
   margin: 2px 0 0;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   color: var(--text-secondary);
 }
 
 .account-type-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: var(--space-3);
-  margin-top: var(--space-3);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-2);
+  margin-top: var(--space-2);
 }
 
 .account-type-card {
@@ -265,8 +299,8 @@ mat-form-field.form-field {
 .card-content {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  padding: 14px 16px !important;
+  gap: var(--space-2);
+  padding: 10px 12px !important;
   position: relative;
 }
 
@@ -274,12 +308,18 @@ mat-form-field.form-field {
   display: flex;
   align-items: center;
   justify-content: center;
-  inline-size: 44px;
-  block-size: 44px;
+  inline-size: 34px;
+  block-size: 34px;
   border-radius: var(--rounded-md, 8px);
   background: var(--color-primary-100);
   color: var(--color-primary-800);
   flex-shrink: 0;
+}
+
+.card-icon mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
 }
 
 .account-type-card.selected .card-icon {
@@ -293,17 +333,17 @@ mat-form-field.form-field {
 }
 
 .card-text h4 {
-  margin: 0 0 2px;
-  font-size: 0.92rem;
+  margin: 0 0 1px;
+  font-size: 0.86rem;
   font-weight: 600;
   color: var(--text-primary);
 }
 
 .card-text p {
   margin: 0;
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   color: var(--text-secondary);
-  line-height: 1.35;
+  line-height: 1.3;
 }
 
 .card-radio {
@@ -347,8 +387,8 @@ mat-form-field.form-field {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: var(--space-2) var(--space-4);
-  margin-bottom: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-2);
   background: var(--surface-sunken);
   border: 1px solid var(--border-default);
   border-radius: var(--rounded-md, 8px);
@@ -357,9 +397,9 @@ mat-form-field.form-field {
 .parent-account-summary-item {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
   min-width: 0;
-  padding: 5px 0;
+  padding: 3px 0;
 }
 
 .parent-account-summary-label {
@@ -500,29 +540,29 @@ mat-form-field.form-field {
   }
 
   .card-content {
-    padding: 12px 14px !important;
+    padding: 9px 12px !important;
   }
 }
 
 @media (max-width: 480px) {
   .acc-title-icon {
-    inline-size: 40px;
-    block-size: 40px;
+    inline-size: 34px;
+    block-size: 34px;
   }
 
   .acc-title-icon mat-icon {
-    font-size: 22px;
-    width: 22px;
-    height: 22px;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
   }
 
   .card-icon {
-    inline-size: 38px;
-    block-size: 38px;
+    inline-size: 30px;
+    block-size: 30px;
   }
 
   .parent-account-summary {
-    padding-inline: var(--space-3);
+    padding-inline: var(--space-2);
   }
 }
 
@@ -542,8 +582,8 @@ mat-form-field.form-field {
 .acc-parent-root {
   display: flex;
   align-items: center;
-  gap: var(--space-3, 12px);
-  padding: var(--space-3, 12px) var(--space-4, 16px);
+  gap: var(--space-2, 8px);
+  padding: var(--space-2, 8px) var(--space-3, 12px);
   border: 1px dashed rgba(0, 0, 0, 0.15);
   border-radius: 10px;
   background: rgba(0, 0, 0, 0.02);
@@ -575,9 +615,9 @@ mat-form-field.form-field {
 .acc-parent-context {
   display: flex;
   align-items: flex-start;
-  gap: var(--space-3, 12px);
-  margin-block: var(--space-3, 12px);
-  padding: var(--space-4, 16px);
+  gap: var(--space-2, 8px);
+  margin-block: var(--space-2, 8px);
+  padding: var(--space-3, 12px);
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 10px;
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0.015), transparent);
