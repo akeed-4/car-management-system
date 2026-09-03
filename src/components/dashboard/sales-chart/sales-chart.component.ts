@@ -4,7 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DxChartModule } from 'devextreme-angular/ui/chart';
 import { SalesChartData } from '../../../models/dashboard.model';
 
@@ -28,6 +28,8 @@ export class SalesChartComponent implements OnInit, OnChanges {
   @Input() loading: boolean = false;
 
   chartType: 'line' | 'bar' | 'area' = 'area';
+
+  constructor(private translate: TranslateService) {}
 
   ngOnInit(): void {}
 
@@ -55,13 +57,15 @@ export class SalesChartComponent implements OnInit, OnChanges {
   /**
    * Customize tooltip
    */
-  customizeTooltip(pointInfo: any) {
+  customizeTooltip = (pointInfo: any) => {
+    const salesLabel = this.translate.instant('DASHBOARD.SALES');
+    const revenueLabel = this.translate.instant('DASHBOARD.REVENUE');
     return {
       html: `
         <div class="custom-tooltip">
           <strong>${pointInfo.argument}</strong><br/>
-          Sales: ${pointInfo.value.toLocaleString()}<br/>
-          Revenue: $${pointInfo.point.data.revenue.toLocaleString()}
+          ${salesLabel}: ${pointInfo.value.toLocaleString()}<br/>
+          ${revenueLabel}: ${pointInfo.point.data.revenue.toLocaleString()}
         </div>
       `
     };

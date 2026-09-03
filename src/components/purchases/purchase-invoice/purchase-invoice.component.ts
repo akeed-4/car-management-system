@@ -36,6 +36,7 @@ import { InvoiceClassificationOption } from '../../../models/invoice-classificat
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { InvoiceItemDialogComponent } from '../../sales/invoice-item-dialog/invoice-item-dialog.component';
+import { openCreateAccountDialog } from '../../accounting/create-account-dialog.helper';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatSelectChange } from '@angular/material/select';
 import { ToastService } from '@/src/services/toast.service';
@@ -212,6 +213,15 @@ export class PurchaseInvoiceComponent implements OnInit {
   resetDebitAccountToDefault(): void {
     this.debitAccountTracker?.reset();
     this.debitAccountManuallyChanged.set(false);
+  }
+
+  /** "+ Create Account" from this document, matching Receipt/Payment/Deposit's pattern. */
+  openCreateDebitAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.debitAccounts.update(list => [...list, created]);
+      this.purchaseInvoiceForm.get('debitAccountId')?.setValue(created.id);
+    });
   }
 
   /** Re-derives the Debit-leg default from the current Store selection. */
@@ -803,11 +813,6 @@ export class PurchaseInvoiceComponent implements OnInit {
   /**
    * Handle payment method locking based on input properties
    */
- 
-  // loadAccounts()/openCreateDebitAccountDialog()/openCreateCreditAccountDialog() were removed:
-  // Debit/Credit accounts are no longer selectable in this form (see the comment near
-  // filteredSuppliers above) -- the backend always derives them, so there's nothing here to load
-  // a picklist for or to create-and-select into.
 
   private initForm(): void {
     this.purchaseInvoiceForm = this.fb.group({

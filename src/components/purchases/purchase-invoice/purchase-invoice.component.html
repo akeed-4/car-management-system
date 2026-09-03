@@ -159,6 +159,9 @@
                         [label]="'ACCOUNTING.INVENTORY_EXPENSE_ACCOUNT'"
                         [hint]="!debitAccountManuallyChanged() ? 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' : ''">
                     </app-account-autocomplete>
+                    <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateDebitAccountDialog()">
+                      <mat-icon>add</mat-icon>
+                    </button>
                     <button mat-icon-button type="button" *ngIf="debitAccountManuallyChanged()"
                             [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetDebitAccountToDefault()">
                       <mat-icon>restart_alt</mat-icon>

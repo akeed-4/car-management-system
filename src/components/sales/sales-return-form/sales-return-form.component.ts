@@ -98,7 +98,6 @@ export class SalesReturnFormComponent implements OnInit {
     // Read type query parameter (cash or credit)
     this.activatedRoute.queryParams.subscribe(params => {
       if (params['type'] === 'cash') {
-        this.editMode=true;
         this.isCashReturn = true;
       } else if (params['type'] === 'credit') {
         this.isCashReturn = false;
@@ -107,14 +106,14 @@ export class SalesReturnFormComponent implements OnInit {
 
     // Read id parameter for edit mode
     this.activatedRoute.params.subscribe(params => {
-      this. invoiceId = params['id'];
-          this.editMode=true;
-        this.isCashReturn = true;
+      this.invoiceId = params['id'];
       if (this.invoiceId) {
         // Edit mode - load existing invoice data
+        this.editMode = true;
         this.loadInvoiceForEdit(+this.invoiceId);
       } else {
         // Create mode
+        this.editMode = false;
         this.generateReturnNumber();
         this.initializeForm();
         this.loadInvoices();

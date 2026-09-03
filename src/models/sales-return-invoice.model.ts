@@ -26,11 +26,4 @@ export interface SalesReturnInvoice {
   debitAccountName?: string;
   creditAccountId?: number;
   creditAccountName?: string;
-
-  /** Client-selectable override -- see SalesReturn.debitAccountOverrideId for the full
-   *  "default + override" contract. */
-  debitAccountOverrideId?: number | null;
-  debitAccountOverrideName?: string;
-  creditAccountOverrideId?: number | null;
-  creditAccountOverrideName?: string;
 }

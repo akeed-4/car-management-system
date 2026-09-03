@@ -192,12 +192,19 @@ export class InvoicePrintDataService {
     inv: SalesInvoice,
     company: Company | null,
   ): InvoicePrintData {
-    const vatRate = inv.vatRate ?? this.calc.resolveVatRate(null, inv.invoiceType ?? null);
     const discountType = inv.discountType ?? 'Fixed';
     const discountValue = inv.discountValue ?? 0;
     const discountAmount =
       inv.discountAmount ?? this.calc.calculateDiscountAmount(inv.subtotal, discountType, discountValue);
     const amountAfterDiscount = inv.amountAfterDiscount ?? Math.max(0, inv.subtotal - discountAmount);
+    // A persisted 0 with a nonzero vatAmount means the rate was never stamped on the invoice
+    // (older records from certain creation flows) -- recover it from the actual amounts rather
+    // than printing a misleading 0% next to a real tax charge.
+    const vatRate =
+      inv.vatRate ||
+      (inv.vatAmount > 0 && amountAfterDiscount > 0
+        ? Math.round((inv.vatAmount / amountAfterDiscount) * 100)
+        : this.calc.resolveVatRate(null, inv.invoiceType ?? null));
     const previousPayments = inv.previousPayments ?? 0;
     const downPayment = inv.downPayment ?? 0;
     const currentPayment = inv.currentPayment ?? Math.max(0, inv.amountPaid - previousPayments);

@@ -34,6 +34,7 @@ import { LanguageService } from '@/src/services/language.service';
 import { Direction } from '@angular/cdk/bidi';
 import { MatDialog } from '@angular/material/dialog';
 import { InvoiceItemDialogComponent } from '../invoice-item-dialog/invoice-item-dialog.component';
+import { openCreateAccountDialog } from '../../accounting/create-account-dialog.helper';
 import { CarSelectionDialogComponent, SalesCarSelectionCard, SalesCarSelectionDialogData } from '../car-selection-dialog/car-selection-dialog.component';
 import { CustomerLookupModalComponent } from '../../shared/customer-lookup-modal/customer-lookup-modal.component';
 import { buildVehicleDescription } from '../../../models/vehicle-description';
@@ -241,6 +242,15 @@ export class SalesInvoiceFormComponent implements OnInit {
   resetCreditAccountToDefault(): void {
     this.creditAccountTracker?.reset();
     this.creditAccountManuallyChanged.set(false);
+  }
+
+  /** "+ Create Account" from this document, matching Receipt/Payment/Deposit's pattern. */
+  openCreateCreditAccountDialog(): void {
+    openCreateAccountDialog(this.dialog).subscribe((created) => {
+      if (!created) return;
+      this.creditAccounts.update(list => [...list, created]);
+      this.invoiceForm.get('creditAccountId')?.setValue(created.id);
+    });
   }
 
   /** Re-derives the Credit-leg (Revenue) default -- car category revenue when the first invoiced

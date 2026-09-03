@@ -204,6 +204,9 @@
                       </mat-select>
                       <mat-hint *ngIf="!creditAccountManuallyChanged()">{{ 'ACCOUNTS.FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
                     </mat-form-field>
+                    <button mat-icon-button type="button" class="field-add-btn" [matTooltip]="'ACCOUNTING.ADD_ACCOUNT' | translate" (click)="openCreateCreditAccountDialog()">
+                      <mat-icon>add</mat-icon>
+                    </button>
                     <button mat-icon-button type="button" *ngIf="creditAccountManuallyChanged()"
                             [matTooltip]="'ACCOUNTS.FORM.RESET_TO_DEFAULT' | translate" (click)="resetCreditAccountToDefault()">
                       <mat-icon>restart_alt</mat-icon>
