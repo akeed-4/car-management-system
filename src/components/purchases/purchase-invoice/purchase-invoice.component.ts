@@ -1238,16 +1238,7 @@ export class PurchaseInvoiceComponent implements OnInit {
         disabled: !canSave,
         execute: () => this.printInvoice()
       },
-      {
-        id: 'print',
-        label: 'DOCUMENT_COMMON.ACTIONS.PRINT',
-        icon: 'print',
-        variant: 'basic',
-        visible: this.isEditMode(),
-        // A clean persisted document can always be printed; a dirty one only if it can be saved first.
-        disabled: this.isDocumentDirty() && !canSave,
-        execute: () => this.printInvoice()
-      },
+    
       {
         id: 'cancel',
         label: 'PURCHASE_INVOICE.CANCEL',

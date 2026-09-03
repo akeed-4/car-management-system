@@ -78,12 +78,16 @@
         [alignByColumn]="item.alignByColumn">
       </dxi-total-item>
     </dxo-summary>
-
-    <!-- State Storing -->
+ <dxo-scrolling
+        mode="standard"> <!-- or "virtual" | "infinite" -->
+    </dxo-scrolling>
+    <!-- State Storing: opt-in per report via stateStorageKey (see the @Input()'s doc comment --
+         this used to be a single hardcoded key shared by every report, which corrupted one
+         report's column layout with another's saved state). -->
     <dxo-state-storing
-      [enabled]="true"
+      [enabled]="!!stateStorageKey"
       type="localStorage"
-      storageKey="reportGridState">
+      [storageKey]="resolvedStateStorageKey">
     </dxo-state-storing>
 
   </dx-data-grid>

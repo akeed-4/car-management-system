@@ -40,7 +40,7 @@ export class TrialBalanceComponent implements OnInit {
     },
     {
       dataField: 'openingDebit',
-      caption: 'REPORTS.COLUMNS.DEBIT',
+      caption: 'REPORTS.COLUMNS.OPENING_DEBIT',
       dataType: 'number',
       format: '#,##0.00',
       alignment: 'right',
@@ -48,7 +48,7 @@ export class TrialBalanceComponent implements OnInit {
     },
     {
       dataField: 'openingCredit',
-      caption: 'REPORTS.COLUMNS.CREDIT',
+      caption: 'REPORTS.COLUMNS.OPENING_CREDIT',
       dataType: 'number',
       format: '#,##0.00',
       alignment: 'right',
@@ -72,7 +72,7 @@ export class TrialBalanceComponent implements OnInit {
     },
     {
       dataField: 'closingDebit',
-      caption: 'REPORTS.COLUMNS.DEBIT',
+      caption: 'REPORTS.COLUMNS.CLOSING_DEBIT',
       dataType: 'number',
       format: '#,##0.00',
       alignment: 'right',
@@ -80,7 +80,7 @@ export class TrialBalanceComponent implements OnInit {
     },
     {
       dataField: 'closingCredit',
-      caption: 'REPORTS.COLUMNS.CREDIT',
+      caption: 'REPORTS.COLUMNS.CLOSING_CREDIT',
       dataType: 'number',
       format: '#,##0.00',
       alignment: 'right',

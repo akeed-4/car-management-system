@@ -7,6 +7,7 @@ import { Expense } from '../../../models/expense.model';
 import { ModalComponent } from '../../shared/modal/modal.component';
 import { ResponsiveService } from '../../../services/responsive.service';
 import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
+import { HasPermissionDirective } from '../../shared/permission.directive';
 
 type SortColumn = keyof Expense | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -14,7 +15,7 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-expenses',
   standalone: true,
-  imports: [RouterLink, CurrencyPipe, DatePipe, FormsModule, ModalComponent, MobileCardListComponent],
+  imports: [RouterLink, CurrencyPipe, DatePipe, FormsModule, ModalComponent, MobileCardListComponent, HasPermissionDirective],
   templateUrl: './expenses.component.html',
   styleUrl: './expenses.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

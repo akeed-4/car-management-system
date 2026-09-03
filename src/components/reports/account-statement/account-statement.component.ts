@@ -38,9 +38,9 @@ export class AccountStatementComponent implements OnInit {
    * DataSourceLoadOptions, returns a LoadResult of AccountStatementRowDto with a server-computed
    * running balance) is finished and stable -- see AccountReportsController.cs /
    * AccountReportService.GetAccountStatementRowsAsync. The store's load() is a no-op (empty page)
-   * until an account is selected, since AccountId<=0 is a 400 on the backend -- report-container
-   * already gates the "select account" warning for exports; the grid additionally just shows
-   * nothing rather than erroring.
+   * until an account is selected -- shouldSkip below -- since AccountId<=0 is a 400 on the
+   * backend, and the grid otherwise fires that doomed request the instant it renders, before the
+   * user has picked anything.
    */
   useRemoteMode = true;
 
@@ -49,6 +49,7 @@ export class AccountStatementComponent implements OnInit {
     {
       key: 'lineId',
       extraParams: () => this.buildAccountStatementRequestParams(),
+      shouldSkip: () => !this.currentFilters.accountId,
       onHeaders: (headers) => {
         const raw = headers.get('X-Opening-Balance');
         this.openingBalance = raw ? Number(raw) : 0;
@@ -104,6 +105,10 @@ export class AccountStatementComponent implements OnInit {
       width: 150,
       customizeText: (cellInfo: any) => {
         const value = cellInfo.value;
+        // A summary/placeholder row (or a row missing this field) hands customizeText a
+        // null/undefined value -- calling .toLocaleString() on it throws, which previously
+        // crashed the whole cell render rather than just showing nothing.
+        if (value === null || value === undefined) return '';
         if (value < 0) {
           return `(${Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`;
         }

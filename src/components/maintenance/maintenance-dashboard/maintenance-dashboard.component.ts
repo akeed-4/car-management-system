@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { DatePipe, CurrencyPipe } from '@angular/common';
 import { ServiceOrder, ServiceOrderStatus } from '../../../models/service-order.model';
 import { ServiceOrderService } from '../../../services/service-order.service';
+import { HasPermissionDirective } from '../../shared/permission.directive';
 
 type SortColumn = keyof ServiceOrder | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -12,7 +13,7 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-maintenance-dashboard',
   standalone: true,
-  imports: [RouterLink, DatePipe, CurrencyPipe],
+  imports: [RouterLink, DatePipe, CurrencyPipe, HasPermissionDirective],
   templateUrl: './maintenance-dashboard.component.html',
   styleUrl: './maintenance-dashboard.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

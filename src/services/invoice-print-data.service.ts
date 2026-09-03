@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, forkJoin, map, of, switchMap } from 'rxjs';
+import { Observable, forkJoin, from, map, of, switchMap } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { SalesService } from './sales.service';
 import { PurchasesService } from './purchases.service';
@@ -68,9 +68,20 @@ export class InvoicePrintDataService {
       printSetting: printSetting$,
       invoice: this.loadInvoice(type, id),
     }).pipe(
-      map(({ company, printSetting, invoice }) => {
-        if (!invoice) return null;
-        return this.normalize(type, invoice, company, printSetting, options);
+      switchMap(({ company, printSetting, invoice }) => {
+        if (!invoice) return of(null);
+        const data = this.normalize(type, invoice, company, printSetting, options);
+        // mapSales/mapPurchase/mapService only have the invoice DTO's denormalized party id +
+        // name string to work with (e.g. PurchaseInvoiceDto.SupplierId/SupplierName -- there is
+        // no nested Supplier/Customer object on the wire), so `party` above only ever gets a
+        // name. Fetch the real supplier/customer record here and patch the rest of the party
+        // block (tax id, CR number, phone, email, address) onto it -- same "load once, patch
+        // data afterward" pattern the purchase additional-cost totals switchMap below already
+        // uses for `data.totals`. Falls back to whatever normalize() already set (never worse
+        // than before) when the party has no linked id or the fetch fails.
+        return this.loadPartyDetails(type, invoice).pipe(
+          map(party => (party ? { ...data, party: { ...data.party, ...party } } : data)),
+        );
       }),
       switchMap(data => {
         // Purchase invoices only: fetch real Customs/Shipping/Freight/Additional-Expenses amounts
@@ -122,6 +133,43 @@ export class InvoicePrintDataService {
       case 'service':
         return this.serviceInvoiceService.getInvoiceById(id).pipe(catchError(() => of(null)));
     }
+  }
+
+  /** Real supplier/customer record for the party section -- see load()'s doc comment for why
+   *  this is a separate fetch. Returns only the fields to merge in (never a full InvoicePrintParty),
+   *  and null when there's no linked id (e.g. a sales invoice with no CustomerId) or the fetch
+   *  fails, so the caller's merge is a safe no-op in either case. */
+  private loadPartyDetails(
+    type: InvoiceType,
+    invoice: SalesInvoice | PurchaseInvoice | ServiceInvoice,
+  ): Observable<Partial<InvoicePrintParty> | null> {
+    if (type === 'purchase') {
+      const supplierId = (invoice as PurchaseInvoice).supplierId;
+      if (!supplierId) return of(null);
+      return this.supplierService.getSupplierById(supplierId).pipe(
+        map(supplier => ({
+          name: supplier.name,
+          taxId: supplier.taxNumber,
+          crNumber: supplier.crNumber,
+          phone: supplier.phone,
+          email: supplier.email,
+          address: supplier.address,
+        })),
+        catchError(() => of(null)),
+      );
+    }
+
+    const customerId = (invoice as SalesInvoice | ServiceInvoice).customerId;
+    if (!customerId) return of(null);
+    return from(this.customerService.getCustomerById(customerId)).pipe(
+      map(customer => ({
+        name: customer.name,
+        phone: customer.phone,
+        email: customer.email,
+        address: customer.address,
+      })),
+      catchError(() => of(null)),
+    );
   }
 
   // ------------------------------------------------------------------ mapping
@@ -311,12 +359,12 @@ export class InvoicePrintDataService {
     return {
       ...base,
       party: {
-        name: inv.supplier?.name ?? '',
-        taxId: inv.supplier?.taxNumber,
-        crNumber: inv.supplier?.crNumber,
-        phone: inv.supplier?.phone,
-        email: inv.supplier?.email,
-        address: inv.supplier?.address,
+        // PurchaseInvoiceDto never carries a nested Supplier object (inv.supplier is always
+        // undefined at runtime) -- only the denormalized SupplierName string. Real name +
+        // tax id/CR number/phone/email/address come from loadPartyDetails' supplier fetch,
+        // which patches over this; supplierName is just the synchronous fallback if that fetch
+        // fails.
+        name: inv.supplierName ?? '',
         poReference: (inv as any).poReference ?? (inv as any).purchaseOrderNumber,
       },
       items,
@@ -324,7 +372,7 @@ export class InvoicePrintDataService {
       metaCells,
       paymentTerms: [],
       auction,
-      qr: this.buildQr(inv.supplier?.name, inv.supplier?.taxNumber, inv.supplier?.crNumber,
+      qr: this.buildQr(inv.supplierName, undefined, undefined,
         inv.invoiceNumber, inv.invoiceDate, company?.nameAr || company?.nameEn, company?.vatRegistrationNumber,
         taxableAmount, vatAmount, inv.totalAmount),
     };

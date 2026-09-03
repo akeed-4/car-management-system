@@ -109,7 +109,7 @@
         </mat-card-content>
 
         <div class="form-actions">
-          <a routerLink="/sales/corporate/deliveries/new" [queryParams]="{ orderId: o.id }" mat-raised-button color="primary" class="save-btn">
+          <a *appHasPermission="'sales.corporate.deliveries.view'" routerLink="/sales/corporate/deliveries/new" [queryParams]="{ orderId: o.id }" mat-raised-button color="primary" class="save-btn">
             <mat-icon>local_shipping</mat-icon>
             {{ 'CORPORATE.PROCEED_TO_DELIVERY' | translate }}
           </a>

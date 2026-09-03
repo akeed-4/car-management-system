@@ -7,6 +7,10 @@ export interface PurchaseInvoice {
   invoiceNumber: string;
   invoiceDate: string;
   supplierId: number;
+  /** Denormalized display name -- always populated on a read (GET) response (see
+   *  PurchaseInvoiceDto.SupplierName). There is no nested Supplier object on the wire; use the
+   *  `supplier` navigation field below (a separate fetch) for tax id/CR number/phone/etc. */
+  supplierName?: string;
   /**
    * Debit (Inventory/Expense) leg. Always populated on a read (GET) response -- the server's
    * resolved/stored value. On a Create/Update request body this doubles as an OPTIONAL client
@@ -27,9 +31,10 @@ export interface PurchaseInvoice {
   branchId?:number;
   invoiceType?: string; // Taxable, Zero Rated, Exempt
   dueDate?: string; // Due date for credit invoices
-  /** VAT-exclusive amount -- only populated when the invoice contains a profit-margin-VAT car
-   * (backend only overwrites Subtotal/VATAmount in that case; standard invoices leave these
-   * unset and carry the full breakdown in totalAmount only). */
+  /** VAT-exclusive amount -- always computed and persisted by the backend (standard-rate net
+   * calc per line, or the ZATCA profit-margin formula for cars flagged CalculateVATFromProfitMargin;
+   * see PurchaseInvoiceService.CreateAsync/UpdateAsync). Optional here only because it's absent on
+   * the create/update request bodies, which never send it -- the server always derives it. */
   subtotal?: number;
   vatAmount?: number;
   totalAmount: number;

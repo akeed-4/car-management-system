@@ -222,14 +222,19 @@ export class AddAccountComponent implements OnChanges, OnInit, OnDestroy {
     5: 'EXPENSE',
   };
 
-  /** Unlock lets an advanced user type their own number (stops auto-fill from clobbering it);
-   *  re-locking restores auto-generation immediately from the current parent/root context. */
+  /** Unlock makes the field editable so an advanced user CAN type their own number -- it does
+   *  NOT by itself count as a manual edit (the accountCode valueChanges subscriber already flips
+   *  codeManuallyEdited the moment the user actually types a different value). Leaving auto-fill
+   *  active until a real edit happens means the code keeps tracking the selected parent if the
+   *  user unlocks but then changes the parent before typing anything -- previously, unlocking
+   *  alone froze the field at its last auto-filled value (e.g. the root-level default), so
+   *  picking a parent afterward left a stale code that no longer matched it, and Save failed with
+   *  the backend's AccountCodeParentMismatch error.
+   *  Re-locking restores auto-generation immediately from the current parent/root context. */
   toggleCodeLock(): void {
     if (this.isEditing || this.hasPostedTransactions) return;
     this.isCodeLocked = !this.isCodeLocked;
-    if (!this.isCodeLocked) {
-      this.codeManuallyEdited = true;
-    } else {
+    if (this.isCodeLocked) {
       this.codeManuallyEdited = false;
       const selection = this.accountForm.get('accountTypeSelection')?.value;
       this.fetchAndFillNextCode(selection === 'main' ? null : this.accountForm.get('parentId')?.value ?? null);
