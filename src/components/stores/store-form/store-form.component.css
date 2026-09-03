@@ -1,3 +1,45 @@
-/* Store form -- page shell, header, card, sections, form grid and actions bar
-   all come from the shared Phase 5 form design system
-   (src/styles/form-system.css: .erp-* classes). No screen-specific styles remain. */
+/* Store form -- page shell, header, card, sections, form grid and actions bar all come from the
+   shared Phase 5 form design system (src/styles/form-system.css: .erp-* classes), sized for a
+   full routed page (/setup/stores/new|edit). When this same component renders inside a
+   MatDialog (store-list.component.ts's onCreate/onEdit) those page-oriented defaults --
+   max-width: 1280px page shell, a bordered/shadowed card nested inside the dialog's own
+   surface, generous page padding -- read as an oversized, over-padded popup. These overrides
+   only apply :host-context(.mat-mdc-dialog-container), so the routed-page appearance is
+   untouched. */
+
+:host-context(.mat-mdc-dialog-container) .erp-page {
+  max-width: none;
+  padding: 0;
+}
+
+/* The dialog surface already provides the card-like boundary -- drop the shared .erp-card's own
+   border/shadow/radius here to avoid a redundant "box inside a box". */
+:host-context(.mat-mdc-dialog-container) .erp-card {
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+:host-context(.mat-mdc-dialog-container) .erp-page-header {
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--border-default);
+}
+
+:host-context(.mat-mdc-dialog-container) .erp-page-title {
+  font-size: 1.1rem;
+}
+
+/* Subtitle repeats what the title already says ("Add/Edit Store") -- redundant in a compact
+   dialog where every line of vertical space matters; kept on the full page. */
+:host-context(.mat-mdc-dialog-container) .erp-page-subtitle {
+  display: none;
+}
+
+:host-context(.mat-mdc-dialog-container) .erp-section {
+  padding: var(--space-3) var(--space-4);
+}
+
+:host-context(.mat-mdc-dialog-container) .erp-actions-bar {
+  padding: var(--space-3) var(--space-4);
+}

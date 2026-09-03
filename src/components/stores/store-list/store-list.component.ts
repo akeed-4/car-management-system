@@ -119,8 +119,9 @@ constructor(){
 
   onCreate(): void {
     const dialogRef = this.dialog.open(StoreFormComponent, {
-    width: '1400px',
-      height: '80%',
+      width: '720px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
       data: null,
       panelClass: 'responsive-dialog-panel'
     });
@@ -134,8 +135,9 @@ constructor(){
 
   onEdit(store: any): void {
     const dialogRef = this.dialog.open(StoreFormComponent, {
-      width: '1400px',
-      height: '90%',
+      width: '720px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
       data: store.row.data.id,
       panelClass: 'responsive-dialog-panel'
     });
