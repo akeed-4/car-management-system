@@ -24,6 +24,24 @@
   padding-top: var(--space-3, 0.75rem);
 }
 
+/* Tab header polish: align it with the rest of the document's ERP look (token-based, thin
+   underline, uppercase labels) instead of Material's stock tab bar. */
+.invoice-tab-group ::ng-deep .mat-mdc-tab-header {
+  border-bottom: 1px solid var(--border-default);
+  margin-bottom: var(--space-2, 0.5rem);
+}
+
+.invoice-tab-group ::ng-deep .mat-mdc-tab .mdc-tab__text-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+}
+
+.invoice-tab-group ::ng-deep .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
+  color: var(--color-primary-600);
+}
+
 .additional-costs-tab {
   padding: 0 var(--space-1, 0.25rem);
 }
@@ -104,7 +122,7 @@
   gap: var(--space-4, 1rem);
   padding: 0.6rem var(--space-4, 1rem);
   margin-bottom: var(--space-3, 0.75rem);
-  background: var(--surface-card);
+  background: color-mix(in srgb, var(--color-primary-500) 5%, var(--surface-card));
   border: 1px solid var(--border-default);
   border-inline-start: 4px solid var(--color-primary-500);
   border-radius: var(--rounded-lg, 8px);
@@ -291,6 +309,11 @@
    dark mode needs no screen-local overrides here -- only the denser padding is specific. */
 .doc-card {
   padding: var(--space-4, 1rem);
+  transition: box-shadow 0.15s ease;
+}
+
+.doc-card:focus-within {
+  box-shadow: var(--shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1));
 }
 
 .form-section {
@@ -312,6 +335,34 @@
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
+}
+
+/* --- Line items empty state: points at the primary "Select Car" action instead of a bare grid --- */
+.lines-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2.5rem 1rem;
+  border: 2px dashed var(--border-default);
+  border-radius: var(--rounded-lg, 8px);
+  background: var(--surface-sunken);
+  text-align: center;
+}
+
+.lines-empty-icon {
+  font-size: 2.25rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  color: var(--text-muted);
+}
+
+.lines-empty-text {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  font-weight: 500;
 }
 
 .line-count-badge {
@@ -528,6 +579,9 @@ mat-form-field.mat-form-field {
 }
 
 .summary-card mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   padding: 0 !important;
   margin: 0 0 var(--space-2, 0.5rem) !important;
   font-size: 0.78rem;
@@ -535,6 +589,12 @@ mat-form-field.mat-form-field {
   letter-spacing: 0.5px;
   text-transform: uppercase;
   color: var(--text-secondary);
+}
+
+.summary-card mat-card-title .erp-section-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
 }
 
 .summary-card mat-card-content {

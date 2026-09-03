@@ -72,7 +72,10 @@
 
               <!-- LEFT: document identity + customer -->
               <div class="header-col">
-                <h3 class="erp-section-title form-section-title">{{ 'INVOICE.CUSTOMER_SECTION' | translate }}</h3>
+                <h3 class="erp-section-title form-section-title">
+                  <mat-icon class="erp-section-icon">person</mat-icon>
+                  {{ 'INVOICE.CUSTOMER_SECTION' | translate }}
+                </h3>
                 <div class="stacked-fields">
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'INVOICE.INVOICE_NUMBER' | translate }}</mat-label>
@@ -117,7 +120,10 @@
               <!-- RIGHT: payment / discount / classification + the Revenue Account (the only
                    account this document exposes -- see the comment this replaces below). -->
               <div class="header-col">
-                <h3 class="erp-section-title form-section-title">{{ 'INVOICE.PAYMENT_SECTION' | translate }}</h3>
+                <h3 class="erp-section-title form-section-title">
+                  <mat-icon class="erp-section-icon">payments</mat-icon>
+                  {{ 'INVOICE.PAYMENT_SECTION' | translate }}
+                </h3>
                 <div class="payment-fields-grid">
                   <!-- Payment Method has no UI of its own: Payment Type below is the single payment
                        selector the user picks from, and Payment Method is derived from it
@@ -220,7 +226,10 @@
 
           <!-- Requirement 2: Cash Amount Calculator (cash sales) -->
           <section class="erp-section form-section" *ngIf="saleType === SaleType.Cash">
-            <h3 class="erp-section-title form-section-title">{{ 'CASH_CALCULATOR.TITLE' | translate }}</h3>
+            <h3 class="erp-section-title form-section-title">
+              <mat-icon class="erp-section-icon">account_balance_wallet</mat-icon>
+              {{ 'CASH_CALCULATOR.TITLE' | translate }}
+            </h3>
 
             <!-- Settlement leg for CASH sales: Dr Payment Account / Cr Revenue. Options are
                  active, postable, Cash/Bank-classified accounts from the existing backend
@@ -253,7 +262,10 @@
                backend falls back to its default Cash account when left blank. Hidden entirely
                when there's no down payment at all (single AR line, no cash leg to speak of). -->
           <section class="erp-section form-section" *ngIf="hasDownPayment()">
-            <h3 class="erp-section-title form-section-title">{{ 'ACCOUNTING.DOWN_PAYMENT_ACCOUNT_SECTION' | translate }}</h3>
+            <h3 class="erp-section-title form-section-title">
+              <mat-icon class="erp-section-icon">savings</mat-icon>
+              {{ 'ACCOUNTING.DOWN_PAYMENT_ACCOUNT_SECTION' | translate }}
+            </h3>
             <div class="field-with-add">
               <mat-form-field appearance="outline" class="full-width form-field">
                 <mat-label>{{ 'ACCOUNTING.PAYMENT_ACCOUNT' | translate }}</mat-label>
@@ -278,6 +290,7 @@
           <div class="erp-card doc-card lines-card">
             <div class="section-header">
               <h3 class="erp-section-title form-section-title">
+                <mat-icon class="erp-section-icon">directions_car</mat-icon>
                 {{ 'PURCHASE_INVOICE.SELECT_CAR_CARD' | translate }}
                 <span class="line-count-badge" *ngIf="invoiceItems().length > 0">{{ invoiceItems().length }}</span>
               </h3>
@@ -287,8 +300,19 @@
               </button>
             </div>
 
+            <!-- Empty state: guides the user to the primary action instead of showing a bare
+                 empty grid before any line has been added. -->
+            <div class="lines-empty-state" *ngIf="invoiceItems().length === 0">
+              <mat-icon class="lines-empty-icon">directions_car</mat-icon>
+              <p class="lines-empty-text">{{ 'INVOICE.NO_ITEMS' | translate }}</p>
+              <button mat-stroked-button color="primary" type="button" (click)="toggleCarCards()">
+                <mat-icon>add</mat-icon>
+                {{ 'PURCHASE_INVOICE.SELECT_CAR' | translate }}
+              </button>
+            </div>
+
             <!-- BAND 3: INVOICE LINE ITEMS GRID -->
-            <div class="erp-grid-card table-container premium-table">
+            <div class="erp-grid-card table-container premium-table" *ngIf="invoiceItems().length > 0">
               <dx-data-grid
                 [dataSource]="invoiceItems()"
                 keyExpr="lineKey"
@@ -336,7 +360,10 @@
       <!-- Sticky summary rail: totals + primary actions stay visible without scrolling the page. -->
       <aside class="workspace-sidebar">
         <mat-card class="summary-card">
-          <mat-card-title>{{ 'INVOICE.INVOICE_SUMMARY' | translate }}</mat-card-title>
+          <mat-card-title>
+            <mat-icon class="erp-section-icon">receipt_long</mat-icon>
+            {{ 'INVOICE.INVOICE_SUMMARY' | translate }}
+          </mat-card-title>
           <mat-card-content>
             <!-- Shared totals block (DocumentTotalsComponent) -- the same component every other
                  document screen uses. Rows are built in totalsRows() from the same computed
@@ -358,7 +385,10 @@
              so it's reachable without scrolling past the line-items grid. -->
         <div class="erp-card doc-card notes-card">
           <section class="erp-section form-section notes-section">
-            <h3 class="erp-section-title form-section-title">{{ 'INVOICE.NOTES' | translate }}</h3>
+            <h3 class="erp-section-title form-section-title">
+              <mat-icon class="erp-section-icon">sticky_note_2</mat-icon>
+              {{ 'INVOICE.NOTES' | translate }}
+            </h3>
             <mat-form-field appearance="outline" class="full-width">
               <textarea matInput rows="12" formControlName="notes" placeholder="{{ 'INVOICE.NOTES_PLACEHOLDER' | translate }}"></textarea>
             </mat-form-field>
