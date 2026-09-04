@@ -29,6 +29,5 @@
 ::ng-deep .dx-datagrid .dx-row td[aria-colindex="6"],
 ::ng-deep .dx-datagrid .dx-row td[aria-colindex="7"],
 ::ng-deep .dx-datagrid .dx-row td[aria-colindex="8"] {
-  font-family: 'Courier New', monospace;
   font-weight: 500;
 }

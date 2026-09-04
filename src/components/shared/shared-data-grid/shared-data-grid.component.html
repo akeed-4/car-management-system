@@ -124,7 +124,7 @@
             [matTooltip]="labelOf(action)"
             [attr.aria-label]="labelOf(action)"
             (click)="doAction(action, cell.data, $event)">
-            <mat-icon>{{ action.icon }}</mat-icon>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="actionIconMarkup(action.icon)"></svg>
           </button>
         }
       </div>

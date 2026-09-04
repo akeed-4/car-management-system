@@ -66,7 +66,12 @@
       <!-- Mobile per-row action (projected first so SharedDataGrid's ContentChild
            picks it up as the mobile actions template, not the cell template below). -->
       <ng-template let-item>
-        <button type="button" class="btn btn-light" (click)="mobileEdit(item)">{{ 'COMMON.EDIT' | translate }}</button>
+        <!-- Mobile card keeps a single action pointed at the invoice (View) rather than mirroring
+             both the desktop grid's 'view' and 'edit' icons -- same destination, avoids two
+             identical-behavior buttons crowding the card on a small screen. -->
+        <button *ngIf="permissionService.hasPermission('sales.cash.view')" type="button" class="btn btn-light" (click)="mobileEdit(item)">{{ 'COMMON.VIEW' | translate }}</button>
+        <button *ngIf="permissionService.hasPermission('sales.cash.view')" type="button" class="btn btn-light" (click)="mobilePrint(item)">{{ 'COMMON.PRINT' | translate }}</button>
+        <button *ngIf="permissionService.hasPermission('sales.cash.view')" type="button" class="btn btn-light" (click)="mobileDelete(item)">{{ 'COMMON.DELETE' | translate }}</button>
       </ng-template>
 
       <!-- Status badge (same classes/labels as before) -->

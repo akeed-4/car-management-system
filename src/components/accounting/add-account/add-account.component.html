@@ -236,7 +236,7 @@
           </h3>
 
           <div class="erp-form-grid">
-            <mat-form-field appearance="outline" class="form-field">
+            <mat-form-field appearance="outline" class="form-field erp-span-2">
               <mat-label>{{ 'ACCOUNTING.ACCOUNT_CODE' | translate }}</mat-label>
               <input matInput formControlName="accountCode" required dir="ltr" style="text-align: start;" [readonly]="codeReadonly">
               <mat-icon matPrefix>tag</mat-icon>
@@ -254,31 +254,38 @@
               <mat-error *ngIf="accountForm.get('accountCode')?.invalid">{{ 'ACCOUNTING.CODE_REQUIRED' | translate }}</mat-error>
             </mat-form-field>
 
-            <mat-form-field appearance="outline" class="form-field erp-span-2">
+            <!-- Name (Arabic) / Name (English) side by side -- each takes one of the grid's two
+                 columns instead of its own full-width row, so the pair reads as one compact row. -->
+            <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'ACCOUNTING.ACCOUNT_NAME_AR' | translate }}</mat-label>
               <input matInput formControlName="accountNameAr">
               <mat-icon matPrefix>label</mat-icon>
               <mat-hint>{{ 'ACCOUNTING.OPTIONAL_FIELD' | translate }}</mat-hint>
             </mat-form-field>
 
-            <mat-form-field appearance="outline" class="form-field erp-span-2">
+            <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'ACCOUNTING.ACCOUNT_NAME_EN' | translate }}</mat-label>
               <input matInput formControlName="accountNameEn" required>
               <mat-icon matPrefix>label</mat-icon>
               <mat-error *ngIf="accountForm.get('accountNameEn')?.invalid">{{ 'ACCOUNTING.NAME_REQUIRED' | translate }}</mat-error>
             </mat-form-field>
 
-            <mat-form-field appearance="outline" class="form-field erp-span-2">
-              <mat-label>{{ 'ACCOUNTING.ACCOUNT_TYPE' | translate }}</mat-label>
-              <mat-select formControlName="accountTypeId" required>
-                <mat-option [value]="1">{{ 'ACCOUNTING.TYPE_ASSET' | translate }}</mat-option>
-                <mat-option [value]="2">{{ 'ACCOUNTING.TYPE_LIABILITY' | translate }}</mat-option>
-                <mat-option [value]="3">{{ 'ACCOUNTING.TYPE_EQUITY' | translate }}</mat-option>
-                <mat-option [value]="4">{{ 'ACCOUNTING.TYPE_REVENUE' | translate }}</mat-option>
-                <mat-option [value]="5">{{ 'ACCOUNTING.TYPE_EXPENSE' | translate }}</mat-option>
-              </mat-select>
-              <mat-icon matPrefix>category</mat-icon>
-            </mat-form-field>
+          </div>
+
+          <!-- Visual classification selector -- replaces the old plain dropdown. Same
+               accountTypeId control/values (1..5), just a clearer at-a-glance picker. -->
+          <div class="classification-field">
+            <label class="classification-label">{{ 'ACCOUNTING.ACCOUNT_TYPE' | translate }}</label>
+            <p class="section-subtitle">{{ 'ACCOUNTING.ACCOUNT_TYPE_DESC' | translate }}</p>
+            <div class="classification-grid">
+              <button type="button" *ngFor="let opt of accountTypeOptions"
+                class="classification-chip"
+                [class.selected]="accountForm.get('accountTypeId')?.value === opt.value"
+                (click)="accountForm.get('accountTypeId')?.setValue(opt.value)">
+                <mat-icon>{{ opt.icon }}</mat-icon>
+                <span>{{ opt.labelKey | translate }}</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -316,14 +323,16 @@
                 <mat-error *ngIf="accountForm.get('accountCode')?.invalid">{{ 'ACCOUNTING.CODE_REQUIRED' | translate }}</mat-error>
               </mat-form-field>
 
-              <mat-form-field appearance="outline" class="form-field erp-span-2">
+              <!-- Name (Arabic) / Name (English) side by side -- each takes one of the grid's two
+                   columns instead of its own full-width row, so the pair reads as one compact row. -->
+              <mat-form-field appearance="outline" class="form-field">
                 <mat-label>{{ 'ACCOUNTING.ACCOUNT_NAME_AR' | translate }}</mat-label>
                 <input matInput formControlName="accountNameAr" required>
                 <mat-icon matPrefix>label</mat-icon>
                 <mat-error *ngIf="accountForm.get('accountNameAr')?.invalid">{{ 'ACCOUNTING.NAME_REQUIRED' | translate }}</mat-error>
               </mat-form-field>
 
-              <mat-form-field appearance="outline" class="form-field erp-span-2">
+              <mat-form-field appearance="outline" class="form-field">
                 <mat-label>{{ 'ACCOUNTING.ACCOUNT_NAME_EN' | translate }}</mat-label>
                 <input matInput formControlName="accountNameEn" required>
                 <mat-icon matPrefix>label</mat-icon>
@@ -434,17 +443,20 @@
               {{ 'ACCOUNTING.INTEGRATION' | translate }}
             </h3>
 
-            <div class="erp-form-grid">
-              <mat-form-field appearance="outline" class="form-field">
-                <mat-label>{{ 'ACCOUNTING.ENTITY_TYPE' | translate }}</mat-label>
-                <mat-select formControlName="entityType">
-                  <mat-option value="none">{{ 'ACCOUNTING.ENTITY_TYPE_NONE' | translate }}</mat-option>
-                  <mat-option value="customer">{{ 'ACCOUNTING.ENTITY_TYPE_CUSTOMER' | translate }}</mat-option>
-                  <mat-option value="supplier">{{ 'ACCOUNTING.ENTITY_TYPE_SUPPLIER' | translate }}</mat-option>
-                  <mat-option value="bank">{{ 'ACCOUNTING.ENTITY_TYPE_BANK' | translate }}</mat-option>
-                </mat-select>
-                <mat-icon matPrefix>link</mat-icon>
-              </mat-form-field>
+            <!-- Link Type -- visual selector (replaces the old plain dropdown). Customer, Supplier
+                 and Bank each get the same picker + auto-loaded read-only preview treatment below. -->
+            <div class="section-header">
+              <h4 class="link-type-title">{{ 'ACCOUNTING.LINK_TYPE' | translate }}</h4>
+              <p class="section-subtitle">{{ 'ACCOUNTING.LINK_TYPE_DESC' | translate }}</p>
+            </div>
+            <div class="link-type-grid">
+              <button type="button" *ngFor="let opt of linkTypeOptions"
+                class="link-type-chip"
+                [class.selected]="accountForm.get('entityType')?.value === opt.value"
+                (click)="accountForm.get('entityType')?.setValue(opt.value)">
+                <mat-icon>{{ opt.icon }}</mat-icon>
+                <span>{{ opt.labelKey | translate }}</span>
+              </button>
             </div>
 
             <!-- Customer -->
@@ -464,16 +476,60 @@
                 </mat-form-field>
               </div>
 
-              <div class="erp-form-grid" *ngIf="!accountForm.get('createNewClient')?.value">
-                <mat-form-field appearance="outline" class="form-field">
-                  <mat-label>{{ 'ACCOUNTING.LINK_EXISTING_CUSTOMER' | translate }}</mat-label>
-                  <mat-select formControlName="customerId">
-                    <mat-option [value]="null">{{ 'ACCOUNTING.SEARCH_ENTITY_PLACEHOLDER' | translate }}</mat-option>
-                    <mat-option *ngFor="let customer of customers()" [value]="customer.id">{{ customer.name }}</mat-option>
-                  </mat-select>
-                  <mat-icon matPrefix>person</mat-icon>
-                </mat-form-field>
-              </div>
+              <ng-container *ngIf="!accountForm.get('createNewClient')?.value">
+                <div class="erp-form-grid">
+                  <mat-form-field appearance="outline" class="form-field">
+                    <mat-label>{{ 'ACCOUNTING.LINK_EXISTING_CUSTOMER' | translate }}</mat-label>
+                    <mat-select formControlName="customerId">
+                      <mat-option [value]="null">{{ 'ACCOUNTING.SEARCH_ENTITY_PLACEHOLDER' | translate }}</mat-option>
+                      <mat-option *ngFor="let customer of customers()" [value]="customer.id">{{ customer.name }}</mat-option>
+                    </mat-select>
+                    <mat-icon matPrefix>person</mat-icon>
+                  </mat-form-field>
+                </div>
+
+                <!-- Auto-loaded preview of the selected customer's existing data -- refreshes on
+                     every selection change via loadCustomerDetails (customerId valueChanges). -->
+                <div class="linked-entity-loading" *ngIf="loadingCustomerDetails">
+                  <mat-spinner diameter="18"></mat-spinner>
+                  <span>{{ 'ACCOUNTING.LOADING_DETAILS' | translate }}</span>
+                </div>
+                <div class="linked-entity-card" *ngIf="!loadingCustomerDetails && selectedCustomerDetails as customer">
+                  <div class="linked-entity-header">
+                    <mat-icon>person</mat-icon>
+                    <span>{{ 'ACCOUNTING.LINKED_DETAILS_TITLE' | translate }}</span>
+                  </div>
+                  <dl class="linked-entity-grid">
+                    <div class="linked-entity-item">
+                      <dt>{{ 'ACCOUNTING.DETAIL_NAME' | translate }}</dt>
+                      <dd>{{ customer.name || '—' }}</dd>
+                    </div>
+                    <div class="linked-entity-item">
+                      <dt>{{ 'ACCOUNTING.DETAIL_PHONE' | translate }}</dt>
+                      <dd dir="ltr">{{ customer.phone || '—' }}</dd>
+                    </div>
+                    <div class="linked-entity-item">
+                      <dt>{{ 'ACCOUNTING.DETAIL_EMAIL' | translate }}</dt>
+                      <dd>{{ customer.email || '—' }}</dd>
+                    </div>
+                    <div class="linked-entity-item">
+                      <dt>{{ 'ACCOUNTING.DETAIL_NATIONAL_ID' | translate }}</dt>
+                      <dd dir="ltr">{{ customer.nationalId || '—' }}</dd>
+                    </div>
+                    <div class="linked-entity-item linked-entity-span-2">
+                      <dt>{{ 'ACCOUNTING.DETAIL_ADDRESS' | translate }}</dt>
+                      <dd>{{ customer.address || '—' }}</dd>
+                    </div>
+                  </dl>
+                  <p class="linked-entity-hint">
+                    <mat-icon>info</mat-icon>
+                    {{ 'ACCOUNTING.LINKED_DETAILS_HINT' | translate }}
+                  </p>
+                </div>
+                <p class="linked-entity-empty" *ngIf="!loadingCustomerDetails && !selectedCustomerDetails">
+                  {{ 'ACCOUNTING.SELECT_CUSTOMER_TO_PREVIEW' | translate }}
+                </p>
+              </ng-container>
             </ng-container>
 
             <!-- Supplier -->
@@ -493,37 +549,132 @@
                 </mat-form-field>
               </div>
 
-              <div class="erp-form-grid" *ngIf="!accountForm.get('createNewSupplier')?.value">
-                <mat-form-field appearance="outline" class="form-field">
-                  <mat-label>{{ 'ACCOUNTING.LINK_EXISTING_SUPPLIER' | translate }}</mat-label>
-                  <mat-select formControlName="supplierId">
-                    <mat-option [value]="null">{{ 'ACCOUNTING.SEARCH_ENTITY_PLACEHOLDER' | translate }}</mat-option>
-                    <mat-option *ngFor="let supplier of suppliers()" [value]="supplier.id">{{ supplier.name }}</mat-option>
-                  </mat-select>
-                  <mat-icon matPrefix>store</mat-icon>
-                </mat-form-field>
-              </div>
+              <ng-container *ngIf="!accountForm.get('createNewSupplier')?.value">
+                <div class="erp-form-grid">
+                  <mat-form-field appearance="outline" class="form-field">
+                    <mat-label>{{ 'ACCOUNTING.LINK_EXISTING_SUPPLIER' | translate }}</mat-label>
+                    <mat-select formControlName="supplierId">
+                      <mat-option [value]="null">{{ 'ACCOUNTING.SEARCH_ENTITY_PLACEHOLDER' | translate }}</mat-option>
+                      <mat-option *ngFor="let supplier of suppliers()" [value]="supplier.id">{{ supplier.name }}</mat-option>
+                    </mat-select>
+                    <mat-icon matPrefix>store</mat-icon>
+                  </mat-form-field>
+                </div>
+
+                <!-- Auto-loaded preview of the selected supplier's existing data -- refreshes on
+                     every selection change via loadSupplierDetails (supplierId valueChanges). -->
+                <div class="linked-entity-loading" *ngIf="loadingSupplierDetails">
+                  <mat-spinner diameter="18"></mat-spinner>
+                  <span>{{ 'ACCOUNTING.LOADING_DETAILS' | translate }}</span>
+                </div>
+                <div class="linked-entity-card" *ngIf="!loadingSupplierDetails && selectedSupplierDetails as supplier">
+                  <div class="linked-entity-header">
+                    <mat-icon>store</mat-icon>
+                    <span>{{ 'ACCOUNTING.LINKED_DETAILS_TITLE' | translate }}</span>
+                  </div>
+                  <dl class="linked-entity-grid">
+                    <div class="linked-entity-item">
+                      <dt>{{ 'ACCOUNTING.DETAIL_NAME' | translate }}</dt>
+                      <dd>{{ supplier.name || '—' }}</dd>
+                    </div>
+                    <div class="linked-entity-item">
+                      <dt>{{ 'ACCOUNTING.DETAIL_PHONE' | translate }}</dt>
+                      <dd dir="ltr">{{ supplier.phone || '—' }}</dd>
+                    </div>
+                    <div class="linked-entity-item">
+                      <dt>{{ 'ACCOUNTING.DETAIL_EMAIL' | translate }}</dt>
+                      <dd>{{ supplier.email || '—' }}</dd>
+                    </div>
+                    <div class="linked-entity-item">
+                      <dt>{{ 'ACCOUNTING.DETAIL_TAX_NUMBER' | translate }}</dt>
+                      <dd dir="ltr">{{ supplier.taxNumber || '—' }}</dd>
+                    </div>
+                    <div class="linked-entity-item">
+                      <dt>{{ 'ACCOUNTING.DETAIL_CR_NUMBER' | translate }}</dt>
+                      <dd dir="ltr">{{ supplier.crNumber || '—' }}</dd>
+                    </div>
+                    <div class="linked-entity-item linked-entity-span-2">
+                      <dt>{{ 'ACCOUNTING.DETAIL_ADDRESS' | translate }}</dt>
+                      <dd>{{ supplier.address || '—' }}</dd>
+                    </div>
+                  </dl>
+                  <p class="linked-entity-hint">
+                    <mat-icon>info</mat-icon>
+                    {{ 'ACCOUNTING.LINKED_DETAILS_HINT' | translate }}
+                  </p>
+                </div>
+                <p class="linked-entity-empty" *ngIf="!loadingSupplierDetails && !selectedSupplierDetails">
+                  {{ 'ACCOUNTING.SELECT_SUPPLIER_TO_PREVIEW' | translate }}
+                </p>
+              </ng-container>
             </ng-container>
 
             <!-- Bank -->
             <ng-container *ngIf="accountForm.get('entityType')?.value === 'bank'">
               <div class="acc-check-row">
-                <mat-checkbox formControlName="createNewBank">{{ 'ACCOUNTING.CREATE_NEW_BANK' | translate }}</mat-checkbox>
+                <mat-checkbox formControlName="createNewBank" (change)="onCreateAutomaticallyChange($event.checked)">
+                  {{ 'ACCOUNTING.CREATE_NEW_BANK' | translate }}
+                </mat-checkbox>
               </div>
 
-              <div class="erp-form-grid" *ngIf="!accountForm.get('createNewBank')?.value">
-                <mat-form-field appearance="outline" class="form-field">
-                  <mat-label>{{ 'ACCOUNTING.BANK_ID' | translate }}</mat-label>
-                  <input matInput type="number" formControlName="bankId">
-                  <mat-icon matPrefix>account_balance</mat-icon>
-                </mat-form-field>
+              <ng-container *ngIf="!accountForm.get('createNewBank')?.value">
+                <div class="erp-form-grid">
+                  <mat-form-field appearance="outline" class="form-field">
+                    <mat-label>{{ 'ACCOUNTING.LINK_EXISTING_BANK' | translate }}</mat-label>
+                    <mat-select formControlName="bankId">
+                      <mat-option [value]="null">{{ 'ACCOUNTING.SEARCH_ENTITY_PLACEHOLDER' | translate }}</mat-option>
+                      <mat-option *ngFor="let bank of banks" [value]="bank.id">{{ bank.bankNameEnglish }}</mat-option>
+                    </mat-select>
+                    <mat-icon matPrefix>account_balance</mat-icon>
+                  </mat-form-field>
+                </div>
 
-                <mat-form-field appearance="outline" class="form-field">
-                  <mat-label>{{ 'ACCOUNTING.BANK_NAME' | translate }}</mat-label>
-                  <input matInput formControlName="bankName">
-                  <mat-icon matPrefix>account_balance_wallet</mat-icon>
-                </mat-form-field>
-              </div>
+                <!-- Auto-loaded preview of the selected bank's existing data -- refreshes on every
+                     selection change via loadBankDetails (bankId valueChanges). -->
+                <div class="linked-entity-loading" *ngIf="loadingBankDetails">
+                  <mat-spinner diameter="18"></mat-spinner>
+                  <span>{{ 'ACCOUNTING.LOADING_DETAILS' | translate }}</span>
+                </div>
+                <div class="linked-entity-card" *ngIf="!loadingBankDetails && selectedBankDetails as bank">
+                  <div class="linked-entity-header">
+                    <mat-icon>account_balance</mat-icon>
+                    <span>{{ 'ACCOUNTING.LINKED_DETAILS_TITLE' | translate }}</span>
+                  </div>
+                  <dl class="linked-entity-grid">
+                    <div class="linked-entity-item">
+                      <dt>{{ 'ACCOUNTING.DETAIL_NAME' | translate }}</dt>
+                      <dd>{{ bank.bankNameEnglish || bank.bankNameArabic || '—' }}</dd>
+                    </div>
+                    <div class="linked-entity-item">
+                      <dt>{{ 'ACCOUNTING.DETAIL_PHONE' | translate }}</dt>
+                      <dd dir="ltr">{{ bank.phone || '—' }}</dd>
+                    </div>
+                    <div class="linked-entity-item">
+                      <dt>{{ 'ACCOUNTING.DETAIL_EMAIL' | translate }}</dt>
+                      <dd>{{ bank.email || '—' }}</dd>
+                    </div>
+                    <div class="linked-entity-item">
+                      <dt>{{ 'ACCOUNTING.DETAIL_SWIFT_CODE' | translate }}</dt>
+                      <dd dir="ltr">{{ bank.swiftCode || '—' }}</dd>
+                    </div>
+                    <div class="linked-entity-item">
+                      <dt>{{ 'ACCOUNTING.DETAIL_IBAN_PREFIX' | translate }}</dt>
+                      <dd dir="ltr">{{ bank.ibanPrefix || '—' }}</dd>
+                    </div>
+                    <div class="linked-entity-item">
+                      <dt>{{ 'ACCOUNTING.DETAIL_COUNTRY' | translate }}</dt>
+                      <dd>{{ bank.country || '—' }}</dd>
+                    </div>
+                  </dl>
+                  <p class="linked-entity-hint">
+                    <mat-icon>info</mat-icon>
+                    {{ 'ACCOUNTING.LINKED_DETAILS_HINT' | translate }}
+                  </p>
+                </div>
+                <p class="linked-entity-empty" *ngIf="!loadingBankDetails && !selectedBankDetails">
+                  {{ 'ACCOUNTING.SELECT_BANK_TO_PREVIEW' | translate }}
+                </p>
+              </ng-container>
             </ng-container>
 
             <!-- Update-only: opt-in name sync when the account is already linked -->

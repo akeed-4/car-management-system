@@ -208,7 +208,7 @@ export class InvoicePrintDataService {
       case 'sales':
         return this.mapSales(base, invoice as SalesInvoice, company, invoiceClassifications);
       case 'purchase':
-        return this.mapPurchase(base, invoice as PurchaseInvoice, company);
+        return this.mapPurchase(base, invoice as PurchaseInvoice, company, invoiceClassifications);
       case 'service':
         return this.mapService(base, invoice as ServiceInvoice, company);
     }
@@ -340,11 +340,30 @@ export class InvoicePrintDataService {
     base: Omit<InvoicePrintData, 'party' | 'items' | 'totals' | 'metaCells' | 'paymentTerms' | 'qr'>,
     inv: PurchaseInvoice,
     company: Company | null,
+    invoiceClassifications: { value: number; label: string; vatRate: number }[] = [],
   ): InvoicePrintData {
     const hasPersistedBreakdown = inv.subtotal != null && inv.vatAmount != null;
-    const taxableAmount = hasPersistedBreakdown ? inv.subtotal! : inv.totalAmount / 1.15;
-    const vatAmount = hasPersistedBreakdown ? inv.vatAmount! : inv.totalAmount - taxableAmount;
-    const rate = taxableAmount > 0 ? Math.round((vatAmount / taxableAmount) * 100) : 0;
+    // Persisted subtotal/vatAmount are trusted for the real, backend-computed money split, but a
+    // persisted vatAmount of exactly 0 is indistinguishable from "the rate was never stamped" vs.
+    // "genuinely zero-rated/exempt" -- same root cause mapSales already guards against (see its own
+    // doc comment above). Recover the true rate the same way: the invoice's own ClassificationId
+    // first, then an amount-derived rate, then the invoiceType guess -- never trust a stored 0 at
+    // face value when a classification says tax should apply. Only when NEITHER subtotal nor
+    // vatAmount was ever persisted do we fall back to backing the taxable amount out of totalAmount
+    // at the recovered rate.
+    const persistedTaxableAmount = hasPersistedBreakdown ? inv.subtotal! : undefined;
+    const persistedVatAmount = hasPersistedBreakdown ? inv.vatAmount! : undefined;
+    const classificationVatRate = invoiceClassifications.find(c => c.value === inv.ClassificationId)?.vatRate;
+    const amountDerivedVatRate =
+      persistedVatAmount && persistedVatAmount > 0 && persistedTaxableAmount && persistedTaxableAmount > 0
+        ? Math.round((persistedVatAmount / persistedTaxableAmount) * 100)
+        : undefined;
+    const rate =
+      classificationVatRate ||
+      amountDerivedVatRate ||
+      this.calc.resolveVatRate(null, inv.invoiceType ?? null);
+    const taxableAmount = persistedTaxableAmount ?? (rate > 0 ? inv.totalAmount / (1 + rate / 100) : inv.totalAmount);
+    const vatAmount = persistedVatAmount && persistedVatAmount > 0 ? persistedVatAmount : this.calc.calculateVatAmount(taxableAmount, rate);
 
     const items: InvoicePrintLineItem[] = (inv.items ?? []).map(item => ({
       description: item.carDescription,

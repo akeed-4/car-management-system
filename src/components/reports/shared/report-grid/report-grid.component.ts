@@ -52,6 +52,23 @@ export class ReportGridComponent implements OnInit {
     @Input() keyExpr: string = 'id';
     @ViewChild(DxDataGridComponent, { static: false }) dataGrid!: DxDataGridComponent;
 
+    /** Omit to auto-detect from the document's direction (matches SharedDataGridComponent's own
+     *  resolvedRtl -- the same fallback used app-wide). Explicitly setting DevExtreme's own
+     *  rtlEnabled option (not just wrapping the grid in a dir="rtl" container) matters: dx-data-grid
+     *  computes column/cell positions itself rather than through simple CSS table layout, so without
+     *  this the widget lays out columns left-to-right internally while the surrounding page mirrors
+     *  the container visually -- headers (drawn per the LTR internal order) and virtualized data
+     *  cells can then drift out of alignment column-by-column even though the columns config itself
+     *  is correct. This @Input previously existed only in the template (`[rtlEnabled]="rtlEnabled"`)
+     *  with no matching class member, so it silently resolved to undefined/false on every report
+     *  using this shared grid. */
+    @Input() rtlEnabled?: boolean;
+
+    /** Resolved value actually passed to dx-data-grid -- see rtlEnabled's doc comment. */
+    get resolvedRtl(): boolean {
+        return this.rtlEnabled ?? document?.documentElement?.dir === 'rtl';
+    }
+
     @Input() showBorders: boolean = true;
     @Input() showRowLines: boolean = true;
     @Input() showColumnLines: boolean = true;
@@ -81,9 +98,25 @@ export class ReportGridComponent implements OnInit {
     @Input() stateStorageKey: string = '';
 
     /** Full localStorage key actually passed to dxo-state-storing -- prefixed so it can never
-     *  collide with an unrelated key some other part of the app happens to also store under. */
+     *  collide with an unrelated key some other part of the app happens to also store under, and
+     *  suffixed with a signature of the current columns' dataFields (order included). Without that
+     *  signature, a layout persisted under this key for an OLDER shape of `columns` (a field added,
+     *  removed, or reordered in a later code change) gets silently restored on top of the CURRENT
+     *  column definitions -- DevExtreme reapplies the old order/visibility array positionally, so
+     *  headers (rendered from the current `columns` input) and data cells (rendered per the
+     *  restored, now-mismatched order) drift out of alignment column-by-column -- exactly the kind
+     *  of header/data shift this state-storing feature already caused once before across reports
+     *  sharing one hardcoded key (see this @Input()'s doc comment). Folding the field list into the
+     *  key means any such change naturally invalidates the incompatible saved state -- the browser's
+     *  old entry is simply never looked up again -- instead of corrupting the grid until a user
+     *  manually clears localStorage. */
     get resolvedStateStorageKey(): string {
-        return `reportGrid_${this.stateStorageKey}`;
+        const signature = this.columns.map(c => c.dataField).join('|');
+        let hash = 0;
+        for (let i = 0; i < signature.length; i++) {
+            hash = (hash * 31 + signature.charCodeAt(i)) | 0;
+        }
+        return `reportGrid_${this.stateStorageKey}_${hash}`;
     }
 
     @Output() rowClick = new EventEmitter<any>();

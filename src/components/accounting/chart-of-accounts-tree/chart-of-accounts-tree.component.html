@@ -121,22 +121,25 @@
         [fixed]="true"
         fixedPosition="left"
         cssClass="actions-column">
-        <dxi-button 
-          [hint]="translate.instant('ACCOUNTING.ADD_ACCOUNT')"
-          icon="add"
-          [onClick]="onAddSubAccount">
-        </dxi-button>
-        <dxi-button 
-          [hint]="translate.instant('ACCOUNTING.EDIT_ACCOUNT')"
-          icon="edit"
-          [onClick]="onEditAccount">
-        </dxi-button>
+       
+     
         <dxi-button
           [visible]="isDeleteVisible"
           [hint]="translate.instant('ACCOUNTING.DELETE_ACCOUNT')"
           icon="trash"
           [onClick]="onDeleteAccount">
         </dxi-button>
+           <dxi-button 
+          [hint]="translate.instant('ACCOUNTING.EDIT_ACCOUNT')"
+          icon="edit"
+          [onClick]="onEditAccount">
+        </dxi-button>
+         <dxi-button 
+          [hint]="translate.instant('ACCOUNTING.ADD_ACCOUNT')"
+          icon="add"
+          [onClick]="onAddSubAccount">
+        </dxi-button>
+        
       </dxi-column>
       
       

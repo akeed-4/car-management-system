@@ -724,3 +724,190 @@ mat-form-field.form-field .mat-icon[matPrefix] {
     grid-template-columns: 1fr;
   }
 }
+
+/* ============================================================
+   Classification selector -- visual replacement for the plain
+   Account Type dropdown (Assets/Liabilities/Equity/Revenue/
+   Expenses). Compact segmented chips, RTL-safe (logical
+   properties throughout, no hardcoded left/right).
+   ============================================================ */
+.classification-field {
+  margin-block-start: var(--space-2, 8px);
+}
+
+.classification-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.classification-grid,
+.link-type-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--space-2, 8px);
+  margin-block-start: var(--space-2, 8px);
+}
+
+.classification-chip,
+.link-type-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 8px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--rounded-md, 8px);
+  background: var(--surface-default, transparent);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition:
+    border-color var(--shell-duration-fast, 120ms) var(--shell-ease, ease),
+    box-shadow var(--shell-duration-fast, 120ms) var(--shell-ease, ease),
+    background-color var(--shell-duration-fast, 120ms) var(--shell-ease, ease);
+}
+
+.classification-chip mat-icon,
+.link-type-chip mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: var(--text-muted);
+  transition: color var(--shell-duration-fast, 120ms) var(--shell-ease, ease);
+}
+
+.classification-chip:hover,
+.link-type-chip:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+.classification-chip.selected,
+.link-type-chip.selected {
+  border-color: var(--color-primary-600);
+  background: color-mix(in srgb, var(--color-primary-600) 8%, transparent);
+  box-shadow: var(--shadow-sm);
+}
+
+.classification-chip.selected mat-icon,
+.link-type-chip.selected mat-icon {
+  color: var(--color-primary-600);
+}
+
+.link-type-title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+@media (max-width: 480px) {
+  .classification-grid,
+  .link-type-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ============================================================
+   Linked Customer/Supplier preview -- auto-loaded, read-only
+   snapshot of the selected party's existing data. Never
+   editable here (edit from Customers/Suppliers); purely a
+   confirmation that the right record is about to be linked.
+   ============================================================ */
+.linked-entity-loading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  padding: var(--space-2, 8px) 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.linked-entity-card {
+  margin-block: var(--space-2, 8px);
+  padding: var(--space-3, 12px);
+  border: 1px solid var(--border-default);
+  border-radius: var(--rounded-md, 8px);
+  background: var(--surface-sunken);
+}
+
+.linked-entity-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-block-end: var(--space-2, 8px);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-primary-700, var(--text-primary));
+}
+
+.linked-entity-header mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--color-primary-600);
+}
+
+.linked-entity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-2, 8px) var(--space-3, 12px);
+  margin: 0;
+}
+
+.linked-entity-span-2 {
+  grid-column: span 2;
+}
+
+.linked-entity-item dt {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-block-end: 2px;
+}
+
+.linked-entity-item dd {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.linked-entity-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: var(--space-2, 8px) 0 0;
+  padding-block-start: var(--space-2, 8px);
+  border-block-start: 1px solid var(--border-default);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.linked-entity-hint mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.linked-entity-empty {
+  margin: var(--space-2, 8px) 0 0;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+@media (max-width: 480px) {
+  .linked-entity-span-2 {
+    grid-column: span 1;
+  }
+}

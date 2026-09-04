@@ -11,6 +11,7 @@
 
 ::ng-deep .dx-datagrid-headers {
   background: var(--surface-sunken);
+  font-family: 'Cairo', sans-serif;
   font-weight: 600;
   color: var(--text-primary);
 }

@@ -14,12 +14,14 @@ import {
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { DxDataGridModule, DxDataGridComponent } from 'devextreme-angular/ui/data-grid';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ResponsiveService } from '../../../services/responsive.service';
+import { ROW_ACTION_ICON_FALLBACK, ROW_ACTION_ICON_PATHS } from './row-action-icons';
 import {
   MobileCardListComponent,
   MobileCardField,
@@ -86,6 +88,7 @@ export interface SharedGridRowActionEvent {
 export class SharedDataGridComponent implements OnChanges, OnDestroy {
   private translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
+  private sanitizer = inject(DomSanitizer);
   protected responsive = inject(ResponsiveService);
 
   /** Re-evaluated by template bindings so translated captions refresh on language change. */
@@ -277,6 +280,18 @@ export class SharedDataGridComponent implements OnChanges, OnDestroy {
   labelOf(action: sharedGridRowActionDto): string {
     void this.langVersion;
     return action.labelKey ? this.translate.instant(action.labelKey) : action.id;
+  }
+
+  /** Inline-SVG markup for a row action's icon (replaces the mat-icon font glyph). */
+  private iconMarkupCache = new Map<string, SafeHtml>();
+  actionIconMarkup(icon: string | undefined): SafeHtml {
+    const key = icon ?? '';
+    let markup = this.iconMarkupCache.get(key);
+    if (!markup) {
+      markup = this.sanitizer.bypassSecurityTrustHtml(ROW_ACTION_ICON_PATHS[key] ?? ROW_ACTION_ICON_FALLBACK);
+      this.iconMarkupCache.set(key, markup);
+    }
+    return markup;
   }
 
   doAction(action: sharedGridRowActionDto, rowData: any, event: Event): void {

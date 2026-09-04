@@ -35,7 +35,7 @@ export class TrialBalanceComponent implements OnInit {
       dataField: 'accountName',
       caption: 'REPORTS.COLUMNS.ACCOUNT_NAME',
       dataType: 'string',
-      alignment: 'left',
+      alignment: 'right',
       width: 250
     },
     {
@@ -103,13 +103,15 @@ export class TrialBalanceComponent implements OnInit {
   loadReport(): void {
     this.loading = true;
     this.accountReportService.getTrialBalance(this.currentFilters).subscribe({
-      next: (data) => {
+      next: (data:any) => {
         this.reportData = data;
         this.loading = false;
+        console.log('Trial balance report data loaded:', data);
       },
       error: (error) => {
         this.notificationService.showError('REPORTS.TRIAL_BALANCE.LOAD_ERROR');
         this.loading = false;
+        console.error('Error loading trial balance report:', error);
       }
     });
   }

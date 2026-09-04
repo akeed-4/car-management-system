@@ -60,12 +60,20 @@ export class CashSaleListComponent implements OnInit {
     { dataField: 'totalAmount', dataType: 'number', caption: 'INVOICE.TOTAL', format: 'currency' },
     { dataField: 'amountPaid', dataType: 'number', caption: 'INVOICE.AMOUNT_PAID', format: 'currency' },
     { dataField: 'status', dataType: 'string', caption: 'INVOICE.STATUS', cellTemplate: 'statusTemplate' },
-    { dataField: 'actions', dataType: 'string', type: 'actions', caption: '', width: 80, allowSorting: false, allowFiltering: false },
+    { dataField: 'actions', dataType: 'string', type: 'actions', caption: '', width: 200, allowSorting: false, allowFiltering: false },
   ];
 
-  /** Same single edit button as before. */
+  /** 'view' matches the 'find'-icon/COMMON.VIEW convention every other list screen in the app
+   *  uses (see e.g. cars-receipt-note-list, corporate-order-list) -- it was missing here even
+   *  though 'sales.cash.view' is the permission name already in use, so opening a paid invoice
+   *  just to look at it required clicking the pencil "edit" icon. There's no separate read-only
+   *  screen for these invoices yet, so it opens the same edit route edit does; the distinct button
+   *  still gives users the expected view affordance instead of a misleading edit icon. */
   rowActions: sharedGridRowActionDto[] = [
+    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW', visible: () => this.permissionService.hasPermission('sales.cash.view') },
     { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('sales.cash.view') },
+    { id: 'print', icon: 'print', labelKey: 'COMMON.PRINT', visible: () => this.permissionService.hasPermission('sales.cash.view') },
+    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', visible: () => this.permissionService.hasPermission('sales.cash.view') },
   ];
 
   /** Screen-specific status badge, passed generically to the Shared DataGrid. */
@@ -76,7 +84,10 @@ export class CashSaleListComponent implements OnInit {
   }
 
   onGridAction(e: SharedGridRowActionEvent): void {
-    if (e.actionId === 'edit') this.onEdit({ row: { data: e.row } });
+    if (e.actionId === 'view') this.onEdit({ row: { data: e.row } });
+    else if (e.actionId === 'edit') this.onEdit({ row: { data: e.row } });
+    else if (e.actionId === 'print') this.onPrintClick({ row: { data: e.row } });
+    else if (e.actionId === 'delete') this.onDeleteClick({ row: { data: e.row } });
   }
 
   onGridRowDblClick(rowData: any): void {
@@ -128,6 +139,35 @@ export class CashSaleListComponent implements OnInit {
   onEdit = (e: any): void => {
     this.router.navigate(['/sales/direct/cash-sale/edit', e.row.data.id]);
   };
+
+  onPrintClick = (e: any): void => {
+    window.open(`/#/sales/invoice/print/${e.row.data.id}`, '_blank');
+  };
+
+  onDeleteClick = (e: any): void => {
+    this.deleteInvoice(e.row.data.id);
+  };
+
+  mobilePrint(item: SalesInvoice): void {
+    this.onPrintClick({ row: { data: item } });
+  }
+
+  mobileDelete(item: SalesInvoice): void {
+    this.onDeleteClick({ row: { data: item } });
+  }
+
+  private deleteInvoice(id: number): void {
+    if (!confirm(this.translate.instant('DIRECT_SALES.CASH.DELETE_CONFIRM'))) return;
+    this.salesService.deleteInvoice(id).subscribe({
+      next: () => {
+        this.notificationService.showSuccess('DIRECT_SALES.CASH.DELETE_SUCCESS');
+        this.loadInvoices();
+      },
+      error: () => {
+        this.notificationService.showError('DIRECT_SALES.CASH.DELETE_ERROR');
+      }
+    });
+  }
 
   exportExcel(): void {
     const component = this.grid?.getInstance();

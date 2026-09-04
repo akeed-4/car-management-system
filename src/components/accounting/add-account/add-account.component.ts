@@ -27,6 +27,10 @@ import { CustomerService } from '../../../services/customer.service';
 import { SupplierService } from '../../../services/supplier.service';
 import { CurrencyService } from '../../../services/currency.service';
 import { Currency } from '../../../models/currency.model';
+import { Customer } from '../../../models/customer.model';
+import { Supplier } from '../../../models/supplier.model';
+import { BankService } from '../../../services/bank.service';
+import { Bank } from '../../../models/bank.model';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 /** Data passed when opening AddAccountComponent as a quick-add dialog from a financial document
@@ -162,6 +166,44 @@ export class AddAccountComponent implements OnChanges, OnInit, OnDestroy {
   customers = this.customerService.customers$;
   suppliers = this.supplierService.suppliers$;
 
+  /** Visual selector options for the account's financial classification (replaces the old plain
+   *  dropdown) -- value is exactly what accountTypeId already carries (1..5), so no mapping
+   *  changes anywhere else in the component. */
+  readonly accountTypeOptions: ReadonlyArray<{ value: number; icon: string; labelKey: string }> = [
+    { value: 1, icon: 'account_balance', labelKey: 'ACCOUNTING.TYPE_ASSET' },
+    { value: 2, icon: 'credit_card', labelKey: 'ACCOUNTING.TYPE_LIABILITY' },
+    { value: 3, icon: 'pie_chart', labelKey: 'ACCOUNTING.TYPE_EQUITY' },
+    { value: 4, icon: 'trending_up', labelKey: 'ACCOUNTING.TYPE_REVENUE' },
+    { value: 5, icon: 'trending_down', labelKey: 'ACCOUNTING.TYPE_EXPENSE' },
+  ];
+
+  /** Visual selector options for Link Type -- Customer/Supplier/Bank, each backed by a real entity
+   *  and the same fetch-fresh-and-preview treatment (see selectedCustomerDetails etc. below). */
+  readonly linkTypeOptions: ReadonlyArray<{ value: 'none' | 'customer' | 'supplier' | 'bank'; icon: string; labelKey: string }> = [
+    { value: 'none', icon: 'link_off', labelKey: 'ACCOUNTING.ENTITY_TYPE_NONE' },
+    { value: 'customer', icon: 'person', labelKey: 'ACCOUNTING.ENTITY_TYPE_CUSTOMER' },
+    { value: 'supplier', icon: 'store', labelKey: 'ACCOUNTING.ENTITY_TYPE_SUPPLIER' },
+    { value: 'bank', icon: 'account_balance', labelKey: 'ACCOUNTING.ENTITY_TYPE_BANK' },
+  ];
+
+  /** Flat list of banks powering the Bank picker -- BankService has no reactive cache like
+   *  customers$/suppliers$, so this is fetched once (constructor) and kept as a plain snapshot;
+   *  fine for a picker list that doesn't need to react to banks created/edited elsewhere while this
+   *  form is open. */
+  banks: Bank[] = [];
+
+  /** Full record for the Customer/Supplier/Bank currently selected in the Link Type picker --
+   *  always fetched fresh via getCustomerById/getSupplierById/BankService.getById (never read from
+   *  a list cache, which can be stale) so the preview panel always reflects their real, current
+   *  data. Kept in sync with customerId/supplierId/bankId by the valueChanges subscriptions below,
+   *  and cleared wherever those ids are cleared (syncEntityType, onCreateAutomaticallyChange). */
+  selectedCustomerDetails: Customer | null = null;
+  selectedSupplierDetails: Supplier | null = null;
+  selectedBankDetails: Bank | null = null;
+  loadingCustomerDetails = false;
+  loadingSupplierDetails = false;
+  loadingBankDetails = false;
+
   /** Read-only state of the Account Number input: locked by default on create (auto-generated
    *  from the parent hierarchy); in edit mode only locked when transactions were posted, which
    *  matches the existing server-side guard exactly. */
@@ -251,6 +293,7 @@ export class AddAccountComponent implements OnChanges, OnInit, OnDestroy {
     private router: Router,
     private customerService: CustomerService,
     private supplierService: SupplierService,
+    private bankService: BankService,
     private currencyService: CurrencyService,
     @Optional() private dialogRef: MatDialogRef<AddAccountComponent, Account | undefined> | null,
     @Optional() @Inject(MAT_DIALOG_DATA) private dialogData: AddAccountQuickAddData | null
@@ -317,6 +360,21 @@ export class AddAccountComponent implements OnChanges, OnInit, OnDestroy {
       this.syncEntityType(value);
     });
 
+    // Requirement: auto-load and display the selected Customer/Supplier/Bank's existing data, and
+    // refresh it whenever the selection changes. Fires for every source that ever sets these ids
+    // with emitEvent left at its default (true): the picker itself, updateFormForEditing loading an
+    // already-linked account, and the quick-add dialog's dialogData prefill.
+    this.accountForm.get('customerId')?.valueChanges.subscribe(id => this.loadCustomerDetails(id));
+    this.accountForm.get('supplierId')?.valueChanges.subscribe(id => this.loadSupplierDetails(id));
+    this.accountForm.get('bankId')?.valueChanges.subscribe(id => this.loadBankDetails(id));
+
+    // Bank picker options -- see the `banks` field's doc comment for why this is a one-shot fetch
+    // rather than a reactive cache like customers$/suppliers$.
+    this.bankService.getAll().subscribe({
+      next: banks => this.banks = banks,
+      error: () => console.error('Failed to load banks')
+    });
+
     // Watch for isMainAccount changes to update mainAccountCode validation
     this.accountForm.get('isMainAccount')?.valueChanges.subscribe(isMain => {
       const mainAccountCodeControl = this.accountForm.get('mainAccountCode');
@@ -332,6 +390,14 @@ export class AddAccountComponent implements OnChanges, OnInit, OnDestroy {
     // the account's real parent (not just a denormalized "top of tree" pointer) -- also sets
     // parentId so the created account's hierarchy (and CreateAsync's numbering, which is keyed on
     // parentId) is correct, matching the parent already resolved by tree-navigation.
+    //
+    // The parentId patch below deliberately uses emitEvent:false (so it can't re-trigger this same
+    // mainAccountCode subscriber via any indirect cascade), which means the parentId valueChanges
+    // subscriber further down -- the one that re-fetches the next Account Code for the new parent
+    // -- never fires from this path. Without the explicit fetchAndFillNextCode calls here, picking
+    // a different parent from this dropdown silently left Account Code pointed at the PREVIOUS
+    // parent (e.g. still the root-level code), which then failed Save with the backend's
+    // AccountCodeParentMismatch error even though the user did everything right.
     this.accountForm.get('mainAccountCode')?.valueChanges.subscribe(code => {
       if (code) {
         const mainAccount = this.accountingService.getAccountByCode(code);
@@ -347,10 +413,12 @@ export class AddAccountComponent implements OnChanges, OnInit, OnDestroy {
             // For partial accounts: set level to parent's level + 1
             accountLevel: (mainAccount.accountLevel || 0) + 1
           }, { emitEvent: false });
+          this.fetchAndFillNextCode(mainAccount.id);
         }
       } else {
         // Clear dependent fields when code is empty
         this.accountForm.patchValue({ mainAccountName: '', mainAccountId: 0, parentId: null }, { emitEvent: false });
+        this.fetchAndFillNextCode(null);
       }
     });
 
@@ -422,6 +490,102 @@ export class AddAccountComponent implements OnChanges, OnInit, OnDestroy {
   /** Set while the component itself patches accountCode, so that patch isn't mistaken for a
    *  manual user edit by the tracking subscriber above. */
   private suppressCodeEditTracking = false;
+
+  /** Requirement: when a Customer/Supplier/Bank is selected, its name should populate the
+   *  account's own Name (Arabic)/Name (English) fields dynamically -- so the user linking, say,
+   *  "Ahmed Trading Co." doesn't also have to retype that as the account name. Only fills a field
+   *  that is currently EMPTY, never overwrites one that already holds a value: for a brand-new
+   *  account (the common case -- both fields start empty) this fills them the moment a party is
+   *  selected; for an already-saved account being edited, accountNameAr/accountNameEn are set from
+   *  editingAccount earlier in the SAME hydration patchValue call (both controls are registered
+   *  before customerId/supplierId/bankId in the FormGroup, so they're already populated by the time
+   *  this fires) -- so opening the edit form never silently replaces a deliberately-customized
+   *  account name with the linked party's name. */
+  private applyLinkedEntityNameDefaults(nameAr: string | null | undefined, nameEn: string | null | undefined): void {
+    const arControl = this.accountForm.get('accountNameAr');
+    const enControl = this.accountForm.get('accountNameEn');
+    if (arControl && !arControl.value && nameAr) {
+      arControl.setValue(nameAr, { emitEvent: false });
+    }
+    if (enControl && !enControl.value && nameEn) {
+      enControl.setValue(nameEn, { emitEvent: false });
+    }
+  }
+
+  /** Fetches the selected Customer's current data for the read-only preview panel. Always a fresh
+   *  API call (never the customers$ cache) so a stale name/phone edited elsewhere is never shown as
+   *  current. Clears the preview immediately on every call (including id === null) so switching
+   *  selections never flashes the previous customer's details while the new ones load. */
+  private loadCustomerDetails(id: number | null): void {
+    this.selectedCustomerDetails = null;
+    if (!id) {
+      this.loadingCustomerDetails = false;
+      return;
+    }
+    this.loadingCustomerDetails = true;
+    this.customerService.getCustomerById(id)
+      .then(customer => {
+        this.selectedCustomerDetails = customer;
+        this.loadingCustomerDetails = false;
+        // Keep the DTO's denormalized name field in sync with the real record -- the backend
+        // re-resolves the authoritative name from customerId at save time regardless, this just
+        // keeps the form's own state consistent with what's shown on screen.
+        this.accountForm.patchValue({ customerName: customer.name }, { emitEvent: false });
+        // Customer has a single `name` field (no AR/EN split) -- used as the default for both.
+        this.applyLinkedEntityNameDefaults(customer.name, customer.name);
+      })
+      .catch(() => {
+        this.loadingCustomerDetails = false;
+        this.toastService.showError(this.translate.instant('ACCOUNTING.ERROR_LOADING_ENTITY_DETAILS'));
+      });
+  }
+
+  /** Supplier counterpart of loadCustomerDetails -- see its doc comment. */
+  private loadSupplierDetails(id: number | null): void {
+    this.selectedSupplierDetails = null;
+    if (!id) {
+      this.loadingSupplierDetails = false;
+      return;
+    }
+    this.loadingSupplierDetails = true;
+    this.supplierService.getSupplierById(id).subscribe({
+      next: supplier => {
+        this.selectedSupplierDetails = supplier;
+        this.loadingSupplierDetails = false;
+        this.accountForm.patchValue({ supplierName: supplier.name }, { emitEvent: false });
+        this.applyLinkedEntityNameDefaults(supplier.name, supplier.name);
+      },
+      error: () => {
+        this.loadingSupplierDetails = false;
+        this.toastService.showError(this.translate.instant('ACCOUNTING.ERROR_LOADING_ENTITY_DETAILS'));
+      }
+    });
+  }
+
+  /** Bank counterpart of loadCustomerDetails -- see its doc comment. bank.bankNameEnglish is what
+   *  the backend's Bank.Name maps to (AccountService.ResolveLinkedEntitiesAsync/CreateAsync read
+   *  Bank.Name for the Account's denormalized BankName), so that's what's kept in sync here. */
+  private loadBankDetails(id: number | null): void {
+    this.selectedBankDetails = null;
+    if (!id) {
+      this.loadingBankDetails = false;
+      return;
+    }
+    this.loadingBankDetails = true;
+    this.bankService.getById(id).subscribe({
+      next: bank => {
+        this.selectedBankDetails = bank;
+        this.loadingBankDetails = false;
+        this.accountForm.patchValue({ bankName: bank.bankNameEnglish }, { emitEvent: false });
+        // Bank has real separate AR/EN names, unlike Customer/Supplier -- use each precisely.
+        this.applyLinkedEntityNameDefaults(bank.bankNameArabic, bank.bankNameEnglish);
+      },
+      error: () => {
+        this.loadingBankDetails = false;
+        this.toastService.showError(this.translate.instant('ACCOUNTING.ERROR_LOADING_ENTITY_DETAILS'));
+      }
+    });
+  }
 
   /** Requirement 1/5: the user should not have to work out the next account code by hand. Requests
    *  the backend-computed next code for the given parent (or root, when null) through the
@@ -629,12 +793,20 @@ export class AddAccountComponent implements OnChanges, OnInit, OnDestroy {
 
     if (entityType !== 'customer') {
       this.accountForm.patchValue({ customerId: null, customerName: '', newCustomerPhone: '' }, { emitEvent: false });
+      // patchValue above uses emitEvent:false, so the customerId valueChanges subscriber that
+      // normally clears the preview never fires -- clear it directly here instead.
+      this.selectedCustomerDetails = null;
+      this.loadingCustomerDetails = false;
     }
     if (entityType !== 'supplier') {
       this.accountForm.patchValue({ supplierId: null, supplierName: '', newSupplierPhone: '' }, { emitEvent: false });
+      this.selectedSupplierDetails = null;
+      this.loadingSupplierDetails = false;
     }
     if (entityType !== 'bank') {
       this.accountForm.patchValue({ bankId: null, bankName: '' }, { emitEvent: false });
+      this.selectedBankDetails = null;
+      this.loadingBankDetails = false;
     }
 
     newCustomerPhoneControl?.clearValidators();
@@ -644,7 +816,9 @@ export class AddAccountComponent implements OnChanges, OnInit, OnDestroy {
   }
 
   /** Re-applies the phone-required validator whenever "Create Automatically" is toggled for the
-   *  currently-selected entity type -- called from the template on each checkbox's (change). */
+   *  currently-selected entity type -- called from the template on each checkbox's (change).
+   *  Bank has no such validator (the backend requires no extra field to create a new Bank, unlike
+   *  Customer/Supplier's phone), so it only reaches the id-clearing below. */
   onCreateAutomaticallyChange(checked: boolean) {
     const entityType = this.accountForm.get('entityType')?.value;
     const control = entityType === 'customer'
@@ -653,13 +827,23 @@ export class AddAccountComponent implements OnChanges, OnInit, OnDestroy {
         ? this.accountForm.get('newSupplierPhone')
         : null;
 
-    if (!control) return;
-    if (checked) {
-      control.setValidators([Validators.required]);
-    } else {
-      control.clearValidators();
+    if (control) {
+      if (checked) {
+        control.setValidators([Validators.required]);
+      } else {
+        control.clearValidators();
+      }
+      control.updateValueAndValidity();
     }
-    control.updateValueAndValidity();
+
+    // Switching to "create new" means no existing record is being linked -- clear any previously
+    // selected id (with emitEvent left default so the preview panel clears via loadCustomerDetails/
+    // loadSupplierDetails/loadBankDetails, same as every other path that changes these ids).
+    if (checked) {
+      if (entityType === 'customer') this.accountForm.get('customerId')?.setValue(null);
+      else if (entityType === 'supplier') this.accountForm.get('supplierId')?.setValue(null);
+      else if (entityType === 'bank') this.accountForm.get('bankId')?.setValue(null);
+    }
   }
 
   private syncAccountTypeSelection(accountType: string) {
@@ -677,6 +861,19 @@ export class AddAccountComponent implements OnChanges, OnInit, OnDestroy {
         parentId: null
       }, { emitEvent: false });
       this.fetchAndFillNextCode(null);
+
+      // A Main/root account is never linked to a Customer/Supplier -- the Link Type (Integration)
+      // section only renders for Partial accounts, so switching an already-linked Partial account
+      // to Main used to leave entityType/customerId/supplierId set but invisible, and Save would
+      // silently submit that stale link. Reset it through the real entityType control (not a raw
+      // patch) so the existing entityType subscriber (syncEntityType) runs its normal cleanup --
+      // clearing customerId/supplierId/bankId, the create-new flags, and the loaded preview.
+      // Skipped while hydrating an existing record for editing (updateFormForEditing also calls
+      // this method) so simply opening the edit form never silently strips a link already saved
+      // server-side -- only an interactive switch of the radio does.
+      if (!this.isEditing && this.accountForm.get('entityType')?.value !== 'none') {
+        this.accountForm.get('entityType')?.setValue('none');
+      }
     }
   }
 

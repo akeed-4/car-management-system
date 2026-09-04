@@ -17,7 +17,7 @@ export class BankService {
   }
 
   getById(id: number): Observable<Bank> {
-    return this.http.get<Bank>(`${this.baseUrl}/${id}`);
+    return this.http.get<Bank>(`${this.baseUrl}/GetById/${id}`);
   }
 
   create(dto: CreateBankDto): Observable<Bank> {

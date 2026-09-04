@@ -415,19 +415,23 @@ export class PurchaseInvoiceComponent implements OnInit {
   vatAmount = computed(() => {
     const classification = this.selectedInvoiceClassification();
     const subtotalValue = this.subtotal();
-    
+
     if (classification && classification.vatRate > 0) {
-      // Apply VAT rate from selected classification
-      return subtotalValue * (classification.vatRate / 100);
+      // Apply VAT rate from selected classification -- rounded to 2dp (currency precision), not
+      // left as a raw float: 12 * (15/100) alone can carry floating-point noise (e.g.
+      // 1.7999999999999998), which would then propagate into totalAmount below.
+      return Math.round((subtotalValue * (classification.vatRate / 100) + Number.EPSILON) * 100) / 100;
     }
-    
+
     // No VAT for zero-rated or exempt classifications
     return 0;
   });
-  
+
   // Auction charges are folded in on top of the item subtotal+VAT, matching the backend
   // (PurchaseInvoiceService.CreateAsync: totalAmount = createDto.TotalAmount + auctionChargesTotal).
-  totalAmount = computed(() => Math.round(this.subtotal() + this.vatAmount() + this.auctionChargesTotal()));
+  // Rounded to 2dp (currency precision) -- NOT to the nearest whole riyal: a plain Math.round(sum)
+  // here used to turn e.g. subtotal 12 + VAT 1.80 = 13.80 into a displayed/saved 14.00.
+  totalAmount = computed(() => Math.round((this.subtotal() + this.vatAmount() + this.auctionChargesTotal() + Number.EPSILON) * 100) / 100);
 
   /** True when the current payment type is cash - drives the auto-paid summary + cash calculator. */
   isCashPayment = computed(() => (this.purchaseInvoiceForm?.get('paymentType')?.value ?? '').toString().toLowerCase() === 'cash');
@@ -1372,8 +1376,10 @@ export class PurchaseInvoiceComponent implements OnInit {
       items: items,
       // Pre-auction total (items + VAT) -- the backend adds AuctionCharges on top itself
       // (PurchaseInvoiceService.CreateAsync), so sending the already-inclusive totalAmount()
-      // here would double-count the auction fees.
-      totalAmount: Math.round(this.subtotal() + this.vatAmount()),
+      // here would double-count the auction fees. Rounded to 2dp (currency precision), matching
+      // the totalAmount computed signal above -- NOT Math.round(sum) to a whole riyal, which used
+      // to silently save e.g. a real 13.80 total as 14.00.
+      totalAmount: Math.round((this.subtotal() + this.vatAmount() + Number.EPSILON) * 100) / 100,
       // Cash invoices are auto-marked fully paid server-side; credit invoices net this off
       // against the total (Requirement 5's "Initial Payment"). Status is derived by the backend.
       initialPayment: this.isCashPayment() ? 0 : this.amountReceivedSignal(),

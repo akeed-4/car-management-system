@@ -56,8 +56,9 @@ export class SalesInvoiceListComponent {
    *  see isCashInvoice, set by the cash-invoice-list / credit-invoice-list wrapper
    *  components), so the matching per-type permission key gates both actions. */
   rowActions: sharedGridRowActionDto[] = [
-    { id: 'print', icon: 'print', labelKey: 'PURCHASES.PRINT_INVOICE', visible: () => this.permissionService.hasPermission(this.isCashInvoice ? 'sales.cash.view' : 'sales.credit.view') },
+    { id: 'print', icon: 'print', labelKey: 'PURCHASES.PRINT_INVOICE', visible: () => true },
     { id: 'edit', icon: 'edit', labelKey: 'PURCHASES.EDIT_INVOICE', visible: () => this.permissionService.hasPermission(this.isCashInvoice ? 'sales.cash.view' : 'sales.credit.view') },
+    { id: 'delete', icon: 'delete', labelKey: 'PURCHASES.DELETE_INVOICE', visible: () => this.permissionService.hasPermission(this.isCashInvoice ? 'sales.cash.view' : 'sales.credit.view') },
   ];
 
   /** Same sum/count totals as before -- SharedDataGrid's summary items don't support a
@@ -68,9 +69,24 @@ export class SalesInvoiceListComponent {
     { column: 'invoiceNumber', summaryType: 'count', displayFormat: 'عدد الفواتير: {0}' },
   ];
 
+
   onGridAction(e: SharedGridRowActionEvent): void {
     if (e.actionId === 'print') this.onPrintClick({ row: { data: e.row } });
     else if (e.actionId === 'edit') this.onEditClick({ row: { data: e.row } });
+    else if (e.actionId === 'delete') this.onDeleteClick({ row: { data: e.row } });
+  }
+  onDeleteClick(arg0: { row: { data: any; }; }) {
+    const invoice = arg0.row.data;
+    if (confirm('Are you sure you want to delete this invoice?')) {
+      this.salesService.deleteInvoice(invoice.id).subscribe({
+        next: () => {
+          // Handle successful deletion
+        },
+        error: (err) => {
+          // Handle error
+        }
+      });
+    }
   }
 
   // --- Mobile card-list rendering ---

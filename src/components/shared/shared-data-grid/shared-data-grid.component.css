@@ -19,10 +19,9 @@
   gap: 2px;
 }
 
-.sdg-actions-cell button mat-icon {
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
+.sdg-actions-cell button .icon {
+  width: 18px;
+  height: 18px;
 }
 
 .sdg-actions-cell button.warn {
