@@ -211,6 +211,25 @@ export class ReportGridComponent implements OnInit {
   }
 
   /**
+   * Export grid to PDF using DevExtreme's built-in `exportDataGrid` (same dynamic-import pattern
+   * as tenant-list.component.ts's exportPdf, the closest in-house precedent). Same
+   * unpaged-in-remote-mode behavior as exportToExcel above.
+   */
+  exportToPdf(fileName: string = 'report'): void {
+    const component = this.dataGrid?.instance;
+    if (!component) return;
+    Promise.all([import('jspdf'), import('devextreme/pdf_exporter')]).then(([jsPDFModule, { exportDataGrid }]) => {
+      const doc = new jsPDFModule.jsPDF();
+      exportDataGrid({
+        jsPDFDocument: doc,
+        component,
+      }).then(() => {
+        doc.save(`${fileName}.pdf`);
+      });
+    });
+  }
+
+  /**
    * Refresh grid data
    */
   refresh(): void {

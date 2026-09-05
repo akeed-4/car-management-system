@@ -70,9 +70,27 @@ export class AccountingService {
   public refresh$ = this.refreshSubject.asObservable();
 
   constructor(private http: HttpClient, private translate: TranslateService) {
-    this.getAccounts().subscribe();
+    this.loadAccountsWithRetry();
     this.getJournalEntries().subscribe();
     // Remove loadSampleData() call to use real API
+  }
+
+  /**
+   * This is the ONLY place accounts are ever fetched into accountsSubject -- every account
+   * dropdown app-wide (Account Statement/Balance reports, Journal Entry lines, Payment/Receipt
+   * forms, ...) reads accounts$, which starts at `[]` and is otherwise never touched again for
+   * this singleton's lifetime. A bare `getAccounts().subscribe()` here had no error handler, so if
+   * this one-shot call ever failed -- and it races a burst of ~10 other calls fired right after
+   * login/store-selection (tenant select, subscription status, branches, notifications, ...), any
+   * of which can transiently 401/500/abort -- accountsSubject stayed `[]` forever: every one of
+   * those dropdowns would be permanently stuck empty for the rest of the tab's session, with
+   * nothing in the UI explaining why and no user action able to fix it short of a full reload.
+   * One retry after a short delay turns that transient failure into a self-healing one instead.
+   */
+  private loadAccountsWithRetry(): void {
+    this.getAccounts().subscribe({
+      error: () => setTimeout(() => this.getAccounts().subscribe({ error: () => {} }), 3000),
+    });
   }
 
   // Account CRUD

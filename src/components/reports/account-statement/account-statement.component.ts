@@ -160,11 +160,10 @@ export class AccountStatementComponent implements OnInit {
       this.notificationService.showWarning('REPORTS.SELECT_ACCOUNT_WARNING');
       return;
     }
-
     this.loading = true;
     this.accountReportService.getAccountStatement(this.currentFilters).subscribe({
-      next: (data) => {
-        this.reportData = data;
+      next: (data:any) => {
+        this.reportData = data.data;
         this.loading = false;
       },
       error: (error) => {
@@ -188,51 +187,31 @@ export class AccountStatementComponent implements OnInit {
   }
 
   /**
-   * Export to PDF
+   * Export to PDF -- via the grid's own client-side DevExtreme exporter (see
+   * ReportGridComponent.exportToPdf), not AccountReportService.exportToPdf: that method calls
+   * `api/AccountReports/account-statement/export/pdf`, a route that has never existed on
+   * AccountReportsController (no report on this controller has a PDF/Excel export action), so it
+   * 404'd on every click. The grid already renders the exact filtered/sorted rows the user is
+   * looking at (remote-mode CustomStore re-queries unpaged for the export, per
+   * ReportGridComponent's own doc comment), so exporting it client-side needs no new endpoint.
    */
   onExportPdf(): void {
     if (!this.currentFilters.accountId) {
       this.notificationService.showWarning('REPORTS.SELECT_ACCOUNT_WARNING');
       return;
     }
-
-    this.accountReportService.exportToPdf('account-statement', this.currentFilters).subscribe({
-      next: (blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `account-statement-${new Date().getTime()}.pdf`;
-        link.click();
-        window.URL.revokeObjectURL(url);
-      },
-      error: () => {
-        this.notificationService.showError('REPORTS.EXPORT_ERROR');
-      }
-    });
+    this.gridComponent?.exportToPdf(`account-statement-${new Date().getTime()}`);
   }
 
   /**
-   * Export to Excel
+   * Export to Excel -- see onExportPdf's doc comment; same dead-backend-route issue.
    */
   onExportExcel(): void {
     if (!this.currentFilters.accountId) {
       this.notificationService.showWarning('REPORTS.SELECT_ACCOUNT_WARNING');
       return;
     }
-
-    this.accountReportService.exportToExcel('account-statement', this.currentFilters).subscribe({
-      next: (blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `account-statement-${new Date().getTime()}.xlsx`;
-        link.click();
-        window.URL.revokeObjectURL(url);
-      },
-      error: () => {
-        this.notificationService.showError('REPORTS.EXPORT_ERROR');
-      }
-    });
+    this.gridComponent?.exportToExcel(`account-statement-${new Date().getTime()}`);
   }
 
   /**
