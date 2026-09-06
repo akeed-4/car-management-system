@@ -39,6 +39,7 @@ export class CarReportShellComponent {
   @Input() canPrint = true;
   @Input() canExportExcel = true;
   @Input() canExportPdf = true;
+  @Input() noDataText = 'CAR_REPORTS.NO_DATA';
 
   @Output() filtersChange = new EventEmitter<ReportFilters>();
   @Output() refresh = new EventEmitter<void>();

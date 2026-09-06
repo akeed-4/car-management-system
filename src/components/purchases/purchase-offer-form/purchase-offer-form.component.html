@@ -99,6 +99,7 @@
             <dxo-search-panel [visible]="false"></dxo-search-panel>
             <dxo-editing mode="cell" [allowUpdating]="true" [allowAdding]="false" [allowDeleting]="false">
             </dxo-editing>
+            <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false" [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
             <dxi-column dataField="carDescription"
               caption="{{ 'PURCHASE_OFFER.DESCRIPTION' | translate }}"></dxi-column>
             <dxi-column dataField="make" caption="{{ 'PURCHASE_OFFER.MAKE' | translate }}"></dxi-column>
@@ -160,6 +161,7 @@
             <dx-data-grid [dataSource]="documentDetails" [showBorders]="false" [columnAutoWidth]="true"
               [showColumnLines]="false" [showRowLines]="true" [rowAlternationEnabled]="true">
 
+              <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false" [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
               <dxi-column dataField="carDescription"
                 caption="{{ 'PURCHASE_OFFER.DESCRIPTION' | translate }}"></dxi-column>
               <dxi-column dataField="make" caption="{{ 'PURCHASE_OFFER.MAKE' | translate }}"></dxi-column>

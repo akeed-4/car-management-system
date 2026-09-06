@@ -52,7 +52,7 @@
       [wordWrapEnabled]="true"
       height="600px"
       [showRowLines]="true"
-      [noDataText]="'CAR_REPORTS.NO_DATA' | translate"
+      [noDataText]="noDataText | translate"
       (onRowDblClick)="onRowDblClick($event)">
 
       <dxo-search-panel [visible]="true" [width]="260"></dxo-search-panel>
@@ -62,6 +62,7 @@
       <dxo-group-panel [visible]="true"></dxo-group-panel>
       <dxo-paging [pageSize]="20"></dxo-paging>
       <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50, 100]" [showInfo]="true"></dxo-pager>
+      <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="virtual" [useNative]="false" [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
 
       <dxi-column
         *ngFor="let col of columns"

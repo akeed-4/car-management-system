@@ -86,6 +86,7 @@
             noDataText="{{ 'PURCHASE_REQUESTS.NO_ITEMS' | translate }}">
 
             <dxo-editing mode="cell" [allowUpdating]="true"></dxo-editing>
+            <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false" [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
             <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_OFFER.DESCRIPTION' | translate }}" [allowEditing]="false"></dxi-column>
             <dxi-column dataField="make" caption="{{ 'PURCHASE_OFFER.MAKE' | translate }}" [allowEditing]="false"></dxi-column>
             <dxi-column dataField="model" caption="{{ 'PURCHASE_OFFER.MODEL' | translate }}" [allowEditing]="false"></dxi-column>

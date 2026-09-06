@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { PurchaseInvoice } from '../models/purchase-invoice.model';
-import { Observable, map } from 'rxjs';
+import { Observable, catchError, map, of } from 'rxjs';
 import { environment } from '../environments/environment';
 
 @Injectable({
@@ -28,7 +28,16 @@ export class PurchasesService {
   }
 
   getInvoices(): Observable<PurchaseInvoice[]> {
-    return this.http.get<PurchaseInvoice[]>(this.apiUrl+'/GetAll');
+    // toSignal (the caller in purchases.component.ts) has no error channel of its own -- an
+    // unhandled failure here would leave the signal pinned at its initialValue ([]) forever,
+    // with the grid just silently empty and no console/network signal beyond the failed request
+    // itself. Logging here at least surfaces the real cause instead of a bare empty grid.
+    return this.http.get<PurchaseInvoice[]>(this.apiUrl+'/GetAll').pipe(
+      catchError(error => {
+        console.error('Failed to load purchase invoices:', error);
+        return of([]);
+      }),
+    );
   }
 
   getInvoiceById(id: number): Observable<PurchaseInvoice> {

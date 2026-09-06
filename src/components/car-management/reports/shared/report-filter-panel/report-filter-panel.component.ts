@@ -71,7 +71,6 @@ export class ReportFilterPanelComponent implements OnChanges {
 
   onClear(): void {
     this.model = {};
-    this.filtersChange.emit({});
     this.clear.emit();
   }
 }

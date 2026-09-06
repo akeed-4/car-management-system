@@ -360,7 +360,6 @@
                 [rowAlternationEnabled]="true"
                 [filterRow]="{ visible: true }"
                 [headerFilter]="{ visible: true }"
-                [scrolling]="{ mode: 'standard' }"
                 [paging]="{ pageSize: 10 }"
                 [pager]="{ showPageSizeSelector: true, allowedPageSizes: [5, 10, 20], showInfo: true, showNavigationButtons: true }"
                 [searchPanel]="{ visible: true, placeholder: 'INVENTORY.FORM.SEARCH_RELATED_COSTS' | translate }"
@@ -369,6 +368,7 @@
                 <dxi-column dataField="description" [caption]="'INVENTORY.FORM.RELATED_COSTS_DESCRIPTION' | translate" dataType="string"></dxi-column>
                 <dxi-column dataField="amount" [caption]="'INVENTORY.FORM.RELATED_COSTS_AMOUNT' | translate" dataType="number" format="currency" [calculateCellValue]="calculateAmountCellValue"></dxi-column>
 
+                <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false" [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
                 <dxo-summary>
                   <dxi-total-item column="amount" summaryType="sum" [displayFormat]="('INVENTORY.FORM.RELATED_COSTS_TOTAL' | translate) + ': {0}'" [valueFormat]="{ type: 'currency', currency: 'SAR' }"></dxi-total-item>
                 </dxo-summary>

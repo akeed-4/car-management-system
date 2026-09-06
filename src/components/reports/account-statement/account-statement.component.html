@@ -3,7 +3,7 @@
   [subtitle]="'REPORTS.ACCOUNT_STATEMENT.SUBTITLE'"
   [icon]="'receipt_long'"
   [showDateRange]="true"
-  [showBranchFilter]="true"
+  [showStoreFilter]="true"
   [showAccountFilter]="true"
   [loading]="loading"
   (filterChange)="onFilterChange($event)"
@@ -22,7 +22,8 @@
     [allowFiltering]="true"
     [allowGrouping]="false"
     [showSummary]="false"
-    [height]="'600px'">
+    [height]="'600px'"
+    [noDataText]="hasSearched ? 'REPORTS.NO_DATA' : 'REPORTS.APPLY_FILTER_PROMPT'">
   </app-report-grid>
 
 </app-report-container>

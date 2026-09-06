@@ -46,7 +46,14 @@ export class ReportTreeComponent implements OnInit {
   @Input() height: string = '600px';
   @Input() showSummary: boolean = true;
   @Input() summaryItems: any[] = [];
-  
+  /** Empty-state text -- see ReportGridComponent.noDataText's doc comment for the same
+   *  "apply filters" vs "no results" gating convention. */
+  @Input() noDataText: string = '';
+
+  get resolvedNoDataText(): string {
+    return this.translateService.instant(this.noDataText || 'REPORTS.APPLY_FILTER_PROMPT');
+  }
+
   @Output() rowClick = new EventEmitter<any>();
   @Output() cellClick = new EventEmitter<any>();
   @Output() rowExpanding = new EventEmitter<any>();

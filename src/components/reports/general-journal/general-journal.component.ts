@@ -29,6 +29,11 @@ export class GeneralJournalComponent implements OnInit {
     reportData: GeneralJournalReport[] = [];
     loading: boolean = false;
     currentFilters: ReportFilter = {};
+    /** False until Apply Filter has been clicked at least once -- see remoteStore's shouldSkip,
+     *  same gating pattern as account-statement.component.ts's accountId guard. Without this the
+     *  grid's CustomStore fires its load() (and thus a real API request) the instant the report
+     *  page opens, before the user has chosen any filter. */
+    hasSearched = false;
 
     /**
      * Remote-operations (server-side paging/filtering/sorting) mode. ON: the backend's
@@ -44,15 +49,15 @@ export class GeneralJournalComponent implements OnInit {
      * Remote CustomStore against the real paged endpoint, built via the shared
      * ReportDataSourceService (report-data-source.service.ts). `lineId` matches
      * GeneralJournalRowDto's key field. `extraParams` maps this screen's ReportFilter (emitted by
-     * report-container as startDate/endDate/accountId/branchId) onto GeneralJournalRequest's
-     * actual query param names (FromDate/ToDate/AccountId/CostCenterId) -- GeneralJournalRequest
-     * has no BranchId, so branchId is intentionally not forwarded.
+     * report-container as startDate/endDate/accountId/storeId) onto GeneralJournalRequest's
+     * actual query param names (FromDate/ToDate/AccountId/CostCenterId/StoreId).
      */
     remoteStore: CustomStore = this.reportDataSourceService.createStore<GeneralJournalRow>(
         'AccountReports/general-journal/query',
         {
             key: 'lineId',
             extraParams: () => this.buildGeneralJournalRequestParams(),
+            shouldSkip: () => !this.hasSearched,
         },
     );
 
@@ -132,11 +137,10 @@ export class GeneralJournalComponent implements OnInit {
     }
 
     /**
-     * Maps this screen's ReportFilter (startDate/endDate/accountId/branchId, emitted by
+     * Maps this screen's ReportFilter (startDate/endDate/accountId/storeId, emitted by
      * report-container) onto the query param names GeneralJournalRequest actually binds
      * ([FromQuery] on AccountReportsController.GetGeneralJournalQuery): FromDate/ToDate/
-     * AccountId/CostCenterId. GeneralJournalRequest has no BranchId, so branchId is dropped
-     * rather than sent as a param the backend would silently ignore.
+     * AccountId/CostCenterId/StoreId.
      */
     private buildGeneralJournalRequestParams(): Record<string, unknown> {
         const params: Record<string, unknown> = {};
@@ -145,6 +149,7 @@ export class GeneralJournalComponent implements OnInit {
         if (f.endDate) params['ToDate'] = f.endDate instanceof Date ? f.endDate.toISOString() : f.endDate;
         if (f.accountId) params['AccountId'] = f.accountId;
         if (f.costCenterId) params['CostCenterId'] = f.costCenterId;
+        if (f.storeId) params['StoreId'] = f.storeId;
         return params;
     }
 
@@ -173,6 +178,7 @@ export class GeneralJournalComponent implements OnInit {
      */
     onFilterChange(filters: ReportFilter): void {
         this.currentFilters = filters;
+        this.hasSearched = true;
         this.gridComponent?.refresh();
     }
 

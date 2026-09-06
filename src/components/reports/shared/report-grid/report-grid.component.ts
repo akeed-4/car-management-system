@@ -4,7 +4,7 @@ import {
   DxDataGridModule,
   DxDataGridComponent
 } from 'devextreme-angular/ui/data-grid';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import CustomStore from 'devextreme/data/custom_store';
 import DataSource from 'devextreme/data/data_source';
 
@@ -29,7 +29,7 @@ export type ReportRemoteDataSource = CustomStore | DataSource;
     imports: [
         CommonModule,
         DxDataGridModule,
-    
+        TranslateModule,
     ],
     templateUrl: './report-grid.component.html',
     styleUrls: ['./report-grid.component.css']
@@ -96,6 +96,15 @@ export class ReportGridComponent implements OnInit {
      * leave state storing off entirely, same as if this feature never existed for that screen.
      */
     @Input() stateStorageKey: string = '';
+
+    /** Empty-state text shown when the grid has no rows. Callers pass the "apply filters to see
+     *  data" prompt before the first search, and a "no results" message after a search returns
+     *  nothing -- see this input's usage in report-container-driven report screens. */
+    @Input() noDataText: string = '';
+
+    get resolvedNoDataText(): string {
+        return this.translateService.instant(this.noDataText || 'REPORTS.APPLY_FILTER_PROMPT');
+    }
 
     /** Full localStorage key actually passed to dxo-state-storing -- prefixed so it can never
      *  collide with an unrelated key some other part of the app happens to also store under, and

@@ -11,7 +11,18 @@ export class DevExtremeLocalizationService {
     this.initializeDevExtremeLocalization();
   }
 
-  private initializeDevExtremeLocalization() {
+  private async initializeDevExtremeLocalization() {
+    // Load DevExtreme's own shipped locale bundles first -- they cover every built-in
+    // string (dialogs, header-filter menus, pager, editors, etc.), not just dxDataGrid.
+    // The hand-picked dictionaries below are loaded afterwards so they can still override
+    // specific wordings without needing to duplicate the entire bundle here.
+    const [arBundle, enBundle] = await Promise.all([
+      import('devextreme/localization/messages/ar.json'),
+      import('devextreme/localization/messages/en.json'),
+    ]);
+    loadMessages(arBundle.default ?? arBundle);
+    loadMessages(enBundle.default ?? enBundle);
+
     // Load Arabic messages
     const arabicMessages = {
       'ar': {

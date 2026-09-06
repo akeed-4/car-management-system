@@ -7,6 +7,7 @@
   [filterFields]="cfg.filters"
   [rows]="rows()"
   [loading]="loading()"
+  [noDataText]="hasSearched() ? 'CAR_REPORTS.NO_DATA' : 'CAR_REPORTS.APPLY_FILTER_PROMPT'"
   [exportFileName]="cfg.exportFileName"
   [dataCaveatKey]="cfg.dataCaveatKey"
   [canExportExcel]="canExportExcel"

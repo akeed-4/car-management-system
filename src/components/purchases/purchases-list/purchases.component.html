@@ -57,7 +57,7 @@
 
         <!-- Same custom cell templates as the previous dx-data-grid. -->
         <ng-template #supplierTemplate let-cell>
-          {{ cell.data.supplier?.name || 'N/A' }}
+          {{ cell.data.supplierName || 'N/A' }}
         </ng-template>
 
         <ng-template #contentsTemplate let-cell>

@@ -3,7 +3,7 @@
   [subtitle]="'REPORTS.BUSINESS_ACTIVITY.SUBTITLE'"
   [icon]="'trending_up'"
   [showDateRange]="true"
-  [showBranchFilter]="true"
+  [showStoreFilter]="true"
   [showAccountFilter]="false"
   [loading]="loading"
   (filterChange)="onFilterChange($event)"
@@ -23,7 +23,8 @@
     [showGroupPanel]="true"
     [showSummary]="true"
     [summaryItems]="summaryItems"
-    [height]="'600px'">
+    [height]="'600px'"
+    [noDataText]="hasSearched ? 'REPORTS.NO_DATA' : 'REPORTS.APPLY_FILTER_PROMPT'">
   </app-report-grid>
 
 </app-report-container>

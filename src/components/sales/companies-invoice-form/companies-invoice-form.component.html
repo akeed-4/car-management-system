@@ -51,6 +51,7 @@
     <h3 class="erp-section-title">{{ 'CORPORATE.VEHICLE_LINES' | translate }}</h3>
     <div class="erp-grid-card table-container">
       <dx-data-grid [dataSource]="q.lines" [showBorders]="true" [columnAutoWidth]="true" [rtlEnabled]="true" [height]="180">
+        <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false" [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
         <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}"></dxi-column>
         <dxi-column dataField="vin" caption="VIN"></dxi-column>
         <dxi-column dataField="discountedPrice" caption="{{ 'INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
@@ -76,6 +77,7 @@
           (onSelectionChanged)="onDeliverySelectionChanged($event)"
         >
           <dxo-selection mode="multiple" showCheckBoxesMode="always"></dxo-selection>
+          <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false" [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
           <dxi-column dataField="deliveryNoteNumber" caption="{{ 'CORPORATE.DELIVERY_NOTE_NUMBER' | translate }}"></dxi-column>
           <dxi-column dataField="orderNumber" caption="{{ 'CORPORATE.ORDER_NUMBER' | translate }}"></dxi-column>
           <dxi-column dataField="customerName" caption="{{ 'CORPORATE.CUSTOMER' | translate }}"></dxi-column>

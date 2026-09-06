@@ -106,6 +106,7 @@ export class AccountReportService {
     const body = {
       FromDate: this.toDateString(filters.startDate),
       ToDate: this.toDateString(filters.endDate),
+      StoreId: filters.storeId ?? undefined,
     };
     return this.http.post<AccountBalanceReportResponseWire>(`${this.apiUrl}/account-balance`, body).pipe(
       map(response => (response.accounts ?? []).map(a => ({
@@ -133,6 +134,7 @@ export class AccountReportService {
     const body = {
       AsOfDate: this.toDateString(filters.endDate) ?? new Date().toISOString(),
       CompanyId: this.currentSettingService.getCompanyId(),
+      StoreId: filters.storeId ?? undefined,
     };
     return this.http.post<BalanceSheetDtoWire>(`${this.apiUrl}/balance-sheet`, body).pipe(
       map(response => this.flattenBalanceSheet(response)),
@@ -190,6 +192,7 @@ export class AccountReportService {
       FromDate: this.toDateString(filters.startDate),
       ToDate: this.toDateString(filters.endDate),
       CompanyId: this.currentSettingService.getCompanyId(),
+      StoreId: filters.storeId ?? undefined,
     };
     return this.http.post<TrialBalanceDtoWire>(`${this.apiUrl}/GetTrialBalance`, body).pipe(
       map(response => (response.items ?? []).map(i => ({
@@ -240,6 +243,7 @@ export class AccountReportService {
     const toDate = this.toDateString(filters.endDate);
     if (fromDate) params['FromDate'] = fromDate;
     if (toDate) params['ToDate'] = toDate;
+    if (filters.storeId) params['StoreId'] = String(filters.storeId);
 
     return this.http.get<BusinessActivityReportDtoWire>(`${this.apiUrl}/business-activity`, { params }).pipe(
       map(response => this.flattenBusinessActivity(response)),

@@ -695,13 +695,17 @@ backToCard(): void {
           const carToUpdate = { ...carToSave, id: formValue.id };
           await firstValueFrom(this.inventoryService.updateCar(carToUpdate as Car));
           this.notificationService.showSuccess(this.translate.instant('TOAST.EDIT_SUCCESS'));
+          // Refresh the cars list
+          this.inventoryService.loadCars();
+          this.router.navigate(['/setup/cars']);
         } else {
-          await this.inventoryService.addCar(carToSave as any);
+          const createdCar = await this.inventoryService.addCar(carToSave as any);
           this.notificationService.showSuccess(this.translate.instant('TOAST.ADD_SUCCESS'));
+          // Refresh the cars list
+          this.inventoryService.loadCars();
+          await this.offerVehicleStickerPrint(createdCar);
+          this.router.navigate(['/setup/cars']);
         }
-        // Refresh the cars list
-        this.inventoryService.loadCars();
-        this.router.navigate(['/setup/cars']);
       } catch (error) {
         console.error('Error saving car:', error);
         if (error instanceof HttpErrorResponse) {
@@ -723,6 +727,27 @@ backToCard(): void {
       }
     } else {
       this.notificationService.showWarning(this.translate.instant('TOAST.VALIDATION_ERROR'));
+    }
+  }
+
+  /**
+   * Offers to print the vehicle sticker/label right after a NEW car is created, reusing the
+   * existing label feature as-is (same route, same component, same permission) rather than
+   * duplicating it -- see inventory-list.component.ts's 'label' row action for the original.
+   * Create-only by construction (only called from saveCar()'s create branch): Edit Car's own
+   * sticker entry point (the inventory list row action) is untouched.
+   */
+  private async offerVehicleStickerPrint(createdCar: Car): Promise<void> {
+    if (!createdCar?.id || !this.permissionService.hasPermission('inventory.view')) return;
+
+    const result = await this.notificationService.confirmAlert(
+      this.translate.instant('VEHICLE_LABEL.PRINT_PROMPT_TITLE'),
+      this.translate.instant('VEHICLE_LABEL.PRINT_PROMPT_TEXT'),
+      this.translate.instant('VEHICLE_LABEL.PRINT_LABEL')
+    );
+
+    if (result?.isConfirmed) {
+      window.open(`/#/inventory/label/print/${createdCar.id}`, '_blank');
     }
   }
 

@@ -35,6 +35,9 @@ export class ReportViewerComponent implements OnInit {
   report = signal<CarReportEntry | undefined>(undefined);
   rows = signal<any[]>([]);
   loading = signal(false);
+  /** False until the user runs a search at least once -- gates the "apply filters" prompt vs
+   *  the real "no results" empty state, and keeps ngOnInit from auto-loading on page open. */
+  hasSearched = signal(false);
   canExportExcel = true;
   canExportPdf = true;
   canPrint = true;
@@ -56,13 +59,13 @@ export class ReportViewerComponent implements OnInit {
       this.canExportExcel = this.permissionService.hasPermission(`${config.permissionPrefix}.exportExcel`);
       this.canExportPdf = this.permissionService.hasPermission(`${config.permissionPrefix}.exportPdf`);
       this.canPrint = this.permissionService.hasPermission(`${config.permissionPrefix}.print`);
-      this.load();
     }
   }
 
   load(): void {
     const config = this.report();
     if (!config) return;
+    this.hasSearched.set(true);
     this.loading.set(true);
     this.dataService.resolveRows(config.dataSource, this.currentFilters).subscribe({
       next: rows => {

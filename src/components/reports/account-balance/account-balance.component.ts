@@ -23,6 +23,8 @@ export class AccountBalanceComponent implements OnInit {
   reportData: AccountBalanceReport[] = [];
   loading: boolean = false;
   currentFilters: ReportFilter = {};
+  /** False until Apply Filter has been clicked at least once -- see ngOnInit's doc comment. */
+  hasSearched: boolean = false;
 
   columns: GridColumn[] = [
     {
@@ -78,7 +80,8 @@ export class AccountBalanceComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadReport();
+    // Intentionally no initial load -- the report must stay empty until the user clicks
+    // Apply Filter (see onFilterChange), not query the backend the moment the page opens.
   }
 
   /**
@@ -103,6 +106,7 @@ export class AccountBalanceComponent implements OnInit {
    */
   onFilterChange(filters: ReportFilter): void {
     this.currentFilters = filters;
+    this.hasSearched = true;
     this.loadReport();
   }
 

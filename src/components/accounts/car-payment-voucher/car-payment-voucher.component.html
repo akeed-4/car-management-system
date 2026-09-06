@@ -1,12 +1,12 @@
 <div class="erp-page">
   <div class="erp-page-header">
     <div class="erp-page-header-titles">
-      <h2 class="erp-page-title">Car Payment Voucher</h2>
+      <h2 class="erp-page-title">{{ 'ACCOUNTS.CAR_PAYMENT_FORM.TITLE' | translate }}</h2>
     </div>
     <div class="erp-page-actions">
       <a mat-stroked-button routerLink="/accounts/payments">
         <mat-icon>arrow_back</mat-icon>
-        Back
+        {{ 'ACCOUNTS.CAR_PAYMENT_FORM.BACK' | translate }}
       </a>
     </div>
   </div>
@@ -17,38 +17,38 @@
         <!-- Header Info -->
         <div class="erp-section header-section">
           <mat-form-field appearance="outline">
-            <mat-label>Voucher Number</mat-label>
+            <mat-label>{{ 'ACCOUNTS.CAR_PAYMENT_FORM.VOUCHER_NUMBER' | translate }}</mat-label>
             <input matInput type="text" formControlName="voucherNumber">
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Date</mat-label>
+            <mat-label>{{ 'ACCOUNTS.CAR_PAYMENT_FORM.DATE' | translate }}</mat-label>
             <input matInput type="date" formControlName="voucherDate" required>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Total Amount</mat-label>
+            <mat-label>{{ 'ACCOUNTS.CAR_PAYMENT_FORM.TOTAL_AMOUNT' | translate }}</mat-label>
             <input matInput type="number" formControlName="totalAmount" required min="0.01">
           </mat-form-field>
 
           <div class="field-with-add">
             <mat-form-field appearance="outline">
-              <mat-label>{{ form.get('purchaseInvoiceId')?.value ? 'Supplier Account' : 'Payment Account' }}</mat-label>
+              <mat-label>{{ (form.get('purchaseInvoiceId')?.value ? 'ACCOUNTS.CAR_PAYMENT_FORM.SUPPLIER_ACCOUNT' : 'ACCOUNTS.CAR_PAYMENT_FORM.PAYMENT_ACCOUNT') | translate }}</mat-label>
               <mat-select formControlName="accountId" required>
-                <mat-option [value]="null" disabled>Select Account</mat-option>
+                <mat-option [value]="null" disabled>{{ 'ACCOUNTS.CAR_PAYMENT_FORM.SELECT_ACCOUNT' | translate }}</mat-option>
                 <mat-option *ngFor="let acc of accounts$ | async; trackBy: trackByAccountId" [value]="acc.id">{{ acc.accountCode }} - {{ acc.accountNameAr }}</mat-option>
               </mat-select>
-              <mat-hint *ngIf="!accountManuallyChanged">Default account -- you can change it</mat-hint>
+              <mat-hint *ngIf="!accountManuallyChanged">{{ 'ACCOUNTS.CAR_PAYMENT_FORM.DEFAULT_ACCOUNT_HINT' | translate }}</mat-hint>
             </mat-form-field>
-            <button mat-icon-button type="button" *ngIf="accountManuallyChanged" matTooltip="Reset to default account" (click)="resetAccountToDefault()">
+            <button mat-icon-button type="button" *ngIf="accountManuallyChanged" [matTooltip]="'ACCOUNTS.CAR_PAYMENT_FORM.RESET_TO_DEFAULT' | translate" (click)="resetAccountToDefault()">
               <mat-icon>restart_alt</mat-icon>
             </button>
           </div>
 
           <mat-form-field appearance="outline">
-            <mat-label>Purchase Invoice</mat-label>
+            <mat-label>{{ 'ACCOUNTS.CAR_PAYMENT_FORM.PURCHASE_INVOICE' | translate }}</mat-label>
             <mat-select formControlName="purchaseInvoiceId" (selectionChange)="onPurchaseInvoiceChange($event.value)">
-              <mat-option [value]="null">None</mat-option>
+              <mat-option [value]="null">{{ 'ACCOUNTS.CAR_PAYMENT_FORM.NONE' | translate }}</mat-option>
               <mat-option *ngFor="let inv of invoices$ | async; trackBy: trackByInvoiceId" [value]="inv.id">{{ inv.invoiceNumber }}</mat-option>
             </mat-select>
           </mat-form-field>
@@ -56,7 +56,7 @@
 
         <!-- Details Table -->
         <div class="erp-section details-section">
-          <h3 class="erp-section-title">Payment Details</h3>
+          <h3 class="erp-section-title">{{ 'ACCOUNTS.CAR_PAYMENT_FORM.DETAILS_TITLE' | translate }}</h3>
           <dx-data-grid
             [dataSource]="detailsData | async"
             [showBorders]="true"
@@ -69,6 +69,7 @@
             (onRowUpdated)="onRowUpdated($event)">
             
             <dxo-paging [enabled]="false"></dxo-paging>
+            <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false" [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
             <dxo-editing
               mode="cell"
               [allowUpdating]="true"
@@ -76,7 +77,7 @@
               [allowDeleting]="!form.get('purchaseInvoiceId')?.value">
             </dxo-editing>
 
-            <dxi-column dataField="expenseAccountId" caption="Expense Account">
+            <dxi-column dataField="expenseAccountId" [caption]="'ACCOUNTS.CAR_PAYMENT_FORM.COL_EXPENSE_ACCOUNT' | translate">
               <dxo-lookup
                 [dataSource]="accounts$ | async"
                 valueExpr="id"
@@ -84,22 +85,22 @@
               </dxo-lookup>
             </dxi-column>
 
-            <dxi-column dataField="carId" caption="Car" [allowEditing]="false">
+            <dxi-column dataField="carId" [caption]="'ACCOUNTS.CAR_PAYMENT_FORM.COL_CAR' | translate" [allowEditing]="false">
             </dxi-column>
 
-            <dxi-column dataField="amount" caption="Amount" dataType="number">
+            <dxi-column dataField="amount" [caption]="'ACCOUNTS.CAR_PAYMENT_FORM.COL_AMOUNT' | translate" dataType="number">
             </dxi-column>
 
-            <dxi-column dataField="note" caption="Note">
+            <dxi-column dataField="note" [caption]="'ACCOUNTS.CAR_PAYMENT_FORM.COL_NOTE' | translate">
             </dxi-column>
           </dx-data-grid>
 
           <div class="table-footer">
             <button mat-stroked-button type="button" (click)="distributeEvenly()" *ngIf="(detailsData | async)?.length > 0">
-              Distribute Evenly
+              {{ 'ACCOUNTS.CAR_PAYMENT_FORM.DISTRIBUTE_EVENLY' | translate }}
             </button>
             <div class="erp-total-row">
-              <span class="erp-total-label">Total</span>
+              <span class="erp-total-label">{{ 'ACCOUNTS.CAR_PAYMENT_FORM.TOTAL' | translate }}</span>
               <span class="erp-total-value">{{ getTotalAmount() | currency:'SAR' }}</span>
             </div>
           </div>
@@ -108,10 +109,10 @@
 
       <div class="erp-actions-bar">
         <a mat-stroked-button routerLink="/accounts/payments">
-          Cancel
+          {{ 'ACCOUNTS.CAR_PAYMENT_FORM.CANCEL' | translate }}
         </a>
         <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
-          Save
+          {{ 'ACCOUNTS.CAR_PAYMENT_FORM.SAVE' | translate }}
         </button>
       </div>
     </form>

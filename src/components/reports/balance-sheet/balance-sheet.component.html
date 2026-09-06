@@ -3,7 +3,7 @@
   [subtitle]="'REPORTS.BALANCE_SHEET.SUBTITLE'"
   [icon]="'account_balance_wallet'"
   [showDateRange]="true"
-  [showBranchFilter]="true"
+  [showStoreFilter]="true"
   [showAccountFilter]="false"
   [loading]="loading"
   (filterChange)="onFilterChange($event)"
@@ -22,7 +22,8 @@
     [allowFiltering]="true"
     [autoExpandAll]="true"
     [showSummary]="false"
-    [height]="'600px'">
+    [height]="'600px'"
+    [noDataText]="hasSearched ? 'REPORTS.NO_DATA' : 'REPORTS.APPLY_FILTER_PROMPT'">
   </app-report-tree>
 
 </app-report-container>

@@ -91,6 +91,7 @@
             noDataText="{{ 'SUPPLIER_RFQ.NO_ITEMS' | translate }}">
 
             <dxo-editing mode="cell" [allowUpdating]="true"></dxo-editing>
+            <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false" [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
             <dxi-column dataField="itemCode" caption="{{ 'SUPPLIER_RFQ.ITEM_CODE' | translate }}" [allowEditing]="false" [width]="100"></dxi-column>
             <dxi-column dataField="itemDescription" caption="{{ 'SUPPLIER_RFQ.ITEM_DESCRIPTION' | translate }}" [allowEditing]="false"></dxi-column>
             <dxi-column dataField="unitOfMeasure" caption="{{ 'SUPPLIER_RFQ.UOM' | translate }}" [allowEditing]="false" [width]="90"></dxi-column>

@@ -72,6 +72,7 @@
             (onSelectionChanged)="onSelectionChanged($event)"
           >
             <dxo-selection mode="multiple" showCheckBoxesMode="always"></dxo-selection>
+            <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false" [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
             <dxi-column dataField="vin" caption="VIN"></dxi-column>
             <dxi-column dataField="make" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}"></dxi-column>
             <dxi-column dataField="model" caption="Model"></dxi-column>

@@ -139,9 +139,9 @@ export class AccountStatementComponent implements OnInit {
   }
 
   /**
-   * Maps this screen's ReportFilter (startDate/endDate/accountId/branchId, emitted by
+   * Maps this screen's ReportFilter (startDate/endDate/accountId/storeId, emitted by
    * report-container) onto the query param names AccountStatementRequest binds ([FromQuery] on
-   * AccountReportsController.GetAccountStatementQuery): FromDate/ToDate/AccountId. Returns
+   * AccountReportsController.GetAccountStatementQuery): FromDate/ToDate/AccountId/StoreId. Returns
    * AccountId: 0 when no account is selected yet so the backend's own AccountId<=0 validation
    * rejects the call with a clean 400 rather than the grid silently listing every account's lines.
    */
@@ -152,6 +152,7 @@ export class AccountStatementComponent implements OnInit {
     };
     if (f.startDate) params['FromDate'] = f.startDate instanceof Date ? f.startDate.toISOString() : f.startDate;
     if (f.endDate) params['ToDate'] = f.endDate instanceof Date ? f.endDate.toISOString() : f.endDate;
+    if (f.storeId) params['StoreId'] = f.storeId;
     return params;
   }
 
@@ -184,11 +185,16 @@ export class AccountStatementComponent implements OnInit {
   onFilterChange(filters: ReportFilter): void {
     this.currentFilters = filters;
     if (filters.accountId) {
+      this.hasSearched = true;
       this.gridComponent?.refresh();
     } else {
       this.notificationService.showWarning('REPORTS.SELECT_ACCOUNT_WARNING');
     }
   }
+
+  /** Gates the grid's empty-state text between "apply filters" (before a search has run) and
+   *  the real "no results" message -- set once an account is selected and a request goes out. */
+  hasSearched = false;
 
   /**
    * Export to PDF -- via the grid's own client-side DevExtreme exporter (see

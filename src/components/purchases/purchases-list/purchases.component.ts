@@ -52,7 +52,7 @@ export class PurchasesComponent {
       if (searchTerm) {
         invoices = invoices.filter(invoice =>
           invoice.invoiceNumber.toLowerCase().includes(searchTerm) ||
-          (invoice.supplier?.name || '').toLowerCase().includes(searchTerm) ||
+          (invoice.supplierName || '').toLowerCase().includes(searchTerm) ||
           invoice.status.toLowerCase().includes(searchTerm) ||
           invoice.items.some(item => item.carDescription.toLowerCase().includes(searchTerm))
         );
@@ -65,8 +65,8 @@ export class PurchasesComponent {
           let bValue: any;
 
           if (column === 'supplier') {
-            aValue = a.supplier?.name || '';
-            bValue = b.supplier?.name || '';
+            aValue = a.supplierName || '';
+            bValue = b.supplierName || '';
           } else if (column === 'invoiceDate') {
             aValue = new Date(a.invoiceDate);
             bValue = new Date(b.invoiceDate);
@@ -111,7 +111,7 @@ export class PurchasesComponent {
     private formatCurrency = (value: number) => `${(value ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SAR`;
 
     mobileFields: MobileCardField<PurchaseInvoice>[] = [
-      { label: 'PURCHASES.SUPPLIER', value: (inv) => inv.supplier?.name || 'N/A' },
+      { label: 'PURCHASES.SUPPLIER', value: (inv) => inv.supplierName || 'N/A' },
       { label: 'PURCHASES.INVOICE_DATE', value: (inv) => new Date(inv.invoiceDate).toLocaleDateString() },
       { label: 'PURCHASES.TOTAL_COST', value: (inv) => this.formatCurrency(inv.totalAmount) },
       { label: 'PURCHASES.AMOUNT_PAID', value: (inv) => this.formatCurrency(inv.amountPaid) },

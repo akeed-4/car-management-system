@@ -14,6 +14,7 @@
   <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
   <dxo-filter-row [visible]="true"></dxo-filter-row>
   <dxo-header-filter [visible]="true"></dxo-header-filter>
+  <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="virtual" [useNative]="false" [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
 
   <dxi-column dataField="id" caption="{{ 'INSTALLMENT.GRID.ID' | translate }}" [width]="80"></dxi-column>
 
@@ -42,6 +43,7 @@
       [showRowLines]="true"
       [showColumnLines]="true">
 
+      <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false" [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
       <dxi-column dataField="dueDate" caption="{{ 'INSTALLMENT.GRID.DUE_DATE' | translate }}" dataType="date" format="shortDate"></dxi-column>
 
       <dxi-column dataField="amount" caption="{{ 'INSTALLMENT.GRID.AMOUNT' | translate }}" dataType="number" format="currency"></dxi-column>
