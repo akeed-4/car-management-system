@@ -1,5 +1,7 @@
 import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { TranslateModule } from '@ngx-translate/core';
 import CustomStore from 'devextreme/data/custom_store';
 import { ReportContainerComponent } from '../shared/report-container/report-container.component';
 import { ReportGridComponent, GridColumn } from '../shared/report-grid/report-grid.component';
@@ -14,6 +16,8 @@ import { ReportFilter } from '@/src/models/reportmodel/report-filter.model';
   standalone: true,
   imports: [
     CommonModule,
+    MatIconModule,
+    TranslateModule,
     ReportContainerComponent,
     ReportGridComponent
   ],

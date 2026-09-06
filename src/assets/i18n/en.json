@@ -782,6 +782,7 @@
   },
   "PURCHASE_ORDER": {
     "LIST_TITLE": "Purchase Orders",
+    "NO_ORDERS": "No purchase orders yet",
     "CREATE_TITLE": "New Purchase Order",
     "EDIT_TITLE": "Edit Purchase Order",
     "MODULE_NAME": "Purchase Orders",

@@ -776,6 +776,7 @@
   },
   "PURCHASE_ORDER": {
     "LIST_TITLE": "أوامر الشراء",
+    "NO_ORDERS": "لا توجد أوامر شراء بعد",
     "CREATE_TITLE": "أمر شراء جديد",
     "EDIT_TITLE": "تعديل أمر الشراء",
     "MODULE_NAME": "أوامر الشراء",
