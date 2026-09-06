@@ -4063,8 +4063,8 @@
   "REPORTS": {
     "START_DATE": "تاريخ البداية",
     "END_DATE": "تاريخ النهاية",
-    "BRANCH": "الفرع",
-    "ALL_BRANCHES": "جميع الفروع",
+    "STORE": "المعرض",
+    "ALL_STORES": "جميع المعارض",
     "ACCOUNT": "الحساب",
     "ALL_ACCOUNTS": "جميع الحسابات",
     "COST_CENTER": "مركز التكلفة",
@@ -5400,7 +5400,9 @@
   },
   "VEHICLE_LABEL": {
     "PRINT_LABEL": "طباعة ملصق السيارة",
-    "SCAN_TO_VIEW": "امسح الرمز لعرض تفاصيل السيارة"
+    "SCAN_TO_VIEW": "امسح الرمز لعرض تفاصيل السيارة",
+    "PRINT_PROMPT_TITLE": "طباعة ملصق السيارة؟",
+    "PRINT_PROMPT_TEXT": "تم حفظ السيارة بنجاح. هل ترغب في طباعة الملصق الآن؟"
   },
   "INVOICE_PRINT": {
     "STATE": {

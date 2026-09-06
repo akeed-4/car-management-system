@@ -4121,8 +4121,8 @@
   "REPORTS": {
     "START_DATE": "Start Date",
     "END_DATE": "End Date",
-    "BRANCH": "Branch",
-    "ALL_BRANCHES": "All Branches",
+    "STORE": "Store",
+    "ALL_STORES": "All Stores",
     "ACCOUNT": "Account",
     "ALL_ACCOUNTS": "All Accounts",
     "COST_CENTER": "Cost Center",
@@ -5521,7 +5521,9 @@
   },
   "VEHICLE_LABEL": {
     "PRINT_LABEL": "Print Vehicle Label",
-    "SCAN_TO_VIEW": "Scan to view vehicle details"
+    "SCAN_TO_VIEW": "Scan to view vehicle details",
+    "PRINT_PROMPT_TITLE": "Print Vehicle Sticker?",
+    "PRINT_PROMPT_TEXT": "The car was saved successfully. Would you like to print its sticker now?"
   },
   "INVOICE_PRINT": {
     "STATE": {

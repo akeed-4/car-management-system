@@ -14,7 +14,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { TranslateModule } from '@ngx-translate/core';
 import { ReportFilter } from '@/src/models/reportmodel';
 import { AccountingService } from '../../../accounting/accounting.service';
-import { BranchService } from '../../../../services/branch.service';
+import { StoreService } from '../../../../services/store.service';
 import { CostCenterService } from '../../../../services/cost-center.service';
 import { LanguageService } from '../../../../services/language.service';
 
@@ -44,7 +44,7 @@ export class ReportContainerComponent implements OnInit {
   @Input() icon: string = 'assessment';
   @Input() showDateRange: boolean = true;
   @Input() showAccountFilter: boolean = false;
-  @Input() showBranchFilter: boolean = true;
+  @Input() showStoreFilter: boolean = true;
   @Input() showCostCenterFilter: boolean = false;
   @Input() customFilters: any[] = [];
   @Input() loading: boolean = false;
@@ -56,12 +56,12 @@ export class ReportContainerComponent implements OnInit {
   @Output() refresh = new EventEmitter<void>();
 
   filterForm!: FormGroup;
-  branches: { id: number; name: string }[] = [];
+  stores: { id: number; name: string }[] = [];
   accounts: { id: number; code: string; name: string }[] = [];
   costCenters: { id: number; name: string }[] = [];
 
   private accountingService = inject(AccountingService);
-  private branchService = inject(BranchService);
+  private storeService = inject(StoreService);
   private costCenterService = inject(CostCenterService);
   private languageService = inject(LanguageService);
   /** loadFilterData() runs from ngOnInit, not the constructor/a field initializer, so
@@ -70,15 +70,15 @@ export class ReportContainerComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   constructor(private fb: FormBuilder) {
-    // BranchService.branches$ is a Signal (despite the Observable-style `$` name), not an
+    // StoreService.stores$ is a Signal (despite the Observable-style `$` name), not an
     // Observable -- effect() is the reactive read for a signal, and (like
     // takeUntilDestroyed()) needs an injection context, which a constructor is but ngOnInit
     // is not, hence this lives here instead of alongside the rest of loadFilterData().
     effect(() => {
       const arabic = this.languageService.getCurrentLanguage() !== 'en';
-      this.branches = this.branchService.branches$().map(b => ({
-        id: b.id,
-        name: (arabic ? b.nameAr : b.nameEn) || b.nameEn || b.nameAr,
+      this.stores = this.storeService.stores$().map(s => ({
+        id: s.id,
+        name: (arabic ? s.nameAr : s.nameEn) || s.nameEn || s.nameAr,
       }));
     });
   }
@@ -96,7 +96,7 @@ export class ReportContainerComponent implements OnInit {
       startDate: [null],
       endDate: [null],
       accountId: [null],
-      branchId: [null],
+      storeId: [null],
       costCenterId: [null]
     });
 
@@ -112,9 +112,9 @@ export class ReportContainerComponent implements OnInit {
   }
 
   /**
-   * Load filter data (accounts, cost centers -- branches are handled by the effect() in the
-   * constructor, since BranchService.branches$ is a Signal, not an Observable) from the real
-   * app-wide services -- this was a hardcoded-empty stub, which meant the Branch/Account/Cost
+   * Load filter data (accounts, cost centers -- stores are handled by the effect() in the
+   * constructor, since StoreService.stores$ is a Signal, not an Observable) from the real
+   * app-wide services -- this was a hardcoded-empty stub, which meant the Store/Account/Cost
    * Center dropdowns above were always empty. That's the actual root cause of every accounting
    * report that requires an account selection (Account Balance, Account Statement) never being
    * able to load anything: the user could never pick an account, so onFilterChange's accountId

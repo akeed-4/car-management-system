@@ -30,13 +30,13 @@
               </mat-form-field>
             </div>
 
-            <!-- Branch Filter -->
-            <mat-form-field appearance="outline" *ngIf="showBranchFilter">
-              <mat-label>{{ 'REPORTS.BRANCH' | translate }}</mat-label>
-              <mat-select formControlName="branchId">
-                <mat-option [value]="null">{{ 'REPORTS.ALL_BRANCHES' | translate }}</mat-option>
-                <mat-option *ngFor="let branch of branches" [value]="branch.id">
-                  {{ branch.name }}
+            <!-- Store Filter -->
+            <mat-form-field appearance="outline" *ngIf="showStoreFilter">
+              <mat-label>{{ 'REPORTS.STORE' | translate }}</mat-label>
+              <mat-select formControlName="storeId">
+                <mat-option [value]="null">{{ 'REPORTS.ALL_STORES' | translate }}</mat-option>
+                <mat-option *ngFor="let store of stores" [value]="store.id">
+                  {{ store.name }}
                 </mat-option>
               </mat-select>
             </mat-form-field>

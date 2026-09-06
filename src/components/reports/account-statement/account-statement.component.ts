@@ -135,9 +135,9 @@ export class AccountStatementComponent implements OnInit {
   }
 
   /**
-   * Maps this screen's ReportFilter (startDate/endDate/accountId/branchId, emitted by
+   * Maps this screen's ReportFilter (startDate/endDate/accountId/storeId, emitted by
    * report-container) onto the query param names AccountStatementRequest binds ([FromQuery] on
-   * AccountReportsController.GetAccountStatementQuery): FromDate/ToDate/AccountId. Returns
+   * AccountReportsController.GetAccountStatementQuery): FromDate/ToDate/AccountId/StoreId. Returns
    * AccountId: 0 when no account is selected yet so the backend's own AccountId<=0 validation
    * rejects the call with a clean 400 rather than the grid silently listing every account's lines.
    */
@@ -148,6 +148,7 @@ export class AccountStatementComponent implements OnInit {
     };
     if (f.startDate) params['FromDate'] = f.startDate instanceof Date ? f.startDate.toISOString() : f.startDate;
     if (f.endDate) params['ToDate'] = f.endDate instanceof Date ? f.endDate.toISOString() : f.endDate;
+    if (f.storeId) params['StoreId'] = f.storeId;
     return params;
   }
 
