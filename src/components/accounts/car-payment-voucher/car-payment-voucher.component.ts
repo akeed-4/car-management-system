@@ -25,6 +25,7 @@ import { AccountingService, DefaultAccountKind } from '../../../../src/component
 import { DefaultAccountTracker } from '../../../../src/components/shared/default-account/default-account.helper';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NotificationService } from '../../../../src/services/notification.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-car-payment-voucher',
@@ -43,7 +44,8 @@ import { NotificationService } from '../../../../src/services/notification.servi
     MatTooltipModule,
     RouterModule,
     DxDataGridModule,
-    DxButtonModule
+    DxButtonModule,
+    TranslateModule
   ],
   templateUrl: './car-payment-voucher.component.html',
   styleUrl: './car-payment-voucher.component.css'

@@ -74,6 +74,7 @@
             [height]="260"
             keyExpr="carId"
           >
+            <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false" [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
             <dxi-column dataField="vin" caption="VIN" [allowEditing]="false"></dxi-column>
             <dxi-column dataField="unitPrice" caption="{{ 'INVOICE.UNIT_PRICE' | translate }}" dataType="number" format="currency" [allowEditing]="false" cssClass="readonly-col"></dxi-column>
             <dxi-column dataField="totalPrice" caption="{{ 'INVOICE.TOTAL' | translate }}" dataType="number" format="currency" [allowEditing]="false" cssClass="readonly-col"></dxi-column>

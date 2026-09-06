@@ -22,6 +22,8 @@ export class BalanceSheetComponent implements OnInit {
   reportData: BalanceSheetReport[] = [];
   loading: boolean = false;
   currentFilters: ReportFilter = {};
+  /** False until Apply Filter has been clicked at least once -- see ngOnInit's doc comment. */
+  hasSearched: boolean = false;
 
   columns: TreeColumn[] = [
     {
@@ -61,7 +63,7 @@ export class BalanceSheetComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadReport();
+    // Intentionally no initial load -- see onFilterChange; the report waits for Apply Filter.
   }
 
   /**
@@ -86,6 +88,7 @@ export class BalanceSheetComponent implements OnInit {
    */
   onFilterChange(filters: ReportFilter): void {
     this.currentFilters = filters;
+    this.hasSearched = true;
     this.loadReport();
   }
 

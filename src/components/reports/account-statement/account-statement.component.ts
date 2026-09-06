@@ -181,11 +181,16 @@ export class AccountStatementComponent implements OnInit {
   onFilterChange(filters: ReportFilter): void {
     this.currentFilters = filters;
     if (filters.accountId) {
+      this.hasSearched = true;
       this.gridComponent?.refresh();
     } else {
       this.notificationService.showWarning('REPORTS.SELECT_ACCOUNT_WARNING');
     }
   }
+
+  /** Gates the grid's empty-state text between "apply filters" (before a search has run) and
+   *  the real "no results" message -- set once an account is selected and a request goes out. */
+  hasSearched = false;
 
   /**
    * Export to PDF -- via the grid's own client-side DevExtreme exporter (see

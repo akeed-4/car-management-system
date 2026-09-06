@@ -48,6 +48,7 @@
     <dxo-header-filter [visible]="true"></dxo-header-filter>
     <dxo-paging [pageSize]="10"></dxo-paging>
     <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]"></dxo-pager>
+    <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="virtual" [useNative]="false" [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
 
     <dxi-column dataField="requisitionNumber" [caption]="'PURCHASE_REQUISITION.REQUISITION_NUMBER' | translate"></dxi-column>
     <dxi-column dataField="requisitionDate" [caption]="'PURCHASE_REQUISITION.REQUISITION_DATE' | translate" dataType="date"></dxi-column>

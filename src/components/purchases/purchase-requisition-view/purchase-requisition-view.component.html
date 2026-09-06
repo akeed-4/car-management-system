@@ -53,6 +53,7 @@
       <div class="details-grid-wrapper">
         <dx-data-grid [dataSource]="requisition.items" [showBorders]="true" [columnAutoWidth]="true"
           [rowAlternationEnabled]="true">
+          <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false" [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
           <dxi-column dataField="itemCode" caption="{{ 'PURCHASE_REQUISITION.ITEM_CODE' | translate }}" [width]="100"></dxi-column>
           <dxi-column dataField="itemDescription" caption="{{ 'PURCHASE_REQUISITION.ITEM_DESCRIPTION' | translate }}"></dxi-column>
           <dxi-column dataField="unitOfMeasure" caption="{{ 'PURCHASE_REQUISITION.UOM' | translate }}" [width]="90"></dxi-column>

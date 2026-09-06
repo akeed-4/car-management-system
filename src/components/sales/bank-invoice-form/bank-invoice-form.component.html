@@ -70,6 +70,7 @@
     <h3 class="erp-section-title">{{ 'BANK_FINANCING.FINANCED_VEHICLE' | translate }}</h3>
     <div class="erp-grid-card table-container">
       <dx-data-grid [dataSource]="orderVehicleLines()" [showBorders]="true" [columnAutoWidth]="true" [rtlEnabled]="true" [height]="140">
+        <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false" [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
         <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}"></dxi-column>
         <dxi-column dataField="vin" caption="VIN"></dxi-column>
         <dxi-column dataField="vehiclePrice" caption="{{ 'BANK_FINANCING.VEHICLE_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
@@ -99,6 +100,7 @@
     <h3 class="erp-section-title">{{ 'BANK_FINANCING.FINANCED_VEHICLE' | translate }}</h3>
     <div class="erp-grid-card table-container">
       <dx-data-grid [dataSource]="[d]" [showBorders]="true" [columnAutoWidth]="true" [rtlEnabled]="true" [height]="140">
+        <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false" [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
         <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}"></dxi-column>
         <dxi-column dataField="vin" caption="VIN"></dxi-column>
         <dxi-column dataField="unitPrice" caption="{{ 'BANK_FINANCING.VEHICLE_PRICE' | translate }}" dataType="number" format="currency"></dxi-column>

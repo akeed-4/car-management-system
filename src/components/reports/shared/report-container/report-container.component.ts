@@ -105,10 +105,9 @@ export class ReportContainerComponent implements OnInit {
       this.filterForm.addControl(filter.name, this.fb.control(null));
     });
 
-    // Emit filter changes
-    this.filterForm.valueChanges.subscribe(() => {
-      this.onApplyFilter();
-    });
+    // Filter changes intentionally do NOT auto-emit here -- only the explicit
+    // "Apply Filter" button (onApplyFilter) and Reset (which clears the report,
+    // it does not reload it) should trigger a report load.
   }
 
   /**
@@ -151,11 +150,11 @@ export class ReportContainerComponent implements OnInit {
   }
 
   /**
-   * Reset filters
+   * Reset filters. Clears the form only -- does not re-run the report; the user
+   * must click Apply Filter again, same as the initial empty state.
    */
   onResetFilter(): void {
     this.filterForm.reset();
-    this.onApplyFilter();
   }
 
   /**

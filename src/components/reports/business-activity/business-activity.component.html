@@ -23,7 +23,8 @@
     [showGroupPanel]="true"
     [showSummary]="true"
     [summaryItems]="summaryItems"
-    [height]="'600px'">
+    [height]="'600px'"
+    [noDataText]="hasSearched ? 'REPORTS.NO_DATA' : 'REPORTS.APPLY_FILTER_PROMPT'">
   </app-report-grid>
 
 </app-report-container>

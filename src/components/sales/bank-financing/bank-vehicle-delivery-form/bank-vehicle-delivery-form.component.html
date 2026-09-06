@@ -140,6 +140,7 @@
             keyExpr="carId"
           >
             <dxo-editing mode="cell" [allowUpdating]="true"></dxo-editing>
+            <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false" [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
             <dxi-column dataField="carDescription" caption="{{ 'PURCHASE_INVOICE.CAR' | translate }}" [allowEditing]="false"></dxi-column>
             <dxi-column dataField="vin" caption="VIN" [allowEditing]="false"></dxi-column>
             <dxi-column dataField="unitPrice" caption="{{ 'BANK_FINANCING.VEHICLE_PRICE' | translate }}" dataType="number" format="currency" [allowEditing]="false"></dxi-column>

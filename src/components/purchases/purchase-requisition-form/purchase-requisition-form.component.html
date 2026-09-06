@@ -60,6 +60,7 @@
             noDataText="{{ 'PURCHASE_REQUISITION.NO_ITEMS' | translate }}">
 
             <dxo-editing mode="cell" [allowUpdating]="true"></dxo-editing>
+            <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false" [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
             <dxi-column dataField="itemCode" caption="{{ 'PURCHASE_REQUISITION.ITEM_CODE' | translate }}" [width]="100"></dxi-column>
             <dxi-column dataField="itemDescription" caption="{{ 'PURCHASE_REQUISITION.ITEM_DESCRIPTION' | translate }}"></dxi-column>
             <dxi-column dataField="unitOfMeasure" caption="{{ 'PURCHASE_REQUISITION.UOM' | translate }}" [width]="90"></dxi-column>

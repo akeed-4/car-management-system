@@ -14,6 +14,7 @@
     [autoExpandAll]="autoExpandAll"
     [expandNodesOnFiltering]="expandNodesOnFiltering"
     [height]="height"
+    [noDataText]="resolvedNoDataText"
     (onRowClick)="onRowClick($event)"
     (onCellClick)="onCellClick($event)"
     (onRowExpanding)="onRowExpanding($event)"
@@ -26,7 +27,7 @@
     <dxo-search-panel
       [visible]="allowFiltering"
       [width]="240"
-      placeholder="Search...">
+      [placeholder]="getCaption('COMMON.SEARCH')">
     </dxo-search-panel>
 
     <!-- Filter Row -->

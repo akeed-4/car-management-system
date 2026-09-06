@@ -13,6 +13,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
+import { TranslateModule } from '@ngx-translate/core';
 import { SimpleReceiptVoucher, SimpleReceiptDetail } from '../../../../src/models/receipt-voucher.model';
 import { ChartOfAccountsService } from '../../../../src/services/chart-of-accounts.service';
 import { PaymentService } from '../../../../src/services/payment.service';
@@ -40,7 +41,8 @@ import { DefaultAccountTracker } from '../../../../src/components/shared/default
     MatTooltipModule,
     RouterModule,
     DxDataGridModule,
-    DxButtonModule
+    DxButtonModule,
+    TranslateModule
   ],
   templateUrl: './receipt-voucher.component.html',
   styleUrl: './receipt-voucher.component.css'

@@ -29,6 +29,11 @@ export class GeneralJournalComponent implements OnInit {
     reportData: GeneralJournalReport[] = [];
     loading: boolean = false;
     currentFilters: ReportFilter = {};
+    /** False until Apply Filter has been clicked at least once -- see remoteStore's shouldSkip,
+     *  same gating pattern as account-statement.component.ts's accountId guard. Without this the
+     *  grid's CustomStore fires its load() (and thus a real API request) the instant the report
+     *  page opens, before the user has chosen any filter. */
+    hasSearched = false;
 
     /**
      * Remote-operations (server-side paging/filtering/sorting) mode. ON: the backend's
@@ -52,6 +57,7 @@ export class GeneralJournalComponent implements OnInit {
         {
             key: 'lineId',
             extraParams: () => this.buildGeneralJournalRequestParams(),
+            shouldSkip: () => !this.hasSearched,
         },
     );
 
@@ -172,6 +178,7 @@ export class GeneralJournalComponent implements OnInit {
      */
     onFilterChange(filters: ReportFilter): void {
         this.currentFilters = filters;
+        this.hasSearched = true;
         this.gridComponent?.refresh();
     }
 

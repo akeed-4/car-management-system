@@ -22,6 +22,8 @@ export class BusinessActivityComponent implements OnInit {
   reportData: BusinessActivityReport[] = [];
   loading: boolean = false;
   currentFilters: ReportFilter = {};
+  /** False until Apply Filter has been clicked at least once -- see ngOnInit's doc comment. */
+  hasSearched: boolean = false;
 
   columns: GridColumn[] = [
     {
@@ -89,7 +91,7 @@ export class BusinessActivityComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadReport();
+    // Intentionally no initial load -- see onFilterChange; the report waits for Apply Filter.
   }
 
   /**
@@ -114,6 +116,7 @@ export class BusinessActivityComponent implements OnInit {
    */
   onFilterChange(filters: ReportFilter): void {
     this.currentFilters = filters;
+    this.hasSearched = true;
     this.loadReport();
   }
 

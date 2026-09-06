@@ -61,7 +61,14 @@
         <dxo-export [enabled]="true" [fileName]="exportFileName"></dxo-export>
       }
 
-      <dxo-scrolling [mode]="scrollingMode"></dxo-scrolling>
+      <dxo-scrolling
+        mode="standard"
+        columnRenderingMode="standard"
+        [rowRenderingMode]="scrollingMode === 'virtual' ? 'virtual' : 'standard'"
+        [useNative]="false"
+        [scrollByContent]="true"
+        [scrollByThumb]="true">
+      </dxo-scrolling>
 
       <dxo-pager
         [visible]="true"

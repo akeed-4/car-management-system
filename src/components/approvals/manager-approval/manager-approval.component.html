@@ -103,6 +103,7 @@
           <dxo-paging [pageSize]="10"></dxo-paging>
           <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]"></dxo-pager>
           <dxo-filter-row [visible]="true"></dxo-filter-row>
+          <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="virtual" [useNative]="false" [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
         </dx-data-grid>
       } @else {
         <div class="no-data">{{ 'MANAGER_APPROVAL.NO_PENDING_SALES' | translate }}</div>
@@ -208,6 +209,7 @@
           <dxo-paging [pageSize]="10"></dxo-paging>
           <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]"></dxo-pager>
           <dxo-filter-row [visible]="true"></dxo-filter-row>
+          <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="virtual" [useNative]="false" [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
         </dx-data-grid>
       } @else {
         <div class="no-data">{{ 'MANAGER_APPROVAL.NO_PENDING_PURCHASES' | translate }}</div>

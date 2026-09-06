@@ -122,7 +122,6 @@
           [filterRow]="{ visible: true }"
           [headerFilter]="{ visible: true }"
           [searchPanel]="{ visible: true, placeholder: 'INVENTORY.STOCK_TAKING_FORM.SEARCH_ITEMS' | translate }"
-          [scrolling]="{ mode: 'standard' }"
           [paging]="{ pageSize: 10 }"
           [pager]="{
             showPageSizeSelector: true,
@@ -133,6 +132,8 @@
           (onRowInserted)="addNewItemRow()"
           (onRowRemoved)="removeItem($event.rowIndex)"
           (onCellValueChanged)="onCellValueChanged($event)">
+
+          <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false" [scrollByContent]="true" [scrollByThumb]="true"></dxo-scrolling>
 
           <dxi-column dataField="itemId" caption="{{ 'INVENTORY.STOCK_TAKING_FORM.ITEM_ID' | translate }}" dataType="number" alignment="center">
            <dxo-lookup
