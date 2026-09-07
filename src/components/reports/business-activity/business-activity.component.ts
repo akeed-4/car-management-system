@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReportContainerComponent } from '../shared/report-container/report-container.component';
 import { ReportGridComponent, GridColumn } from '../shared/report-grid/report-grid.component';
@@ -19,6 +19,8 @@ import { ReportFilter } from '@/src/models/reportmodel/report-filter.model';
   styleUrls: ['./business-activity.component.css']
 })
 export class BusinessActivityComponent implements OnInit {
+  @ViewChild(ReportGridComponent) gridComponent?: ReportGridComponent;
+
   reportData: BusinessActivityReport[] = [];
   loading: boolean = false;
   currentFilters: ReportFilter = {};
@@ -121,41 +123,21 @@ export class BusinessActivityComponent implements OnInit {
   }
 
   /**
-   * Export to PDF
+   * Export to PDF -- via the grid's own client-side export (see
+   * ReportGridComponent.exportToPdf), not AccountReportService.exportToPdf: that method calls
+   * `api/AccountReports/business-activity/export/pdf`, a route that has never existed on
+   * AccountReportsController (no report on this controller has a PDF/Excel export action), so it
+   * 404'd on every click.
    */
   onExportPdf(): void {
-    this.accountReportService.exportToPdf('business-activity', this.currentFilters).subscribe({
-      next: (blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `business-activity-${new Date().getTime()}.pdf`;
-        link.click();
-        window.URL.revokeObjectURL(url);
-      },
-      error: () => {
-        this.notificationService.showError('REPORTS.EXPORT_ERROR');
-      }
-    });
+    this.gridComponent?.exportToPdf(`business-activity-${new Date().getTime()}`);
   }
 
   /**
-   * Export to Excel
+   * Export to Excel -- see onExportPdf's doc comment; same dead-backend-route issue.
    */
   onExportExcel(): void {
-    this.accountReportService.exportToExcel('business-activity', this.currentFilters).subscribe({
-      next: (blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `business-activity-${new Date().getTime()}.xlsx`;
-        link.click();
-        window.URL.revokeObjectURL(url);
-      },
-      error: () => {
-        this.notificationService.showError('REPORTS.EXPORT_ERROR');
-      }
-    });
+    this.gridComponent?.exportToExcel(`business-activity-${new Date().getTime()}`);
   }
 
   /**

@@ -299,28 +299,6 @@ export class AccountReportService {
   }
 
   /**
-   * Export report to PDF
-   */
-  exportToPdf(reportType: string, filters: ReportFilter): Observable<Blob> {
-    const params = this.buildHttpParams(filters);
-    return this.http.get(`${this.apiUrl}/${reportType}/export/pdf`, {
-      params,
-      responseType: 'blob'
-    });
-  }
-
-  /**
-   * Export report to Excel
-   */
-  exportToExcel(reportType: string, filters: ReportFilter): Observable<Blob> {
-    const params = this.buildHttpParams(filters);
-    return this.http.get(`${this.apiUrl}/${reportType}/export/excel`, {
-      params,
-      responseType: 'blob'
-    });
-  }
-
-  /**
    * Build HTTP parameters from filter object
    */
   private buildHttpParams(filters: ReportFilter): HttpParams {

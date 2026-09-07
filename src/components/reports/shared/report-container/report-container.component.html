@@ -116,15 +116,21 @@
 
       <mat-divider></mat-divider>
 
-      <!-- Loading Indicator -->
-      <div class="loading-container" *ngIf="loading">
-        <mat-spinner diameter="50"></mat-spinner>
-        <p>{{ 'REPORTS.LOADING' | translate }}</p>
-      </div>
+      <!-- Report Content wrapper: stays in the layout (never display:none) while loading, so
+           DevExtreme grids/trees projected via ng-content keep their measured dimensions and
+           repaint immediately when reportData updates, instead of staying visually stuck until
+           an unrelated DOM event (e.g. focusing a filter field) forces DevExtreme to recompute
+           its layout. The spinner is an overlay on top instead of a replacement. -->
+      <div class="report-content-wrapper">
+        <div class="loading-overlay" *ngIf="loading">
+          <mat-spinner diameter="50"></mat-spinner>
+          <p>{{ 'REPORTS.LOADING' | translate }}</p>
+        </div>
 
-      <!-- Report Content (ng-content for child components) -->
-      <div class="report-content" [class.hidden]="loading">
-        <ng-content></ng-content>
+        <!-- Report Content (ng-content for child components) -->
+        <div class="report-content">
+          <ng-content></ng-content>
+        </div>
       </div>
     </mat-card-content>
   </mat-card>

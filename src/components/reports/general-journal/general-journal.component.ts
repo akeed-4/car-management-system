@@ -183,41 +183,23 @@ export class GeneralJournalComponent implements OnInit {
     }
 
     /**
-     * Export to PDF
+     * Export to PDF -- via the grid's own client-side export (see
+     * ReportGridComponent.exportToPdf), not AccountReportService.exportToPdf: that method calls
+     * `api/AccountReports/general-journal/export/pdf`, a route that has never existed on
+     * AccountReportsController (no report on this controller has a PDF/Excel export action), so
+     * it 404'd on every click. In remote mode the grid's CustomStore re-queries unpaged for the
+     * export, so this still covers every row matching the current filters, not just the
+     * currently-loaded page.
      */
     onExportPdf(): void {
-        this.accountReportService.exportToPdf('general-journal', this.currentFilters).subscribe({
-            next: (blob) => {
-                const url = window.URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `general-journal-${new Date().getTime()}.pdf`;
-                link.click();
-                window.URL.revokeObjectURL(url);
-            },
-            error: () => {
-                this.notificationService.showError('REPORTS.EXPORT_ERROR');
-            }
-        });
+        this.gridComponent?.exportToPdf(`general-journal-${new Date().getTime()}`);
     }
 
     /**
-     * Export to Excel
+     * Export to Excel -- see onExportPdf's doc comment; same dead-backend-route issue.
      */
     onExportExcel(): void {
-        this.accountReportService.exportToExcel('general-journal', this.currentFilters).subscribe({
-            next: (blob) => {
-                const url = window.URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `general-journal-${new Date().getTime()}.xlsx`;
-                link.click();
-                window.URL.revokeObjectURL(url);
-            },
-            error: () => {
-                this.notificationService.showError('REPORTS.EXPORT_ERROR');
-            }
-        });
+        this.gridComponent?.exportToExcel(`general-journal-${new Date().getTime()}`);
     }
 
     /**

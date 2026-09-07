@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReportContainerComponent } from '../shared/report-container/report-container.component';
 import { ReportTreeComponent, TreeColumn } from '../shared/report-tree/report-tree.component';
@@ -19,6 +19,8 @@ import { ReportFilter } from '@/src/models/reportmodel/report-filter.model';
   styleUrls: ['./balance-sheet.component.css']
 })
 export class BalanceSheetComponent implements OnInit {
+  @ViewChild(ReportTreeComponent) treeComponent?: ReportTreeComponent;
+
   reportData: BalanceSheetReport[] = [];
   loading: boolean = false;
   currentFilters: ReportFilter = {};
@@ -93,41 +95,21 @@ export class BalanceSheetComponent implements OnInit {
   }
 
   /**
-   * Export to PDF
+   * Export to PDF -- via the tree's own client-side export (see ReportTreeComponent.exportToPdf),
+   * not AccountReportService.exportToPdf: that method calls
+   * `api/AccountReports/balance-sheet/export/pdf`, a route that has never existed on
+   * AccountReportsController (no report on this controller has a PDF/Excel export action), so it
+   * 404'd on every click.
    */
   onExportPdf(): void {
-    this.accountReportService.exportToPdf('balance-sheet', this.currentFilters).subscribe({
-      next: (blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `balance-sheet-${new Date().getTime()}.pdf`;
-        link.click();
-        window.URL.revokeObjectURL(url);
-      },
-      error: () => {
-        this.notificationService.showError('REPORTS.EXPORT_ERROR');
-      }
-    });
+    this.treeComponent?.exportToPdf(`balance-sheet-${new Date().getTime()}`);
   }
 
   /**
-   * Export to Excel
+   * Export to Excel -- see onExportPdf's doc comment; same dead-backend-route issue.
    */
   onExportExcel(): void {
-    this.accountReportService.exportToExcel('balance-sheet', this.currentFilters).subscribe({
-      next: (blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `balance-sheet-${new Date().getTime()}.xlsx`;
-        link.click();
-        window.URL.revokeObjectURL(url);
-      },
-      error: () => {
-        this.notificationService.showError('REPORTS.EXPORT_ERROR');
-      }
-    });
+    this.treeComponent?.exportToExcel(`balance-sheet-${new Date().getTime()}`);
   }
 
   /**

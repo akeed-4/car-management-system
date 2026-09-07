@@ -1,6 +1,6 @@
-import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DxTreeListModule } from 'devextreme-angular/ui/tree-list';
+import { DxTreeListModule, DxTreeListComponent } from 'devextreme-angular/ui/tree-list';
 import { TranslateService } from '@ngx-translate/core';
 
 export interface TreeColumn {
@@ -27,7 +27,9 @@ export interface TreeColumn {
 })
 export class ReportTreeComponent implements OnInit {
   private translateService = inject(TranslateService);
-  
+
+  @ViewChild(DxTreeListComponent, { static: false }) treeList!: DxTreeListComponent;
+
   @Input() dataSource: any[] = [];
   @Input() columns: TreeColumn[] = [];
   @Input() keyExpr: string = 'id';
@@ -118,14 +120,113 @@ export class ReportTreeComponent implements OnInit {
    * Expand all nodes
    */
   expandAll(): void {
-    // Will be implemented with ViewChild reference
+    this.treeList?.instance.forEachNode((node: any) => this.treeList!.instance.expandRow(node.key));
   }
 
   /**
    * Collapse all nodes
    */
   collapseAll(): void {
-    // Will be implemented with ViewChild reference
+    this.treeList?.instance.forEachNode((node: any) => this.treeList!.instance.collapseRow(node.key));
+  }
+
+  /**
+   * DevExtreme has no exportTreeList API (unlike exportDataGrid/exportPivotGrid -- see
+   * devextreme/excel_exporter and devextreme/pdf_exporter, neither of which export a TreeList
+   * variant in this or any released DevExtreme version), so Balance Sheet (the only report-tree
+   * consumer) can't reuse ReportGridComponent's export pattern verbatim. Both exports below build
+   * the file directly from `dataSource`/`columns` -- the same rows already on screen, since this
+   * component is always given the full flattened dataset up front (no remote/paged mode like
+   * ReportGridComponent) -- indenting the first visible column per row's `level` to preserve the
+   * tree's visual hierarchy in a flat sheet/table.
+   */
+  private get exportRows(): any[] {
+    return this.dataSource ?? [];
+  }
+
+  private get visibleColumns(): TreeColumn[] {
+    return this.columns.filter(c => c.visible !== false);
+  }
+
+  private formattedCellValue(row: any, column: TreeColumn): string {
+    const raw = column.calculateCellValue ? column.calculateCellValue(row) : row[column.dataField];
+    const text = column.customizeText
+      ? column.customizeText({ value: raw })
+      : (raw ?? '');
+    if (column === this.visibleColumns[0]) {
+      const level = Number(row['level'] ?? 0);
+      return '  '.repeat(Math.max(0, level)) + text;
+    }
+    return String(text);
+  }
+
+  /**
+   * Export tree data to Excel via exceljs directly (see this class's exportRows doc comment).
+   */
+  exportToExcel(fileName: string = 'report'): void {
+    const columns = this.visibleColumns;
+    const rows = this.exportRows;
+    import('exceljs').then(async (ExcelJS) => {
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet(fileName);
+      worksheet.columns = columns.map(c => ({ header: this.getCaption(c.caption), key: c.dataField }));
+      for (const row of rows) {
+        const rowValues: Record<string, string> = {};
+        for (const column of columns) {
+          rowValues[column.dataField] = this.formattedCellValue(row, column);
+        }
+        worksheet.addRow(rowValues);
+      }
+      worksheet.getRow(1).font = { bold: true };
+      const buffer = await workbook.xlsx.writeBuffer();
+      const { saveAs } = await import('file-saver');
+      saveAs(new Blob([buffer], { type: 'application/octet-stream' }), `${fileName}.xlsx`);
+    });
+  }
+
+  /**
+   * Export tree data to PDF. No autotable/grid plugin is installed in this project, so the table
+   * is drawn manually: a header row, then one row per data row, columns laid out at fixed x
+   * offsets sized off the page width, paginating (new page + re-drawn header) once rows would run
+   * past the bottom margin.
+   */
+  exportToPdf(fileName: string = 'report'): void {
+    const columns = this.visibleColumns;
+    const rows = this.exportRows;
+    import('jspdf').then(({ jsPDF }) => {
+      const doc = new jsPDF();
+      const marginX = 10;
+      const marginTop = 15;
+      const marginBottom = 15;
+      const rowHeight = 8;
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const colWidth = (pageWidth - marginX * 2) / Math.max(columns.length, 1);
+
+      const drawHeader = (y: number): number => {
+        doc.setFont('helvetica', 'bold');
+        columns.forEach((column, i) => {
+          doc.text(this.getCaption(column.caption), marginX + i * colWidth, y);
+        });
+        doc.setFont('helvetica', 'normal');
+        return y + rowHeight;
+      };
+
+      let y = drawHeader(marginTop);
+      for (const row of rows) {
+        if (y > pageHeight - marginBottom) {
+          doc.addPage();
+          y = drawHeader(marginTop);
+        }
+        columns.forEach((column, i) => {
+          const text = this.formattedCellValue(row, column);
+          doc.text(String(text), marginX + i * colWidth, y, { maxWidth: colWidth - 2 });
+        });
+        y += rowHeight;
+      }
+
+      doc.save(`${fileName}.pdf`);
+    });
   }
 
   /**

@@ -323,6 +323,7 @@
     "CREDIT_ACCOUNT": "Credit Account",
     "SALESPERSON": "Salesperson",
     "ITEMS_SECTION": "Invoice Items",
+    "NO_ITEMS": "No items added yet",
     "SELECT_CAR": "Select Car",
     "QUANTITY": "Quantity",
     "ADD": "Add",
@@ -516,6 +517,7 @@
     "CANCEL": "Cancel",
     "SAVE": "Save Invoice",
     "CASH_INVOICE_LIST_TITLE": "Cash Purchase Invoices",
+    "NO_CASH_INVOICES": "No cash purchase invoices found",
     "CREDIT_INVOICE_LIST_TITLE": "Credit Purchase Invoices",
     "NEW_CASH_INVOICE": "New Cash Purchase Invoice",
     "NEW_CREDIT_INVOICE": "New Credit Purchase Invoice",
@@ -826,6 +828,7 @@
   },
   "CARS_RECEIPT_NOTE": {
     "LIST_TITLE": "Car Receipt Notes (GRN)",
+    "NO_RECEIPT_NOTES": "No receipt notes found",
     "CREATE_TITLE": "New Car Receipt Note",
     "VIEW_TITLE": "Car Receipt Note",
     "MODULE_NAME": "Goods Receipt",
@@ -1274,6 +1277,7 @@
   },
   "PURCHASE_REQUISITION": {
     "LIST_TITLE": "Purchase Requisitions",
+    "NO_REQUISITIONS": "No purchase requisitions found",
     "APPROVAL_LIST_TITLE": "Purchase Requisition Approvals",
     "CREATE_TITLE": "New Purchase Requisition",
     "EDIT_TITLE": "Edit Purchase Requisition",
@@ -1322,6 +1326,7 @@
   },
   "SUPPLIER_RFQ": {
     "LIST_TITLE": "Supplier RFQs",
+    "NO_QUOTATIONS": "No supplier quotations found",
     "CREATE_TITLE": "New Supplier RFQ",
     "EDIT_TITLE": "Edit Supplier RFQ",
     "MODULE_NAME": "Supplier Quotations",
@@ -1371,6 +1376,7 @@
   },
   "PURCHASE_OFFERS": {
     "TITLE": "Supplier Quote Approval",
+    "NO_OFFERS": "No supplier offers found",
     "OFFER_NUMBER": "Offer Number",
     "OFFER_DATE": "Offer Date",
     "SUPPLIER": "Supplier",
@@ -4505,6 +4511,7 @@
   },
   "PURCHASE_REQUESTS": {
     "TITLE": "Requests for Quotation (RFQ)",
+    "NO_REQUESTS": "No requests for quotation found",
     "CREATE_TITLE": "New Request for Quotation",
     "EDIT_TITLE": "New Request for Quotation",
     "MODULE_NAME": "Requests for Quotation (RFQ)",

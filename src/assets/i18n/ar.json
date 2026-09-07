@@ -323,6 +323,7 @@
     "CREDIT_ACCOUNT": "الحساب الدائن",
     "SALESPERSON": "مندوب المبيعات",
     "ITEMS_SECTION": "عناصر الفاتورة",
+    "NO_ITEMS": "لا توجد عناصر مضافة بعد",
     "SELECT_CAR": "اختر السيارة",
     "QUANTITY": "الكمية",
     "ADD": "إضافة",
@@ -510,6 +511,7 @@
     "CASH_INVOICE_TITLE": "فاتورة مشتريات نقدية جديدة",
     "CREDIT_INVOICE_TITLE": "فاتورة مشتريات آجلة جديدة",
     "CASH_INVOICE_LIST_TITLE": "فواتير المشتريات النقدية",
+    "NO_CASH_INVOICES": "لا توجد فواتير مشتريات نقدية",
     "CREDIT_INVOICE_LIST_TITLE": "فواتير المشتريات الآجلة",
     "NEW_CASH_INVOICE": "فاتورة مشتريات نقدية جديدة",
     "NEW_CREDIT_INVOICE": "فاتورة مشتريات آجلة جديدة",
@@ -820,6 +822,7 @@
   },
   "CARS_RECEIPT_NOTE": {
     "LIST_TITLE": "إيصالات استلام السيارات (GRN)",
+    "NO_RECEIPT_NOTES": "لا توجد إيصالات استلام",
     "CREATE_TITLE": "إيصال استلام جديد",
     "VIEW_TITLE": "إيصال استلام السيارات",
     "MODULE_NAME": "استلام البضائع",
@@ -1268,6 +1271,7 @@
   },
   "PURCHASE_REQUISITION": {
     "LIST_TITLE": "طلبات الشراء",
+    "NO_REQUISITIONS": "لا توجد طلبات شراء",
     "APPROVAL_LIST_TITLE": "اعتماد طلبات الشراء",
     "CREATE_TITLE": "طلب شراء جديد",
     "EDIT_TITLE": "تعديل طلب الشراء",
@@ -1316,6 +1320,7 @@
   },
   "SUPPLIER_RFQ": {
     "LIST_TITLE": "عروض أسعار الموردين",
+    "NO_QUOTATIONS": "لا توجد عروض أسعار من الموردين",
     "CREATE_TITLE": "طلب عرض سعر جديد",
     "EDIT_TITLE": "تعديل طلب عرض السعر",
     "MODULE_NAME": "عروض أسعار الموردين",
@@ -1365,6 +1370,7 @@
   },
   "PURCHASE_OFFERS": {
     "TITLE": "اعتماد عروض الأسعار",
+    "NO_OFFERS": "لا توجد عروض من الموردين",
     "OFFER_NUMBER": "رقم العرض",
     "OFFER_DATE": "تاريخ العرض",
     "SUPPLIER": "المورد",
@@ -1385,6 +1391,7 @@
   },
   "PURCHASE_REQUESTS": {
     "TITLE": "طلبات أسعار الموردين",
+    "NO_REQUESTS": "لا توجد طلبات أسعار",
     "CREATE_TITLE": "طلب أسعار جديد",
     "EDIT_TITLE": "طلب أسعار جديد",
     "MODULE_NAME": "طلبات أسعار الموردين",
