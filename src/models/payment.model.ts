@@ -25,6 +25,8 @@ export interface Payment {
   purchaseInvoiceId?:number;
   debitAccountId:    number;      // ← NEW
   creditAccountId:   number;      // ← NEW
+  /** Link to the Payment Methods master, if one was picked. */
+  paymentMethodId?:  number | null;
   details:           PaymentDetail[];
   invoiceAllocations: InvoiceAllocation[];
 }

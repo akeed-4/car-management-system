@@ -37,6 +37,8 @@ import { warnIfPartyAccountMissing } from '@/src/components/shared/party-account
 import { DefaultAccountTracker } from '@/src/components/shared/default-account/default-account.helper';
 import { SupplierLookupModalComponent } from '@/src/components/shared/supplier-lookup-modal/supplier-lookup-modal.component';
 import { AccountAutocompleteComponent } from '@/src/components/shared/account-autocomplete/account-autocomplete.component';
+import { PaymentMethodService } from '@/src/services/payment-method.service';
+import { PaymentMethod } from '@/src/models/payment-method.model';
 
 @Component({
   selector: 'app-payment-form',
@@ -76,6 +78,7 @@ export class PaymentFormComponent implements OnInit {
   private purchasesService  = inject(PurchasesService);
   private paymentService    = inject(PaymentService);
   private accountingService = inject(AccountingService);
+  private paymentMethodService = inject(PaymentMethodService);
   private inventoryService  = inject(InventoryService);
   private notificationService = inject(NotificationService);
   private fb = inject(FormBuilder);
@@ -92,6 +95,9 @@ export class PaymentFormComponent implements OnInit {
   /** Outstanding (unpaid/partially paid) invoices for the selected supplier -- offered to the
    *  allocation grid's "add invoice" dropdown, in AllocatableInvoice shape. */
   outstandingInvoices = signal<AllocatableInvoice[]>([]);
+  /** Centralized Payment Methods master (active only) -- replaces the old, unused hardcoded
+   *  'BANK_TRANSFER' default with a real selectable list. */
+  paymentMethods = signal<PaymentMethod[]>([]);
   /** Rows the user has actually added to the allocation grid (single source of truth for what
    *  gets sent as InvoiceAllocations). Independent of `details` (the car-cost breakdown below). */
   allocationRows = signal<InvoiceAllocationRow[]>([]);
@@ -152,6 +158,17 @@ export class PaymentFormComponent implements OnInit {
       this.suppliers.set(suppliers);
     });
 
+    this.paymentMethodService.activePaymentMethods$.subscribe(methods => this.paymentMethods.set(methods));
+
+    // Selecting a Payment Method sets its linked account as the credit (settlement) account --
+    // same "default unless manually overridden" contract as DefaultAccountTracker.
+    this.paymentForm.get('paymentMethodId')?.valueChanges.subscribe((id: number | null) => {
+      const method = this.paymentMethods().find(m => m.id === id);
+      if (method && !this.creditAccountManuallyChanged()) {
+        this.paymentForm.get('creditAccountId')?.setValue(method.accountId);
+      }
+    });
+
     this.debitAccountTracker = new DefaultAccountTracker(this.accountingService, this.paymentForm.get('debitAccountId') as any);
     this.creditAccountTracker = new DefaultAccountTracker(this.accountingService, this.paymentForm.get('creditAccountId') as any);
     this.paymentForm.get('debitAccountId')?.valueChanges.subscribe(() =>
@@ -174,7 +191,7 @@ export class PaymentFormComponent implements OnInit {
   private initForm(): void {
     this.paymentForm = this.fb.group({
       voucherDate:        [new Date().toISOString().split('T')[0], Validators.required],
-      paymentMethod:      ['BANK_TRANSFER',  Validators.required],
+      paymentMethodId:    [null, Validators.required],
       totalVoucherAmount: [0, [Validators.required, Validators.min(0.01)]],
       debitAccountId:     [null, Validators.required],
       creditAccountId:    [null, Validators.required],
@@ -265,6 +282,7 @@ export class PaymentFormComponent implements OnInit {
       totalVoucherAmount: payment.amount,
       debitAccountId:     payment.debitAccountId  ?? null,
       creditAccountId:    payment.creditAccountId ?? null,
+      paymentMethodId:    payment.paymentMethodId ?? null,
       notes:              payment.notes,
       status:             payment.status,
     });
@@ -421,6 +439,7 @@ export class PaymentFormComponent implements OnInit {
       beneficiaryId:    v.supplierId,
       debitAccountId:   v.debitAccountId,
       creditAccountId:  v.creditAccountId,
+      paymentMethodId:  v.paymentMethodId ?? null,
       // With no invoice allocated, Details is an optional car-cost breakdown -- an empty/zero
       // leftover row carries no information and would fail the backend's detailsTotal===Amount
       // check (PaymentService.CreateAsync) if a non-zero voucher amount were sent alongside it,

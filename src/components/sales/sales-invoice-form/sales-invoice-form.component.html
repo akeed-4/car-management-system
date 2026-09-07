@@ -162,6 +162,15 @@
                       <mat-option *ngFor="let opt of paymentTypeOptions()" [value]="opt.value">{{ opt.labelKey | translate }}</mat-option>
                     </mat-select>
                   </mat-form-field>
+                  <mat-form-field appearance="outline" class="full-width" *ngIf="saleType === SaleType.Cash">
+                    <mat-label>{{ 'INVOICE.PAYMENT_METHOD' | translate }}</mat-label>
+                    <mat-select formControlName="paymentMethodId">
+                      <mat-option [value]="null">{{ 'COMMON.NONE' | translate }}</mat-option>
+                      <mat-option *ngFor="let m of paymentMethods()" [value]="m.id">
+                        {{ translate.currentLang === 'ar' ? m.nameAr : m.nameEn }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
                   <mat-form-field appearance="outline" class="full-width" *ngIf="selectedCustomer()?.isCreditCustomer">
                     <mat-label>{{ 'INVOICE.DUE_DATE' | translate }}</mat-label>
                     <input matInput [matDatepicker]="dueDatePicker" formControlName="dueDate">

@@ -16,6 +16,8 @@ export interface Receipt {
   creditAccountName?: string;
   debitAccountId?: number;
   debitAccountName?: string;
+  /** Link to the Payment Methods master, if one was picked. */
+  paymentMethodId?: number | null;
   customerId: number;
   customerName?: string;
   source: ReceiptSource;
@@ -47,6 +49,8 @@ export interface CreateReceiptDto {
   totalAmount: number;
   creditAccountId: number;
   debitAccountId: number;
+  /** Link to the Payment Methods master, if one was picked. */
+  paymentMethodId?: number | null;
   customerId: number;
   source: ReceiptSource;
   referenceId?: number;

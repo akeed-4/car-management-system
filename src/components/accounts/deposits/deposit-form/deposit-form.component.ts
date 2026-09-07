@@ -26,6 +26,8 @@ import { ChartOfAccountsService } from '../../../../services/chart-of-accounts.s
 import { AccountNode } from '../../../../models/account-node.model';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { AccountingService, DefaultAccountKind } from '@/src/components/accounting/accounting.service';
+import { PaymentMethodService } from '@/src/services/payment-method.service';
+import { PaymentMethod } from '@/src/models/payment-method.model';
 import { openCreateAccountDialog } from '@/src/components/accounting/create-account-dialog.helper';
 import { Account } from '@/src/components/accounting/models';
 import { NotificationService } from '@/src/services/notification.service';
@@ -69,6 +71,7 @@ export class DepositFormComponent implements OnInit {
   private dialog = inject(MatDialog);
 private notificationService = inject(NotificationService);
   private accountingService: AccountingService = inject(AccountingService);
+  private paymentMethodService = inject(PaymentMethodService);
   accounts = signal<Account[]>([]);
   creditAccounts = computed(() => this.accounts());
   debitAccounts = computed(() => this.accounts());
@@ -168,6 +171,10 @@ private notificationService = inject(NotificationService);
     { value: 'CHEQUE', label: 'ACCOUNTS.CAR_PAYMENT_FORM.PAYMENT_METHODS.CHEQUE' }
   ];
 
+  /** Centralized Payment Methods master (active only) -- optional selector alongside the existing
+   *  hardcoded paymentMethod dropdown above; see watchFormControls' paymentMethodId subscription. */
+  paymentMethodOptions = signal<PaymentMethod[]>([]);
+
   customers = this.customerService.customers$;
 
   availableVehicles = computed(() => {
@@ -229,6 +236,16 @@ private notificationService = inject(NotificationService);
     // Load accounts for dropdowns -- Debit/Credit selectors must only offer leaf/postable
     // accounts, excluded server-side by this endpoint rather than filtered client-side.
     this.accountingService.getPostableAccounts().subscribe(accs => this.accounts.set(accs));
+    this.paymentMethodService.activePaymentMethods$.subscribe(methods => this.paymentMethodOptions.set(methods));
+
+    // Selecting a Payment Method offers its linked account as the debitAccountId (settlement)
+    // default -- purely additive, doesn't touch the existing paymentMethod dropdown/normalization.
+    this.depositForm.get('paymentMethodId')?.valueChanges.subscribe((id: number | null) => {
+      const method = this.paymentMethodOptions().find(m => m.id === id);
+      if (method && !this.debitAccountManuallyChanged()) {
+        this.depositForm.get('debitAccountId')?.setValue(method.accountId);
+      }
+    });
 
     this.debitAccountTracker = new DefaultAccountTracker(this.accountingService, this.depositForm.get('debitAccountId') as any);
     this.creditAccountTracker = new DefaultAccountTracker(this.accountingService, this.depositForm.get('creditAccountId') as any);
@@ -259,6 +276,7 @@ private notificationService = inject(NotificationService);
             finalInvoicePriceFixed: deposit.finalInvoicePriceFixed,
             depositAmount: deposit.amount,
             paymentMethod: deposit.paymentMethod,
+            paymentMethodId: deposit.paymentMethodId ?? null,
             currency: deposit.currency,
             reservationValidityDays: deposit.reservationValidityDays,
             isRefundable: deposit.isRefundable,
@@ -295,6 +313,7 @@ private notificationService = inject(NotificationService);
       finalInvoicePriceFixed: new FormControl(true),
       depositAmount: new FormControl(0, [Validators.required, Validators.min(0.01)]),
       paymentMethod: new FormControl('CASH', Validators.required),
+      paymentMethodId: new FormControl<number | null>(null),
       currency: new FormControl('SAR'),
       reservationValidityDays: new FormControl(10, [Validators.required, Validators.min(1)]),
       isRefundable: new FormControl(true),
@@ -396,6 +415,7 @@ private notificationService = inject(NotificationService);
         };
         return (map as any)[String(formValue.paymentMethod)] ?? formValue.paymentMethod;
       })(),
+      paymentMethodId: formValue.paymentMethodId ?? null,
       customerType: formValue.customerType,
       customerId: customer?.id,
       customerName: formValue.customerName.trim(),

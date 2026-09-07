@@ -191,6 +191,19 @@
               {{ 'CASH_CALCULATOR.TITLE' | translate }}
             </h3>
 
+            <!-- Optional Payment Method master selector -- purely additive: choosing one offers
+                 its linked account as the Payment Account default below, without touching the
+                 existing Cash/Credit/Bank/Check paymentMethod dropdown or its branching logic. -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'ACCOUNTS.FORM.PAYMENT_METHOD' | translate }}</mat-label>
+              <mat-select formControlName="paymentMethodId">
+                <mat-option [value]="null">{{ 'COMMON.NONE' | translate }}</mat-option>
+                <mat-option *ngFor="let m of paymentMethodOptions()" [value]="m.id">
+                  {{ translate.currentLang === 'ar' ? m.nameAr : m.nameEn }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
             <!-- Settlement leg for CASH purchases: Dr Inventory / Cr Payment Account.
                  Options are active, postable, Cash/Bank-classified accounts from the existing
                  backend endpoint; the backend re-validates any selection and falls back to its

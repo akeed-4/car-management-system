@@ -115,6 +115,8 @@ import { DocumentLifecycleSettingsComponent } from './components/setup/document-
 import { QrCodeSettingsComponent } from './components/setup/qr-code-settings/qr-code-settings.component';
 import { BankManagementListComponent } from './components/setup/banks/bank-list/bank-list.component';
 import { BankManagementFormComponent } from './components/setup/banks/bank-form/bank-form.component';
+import { PaymentMethodListComponent } from './components/setup/payment-methods/payment-method-list/payment-method-list.component';
+import { PaymentMethodFormComponent } from './components/setup/payment-methods/payment-method-form/payment-method-form.component';
 import { OpeningBalancesInventoryListComponent } from './components/inventory/opening-balances-inventory-list/opening-balances-inventory-list.component';
 import { OpeningBalancesInventoryFormComponent } from './components/inventory/opening-balances-inventory-form/opening-balances-inventory-form.component';
 import { OpeningBalancesFinancialListComponent } from './components/accounting/opening-balances-financial/opening-balances-financial-list/opening-balances-financial-list.component';
@@ -465,6 +467,9 @@ export const APP_ROUTES: Routes = [
   { path: 'entities/banks/new', component: BankManagementFormComponent, canActivate: [permissionGuard('banks.view')] },
   { path: 'entities/banks/edit/:id', component: BankManagementFormComponent, canActivate: [permissionGuard('banks.view')] },
   { path: 'entities/banks/view/:id', component: BankManagementFormComponent, canActivate: [permissionGuard('banks.view')] },
+  { path: 'entities/payment-methods', component: PaymentMethodListComponent, canActivate: [permissionGuard('paymentmethods.view')] },
+  { path: 'entities/payment-methods/new', component: PaymentMethodFormComponent, canActivate: [permissionGuard('paymentmethods.view')] },
+  { path: 'entities/payment-methods/edit/:id', component: PaymentMethodFormComponent, canActivate: [permissionGuard('paymentmethods.view')] },
   { path: 'reports/financial', component: FinancialReportsComponent, canActivate: [permissionGuard('reports.financial.view')] },
   // No reports.tax.*/reports.administrative.* keys exist in the catalog -- left ungated.
   { path: 'reports/tax', component: TaxReportsComponent },

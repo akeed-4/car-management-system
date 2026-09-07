@@ -24,6 +24,8 @@ import { CurrentSettingService } from '../../../services/current-setting.service
 import { SalesService } from '../../../services/sales.service';
 import { ChartOfAccountsService } from '../../../services/chart-of-accounts.service';
 import { AccountingService, DefaultAccountKind } from '../../accounting/accounting.service';
+import { PaymentMethodService } from '../../../services/payment-method.service';
+import { PaymentMethod } from '../../../models/payment-method.model';
 import { DefaultAccountTracker } from '@/src/components/shared/default-account/default-account.helper';
 import { VinService } from '../../../services/vin.service';
 import { PurchaseInvoice, AuctionCharge } from '../../../models/purchase-invoice.model';
@@ -140,6 +142,7 @@ export class PurchaseInvoiceComponent implements OnInit {
   private supplierService = inject(SupplierService);
   private procurementService = inject(PurchasesService);
   private accountingService = inject(AccountingService);
+  private paymentMethodService = inject(PaymentMethodService);
   private currentSettingService = inject(CurrentSettingService);
   private salesService = inject(SalesService);
   private languageService = inject(LanguageService);
@@ -445,6 +448,12 @@ export class PurchaseInvoiceComponent implements OnInit {
   paymentAccounts = signal<Account[]>([]);
   private paymentAccountsLoaded = false;
 
+  /** Centralized Payment Methods master (active only) -- optional selector alongside the existing
+   *  paymentMethod dropdown; see watchPaymentMethodIdControl. Named paymentMethodOptions (not
+   *  paymentMethods) to avoid colliding with the hardcoded Cash/Credit/Bank/Check list above,
+   *  which drives the unrelated credit/cash branching logic and is left untouched. */
+  paymentMethodOptions = signal<PaymentMethod[]>([]);
+
   /** Loads the Cash/Bank options exactly once per component instance. */
   private loadPaymentAccounts(): void {
     if (this.paymentAccountsLoaded) return;
@@ -452,6 +461,18 @@ export class PurchaseInvoiceComponent implements OnInit {
     this.accountingService.getPostableAccounts('cash-bank').subscribe({
       next: accounts => this.paymentAccounts.set(accounts ?? []),
       error: () => this.paymentAccounts.set([])
+    });
+  }
+
+  /** Selecting a Payment Method offers its linked account as the paymentAccountId default --
+   *  purely additive, does not touch the existing paymentMethod/paymentType/isCreditPayment
+   *  branching logic. */
+  private watchPaymentMethodIdControl(): void {
+    this.paymentMethodService.activePaymentMethods$.subscribe(methods => this.paymentMethodOptions.set(methods));
+
+    this.purchaseInvoiceForm.get('paymentMethodId')?.valueChanges.subscribe((id: number | null) => {
+      const method = this.paymentMethodOptions().find((m: PaymentMethod) => m.id === id);
+      if (method) this.purchaseInvoiceForm.get('paymentAccountId')?.setValue(method.accountId);
     });
   }
 
@@ -835,6 +856,10 @@ export class PurchaseInvoiceComponent implements OnInit {
       // Cash/Bank settlement account (CASH purchases only -- see the model doc). The backend
       // falls back to the tenant's seeded default Cash when this is omitted.
       paymentAccountId: [null as number | null],
+      // Link to the Payment Methods master -- purely additive, optional selector that offers its
+      // linked account as the paymentAccountId default; the existing paymentMethod/paymentType
+      // fields and their credit/cash branching are untouched.
+      paymentMethodId: [null as number | null],
       dueDate: [null], // Optional, required only for credit invoices
       invoiceType: [InvoiceType.Taxable, Validators.required],
       ClassificationId: [0, Validators.required],
@@ -854,6 +879,7 @@ export class PurchaseInvoiceComponent implements OnInit {
     // Payment Account options + cash/credit validation sync.
     this.loadPaymentAccounts();
     this.refreshPaymentAccountValidation();
+    this.watchPaymentMethodIdControl();
 
     // Debit account options + default preview.
     this.loadDebitAccounts();
@@ -927,6 +953,7 @@ export class PurchaseInvoiceComponent implements OnInit {
           paymentAccountId: [
             (invoice.paymentType || '').toLowerCase() === 'cash' ? (invoice.creditAccountId ?? null) : null
           ] as [number | null],
+          paymentMethodId: [invoice.paymentMethodId ?? null] as [number | null],
           dueDate: [invoice.dueDate ? new Date(invoice.dueDate) : null],
           invoiceType: [invoice.invoiceType || InvoiceType.Taxable, Validators.required],
           ClassificationId: [invoice.ClassificationId || 0, Validators.required],
@@ -955,6 +982,7 @@ export class PurchaseInvoiceComponent implements OnInit {
         // Payment Account options + cash/credit validation sync for the edit form.
         this.loadPaymentAccounts();
         this.refreshPaymentAccountValidation();
+        this.watchPaymentMethodIdControl();
 
         // Debit account options for the edit form. Construct the tracker BEFORE any recalculate()
         // call can fire, and -- since the control's initial value was set via the FormControl(...)
@@ -1370,6 +1398,7 @@ export class PurchaseInvoiceComponent implements OnInit {
       debitAccountId: formValue.debitAccountId ?? undefined,
       paymentType: formValue.paymentType,
       paymentMethod: formValue.paymentMethod,
+      paymentMethodId: formValue.paymentMethodId ?? null,
       dueDate: formValue.dueDate ? formValue.dueDate.toISOString() : undefined,
       ClassificationId: parseInt(formValue.ClassificationId),
       invoiceType: formValue.invoiceType,

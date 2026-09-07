@@ -27,6 +27,8 @@ export interface PurchaseInvoice {
    */
   creditAccountId: number;
   paymentMethod?: string; // Cash, Bank Transfer
+  /** Link to the Payment Methods master, if one was picked. */
+  paymentMethodId?: number | null;
   storeId?:number;
   branchId?:number;
   invoiceType?: string; // Taxable, Zero Rated, Exempt

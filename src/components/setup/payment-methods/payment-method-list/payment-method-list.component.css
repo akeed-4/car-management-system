@@ -1,0 +1,33 @@
+.page-toolbar {
+  height: auto !important;
+  margin-bottom: 12px;
+}
+
+::ng-deep .dx-datagrid-headers {
+  background-color: var(--surface-sunken);
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .page-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .toolbar-spacer {
+    display: none;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .page-toolbar,
+  .grid-container {
+    border-color: var(--text-primary);
+  }
+}

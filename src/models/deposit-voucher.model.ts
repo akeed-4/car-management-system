@@ -9,6 +9,8 @@ export interface DepositVoucher {
   date: Date;
   amount: number;
   paymentMethod: DepositPaymentMethod;
+  /** Link to the Payment Methods master, if one was picked. */
+  paymentMethodId?: number | null;
   customerType: DepositCustomerType;
   customerId?: number;
   customerName: string;

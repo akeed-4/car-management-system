@@ -19,6 +19,8 @@ export interface SalesInvoice {
   salesperson?: string;
   paymentMethod?: 'Cash' | 'Bank Transfer' | 'Finance';
   paymentType?: 'Bank Transfer' | 'Cash' | 'Check';
+  /** Link to the Payment Methods master, if one was picked. */
+  paymentMethodId?: number | null;
   invoiceType?: 'Taxable' | 'Zero Rated' | 'Exempt';
   ClassificationId?: number;
   debitAccountId?: number;

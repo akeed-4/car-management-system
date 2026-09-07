@@ -40,6 +40,15 @@
                 {{ 'VALIDATION.REQUIRED' | translate }}
               </mat-error>
             </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>{{ 'ACCOUNTS.FORM.PAYMENT_METHOD' | translate }}</mat-label>
+              <mat-select formControlName="paymentMethodId" required>
+                <mat-option *ngFor="let m of paymentMethods()" [value]="m.id">
+                  {{ translate.currentLang === 'ar' ? m.nameAr : m.nameEn }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
           </div>
 
           <!-- Debit / Credit Row -->

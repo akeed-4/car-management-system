@@ -42,6 +42,8 @@ import { applyFieldLock } from '../../../models/form-field-lock';
 import { DxoValueErrorBarComponent } from 'devextreme-angular/ui/nested';
 import { NotificationService } from '@/src/services/notification.service';
 import { AccountingService, DefaultAccountKind } from '../../accounting/accounting.service';
+import { PaymentMethodService } from '@/src/services/payment-method.service';
+import { PaymentMethod } from '@/src/models/payment-method.model';
 import { DefaultAccountTracker } from '@/src/components/shared/default-account/default-account.helper';
 import { SalesCycleService } from '../../../services/sales-cycle.service';
 import { Quotation } from '../../../models/quotation.model';
@@ -115,6 +117,7 @@ export class SalesInvoiceFormComponent implements OnInit {
     private salesService = inject(SalesService);
     private currentSettingService = inject(CurrentSettingService);
     private accountingService = inject(AccountingService);
+    private paymentMethodService = inject(PaymentMethodService);
     private depositService = inject(DepositService);
     private router = inject(Router);
     private location = inject(Location);
@@ -339,6 +342,10 @@ export class SalesInvoiceFormComponent implements OnInit {
    * from it automatically (see watchPaymentTypeControl). */
   paymentTypeOptions = computed(() => PAYMENT_TYPE_POOL);
 
+  /** Centralized Payment Methods master (active only) -- optional selector alongside Payment
+   *  Type; see watchPaymentMethodIdControl. */
+  paymentMethods = signal<PaymentMethod[]>([]);
+
   // Traceability: Parent Quotation lineage state
   activeQuotations = signal<Quotation[]>([]);
   selectedQuotationId = signal<number | null>(null);
@@ -392,6 +399,10 @@ export class SalesInvoiceFormComponent implements OnInit {
         dueDate: new FormControl(''),
         paymentMethod: new FormControl('Cash'),
         paymentType: new FormControl(this.saleType === SaleType.Cash ? 'Cash' : 'Bank Transfer'),
+        // Link to the Payment Methods master -- purely additive: selecting one feeds paymentType
+        // (so the existing derivePaymentMethodFromType/Cash-lock logic is untouched) and offers
+        // its linked account as the paymentAccountId default (see watchPaymentMethodIdControl).
+        paymentMethodId: new FormControl<number | null>(null),
         invoiceType: new FormControl(InvoiceType.Taxable, Validators.required),
         ClassificationId: new FormControl(0, Validators.required),
         salesperson: new FormControl(''),
@@ -418,6 +429,7 @@ export class SalesInvoiceFormComponent implements OnInit {
       this.watchDiscountControls();
       this.watchClassificationAndTypeControls();
       this.watchPaymentTypeControl();
+      this.watchPaymentMethodIdControl();
       this.applyPaymentTypeLock();
       this.loadCreditAccounts();
       this.refreshCreditAccountDefault();
@@ -549,6 +561,26 @@ export class SalesInvoiceFormComponent implements OnInit {
     typeControl.valueChanges.subscribe(applyPaymentType);
   }
 
+  /** Selecting a Payment Method feeds its PaymentType into the existing paymentType control (so
+   *  derivePaymentMethodFromType/the Cash-lock keep working exactly as before) and offers its
+   *  linked account as the paymentAccountId default, unless the user has since overridden that
+   *  field manually (paymentAccountManuallyChanged, tracked by DefaultAccountTracker). */
+  private watchPaymentMethodIdControl(): void {
+    this.paymentMethodService.activePaymentMethods$.subscribe(methods => this.paymentMethods.set(methods));
+
+    const methodIdControl = this.invoiceForm.get('paymentMethodId');
+    const typeControl = this.invoiceForm.get('paymentType');
+    const accountControl = this.invoiceForm.get('paymentAccountId');
+    if (!methodIdControl || !typeControl || !accountControl) return;
+
+    methodIdControl.valueChanges.subscribe((id: number | null) => {
+      const method = this.paymentMethods().find(m => m.id === id);
+      if (!method) return;
+      if (method.paymentType) typeControl.setValue(method.paymentType);
+      if (!this.paymentAccountManuallyChanged()) accountControl.setValue(method.accountId);
+    });
+  }
+
   /** Cash invoices only ever have one valid Payment Type ("Cash") -- lock and disable the
    * control so it can't be changed. Credit/Installments have no single fixed instrument (the
    * pool is Bank Transfer/Check/Cash, none of which applies until the credit is actually repaid),
@@ -656,6 +688,7 @@ export class SalesInvoiceFormComponent implements OnInit {
           dueDate: new FormControl(invoice.dueDate ? new Date(invoice.dueDate) : ''),
           paymentMethod: new FormControl(invoice.paymentMethod || 'Cash'),
           paymentType: new FormControl(invoice.paymentType || 'Bank Transfer'),
+          paymentMethodId: new FormControl<number | null>(invoice.paymentMethodId ?? null),
           salesperson: new FormControl(invoice.salesperson || ''),
           ClassificationId: new FormControl(invoice.ClassificationId || 0, Validators.required),
           invoiceType: new FormControl(invoice.invoiceType || InvoiceType.Taxable, Validators.required),
@@ -717,6 +750,7 @@ export class SalesInvoiceFormComponent implements OnInit {
         this.watchDiscountControls();
         this.watchClassificationAndTypeControls();
         this.watchPaymentTypeControl();
+        this.watchPaymentMethodIdControl();
         // Applied after saleType is reassigned above from the saved invoice (not just the
         // wrapper's @Input()), so a Cash invoice opened for edit is locked using its real,
         // persisted classification even if that differs from whatever route/wrapper was used.
@@ -1383,6 +1417,7 @@ export class SalesInvoiceFormComponent implements OnInit {
       ClassificationId: this.invoiceForm.get('ClassificationId')?.value,
       paymentMethod: this.invoiceForm.get('paymentMethod')?.value,
       paymentType: this.invoiceForm.get('paymentType')?.value,
+      paymentMethodId: this.invoiceForm.get('paymentMethodId')?.value ?? null,
       invoiceType: this.invoiceForm.get('invoiceType')?.value,
       salesperson: this.invoiceForm.get('salesperson')?.value,
       isCash: this.isCash,

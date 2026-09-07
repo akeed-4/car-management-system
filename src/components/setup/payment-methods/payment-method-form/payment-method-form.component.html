@@ -1,0 +1,63 @@
+<div class="page-container erp-page">
+  <div class="page-header header-row erp-page-header">
+    <div class="erp-page-header-titles">
+      <h1 class="erp-page-title">
+        {{ (mode === 'edit' ? 'PAYMENT_METHOD.EDIT_TITLE' : 'PAYMENT_METHOD.CREATE_TITLE') | translate }}
+      </h1>
+    </div>
+  </div>
+
+  <div class="loading-overlay" *ngIf="isLoading()">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="save()" *ngIf="!isLoading()">
+    <div class="form-card erp-card">
+      <div class="erp-section">
+        <h3 class="erp-section-title">{{ 'PAYMENT_METHOD.SECTION_DETAILS' | translate }}</h3>
+        <div class="form-grid erp-form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'PAYMENT_METHOD.NAME_AR' | translate }}</mat-label>
+            <input matInput formControlName="nameAr" maxlength="150" dir="rtl" required>
+            <mat-error *ngIf="form.get('nameAr')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'PAYMENT_METHOD.NAME_EN' | translate }}</mat-label>
+            <input matInput formControlName="nameEn" maxlength="150" required>
+            <mat-error *ngIf="form.get('nameEn')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'PAYMENT_METHOD.PAYMENT_TYPE' | translate }}</mat-label>
+            <mat-select formControlName="paymentType" required>
+              <mat-option *ngFor="let type of paymentTypes" [value]="type">{{ type }}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('paymentType')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
+          </mat-form-field>
+
+          <app-account-autocomplete
+            [accounts]="postableAccounts()"
+            formControlName="accountId"
+            [label]="'PAYMENT_METHOD.ACCOUNT' | translate"
+            [required]="true">
+          </app-account-autocomplete>
+        </div>
+
+        <div class="toggle-row">
+          <mat-checkbox formControlName="isActive">{{ 'COMMON.ACTIVE' | translate }}</mat-checkbox>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions erp-actions-bar">
+      <button mat-raised-button color="primary" type="submit" [disabled]="isSaving()">
+        <mat-icon>save</mat-icon>
+        {{ 'COMMON.SAVE' | translate }}
+      </button>
+      <button mat-stroked-button type="button" (click)="cancel()">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+    </div>
+  </form>
+</div>

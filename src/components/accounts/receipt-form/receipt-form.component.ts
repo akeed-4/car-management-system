@@ -33,6 +33,8 @@ import { warnIfPartyAccountMissing } from '@/src/components/shared/party-account
 import { DefaultAccountTracker } from '@/src/components/shared/default-account/default-account.helper';
 import { CustomerLookupModalComponent } from '@/src/components/shared/customer-lookup-modal/customer-lookup-modal.component';
 import { AccountAutocompleteComponent } from '@/src/components/shared/account-autocomplete/account-autocomplete.component';
+import { PaymentMethodService } from '@/src/services/payment-method.service';
+import { PaymentMethod } from '@/src/models/payment-method.model';
 
 @Component({
   selector: 'app-receipt-form',
@@ -69,6 +71,7 @@ export class ReceiptFormComponent implements OnInit {
   private salesService = inject(SalesService);
   private receiptService = inject(ReceiptService);
   private accountingService = inject(AccountingService);
+  private paymentMethodService = inject(PaymentMethodService);
   protected translate = inject(TranslateService);
   private notificationService = inject(NotificationService);
   private fb = inject(FormBuilder);
@@ -91,6 +94,9 @@ export class ReceiptFormComponent implements OnInit {
   allocationRows = signal<InvoiceAllocationRow[]>([]);
 
   receiptTypes = ['CUSTOMER', 'GENERAL', 'ADVANCE', 'TRANSFER'];
+  /** Centralized Payment Methods master (active only) -- replaces the old hardcoded
+   *  CASH/BANK_TRANSFER receiptMethod options. */
+  paymentMethods = signal<PaymentMethod[]>([]);
   isEditMode = signal(false);
   editingReceipt = signal<Receipt | null>(null);
   totalAmountReceived = computed(() => this.receiptForm?.get('totalAmountReceived')?.value || 0);
@@ -138,6 +144,17 @@ export class ReceiptFormComponent implements OnInit {
     // Debit/Credit selectors must only offer leaf/postable accounts -- parent/grouping accounts
     // are excluded server-side by this endpoint, not filtered client-side from the full account list.
     this.accountingService.getPostableAccounts().subscribe(accounts => this.accounts.set(accounts));
+    this.paymentMethodService.activePaymentMethods$.subscribe(methods => this.paymentMethods.set(methods));
+
+    // Selecting a Payment Method sets its linked account as the debit (settlement) account --
+    // same "default unless manually overridden" contract as DefaultAccountTracker: it only
+    // applies while the user hasn't since hand-picked a different debit account.
+    this.receiptForm.get('paymentMethodId')?.valueChanges.subscribe((id: number | null) => {
+      const method = this.paymentMethods().find(m => m.id === id);
+      if (method && !this.debitAccountManuallyChanged()) {
+        this.receiptForm.get('debitAccountId')?.setValue(method.accountId);
+      }
+    });
 
     this.creditAccountTracker = new DefaultAccountTracker(this.accountingService, this.receiptForm.get('creditAccountId') as any);
     this.debitAccountTracker = new DefaultAccountTracker(this.accountingService, this.receiptForm.get('debitAccountId') as any);
@@ -263,6 +280,7 @@ export class ReceiptFormComponent implements OnInit {
       totalAmountReceived: receipt.totalAmount,
       creditAccountId: receipt.creditAccountId,
       debitAccountId: receipt.debitAccountId,
+      paymentMethodId: receipt.paymentMethodId ?? null,
       customerId: receipt.customerId,
       notes: receipt.notes,
       // Legacy single-invoice receipts (Source=Sale, ReferenceId set, no InvoiceAllocations rows)
@@ -325,7 +343,7 @@ export class ReceiptFormComponent implements OnInit {
       receiptType: ['CUSTOMER', Validators.required],
       voucherDate: [new Date().toISOString().split('T')[0], Validators.required],
       totalAmountReceived: [0, [Validators.required, Validators.min(0.01)]],
-      receiptMethod: ['CASH', Validators.required],
+      paymentMethodId: [null, Validators.required],
       creditAccountId: [null, Validators.required],
       debitAccountId: [null, Validators.required],
       customerId: [null],
@@ -352,6 +370,7 @@ export class ReceiptFormComponent implements OnInit {
       totalAmount: formValue.totalAmountReceived,
       creditAccountId: formValue.creditAccountId,
       debitAccountId: formValue.debitAccountId,
+      paymentMethodId: formValue.paymentMethodId ?? null,
       customerId: formValue.customerId,
       source: rows.length > 0 ? ReceiptSource.Sale : ReceiptSource.Other,
       notes: formValue.notes,

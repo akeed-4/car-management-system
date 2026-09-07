@@ -46,9 +46,10 @@
 
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>{{ 'ACCOUNTS.FORM.RECEIPT_METHOD' | translate }}</mat-label>
-              <mat-select formControlName="receiptMethod" required>
-                <mat-option value="CASH">{{ 'INVOICE.PAYMENT_CASH' | translate }}</mat-option>
-                <mat-option value="BANK_TRANSFER">{{ 'INVOICE.PAYMENT_BANK_TRANSFER' | translate }}</mat-option>
+              <mat-select formControlName="paymentMethodId" required>
+                <mat-option *ngFor="let m of paymentMethods()" [value]="m.id">
+                  {{ translate.currentLang === 'ar' ? m.nameAr : m.nameEn }}
+                </mat-option>
               </mat-select>
             </mat-form-field>
 
