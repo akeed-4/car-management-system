@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   DxDataGridModule,
@@ -34,7 +34,7 @@ export type ReportRemoteDataSource = CustomStore | DataSource;
     templateUrl: './report-grid.component.html',
     styleUrls: ['./report-grid.component.css']
 })
-export class ReportGridComponent implements OnInit {
+export class ReportGridComponent implements OnInit, OnChanges {
     private translateService = inject(TranslateService);
 
     /** Plain-array mode (default, backward compatible with every existing report screen). */
@@ -136,16 +136,33 @@ export class ReportGridComponent implements OnInit {
 
     ngOnInit(): void {
         this.setupDefaultSummary();
+        this.gridDataSource = this.remoteDataSource ?? this.dataSource;
+    }
+
+    /**
+     * `[dataSource]` binding target for the inner dx-data-grid: remote store when provided, else
+     * the plain array. This used to be a `get gridDataSource()` getter re-evaluated by the
+     * template on every change-detection check. DevExtreme's Angular wrapper only attaches its
+     * `IterableDiffer` (the mechanism that detects a reassigned `dataSource` array and repaints)
+     * from `ngOnChanges`, keyed off a real `@Input`'s `SimpleChange` -- a getter's return value
+     * changing is invisible to that, since Angular has no change record for it. That silently
+     * broke/detached the differ across ticks, so after Apply Filter reassigned `reportData`, the
+     * grid stayed on stale rows until some unrelated event (focusing another field) forced a
+     * fresh Angular check that happened to re-read the getter. Recomputing into a plain field
+     * here, inside ngOnChanges, makes it a normal `@Input`-shaped value change again so DevExtreme
+     * detects and repaints it immediately.
+     */
+    gridDataSource: any;
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if ('dataSource' in changes || 'remoteDataSource' in changes) {
+            this.gridDataSource = this.remoteDataSource ?? this.dataSource;
+        }
     }
 
     /** True when the grid is bound to a remote CustomStore/DataSource rather than a plain array. */
     get isRemoteMode(): boolean {
         return !!this.remoteDataSource;
-    }
-
-    /** `[dataSource]` binding target: remote store when provided, else the plain array as before. */
-    get gridDataSource(): any {
-        return this.remoteDataSource ?? this.dataSource;
     }
 
     /**
