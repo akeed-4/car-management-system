@@ -177,11 +177,11 @@
          renders its own sticky Apply Filter/Reset footer instead of this in-flow bar. -->
     @if (!isMobile()) {
       <div class="filter-actions erp-actions-bar">
-        <button mat-raised-button color="primary" (click)="onApplyFilter()" [disabled]="loading">
+        <button type="button" mat-raised-button color="primary" (click)="onApplyFilter()" [disabled]="loading">
           <mat-icon>search</mat-icon>
           {{ 'REPORTS.APPLY_FILTER' | translate }}
         </button>
-        <button mat-button (click)="onResetFilter()" [disabled]="loading">
+        <button type="button" mat-button (click)="onResetFilter()" [disabled]="loading">
           <mat-icon>clear</mat-icon>
           {{ 'REPORTS.RESET' | translate }}
         </button>
