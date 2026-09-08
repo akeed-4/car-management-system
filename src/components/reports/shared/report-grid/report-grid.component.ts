@@ -7,6 +7,9 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import CustomStore from 'devextreme/data/custom_store';
 import DataSource from 'devextreme/data/data_source';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 export interface GridColumn {
   dataField: string;
@@ -30,12 +33,15 @@ export type ReportRemoteDataSource = CustomStore | DataSource;
         CommonModule,
         DxDataGridModule,
         TranslateModule,
+        SharedMobileListComponent,
     ],
     templateUrl: './report-grid.component.html',
     styleUrls: ['./report-grid.component.css']
 })
 export class ReportGridComponent implements OnInit, OnChanges {
     private translateService = inject(TranslateService);
+    private responsiveService = inject(ResponsiveService);
+    isMobile = this.responsiveService.isMobile;
 
     /** Plain-array mode (default, backward compatible with every existing report screen). */
     @Input() dataSource: any[] = [];
@@ -163,6 +169,40 @@ export class ReportGridComponent implements OnInit, OnChanges {
     /** True when the grid is bound to a remote CustomStore/DataSource rather than a plain array. */
     get isRemoteMode(): boolean {
         return !!this.remoteDataSource;
+    }
+
+    /** Plain-array rows for the mobile card list -- remote/CustomStore mode isn't supported there
+     *  (SharedMobileListComponent expects a resolved array, not a DevExtreme store), so mobile
+     *  simply shows nothing in that case rather than attempting to unwrap the store. Every report
+     *  screen today uses plain-array mode. */
+    get mobileData(): any[] {
+        return this.isRemoteMode ? [] : this.dataSource;
+    }
+
+    /** First visible column is used as each mobile card's title (mirrors how the desktop grid
+     *  puts the report's primary key/identifying column first, e.g. account code, entry number). */
+    get mobileTitleOf(): (row: any) => string {
+        const first = this.columns.find(c => c.visible !== false);
+        return (row: any) => (first ? String(row?.[first.dataField] ?? '') : '');
+    }
+
+    mobileTrackByFn = (index: number) => index;
+
+    /** Derives SharedMobileListComponent's field config from the same `columns` already driving
+     *  the desktop dx-data-grid, so report screens don't need to define a second, parallel field
+     *  list -- one `columns` array now drives both renderings. The title column (see mobileTitleOf)
+     *  is skipped since it's already shown as the card heading. */
+    get mobileFields(): MobileListFieldDto<any>[] {
+        const visible = this.columns.filter(c => c.visible !== false);
+        const [, ...rest] = visible;
+        return rest.map(col => ({
+            label: col.caption,
+            value: (row: any) => col.calculateCellValue ? col.calculateCellValue(row) : row?.[col.dataField],
+            // Not col.format: that's a DevExtreme format string (e.g. '#,##0.00'), incompatible
+            // with the mobile list's Angular DecimalPipe/DatePipe -- omitted so it falls back to
+            // their own sensible defaults ('1.0-2' / 'yyyy-MM-dd') instead of rendering garbled.
+            type: col.dataType === 'number' ? 'number' : col.dataType === 'date' ? 'date' : 'text',
+        }));
     }
 
     /**

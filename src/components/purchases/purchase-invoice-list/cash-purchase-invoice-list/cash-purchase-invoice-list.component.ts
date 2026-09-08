@@ -7,7 +7,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PurchaseInvoice } from '../../../../models/purchase-invoice.model';
 import { PurchasesService } from '../../../../services/purchases.service';
 import { ResponsiveService } from '../../../../services/responsive.service';
-import { MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
 import {
   SharedDataGridComponent,
   SharedGridRowActionEvent,
@@ -15,6 +14,8 @@ import {
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 import { PermissionService } from '../../../../services/permission.service';
 import { HasPermissionDirective } from '../../../shared/permission.directive';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 type SortColumn = keyof PurchaseInvoice | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -22,7 +23,7 @@ type SortDirection = 'asc' | 'desc' | '';
 @Component({
   selector: 'app-cash-purchase-invoice-list',
   standalone: true,
-  imports: [RouterLink, FormsModule, TranslateModule, SharedDataGridComponent, HasPermissionDirective],
+  imports: [RouterLink, FormsModule, TranslateModule, SharedDataGridComponent, HasPermissionDirective, SharedMobileListComponent],
   templateUrl: './cash-purchase-invoice-list.component.html',
   styleUrl: './cash-purchase-invoice-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -49,7 +50,6 @@ constructor() {
     showArchived = signal(false);
 
     filteredAndSortedInvoices = computed(() => {
-      debugger
       const searchTerm = this.filter().toLowerCase();
       const column = this.sortColumn();
       const direction = this.sortDirection();
@@ -157,39 +157,43 @@ constructor() {
       else if (e.actionId === 'archive') this.onArchiveClick(wrapped);
     }
 
-    // --- Mobile card-list rendering (see `isMobile` field comment above) ---
+    // --- Mobile card-list rendering (SharedMobileListComponent) ---
     mobileTitleOf = (inv: PurchaseInvoice) => inv.invoiceNumber;
     mobileTrackBy = (_index: number, inv: PurchaseInvoice) => inv.id;
 
-    private formatCurrency = (value: number) => `${(value ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SAR`;
-
-    mobileFields: MobileCardField<PurchaseInvoice>[] = [
-      { label: 'PURCHASES.SUPPLIER', value: (inv) => inv.supplier?.name || 'N/A' },
-      { label: 'PURCHASES.INVOICE_DATE', value: (inv) => new Date(inv.invoiceDate).toLocaleDateString() },
-      { label: 'PURCHASES.TOTAL_COST', value: (inv) => this.formatCurrency(inv.totalAmount) },
-      { label: 'PURCHASES.AMOUNT_PAID', value: (inv) => this.formatCurrency(inv.amountPaid) },
-      { label: 'PURCHASES.AMOUNT_DUE', value: (inv) => this.formatCurrency(inv.amountDue) },
-      { label: 'PURCHASES.STATUS', value: (inv) => inv.status },
+    mobileFields: MobileListFieldDto<PurchaseInvoice>[] = [
+      { label: 'PURCHASES.SUPPLIER', value: (inv) => inv.supplierName || inv.supplier?.name || 'N/A' },
+      { label: 'PURCHASES.INVOICE_DATE', value: (inv) => inv.invoiceDate, type: 'date' },
+      { label: 'PURCHASES.TOTAL_COST', value: (inv) => inv.totalAmount, type: 'currency' },
+      { label: 'PURCHASES.AMOUNT_PAID', value: (inv) => inv.amountPaid, type: 'currency' },
+      { label: 'PURCHASES.AMOUNT_DUE', value: (inv) => inv.amountDue, type: 'currency' },
+      {
+        label: 'PURCHASES.STATUS',
+        value: (inv) => inv.status,
+        type: 'status',
+        statusClass: (inv) => (inv.status === 'Paid' ? 'success' : 'danger'),
+      },
     ];
 
-    mobilePrint(inv: PurchaseInvoice): void {
-      window.open(`/#/purchases/invoice/print/${inv.id}`, '_blank');
-    }
+    /** Same print/edit/delete/archive actions as the desktop grid's row actions. */
+    mobileActions: MobileListActionDto<PurchaseInvoice>[] = [
+      { id: 'print', icon: 'print', labelKey: 'PURCHASES.PRINT_INVOICE', visible: () => this.permissionService.hasPermission('purchases.cash.view') },
+      { id: 'edit', icon: 'edit', labelKey: 'PURCHASES.EDIT_INVOICE', visible: () => this.permissionService.hasPermission('purchases.cash.view') },
+      { id: 'delete', icon: 'delete', labelKey: 'PURCHASES.DELETE_INVOICE', cssClass: 'btn-danger', visible: () => this.permissionService.hasPermission('purchases.cash.view') },
+      {
+        id: 'archive',
+        icon: 'archive',
+        labelKey: 'PURCHASES.ARCHIVE',
+        visible: (inv) => !this.showArchived() && inv.status === 'Paid' && this.permissionService.hasPermission('purchases.cash.view'),
+      },
+    ];
 
-    mobileEdit(inv: PurchaseInvoice): void {
-      this.router.navigate(['/purchases/invoice/edit', inv.id]);
-    }
-
-    mobileDelete(inv: PurchaseInvoice): void {
-      this.deleteInvoice(inv.id);
-    }
-
-    mobileArchive(inv: PurchaseInvoice): void {
-      this.archiveInvoice(inv.id);
-    }
-
-    mobileCanArchive(inv: PurchaseInvoice): boolean {
-      return !this.showArchived() && inv.status === 'Paid';
+    onMobileAction(e: MobileListActionEvent<PurchaseInvoice>): void {
+      const wrapped = { row: { data: e.item } };
+      if (e.actionId === 'print') this.onPrintClick(wrapped);
+      else if (e.actionId === 'edit') this.onEditClick(wrapped);
+      else if (e.actionId === 'delete') this.onDeleteClick(wrapped);
+      else if (e.actionId === 'archive') this.onArchiveClick(wrapped);
     }
 
     onFilter(event: Event) {
@@ -260,11 +264,11 @@ getinvoice(){
     }
 
     onArchiveClick = (e: any) => {
-      this.archiveInvoice(e.row.data.id);
+      this.archiveInvoice(e);
     }
 
     onUnarchiveClick = (e: any) => {
-      this.unarchiveInvoice(e.row.data.id);
+      this.unarchiveInvoice(e);
     }
 
     isArchiveButtonVisible = (e: any) => {

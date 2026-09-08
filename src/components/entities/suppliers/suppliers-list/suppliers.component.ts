@@ -14,6 +14,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PermissionService } from '../../../../services/permission.service';
 import { HasPermissionDirective } from '../../../shared/permission.directive';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 
 type SortColumn = keyof Supplier | '';
@@ -30,7 +33,8 @@ type SortDirection = 'asc' | 'desc' | '';
     SharedDataGridComponent,
     TranslateModule,
     MatIconModule,
-    HasPermissionDirective
+    HasPermissionDirective,
+    SharedMobileListComponent
   ],
   templateUrl: './suppliers.component.html',
   styleUrl: './suppliers.component.css',
@@ -40,7 +44,9 @@ export class SuppliersComponent {
   private supplierService = inject(SupplierService);
   private router = inject(Router);
   private translate = inject(TranslateService);
+  private responsiveService = inject(ResponsiveService);
   permissionService = inject(PermissionService);
+  isMobile = this.responsiveService.isMobile;
 
   suppliers = this.supplierService.suppliers$;
   filter = signal('');
@@ -100,6 +106,33 @@ export class SuppliersComponent {
     const supplier = e.row as Supplier;
     if (e.actionId === 'edit') this.editSupplier(supplier.id!);
     else if (e.actionId === 'delete') this.requestDelete(supplier.id!);
+  }
+
+  /** Same field set as the desktop grid's visible columns, for the mobile card list. */
+  mobileFields: MobileListFieldDto<Supplier>[] = [
+    { label: 'SUPPLIERS.COLUMNS.CR_NUMBER', value: (s) => s.crNumber },
+    { label: 'SUPPLIERS.COLUMNS.PHONE', value: (s) => s.phone },
+    { label: 'SUPPLIERS.COLUMNS.ADDRESS', value: (s) => s.address },
+    {
+      label: 'SUPPLIERS.COLUMNS.STATUS',
+      value: (s) => this.translate.instant(s.isActive ? 'SUPPLIERS.STATUS.ACTIVE' : 'SUPPLIERS.STATUS.INACTIVE'),
+      type: 'status',
+      statusClass: (s) => (s.isActive ? 'success' : 'neutral'),
+    },
+  ];
+
+  /** Same edit/delete actions as the desktop grid's row actions. */
+  mobileActions: MobileListActionDto<Supplier>[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'SUPPLIERS.ACTIONS.EDIT', visible: () => this.permissionService.hasPermission('suppliers.view') },
+    { id: 'delete', icon: 'trash', labelKey: 'SUPPLIERS.ACTIONS.DELETE', cssClass: 'btn-danger', visible: () => this.permissionService.hasPermission('suppliers.view') },
+  ];
+
+  mobileTitleOf = (s: Supplier) => s.name;
+  mobileTrackBy = (index: number, s: Supplier) => s.id ?? index;
+
+  onMobileAction(e: MobileListActionEvent<Supplier>): void {
+    if (e.actionId === 'edit') this.editSupplier(e.item.id!);
+    else if (e.actionId === 'delete') this.requestDelete(e.item.id!);
   }
 
   // Modal state

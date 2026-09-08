@@ -17,6 +17,8 @@ import { AccountingService } from '../../../accounting/accounting.service';
 import { StoreService } from '../../../../services/store.service';
 import { CostCenterService } from '../../../../services/cost-center.service';
 import { LanguageService } from '../../../../services/language.service';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-report-container',
@@ -33,7 +35,8 @@ import { LanguageService } from '../../../../services/language.service';
     MatSelectModule,
     MatProgressSpinnerModule,
     MatDividerModule,
-    TranslateModule
+    TranslateModule,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './report-container.component.html',
   styleUrls: ['./report-container.component.css']
@@ -64,6 +67,8 @@ export class ReportContainerComponent implements OnInit {
   private storeService = inject(StoreService);
   private costCenterService = inject(CostCenterService);
   private languageService = inject(LanguageService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
   /** loadFilterData() runs from ngOnInit, not the constructor/a field initializer, so
    *  takeUntilDestroyed() there needs this passed explicitly -- it can't auto-detect an
    *  injection context from inside a lifecycle hook. */

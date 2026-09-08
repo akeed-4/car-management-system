@@ -11,6 +11,19 @@
     </div>
   </div>
 
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="filteredAndSortedInvoices()"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      [actions]="mobileActions"
+      searchPlaceholder="COMMON.SEARCH"
+      emptyMessage="COMMON.NO_DATA"
+      (searchChange)="filter.set($event)"
+      (action)="onMobileAction($event)">
+    </shared-mobile-list>
+  } @else {
   <div class="card invoice-card">
     <div class="table-controls">
        <div class="toggle-switch">
@@ -20,17 +33,12 @@
     </div>
     <div class="erp-grid-card table-wrapper premium-table">
       <!-- Shared DataGrid: same columns/status badge/print-edit-delete-archive-unarchive
-           actions as before; on mobile it renders the same card list (mobileFields/mobileTitleOf/
-           mobileTrackBy) in place of the clipped grid columns. -->
+           actions as before. -->
       <app-shared-data-grid
         [dataSource]="filteredAndSortedInvoices()"
         [columns]="columns"
         [rowActions]="rowActions"
         [cellTemplates]="cellTemplates"
-        [mobileItems]="filteredAndSortedInvoices()"
-        [mobileFields]="mobileFields"
-        [mobileTitleOf]="mobileTitleOf"
-        [mobileTrackBy]="mobileTrackBy"
         keyExpr="id"
         height="600px"
         [showSearchPanel]="false"
@@ -39,20 +47,8 @@
         [allowedPageSizes]="[5, 10, 20]"
         (rowAction)="onGridAction($event)">
 
-        <ng-template let-inv>
-          <button type="button" class="btn btn-light" (click)="mobilePrint(inv)">{{ 'PURCHASES.PRINT_INVOICE' | translate }}</button>
-          <button type="button" class="btn btn-light" (click)="mobileEdit(inv)">{{ 'PURCHASES.EDIT_INVOICE' | translate }}</button>
-          <button type="button" class="btn btn-light" (click)="mobileDelete(inv)">{{ 'PURCHASES.DELETE_INVOICE' | translate }}</button>
-          @if (mobileCanArchive(inv)) {
-            <button type="button" class="btn btn-light" (click)="mobileArchive(inv)">{{ 'PURCHASES.ARCHIVE' | translate }}</button>
-          }
-          @if (mobileCanUnarchive(inv)) {
-            <button type="button" class="btn btn-light" (click)="mobileUnarchive(inv)">{{ 'PURCHASES.UNARCHIVE' | translate }}</button>
-          }
-        </ng-template>
-
         <ng-template #supplierTemplate let-cell>
-          {{ cell.data.supplier?.name || 'N/A' }}
+          {{ cell.data.supplierName || cell.data.supplier?.name || 'N/A' }}
         </ng-template>
 
         <ng-template #statusTemplate let-cell>
@@ -67,4 +63,5 @@
       </app-shared-data-grid>
     </div>
   </div>
+  }
 </div>

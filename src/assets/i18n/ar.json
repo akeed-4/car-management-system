@@ -1047,6 +1047,15 @@
     "NAME_AR": "الاسم (عربي)",
     "NAME_EN": "الاسم (إنجليزي)",
     "PAYMENT_TYPE": "نوع الدفع",
+    "TYPES": {
+      "Cash": "نقدي",
+      "Bank": "بنك",
+      "Card": "بطاقة",
+      "BankTransfer": "تحويل بنكي",
+      "Installment": "تقسيط",
+      "Credit": "آجل",
+      "Other": "أخرى"
+    },
     "ACCOUNT": "حساب الدفع",
     "ACCOUNT_CODE": "رمز الحساب",
     "TOGGLE_ACTIVE": "تفعيل/تعطيل",

@@ -71,7 +71,13 @@ export class PaymentMethodListComponent implements OnInit {
   columns: dataGridColumnDto[] = [
     { dataField: 'nameAr', dataType: 'string', caption: 'PAYMENT_METHOD.NAME_AR' },
     { dataField: 'nameEn', dataType: 'string', caption: 'PAYMENT_METHOD.NAME_EN' },
-    { dataField: 'paymentType', dataType: 'string', caption: 'PAYMENT_METHOD.PAYMENT_TYPE', width: 140 },
+    {
+      dataField: 'paymentType',
+      dataType: 'string',
+      caption: 'PAYMENT_METHOD.PAYMENT_TYPE',
+      width: 140,
+      calculateDisplayValue: (m: PaymentMethod) => this.translate.instant('PAYMENT_METHOD.TYPES.' + m.paymentType),
+    },
     { dataField: 'accountCode', dataType: 'string', caption: 'PAYMENT_METHOD.ACCOUNT_CODE', width: 120 },
     { dataField: 'accountNameEn', dataType: 'string', caption: 'PAYMENT_METHOD.ACCOUNT' },
     { dataField: 'isActive', dataType: 'boolean', caption: 'COMMON.ACTIVE', width: 110, type: 'status' },
@@ -159,7 +165,7 @@ export class PaymentMethodListComponent implements OnInit {
   /** Same field set as the desktop grid's visible columns, for the mobile card list. */
   mobileFields: MobileListFieldDto<PaymentMethod>[] = [
     { label: 'PAYMENT_METHOD.NAME_EN', value: (m) => m.nameEn },
-    { label: 'PAYMENT_METHOD.PAYMENT_TYPE', value: (m) => m.paymentType },
+    { label: 'PAYMENT_METHOD.PAYMENT_TYPE', value: (m) => this.translate.instant('PAYMENT_METHOD.TYPES.' + m.paymentType) },
     { label: 'PAYMENT_METHOD.ACCOUNT_CODE', value: (m) => m.accountCode },
     { label: 'PAYMENT_METHOD.ACCOUNT', value: (m) => m.accountNameEn },
     {

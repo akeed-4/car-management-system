@@ -1053,6 +1053,15 @@
     "NAME_AR": "Name (Arabic)",
     "NAME_EN": "Name (English)",
     "PAYMENT_TYPE": "Payment Type",
+    "TYPES": {
+      "Cash": "Cash",
+      "Bank": "Bank",
+      "Card": "Card",
+      "BankTransfer": "Bank Transfer",
+      "Installment": "Installment",
+      "Credit": "Credit",
+      "Other": "Other"
+    },
     "ACCOUNT": "Payment Account",
     "ACCOUNT_CODE": "Account Code",
     "TOGGLE_ACTIVE": "Activate/Deactivate",

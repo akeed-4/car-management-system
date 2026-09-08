@@ -1,4 +1,14 @@
 <div class="report-grid-container erp-grid-card">
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="mobileData"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackByFn"
+      [emptyMessage]="resolvedNoDataText"
+      [showSearch]="false">
+    </shared-mobile-list>
+  } @else {
   <dx-data-grid
     [dataSource]="gridDataSource"
     [remoteOperations]="isRemoteMode ? { filtering: true, sorting: true, paging: true, grouping: true, summary: true } : false"
@@ -91,4 +101,5 @@
     </dxo-state-storing>
 
   </dx-data-grid>
+  }
 </div>

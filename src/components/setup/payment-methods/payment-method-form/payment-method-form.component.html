@@ -51,7 +51,7 @@
           <mat-form-field appearance="outline">
             <mat-label>{{ 'PAYMENT_METHOD.PAYMENT_TYPE' | translate }}</mat-label>
             <mat-select formControlName="paymentType" required>
-              <mat-option *ngFor="let type of paymentTypes" [value]="type">{{ type }}</mat-option>
+              <mat-option *ngFor="let type of paymentTypes" [value]="type">{{ 'PAYMENT_METHOD.TYPES.' + type | translate }}</mat-option>
             </mat-select>
             <mat-error *ngIf="form.get('paymentType')?.hasError('required')">{{ 'COMMON.REQUIRED' | translate }}</mat-error>
           </mat-form-field>
