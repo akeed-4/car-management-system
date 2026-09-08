@@ -127,8 +127,6 @@ import { SalesInvoiceInstallmentComponent } from './components/sales/sales-invoi
 import { CashSaleListComponent } from './components/sales/sales-invoice-form/cash-sale-list/cash-sale-list.component';
 import { CreditSaleListComponent } from './components/sales/sales-invoice-form/credit-sale-list/credit-sale-list.component';
 import { InstallmentSaleListComponent } from './components/sales/sales-invoice-form/installment-sale-list/installment-sale-list.component';
-import { CashInvoiceListComponent } from './components/sales/sales-invoice-list/cash-invoice-list/cash-invoice-list.component';
-import { CreditInvoiceListComponent } from './components/sales/sales-invoice-list/credit-invoice-list/credit-invoice-list.component';
 import { AccountBalanceComponent } from './components/reports/account-balance/account-balance.component';
 import { AccountStatementComponent } from './components/reports/account-statement/account-statement.component';
 import { BalanceSheetComponent } from './components/reports/balance-sheet/balance-sheet.component';
@@ -369,8 +367,6 @@ export const APP_ROUTES: Routes = [
   { path: 'sales/invoice/cash/edit/:id', component: SalesInvoiceCashComponent, canActivate: [permissionGuard('sales.cash.view')] },
   { path: 'sales/invoice/credit/new', component: SalesInvoiceCreditComponent, canActivate: [permissionGuard('sales.credit.view')] },
   { path: 'sales/invoice/credit/edit/:id', component: SalesInvoiceCreditComponent, canActivate: [permissionGuard('sales.credit.view')] },
-  { path: 'sales/invoice/cash', component: CashInvoiceListComponent, canActivate: [permissionGuard('sales.cash.view')] },
-  { path: 'sales/invoice/credit', component: CreditInvoiceListComponent, canActivate: [permissionGuard('sales.credit.view')] },
   // sales/return and sales/returns render BOTH cash and credit returns in one combined list
   // (SalesReturnInvoiceListComponent, isCashReturn defaults false) -- no single .view key covers
   // "either", so left ungated rather than guessing which one to require. The split routes below
