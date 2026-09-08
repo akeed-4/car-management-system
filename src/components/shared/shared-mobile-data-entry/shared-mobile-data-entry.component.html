@@ -1,0 +1,66 @@
+<div class="smde-root">
+  @if (title || showBack) {
+    <app-mobile-header [title]="title" [showBack]="showBack" (back)="onBack()"></app-mobile-header>
+  }
+
+  @if (loading) {
+    <div class="smde-loading" role="status" [attr.aria-label]="'COMMON.LOADING' | translate">
+      <div class="smde-loading-spinner"></div>
+      <span>{{ 'COMMON.LOADING' | translate }}</span>
+    </div>
+  } @else {
+    <div class="smde-content">
+      @if (validationErrors.length) {
+        <div class="erp-status-badge danger smde-validation-summary" role="alert">
+          <mat-icon>error_outline</mat-icon>
+          <ul>
+            @for (msg of validationErrors; track msg) {
+              <li>{{ msg | translate }}</li>
+            }
+          </ul>
+        </div>
+      }
+
+      <!-- Feature-specific form, projected by the calling screen. -->
+      <ng-content></ng-content>
+    </div>
+
+    <div class="smde-sticky-footer mobile-sticky-footer">
+      @if (canCancel) {
+        <button type="button" mat-stroked-button class="mobile-control smde-action-btn" [disabled]="saving" (click)="onCancel()">
+          {{ cancelLabel | translate }}
+        </button>
+      }
+
+      @if (canApprove) {
+        <button type="button" mat-stroked-button color="accent" class="mobile-control smde-action-btn" [disabled]="saving || loading" (click)="onApprove()">
+          {{ approveLabel | translate }}
+        </button>
+      }
+
+      @if (canSaveAndNew || canSaveAndPrint) {
+        <button type="button" mat-icon-button class="mobile-touch-target" [matMenuTriggerFor]="moreSaveMenu" [attr.aria-label]="'COMMON.MORE_ACTIONS' | translate">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #moreSaveMenu="matMenu">
+          @if (canSaveAndNew) {
+            <button mat-menu-item type="button" [disabled]="primarySaveDisabled" (click)="onSaveAndNew()">
+              {{ saveAndNewLabel | translate }}
+            </button>
+          }
+          @if (canSaveAndPrint) {
+            <button mat-menu-item type="button" [disabled]="primarySaveDisabled" (click)="onSaveAndPrint()">
+              {{ saveAndPrintLabel | translate }}
+            </button>
+          }
+        </mat-menu>
+      }
+
+      @if (canSave) {
+        <button type="button" mat-flat-button color="primary" class="mobile-control smde-action-btn" [disabled]="primarySaveDisabled" (click)="onSave()">
+          {{ (saving ? 'COMMON.SAVING' : saveLabel) | translate }}
+        </button>
+      }
+    </div>
+  }
+</div>

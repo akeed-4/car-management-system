@@ -11,23 +11,37 @@
     </div>
   </div>
 
-  <div class="erp-grid-card">
-    <!-- Shared DataGrid: owns grid chrome, columns, row actions, paging
-         (same fields/filters/page sizes as before). -->
-    <app-shared-data-grid
-      [dataSource]="filteredAndSortedCustomers()"
-      [columns]="columns"
-      [rowActions]="rowActions"
-      keyExpr="id"
-      height="500"
-      scrollingMode="virtual"
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="filteredAndSortedCustomers()"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      [actions]="mobileActions"
       searchPlaceholder="COMMON.SEARCH"
-      noDataText="COMMON.NO_DATA"
-      [pageSize]="10"
-      [allowedPageSizes]="[10, 20, 50]"
-      (rowAction)="onGridAction($event)">
-    </app-shared-data-grid>
-  </div>
+      emptyMessage="COMMON.NO_DATA"
+      (searchChange)="filter.set($event)"
+      (action)="onMobileAction($event)">
+    </shared-mobile-list>
+  } @else {
+    <div class="erp-grid-card">
+      <!-- Shared DataGrid: owns grid chrome, columns, row actions, paging
+           (same fields/filters/page sizes as before). -->
+      <app-shared-data-grid
+        [dataSource]="filteredAndSortedCustomers()"
+        [columns]="columns"
+        [rowActions]="rowActions"
+        keyExpr="id"
+        height="500"
+        scrollingMode="virtual"
+        searchPlaceholder="COMMON.SEARCH"
+        noDataText="COMMON.NO_DATA"
+        [pageSize]="10"
+        [allowedPageSizes]="[10, 20, 50]"
+        (rowAction)="onGridAction($event)">
+      </app-shared-data-grid>
+    </div>
+  }
 </div>
 
 <app-modal

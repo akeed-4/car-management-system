@@ -10,7 +10,7 @@ import { debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
 import { SalesService } from '../../../../services/sales.service';
 import { InventoryService } from '../../../../services/inventory.service';
 import { Car } from '../../../../models/car.model';
-import { DatePipe, CurrencyPipe } from '@angular/common';
+import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -28,6 +28,8 @@ import { NotificationService } from '@/src/services/notification.service';
 import { NationalAddressService } from '../../../../services/national-address.service';
 import { Country, Region, City, District } from '../../../../models/national-address.model';
 import { postalCodeValidators, buildingNumberValidators } from '../../../../models/national-address-validators';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 /** Section id -> the form control names it contains, used to auto-expand + scroll to whichever
  *  collapsed section holds the first invalid control on a failed submit (business requirement:
@@ -46,6 +48,7 @@ const SECTION_FIELDS: Record<string, string[]> = {
   selector: 'app-customer-form',
   standalone: true,
   imports: [
+    CommonModule,
     ReactiveFormsModule,
     RouterLink,
     DatePipe,
@@ -59,7 +62,8 @@ const SECTION_FIELDS: Record<string, string[]> = {
     MatCheckboxModule,
     MatExpansionModule,
     MatIconModule,
-    TranslateModule
+    TranslateModule,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './customer-form.component.html',
   styleUrl: './customer-form.component.css',
@@ -76,11 +80,14 @@ export class CustomerFormComponent implements OnInit {
   private translate = inject(TranslateService);
   private fb = inject(FormBuilder);
   private nationalAddressService = inject(NationalAddressService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   customerForm!: FormGroup;
   customer = signal<Partial<Customer>>({});
   editMode = signal(false);
   pageTitle = signal('إضافة عميل جديد');
+  saving = signal(false);
 
   // Requirement 7: National Address dependent dropdowns -- each level's options are scoped to
   // the level above it, so a District from an unrelated City can never even appear as an option.
@@ -278,6 +285,7 @@ export class CustomerFormComponent implements OnInit {
     if (this.customerForm.valid) {
       const formValue = this.customerForm.value;
       const currentDate = new Date().toISOString();
+      this.saving.set(true);
 
       if (this.editMode()) {
         const updatedCustomer: Customer = {
@@ -288,10 +296,12 @@ export class CustomerFormComponent implements OnInit {
         } as Customer;
         this.customerService.updateCustomer(updatedCustomer).subscribe({
           next: () => {
+            this.saving.set(false);
             this.toastService.showSuccess('TOAST.EDIT_SUCCESS');
             this.router.navigate(['/entities/customers']);
           },
           error: (error) => {
+            this.saving.set(false);
             console.error('Error updating customer:', error);
            this.toastService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
           }
@@ -306,10 +316,12 @@ export class CustomerFormComponent implements OnInit {
         };
         this.customerService.addCustomer(newCustomer).subscribe({
           next: () => {
+            this.saving.set(false);
             this.toastService.showSuccess('TOAST.ADD_SUCCESS');
             this.router.navigate(['/entities/customers']);
           },
           error: (error) => {
+            this.saving.set(false);
             console.error('Error adding customer:', error);
            this.toastService.showError(this.translate.instant('TOAST.SAVE_ERROR'));
           }
@@ -339,6 +351,10 @@ export class CustomerFormComponent implements OnInit {
       document.getElementById(`customer-section-${invalidSection}`)
         ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
+  }
+
+  cancelForm(): void {
+    this.router.navigate(['/entities/customers']);
   }
 
   getDaysRemaining(dateStr: string): number | null {

@@ -705,7 +705,15 @@
     "SECTION_LOCATION": "الموقع",
     "SECTION_ADDRESS": "معلومات العنوان",
     "SECTION_LEGAL": "المعلومات القانونية والمالية",
-    "NO_DATA": "لا توجد بيانات"
+    "NO_DATA": "لا توجد بيانات",
+    "SAVE_AND_NEW": "حفظ وجديد",
+    "SAVE_AND_PRINT": "حفظ وطباعة",
+    "APPROVE": "اعتماد",
+    "MORE_ACTIONS": "المزيد من الإجراءات",
+    "FILTERS": "الفلاتر",
+    "LOAD_MORE": "تحميل المزيد",
+    "CLEAR_FILTERS": "مسح الفلاتر",
+    "SHOWING_RESULTS": "عرض {{shown}} من {{total}}"
   },
   "VALIDATION": {
     "REQUIRED": "هذا الحقل مطلوب"

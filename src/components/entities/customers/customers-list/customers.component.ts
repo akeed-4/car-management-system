@@ -16,6 +16,11 @@ import { ToastService } from '../../../../services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
 import { PermissionService } from '../../../../services/permission.service';
 import { HasPermissionDirective } from '../../../shared/permission.directive';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import {
+  SharedMobileListComponent,
+} from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 type SortColumn = keyof Customer | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -31,7 +36,8 @@ type SortDirection = 'asc' | 'desc' | '';
     SharedDataGridComponent,
     TranslateModule,
     MatIconModule,
-    HasPermissionDirective
+    HasPermissionDirective,
+    SharedMobileListComponent
   ],
   templateUrl: './customers.component.html',
   styleUrl: './customers.component.css',
@@ -42,7 +48,9 @@ export class CustomersComponent {
   private router = inject(Router);
   private toastService = inject(NotificationService);
   private translate = inject(TranslateService);
+  private responsiveService = inject(ResponsiveService);
   permissionService = inject(PermissionService);
+  isMobile = this.responsiveService.isMobile;
 
   // customers = this.customerService.customers$;
   filter = signal('');
@@ -76,6 +84,33 @@ export class CustomersComponent {
     const customer = e.row as Customer;
     if (e.actionId === 'edit') this.editCustomer(customer.id!);
     else if (e.actionId === 'delete') this.requestDelete(customer.id!);
+  }
+
+  /** Same field set as the desktop grid's visible columns, for the mobile card list. */
+  mobileFields: MobileListFieldDto<Customer>[] = [
+    { label: 'CUSTOMERS.COLUMNS.NATIONAL_ID', value: (c) => c.nationalId },
+    { label: 'CUSTOMERS.COLUMNS.PHONE', value: (c) => c.phone },
+    { label: 'CUSTOMERS.COLUMNS.ADDRESS', value: (c) => c.address },
+    {
+      label: 'CUSTOMERS.COLUMNS.STATUS',
+      value: (c) => this.translate.instant(c.isActive ? 'CUSTOMERS.STATUS.ACTIVE' : 'CUSTOMERS.STATUS.INACTIVE'),
+      type: 'status',
+      statusClass: (c) => (c.isActive ? 'success' : 'neutral'),
+    },
+  ];
+
+  /** Same edit/delete actions as the desktop grid's row actions. */
+  mobileActions: MobileListActionDto<Customer>[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'CUSTOMERS.ACTIONS.EDIT', visible: () => this.permissionService.hasPermission('customers.view') },
+    { id: 'delete', icon: 'trash', labelKey: 'CUSTOMERS.ACTIONS.DELETE', cssClass: 'btn-danger', visible: () => this.permissionService.hasPermission('customers.view') },
+  ];
+
+  mobileTitleOf = (c: Customer) => c.name;
+  mobileTrackBy = (index: number, c: Customer) => c.id ?? index;
+
+  onMobileAction(e: MobileListActionEvent<Customer>): void {
+    if (e.actionId === 'edit') this.editCustomer(e.item.id!);
+    else if (e.actionId === 'delete') this.requestDelete(e.item.id!);
   }
 
   // Modal state

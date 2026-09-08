@@ -1,0 +1,51 @@
+:host {
+  display: block;
+}
+
+.smde-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-8, 3rem) 0;
+  color: var(--text-secondary, var(--color-gray-500));
+  font-size: 14px;
+}
+
+.smde-loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border-default, var(--color-gray-200));
+  border-top-color: var(--color-primary-600, var(--color-primary));
+  border-radius: 50%;
+  animation: smde-spin 0.8s linear infinite;
+}
+
+@keyframes smde-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.smde-content {
+  padding: var(--mobile-gutter);
+  /* Sticky footer overlays the last ~80px of content otherwise. */
+  padding-bottom: calc(var(--mobile-action-bar-height) + var(--mobile-gutter));
+}
+
+.smde-validation-summary {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  margin-bottom: var(--mobile-gutter);
+}
+
+.smde-validation-summary ul {
+  margin: 0;
+  padding-inline-start: var(--space-4);
+}
+
+.smde-action-btn {
+  flex: 1 1 0;
+}

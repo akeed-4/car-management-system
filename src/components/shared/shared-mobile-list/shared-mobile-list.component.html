@@ -1,0 +1,151 @@
+<div class="sml-root">
+  @if (title || showBack) {
+    <app-mobile-header [title]="title" [showBack]="showBack" (back)="onBack()">
+      @if (headerActionsTemplate) {
+        <ng-template [ngTemplateOutlet]="headerActionsTemplate"></ng-template>
+      }
+    </app-mobile-header>
+  }
+
+  @if (showSearch || filters.length) {
+    <div class="sml-toolbar">
+      @if (showSearch) {
+        <div class="sml-search">
+          <mat-icon class="sml-search-icon">search</mat-icon>
+          <input
+            type="text"
+            class="sml-search-input mobile-control"
+            [ngModel]="searchValue"
+            (ngModelChange)="onSearchInput($event)"
+            [placeholder]="searchPlaceholder | translate" />
+        </div>
+      }
+
+      @if (filters.length) {
+        <button
+          type="button"
+          mat-icon-button
+          class="sml-filter-toggle mobile-touch-target"
+          [class.sml-filter-toggle-active]="hasActiveFilters"
+          [attr.aria-label]="'COMMON.FILTERS' | translate"
+          (click)="toggleFilterPanel()">
+          <mat-icon>filter_list</mat-icon>
+        </button>
+      }
+    </div>
+  }
+
+  @if (filters.length && filterPanelOpen) {
+    <div class="sml-filter-panel">
+      @for (filter of filters; track trackByFilter($index, filter)) {
+        <div class="sml-filter-field">
+          <label class="sml-filter-label">{{ filter.label | translate }}</label>
+          @switch (filter.type) {
+            @case ('select') {
+              <select
+                class="sml-filter-select mobile-control"
+                [ngModel]="filter.value"
+                (ngModelChange)="onFilterValueChange(filter.key, $event)">
+                <option [ngValue]="''">{{ 'COMMON.ALL' | translate }}</option>
+                @for (opt of filter.options; track opt.value) {
+                  <option [ngValue]="opt.value">{{ opt.label | translate }}</option>
+                }
+              </select>
+            }
+            @case ('boolean') {
+              <select
+                class="sml-filter-select mobile-control"
+                [ngModel]="filter.value"
+                (ngModelChange)="onFilterValueChange(filter.key, $event)">
+                <option [ngValue]="''">{{ 'COMMON.ALL' | translate }}</option>
+                <option [ngValue]="true">{{ 'COMMON.YES' | translate }}</option>
+                <option [ngValue]="false">{{ 'COMMON.NO' | translate }}</option>
+              </select>
+            }
+            @case ('date') {
+              <input
+                type="date"
+                class="sml-filter-input mobile-control"
+                [ngModel]="filter.value"
+                (ngModelChange)="onFilterValueChange(filter.key, $event)" />
+            }
+            @default {
+              <input
+                type="text"
+                class="sml-filter-input mobile-control"
+                [ngModel]="filter.value"
+                (ngModelChange)="onFilterValueChange(filter.key, $event)" />
+            }
+          }
+        </div>
+      }
+
+      @if (hasActiveFilters) {
+        <button type="button" class="btn btn-light sml-clear-filters" (click)="clearFilters()">
+          {{ 'COMMON.CLEAR_FILTERS' | translate }}
+        </button>
+      }
+    </div>
+  }
+
+  <div class="sml-body">
+    @if (loading && !data.length) {
+      <div class="sml-loading" role="status" [attr.aria-label]="'COMMON.LOADING' | translate">
+        <div class="sml-loading-spinner"></div>
+        <span>{{ 'COMMON.LOADING' | translate }}</span>
+      </div>
+    } @else if (!data.length) {
+      <div class="mobile-card-list-empty">{{ emptyMessage | translate }}</div>
+    } @else {
+      <div class="mobile-card-list">
+        @for (item of data; track trackByFn($index, item)) {
+          <div class="mobile-card mobile-card-list-item" (click)="onItemClick(item)">
+            @if (itemTemplate) {
+              <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: item }"></ng-container>
+            } @else {
+              <div class="mobile-card-list-title">{{ titleOf(item) }}</div>
+
+              @for (field of visibleFields(item); track trackByField($index, field)) {
+                <div class="mobile-card-list-row">
+                  <span class="label">{{ field.label | translate }}</span>
+                  @if (field.type === 'status') {
+                    <span class="erp-status-badge" [ngClass]="fieldStatusClass(field, item)">
+                      {{ fieldValue(field, item) }}
+                    </span>
+                  } @else {
+                    <span class="value">{{ fieldValue(field, item) }}</span>
+                  }
+                </div>
+              }
+            }
+
+            @if (visibleActions(item).length) {
+              <div class="mobile-card-list-actions" (click)="$event.stopPropagation()">
+                @for (a of visibleActions(item); track trackByAction($index, a)) {
+                  <button
+                    type="button"
+                    class="btn btn-light sml-action-btn"
+                    [class]="a.cssClass"
+                    [disabled]="actionDisabled(a, item)"
+                    [attr.aria-label]="labelOf(a)"
+                    (click)="doAction(a, item, $event)">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="actionIconMarkup(a.icon)"></svg>
+                    <span>{{ labelOf(a) }}</span>
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      @if (canLoadMore) {
+        <div class="sml-load-more">
+          <button type="button" class="btn btn-light" [disabled]="loading" (click)="onLoadMore()">
+            {{ (loading ? 'COMMON.LOADING' : 'COMMON.LOAD_MORE') | translate }}
+          </button>
+        </div>
+      }
+    }
+  </div>
+</div>

@@ -711,7 +711,15 @@
     "SECTION_LOCATION": "Location",
     "SECTION_ADDRESS": "Address Information",
     "SECTION_LEGAL": "Legal & Financial",
-    "NO_DATA": "No data"
+    "NO_DATA": "No data",
+    "SAVE_AND_NEW": "Save & New",
+    "SAVE_AND_PRINT": "Save & Print",
+    "APPROVE": "Approve",
+    "MORE_ACTIONS": "More actions",
+    "FILTERS": "Filters",
+    "LOAD_MORE": "Load more",
+    "CLEAR_FILTERS": "Clear filters",
+    "SHOWING_RESULTS": "Showing {{shown}} of {{total}}"
   },
   "VALIDATION": {
     "REQUIRED": "This field is required"
