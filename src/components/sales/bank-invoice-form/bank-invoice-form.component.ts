@@ -23,6 +23,8 @@ import { UninvoicedDeliveryLookup } from '../../../models/sales/uninvoiced-deliv
 import { SalesInvoiceFormComponent } from '../sales-invoice-form/sales-invoice-form.component';
 import { SalesChannel } from '../../../models/enums/sales-channel.enum';
 import { SaleType } from '../../../models/sales-enhancements.model';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 type InvoiceSource = 'order' | 'delivery';
 
@@ -46,7 +48,8 @@ type InvoiceSource = 'order' | 'delivery';
     DxDataGridModule,
     TranslateModule,
     MatTooltipModule,
-    SalesInvoiceFormComponent
+    SalesInvoiceFormComponent,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './bank-invoice-form.component.html',
   styleUrls: ['./bank-invoice-form.component.css'],
@@ -59,6 +62,8 @@ export class BankInvoiceFormComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   SalesChannel = SalesChannel;
   SaleType = SaleType;
@@ -200,5 +205,9 @@ export class BankInvoiceFormComponent implements OnInit {
         this.notificationService.showError('TOAST.SAVE_ERROR');
       }
     });
+  }
+
+  cancelForm(): void {
+    this.router.navigate(['/sales/bank/invoices']);
   }
 }

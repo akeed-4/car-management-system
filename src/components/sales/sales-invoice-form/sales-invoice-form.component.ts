@@ -61,6 +61,8 @@ import { warnIfPartyAccountMissing } from '../../shared/party-account-required-d
 import { extractErrorMessage } from '../../../models/http-error-message';
 import { StoreContextService } from '../../../services/store-context.service';
 import { resolveStoreDisplayName } from '../../../models/store-display.util';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 export enum InvoiceType {
   Taxable = 'Taxable',
@@ -102,6 +104,7 @@ const PAYMENT_TYPE_POOL: { value: string; labelKey: string }[] = [
     CashAmountCalculatorComponent,
     DocumentToolbarComponent,
     DocumentTotalsComponent,
+    SharedMobileDataEntryComponent,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './sales-invoice-form.component.html',
@@ -129,6 +132,8 @@ export class SalesInvoiceFormComponent implements OnInit {
     private route = inject(ActivatedRoute);
     private notificationService = inject(NotificationService);
     private calc = inject(SalesInvoiceCalculationService);
+    private responsiveService = inject(ResponsiveService);
+    isMobile = this.responsiveService.isMobile;
     /** Shared save-before-print workflow + formatting locale for the shared totals block. */
     private printWorkflow = inject(DocumentPrintService);
     private localeId = inject(LOCALE_ID);
@@ -1350,9 +1355,15 @@ export class SalesInvoiceFormComponent implements OnInit {
         label: 'INVOICE.CANCEL',
         icon: 'close',
         variant: 'basic',
-        execute: () => this.router.navigate(['/sales'])
+        execute: () => this.cancelForm()
       }
     ];
+  }
+
+  /** Shared cancel target for both the desktop toolbar's Cancel action and the mobile shell's
+   *  Cancel/Back buttons -- same destination the toolbar already navigated to. */
+  cancelForm(): void {
+    this.router.navigate(['/sales']);
   }
 
   /**

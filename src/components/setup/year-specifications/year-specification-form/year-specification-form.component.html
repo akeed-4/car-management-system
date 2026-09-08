@@ -1,29 +1,60 @@
-<div class="container" [class.dialog-mode]="isQuickAddDialog">
-  <div class="card">
-    <div class="card-header" [class.erp-page-header]="!isQuickAddDialog">
-      @if (!isQuickAddDialog) {
-        <div class="erp-page-header-titles">
-          <h2 class="erp-page-title">{{ pageTitle() | translate }}</h2>
-        </div>
-        <div class="erp-page-actions">
-          <a routerLink="/setup/year-specifications" class="back-link">
-            <mat-icon>arrow_back</mat-icon>
-            {{ 'YEAR_SPECIFICATION.FORM.BACK_TO_LIST' | translate }}
-          </a>
-        </div>
-      } @else {
-        <h2 mat-dialog-title>{{ 'YEAR_SPECIFICATION.ADD_NEW' | translate }}</h2>
-        <button
-          type="button"
-          class="dialog-close-btn"
-          (click)="cancelDialog()"
-          [attr.aria-label]="'YEAR_SPECIFICATION.FORM.CANCEL' | translate"
-          [title]="'YEAR_SPECIFICATION.FORM.CANCEL' | translate">
-          <mat-icon>close</mat-icon>
-        </button>
-      }
-    </div>
+@if (!isQuickAddDialog && isMobile()) {
+  <shared-mobile-data-entry
+    [title]="pageTitle() | translate"
+    [saving]="false"
+    [isEditMode]="editMode()"
+    [canSave]="true"
+    [canCancel]="true"
+    [saveLabel]="editMode() ? 'YEAR_SPECIFICATION.FORM.SAVE_CHANGES' : 'YEAR_SPECIFICATION.FORM.SAVE'"
+    (save)="saveSpec()"
+    (cancel)="cancelForm()"
+    (back)="cancelForm()">
+    <ng-container [ngTemplateOutlet]="yearSpecFormBody"></ng-container>
+  </shared-mobile-data-entry>
+} @else {
+  <div class="container" [class.dialog-mode]="isQuickAddDialog">
+    <div class="card">
+      <div class="card-header" [class.erp-page-header]="!isQuickAddDialog">
+        @if (!isQuickAddDialog) {
+          <div class="erp-page-header-titles">
+            <h2 class="erp-page-title">{{ pageTitle() | translate }}</h2>
+          </div>
+          <div class="erp-page-actions">
+            <a routerLink="/setup/year-specifications" class="back-link">
+              <mat-icon>arrow_back</mat-icon>
+              {{ 'YEAR_SPECIFICATION.FORM.BACK_TO_LIST' | translate }}
+            </a>
+          </div>
+        } @else {
+          <h2 mat-dialog-title>{{ 'YEAR_SPECIFICATION.ADD_NEW' | translate }}</h2>
+          <button
+            type="button"
+            class="dialog-close-btn"
+            (click)="cancelDialog()"
+            [attr.aria-label]="'YEAR_SPECIFICATION.FORM.CANCEL' | translate"
+            [title]="'YEAR_SPECIFICATION.FORM.CANCEL' | translate">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </div>
 
+      <ng-container [ngTemplateOutlet]="yearSpecFormBody"></ng-container>
+
+      <div class="form-actions" [class.mat-dialog-actions]="isQuickAddDialog">
+        @if (!isQuickAddDialog) {
+          <a routerLink="/setup/year-specifications" class="btn btn-light">
+            {{ 'YEAR_SPECIFICATION.FORM.CANCEL' | translate }}
+          </a>
+        }
+        <button type="button" (click)="saveSpec()" [disabled]="!canSaveSpec()" class="btn btn-primary">
+          {{ editMode() ? ('YEAR_SPECIFICATION.FORM.SAVE_CHANGES' | translate) : ('YEAR_SPECIFICATION.FORM.SAVE' | translate) }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<ng-template #yearSpecFormBody>
     <form [formGroup]="specForm" class="card-body" [class.mat-dialog-content]="isQuickAddDialog">
       <!-- Cascading selection: Make -> Model -> Trim -> Model Year (Requirement 5) -->
       <div class="form-grid">
@@ -120,16 +151,4 @@
         </mat-form-field>
       </div>
     </form>
-
-    <div class="form-actions" [class.mat-dialog-actions]="isQuickAddDialog">
-      @if (!isQuickAddDialog) {
-        <a routerLink="/setup/year-specifications" class="btn btn-light">
-          {{ 'YEAR_SPECIFICATION.FORM.CANCEL' | translate }}
-        </a>
-      }
-      <button type="button" (click)="saveSpec()" [disabled]="!canSaveSpec()" class="btn btn-primary">
-        {{ editMode() ? ('YEAR_SPECIFICATION.FORM.SAVE_CHANGES' | translate) : ('YEAR_SPECIFICATION.FORM.SAVE' | translate) }}
-      </button>
-    </div>
-  </div>
-</div>
+</ng-template>

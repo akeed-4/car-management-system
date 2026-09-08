@@ -13,6 +13,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CurrencyService } from '../../../../services/currency.service';
 import { NotificationService } from '../../../../services/notification.service';
 import { CreateCurrencyDto, UpdateCurrencyDto } from '../../../../models/currency.model';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 type FormMode = 'create' | 'edit';
 
@@ -29,7 +31,8 @@ type FormMode = 'create' | 'edit';
     MatIconModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
-    TranslateModule
+    TranslateModule,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './currency-form.component.html',
   styleUrls: ['./currency-form.component.css']
@@ -41,6 +44,8 @@ export class CurrencyFormComponent implements OnInit {
   private currencyService = inject(CurrencyService);
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   form!: FormGroup;
   mode: FormMode = 'create';

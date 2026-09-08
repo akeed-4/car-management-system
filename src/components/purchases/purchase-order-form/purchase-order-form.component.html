@@ -1,14 +1,35 @@
-<div class="erp-page purchase-order-container p-4">
-  <div class="erp-page-header">
-    <div class="erp-page-header-titles">
-      <span class="erp-page-eyebrow">{{ 'PURCHASE_ORDER.MODULE_NAME' | translate }}</span>
-      <h2 class="erp-page-title">
-        {{ (isEditMode ? 'PURCHASE_ORDER.EDIT_TITLE' : 'PURCHASE_ORDER.CREATE_TITLE') | translate }}
-      </h2>
+@if (isMobile()) {
+  <shared-mobile-data-entry
+    [title]="(isEditMode ? 'PURCHASE_ORDER.EDIT_TITLE' : 'PURCHASE_ORDER.CREATE_TITLE') | translate"
+    [saving]="false"
+    [isEditMode]="isEditMode"
+    [canSave]="true"
+    [canCancel]="true"
+    [saveLabel]="isEditMode ? 'COMMON.UPDATE' : 'COMMON.SAVE'"
+    (save)="onSubmit()"
+    (cancel)="onCancel()"
+    (back)="onCancel()">
+    <ng-container [ngTemplateOutlet]="poFormBody"></ng-container>
+  </shared-mobile-data-entry>
+} @else {
+  <div class="erp-page purchase-order-container p-4">
+    <div class="erp-page-header">
+      <div class="erp-page-header-titles">
+        <span class="erp-page-eyebrow">{{ 'PURCHASE_ORDER.MODULE_NAME' | translate }}</span>
+        <h2 class="erp-page-title">
+          {{ (isEditMode ? 'PURCHASE_ORDER.EDIT_TITLE' : 'PURCHASE_ORDER.CREATE_TITLE') | translate }}
+        </h2>
+      </div>
+    </div>
+    <div class="erp-card styled-card">
+      <div class="p-4">
+        <ng-container [ngTemplateOutlet]="poFormBody"></ng-container>
+      </div>
     </div>
   </div>
-  <div class="erp-card styled-card">
-    <div class="p-4">
+}
+
+<ng-template #poFormBody>
       <form [formGroup]="poForm" (ngSubmit)="onSubmit()" autocomplete="off">
 
         <div class="erp-section-title doc-section-title">
@@ -138,12 +159,13 @@
           </div>
         </div>
 
+        <!-- Unified document toolbar: desktop only -- the mobile branch's shared-mobile-data-entry
+             shell renders its own sticky Save/Cancel footer instead of this in-flow bar. -->
+        @if (!isMobile()) {
         <div class="erp-actions-bar d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
-          <!-- Unified document toolbar (shared across ALL document screens). -->
           <app-document-toolbar [actions]="toolbarActions()"></app-document-toolbar>
         </div>
+        }
 
       </form>
-    </div>
-  </div>
-</div>
+</ng-template>

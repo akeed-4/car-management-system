@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, ViewChild, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,6 +17,9 @@ import { Currency } from '../../../../models/currency.model';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 import { PermissionService } from '../../../../services/permission.service';
 import { HasPermissionDirective } from '../../../shared/permission.directive';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-currency-list',
@@ -31,7 +34,8 @@ import { HasPermissionDirective } from '../../../shared/permission.directive';
     MatTooltipModule,
     TranslateModule,
     SharedDataGridComponent,
-    HasPermissionDirective
+    HasPermissionDirective,
+    SharedMobileListComponent
   ],
   templateUrl: './currency-list.component.html',
   styleUrls: ['./currency-list.component.css'],
@@ -45,9 +49,24 @@ export class CurrencyListComponent implements OnInit {
   private router = inject(Router);
   private translate = inject(TranslateService);
   private permissionService = inject(PermissionService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   currencies = signal<Currency[]>([]);
   loading = signal(false);
+  mobileSearch = signal('');
+
+  /** Client-side search for the mobile card list (desktop keeps DevExtreme's own search panel). */
+  filteredCurrencies = computed(() => {
+    const term = this.mobileSearch().toLowerCase();
+    const currencies = this.currencies();
+    if (!term) return currencies;
+    return currencies.filter(c =>
+      c.code?.toLowerCase().includes(term) ||
+      c.nameEn?.toLowerCase().includes(term) ||
+      c.nameAr?.toLowerCase().includes(term)
+    );
+  });
 
   /** Config-driven columns for the Shared DataGrid (captions are i18n keys). */
   columns: dataGridColumnDto[] = [
@@ -75,6 +94,41 @@ export class CurrencyListComponent implements OnInit {
   /** Single dispatcher for the Shared DataGrid's rowAction output. */
   onGridAction(e: SharedGridRowActionEvent): void {
     const wrapped = { row: { data: e.row } };
+    if (e.actionId === 'edit') this.onEdit(wrapped);
+    else if (e.actionId === 'deactivate') this.onDeactivate(wrapped);
+  }
+
+  /** Same field set as the desktop grid's visible columns, for the mobile card list. */
+  mobileFields: MobileListFieldDto<Currency>[] = [
+    { label: 'CURRENCY.NAME_ARABIC', value: (c) => c.nameAr },
+    { label: 'CURRENCY.SYMBOL', value: (c) => c.symbol },
+    { label: 'CURRENCY.DECIMAL_PLACES', value: (c) => c.decimalPlaces },
+    {
+      label: 'COMMON.ACTIVE',
+      value: (c) => this.translate.instant(c.isActive ? 'COMMON.ACTIVE' : 'COMMON.INACTIVE'),
+      type: 'status',
+      statusClass: (c) => (c.isActive ? 'success' : 'neutral'),
+    },
+  ];
+
+  /** Same edit/deactivate actions as the desktop grid's row actions. */
+  mobileActions: MobileListActionDto<Currency>[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('currencies.view') },
+    {
+      id: 'deactivate',
+      icon: 'block',
+      labelKey: 'CURRENCY.DEACTIVATE',
+      cssClass: 'warn',
+      disabled: (c) => !c.isActive,
+      visible: () => this.permissionService.hasPermission('currencies.view'),
+    },
+  ];
+
+  mobileTitleOf = (c: Currency) => `${c.code} - ${c.nameEn}`;
+  mobileTrackBy = (index: number, c: Currency) => c.id ?? index;
+
+  onMobileAction(e: MobileListActionEvent<Currency>): void {
+    const wrapped = { row: { data: e.item } };
     if (e.actionId === 'edit') this.onEdit(wrapped);
     else if (e.actionId === 'deactivate') this.onDeactivate(wrapped);
   }

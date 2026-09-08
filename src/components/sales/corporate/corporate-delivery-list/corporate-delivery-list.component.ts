@@ -15,6 +15,8 @@ import { DeliveryNoteResult } from '../../../../models/corporate/corporate-dispa
 import { ResponsiveService } from '../../../../services/responsive.service';
 import { MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-corporate-delivery-list',
@@ -25,7 +27,8 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/gr
     SharedDataGridComponent,
     TranslateModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    SharedMobileListComponent
   ],
   templateUrl: './corporate-delivery-list.component.html',
   styleUrls: ['./corporate-delivery-list.component.css'],
@@ -103,5 +106,23 @@ export class CorporateDeliveryListComponent implements OnInit {
 
   mobileView(note: DeliveryNoteResult): void {
     this.onView({ row: { data: { id: note.id } } });
+  }
+
+  /** Same field set as the desktop grid's columns, for shared-mobile-list. */
+  sharedMobileFields: MobileListFieldDto<DeliveryNoteResult>[] = [
+    { label: 'VIN', value: (note) => note.vin },
+    { label: 'CORPORATE.GATE_PASS_SERIAL', value: (note) => note.gatePassSerial },
+    { label: 'CORPORATE.DELIVERY_DATE', value: (note) => note.deliveryDate, type: 'date' },
+    { label: 'CORPORATE.RECEIVER_NAME', value: (note) => note.deliveredToName },
+    { label: 'CORPORATE.DRIVER_NAME', value: (note) => note.driverName },
+  ];
+
+  /** Same single view action as the desktop grid's row actions. */
+  sharedMobileActions: MobileListActionDto<DeliveryNoteResult>[] = [
+    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW', visible: () => this.permissionService.hasPermission('sales.corporate.deliveries.view') },
+  ];
+
+  onSharedMobileAction(e: MobileListActionEvent<DeliveryNoteResult>): void {
+    if (e.actionId === 'view') this.onView({ row: { data: { id: e.item.id } } });
   }
 }

@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,7 +9,8 @@ import { YearSpecificationService } from '../../../../services/year-specificatio
 import { YearSpecification } from '../../../../models/year-specification.model';
 import { ResponsiveService } from '../../../../services/responsive.service';
 import { NotificationService } from '@/src/services/notification.service';
-import { MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 import { PermissionService } from '../../../../services/permission.service';
 
@@ -19,7 +20,7 @@ import { PermissionService } from '../../../../services/permission.service';
 @Component({
   selector: 'app-year-specification-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule, TranslateModule, SharedDataGridComponent],
+  imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule, TranslateModule, SharedDataGridComponent, SharedMobileListComponent],
   templateUrl: './year-specification-list.component.html',
   styleUrl: './year-specification-list.component.css'
 })
@@ -32,10 +33,22 @@ export class YearSpecificationListComponent {
   isMobile = this.responsiveService.isMobile;
 
   specs = this.yearSpecService.specs$;
+  mobileSearch = signal('');
+
+  /** Client-side search for the mobile card list (desktop keeps DevExtreme's own search panel). */
+  filteredSpecsForMobile = computed(() => {
+    const term = this.mobileSearch().toLowerCase();
+    const specs = this.specs();
+    if (!term) return specs;
+    return specs.filter(s =>
+      s.manufacturerName?.toLowerCase().includes(term) ||
+      s.modelName?.toLowerCase().includes(term) ||
+      s.trimNameEn?.toLowerCase().includes(term) ||
+      String(s.year).includes(term)
+    );
+  });
 
   canCreate = computed(() => this.permissionService.hasPermission('yearSpecification.create'));
-  canEdit = computed(() => this.permissionService.hasPermission('yearSpecification.edit'));
-  canDelete = computed(() => this.permissionService.hasPermission('yearSpecification.delete'));
 
   columns: dataGridColumnDto[] = [
     { dataField: 'manufacturerName', dataType: 'string', caption: 'YEAR_SPECIFICATION.COLUMNS.MAKE', minWidth: 120 },
@@ -72,19 +85,22 @@ export class YearSpecificationListComponent {
   }
 
   mobileTitleOf = (spec: YearSpecification) => `${spec.trimNameEn} — ${spec.year}`;
-  mobileTrackBy = (_index: number, spec: YearSpecification) => spec.id;
+  mobileTrackBy = (index: number, spec: YearSpecification) => spec.id ?? index;
 
-  mobileFields: MobileCardField<YearSpecification>[] = [
+  mobileFields: MobileListFieldDto<YearSpecification>[] = [
     { label: 'YEAR_SPECIFICATION.COLUMNS.MAKE', value: (s) => s.manufacturerName },
     { label: 'YEAR_SPECIFICATION.COLUMNS.MODEL', value: (s) => s.modelName },
     { label: 'YEAR_SPECIFICATION.COLUMNS.HORSEPOWER', value: (s) => s.horsepower },
   ];
 
-  mobileEdit(spec: YearSpecification): void {
-    this.onEdit(spec);
-  }
+  /** Same edit/delete actions as the desktop grid's row actions. */
+  mobileActions: MobileListActionDto<YearSpecification>[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'YEAR_SPECIFICATION.EDIT', visible: () => this.permissionService.hasPermission('yearSpecification.edit') },
+    { id: 'delete', icon: 'delete', labelKey: 'YEAR_SPECIFICATION.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('yearSpecification.delete') },
+  ];
 
-  mobileDelete(spec: YearSpecification): void {
-    this.deleteSpec(spec.id);
+  onMobileAction(e: MobileListActionEvent<YearSpecification>): void {
+    if (e.actionId === 'edit') this.onEdit(e.item);
+    else if (e.actionId === 'delete') this.deleteSpec(e.item.id);
   }
 }

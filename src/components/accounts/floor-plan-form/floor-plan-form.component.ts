@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,6 +13,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { FloorPlanService } from '@/src/services/floor-plan.service';
 import { buildVehicleDescription } from '@/src/models/vehicle-description';
 import type { SalesCarSelectionCard } from '../../sales/car-selection-dialog/car-selection-dialog.component';
+import { ResponsiveService } from '@/src/services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-floor-plan-form',
@@ -25,7 +28,8 @@ import type { SalesCarSelectionCard } from '../../sales/car-selection-dialog/car
     MatButtonModule,
     MatCardModule,
     MatToolbarModule,
-    MatIconModule
+    MatIconModule,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './floor-plan-form.component.html',
   styleUrl: './floor-plan-form.component.css'
@@ -34,6 +38,11 @@ export class FloorPlanFormComponent {
   private fb = inject(FormBuilder);
   private floorPlanService: FloorPlanService = inject(FloorPlanService);
   private dialog = inject(MatDialog);
+  private router = inject(Router);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
+  saving = signal(false);
+  editMode = signal(false);
 
   selectedVehicle = signal<SalesCarSelectionCard | null>(null);
   
@@ -89,5 +98,9 @@ export class FloorPlanFormComponent {
         });
       }
     }
+  }
+
+  cancelForm(): void {
+    this.router.navigate(['/accounts/floor-plans']);
   }
 }

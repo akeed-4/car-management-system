@@ -43,32 +43,45 @@
     </button>
   </mat-toolbar>
 
-  <div class="erp-grid-card grid-container">
-    <app-shared-data-grid
-      [dataSource]="quotations()"
-      [columns]="columns"
-      [rowActions]="rowActions"
-      [cellTemplates]="cellTemplates"
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="quotations()"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      [actions]="mobileActions"
       [loading]="loading()"
-      keyExpr="id"
-      height="600px"
-      noDataText="CORPORATE.NO_QUOTATIONS"
-      [showColumnChooser]="false"
-      [pageSize]="10"
-      [allowedPageSizes]="[10, 20, 50]"
-      (rowAction)="onGridAction($event)">
+      emptyMessage="CORPORATE.NO_QUOTATIONS"
+      (action)="onMobileAction($event)">
+    </shared-mobile-list>
+  } @else {
+    <div class="erp-grid-card grid-container">
+      <app-shared-data-grid
+        [dataSource]="quotations()"
+        [columns]="columns"
+        [rowActions]="rowActions"
+        [cellTemplates]="cellTemplates"
+        [loading]="loading()"
+        keyExpr="id"
+        height="600px"
+        noDataText="CORPORATE.NO_QUOTATIONS"
+        [showColumnChooser]="false"
+        [pageSize]="10"
+        [allowedPageSizes]="[10, 20, 50]"
+        (rowAction)="onGridAction($event)">
 
-      <!-- Status badge (same classes/labels as before) -->
-      <ng-template #statusTemplate let-cell>
-        <span class="erp-status-badge" [ngClass]="{
-          'neutral': cell.value === 'Draft',
-          'warning': cell.value === 'Approved',
-          'success': cell.value === 'Converted',
-          'danger': cell.value === 'Rejected' || cell.value === 'Expired'
-        }">
-          {{ ('CORPORATE.QUOTATION_STATUS_' + cell.value?.toUpperCase()) | translate }}
-        </span>
-      </ng-template>
-    </app-shared-data-grid>
-  </div>
+        <!-- Status badge (same classes/labels as before) -->
+        <ng-template #statusTemplate let-cell>
+          <span class="erp-status-badge" [ngClass]="{
+            'neutral': cell.value === 'Draft',
+            'warning': cell.value === 'Approved',
+            'success': cell.value === 'Converted',
+            'danger': cell.value === 'Rejected' || cell.value === 'Expired'
+          }">
+            {{ ('CORPORATE.QUOTATION_STATUS_' + cell.value?.toUpperCase()) | translate }}
+          </span>
+        </ng-template>
+      </app-shared-data-grid>
+    </div>
+  }
 </div>

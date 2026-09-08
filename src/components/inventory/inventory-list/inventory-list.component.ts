@@ -19,7 +19,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ResponsiveService } from '../../../services/responsive.service';
-import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
+import { SharedMobileListComponent } from '../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../shared/shared-mobile-list/shared-mobile-list.model';
 import {
   SharedDataGridComponent,
   SharedGridRowActionEvent,
@@ -48,7 +49,7 @@ import { HasPermissionDirective } from '../../shared/permission.directive';
     MatSlideToggleModule,
     MatTooltipModule,
     SharedDataGridComponent,
-    MobileCardListComponent,
+    SharedMobileListComponent,
     HasPermissionDirective
   ],
   templateUrl: './inventory-list.component.html',
@@ -178,44 +179,57 @@ export class InventoryListComponent {
     return statusMap[rowData.status] || rowData.status;
   };
 
-  // --- Mobile card-list rendering ---
+  // --- Mobile list rendering ---
   mobileTitleOf = (item: Car) => this.getCarDisplayValue(item);
   mobileTrackBy = (_index: number, item: Car) => item.id;
 
-  mobileFields: MobileCardField<Car>[] = [
+  /** Same field set as the desktop grid's visible columns. */
+  mobileFields: MobileListFieldDto<Car>[] = [
     { label: 'INVENTORY.VIN', value: (item) => item.vin },
-    { label: 'INVENTORY.SALE_PRICE', value: (item) => item.salePrice },
-    { label: 'INVENTORY.STATUS', value: (item) => this.getStatusDisplayValue(item) },
+    { label: 'INVENTORY.SALE_PRICE', value: (item) => item.salePrice, type: 'currency' },
+    {
+      label: 'INVENTORY.STATUS',
+      value: (item) => this.getStatusDisplayValue(item),
+      type: 'status',
+      statusClass: (item) => this.inventoryStatusClass(item.status),
+    },
     { label: 'INVENTORY.CURRENT_LOCATION', value: (item) => item.currentLocation },
   ];
 
-  // Mirrors the desktop grid's isEditVisible/isDeleteVisible/isArchiveVisible/
-  // isUnarchiveVisible/isDepositVisible guards, which only read
-  // showArchived()/row status -- adapted here to take the Car directly
-  // instead of a DevExtreme `{row:{data:...}}` event.
-  mobileIsEditVisible = (item: Car) => !this.showArchived();
-  mobileIsDeleteVisible = (item: Car) => !this.showArchived();
-  mobileIsArchiveVisible = (item: Car) => !this.showArchived() && item.status === 'Sold';
-  mobileIsUnarchiveVisible = (item: Car) => this.showArchived();
-  mobileIsDepositVisible = (item: Car) => !this.showArchived() && item.status === 'Reserved';
+  /** Same edit/label/delete/deposit actions as the desktop grid's row actions, plus the
+   *  mobile-only archive/unarchive pair the old MobileCardListComponent template exposed. */
+  mobileActions: MobileListActionDto<Car>[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'INVENTORY.EDIT', visible: (item) => !this.showArchived() && this.permissionService.hasPermission('inventory.view') },
+    { id: 'label', icon: 'qr_code_2', labelKey: 'VEHICLE_LABEL.PRINT_LABEL', visible: () => this.permissionService.hasPermission('inventory.view') },
+    { id: 'delete', icon: 'delete', labelKey: 'INVENTORY.DELETE', visible: (item) => !this.showArchived() && this.permissionService.hasPermission('inventory.view') },
+    { id: 'deposit', icon: 'payments', labelKey: 'INVENTORY.DEPOSIT_VOUCHER', visible: (item) => !this.showArchived() && item.status === 'Reserved' && this.permissionService.hasPermission('inventory.view') },
+    { id: 'archive', icon: 'archive', labelKey: 'INVENTORY.ARCHIVE', visible: (item) => !this.showArchived() && item.status === 'Sold' },
+    { id: 'unarchive', icon: 'unarchive', labelKey: 'INVENTORY.UNARCHIVE', visible: () => this.showArchived() },
+  ];
 
-  mobileEdit(item: Car): void {
-    this.editCar(item.id);
+  /** Maps inventory status to the MobileListFieldDto statusClass vocabulary
+   *  (success/warning/danger/neutral). */
+  private inventoryStatusClass(status: string): string {
+    switch (status) {
+      case 'Available':
+        return 'success';
+      case 'Reserved':
+      case 'In Maintenance':
+        return 'warning';
+      case 'Sold':
+        return 'neutral';
+      default:
+        return 'neutral';
+    }
   }
 
-  mobileDelete(item: Car): void {
-    this.requestDelete(item.id);
-  }
-
-  mobileArchive(item: Car): void {
-    this.archiveCar(item.id);
-  }
-
-  mobileUnarchive(item: Car): void {
-    this.unarchiveCar(item.id);
-  }
-
-  mobileDeposit(item: Car): void {
-    this.router.navigate(['/accounts/deposits/new', item.id]);
+  onMobileAction(e: MobileListActionEvent<Car>): void {
+    const id = e.item.id;
+    if (e.actionId === 'edit') this.editCar(id);
+    else if (e.actionId === 'delete') this.requestDelete(id);
+    else if (e.actionId === 'deposit') this.router.navigate(['/accounts/deposits/new', id]);
+    else if (e.actionId === 'label') window.open(`/#/inventory/label/print/${id}`, '_blank');
+    else if (e.actionId === 'archive') this.archiveCar(id);
+    else if (e.actionId === 'unarchive') this.unarchiveCar(id);
   }
 }

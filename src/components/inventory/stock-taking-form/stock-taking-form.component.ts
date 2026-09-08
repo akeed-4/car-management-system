@@ -32,6 +32,8 @@ import { DefaultAccountTracker } from '@/src/components/shared/default-account/d
 import { Account } from '../../accounting/models';
 import { AccountAutocompleteComponent } from '../../shared/account-autocomplete/account-autocomplete.component';
 import { NotificationService } from '../../../services/notification.service';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-stock-taking-form',
@@ -57,6 +59,7 @@ import { NotificationService } from '../../../services/notification.service';
     MatTooltipModule,
     CarSelectionDialogComponent,
     AccountAutocompleteComponent,
+    SharedMobileDataEntryComponent,
   ],
   templateUrl: './stock-taking-form.component.html',
   styleUrl: './stock-taking-form.component.css',
@@ -72,6 +75,8 @@ export class StockTakingFormComponent implements OnInit {
   private storeContext = inject(StoreContextService);
   private accountingService = inject(AccountingService);
   private notificationService = inject(NotificationService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
   stockTakeForm!: FormGroup;
   items = signal<StockTakeItem[]>([]);
 
@@ -417,5 +422,9 @@ export class StockTakingFormComponent implements OnInit {
         }
       });
     }
+  }
+
+  cancelForm(): void {
+    this.router.navigate(['/inventory/stock-taking']);
   }
 }

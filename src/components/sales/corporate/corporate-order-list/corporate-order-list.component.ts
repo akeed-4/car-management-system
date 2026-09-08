@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, TemplateRef, inject, signal, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import {
@@ -13,6 +13,9 @@ import { NotificationService } from '@/src/services/notification.service';
 import { PermissionService } from '../../../../services/permission.service';
 import { CorporateOrder } from '../../../../models/corporate/corporate-order.model';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-corporate-order-list',
@@ -23,7 +26,8 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/gr
     SharedDataGridComponent,
     TranslateModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    SharedMobileListComponent
   ],
   templateUrl: './corporate-order-list.component.html',
   styleUrls: ['./corporate-order-list.component.css'],
@@ -33,6 +37,9 @@ export class CorporateOrderListComponent implements OnInit {
   private corporateFleetService = inject(CorporateFleetService);
   private notificationService = inject(NotificationService);
   private router = inject(Router);
+  private translate = inject(TranslateService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
   permissionService = inject(PermissionService);
 
   orders = signal<CorporateOrder[]>([]);
@@ -64,6 +71,37 @@ export class CorporateOrderListComponent implements OnInit {
 
   onGridAction(e: SharedGridRowActionEvent): void {
     if (e.actionId === 'view') this.onView(e.row);
+  }
+
+  /** Same field set as the desktop grid's visible columns, for the mobile card list.
+   *  Status colors mirror the #statusTemplate ngClass in the desktop template. */
+  mobileFields: MobileListFieldDto<CorporateOrder>[] = [
+    { label: 'CORPORATE.CUSTOMER', value: (o) => o.customerName },
+    { label: 'CORPORATE.PO_REFERENCE', value: (o) => o.customerPoReference },
+    { label: 'CORPORATE.ORDER_DATE', value: (o) => o.orderDate as any, type: 'date' },
+    { label: 'INVOICE.TOTAL', value: (o) => o.totalAmount, type: 'currency' },
+    {
+      label: 'CORPORATE.ORDER_STATUS',
+      value: (o) => this.translate.instant('CORPORATE.ORDER_STATUS_' + o.status?.toUpperCase()),
+      type: 'status',
+      statusClass: (o) => {
+        if (o.status === 'Completed') return 'success';
+        if (o.status === 'DepositPaid' || o.status === 'Processing') return 'warning';
+        return 'neutral';
+      },
+    },
+  ];
+
+  /** Same single view action as the desktop grid's row actions. */
+  mobileActions: MobileListActionDto<CorporateOrder>[] = [
+    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW', visible: () => this.permissionService.hasPermission('sales.corporate.orders.view') },
+  ];
+
+  mobileTitleOf = (o: CorporateOrder) => String(o.id);
+  mobileTrackBy = (index: number, o: CorporateOrder) => o.id ?? index;
+
+  onMobileAction(e: MobileListActionEvent<CorporateOrder>): void {
+    if (e.actionId === 'view') this.onView(e.item);
   }
 
   ngOnInit(): void {

@@ -1,20 +1,40 @@
-<mat-toolbar color="primary" class="toolbar">
-  <mat-toolbar-row>
-    <span>{{ editMode() ? ('DELIVERY_SCHEDULE.FORM.EDIT_TITLE' | translate) : ('DELIVERY_SCHEDULE.FORM.NEW_TITLE' | translate) }}</span>
-    <span class="spacer"></span>
-    @if (editMode()) {
-      <button mat-icon-button (click)="openHistory()" [matTooltip]="'AUDIT_HISTORY.TITLE' | translate">
-        <mat-icon>history</mat-icon>
+@if (isMobile()) {
+  <shared-mobile-data-entry
+    [title]="editMode() ? ('DELIVERY_SCHEDULE.FORM.EDIT_TITLE' | translate) : ('DELIVERY_SCHEDULE.FORM.NEW_TITLE' | translate)"
+    [saving]="saving()"
+    [isEditMode]="editMode()"
+    [canSave]="true"
+    [canCancel]="true"
+    [saveLabel]="editMode() ? 'REQUESTED_CARS.FORM.SAVE_CHANGES' : 'DELIVERY_SCHEDULE.FORM.SAVE_DELIVERY'"
+    (save)="saveDelivery()"
+    (cancel)="cancelForm()"
+    (back)="cancelForm()">
+    <ng-container [ngTemplateOutlet]="deliveryFormBody"></ng-container>
+  </shared-mobile-data-entry>
+} @else {
+  <mat-toolbar color="primary" class="toolbar">
+    <mat-toolbar-row>
+      <span>{{ editMode() ? ('DELIVERY_SCHEDULE.FORM.EDIT_TITLE' | translate) : ('DELIVERY_SCHEDULE.FORM.NEW_TITLE' | translate) }}</span>
+      <span class="spacer"></span>
+      @if (editMode()) {
+        <button mat-icon-button (click)="openHistory()" [matTooltip]="'AUDIT_HISTORY.TITLE' | translate">
+          <mat-icon>history</mat-icon>
+        </button>
+      }
+      <button mat-icon-button routerLink="/deliveries" [matTooltip]="'REQUESTED_CARS.FORM.BACK_TO_LIST' | translate">
+        <mat-icon>arrow_back</mat-icon>
       </button>
-    }
-    <button mat-icon-button routerLink="/deliveries" [matTooltip]="'REQUESTED_CARS.FORM.BACK_TO_LIST' | translate">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
-  </mat-toolbar-row>
-</mat-toolbar>
+    </mat-toolbar-row>
+  </mat-toolbar>
 
-<div class="erp-page container">
-  <div class="erp-card form-card">
+  <div class="erp-page container">
+    <div class="erp-card form-card">
+      <ng-container [ngTemplateOutlet]="deliveryFormBody"></ng-container>
+    </div>
+  </div>
+}
+
+<ng-template #deliveryFormBody>
     <form [formGroup]="deliveryForm" (ngSubmit)="saveDelivery()">
 
         <div class="erp-section form-section">
@@ -108,14 +128,15 @@
           </div>
         </div>
 
-        <div class="erp-actions-bar form-actions">
-          <button mat-button routerLink="/deliveries" type="button">
-            {{ 'REQUESTED_CARS.FORM.CANCEL' | translate }}
-          </button>
-          <button mat-raised-button color="primary" type="submit" [disabled]="deliveryForm.invalid || saving()">
-            {{ editMode() ? ('REQUESTED_CARS.FORM.SAVE_CHANGES' | translate) : ('DELIVERY_SCHEDULE.FORM.SAVE_DELIVERY' | translate) }}
-          </button>
-        </div>
+        @if (!isMobile()) {
+          <div class="erp-actions-bar form-actions">
+            <button mat-button routerLink="/deliveries" type="button">
+              {{ 'REQUESTED_CARS.FORM.CANCEL' | translate }}
+            </button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="deliveryForm.invalid || saving()">
+              {{ editMode() ? ('REQUESTED_CARS.FORM.SAVE_CHANGES' | translate) : ('DELIVERY_SCHEDULE.FORM.SAVE_DELIVERY' | translate) }}
+            </button>
+          </div>
+        }
       </form>
-  </div>
-</div>
+</ng-template>

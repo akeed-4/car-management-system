@@ -11,21 +11,34 @@
     </div>
   </div>
 
-  <div class="erp-grid-card table-container">
-    <!-- Shared DataGrid: owns grid chrome/selection/row actions (same
-         view/edit/delete buttons and page sizes). -->
-    <app-shared-data-grid
-      [dataSource]="dataSource"
-      [columns]="columns"
-      [rowActions]="rowActions"
-      keyExpr="id"
-      height="500"
-      [selectionMode]="'single'"
-      [showSearchPanel]="false"
-      noDataText="COMMON.NO_DATA"
-      [pageSize]="10"
-      [allowedPageSizes]="[5, 10, 20]"
-      (rowAction)="onGridAction($event)">
-    </app-shared-data-grid>
-  </div>
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="dataSource"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      [actions]="mobileActions"
+      [showSearch]="false"
+      emptyMessage="COMMON.NO_DATA"
+      (action)="onMobileAction($event)">
+    </shared-mobile-list>
+  } @else {
+    <div class="erp-grid-card table-container">
+      <!-- Shared DataGrid: owns grid chrome/selection/row actions (same
+           view/edit/delete buttons and page sizes). -->
+      <app-shared-data-grid
+        [dataSource]="dataSource"
+        [columns]="columns"
+        [rowActions]="rowActions"
+        keyExpr="id"
+        height="500"
+        [selectionMode]="'single'"
+        [showSearchPanel]="false"
+        noDataText="COMMON.NO_DATA"
+        [pageSize]="10"
+        [allowedPageSizes]="[5, 10, 20]"
+        (rowAction)="onGridAction($event)">
+      </app-shared-data-grid>
+    </div>
+  }
 </div>

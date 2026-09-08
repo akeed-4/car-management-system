@@ -16,6 +16,8 @@ import { ExchangeRateService } from '../../../../services/exchange-rate.service'
 import { NotificationService } from '../../../../services/notification.service';
 import { Currency } from '../../../../models/currency.model';
 import { CreateExchangeRateDto, UpdateExchangeRateDto } from '../../../../models/exchange-rate.model';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 type FormMode = 'create' | 'edit';
 
@@ -41,7 +43,8 @@ const differentCurrenciesValidator: ValidatorFn = (group): ValidationErrors | nu
     MatIconModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
-    TranslateModule
+    TranslateModule,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './exchange-rate-form.component.html',
   styleUrls: ['./exchange-rate-form.component.css']
@@ -54,6 +57,8 @@ export class ExchangeRateFormComponent implements OnInit {
   private exchangeRateService = inject(ExchangeRateService);
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   form!: FormGroup;
   mode: FormMode = 'create';

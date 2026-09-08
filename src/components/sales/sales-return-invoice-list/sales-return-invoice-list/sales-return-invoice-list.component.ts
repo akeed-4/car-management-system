@@ -10,11 +10,14 @@ import { SalesService } from '../../../../services/sales.service';
 import { ToastService } from '../../../../services/toast.service';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 import { identity } from 'rxjs';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-sales-return-invoice-list',
   standalone: true,
-  imports: [TranslateModule, MatIconModule, SharedDataGridComponent],
+  imports: [TranslateModule, MatIconModule, SharedDataGridComponent, SharedMobileListComponent],
   templateUrl: './sales-return-invoice-list.component.html',
   styleUrl: './sales-return-invoice-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,6 +37,8 @@ export class SalesReturnInvoiceListComponent {
   private router = inject(Router);
   private salesService = inject(SalesService);
   private toastService = inject(ToastService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   paymentTypeOptions = [
     { value: 'Cash', text: this.translate.instant('SALES.RETURN.CASH') },
@@ -85,6 +90,27 @@ constructor() {
   onGridAction(e: SharedGridRowActionEvent): void {
     if (e.actionId === 'edit') this.onEditClick({ row: { data: e.row } });
     else if (e.actionId === 'delete') this.deleteInvoice({ row: { data: e.row } });
+  }
+
+  /** Same field set as the desktop grid's visible columns, for the mobile card list. */
+  mobileFields: MobileListFieldDto<any>[] = [
+    { label: 'SALES.RETURN.RETURN_DATE', value: (r) => r.returnDate, type: 'date' },
+    { label: 'SALES.RETURN.ORIGINAL_INVOICE', value: (r) => r.invoiceNo },
+    { label: 'SALES.RETURN.TOTAL_AMOUNT', value: (r) => r.refundableAmount, type: 'currency' },
+  ];
+
+  /** Same edit/delete actions as the desktop grid's row actions. */
+  mobileActions: MobileListActionDto<any>[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'SALES.RETURN.EDIT' },
+    { id: 'delete', icon: 'delete', labelKey: 'SALES.RETURN.DELETE', cssClass: 'warn' },
+  ];
+
+  mobileTitleOf = (r: any) => r.returnNo;
+  mobileTrackBy = (index: number, r: any) => r.id ?? index;
+
+  onMobileAction(e: MobileListActionEvent<any>): void {
+    if (e.actionId === 'edit') this.onEditClick({ row: { data: e.item } });
+    else if (e.actionId === 'delete') this.deleteInvoice({ row: { data: e.item } });
   }
 
   // Child-to-parent communication methods

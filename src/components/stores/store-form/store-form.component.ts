@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, Optional, computed, signal } from '@angular/core';
+import { Component, OnInit, Inject, Optional, computed, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -6,6 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Store, Company, Branch } from '../../../models/branch.model';
 import { StoreService } from '../../../services/store.service';
@@ -13,6 +14,8 @@ import { CompanyService } from '../../../services/company.service';
 import { BranchService } from '../../../services/branch.service';
 import { ToastService } from '../../../services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-store-form',
@@ -25,7 +28,8 @@ import { NotificationService } from '@/src/services/notification.service';
     MatSelectModule,
     MatButtonModule,
     MatDialogModule,
-    TranslateModule
+    TranslateModule,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './store-form.component.html',
   styleUrls: ['./store-form.component.css']
@@ -41,6 +45,10 @@ export class StoreFormComponent implements OnInit {
     return this.branchesSignal().filter(b => !companyId || b.companyId === companyId);
   });
 
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
+  saving = signal(false);
+
   constructor(
     private fb: FormBuilder,
     private storeService: StoreService,
@@ -48,6 +56,7 @@ export class StoreFormComponent implements OnInit {
     private branchService: BranchService,
     private toastService: NotificationService,
       private translateService: TranslateService,
+    private router: Router,
     @Optional() public dialogRef: MatDialogRef<StoreFormComponent>,
     @Optional() @Inject(MAT_DIALOG_DATA) public data: number | null
   ) {}
@@ -123,13 +132,17 @@ export class StoreFormComponent implements OnInit {
         }
       };
 
+      this.saving.set(true);
+
       if (this.isEdit && this.data) {
         this.storeService.update(this.data, storeData).subscribe({
           next: () => {
+            this.saving.set(false);
             this.toastService.showSuccess(this.translateService.instant('TOAST.EDIT_SUCCESS'));
             this.closeDialog();
           },
           error: (error) => {
+            this.saving.set(false);
             console.error('Error updating store:', error);
            this.toastService.showError(this.translateService.instant('TOAST.SAVE_ERROR'));
           }
@@ -137,10 +150,12 @@ export class StoreFormComponent implements OnInit {
       } else {
         this.storeService.create(storeData).subscribe({
           next: () => {
+            this.saving.set(false);
             this.toastService.showSuccess(this.translateService.instant('TOAST.ADD_SUCCESS'));
             this.closeDialog();
           },
           error: (error) => {
+            this.saving.set(false);
             console.error('Error creating store:', error);
            this.toastService.showError(this.translateService.instant('TOAST.SAVE_ERROR'));
           }
@@ -158,6 +173,8 @@ export class StoreFormComponent implements OnInit {
   private closeDialog(): void {
     if (this.dialogRef) {
       this.dialogRef.close();
+    } else {
+      this.router.navigate(['/setup/stores']);
     }
   }
 

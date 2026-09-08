@@ -1,19 +1,39 @@
-<div class="erp-page page-container">
-  <div class="erp-page-header page-header">
-    <div class="erp-page-header-titles">
-      <span class="erp-page-eyebrow breadcrumb">
-        {{ 'PLATFORM.BREADCRUMB' | translate }}
-        <mat-icon>chevron_right</mat-icon>
-        {{ (isEdit() ? 'PLATFORM.TENANTS.EDIT_TITLE' : 'PLATFORM.TENANTS.CREATE_TITLE') | translate }}
-      </span>
-      <h1 class="erp-page-title">{{ (isEdit() ? 'PLATFORM.TENANTS.EDIT_TITLE' : 'PLATFORM.TENANTS.CREATE_TITLE') | translate }}</h1>
+@if (isMobile()) {
+  <shared-mobile-data-entry
+    [title]="(isEdit() ? 'PLATFORM.TENANTS.EDIT_TITLE' : 'PLATFORM.TENANTS.CREATE_TITLE') | translate"
+    [saving]="isSaving()"
+    [loading]="isLoading()"
+    [isEditMode]="isEdit()"
+    [canSave]="true"
+    [canCancel]="true"
+    saveLabel="COMMON.SAVE"
+    (save)="onSubmit()"
+    (cancel)="cancel()"
+    (back)="cancel()">
+    <ng-container [ngTemplateOutlet]="tenantFormBody"></ng-container>
+  </shared-mobile-data-entry>
+} @else {
+  <div class="erp-page page-container">
+    <div class="erp-page-header page-header">
+      <div class="erp-page-header-titles">
+        <span class="erp-page-eyebrow breadcrumb">
+          {{ 'PLATFORM.BREADCRUMB' | translate }}
+          <mat-icon>chevron_right</mat-icon>
+          {{ (isEdit() ? 'PLATFORM.TENANTS.EDIT_TITLE' : 'PLATFORM.TENANTS.CREATE_TITLE') | translate }}
+        </span>
+        <h1 class="erp-page-title">{{ (isEdit() ? 'PLATFORM.TENANTS.EDIT_TITLE' : 'PLATFORM.TENANTS.CREATE_TITLE') | translate }}</h1>
+      </div>
     </div>
-  </div>
 
-  <div class="loading-overlay" *ngIf="isLoading()">
-    <mat-spinner diameter="40"></mat-spinner>
-  </div>
+    <div class="loading-overlay" *ngIf="isLoading()">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
 
+    <ng-container [ngTemplateOutlet]="tenantFormBody"></ng-container>
+  </div>
+}
+
+<ng-template #tenantFormBody>
   <form [formGroup]="tenantForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading()" class="erp-card">
     <mat-tab-group animationDuration="150ms">
 
@@ -216,14 +236,16 @@
       </mat-tab>
     </mat-tab-group>
 
-    <div class="erp-actions-bar form-actions">
-      <button mat-stroked-button type="button" (click)="cancel()" [disabled]="isSaving()">
-        {{ 'COMMON.CANCEL' | translate }}
-      </button>
-      <button mat-flat-button color="primary" type="submit" [disabled]="isSaving()">
-        <mat-spinner *ngIf="isSaving()" diameter="18"></mat-spinner>
-        <span *ngIf="!isSaving()">{{ 'COMMON.SAVE' | translate }}</span>
-      </button>
-    </div>
+    @if (!isMobile()) {
+      <div class="erp-actions-bar form-actions">
+        <button mat-stroked-button type="button" (click)="cancel()" [disabled]="isSaving()">
+          {{ 'COMMON.CANCEL' | translate }}
+        </button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="isSaving()">
+          <mat-spinner *ngIf="isSaving()" diameter="18"></mat-spinner>
+          <span *ngIf="!isSaving()">{{ 'COMMON.SAVE' | translate }}</span>
+        </button>
+      </div>
+    }
   </form>
-</div>
+</ng-template>

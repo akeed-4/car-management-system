@@ -21,6 +21,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTableModule } from '@angular/material/table';
 import { DxDataGridModule } from 'devextreme-angular';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-stock-taking-approval-form',
@@ -40,7 +42,8 @@ import { DxDataGridModule } from 'devextreme-angular';
     MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    DxDataGridModule
+    DxDataGridModule,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './stock-taking-approval-form.component.html',
   styleUrl: './stock-taking-approval-form.component.css',
@@ -53,6 +56,8 @@ export class StockTakingApprovalFormComponent implements OnInit {
   private approvalService = inject(StockTakeApprovalService);
   private inventoryService = inject(InventoryService);
   private stockTakeApprovalService = inject(StockTakeApprovalService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   approvalForm!: FormGroup;
 
@@ -188,4 +193,8 @@ constructor() {
     const diff = this.getDifference(counted, system);
     return diff > 0 ? '+' + diff : diff.toString();
   };
+
+  cancelForm(): void {
+    this.router.navigate(['/inventory/stock-taking-approval']);
+  }
 }

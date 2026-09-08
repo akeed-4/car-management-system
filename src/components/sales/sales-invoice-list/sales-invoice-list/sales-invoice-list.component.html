@@ -13,31 +13,36 @@
     </div>
   </div>
 
-  <div class="erp-grid-card datagrid-container">
-    <!-- Shared DataGrid: owns the desktop/mobile split internally. Note the desktop grid
-         keeps binding the raw [dataSource] input (same as before -- it does NOT use the
-         locally-filtered invoices() the mobile card list uses), preserving the original
-         asymmetry between desktop/mobile data. -->
-    <app-shared-data-grid
-      [dataSource]="dataSource"
-      [columns]="columns"
-      [rowActions]="rowActions"
-      [summaryItems]="summaryItems"
-      [mobileItems]="invoices()"
-      [mobileFields]="mobileFields"
-      [mobileTitleOf]="mobileTitleOf"
-      [mobileTrackBy]="mobileTrackBy"
-      height="600px"
-      scrollingMode="virtual"
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="invoices()"
+      [fields]="sharedMobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="sharedMobileTrackBy"
+      [actions]="sharedMobileActions"
       searchPlaceholder="SALES.SEARCH_PLACEHOLDER"
-      noDataText="SALES.NO_INVOICES"
-      [pageSize]="10"
-      [allowedPageSizes]="[5, 10, 20]"
-      (rowAction)="onGridAction($event)">
-      <ng-template let-item>
-        <button type="button" class="btn btn-light" (click)="mobilePrintClick(item)">{{ 'SALES.PRINT_INVOICE' | translate }}</button>
-        <button type="button" class="btn btn-light" (click)="mobileEditClick(item)">{{ 'SALES.EDIT_INVOICE' | translate }}</button>
-      </ng-template>
-    </app-shared-data-grid>
-  </div>
+      emptyMessage="SALES.NO_INVOICES"
+      (action)="onSharedMobileAction($event)">
+    </shared-mobile-list>
+  } @else {
+    <div class="erp-grid-card datagrid-container">
+      <!-- Shared DataGrid: owns the desktop grid chrome. Note it keeps binding the raw
+           [dataSource] input (same as before -- it does NOT use the locally-filtered
+           invoices() the mobile list above uses), preserving the original asymmetry
+           between desktop/mobile data. -->
+      <app-shared-data-grid
+        [dataSource]="dataSource"
+        [columns]="columns"
+        [rowActions]="rowActions"
+        [summaryItems]="summaryItems"
+        height="600px"
+        scrollingMode="virtual"
+        searchPlaceholder="SALES.SEARCH_PLACEHOLDER"
+        noDataText="SALES.NO_INVOICES"
+        [pageSize]="10"
+        [allowedPageSizes]="[5, 10, 20]"
+        (rowAction)="onGridAction($event)">
+      </app-shared-data-grid>
+    </div>
+  }
 </div>

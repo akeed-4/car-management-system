@@ -20,12 +20,17 @@
     </div>
     <div class="erp-grid-card table-wrapper premium-table">
       <!-- Shared DataGrid: same columns/status badge/print-edit-delete-archive-unarchive
-           actions as before. -->
+           actions as before; on mobile it renders the same card list (mobileFields/mobileTitleOf/
+           mobileTrackBy) in place of the clipped grid columns. -->
       <app-shared-data-grid
         [dataSource]="filteredAndSortedInvoices()"
         [columns]="columns"
         [rowActions]="rowActions"
         [cellTemplates]="cellTemplates"
+        [mobileItems]="filteredAndSortedInvoices()"
+        [mobileFields]="mobileFields"
+        [mobileTitleOf]="mobileTitleOf"
+        [mobileTrackBy]="mobileTrackBy"
         keyExpr="id"
         height="600px"
         [showSearchPanel]="false"
@@ -33,6 +38,18 @@
         [pageSize]="10"
         [allowedPageSizes]="[5, 10, 20]"
         (rowAction)="onGridAction($event)">
+
+        <ng-template let-inv>
+          <button type="button" class="btn btn-light" (click)="mobilePrint(inv)">{{ 'PURCHASES.PRINT_INVOICE' | translate }}</button>
+          <button type="button" class="btn btn-light" (click)="mobileEdit(inv)">{{ 'PURCHASES.EDIT_INVOICE' | translate }}</button>
+          <button type="button" class="btn btn-light" (click)="mobileDelete(inv)">{{ 'PURCHASES.DELETE_INVOICE' | translate }}</button>
+          @if (mobileCanArchive(inv)) {
+            <button type="button" class="btn btn-light" (click)="mobileArchive(inv)">{{ 'PURCHASES.ARCHIVE' | translate }}</button>
+          }
+          @if (mobileCanUnarchive(inv)) {
+            <button type="button" class="btn btn-light" (click)="mobileUnarchive(inv)">{{ 'PURCHASES.UNARCHIVE' | translate }}</button>
+          }
+        </ng-template>
 
         <ng-template #supplierTemplate let-cell>
           {{ cell.data.supplier?.name || 'N/A' }}

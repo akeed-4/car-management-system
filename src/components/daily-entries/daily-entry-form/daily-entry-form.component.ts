@@ -21,6 +21,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-daily-entry-form',
@@ -39,6 +41,7 @@ import { TranslateModule } from '@ngx-translate/core';
     TranslateModule,
     MatTooltipModule,
     MatDialogModule,
+    SharedMobileDataEntryComponent,
   ],
   templateUrl: './daily-entry-form.component.html',
   styleUrl: './daily-entry-form.component.css',
@@ -52,6 +55,8 @@ export class DailyEntryFormComponent implements OnInit {
   private dialog = inject(MatDialog);
   private storeAccountingConfigService = inject(StoreAccountingConfigurationService);
   private storeContext = inject(StoreContextService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   entryForm!: FormGroup;
   editMode = signal(false);
@@ -184,5 +189,9 @@ export class DailyEntryFormComponent implements OnInit {
    *  edit) -- there's no more Store dropdown to hang a (selectionChange) handler off of. */
   private warnIfCurrentStoreNotConfigured(storeId: number | null): void {
     warnIfStoreNotConfigured(this.storeAccountingConfigService, this.dialog, this.router, storeId, this.currentStoreName()).subscribe();
+  }
+
+  cancelForm(): void {
+    this.router.navigate(['/daily-entries']);
   }
 }

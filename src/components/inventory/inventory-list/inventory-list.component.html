@@ -29,21 +29,16 @@
           {{ 'INVENTORY.SHOW_ARCHIVED' | translate }}
         </mat-slide-toggle>
       </div>
-      <app-mobile-card-list
-        [items]="mobileFilteredCars()"
+      <shared-mobile-list
+        [data]="mobileFilteredCars()"
         [fields]="mobileFields"
         [titleOf]="mobileTitleOf"
         [trackByFn]="mobileTrackBy"
+        [actions]="mobileActions"
+        [showSearch]="false"
         emptyMessage="COMMON.NO_DATA"
-      >
-        <ng-template let-item>
-          <button *ngIf="mobileIsEditVisible(item)" type="button" class="btn btn-light" (click)="mobileEdit(item)">{{ 'INVENTORY.EDIT' | translate }}</button>
-          <button *ngIf="mobileIsDeleteVisible(item)" type="button" class="btn btn-light" (click)="mobileDelete(item)">{{ 'INVENTORY.DELETE' | translate }}</button>
-          <button *ngIf="mobileIsArchiveVisible(item)" type="button" class="btn btn-light" (click)="mobileArchive(item)">{{ 'INVENTORY.ARCHIVE' | translate }}</button>
-          <button *ngIf="mobileIsUnarchiveVisible(item)" type="button" class="btn btn-light" (click)="mobileUnarchive(item)">{{ 'INVENTORY.UNARCHIVE' | translate }}</button>
-          <button *ngIf="mobileIsDepositVisible(item)" type="button" class="btn btn-light" (click)="mobileDeposit(item)">{{ 'INVENTORY.DEPOSIT_VOUCHER' | translate }}</button>
-        </ng-template>
-      </app-mobile-card-list>
+        (action)="onMobileAction($event)">
+      </shared-mobile-list>
     } @else {
     <div class="erp-grid-card">
       <app-shared-data-grid

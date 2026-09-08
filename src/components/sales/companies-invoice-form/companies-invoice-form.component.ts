@@ -22,6 +22,8 @@ import { UninvoicedDeliveryLookup } from '../../../models/sales/uninvoiced-deliv
 import { SalesInvoiceFormComponent } from '../sales-invoice-form/sales-invoice-form.component';
 import { SalesChannel } from '../../../models/enums/sales-channel.enum';
 import { SaleType } from '../../../models/sales-enhancements.model';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 type InvoiceSource = 'quotation' | 'delivery';
 
@@ -45,7 +47,8 @@ type InvoiceSource = 'quotation' | 'delivery';
     TranslateModule,
     MatTooltipModule,
     MatDialogModule,
-    SalesInvoiceFormComponent
+    SalesInvoiceFormComponent,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './companies-invoice-form.component.html',
   styleUrls: ['./companies-invoice-form.component.css'],
@@ -57,6 +60,8 @@ export class CompaniesInvoiceFormComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   SalesChannel = SalesChannel;
   SaleType = SaleType;
@@ -200,5 +205,9 @@ submitting = signal(false);
         this.notificationService.showError('TOAST.SAVE_ERROR');
       }
     });
+  }
+
+  cancelForm(): void {
+    this.router.navigate(['/sales/corporate/invoices']);
   }
 }

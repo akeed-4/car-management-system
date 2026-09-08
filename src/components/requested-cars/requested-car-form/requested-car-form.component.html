@@ -1,26 +1,47 @@
-<div class="erp-page container">
-  <mat-toolbar color="primary" class="erp-page-header toolbar">
-    <mat-toolbar-row>
-      <span class="erp-page-title">{{ editMode() ? ('REQUESTED_CARS.FORM.EDIT_TITLE' | translate) : ('REQUESTED_CARS.FORM.NEW_TITLE' | translate) }}</span>
-      <span class="spacer"></span>
-      <span class="erp-page-actions">
-        @if (editMode()) {
-          <button mat-icon-button (click)="openHistory()" [matTooltip]="'AUDIT_HISTORY.TITLE' | translate">
-            <mat-icon>history</mat-icon>
+@if (isMobile()) {
+  <shared-mobile-data-entry
+    [title]="(editMode() ? 'REQUESTED_CARS.FORM.EDIT_TITLE' : 'REQUESTED_CARS.FORM.NEW_TITLE') | translate"
+    [saving]="saving()"
+    [isEditMode]="editMode()"
+    [canSave]="true"
+    [canCancel]="true"
+    [saveLabel]="editMode() ? 'REQUESTED_CARS.FORM.SAVE_CHANGES' : 'REQUESTED_CARS.FORM.SAVE_REQUEST'"
+    (save)="saveRequest()"
+    (cancel)="cancelForm()"
+    (back)="cancelForm()">
+    <ng-container [ngTemplateOutlet]="requestedCarFormBody"></ng-container>
+  </shared-mobile-data-entry>
+} @else {
+  <div class="erp-page container">
+    <mat-toolbar color="primary" class="erp-page-header toolbar">
+      <mat-toolbar-row>
+        <span class="erp-page-title">{{ editMode() ? ('REQUESTED_CARS.FORM.EDIT_TITLE' | translate) : ('REQUESTED_CARS.FORM.NEW_TITLE' | translate) }}</span>
+        <span class="spacer"></span>
+        <span class="erp-page-actions">
+          @if (editMode()) {
+            <button mat-icon-button (click)="openHistory()" [matTooltip]="'AUDIT_HISTORY.TITLE' | translate">
+              <mat-icon>history</mat-icon>
+            </button>
+            <button mat-icon-button (click)="openAiPanel()" [matTooltip]="'REQUESTED_CARS.AI_PANEL.TITLE' | translate">
+              <mat-icon>auto_awesome</mat-icon>
+            </button>
+          }
+          <button mat-icon-button routerLink="/requested-cars" [matTooltip]="'REQUESTED_CARS.FORM.BACK_TO_LIST' | translate">
+            <mat-icon>arrow_back</mat-icon>
           </button>
-          <button mat-icon-button (click)="openAiPanel()" [matTooltip]="'REQUESTED_CARS.AI_PANEL.TITLE' | translate">
-            <mat-icon>auto_awesome</mat-icon>
-          </button>
-        }
-        <button mat-icon-button routerLink="/requested-cars" [matTooltip]="'REQUESTED_CARS.FORM.BACK_TO_LIST' | translate">
-          <mat-icon>arrow_back</mat-icon>
-        </button>
-      </span>
-    </mat-toolbar-row>
-  </mat-toolbar>
+        </span>
+      </mat-toolbar-row>
+    </mat-toolbar>
 
-  <div class="erp-card form-card">
-    <mat-card-content>
+    <div class="erp-card form-card">
+      <mat-card-content>
+        <ng-container [ngTemplateOutlet]="requestedCarFormBody"></ng-container>
+      </mat-card-content>
+    </div>
+  </div>
+}
+
+<ng-template #requestedCarFormBody>
       <form [formGroup]="requestForm" (ngSubmit)="saveRequest()">
 
         <div class="erp-section form-section">
@@ -186,15 +207,15 @@
           </div>
         }
 
-        <div class="erp-actions-bar form-actions">
-          <button mat-button routerLink="/requested-cars" type="button">
-            {{ 'REQUESTED_CARS.FORM.CANCEL' | translate }}
-          </button>
-          <button mat-raised-button color="primary" type="submit" [disabled]="requestForm.invalid || saving()">
-            {{ editMode() ? ('REQUESTED_CARS.FORM.SAVE_CHANGES' | translate) : ('REQUESTED_CARS.FORM.SAVE_REQUEST' | translate) }}
-          </button>
-        </div>
+        @if (!isMobile()) {
+          <div class="erp-actions-bar form-actions">
+            <button mat-button routerLink="/requested-cars" type="button">
+              {{ 'REQUESTED_CARS.FORM.CANCEL' | translate }}
+            </button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="requestForm.invalid || saving()">
+              {{ editMode() ? ('REQUESTED_CARS.FORM.SAVE_CHANGES' | translate) : ('REQUESTED_CARS.FORM.SAVE_REQUEST' | translate) }}
+            </button>
+          </div>
+        }
       </form>
-    </mat-card-content>
-  </div>
-</div>
+</ng-template>

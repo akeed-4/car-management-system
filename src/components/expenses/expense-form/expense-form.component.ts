@@ -6,10 +6,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { NgTemplateOutlet } from '@angular/common';
 import { ExpenseService } from '../../../services/expense.service';
 import { Expense } from '../../../models/expense.model';
 import { TreasuryService } from '../../../services/treasury.service';
 import { InventoryService } from '../../../services/inventory.service';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-expense-form',
@@ -17,11 +20,13 @@ import { InventoryService } from '../../../services/inventory.service';
   imports: [
     FormsModule,
     RouterLink,
+    NgTemplateOutlet,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
     MatIconModule,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './expense-form.component.html',
   styleUrl: './expense-form.component.css',
@@ -33,6 +38,8 @@ export class ExpenseFormComponent {
   private expenseService = inject(ExpenseService);
   private treasuryService = inject(TreasuryService);
   private inventoryService = inject(InventoryService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   expense = signal<Partial<Expense>>({
     date: new Date().toISOString().split('T')[0]
@@ -91,6 +98,10 @@ export class ExpenseFormComponent {
       const { id, ...newExpense } = data;
       this.expenseService.addExpense(newExpense as Omit<Expense, 'id'>);
     }
+    this.router.navigate(['/expenses']);
+  }
+
+  cancelForm(): void {
     this.router.navigate(['/expenses']);
   }
 }

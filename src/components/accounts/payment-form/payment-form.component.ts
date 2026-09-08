@@ -39,6 +39,8 @@ import { SupplierLookupModalComponent } from '@/src/components/shared/supplier-l
 import { AccountAutocompleteComponent } from '@/src/components/shared/account-autocomplete/account-autocomplete.component';
 import { PaymentMethodService } from '@/src/services/payment-method.service';
 import { PaymentMethod } from '@/src/models/payment-method.model';
+import { ResponsiveService } from '@/src/services/responsive.service';
+import { SharedMobileDataEntryComponent } from '@/src/components/shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-payment-form',
@@ -65,6 +67,7 @@ import { PaymentMethod } from '@/src/models/payment-method.model';
     DxButtonModule,
     InvoiceAllocationGridComponent,
     AccountAutocompleteComponent,
+    SharedMobileDataEntryComponent,
   ],
   templateUrl: './payment-form.component.html',
   styleUrl: './payment-form.component.css',
@@ -83,6 +86,8 @@ export class PaymentFormComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private fb = inject(FormBuilder);
   private dialog = inject(MatDialog);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   paymentForm!: FormGroup;
 
@@ -493,4 +498,8 @@ export class PaymentFormComponent implements OnInit {
   // ── TrackBy ──────────────────────────────────────────────────────────────────
   trackByInvoiceId(_: number, inv: PurchaseInvoice): number { return inv.id; }
   trackByAccountId(_: number, acc: any): number             { return acc.id; }
+
+  cancelForm(): void {
+    this.router.navigate(['/accounts/payments']);
+  }
 }

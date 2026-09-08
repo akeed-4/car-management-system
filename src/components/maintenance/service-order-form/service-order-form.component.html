@@ -1,19 +1,39 @@
 
 
-<div class="erp-page container">
-  <div class="erp-page-header page-header">
-    <div class="erp-page-header-titles">
-      <h2 class="erp-page-title">{{ pageTitle() }}</h2>
+@if (isMobile()) {
+  <shared-mobile-data-entry
+    [title]="pageTitle()"
+    [saving]="false"
+    [isEditMode]="editMode()"
+    [canSave]="true"
+    [canCancel]="true"
+    [saveLabel]="editMode() ? 'تحديث' : 'إنشاء أمر العمل'"
+    (save)="saveServiceOrder()"
+    (cancel)="cancelForm()"
+    (back)="cancelForm()">
+    <ng-container [ngTemplateOutlet]="serviceOrderFormBody"></ng-container>
+  </shared-mobile-data-entry>
+} @else {
+  <div class="erp-page container">
+    <div class="erp-page-header page-header">
+      <div class="erp-page-header-titles">
+        <h2 class="erp-page-title">{{ pageTitle() }}</h2>
+      </div>
+      <div class="erp-page-actions">
+        <a routerLink="/maintenance" class="back-link">
+          <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+          <span>العودة إلى إدارة الصيانة</span>
+        </a>
+      </div>
     </div>
-    <div class="erp-page-actions">
-      <a routerLink="/maintenance" class="back-link">
-        <svg class="icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-        <span>العودة إلى إدارة الصيانة</span>
-      </a>
+
+    <div class="erp-card card">
+      <ng-container [ngTemplateOutlet]="serviceOrderFormBody"></ng-container>
     </div>
   </div>
+}
 
-  <div class="erp-card card">
+<ng-template #serviceOrderFormBody>
     <form #serviceOrderForm="ngForm" (ngSubmit)="saveServiceOrder()">
       <!-- Header Info -->
       <section class="erp-section form-section">
@@ -154,14 +174,15 @@
           </div>
       </section>
 
-      <!-- Form Actions -->
-      <div class="erp-actions-bar form-actions">
-        <a routerLink="/maintenance" class="btn btn-light">إلغاء</a>
-        <button type="submit" [disabled]="serviceOrderForm.invalid || !serviceOrder().serviceItems || serviceOrder().serviceItems?.length === 0 || (!serviceOrder().carId && !serviceOrder().customerName)" class="btn btn-primary">
-            {{ editMode() ? 'حفظ التغييرات' : 'إنشاء أمر العمل' }}
-        </button>
-      </div>
+      <!-- Form Actions: desktop only -->
+      @if (!isMobile()) {
+        <div class="erp-actions-bar form-actions">
+          <a routerLink="/maintenance" class="btn btn-light">إلغاء</a>
+          <button type="submit" [disabled]="serviceOrderForm.invalid || !serviceOrder().serviceItems || serviceOrder().serviceItems?.length === 0 || (!serviceOrder().carId && !serviceOrder().customerName)" class="btn btn-primary">
+              {{ editMode() ? 'حفظ التغييرات' : 'إنشاء أمر العمل' }}
+          </button>
+        </div>
+      }
     </form>
-  </div>
-</div>
+</ng-template>
     

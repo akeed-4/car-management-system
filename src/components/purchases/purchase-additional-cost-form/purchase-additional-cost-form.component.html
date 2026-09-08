@@ -1,17 +1,37 @@
-<mat-toolbar color="primary" class="toolbar">
-  <mat-toolbar-row>
-    <span>{{ editMode() ? ('PURCHASE_ADDITIONAL_COST.FORM.EDIT_TITLE' | translate) : ('PURCHASE_ADDITIONAL_COST.FORM.NEW_TITLE' | translate) }}</span>
-    <span class="spacer"></span>
-    <button mat-icon-button (click)="cancelled.emit()" [matTooltip]="'REQUESTED_CARS.FORM.BACK_TO_LIST' | translate">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
-  </mat-toolbar-row>
-</mat-toolbar>
+@if (isMobile()) {
+  <shared-mobile-data-entry
+    [title]="editMode() ? ('PURCHASE_ADDITIONAL_COST.FORM.EDIT_TITLE' | translate) : ('PURCHASE_ADDITIONAL_COST.FORM.NEW_TITLE' | translate)"
+    [saving]="saving()"
+    [isEditMode]="editMode()"
+    [canSave]="!locked()"
+    [canCancel]="true"
+    [saveLabel]="editMode() ? 'REQUESTED_CARS.FORM.SAVE_CHANGES' : 'PURCHASE_ADDITIONAL_COST.FORM.SAVE'"
+    (save)="save()"
+    (cancel)="cancelled.emit()"
+    (back)="cancelled.emit()">
+    <ng-container [ngTemplateOutlet]="additionalCostFormBody"></ng-container>
+  </shared-mobile-data-entry>
+} @else {
+  <mat-toolbar color="primary" class="toolbar">
+    <mat-toolbar-row>
+      <span>{{ editMode() ? ('PURCHASE_ADDITIONAL_COST.FORM.EDIT_TITLE' | translate) : ('PURCHASE_ADDITIONAL_COST.FORM.NEW_TITLE' | translate) }}</span>
+      <span class="spacer"></span>
+      <button mat-icon-button (click)="cancelled.emit()" [matTooltip]="'REQUESTED_CARS.FORM.BACK_TO_LIST' | translate">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+    </mat-toolbar-row>
+  </mat-toolbar>
 
-<div class="erp-page container">
-  <div class="erp-card form-card">
-    <div>
+  <div class="erp-page container">
+    <div class="erp-card form-card">
+      <div>
+        <ng-container [ngTemplateOutlet]="additionalCostFormBody"></ng-container>
+      </div>
+    </div>
+  </div>
+}
 
+<ng-template #additionalCostFormBody>
       <div class="locked-banner" *ngIf="locked()">
         <mat-icon>lock</mat-icon>
         {{ 'PURCHASE_ADDITIONAL_COST.FORM.LOCKED_HINT' | translate }}
@@ -153,6 +173,9 @@
           </p>
         </div>
 
+        <!-- Form Actions: desktop only -- the mobile branch's shared-mobile-data-entry
+             shell renders its own sticky Save/Cancel footer instead of this in-flow bar. -->
+        @if (!isMobile()) {
         <div class="erp-actions-bar form-actions">
           <button mat-button (click)="cancelled.emit()" type="button">
             {{ 'REQUESTED_CARS.FORM.CANCEL' | translate }}
@@ -161,7 +184,6 @@
             {{ editMode() ? ('REQUESTED_CARS.FORM.SAVE_CHANGES' | translate) : ('PURCHASE_ADDITIONAL_COST.FORM.SAVE' | translate) }}
           </button>
         </div>
+        }
       </form>
-    </div>
-  </div>
-</div>
+</ng-template>

@@ -43,46 +43,42 @@
     </button>
   </mat-toolbar>
 
-  <div class="erp-grid-card grid-container">
-    <!-- Shared DataGrid: on mobile (<=840px) this renders the same rows as
-         full-width cards (mobileFields/mobileTitleOf/mobileTrackBy), same
-         conditional "record approval" action, instead of the grid's clipped
-         6 columns. -->
-    <app-shared-data-grid
-      [dataSource]="quotations()"
-      [columns]="columns"
-      [rowActions]="rowActions"
-      [cellTemplates]="cellTemplates"
-      [mobileItems]="quotations()"
-      [mobileFields]="mobileFields"
-      [mobileTitleOf]="mobileTitleOf"
-      [mobileTrackBy]="mobileTrackBy"
-      keyExpr="id"
-      height="600px"
-      noDataText="BANK_FINANCING.NO_APPROVALS"
-      [pageSize]="10"
-      [allowedPageSizes]="[10, 20, 50]"
-      (rowAction)="onGridAction($event)">
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="quotations()"
+      [fields]="sharedMobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      [actions]="sharedMobileActions"
+      [loading]="loading()"
+      emptyMessage="BANK_FINANCING.NO_APPROVALS"
+      (action)="onSharedMobileAction($event)">
+    </shared-mobile-list>
+  } @else {
+    <div class="erp-grid-card grid-container">
+      <app-shared-data-grid
+        [dataSource]="quotations()"
+        [columns]="columns"
+        [rowActions]="rowActions"
+        [cellTemplates]="cellTemplates"
+        keyExpr="id"
+        height="600px"
+        noDataText="BANK_FINANCING.NO_APPROVALS"
+        [pageSize]="10"
+        [allowedPageSizes]="[10, 20, 50]"
+        (rowAction)="onGridAction($event)">
 
-      <!-- Mobile per-row action (must come first so the SharedDataGrid picks
-           this up as the mobile actions template, not the status template
-           below). -->
-      <ng-template let-item>
-        @if (mobileIsLocked(item)) {
-          <button type="button" class="btn btn-light" (click)="mobileCreateApproval(item)">{{ 'BANK_FINANCING.RECORD_APPROVAL' | translate }}</button>
-        }
-      </ng-template>
-
-      <!-- Status badge (same classes/labels as before) -->
-      <ng-template #statusTemplate let-cell>
-        <span class="erp-status-badge" [ngClass]="{
-          'warning': cell.value === 'Locked',
-          'success': cell.value === 'Bank_Approved' || cell.value === 'Finalized',
-          'danger': cell.value === 'Expired' || cell.value === 'Cancelled'
-        }">
-          {{ ('BANK_FINANCING.STATUS_' + cell.value?.toUpperCase()) | translate }}
-        </span>
-      </ng-template>
-    </app-shared-data-grid>
-  </div>
+        <!-- Status badge (same classes/labels as before) -->
+        <ng-template #statusTemplate let-cell>
+          <span class="erp-status-badge" [ngClass]="{
+            'warning': cell.value === 'Locked',
+            'success': cell.value === 'Bank_Approved' || cell.value === 'Finalized',
+            'danger': cell.value === 'Expired' || cell.value === 'Cancelled'
+          }">
+            {{ ('BANK_FINANCING.STATUS_' + cell.value?.toUpperCase()) | translate }}
+          </span>
+        </ng-template>
+      </app-shared-data-grid>
+    </div>
+  }
 </div>

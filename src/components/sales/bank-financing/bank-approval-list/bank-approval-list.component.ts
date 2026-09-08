@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, TemplateRef, inject, signal, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import {
@@ -13,6 +13,9 @@ import { NotificationService } from '@/src/services/notification.service';
 import { PermissionService } from '../../../../services/permission.service';
 import { BankQuotation } from '../../../../models/bank-financing/bank-quotation.model';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-bank-approval-list',
@@ -23,7 +26,8 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/gr
     SharedDataGridComponent,
     TranslateModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    SharedMobileListComponent
   ],
   templateUrl: './bank-approval-list.component.html',
   styleUrls: ['./bank-approval-list.component.css'],
@@ -33,6 +37,9 @@ export class BankApprovalListComponent implements OnInit {
   private bankFinancingService = inject(BankFinancingService);
   private notificationService = inject(NotificationService);
   private router = inject(Router);
+  private translate = inject(TranslateService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
   permissionService = inject(PermissionService);
 
   quotations = signal<BankQuotation[]>([]);
@@ -70,6 +77,38 @@ export class BankApprovalListComponent implements OnInit {
   /** Row double-click opens the record -- same behavior, adapted to the shared output. */
   onGridRowDblClick(row: any): void {
     this.onView({ row: { data: row } });
+  }
+
+  /** Same field set as the desktop grid's visible columns, for the mobile card list.
+   *  Status colors mirror the #statusTemplate ngClass in the desktop template. */
+  mobileFields: MobileListFieldDto<BankQuotation>[] = [
+    { label: 'BANK_FINANCING.END_USER_NAME', value: (q) => q.endUserName },
+    { label: 'BANK_FINANCING.BANK', value: (q) => q.bankName },
+    { label: 'VIN', value: (q) => q.vin },
+    { label: 'BANK_FINANCING.LPO_REFERENCE', value: (q) => q.bankLpoReference },
+    {
+      label: 'CORPORATE.ORDER_STATUS',
+      value: (q) => this.translate.instant('BANK_FINANCING.STATUS_' + q.status?.toUpperCase()),
+      type: 'status',
+      statusClass: (q) => {
+        if (q.status === 'Bank_Approved' || q.status === 'Finalized') return 'success';
+        if (q.status === 'Locked') return 'warning';
+        if (q.status === 'Expired' || q.status === 'Cancelled') return 'danger';
+        return 'neutral';
+      },
+    },
+  ];
+
+  /** Same single view action as the desktop grid's row actions. */
+  mobileActions: MobileListActionDto<BankQuotation>[] = [
+    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW', visible: () => this.permissionService.hasPermission('sales.bank.approvals.view') },
+  ];
+
+  mobileTitleOf = (q: BankQuotation) => q.quotationNumber;
+  mobileTrackBy = (index: number, q: BankQuotation) => q.id ?? index;
+
+  onMobileAction(e: MobileListActionEvent<BankQuotation>): void {
+    if (e.actionId === 'view') this.onView({ row: { data: e.item } });
   }
 
   ngOnInit(): void {

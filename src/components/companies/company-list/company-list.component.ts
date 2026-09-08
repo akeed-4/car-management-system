@@ -16,6 +16,9 @@ import { HasPermissionDirective } from '../../shared/permission.directive';
 import { CompanyFormComponent } from '../company-form/company-form.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 import { PermissionService } from '../../../services/permission.service';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-company-list',
@@ -28,7 +31,8 @@ import { PermissionService } from '../../../services/permission.service';
     TranslateModule,
     FormsModule,
     HasPermissionDirective,
-    SharedDataGridComponent
+    SharedDataGridComponent,
+    SharedMobileListComponent
   ],
   templateUrl: './company-list.component.html',
   styleUrls: ['./company-list.component.css']
@@ -39,6 +43,8 @@ export class CompanyListComponent {
   private router = inject(Router);
   private translate = inject(TranslateService);
   private permissionService = inject(PermissionService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
 constructor() {
   this.onCreate = this.onCreate.bind(this);
@@ -82,6 +88,32 @@ constructor() {
   onGridAction(e: SharedGridRowActionEvent): void {
     if (e.actionId === 'edit') this.onEdit({ row: { data: e.row } });
     else if (e.actionId === 'delete') this.onDelete({ row: { data: e.row } });
+  }
+
+  /** Same field set as the desktop grid's visible columns, for the mobile card list. */
+  mobileFields: MobileListFieldDto<Company>[] = [
+    { label: 'COMPANIES.COLUMNS.DESCRIPTION', value: (c) => c.description },
+    {
+      label: 'COMPANIES.COLUMNS.STATUS',
+      value: (c) => this.translate.instant('COMPANIES.STATUS.' + (c.status || '').toUpperCase()),
+      type: 'status',
+      statusClass: (c) => (c.status === 'active' ? 'success' : 'neutral'),
+    },
+    { label: 'COMPANIES.COLUMNS.CREATED', value: (c) => c.createdAt as unknown as string, type: 'date' },
+  ];
+
+  /** Same edit/delete actions as the desktop grid's row actions. */
+  mobileActions: MobileListActionDto<Company>[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'COMPANIES.ACTIONS.EDIT', visible: () => this.permissionService.hasPermission('companies.view') },
+    { id: 'delete', icon: 'delete', labelKey: 'COMPANIES.ACTIONS.DELETE', cssClass: 'btn-danger', visible: () => this.permissionService.hasPermission('companies.view') },
+  ];
+
+  mobileTitleOf = (c: Company) => c.nameAr;
+  mobileTrackBy = (index: number, c: Company) => c.id ?? index;
+
+  onMobileAction(e: MobileListActionEvent<Company>): void {
+    if (e.actionId === 'edit') this.onEdit({ row: { data: e.item } });
+    else if (e.actionId === 'delete') this.onDelete({ row: { data: e.item } });
   }
 
   /** Row-click opens edit -- same behavior as before, adapted to the shared output. */

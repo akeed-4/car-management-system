@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, computed, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, computed, signal, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SupplierLookupModalComponent } from '../../shared/supplier-lookup-modal/supplier-lookup-modal.component';
@@ -24,6 +24,8 @@ import { PurchaseRequisitionService } from '../../../services/purchase-requisiti
 import { SupplierService } from '@/src/services/supplier.service';
 import { Supplier } from '@/src/models/supplier.model';
 import { InventoryService } from '../../../services/inventory.service';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 interface RequestLineItem {
   carId: number;
@@ -54,12 +56,16 @@ interface RequestLineItem {
     MatTooltipModule,
     DxDataGridModule,
     DxButtonModule,
-    TranslateModule
+    TranslateModule,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './purchase-request-form.component.html',
   styleUrls: ['./purchase-request-form.component.css']
 })
 export class PurchaseRequestFormComponent implements OnInit {
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
+
   requestForm!: FormGroup;
   isEditMode = false;
   requestId: number | null = null;

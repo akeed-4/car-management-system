@@ -1,12 +1,35 @@
-<div class="erp-page">
-  <div class="erp-page-header">
-    <div class="erp-page-header-titles">
-      <h1 class="erp-page-title">{{ editMode() ? 'APPROVALS.EDIT_WORKFLOW' : 'APPROVALS.CREATE_WORKFLOW' | translate }}</h1>
+@if (isMobile()) {
+  <shared-mobile-data-entry
+    [title]="editMode() ? ('APPROVALS.EDIT_WORKFLOW' | translate) : ('APPROVALS.CREATE_WORKFLOW' | translate)"
+    [saving]="isSubmitting()"
+    [isEditMode]="editMode()"
+    [canSave]="true"
+    [canCancel]="true"
+    [saveLabel]="editMode() ? 'APPROVALS.UPDATE' : 'APPROVALS.CREATE'"
+    (save)="saveWorkflow()"
+    (cancel)="cancel()"
+    (back)="cancel()">
+    <ng-container [ngTemplateOutlet]="workflowFormBody"></ng-container>
+  </shared-mobile-data-entry>
+} @else {
+  <div class="erp-page">
+    <div class="erp-page-header">
+      <div class="erp-page-header-titles">
+        <h1 class="erp-page-title">{{ editMode() ? 'APPROVALS.EDIT_WORKFLOW' : 'APPROVALS.CREATE_WORKFLOW' | translate }}</h1>
+      </div>
+    </div>
+
+    <div class="erp-card workflow-form-card">
+      <div class="erp-section">
+        <ng-container [ngTemplateOutlet]="workflowFormBody"></ng-container>
+      </div>
+
+      <ng-container [ngTemplateOutlet]="workflowActionsBar"></ng-container>
     </div>
   </div>
+}
 
-  <div class="erp-card workflow-form-card">
-    <div class="erp-section">
+<ng-template #workflowFormBody>
     <form [formGroup]="workflowForm" (ngSubmit)="saveWorkflow()">
       <!-- Basic Information -->
       <div class="form-section">
@@ -113,8 +136,10 @@
         </div>
       </div>
     </form>
-    </div>
+</ng-template>
 
+<ng-template #workflowActionsBar>
+  @if (!isMobile()) {
     <div class="erp-actions-bar">
       <button mat-button type="button" (click)="cancel()">
         {{ 'COMMON.CANCEL' | translate }}
@@ -124,5 +149,5 @@
         {{ editMode() ? ('APPROVALS.UPDATE' | translate) : ('APPROVALS.CREATE' | translate) }}
       </button>
     </div>
-  </div>
-</div>
+  }
+</ng-template>

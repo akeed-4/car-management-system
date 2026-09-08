@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -18,6 +18,8 @@ import { NotificationService } from '../../../services/notification.service';
 import { CreatePurchaseRequisitionDto } from '../../../models/purchase-requisition.model';
 import { Car } from '../../../models/car.model';
 import { CarSelectionDialogComponent } from '../purchase-invoice/car-selection-dialog/car-selection-dialog.component';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 interface RequisitionLineItem {
   itemCode?: string;
@@ -45,12 +47,16 @@ interface RequisitionLineItem {
     MatCardModule,
     DxDataGridModule,
     DxButtonModule,
-    TranslateModule
+    TranslateModule,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './purchase-requisition-form.component.html',
   styleUrls: ['./purchase-requisition-form.component.css']
 })
 export class PurchaseRequisitionFormComponent implements OnInit {
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
+
   requisitionForm!: FormGroup;
   isEditMode = false;
   requisitionId: number | null = null;

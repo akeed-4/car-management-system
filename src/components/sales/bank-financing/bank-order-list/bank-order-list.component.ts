@@ -15,6 +15,9 @@ import { BankQuotation } from '../../../../models/bank-financing/bank-quotation.
 import { HasPermissionDirective } from '../../../shared/permission.directive';
 import { MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-bank-order-list',
@@ -26,7 +29,8 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/gr
     TranslateModule,
     MatButtonModule,
     MatIconModule,
-    HasPermissionDirective
+    HasPermissionDirective,
+    SharedMobileListComponent
   ],
   providers: [DatePipe, CurrencyPipe],
   templateUrl: './bank-order-list.component.html',
@@ -39,7 +43,9 @@ export class BankOrderListComponent implements OnInit {
   private router = inject(Router);
   private datePipe = inject(DatePipe);
   private currencyPipe = inject(CurrencyPipe);
+  private responsiveService = inject(ResponsiveService);
   permissionService = inject(PermissionService);
+  isMobile = this.responsiveService.isMobile;
 
   orders = signal<BankQuotation[]>([]);
   loading = signal(false);
@@ -115,5 +121,25 @@ export class BankOrderListComponent implements OnInit {
 
   mobileView(item: BankQuotation): void {
     this.onView({ row: { data: item } });
+  }
+
+  /** Same field set as the desktop grid's columns, for shared-mobile-list. */
+  sharedMobileFields: MobileListFieldDto<BankQuotation>[] = [
+    { label: 'BANK_FINANCING.ORDER_DATE', value: (item) => item.orderDate, type: 'date' },
+    { label: 'CORPORATE.QUOTATION_NUMBER', value: (item) => item.quotationNumber },
+    { label: 'BANK_FINANCING.END_USER_NAME', value: (item) => item.endUserName },
+    { label: 'BANK_FINANCING.BANK', value: (item) => item.bankName },
+    { label: 'VIN', value: (item) => item.vin },
+    { label: 'BANK_FINANCING.APPROVED_FINANCING_AMOUNT', value: (item) => item.approvedFinancingAmount, type: 'currency' },
+    { label: 'BANK_FINANCING.STATUS', value: (item) => item.status },
+  ];
+
+  /** Same single view action as the desktop grid's row actions. */
+  sharedMobileActions: MobileListActionDto<BankQuotation>[] = [
+    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW', visible: () => this.permissionService.hasPermission('sales.bank.orders.view') },
+  ];
+
+  onSharedMobileAction(e: MobileListActionEvent<BankQuotation>): void {
+    if (e.actionId === 'view') this.onView({ row: { data: e.item } });
   }
 }

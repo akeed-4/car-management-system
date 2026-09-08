@@ -11,30 +11,42 @@
     </div>
   </div>
 
-  <div class="erp-grid-card">
-    <app-shared-data-grid
-      [dataSource]="quotations()"
-      [columns]="columns"
-      [rowActions]="rowActions"
-      [cellTemplates]="cellTemplates"
-      keyExpr="id"
-      height="600px"
-      noDataText="BANK_FINANCING.NO_APPROVALS"
-      [pageSize]="10"
-      [allowedPageSizes]="[10, 20, 50]"
-      (rowDblClick)="onGridRowDblClick($event)"
-      (rowAction)="onGridAction($event)">
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="quotations()"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      [actions]="mobileActions"
+      emptyMessage="BANK_FINANCING.NO_APPROVALS"
+      (action)="onMobileAction($event)">
+    </shared-mobile-list>
+  } @else {
+    <div class="erp-grid-card">
+      <app-shared-data-grid
+        [dataSource]="quotations()"
+        [columns]="columns"
+        [rowActions]="rowActions"
+        [cellTemplates]="cellTemplates"
+        keyExpr="id"
+        height="600px"
+        noDataText="BANK_FINANCING.NO_APPROVALS"
+        [pageSize]="10"
+        [allowedPageSizes]="[10, 20, 50]"
+        (rowDblClick)="onGridRowDblClick($event)"
+        (rowAction)="onGridAction($event)">
 
-      <!-- Status badge (same classes/labels as before) -->
-      <ng-template #statusTemplate let-cell>
-        <span class="erp-status-badge" [ngClass]="{
-          'warning': cell.value === 'Locked',
-          'success': cell.value === 'Bank_Approved' || cell.value === 'Finalized',
-          'danger': cell.value === 'Expired' || cell.value === 'Cancelled'
-        }">
-          {{ ('BANK_FINANCING.STATUS_' + cell.value?.toUpperCase()) | translate }}
-        </span>
-      </ng-template>
-    </app-shared-data-grid>
-  </div>
+        <!-- Status badge (same classes/labels as before) -->
+        <ng-template #statusTemplate let-cell>
+          <span class="erp-status-badge" [ngClass]="{
+            'warning': cell.value === 'Locked',
+            'success': cell.value === 'Bank_Approved' || cell.value === 'Finalized',
+            'danger': cell.value === 'Expired' || cell.value === 'Cancelled'
+          }">
+            {{ ('BANK_FINANCING.STATUS_' + cell.value?.toUpperCase()) | translate }}
+          </span>
+        </ng-template>
+      </app-shared-data-grid>
+    </div>
+  }
 </div>

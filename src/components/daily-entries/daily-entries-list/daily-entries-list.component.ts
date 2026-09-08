@@ -27,7 +27,8 @@ import { DailyEntry } from '../../../models/daily-entry.model';
 import { getDailyEntryStatusClass, getDailyEntryTypeClass } from '../daily-entry-status.util';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 import { ResponsiveService } from '../../../services/responsive.service';
-import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
+import { SharedMobileListComponent } from '../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-daily-entries-list',
@@ -47,7 +48,7 @@ import { MobileCardListComponent, MobileCardField } from '../../shared/mobile-ca
     MatInputModule,
     SharedDataGridComponent,
     TranslateModule,
-    MobileCardListComponent,
+    SharedMobileListComponent,
   ],
   templateUrl: './daily-entries-list.component.html',
   styleUrl: './daily-entries-list.component.css',
@@ -180,29 +181,49 @@ export class DailyEntriesListComponent {
   getDailyEntryStatusClass = getDailyEntryStatusClass;
   getDailyEntryTypeClass = getDailyEntryTypeClass;
 
-  // --- Mobile card-list rendering ---
+  // --- Mobile list rendering (SharedMobileListComponent) ---
   mobileTitleOf = (item: DailyEntry) => item.referenceNumber;
-  mobileTrackBy = (_index: number, item: DailyEntry) => item.id;
+  mobileTrackBy = (_index: number, item: DailyEntry) => item.id ?? _index;
 
-  mobileFields: MobileCardField<DailyEntry>[] = [
+  /** Same field set as the desktop grid's visible columns. Status maps semantically onto
+   *  SharedMobileList's fixed success/warning/danger/neutral badge palette (Completed->success,
+   *  Pending->warning, Cancelled->danger); Entry Type has no natural severity mapping (Receiving/
+   *  Delivery/Transfer/etc. aren't a status scale), so it stays a plain text field rather than
+   *  forcing an arbitrary badge color. */
+  mobileFields: MobileListFieldDto<DailyEntry>[] = [
     { label: 'DAILY_ENTRIES.ENTRY_TYPE', value: (item) => this.translateService.instant('DAILY_ENTRIES.TYPE_' + item.entryType?.toUpperCase()) },
     { label: 'DAILY_ENTRIES.VEHICLE', value: (item) => item.carDescription },
     { label: 'DAILY_ENTRIES.WAREHOUSE', value: (item) => item.storeName },
     { label: 'DAILY_ENTRIES.EMPLOYEE', value: (item) => item.employeeName },
-    { label: 'DAILY_ENTRIES.ENTRY_DATE', value: (item) => item.entryDate ? new Date(item.entryDate).toLocaleDateString() : '' },
-    { label: 'DAILY_ENTRIES.STATUS', value: (item) => this.translateService.instant('DAILY_ENTRIES.STATUS_' + item.status?.toUpperCase()) },
+    { label: 'DAILY_ENTRIES.ENTRY_DATE', value: (item) => item.entryDate, type: 'date' },
+    {
+      label: 'DAILY_ENTRIES.STATUS',
+      value: (item) => this.translateService.instant('DAILY_ENTRIES.STATUS_' + item.status?.toUpperCase()),
+      type: 'status',
+      statusClass: (item) => this.mobileStatusClass(item.status),
+    },
   ];
 
-  mobileEdit(item: DailyEntry): void {
-    this.editEntry(item.id);
+  /** Same edit/history/delete actions as the desktop grid's row actions. */
+  mobileActions: MobileListActionDto<DailyEntry>[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('dailyEntry.edit') },
+    { id: 'history', icon: 'history', labelKey: 'AUDIT_HISTORY.TITLE', visible: () => this.permissionService.hasPermission('dailyEntry.history') },
+    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'btn-danger', visible: () => this.permissionService.hasPermission('dailyEntry.delete') },
+  ];
+
+  private mobileStatusClass(status: string | undefined): string {
+    switch (status) {
+      case 'Completed': return 'success';
+      case 'Pending': return 'warning';
+      case 'Cancelled': return 'danger';
+      default: return 'neutral';
+    }
   }
 
-  mobileHistory(item: DailyEntry): void {
-    this.openHistory(item.id);
-  }
-
-  mobileDelete(item: DailyEntry): void {
-    this.requestDelete(item.id);
+  onMobileAction(e: MobileListActionEvent<DailyEntry>): void {
+    if (e.actionId === 'edit') this.editEntry(e.item.id);
+    else if (e.actionId === 'history') this.openHistory(e.item.id);
+    else if (e.actionId === 'delete') this.requestDelete(e.item.id);
   }
 
   newEntry(): void {

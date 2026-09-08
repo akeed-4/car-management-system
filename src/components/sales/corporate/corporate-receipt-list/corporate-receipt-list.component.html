@@ -43,20 +43,33 @@
     </button>
   </mat-toolbar>
 
-  <div class="erp-grid-card grid-container">
-    <app-shared-data-grid
-      [dataSource]="receipts()"
-      [columns]="columns"
-      [rowActions]="rowActions"
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="receipts()"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      [actions]="mobileActions"
       [loading]="loading()"
-      keyExpr="id"
-      height="600px"
-      noDataText="CORPORATE.NO_RECEIPTS"
-      [showColumnChooser]="false"
-      [pageSize]="10"
-      [allowedPageSizes]="[10, 20, 50]"
-      (rowDblClick)="onEdit($event)"
-      (rowAction)="onGridAction($event)">
-    </app-shared-data-grid>
-  </div>
+      emptyMessage="CORPORATE.NO_RECEIPTS"
+      (action)="onMobileAction($event)">
+    </shared-mobile-list>
+  } @else {
+    <div class="erp-grid-card grid-container">
+      <app-shared-data-grid
+        [dataSource]="receipts()"
+        [columns]="columns"
+        [rowActions]="rowActions"
+        [loading]="loading()"
+        keyExpr="id"
+        height="600px"
+        noDataText="CORPORATE.NO_RECEIPTS"
+        [showColumnChooser]="false"
+        [pageSize]="10"
+        [allowedPageSizes]="[10, 20, 50]"
+        (rowDblClick)="onEdit($event)"
+        (rowAction)="onGridAction($event)">
+      </app-shared-data-grid>
+    </div>
+  }
 </div>

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -10,6 +10,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-opening-balances-financial-form',
@@ -25,7 +27,8 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatButtonModule,
     MatIconModule,
     MatDatepickerModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './opening-balances-financial-form.component.html',
   styleUrls: ['./opening-balances-financial-form.component.css']
@@ -37,6 +40,9 @@ export class OpeningBalancesFinancialFormComponent implements OnInit {
   @Input() accountTypes: string[] = [];
   @Output() save = new EventEmitter<void>();
   @Output() cancel = new EventEmitter<void>();
+
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   constructor(
     public translate: TranslateService,

@@ -1,17 +1,19 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { TestDriveService } from '../../../services/test-drive.service';
 import { CustomerService } from '../../../services/customer.service';
 import { InventoryService } from '../../../services/inventory.service';
 import { UserService } from '../../../services/user.service';
 import { TestDrive } from '../../../models/test-drive.model';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-test-drive-form',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, NgTemplateOutlet, SharedMobileDataEntryComponent],
   templateUrl: './test-drive-form.component.html',
   styleUrl: './test-drive-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,6 +25,8 @@ export class TestDriveFormComponent {
   private customerService = inject(CustomerService);
   private inventoryService = inject(InventoryService);
   private userService = inject(UserService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   // Form State
   booking = signal<Partial<TestDrive>>({ status: 'Scheduled' });
@@ -108,6 +112,10 @@ export class TestDriveFormComponent {
     this.inventoryService.updateCarLocation(car.id, 'Out for Test Drive');
 
     alert('تم حفظ الحجز بنجاح.');
+    this.router.navigate(['/test-drives']);
+  }
+
+  cancelForm(): void {
     this.router.navigate(['/test-drives']);
   }
 }

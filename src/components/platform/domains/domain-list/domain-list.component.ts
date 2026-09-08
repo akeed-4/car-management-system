@@ -4,7 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   SharedDataGridComponent,
 } from '../../../shared/shared-data-grid/shared-data-grid.component';
@@ -12,11 +12,14 @@ import { PlatformService } from '../../../../services/platform.service';
 import { NotificationService } from '../../../../services/notification.service';
 import { DomainDto } from '../../../../models/platform/domain.model';
 import { dataGridColumnDto } from '../../../../models/grid.model';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-domain-list',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatProgressBarModule, TranslateModule, SharedDataGridComponent],
+  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatProgressBarModule, TranslateModule, SharedDataGridComponent, SharedMobileListComponent],
   templateUrl: './domain-list.component.html',
   styleUrl: './domain-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -24,6 +27,9 @@ import { dataGridColumnDto } from '../../../../models/grid.model';
 export class DomainListComponent {
   private platformService = inject(PlatformService);
   private notificationService = inject(NotificationService);
+  private responsiveService = inject(ResponsiveService);
+  private translate = inject(TranslateService);
+  isMobile = this.responsiveService.isMobile;
 
   loading = signal(true);
   domains = signal<DomainDto[]>([]);
@@ -46,6 +52,24 @@ export class DomainListComponent {
     { dataField: 'createdAt', dataType: 'date', format: 'yyyy-MM-dd', caption: 'PLATFORM.DOMAINS.CREATED' },
   ];
 
+  /** Same field set as the desktop grid's visible columns, for the mobile card list. */
+  mobileFields: MobileListFieldDto<DomainDto>[] = [
+    { label: 'PLATFORM.DOMAINS.TENANT', value: (d) => d.tenantName },
+    {
+      label: 'PLATFORM.DOMAINS.SSL',
+      value: (d) => this.translate.instant(d.hasSsl ? 'COMMON.YES' : 'COMMON.NO'),
+    },
+    {
+      label: 'PLATFORM.DOMAINS.STATUS',
+      value: (d) => this.translate.instant(d.isVerified ? 'PLATFORM.DOMAINS.VERIFIED' : 'PLATFORM.DOMAINS.PENDING'),
+      type: 'status',
+      statusClass: (d) => (d.isVerified ? 'success' : 'warning'),
+    },
+    { label: 'PLATFORM.DOMAINS.CREATED', value: (d) => d.createdAt, type: 'date' },
+  ];
+
+  mobileTitleOf = (d: DomainDto) => d.domainName;
+  mobileTrackBy = (index: number, d: DomainDto) => d.id ?? index;
 
   constructor() {
     this.loadDomains();

@@ -11,6 +11,19 @@
     </div>
   </div>
 
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="openingBalances"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      [actions]="mobileActions"
+      searchPlaceholder="ACCOUNTING.SEARCH_OPENING_BALANCES"
+      emptyMessage="ACCOUNTING.NO_OPENING_BALANCES"
+      [showSearch]="false"
+      (action)="onMobileAction($event)">
+    </shared-mobile-list>
+  } @else {
   <div class="erp-grid-card">
         <dx-data-grid
           [dataSource]="openingBalances"
@@ -95,4 +108,5 @@
           </dxo-editing>
         </dx-data-grid>
   </div>
+  }
 </div>

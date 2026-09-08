@@ -16,6 +16,9 @@ import { NotificationService } from '../../../../services/notification.service';
 import { PaymentMethod } from '../../../../models/payment-method.model';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 import { PermissionService } from '../../../../services/permission.service';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-payment-method-list',
@@ -29,7 +32,8 @@ import { PermissionService } from '../../../../services/permission.service';
     MatToolbarModule,
     MatTooltipModule,
     TranslateModule,
-    SharedDataGridComponent
+    SharedDataGridComponent,
+    SharedMobileListComponent
   ],
   templateUrl: './payment-method-list.component.html',
   styleUrls: ['./payment-method-list.component.css'],
@@ -43,11 +47,26 @@ export class PaymentMethodListComponent implements OnInit {
   private router = inject(Router);
   private translate = inject(TranslateService);
   private permissionService = inject(PermissionService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   canCreate = computed(() => this.permissionService.hasPermission('paymentmethod.create'));
 
   paymentMethods = signal<PaymentMethod[]>([]);
   loading = signal(false);
+  mobileSearch = signal('');
+
+  /** Client-side search for the mobile card list (desktop keeps DevExtreme's own search panel). */
+  filteredPaymentMethods = computed(() => {
+    const term = this.mobileSearch().toLowerCase();
+    const methods = this.paymentMethods();
+    if (!term) return methods;
+    return methods.filter(m =>
+      m.nameAr?.toLowerCase().includes(term) ||
+      m.nameEn?.toLowerCase().includes(term) ||
+      m.paymentType?.toLowerCase().includes(term)
+    );
+  });
 
   columns: dataGridColumnDto[] = [
     { dataField: 'nameAr', dataType: 'string', caption: 'PAYMENT_METHOD.NAME_AR' },
@@ -132,6 +151,42 @@ export class PaymentMethodListComponent implements OnInit {
 
   onGridAction(e: SharedGridRowActionEvent): void {
     const wrapped = { row: { data: e.row } };
+    if (e.actionId === 'edit') this.onEdit(wrapped);
+    else if (e.actionId === 'toggleActive') this.onToggleActive(wrapped);
+    else if (e.actionId === 'delete') this.onDelete(wrapped);
+  }
+
+  /** Same field set as the desktop grid's visible columns, for the mobile card list. */
+  mobileFields: MobileListFieldDto<PaymentMethod>[] = [
+    { label: 'PAYMENT_METHOD.NAME_EN', value: (m) => m.nameEn },
+    { label: 'PAYMENT_METHOD.PAYMENT_TYPE', value: (m) => m.paymentType },
+    { label: 'PAYMENT_METHOD.ACCOUNT_CODE', value: (m) => m.accountCode },
+    { label: 'PAYMENT_METHOD.ACCOUNT', value: (m) => m.accountNameEn },
+    {
+      label: 'COMMON.ACTIVE',
+      value: (m) => this.translate.instant(m.isActive ? 'COMMON.ACTIVE' : 'COMMON.INACTIVE'),
+      type: 'status',
+      statusClass: (m) => (m.isActive ? 'success' : 'neutral'),
+    },
+  ];
+
+  /** Same edit/toggleActive/delete actions as the desktop grid's row actions. */
+  mobileActions: MobileListActionDto<PaymentMethod>[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('paymentmethod.edit') },
+    {
+      id: 'toggleActive',
+      icon: 'toggle_on',
+      labelKey: 'PAYMENT_METHOD.TOGGLE_ACTIVE',
+      visible: () => this.permissionService.hasPermission('paymentmethod.edit')
+    },
+    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('paymentmethod.delete') },
+  ];
+
+  mobileTitleOf = (m: PaymentMethod) => m.nameAr;
+  mobileTrackBy = (index: number, m: PaymentMethod) => m.id ?? index;
+
+  onMobileAction(e: MobileListActionEvent<PaymentMethod>): void {
+    const wrapped = { row: { data: e.item } };
     if (e.actionId === 'edit') this.onEdit(wrapped);
     else if (e.actionId === 'toggleActive') this.onToggleActive(wrapped);
     else if (e.actionId === 'delete') this.onDelete(wrapped);

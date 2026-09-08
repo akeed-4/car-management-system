@@ -43,47 +43,44 @@
     </button>
   </mat-toolbar>
 
-  <div class="erp-grid-card grid-container">
-    <!-- Shared DataGrid: owns the desktop/mobile split internally (mobileItems/mobileFields
-         reuse the same data + card config the old @if(isMobile()) branch used). -->
-    <app-shared-data-grid
-      [dataSource]="invoices()"
-      [columns]="columns"
-      [rowActions]="rowActions"
-      [cellTemplates]="cellTemplates"
-      [mobileItems]="invoices()"
-      [mobileFields]="mobileFields"
-      [mobileTitleOf]="mobileTitleOf"
-      [mobileTrackBy]="mobileTrackBy"
-      keyExpr="id"
-      height="600px"
-      noDataText="DIRECT_SALES.CASH.NO_RECORDS"
-      [pageSize]="10"
-      [allowedPageSizes]="[10, 20, 50]"
-      (rowDblClick)="onGridRowDblClick($event)"
-      (rowAction)="onGridAction($event)">
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="invoices()"
+      [fields]="sharedMobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      [actions]="sharedMobileActions"
+      [loading]="loading()"
+      emptyMessage="DIRECT_SALES.CASH.NO_RECORDS"
+      (action)="onSharedMobileAction($event)">
+    </shared-mobile-list>
+  } @else {
+    <div class="erp-grid-card grid-container">
+      <app-shared-data-grid
+        [dataSource]="invoices()"
+        [columns]="columns"
+        [rowActions]="rowActions"
+        [cellTemplates]="cellTemplates"
+        [loading]="loading()"
+        keyExpr="id"
+        height="600px"
+        noDataText="DIRECT_SALES.CASH.NO_RECORDS"
+        [pageSize]="10"
+        [allowedPageSizes]="[10, 20, 50]"
+        (rowDblClick)="onGridRowDblClick($event)"
+        (rowAction)="onGridAction($event)">
 
-      <!-- Mobile per-row action (projected first so SharedDataGrid's ContentChild
-           picks it up as the mobile actions template, not the cell template below). -->
-      <ng-template let-item>
-        <!-- Mobile card keeps a single action pointed at the invoice (View) rather than mirroring
-             both the desktop grid's 'view' and 'edit' icons -- same destination, avoids two
-             identical-behavior buttons crowding the card on a small screen. -->
-        <button *ngIf="permissionService.hasPermission('sales.cash.view')" type="button" class="btn btn-light" (click)="mobileEdit(item)">{{ 'COMMON.VIEW' | translate }}</button>
-        <button *ngIf="permissionService.hasPermission('sales.cash.view')" type="button" class="btn btn-light" (click)="mobilePrint(item)">{{ 'COMMON.PRINT' | translate }}</button>
-        <button *ngIf="permissionService.hasPermission('sales.cash.view')" type="button" class="btn btn-light" (click)="mobileDelete(item)">{{ 'COMMON.DELETE' | translate }}</button>
-      </ng-template>
-
-      <!-- Status badge (same classes/labels as before) -->
-      <ng-template #statusTemplate let-cell>
-        <span class="erp-status-badge" [ngClass]="{
-          'success': cell.value === 'Paid',
-          'warning': cell.value === 'Pending',
-          'danger': cell.value === 'Overdue'
-        }">
-          {{ ('INVOICE.STATUS_' + cell.value?.toUpperCase()) | translate }}
-        </span>
-      </ng-template>
-    </app-shared-data-grid>
-  </div>
+        <!-- Status badge (same classes/labels as before) -->
+        <ng-template #statusTemplate let-cell>
+          <span class="erp-status-badge" [ngClass]="{
+            'success': cell.value === 'Paid',
+            'warning': cell.value === 'Pending',
+            'danger': cell.value === 'Overdue'
+          }">
+            {{ ('INVOICE.STATUS_' + cell.value?.toUpperCase()) | translate }}
+          </span>
+        </ng-template>
+      </app-shared-data-grid>
+    </div>
+  }
 </div>

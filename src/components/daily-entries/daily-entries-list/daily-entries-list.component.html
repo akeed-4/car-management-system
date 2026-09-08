@@ -105,19 +105,16 @@
   <!-- Mobile (<=768px): the 11-column grid doesn't fit a phone width, so rows render as
        full-width cards instead -- same data (shared dataSource.load()), same actions. -->
   @if (isMobile()) {
-    <app-mobile-card-list
-      [items]="lastLoadedRows()"
+    <shared-mobile-list
+      [data]="lastLoadedRows()"
       [fields]="mobileFields"
       [titleOf]="mobileTitleOf"
       [trackByFn]="mobileTrackBy"
+      [actions]="mobileActions"
+      [showSearch]="false"
       emptyMessage="COMMON.NO_DATA"
-    >
-      <ng-template let-item>
-        <button type="button" class="btn btn-light" *appHasPermission="'dailyEntry.edit'" (click)="mobileEdit(item)">{{ 'COMMON.EDIT' | translate }}</button>
-        <button type="button" class="btn btn-light" *appHasPermission="'dailyEntry.history'" (click)="mobileHistory(item)">{{ 'AUDIT_HISTORY.TITLE' | translate }}</button>
-        <button type="button" class="btn btn-light" *appHasPermission="'dailyEntry.delete'" (click)="mobileDelete(item)">{{ 'COMMON.DELETE' | translate }}</button>
-      </ng-template>
-    </app-mobile-card-list>
+      (action)="onMobileAction($event)">
+    </shared-mobile-list>
   } @else {
   <!-- DataGrid -->
   <div class="erp-grid-card grid-container">

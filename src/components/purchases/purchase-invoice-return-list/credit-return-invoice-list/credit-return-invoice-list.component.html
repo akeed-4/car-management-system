@@ -11,12 +11,18 @@
   </div>
   <div class="bg-white p-6 rounded-lg shadow-md">
     <div class="erp-grid-card datagrid-container">
-      <!-- Shared DataGrid: same columns/print-edit-delete actions/total summary as before. -->
+      <!-- Shared DataGrid: same columns/print-edit-delete actions/total summary as before;
+           on mobile it renders the same card list (mobileFields/mobileTitleOf/mobileTrackBy)
+           in place of the grid. -->
       <app-shared-data-grid
         [dataSource]="filteredReturnInvoices()"
         [columns]="columns"
         [rowActions]="rowActions"
         [summaryItems]="summaryItems"
+        [mobileItems]="filteredReturnInvoices()"
+        [mobileFields]="mobileFields"
+        [mobileTitleOf]="mobileTitleOf"
+        [mobileTrackBy]="mobileTrackBy"
         keyExpr="id"
         height="600px"
         [showSearchPanel]="false"
@@ -24,6 +30,12 @@
         [pageSize]="10"
         [allowedPageSizes]="[5, 10, 20]"
         (rowAction)="onGridAction($event)">
+
+        <ng-template let-inv>
+          <button type="button" class="btn btn-light" (click)="mobilePrint(inv)">{{ 'PURCHASE_RETURN.PRINT' | translate }}</button>
+          <button type="button" class="btn btn-light" (click)="mobileEdit(inv)">{{ 'PURCHASE_RETURN.EDIT' | translate }}</button>
+          <button type="button" class="btn btn-light" (click)="mobileDelete(inv)">{{ 'PURCHASE_RETURN.DELETE' | translate }}</button>
+        </ng-template>
       </app-shared-data-grid>
     </div>
   </div>

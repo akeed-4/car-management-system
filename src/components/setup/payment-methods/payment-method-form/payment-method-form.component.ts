@@ -17,6 +17,8 @@ import { AccountingService } from '../../../accounting/accounting.service';
 import { Account } from '../../../accounting/models';
 import { AccountAutocompleteComponent } from '../../../shared/account-autocomplete/account-autocomplete.component';
 import { CreatePaymentMethodDto, UpdatePaymentMethodDto, PAYMENT_METHOD_TYPES } from '../../../../models/payment-method.model';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 type FormMode = 'create' | 'edit';
 
@@ -35,7 +37,8 @@ type FormMode = 'create' | 'edit';
     MatCheckboxModule,
     MatProgressSpinnerModule,
     TranslateModule,
-    AccountAutocompleteComponent
+    AccountAutocompleteComponent,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './payment-method-form.component.html',
   styleUrls: ['./payment-method-form.component.css']
@@ -48,6 +51,8 @@ export class PaymentMethodFormComponent implements OnInit {
   private accountingService = inject(AccountingService);
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   form!: FormGroup;
   mode: FormMode = 'create';

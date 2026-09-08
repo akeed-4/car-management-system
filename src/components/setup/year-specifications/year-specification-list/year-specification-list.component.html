@@ -13,28 +13,29 @@
     </div>
   </div>
 
-  <app-shared-data-grid
-    [dataSource]="specs()"
-    [columns]="columns"
-    [rowActions]="rowActions"
-    keyExpr="id"
-    searchPlaceholder="YEAR_SPECIFICATION.SEARCH_PLACEHOLDER"
-    noDataText="YEAR_SPECIFICATION.NO_SPECS"
-    [pageSize]="10"
-    [allowedPageSizes]="[10, 25, 50]"
-    [mobileItems]="specs()"
-    [mobileFields]="mobileFields"
-    [mobileTitleOf]="mobileTitleOf"
-    [mobileTrackBy]="mobileTrackBy"
-    (rowAction)="onGridAction($event)">
-
-    <ng-template let-spec>
-      @if (canEdit()) {
-      <button type="button" class="btn btn-light" (click)="mobileEdit(spec)">{{ 'YEAR_SPECIFICATION.EDIT' | translate }}</button>
-      }
-      @if (canDelete()) {
-      <button type="button" class="btn btn-light" (click)="mobileDelete(spec)">{{ 'YEAR_SPECIFICATION.DELETE' | translate }}</button>
-      }
-    </ng-template>
-  </app-shared-data-grid>
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="filteredSpecsForMobile()"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      [actions]="mobileActions"
+      searchPlaceholder="YEAR_SPECIFICATION.SEARCH_PLACEHOLDER"
+      emptyMessage="YEAR_SPECIFICATION.NO_SPECS"
+      (searchChange)="mobileSearch.set($event)"
+      (action)="onMobileAction($event)">
+    </shared-mobile-list>
+  } @else {
+    <app-shared-data-grid
+      [dataSource]="specs()"
+      [columns]="columns"
+      [rowActions]="rowActions"
+      keyExpr="id"
+      searchPlaceholder="YEAR_SPECIFICATION.SEARCH_PLACEHOLDER"
+      noDataText="YEAR_SPECIFICATION.NO_SPECS"
+      [pageSize]="10"
+      [allowedPageSizes]="[10, 25, 50]"
+      (rowAction)="onGridAction($event)">
+    </app-shared-data-grid>
+  }
 </div>

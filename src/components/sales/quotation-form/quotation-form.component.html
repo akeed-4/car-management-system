@@ -1,10 +1,29 @@
-<div class="erp-page quotation-form-container">
-  <div class="erp-page-header">
-    <div class="erp-page-header-titles">
-      <h2 class="erp-page-title">{{ isEditMode ? ('QUOTATION.EDIT_TITLE' | translate) : ('QUOTATION.CREATE_TITLE' | translate) }}</h2>
+@if (isMobile()) {
+  <shared-mobile-data-entry
+    [title]="isEditMode ? ('QUOTATION.EDIT_TITLE' | translate) : ('QUOTATION.CREATE_TITLE' | translate)"
+    [saving]="false"
+    [isEditMode]="isEditMode"
+    [canSave]="true"
+    [canCancel]="true"
+    [saveLabel]="isEditMode ? 'COMMON.UPDATE' : 'COMMON.CREATE'"
+    (save)="onSubmit()"
+    (cancel)="onCancel()"
+    (back)="onCancel()">
+    <ng-container [ngTemplateOutlet]="quotationFormBody"></ng-container>
+  </shared-mobile-data-entry>
+} @else {
+  <div class="erp-page quotation-form-container">
+    <div class="erp-page-header">
+      <div class="erp-page-header-titles">
+        <h2 class="erp-page-title">{{ isEditMode ? ('QUOTATION.EDIT_TITLE' | translate) : ('QUOTATION.CREATE_TITLE' | translate) }}</h2>
+      </div>
     </div>
-  </div>
 
+    <ng-container [ngTemplateOutlet]="quotationFormBody"></ng-container>
+  </div>
+}
+
+<ng-template #quotationFormBody>
   <div class="erp-card">
     <form [formGroup]="quotationForm" (ngSubmit)="onSubmit()" class="quotation-form">
       <div class="erp-section">
@@ -65,10 +84,13 @@
         </div>
       </div>
 
-      <!-- Unified document toolbar (shared across ALL document screens). -->
-      <div class="erp-actions-bar form-actions">
-        <app-document-toolbar [actions]="toolbarActions()"></app-document-toolbar>
-      </div>
+      <!-- Unified document toolbar (shared across ALL document screens): desktop only,
+           the mobile branch's shared-mobile-data-entry shell renders its own sticky footer. -->
+      @if (!isMobile()) {
+        <div class="erp-actions-bar form-actions">
+          <app-document-toolbar [actions]="toolbarActions()"></app-document-toolbar>
+        </div>
+      }
     </form>
   </div>
-</div>
+</ng-template>

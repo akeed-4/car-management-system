@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgTemplateOutlet } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -29,12 +29,15 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-requested-car-form',
   standalone: true,
   imports: [
     CommonModule,
+    NgTemplateOutlet,
     ReactiveFormsModule,
     RouterLink,
     MatButtonModule,
@@ -48,6 +51,7 @@ import { TranslateModule } from '@ngx-translate/core';
     MatNativeDateModule,
     TranslateModule,
     MatTooltipModule,
+    SharedMobileDataEntryComponent,
   ],
   templateUrl: './requested-car-form.component.html',
   styleUrl: './requested-car-form.component.css',
@@ -63,6 +67,8 @@ export class RequestedCarFormComponent implements OnInit {
   private userService = inject(UserService);
   private attachmentService = inject(AttachmentService);
   private dialog = inject(MatDialog);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   requestForm!: FormGroup;
   editMode = signal(false);
@@ -312,5 +318,9 @@ export class RequestedCarFormComponent implements OnInit {
 
   trackByUser(index: number, user: { id: number }): number {
     return user.id;
+  }
+
+  cancelForm(): void {
+    this.router.navigate(['/requested-cars']);
   }
 }

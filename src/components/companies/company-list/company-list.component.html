@@ -21,21 +21,35 @@
     </div>
   </div>
 
-  <div class="erp-grid-card">
-    <app-shared-data-grid
-      [dataSource]="filteredCompanies()"
-      [columns]="columns"
-      [rowActions]="rowActions"
-      keyExpr="id"
-      selectionMode="single"
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="filteredCompanies()"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      [actions]="mobileActions"
       searchPlaceholder="COMPANIES.SEARCH_PLACEHOLDER"
-      height="70vh"
-      scrollingMode="virtual"
-      exportFileName="companies"
-      [pageSize]="10"
-      [allowedPageSizes]="[5, 10, 20]"
-      (rowAction)="onGridAction($event)"
-      (rowClick)="onGridRowClick($event)">
-    </app-shared-data-grid>
-  </div>
+      emptyMessage="COMMON.NO_DATA"
+      (searchChange)="filter.set($event)"
+      (action)="onMobileAction($event)">
+    </shared-mobile-list>
+  } @else {
+    <div class="erp-grid-card">
+      <app-shared-data-grid
+        [dataSource]="filteredCompanies()"
+        [columns]="columns"
+        [rowActions]="rowActions"
+        keyExpr="id"
+        selectionMode="single"
+        searchPlaceholder="COMPANIES.SEARCH_PLACEHOLDER"
+        height="70vh"
+        scrollingMode="virtual"
+        exportFileName="companies"
+        [pageSize]="10"
+        [allowedPageSizes]="[5, 10, 20]"
+        (rowAction)="onGridAction($event)"
+        (rowClick)="onGridRowClick($event)">
+      </app-shared-data-grid>
+    </div>
+  }
 </div>

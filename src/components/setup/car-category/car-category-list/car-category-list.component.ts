@@ -8,7 +8,8 @@ import { SharedDataGridComponent, SharedGridRowActionEvent } from '../../../shar
 import { CarCategoryService } from '../../../../services/car-category.service';
 import { CarCategory } from '../../../../types/car-category.model';
 import { ResponsiveService } from '../../../../services/responsive.service';
-import { MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 import { PermissionService } from '../../../../services/permission.service';
 
@@ -21,7 +22,8 @@ import { PermissionService } from '../../../../services/permission.service';
     MatButtonModule,
     MatIconModule,
     TranslateModule,
-    SharedDataGridComponent
+    SharedDataGridComponent,
+    SharedMobileListComponent
   ],
   templateUrl: './car-category-list.component.html',
   styleUrl: './car-category-list.component.css'
@@ -35,10 +37,20 @@ export class CarCategoryListComponent {
   isMobile = this.responsiveService.isMobile;
 
   categories = this.carCategoryService.categories$;
+  mobileSearch = signal('');
+
+  /** Client-side search for the mobile card list (desktop keeps DevExtreme's own search panel). */
+  filteredCategoriesForMobile = computed(() => {
+    const term = this.mobileSearch().toLowerCase();
+    const categories = this.categories();
+    if (!term) return categories;
+    return categories.filter(c =>
+      c.name?.toLowerCase().includes(term) ||
+      c.description?.toLowerCase().includes(term)
+    );
+  });
 
   canCreate = computed(() => this.permissionService.hasPermission('carCategory.create'));
-  canEdit = computed(() => this.permissionService.hasPermission('carCategory.edit'));
-  canDelete = computed(() => this.permissionService.hasPermission('carCategory.delete'));
 
   /** Config-driven columns for the Shared DataGrid (captions are i18n keys). */
   columns: dataGridColumnDto[] = [
@@ -81,18 +93,21 @@ export class CarCategoryListComponent {
 
   // --- Mobile card-list rendering ---
   mobileTitleOf = (cat: CarCategory) => cat.name;
-  mobileTrackBy = (_index: number, cat: CarCategory) => cat.id;
+  mobileTrackBy = (index: number, cat: CarCategory) => cat.id ?? index;
 
-  mobileFields: MobileCardField<CarCategory>[] = [
+  mobileFields: MobileListFieldDto<CarCategory>[] = [
     { label: 'CAR_CATEGORY.COLUMNS.ID', value: (cat) => cat.id },
     { label: 'CAR_CATEGORY.COLUMNS.DESCRIPTION', value: (cat) => cat.description },
   ];
 
-  mobileEdit(cat: CarCategory): void {
-    this.onEdit({ row: { data: { id: cat.id } } });
-  }
+  /** Same edit/delete actions as the desktop grid's row actions. */
+  mobileActions: MobileListActionDto<CarCategory>[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'CAR_CATEGORY.EDIT', visible: () => this.permissionService.hasPermission('carCategory.edit') },
+    { id: 'delete', icon: 'delete', labelKey: 'CAR_CATEGORY.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('carCategory.delete') },
+  ];
 
-  mobileDelete(cat: CarCategory): void {
-    this.deleteCategory(cat.id);
+  onMobileAction(e: MobileListActionEvent<CarCategory>): void {
+    if (e.actionId === 'edit') this.onEdit({ row: { data: { id: e.item.id } } });
+    else if (e.actionId === 'delete') this.deleteCategory(e.item.id);
   }
 }

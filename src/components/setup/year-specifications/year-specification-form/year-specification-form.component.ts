@@ -18,6 +18,8 @@ import { ManufacturerService } from '../../../../services/manufacturer.service';
 import { ManufactureYearService } from '../../../../services/manufacture-year.service';
 import { NotificationService } from '@/src/services/notification.service';
 import { PermissionService } from '../../../../services/permission.service';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 /** Passed in when YearSpecificationFormComponent is opened via MatDialog.open(...) from
  *  CarCardComponent's Year Specification "+" button -- a Year Specification always belongs to a
@@ -42,7 +44,8 @@ export interface YearSpecificationQuickAddData {
     MatInputModule,
     MatSelectModule,
     MatDialogModule,
-    TranslateModule
+    TranslateModule,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './year-specification-form.component.html',
   styleUrl: './year-specification-form.component.css'
@@ -61,6 +64,8 @@ export class YearSpecificationFormComponent implements OnInit {
   private permissionService = inject(PermissionService);
   private dialogRef = inject(MatDialogRef<YearSpecificationFormComponent, YearSpecification | undefined>, { optional: true });
   private data = inject<YearSpecificationQuickAddData | null>(MAT_DIALOG_DATA, { optional: true });
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   isQuickAddDialog = !!this.dialogRef;
   /** When set (quick-add from the Vehicle screen), the Trim field is pre-filled and locked --
@@ -228,5 +233,16 @@ export class YearSpecificationFormComponent implements OnInit {
 
   cancelDialog(): void {
     this.dialogRef?.close();
+  }
+
+  /** Mirrors the desktop routed page's Cancel link (routerLink="/setup/year-specifications") --
+   *  cancelDialog() only closes the dialog and is a no-op when this is a routed page, so the
+   *  mobile shell (which has no routerLink concept) needs an equivalent that actually navigates. */
+  cancelForm(): void {
+    if (this.dialogRef) {
+      this.dialogRef.close();
+    } else {
+      this.router.navigate(['/setup/year-specifications']);
+    }
   }
 }

@@ -20,6 +20,8 @@ import { Store } from '../../../../models/branch.model';
 import { CreateStoreTransferDto } from '../../../../models/store-transfer.model';
 import { BranchContextService } from '../../../../services/branch-context.service';
 import { scopeStoresToCurrentBranch } from '../../../../models/branch-scoped-stores.util';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 const differentStoresValidator: ValidatorFn = (group): ValidationErrors | null => {
   const from = group.get('fromStoreId')?.value;
@@ -40,7 +42,8 @@ const differentStoresValidator: ValidatorFn = (group): ValidationErrors | null =
     MatButtonModule,
     MatIconModule,
     MatDialogModule,
-    TranslateModule
+    TranslateModule,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './store-transfer-form.component.html',
   styleUrls: ['./store-transfer-form.component.css']
@@ -57,6 +60,8 @@ export class StoreTransferFormComponent implements OnInit {
   private dialog = inject(MatDialog);
   private branchContext = inject(BranchContextService);
   private injector = inject(Injector);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   form!: FormGroup;
   isSaving = signal(false);

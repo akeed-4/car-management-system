@@ -18,34 +18,49 @@
 
   <mat-progress-bar mode="indeterminate" *ngIf="loading()"></mat-progress-bar>
 
-  <div class="erp-grid-card grid-container" *ngIf="!loading()">
-    <!-- Shared DataGrid: owns grid chrome/paging/actions; the status/payment
-         badges keep their exact colors via generic [cellTemplates]. -->
-    <app-shared-data-grid
-      [dataSource]="subscriptions()"
-      [columns]="columns"
-      [rowActions]="rowActions"
-      [cellTemplates]="cellTemplates"
-      keyExpr="id"
-      searchPlaceholder="COMMON.SEARCH"
-      noDataText="COMMON.NO_DATA"
-      [pageSize]="20"
-      [allowedPageSizes]="[10, 20, 50]"
-      (rowAction)="onGridAction($event)">
+  @if (!loading()) {
+    @if (isMobile()) {
+      <shared-mobile-list
+        [data]="subscriptions()"
+        [fields]="mobileFields"
+        [titleOf]="mobileTitleOf"
+        [trackByFn]="mobileTrackBy"
+        [actions]="mobileActions"
+        searchPlaceholder="COMMON.SEARCH"
+        emptyMessage="COMMON.NO_DATA"
+        (action)="onMobileAction($event)">
+      </shared-mobile-list>
+    } @else {
+      <div class="erp-grid-card grid-container">
+        <!-- Shared DataGrid: owns grid chrome/paging/actions; the status/payment
+             badges keep their exact colors via generic [cellTemplates]. -->
+        <app-shared-data-grid
+          [dataSource]="subscriptions()"
+          [columns]="columns"
+          [rowActions]="rowActions"
+          [cellTemplates]="cellTemplates"
+          keyExpr="id"
+          searchPlaceholder="COMMON.SEARCH"
+          noDataText="COMMON.NO_DATA"
+          [pageSize]="20"
+          [allowedPageSizes]="[10, 20, 50]"
+          (rowAction)="onGridAction($event)">
 
-      <!-- Status badge (same colors/labels as before) -->
-      <ng-template #statusTemplate let-cell>
-        <span class="erp-status-badge chip" [style.background]="getStatusColor(cell.value) + '22'" [style.color]="getStatusColor(cell.value)">
-          {{ getStatusLabel(cell.value) | translate }}
-        </span>
-      </ng-template>
+          <!-- Status badge (same colors/labels as before) -->
+          <ng-template #statusTemplate let-cell>
+            <span class="erp-status-badge chip" [style.background]="getStatusColor(cell.value) + '22'" [style.color]="getStatusColor(cell.value)">
+              {{ getStatusLabel(cell.value) | translate }}
+            </span>
+          </ng-template>
 
-      <!-- Payment-status badge (same colors/labels as before) -->
-      <ng-template #paymentStatusTemplate let-cell>
-        <span class="erp-status-badge chip" [style.background]="getPaymentStatusColor(cell.value) + '22'" [style.color]="getPaymentStatusColor(cell.value)">
-          {{ getPaymentStatusLabel(cell.value) | translate }}
-        </span>
-      </ng-template>
-    </app-shared-data-grid>
-  </div>
+          <!-- Payment-status badge (same colors/labels as before) -->
+          <ng-template #paymentStatusTemplate let-cell>
+            <span class="erp-status-badge chip" [style.background]="getPaymentStatusColor(cell.value) + '22'" [style.color]="getPaymentStatusColor(cell.value)">
+              {{ getPaymentStatusLabel(cell.value) | translate }}
+            </span>
+          </ng-template>
+        </app-shared-data-grid>
+      </div>
+    }
+  }
 </div>

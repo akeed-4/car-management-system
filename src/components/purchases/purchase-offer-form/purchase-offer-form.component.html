@@ -1,14 +1,35 @@
-<div class="erp-page purchase-offer-container p-4">
-  <div class="erp-page-header">
-    <div class="erp-page-header-titles">
-      <span class="erp-page-eyebrow">{{ 'PURCHASE_OFFER.MODULE_NAME' | translate }}</span>
-      <h2 class="erp-page-title">
-        {{ (isEditMode ? 'PURCHASE_OFFER.EDIT_TITLE' : 'PURCHASE_OFFER.CREATE_TITLE') | translate }}
-      </h2>
+@if (isMobile()) {
+  <shared-mobile-data-entry
+    [title]="(isEditMode ? 'PURCHASE_OFFER.EDIT_TITLE' : 'PURCHASE_OFFER.CREATE_TITLE') | translate"
+    [saving]="false"
+    [isEditMode]="isEditMode"
+    [canSave]="true"
+    [canCancel]="true"
+    [saveLabel]="isEditMode ? 'COMMON.UPDATE' : 'COMMON.SAVE'"
+    (save)="onSubmit()"
+    (cancel)="onCancel()"
+    (back)="onCancel()">
+    <ng-container [ngTemplateOutlet]="offerFormBody"></ng-container>
+  </shared-mobile-data-entry>
+} @else {
+  <div class="erp-page purchase-offer-container p-4">
+    <div class="erp-page-header">
+      <div class="erp-page-header-titles">
+        <span class="erp-page-eyebrow">{{ 'PURCHASE_OFFER.MODULE_NAME' | translate }}</span>
+        <h2 class="erp-page-title">
+          {{ (isEditMode ? 'PURCHASE_OFFER.EDIT_TITLE' : 'PURCHASE_OFFER.CREATE_TITLE') | translate }}
+        </h2>
+      </div>
+    </div>
+    <div class="erp-card styled-card">
+      <div class="p-4">
+        <ng-container [ngTemplateOutlet]="offerFormBody"></ng-container>
+      </div>
     </div>
   </div>
-  <div class="erp-card styled-card">
-    <div class="p-4">
+}
+
+<ng-template #offerFormBody>
       <form [formGroup]="offerForm" (ngSubmit)="onSubmit()" autocomplete="off">
 
         <!-- ══════════════════ SECTION 1: CORE INFO ══════════════════ -->
@@ -120,7 +141,7 @@
           </dx-data-grid>
         </div>
 
-        
+
         <!-- ══════════════════ SECTION 3: NOTES ══════════════════ -->
         <div class="row g-3 mb-4">
           <div class="col-12">
@@ -192,7 +213,10 @@
 
         </div>
 
-        <!-- ══════════════════ FORM ACTIONS ══════════════════ -->
+        <!-- ══════════════════ FORM ACTIONS: desktop only -- the mobile branch's
+             shared-mobile-data-entry shell renders its own sticky Save/Cancel
+             footer instead of this in-flow bar. ══════════════════ -->
+        @if (!isMobile()) {
         <div class="erp-actions-bar d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
          <button mat-raised-button color="primary" type="submit" class="action-btn" [disabled]="offerForm.invalid || offerItems.length === 0">
             <mat-icon class="me-1">save</mat-icon>
@@ -203,8 +227,7 @@
           </button>
 
         </div>
+        }
 
       </form>
-    </div>
-  </div>
-</div>
+</ng-template>

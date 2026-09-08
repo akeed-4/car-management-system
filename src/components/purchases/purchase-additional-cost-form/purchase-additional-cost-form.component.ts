@@ -31,6 +31,8 @@ import {
   ManualAllocationLine,
   PurchaseAdditionalCostLine,
 } from '../../../models/purchase-additional-cost.model';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-purchase-additional-cost-form',
@@ -52,6 +54,7 @@ import {
     MatDialogModule,
     TranslateModule,
     AccountAutocompleteComponent,
+    SharedMobileDataEntryComponent,
   ],
   templateUrl: './purchase-additional-cost-form.component.html',
   styleUrl: './purchase-additional-cost-form.component.css',
@@ -64,6 +67,8 @@ export class PurchaseAdditionalCostFormComponent implements OnInit, OnChanges {
   private notificationService = inject(NotificationService);
   private authService = inject(AuthService);
   private dialog = inject(MatDialog);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   /** Set when embedded in a Purchase Invoice's "Additional Costs" tab: locks the invoice field
    * to this invoice and hides the invoice picker. */

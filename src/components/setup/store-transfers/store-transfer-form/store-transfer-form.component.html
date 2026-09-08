@@ -1,10 +1,30 @@
-<div class="erp-page page-container">
-  <div class="erp-page-header page-header header-row">
-    <div class="erp-page-header-titles">
-      <h1 class="erp-page-title">{{ 'STORE_TRANSFER.CREATE_TITLE' | translate }}</h1>
+@if (isMobile()) {
+  <shared-mobile-data-entry
+    [title]="'STORE_TRANSFER.CREATE_TITLE' | translate"
+    [saving]="isSaving()"
+    [isEditMode]="false"
+    [canSave]="true"
+    [canCancel]="true"
+    [saveLabel]="'COMMON.SAVE'"
+    [cancelLabel]="'COMMON.CANCEL'"
+    (save)="save()"
+    (cancel)="cancel()"
+    (back)="cancel()">
+    <ng-container [ngTemplateOutlet]="storeTransferFormBody"></ng-container>
+  </shared-mobile-data-entry>
+} @else {
+  <div class="erp-page page-container">
+    <div class="erp-page-header page-header header-row">
+      <div class="erp-page-header-titles">
+        <h1 class="erp-page-title">{{ 'STORE_TRANSFER.CREATE_TITLE' | translate }}</h1>
+      </div>
     </div>
-  </div>
 
+    <ng-container [ngTemplateOutlet]="storeTransferFormBody"></ng-container>
+  </div>
+}
+
+<ng-template #storeTransferFormBody>
   <form [formGroup]="form" (ngSubmit)="save()">
     <div class="erp-card form-card">
         <div class="erp-form-grid form-grid">
@@ -71,14 +91,16 @@
       </div>
     </div>
 
-    <div class="erp-actions-bar form-actions">
-      <button mat-raised-button color="primary" type="submit" [disabled]="isSaving()">
-        <mat-icon>save</mat-icon>
-        {{ 'COMMON.SAVE' | translate }}
-      </button>
-      <button mat-stroked-button type="button" (click)="cancel()">
-        {{ 'COMMON.CANCEL' | translate }}
-      </button>
-    </div>
+    @if (!isMobile()) {
+      <div class="erp-actions-bar form-actions">
+        <button mat-raised-button color="primary" type="submit" [disabled]="isSaving()">
+          <mat-icon>save</mat-icon>
+          {{ 'COMMON.SAVE' | translate }}
+        </button>
+        <button mat-stroked-button type="button" (click)="cancel()">
+          {{ 'COMMON.CANCEL' | translate }}
+        </button>
+      </div>
+    }
   </form>
-</div>
+</ng-template>

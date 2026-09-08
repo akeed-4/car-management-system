@@ -1,5 +1,5 @@
 import { Component, inject, signal, computed, effect, OnInit, Signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgTemplateOutlet } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,6 +16,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { ToastService } from '@/src/services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
 import { PermissionService } from '../../../../services/permission.service';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 /** Passed in when CarCategoryFormComponent is opened via MatDialog.open(...) from
  * CarCardComponent's Category "+" button -- Category depends on Model (CarCategory.modelId is
@@ -30,6 +32,7 @@ export interface CarCategoryQuickAddData {
   standalone: true,
   imports: [
     CommonModule,
+    NgTemplateOutlet,
     ReactiveFormsModule,
     RouterLink,
     MatIconModule,
@@ -37,7 +40,8 @@ export interface CarCategoryQuickAddData {
     MatInputModule,
     MatSelectModule,
     MatDialogModule,
-    TranslateModule
+    TranslateModule,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './car-category-form.component.html',
   styleUrl: './car-category-form.component.css'
@@ -54,6 +58,8 @@ export class CarCategoryFormComponent implements OnInit {
   private permissionService = inject(PermissionService);
   private dialogRef = inject(MatDialogRef<CarCategoryFormComponent, CarCategory | undefined>, { optional: true });
   private data = inject<CarCategoryQuickAddData | null>(MAT_DIALOG_DATA, { optional: true });
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   /** True only in dialog mode -- swaps the "back to list" link/page-header for dialog title/actions
    * without touching how the routed /setup/car-categories/new page renders. */
@@ -210,5 +216,11 @@ export class CarCategoryFormComponent implements OnInit {
    * "cancel does nothing" requirement. Routed-page Cancel link is unaffected (still a routerLink). */
   cancelDialog(): void {
     this.dialogRef?.close();
+  }
+
+  /** Routed-page mode only cancel target (mobile shell's cancel/back outputs). Dialog mode keeps
+   * using cancelDialog() directly, since the shell is skipped when isQuickAddDialog is true. */
+  cancelForm(): void {
+    this.router.navigate(['/setup/car-category']);
   }
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgTemplateOutlet } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -13,6 +13,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BankService } from '../../../../services/bank.service';
 import { NotificationService } from '../../../../services/notification.service';
 import { CreateBankDto, UpdateBankDto } from '../../../../models/bank.model';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 type FormMode = 'create' | 'edit' | 'view';
 
@@ -21,6 +23,7 @@ type FormMode = 'create' | 'edit' | 'view';
   standalone: true,
   imports: [
     CommonModule,
+    NgTemplateOutlet,
     ReactiveFormsModule,
     MatCardModule,
     MatFormFieldModule,
@@ -29,7 +32,8 @@ type FormMode = 'create' | 'edit' | 'view';
     MatIconModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
-    TranslateModule
+    TranslateModule,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './bank-form.component.html',
   styleUrls: ['./bank-form.component.css']
@@ -41,6 +45,8 @@ export class BankManagementFormComponent implements OnInit {
   private bankService = inject(BankService);
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   form!: FormGroup;
   mode: FormMode = 'create';
@@ -50,6 +56,10 @@ export class BankManagementFormComponent implements OnInit {
 
   get isView(): boolean {
     return this.mode === 'view';
+  }
+
+  get isEdit(): boolean {
+    return this.mode === 'edit';
   }
 
   constructor() {

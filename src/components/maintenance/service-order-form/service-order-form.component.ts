@@ -3,17 +3,19 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, OnInit, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { DatePipe, CurrencyPipe } from '@angular/common';
+import { DatePipe, CurrencyPipe, NgTemplateOutlet } from '@angular/common';
 import { ServiceOrder, ServiceItem, ServiceOrderStatus } from '../../../models/service-order.model';
 import { ServiceOrderService } from '../../../services/service-order.service';
 import { InventoryService } from '../../../services/inventory.service';
 import { CustomerService } from '../../../services/customer.service';
 import { NotificationService } from '../../../services/notification.service';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-service-order-form',
   standalone: true,
-  imports: [FormsModule, RouterLink, CurrencyPipe],
+  imports: [FormsModule, RouterLink, CurrencyPipe, NgTemplateOutlet, SharedMobileDataEntryComponent],
   templateUrl: './service-order-form.component.html',
   styleUrl: './service-order-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,6 +27,8 @@ export class ServiceOrderFormComponent implements OnInit {
   private inventoryService = inject(InventoryService);
   private customerService = inject(CustomerService);
   private notificationService = inject(NotificationService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   serviceOrder = signal<Partial<ServiceOrder>>({
     dateIn: new Date().toISOString().split('T')[0],
@@ -142,6 +146,10 @@ export class ServiceOrderFormComponent implements OnInit {
       this.serviceOrderService.addServiceOrder(newOrder as Omit<ServiceOrder, 'id'>);
     }
     this.notificationService.showSuccess('تم حفظ أمر العمل بنجاح.');
+    this.router.navigate(['/maintenance']);
+  }
+
+  cancelForm(): void {
     this.router.navigate(['/maintenance']);
   }
 }

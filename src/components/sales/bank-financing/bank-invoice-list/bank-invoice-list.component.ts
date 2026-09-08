@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   SharedDataGridComponent,
   SharedGridRowActionEvent,
@@ -17,6 +17,9 @@ import { PermissionService } from '../../../../services/permission.service';
 import { SalesInvoice } from '../../../../models/sales-invoice.model';
 import { SalesChannel } from '../../../../models/enums/sales-channel.enum';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-bank-invoice-list',
@@ -29,7 +32,8 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/gr
     MatToolbarModule,
     MatTooltipModule,
     SharedDataGridComponent,
-    TranslateModule
+    TranslateModule,
+    SharedMobileListComponent
   ],
   templateUrl: './bank-invoice-list.component.html',
   styleUrls: ['./bank-invoice-list.component.css'],
@@ -41,7 +45,10 @@ export class BankInvoiceListComponent implements OnInit {
   private salesService = inject(SalesService);
   private notificationService = inject(NotificationService);
   private router = inject(Router);
+  private responsiveService = inject(ResponsiveService);
+  private translate = inject(TranslateService);
   permissionService = inject(PermissionService);
+  isMobile = this.responsiveService.isMobile;
 
   invoices = signal<SalesInvoice[]>([]);
   loading = signal(false);
@@ -109,6 +116,37 @@ export class BankInvoiceListComponent implements OnInit {
   onEdit = (e: any): void => {
     this.router.navigate(['/sales/bank/invoices/edit', e.row.data.id]);
   };
+
+  /** Same field set as the desktop grid's columns, for the mobile card list. */
+  mobileFields: MobileListFieldDto<SalesInvoice>[] = [
+    { label: 'INVOICE.CUSTOMER', value: (inv) => inv.customerName },
+    { label: 'BANK_FINANCING.BANK', value: (inv) => inv.funderBankName },
+    { label: 'INVOICE.INVOICE_DATE', value: (inv) => inv.invoiceDate, type: 'date' },
+    { label: 'INVOICE.TOTAL', value: (inv) => inv.totalAmount, type: 'currency' },
+    {
+      label: 'INVOICE.STATUS',
+      value: (inv) => this.translate.instant('INVOICE.STATUS_' + inv.status?.toUpperCase()),
+      type: 'status',
+      statusClass: (inv) => {
+        if (inv.status === 'Paid') return 'success';
+        if (inv.status === 'Pending') return 'warning';
+        if (inv.status === 'Overdue') return 'danger';
+        return 'neutral';
+      },
+    },
+  ];
+
+  /** Same single edit action as the desktop grid's row actions. */
+  mobileActions: MobileListActionDto<SalesInvoice>[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('sales.bank.invoices.view') },
+  ];
+
+  mobileTitleOf = (inv: SalesInvoice) => inv.invoiceNumber;
+  mobileTrackBy = (index: number, inv: SalesInvoice) => inv.id ?? index;
+
+  onMobileAction(e: MobileListActionEvent<SalesInvoice>): void {
+    if (e.actionId === 'edit') this.onEdit({ row: { data: e.item } });
+  }
 
   exportExcel(): void {
     const component = this.grid?.getInstance();

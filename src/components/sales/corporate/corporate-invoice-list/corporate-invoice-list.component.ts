@@ -19,6 +19,8 @@ import { SalesChannel } from '../../../../models/enums/sales-channel.enum';
 import { ResponsiveService } from '../../../../services/responsive.service';
 import { MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-corporate-invoice-list',
@@ -31,7 +33,8 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/gr
     MatToolbarModule,
     MatTooltipModule,
     SharedDataGridComponent,
-    TranslateModule
+    TranslateModule,
+    SharedMobileListComponent
   ],
   templateUrl: './corporate-invoice-list.component.html',
   styleUrls: ['./corporate-invoice-list.component.css'],
@@ -159,5 +162,34 @@ export class CorporateInvoiceListComponent implements OnInit {
 
   mobileEdit(inv: SalesInvoice): void {
     this.onEdit({ row: { data: { id: inv.id } } });
+  }
+
+  /** Same field set as the desktop grid's columns, for shared-mobile-list. */
+  sharedMobileFields: MobileListFieldDto<SalesInvoice>[] = [
+    { label: 'INVOICE.CUSTOMER', value: (inv) => inv.customerName },
+    { label: 'INVOICE.INVOICE_DATE', value: (inv) => inv.invoiceDate, type: 'date' },
+    { label: 'INVOICE.DUE_DATE', value: (inv) => inv.dueDate, type: 'date' },
+    { label: 'INVOICE.TOTAL', value: (inv) => inv.totalAmount, type: 'currency' },
+    { label: 'INVOICE.AMOUNT_DUE', value: (inv) => inv.amountDue, type: 'currency' },
+    {
+      label: 'INVOICE.STATUS',
+      value: (inv) => this.translateService.instant('INVOICE.STATUS_' + inv.status?.toUpperCase()),
+      type: 'status',
+      statusClass: (inv) => {
+        if (inv.status === 'Paid') return 'success';
+        if (inv.status === 'Pending') return 'warning';
+        if (inv.status === 'Overdue') return 'danger';
+        return 'neutral';
+      },
+    },
+  ];
+
+  /** Same single edit action as the desktop grid's row actions. */
+  sharedMobileActions: MobileListActionDto<SalesInvoice>[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('sales.corporate.invoices.view') },
+  ];
+
+  onSharedMobileAction(e: MobileListActionEvent<SalesInvoice>): void {
+    if (e.actionId === 'edit') this.onEdit({ row: { data: { id: e.item.id } } });
   }
 }

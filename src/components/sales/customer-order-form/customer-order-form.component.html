@@ -1,16 +1,34 @@
-<div class="erp-page container">
-  <div class="erp-page-header">
-    <div class="erp-page-header-titles">
-      <h2 class="erp-page-title">Customer Order</h2>
+@if (isMobile()) {
+  <shared-mobile-data-entry
+    [title]="'Customer Order'"
+    [saving]="false"
+    [canSave]="customerOrderForm.valid"
+    [canCancel]="true"
+    [saveLabel]="'Save'"
+    (save)="onSubmit()"
+    (cancel)="cancelForm()"
+    (back)="cancelForm()">
+    <ng-container [ngTemplateOutlet]="customerOrderFormBody"></ng-container>
+  </shared-mobile-data-entry>
+} @else {
+  <div class="erp-page container">
+    <div class="erp-page-header">
+      <div class="erp-page-header-titles">
+        <h2 class="erp-page-title">Customer Order</h2>
+      </div>
+      <div class="erp-page-actions">
+        <a routerLink="/sales/customer-orders" class="btn btn-secondary btn-small">
+          <mat-icon>arrow_back</mat-icon>
+          <span>Back to Customer Orders</span>
+        </a>
+      </div>
     </div>
-    <div class="erp-page-actions">
-      <a routerLink="/sales/customer-orders" class="btn btn-secondary btn-small">
-        <mat-icon>arrow_back</mat-icon>
-        <span>Back to Customer Orders</span>
-      </a>
-    </div>
-  </div>
 
+    <ng-container [ngTemplateOutlet]="customerOrderFormBody"></ng-container>
+  </div>
+}
+
+<ng-template #customerOrderFormBody>
   <div class="erp-card customer-order-card">
     <form [formGroup]="customerOrderForm" (ngSubmit)="onSubmit()">
       <div class="erp-section">
@@ -64,11 +82,13 @@
         </ng-container>
       </div>
 
-      <div class="erp-actions-bar form-actions">
-        <button mat-raised-button color="primary" type="submit" [disabled]="!customerOrderForm.valid">
-          Save
-        </button>
-      </div>
+      @if (!isMobile()) {
+        <div class="erp-actions-bar form-actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="!customerOrderForm.valid">
+            Save
+          </button>
+        </div>
+      }
     </form>
   </div>
-</div>
+</ng-template>

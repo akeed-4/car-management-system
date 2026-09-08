@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   SharedDataGridComponent,
   SharedGridRowActionEvent,
@@ -21,6 +21,9 @@ import {
   SubscriptionStatus,
   SubscriptionStatusHelper,
 } from '../../../../models/enums/platform.enums';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-subscription-list',
@@ -34,6 +37,7 @@ import {
     MatProgressBarModule,
     SharedDataGridComponent,
     TranslateModule,
+    SharedMobileListComponent,
   ],
   templateUrl: './subscription-list.component.html',
   styleUrl: './subscription-list.component.css',
@@ -43,6 +47,9 @@ export class SubscriptionListComponent {
   private platformService = inject(PlatformService);
   private notificationService = inject(NotificationService);
   private permissionService = inject(PermissionService);
+  private responsiveService = inject(ResponsiveService);
+  private translate = inject(TranslateService);
+  isMobile = this.responsiveService.isMobile;
 
   loading = signal(true);
   subscriptions = signal<SubscriptionDto[]>([]);
@@ -96,6 +103,35 @@ export class SubscriptionListComponent {
     const subscription = e.row as SubscriptionDto;
     if (e.actionId === 'renew') this.renew(subscription);
     else if (e.actionId === 'cancel') this.cancel(subscription);
+  }
+
+  /** Same field set as the desktop grid's visible columns, for the mobile card list. */
+  mobileFields: MobileListFieldDto<SubscriptionDto>[] = [
+    { label: 'PLATFORM.SUBSCRIPTIONS.PLAN', value: (s) => s.planName },
+    { label: 'PLATFORM.SUBSCRIPTIONS.STATUS', value: (s) => this.translate.instant(this.getStatusLabel(s.status)) },
+    { label: 'PLATFORM.SUBSCRIPTIONS.RENEW', value: (s) => s.nextRenewalAt, type: 'date' },
+    { label: 'PLATFORM.SUBSCRIPTIONS.AMOUNT', value: (s) => s.amount, type: 'currency' },
+    { label: 'PLATFORM.SUBSCRIPTIONS.PAYMENT_STATUS', value: (s) => this.translate.instant(this.getPaymentStatusLabel(s.paymentStatus)) },
+  ];
+
+  /** Same renew/cancel actions as the desktop grid's row actions. */
+  mobileActions: MobileListActionDto<SubscriptionDto>[] = [
+    {
+      id: 'renew', icon: 'autorenew', labelKey: 'PLATFORM.SUBSCRIPTIONS.RENEW',
+      visible: () => this.permissionService.hasPermission('platform.subscriptions.manage'),
+    },
+    {
+      id: 'cancel', icon: 'cancel', labelKey: 'PLATFORM.SUBSCRIPTIONS.CANCEL', cssClass: 'btn-danger',
+      visible: () => this.permissionService.hasPermission('platform.subscriptions.manage'),
+    },
+  ];
+
+  mobileTitleOf = (s: SubscriptionDto) => s.tenantName;
+  mobileTrackBy = (index: number, s: SubscriptionDto) => s.id ?? index;
+
+  onMobileAction(e: MobileListActionEvent<SubscriptionDto>): void {
+    if (e.actionId === 'renew') this.renew(e.item);
+    else if (e.actionId === 'cancel') this.cancel(e.item);
   }
 
   constructor() {

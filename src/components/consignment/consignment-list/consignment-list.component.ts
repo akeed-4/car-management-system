@@ -32,6 +32,9 @@ import {
   SharedGridRowActionEvent,
 } from '../../shared/shared-data-grid/shared-data-grid.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-consignment-list',
@@ -52,6 +55,7 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.
     MatInputModule,
     SharedDataGridComponent,
     TranslateModule,
+    SharedMobileListComponent,
   ],
   templateUrl: './consignment-list.component.html',
   styleUrl: './consignment-list.component.css',
@@ -68,6 +72,8 @@ export class ConsignmentListComponent {
   private authService = inject(AuthService);
   private translate = inject(TranslateService);
   private permissionService = inject(PermissionService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   statusFilter = signal<string>('');
 
@@ -99,6 +105,14 @@ export class ConsignmentListComponent {
       };
     },
   });
+
+  constructor() {
+    // dataSource.load() previously only ever fired via the grid's own [dataSource] binding --
+    // fine when the grid always mounts, but on mobile it doesn't (see @if(isMobile()) in the
+    // template), which would leave lastLoadedRows (and the mobile list built on it) empty.
+    // Force an initial load unconditionally so both views work regardless of which one renders.
+    this.dataSource.load();
+  }
 
   summary = computed(() => {
     const rows = this.lastLoadedRows();
@@ -175,6 +189,74 @@ export class ConsignmentListComponent {
     else if (e.actionId === 'edit') this.editCar(row.id);
     else if (e.actionId === 'history') this.openHistory(row.id);
     else if (e.actionId === 'delete') this.requestDelete(row.id);
+  }
+
+  /** Same field set as the desktop grid's visible columns. Status uses a semantic
+   *  success/warning/danger/neutral mapping instead of the raw status-chip-* CSS classes
+   *  getConsignmentStatusClass returns (those classes are desktop-chip-specific). */
+  mobileFields: MobileListFieldDto<ConsignmentCar>[] = [
+    { label: 'CONSIGNMENT.SUPPLIER', value: (c) => c.supplierName },
+    { label: 'REQUESTED_CARS.BRAND', value: (c) => c.make },
+    { label: 'REQUESTED_CARS.MODEL', value: (c) => c.model },
+    { label: 'CONSIGNMENT.VIN', value: (c) => c.vin },
+    { label: 'CONSIGNMENT.ARRIVAL_DATE', value: (c) => c.arrivalDate, type: 'date' },
+    { label: 'CONSIGNMENT.EXPECTED_SALE_PRICE', value: (c) => c.expectedSalePrice, type: 'currency' },
+    { label: 'CONSIGNMENT.LOCATION', value: (c) => c.location },
+    {
+      label: 'CONSIGNMENT.STATUS',
+      value: (c) => this.translate.instant('CONSIGNMENT.STATUS_' + c.status?.toUpperCase()),
+      type: 'status',
+      statusClass: (c) => this.consignmentMobileStatusClass(c.status),
+    },
+  ];
+
+  /** Same permission-gated actions as the desktop grid's row actions. */
+  mobileActions: MobileListActionDto<ConsignmentCar>[] = [
+    {
+      id: 'sell', icon: 'sell', labelKey: 'CONSIGNMENT.SALE.SELL',
+      visible: (row) => this.canSell(row) && this.permissionService.hasPermission('consignmentCar.sell'),
+    },
+    {
+      id: 'cancelSale', icon: 'undo', labelKey: 'CONSIGNMENT.SALE.CANCEL_SALE',
+      visible: (row) => row.status === 'Sold' && this.permissionService.hasPermission('consignmentCar.sell'),
+    },
+    {
+      id: 'returnCar', icon: 'keyboard_return', labelKey: 'CONSIGNMENT.SALE.RETURN_TO_OWNER',
+      visible: (row) => row.status === 'Sold' && this.permissionService.hasPermission('consignmentCar.sell'),
+    },
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('consignmentCar.edit') },
+    { id: 'history', icon: 'history', labelKey: 'AUDIT_HISTORY.TITLE', visible: () => this.permissionService.hasPermission('consignmentCar.history') },
+    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'btn-danger', visible: () => this.permissionService.hasPermission('consignmentCar.delete') },
+  ];
+
+  mobileTitleOf = (c: ConsignmentCar) => c.consignmentNumber;
+  mobileTrackBy = (index: number, c: ConsignmentCar) => c.id ?? index;
+
+  onMobileAction(e: MobileListActionEvent<ConsignmentCar>): void {
+    const row = e.item;
+    if (e.actionId === 'sell') this.sellCar(row);
+    else if (e.actionId === 'cancelSale') this.cancelSale(row);
+    else if (e.actionId === 'returnCar') this.returnCar(row);
+    else if (e.actionId === 'edit') this.editCar(row.id);
+    else if (e.actionId === 'history') this.openHistory(row.id);
+    else if (e.actionId === 'delete') this.requestDelete(row.id);
+  }
+
+  /** Semantic mapping of consignment status -> MobileListFieldDto statusClass vocabulary
+   *  (success/warning/danger/neutral), replacing the desktop's custom status-chip-* classes. */
+  private consignmentMobileStatusClass(status: string): string {
+    switch (status) {
+      case 'Available':
+        return 'success';
+      case 'Reserved':
+        return 'warning';
+      case 'Sold':
+        return 'neutral';
+      case 'Returned':
+        return 'danger';
+      default:
+        return 'neutral';
+    }
   }
 
   newCar(): void {

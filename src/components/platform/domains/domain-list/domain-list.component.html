@@ -18,13 +18,26 @@
 
   <mat-progress-bar mode="indeterminate" *ngIf="loading()"></mat-progress-bar>
 
-  <div class="erp-grid-card grid-container" *ngIf="!loading()">
-    <app-shared-data-grid
-      [dataSource]="domains()"
-      [columns]="columns"
-      keyExpr="id"
-      [pageSize]="20"
-      [allowedPageSizes]="[10, 20, 50]">
-    </app-shared-data-grid>
-  </div>
+  @if (!loading()) {
+    @if (isMobile()) {
+      <shared-mobile-list
+        [data]="domains()"
+        [fields]="mobileFields"
+        [titleOf]="mobileTitleOf"
+        [trackByFn]="mobileTrackBy"
+        searchPlaceholder="COMMON.SEARCH"
+        emptyMessage="COMMON.NO_DATA">
+      </shared-mobile-list>
+    } @else {
+      <div class="erp-grid-card grid-container">
+        <app-shared-data-grid
+          [dataSource]="domains()"
+          [columns]="columns"
+          keyExpr="id"
+          [pageSize]="20"
+          [allowedPageSizes]="[10, 20, 50]">
+        </app-shared-data-grid>
+      </div>
+    }
+  }
 </div>

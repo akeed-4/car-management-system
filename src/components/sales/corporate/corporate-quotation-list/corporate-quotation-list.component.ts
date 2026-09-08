@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   SharedDataGridComponent,
   SharedGridRowActionEvent,
@@ -16,6 +16,9 @@ import { NotificationService } from '@/src/services/notification.service';
 import { PermissionService } from '../../../../services/permission.service';
 import { CorporateQuotation } from '../../../../models/corporate/corporate-quotation.model';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-corporate-quotation-list',
@@ -28,7 +31,8 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/gr
     MatToolbarModule,
     MatTooltipModule,
     SharedDataGridComponent,
-    TranslateModule
+    TranslateModule,
+    SharedMobileListComponent
   ],
   templateUrl: './corporate-quotation-list.component.html',
   styleUrls: ['./corporate-quotation-list.component.css'],
@@ -40,6 +44,9 @@ export class CorporateQuotationListComponent implements OnInit {
   private corporateFleetService = inject(CorporateFleetService);
   private notificationService = inject(NotificationService);
   private router = inject(Router);
+  private translate = inject(TranslateService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
   permissionService = inject(PermissionService);
 
   quotations = signal<CorporateQuotation[]>([]);
@@ -74,6 +81,41 @@ export class CorporateQuotationListComponent implements OnInit {
 
   onGridAction(e: SharedGridRowActionEvent): void {
     if (e.actionId === 'createOrder') this.onCreateOrder(e.row);
+  }
+
+  /** Same field set as the desktop grid's visible columns, for the mobile card list.
+   *  Status colors mirror the #statusTemplate ngClass in the desktop template. */
+  mobileFields: MobileListFieldDto<CorporateQuotation>[] = [
+    { label: 'CORPORATE.CUSTOMER', value: (q) => q.customerName },
+    { label: 'CORPORATE.QUOTATION_DATE', value: (q) => q.quotationDate as any, type: 'date' },
+    { label: 'CORPORATE.EXPIRY_DATE', value: (q) => q.expiryDate as any, type: 'date' },
+    { label: 'INVOICE.TOTAL', value: (q) => q.totalAmount, type: 'currency' },
+    {
+      label: 'CORPORATE.QUOTATION_STATUS',
+      value: (q) => this.translate.instant('CORPORATE.QUOTATION_STATUS_' + q.status?.toUpperCase()),
+      type: 'status',
+      statusClass: (q) => {
+        if (q.status === 'Converted') return 'success';
+        if (q.status === 'Approved') return 'warning';
+        if (q.status === 'Rejected' || q.status === 'Expired') return 'danger';
+        return 'neutral';
+      },
+    },
+  ];
+
+  /** Same "create order" action as the desktop grid's row actions. */
+  mobileActions: MobileListActionDto<CorporateQuotation>[] = [
+    {
+      id: 'createOrder', icon: 'add', labelKey: 'CORPORATE.CREATE_ORDER',
+      visible: (q) => q.status === 'Approved' && this.permissionService.hasPermission('sales.corporate.quotations.view'),
+    },
+  ];
+
+  mobileTitleOf = (q: CorporateQuotation) => q.quotationNumber ?? '';
+  mobileTrackBy = (index: number, q: CorporateQuotation) => q.id ?? index;
+
+  onMobileAction(e: MobileListActionEvent<CorporateQuotation>): void {
+    if (e.actionId === 'createOrder') this.onCreateOrder(e.item);
   }
 
   ngOnInit(): void {

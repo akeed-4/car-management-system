@@ -13,11 +13,13 @@ import { CreditInvoiceListItem, creditInvoiceLanguageData } from './invoice-cred
 import { ResponsiveService } from '../../../services/responsive.service';
 import { MobileCardField } from '../../shared/mobile-card-list/mobile-card-list.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
+import { SharedMobileListComponent } from '../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-invoice-credit-list',
   standalone: true,
-  imports: [CommonModule, SharedDataGridComponent, TranslateModule],
+  imports: [CommonModule, SharedDataGridComponent, TranslateModule, SharedMobileListComponent],
   templateUrl: './invoice-credit-list.component.html',
   styleUrls: ['./invoice-credit-list.component.css']
 })
@@ -80,6 +82,27 @@ export class InvoiceCreditListComponent implements OnInit {
 
   mobileDeleteClick(item: SalesInvoice): void {
     this.onDeleteClick({ row: { data: item } });
+  }
+
+  /** Same field set as the desktop grid's columns, for shared-mobile-list. */
+  sharedMobileFields: MobileListFieldDto<SalesInvoice>[] = [
+    { label: 'INVOICE.CUSTOMER', value: (item) => item.customerName },
+    { label: 'INVOICE.INVOICE_DATE', value: (item) => item.invoiceDate, type: 'date' },
+    { label: 'INVOICE.DUE_DATE', value: (item) => item.dueDate, type: 'date' },
+    { label: 'INVOICE.TOTAL', value: (item) => item.totalAmount, type: 'currency' },
+    { label: 'INVOICE.PAYMENT_METHOD', value: (item) => item.paymentMethod },
+    { label: 'INVOICE.STATUS', value: (item) => item.status },
+  ];
+
+  /** Same edit/delete actions as the desktop grid's row actions. */
+  sharedMobileActions: MobileListActionDto<SalesInvoice>[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('sales.credit.view') },
+    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('sales.credit.view') },
+  ];
+
+  onSharedMobileAction(e: MobileListActionEvent<SalesInvoice>): void {
+    if (e.actionId === 'edit') this.onEditClick({ row: { data: e.item } });
+    else if (e.actionId === 'delete') this.onDeleteClick({ row: { data: e.item } });
   }
 
   ngOnInit() {

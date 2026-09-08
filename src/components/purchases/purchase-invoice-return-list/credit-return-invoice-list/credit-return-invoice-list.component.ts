@@ -11,6 +11,8 @@ import {
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 import { PermissionService } from '../../../../services/permission.service';
 import { HasPermissionDirective } from '../../../shared/permission.directive';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
 
 @Component({
   selector: 'app-credit-return-invoice-list',
@@ -25,6 +27,8 @@ export class CreditReturnInvoiceListComponent {
   private translate = inject(TranslateService);
   private router = inject(Router);
   private permissionService = inject(PermissionService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
   returnInvoices = toSignal(this.purchaseReturnService.getReturnInvoices(), { initialValue: [] });
 
   filteredReturnInvoices = computed(() => this.returnInvoices().filter(invoice => invoice.returnType === 'CREDIT'));
@@ -80,5 +84,29 @@ export class CreditReturnInvoiceListComponent {
     if (e.actionId === 'print') this.onPrintClick(wrapped);
     else if (e.actionId === 'edit') this.onEditClick(wrapped);
     else if (e.actionId === 'delete') this.onDeleteClick(wrapped);
+  }
+
+  // --- Mobile card-list rendering ---
+  mobileTitleOf = (inv: any) => inv.returnInvoiceNumber;
+  mobileTrackBy = (_index: number, inv: any) => inv.id;
+
+  private formatCurrency = (value: number) => (value ?? 0).toLocaleString('ar-SA', { style: 'currency', currency: 'SAR' });
+
+  mobileFields: MobileCardField<any>[] = [
+    { label: 'PURCHASE_RETURN.COL_DATE', value: (inv) => inv.returnInvoiceDate ? new Date(inv.returnInvoiceDate).toLocaleDateString() : '' },
+    { label: 'PURCHASE_RETURN.COL_SUPPLIER', value: (inv) => inv.supplierName },
+    { label: 'PURCHASE_RETURN.COL_TOTAL', value: (inv) => this.formatCurrency(inv.totalAmount) },
+  ];
+
+  mobilePrint(inv: any): void {
+    this.onPrintClick({ row: { data: { id: inv.id } } });
+  }
+
+  mobileEdit(inv: any): void {
+    this.onEditClick({ row: { data: { id: inv.id } } });
+  }
+
+  mobileDelete(inv: any): void {
+    this.onDeleteClick({ row: { data: { id: inv.id } } });
   }
 }

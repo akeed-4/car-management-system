@@ -13,6 +13,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { NgTemplateOutlet } from '@angular/common';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 /** Matches the backend's actual Identity password policy (ServiceCollectionExtensions.cs:
  *  RequireDigit=true, RequiredLength=6, everything else relaxed) -- Validators.minLength(6)
@@ -41,7 +44,9 @@ function passwordPolicyValidator(): ValidatorFn {
     MatButtonModule,
     MatIconModule,
     MatCardModule,
-    TranslateModule
+    TranslateModule,
+    NgTemplateOutlet,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './user-form.component.html',
   styleUrl: './user-form.component.css',
@@ -56,6 +61,8 @@ export class UserFormComponent {
   private translate = inject(TranslateService);
   private fb = inject(FormBuilder);
   private permissionService = inject(PermissionService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   userForm!: FormGroup;
   editMode = signal(false);
@@ -168,5 +175,9 @@ export class UserFormComponent {
         }
       });
     }
+  }
+
+  cancelForm(): void {
+    this.router.navigate(['/users']);
   }
 }

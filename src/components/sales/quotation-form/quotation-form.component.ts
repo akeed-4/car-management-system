@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { SalesCycleService } from '../../../services/sales-cycle.service';
 import { Quotation } from '../../../models/quotation.model';
@@ -12,6 +12,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DocumentToolbarComponent, DocumentAction } from '../../shared/document';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-quotation-form',
@@ -26,7 +28,8 @@ import { DocumentToolbarComponent, DocumentAction } from '../../shared/document'
     MatDatepickerModule,
     MatNativeDateModule,
     TranslateModule,
-    DocumentToolbarComponent
+    DocumentToolbarComponent,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './quotation-form.component.html',
   styleUrls: ['./quotation-form.component.css']
@@ -36,12 +39,15 @@ export class QuotationFormComponent implements OnInit {
   isEditMode = false;
   quotationId: number | null = null;
   existingDocNumber: string | null = null;
+  isMobile: Signal<boolean>;
 
   constructor(
     private fb: FormBuilder,
     private salesCycleService: SalesCycleService,
-    private router: Router
+    private router: Router,
+    private responsiveService: ResponsiveService
   ) {
+    this.isMobile = this.responsiveService.isMobile;
     this.quotationForm = this.fb.group({
       quotationDate: [new Date().toISOString().split('T')[0], Validators.required],
       customerId: ['', Validators.required],

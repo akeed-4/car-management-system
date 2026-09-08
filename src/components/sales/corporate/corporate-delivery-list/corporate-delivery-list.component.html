@@ -11,30 +11,33 @@
     </div>
   </div>
 
-  <div class="erp-grid-card">
-    <!-- Shared DataGrid: owns grid chrome + the mobile card rendering (same
-         fields/actions the split @if(isMobile()) block used to duplicate). -->
-    <app-shared-data-grid
-      [dataSource]="deliveryNotes()"
-      [columns]="columns"
-      [rowActions]="rowActions"
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="deliveryNotes()"
+      [fields]="sharedMobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      [actions]="sharedMobileActions"
       [loading]="loading()"
-      [mobileItems]="deliveryNotes()"
-      [mobileFields]="mobileFields"
-      [mobileTitleOf]="mobileTitleOf"
-      [mobileTrackBy]="mobileTrackBy"
-      keyExpr="id"
-      height="600px"
-      noDataText="CORPORATE.NO_DELIVERIES"
-      [showColumnChooser]="false"
-      [pageSize]="10"
-      [allowedPageSizes]="[10, 20, 50]"
-      (rowDblClick)="onView($event)"
-      (rowAction)="onGridAction($event)">
-
-      <ng-template let-note>
-        <button type="button" class="btn btn-light" (click)="mobileView(note)">{{ 'COMMON.VIEW' | translate }}</button>
-      </ng-template>
-    </app-shared-data-grid>
-  </div>
+      emptyMessage="CORPORATE.NO_DELIVERIES"
+      (action)="onSharedMobileAction($event)">
+    </shared-mobile-list>
+  } @else {
+    <div class="erp-grid-card">
+      <app-shared-data-grid
+        [dataSource]="deliveryNotes()"
+        [columns]="columns"
+        [rowActions]="rowActions"
+        [loading]="loading()"
+        keyExpr="id"
+        height="600px"
+        noDataText="CORPORATE.NO_DELIVERIES"
+        [showColumnChooser]="false"
+        [pageSize]="10"
+        [allowedPageSizes]="[10, 20, 50]"
+        (rowDblClick)="onView($event)"
+        (rowAction)="onGridAction($event)">
+      </app-shared-data-grid>
+    </div>
+  }
 </div>

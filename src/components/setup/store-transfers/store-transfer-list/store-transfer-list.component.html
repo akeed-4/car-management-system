@@ -11,31 +11,46 @@
     </div>
   </div>
 
-  <mat-toolbar class="erp-list-toolbar page-toolbar">
-    <button mat-stroked-button (click)="refresh()">
-      <mat-icon>refresh</mat-icon>
-      {{ 'COMMON.REFRESH' | translate }}
-    </button>
-
-    <span class="erp-toolbar-spacer toolbar-spacer"></span>
-
-    <button mat-icon-button (click)="printGrid()" [matTooltip]="'COMMON.PRINT' | translate">
-      <mat-icon>print</mat-icon>
-    </button>
-  </mat-toolbar>
-
-  <div class="erp-grid-card grid-container">
-    <app-shared-data-grid
-      [dataSource]="transfers()"
-      [columns]="columns"
-      [rowActions]="rowActions"
-      keyExpr="id"
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="filteredTransfers()"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      [actions]="mobileActions"
       [loading]="loading()"
-      noDataText="STORE_TRANSFER.NO_TRANSFERS"
       searchPlaceholder="COMMON.SEARCH"
-      [pageSize]="10"
-      [allowedPageSizes]="[10, 20, 50]"
-      (rowAction)="onGridAction($event)">
-    </app-shared-data-grid>
-  </div>
+      emptyMessage="STORE_TRANSFER.NO_TRANSFERS"
+      (searchChange)="mobileSearch.set($event)"
+      (action)="onMobileAction($event)">
+    </shared-mobile-list>
+  } @else {
+    <mat-toolbar class="erp-list-toolbar page-toolbar">
+      <button mat-stroked-button (click)="refresh()">
+        <mat-icon>refresh</mat-icon>
+        {{ 'COMMON.REFRESH' | translate }}
+      </button>
+
+      <span class="erp-toolbar-spacer toolbar-spacer"></span>
+
+      <button mat-icon-button (click)="printGrid()" [matTooltip]="'COMMON.PRINT' | translate">
+        <mat-icon>print</mat-icon>
+      </button>
+    </mat-toolbar>
+
+    <div class="erp-grid-card grid-container">
+      <app-shared-data-grid
+        [dataSource]="transfers()"
+        [columns]="columns"
+        [rowActions]="rowActions"
+        keyExpr="id"
+        [loading]="loading()"
+        noDataText="STORE_TRANSFER.NO_TRANSFERS"
+        searchPlaceholder="COMMON.SEARCH"
+        [pageSize]="10"
+        [allowedPageSizes]="[10, 20, 50]"
+        (rowAction)="onGridAction($event)">
+      </app-shared-data-grid>
+    </div>
+  }
 </div>

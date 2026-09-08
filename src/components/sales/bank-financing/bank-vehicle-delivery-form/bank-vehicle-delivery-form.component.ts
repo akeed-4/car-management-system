@@ -20,6 +20,8 @@ import { BankOrderDeliveryDetails, BankOrderLookup } from '../../../../models/ba
 import { DocumentChecklistComponent, ChecklistItem } from '../../shared/document-checklist/document-checklist.component';
 import { SignaturePadComponent } from '../../shared/signature-pad/signature-pad.component';
 import { AttachmentUploaderComponent } from '../../shared/attachment-uploader/attachment-uploader.component';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 const DEFAULT_CHECKLIST: ChecklistItem[] = [
   { label: 'CORPORATE.CHECKLIST_KEYS', checked: false },
@@ -61,7 +63,8 @@ interface DeliveryLineItem {
     TranslateModule,
     DocumentChecklistComponent,
     SignaturePadComponent,
-    AttachmentUploaderComponent
+    AttachmentUploaderComponent,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './bank-vehicle-delivery-form.component.html',
   styleUrls: ['./bank-vehicle-delivery-form.component.css'],
@@ -73,6 +76,8 @@ export class BankVehicleDeliveryFormComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   @ViewChild(AttachmentUploaderComponent) attachmentUploader?: AttachmentUploaderComponent;
 
@@ -244,5 +249,9 @@ export class BankVehicleDeliveryFormComponent implements OnInit {
           this.notificationService.showError('BANK_FINANCING.DELIVERY_FAILED');
         }
       });
+  }
+
+  cancelForm(): void {
+    this.router.navigate(['/sales/bank/deliveries']);
   }
 }

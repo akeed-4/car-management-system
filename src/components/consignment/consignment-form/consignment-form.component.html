@@ -1,20 +1,40 @@
-<mat-toolbar color="primary" class="toolbar">
-  <mat-toolbar-row>
-    <span>{{ editMode() ? ('CONSIGNMENT.FORM.EDIT_TITLE' | translate) : ('CONSIGNMENT.FORM.NEW_TITLE' | translate) }}</span>
-    <span class="spacer"></span>
-    @if (editMode()) {
-      <button mat-icon-button (click)="openHistory()" [matTooltip]="'AUDIT_HISTORY.TITLE' | translate">
-        <mat-icon>history</mat-icon>
+@if (isMobile()) {
+  <shared-mobile-data-entry
+    [title]="editMode() ? ('CONSIGNMENT.FORM.EDIT_TITLE' | translate) : ('CONSIGNMENT.FORM.NEW_TITLE' | translate)"
+    [saving]="saving()"
+    [isEditMode]="editMode()"
+    [canSave]="true"
+    [canCancel]="true"
+    [saveLabel]="editMode() ? 'REQUESTED_CARS.FORM.SAVE_CHANGES' : 'CONSIGNMENT.FORM.SAVE_CAR'"
+    (save)="saveCar()"
+    (cancel)="cancelForm()"
+    (back)="cancelForm()">
+    <ng-container [ngTemplateOutlet]="consignmentFormBody"></ng-container>
+  </shared-mobile-data-entry>
+} @else {
+  <mat-toolbar color="primary" class="toolbar">
+    <mat-toolbar-row>
+      <span>{{ editMode() ? ('CONSIGNMENT.FORM.EDIT_TITLE' | translate) : ('CONSIGNMENT.FORM.NEW_TITLE' | translate) }}</span>
+      <span class="spacer"></span>
+      @if (editMode()) {
+        <button mat-icon-button (click)="openHistory()" [matTooltip]="'AUDIT_HISTORY.TITLE' | translate">
+          <mat-icon>history</mat-icon>
+        </button>
+      }
+      <button mat-icon-button routerLink="/consignment-cars" [matTooltip]="'REQUESTED_CARS.FORM.BACK_TO_LIST' | translate">
+        <mat-icon>arrow_back</mat-icon>
       </button>
-    }
-    <button mat-icon-button routerLink="/consignment-cars" [matTooltip]="'REQUESTED_CARS.FORM.BACK_TO_LIST' | translate">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
-  </mat-toolbar-row>
-</mat-toolbar>
+    </mat-toolbar-row>
+  </mat-toolbar>
 
-<div class="erp-page container">
-  <div class="erp-card form-card">
+  <div class="erp-page container">
+    <div class="erp-card form-card">
+      <ng-container [ngTemplateOutlet]="consignmentFormBody"></ng-container>
+    </div>
+  </div>
+}
+
+<ng-template #consignmentFormBody>
     <form [formGroup]="carForm" (ngSubmit)="saveCar()">
 
         <div class="erp-section form-section">
@@ -181,14 +201,15 @@
           </div>
         }
 
-        <div class="erp-actions-bar form-actions">
-          <button mat-button routerLink="/consignment-cars" type="button">
-            {{ 'REQUESTED_CARS.FORM.CANCEL' | translate }}
-          </button>
-          <button mat-raised-button color="primary" type="submit" [disabled]="carForm.invalid || saving()">
-            {{ editMode() ? ('REQUESTED_CARS.FORM.SAVE_CHANGES' | translate) : ('CONSIGNMENT.FORM.SAVE_CAR' | translate) }}
-          </button>
-        </div>
+        @if (!isMobile()) {
+          <div class="erp-actions-bar form-actions">
+            <button mat-button routerLink="/consignment-cars" type="button">
+              {{ 'REQUESTED_CARS.FORM.CANCEL' | translate }}
+            </button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="carForm.invalid || saving()">
+              {{ editMode() ? ('REQUESTED_CARS.FORM.SAVE_CHANGES' | translate) : ('CONSIGNMENT.FORM.SAVE_CAR' | translate) }}
+            </button>
+          </div>
+        }
       </form>
-  </div>
-</div>
+</ng-template>

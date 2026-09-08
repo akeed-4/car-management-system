@@ -1,14 +1,35 @@
-<div class="erp-page supplier-rfq-container p-4">
-  <div class="erp-page-header">
-    <div class="erp-page-header-titles">
-      <span class="erp-page-eyebrow">{{ 'SUPPLIER_RFQ.MODULE_NAME' | translate }}</span>
-      <h2 class="erp-page-title">
-        {{ (isEditMode ? 'SUPPLIER_RFQ.EDIT_TITLE' : 'SUPPLIER_RFQ.CREATE_TITLE') | translate }}
-      </h2>
+@if (isMobile()) {
+  <shared-mobile-data-entry
+    [title]="(isEditMode ? 'SUPPLIER_RFQ.EDIT_TITLE' : 'SUPPLIER_RFQ.CREATE_TITLE') | translate"
+    [saving]="false"
+    [isEditMode]="isEditMode"
+    [canSave]="true"
+    [canCancel]="true"
+    [saveLabel]="isEditMode ? 'COMMON.UPDATE' : 'COMMON.SAVE'"
+    (save)="onSubmit()"
+    (cancel)="onCancel()"
+    (back)="onCancel()">
+    <ng-container [ngTemplateOutlet]="rfqFormBody"></ng-container>
+  </shared-mobile-data-entry>
+} @else {
+  <div class="erp-page supplier-rfq-container p-4">
+    <div class="erp-page-header">
+      <div class="erp-page-header-titles">
+        <span class="erp-page-eyebrow">{{ 'SUPPLIER_RFQ.MODULE_NAME' | translate }}</span>
+        <h2 class="erp-page-title">
+          {{ (isEditMode ? 'SUPPLIER_RFQ.EDIT_TITLE' : 'SUPPLIER_RFQ.CREATE_TITLE') | translate }}
+        </h2>
+      </div>
+    </div>
+    <div class="erp-card styled-card">
+      <div class="p-4">
+        <ng-container [ngTemplateOutlet]="rfqFormBody"></ng-container>
+      </div>
     </div>
   </div>
-  <div class="erp-card styled-card">
-    <div class="p-4">
+}
+
+<ng-template #rfqFormBody>
       <form [formGroup]="rfqForm" (ngSubmit)="onSubmit()" autocomplete="off">
 
         <div class="erp-section-title doc-section-title">
@@ -123,6 +144,9 @@
           </div>
         </div>
 
+        <!-- Form Actions: desktop only -- the mobile branch's shared-mobile-data-entry
+             shell renders its own sticky Save/Cancel footer instead of this in-flow bar. -->
+        @if (!isMobile()) {
         <div class="erp-actions-bar d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
           <button mat-raised-button color="primary" type="submit" class="action-btn"
             [disabled]="rfqForm.invalid || lineItems.length === 0">
@@ -133,8 +157,7 @@
             {{ 'COMMON.CANCEL' | translate }}
           </button>
         </div>
+        }
 
       </form>
-    </div>
-  </div>
-</div>
+</ng-template>

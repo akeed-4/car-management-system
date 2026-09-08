@@ -28,11 +28,13 @@ import { ToastService } from '../../../services/toast.service';
 import { SalesReturnInvoice } from '@/src/models/sales-return-invoice.model';
 import { NotificationService } from '@/src/services/notification.service';
 import { extractErrorMessage } from '@/src/models/http-error-message';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-sales-return-form',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, CommonModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatCheckboxModule, MatIconModule, MatDatepickerModule, MatTooltipModule, NgxMatSelectSearchModule, MatCardModule],
+  imports: [RouterLink, ReactiveFormsModule, CommonModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatCheckboxModule, MatIconModule, MatDatepickerModule, MatTooltipModule, NgxMatSelectSearchModule, MatCardModule, SharedMobileDataEntryComponent],
   templateUrl: './sales-return-form.component.html',
   styleUrl: './sales-return-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,6 +53,8 @@ export class SalesReturnFormComponent implements OnInit {
   private activatedRoute = inject(ActivatedRoute);
   private translate = inject(TranslateService);
   private toastService = inject(NotificationService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   returnForm: FormGroup;
 
@@ -430,4 +434,11 @@ getTitle(): string {
     }
     return { isValid: true };
   };
+
+  /** Mobile shell (shared-mobile-data-entry) needs the back/cancel target as a callable method
+   *  rather than the desktop branch's plain routerLink. Same destination the desktop Cancel
+   *  button and back-link already navigate to. */
+  cancelForm(): void {
+    this.router.navigate(['/sales/return']);
+  }
 }

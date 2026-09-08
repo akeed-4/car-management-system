@@ -21,6 +21,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-delivery-form',
@@ -39,6 +41,7 @@ import { TranslateModule } from '@ngx-translate/core';
     MatCheckboxModule,
     TranslateModule,
     MatTooltipModule,
+    SharedMobileDataEntryComponent,
   ],
   templateUrl: './delivery-form.component.html',
   styleUrl: './delivery-form.component.css',
@@ -51,6 +54,8 @@ export class DeliveryFormComponent implements OnInit {
   private userService = inject(UserService);
   private branchContext = inject(BranchContextService);
   private dialog = inject(MatDialog);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   deliveryForm!: FormGroup;
   editMode = signal(false);
@@ -174,5 +179,9 @@ export class DeliveryFormComponent implements OnInit {
 
   trackByUser(index: number, user: { id: number }): number {
     return user.id;
+  }
+
+  cancelForm(): void {
+    this.router.navigate(['/deliveries']);
   }
 }

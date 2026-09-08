@@ -14,6 +14,9 @@ import { PermissionService } from '../../../../services/permission.service';
 import { BankVehicleDelivery } from '../../../../models/bank-financing/bank-vehicle-delivery.model';
 import { MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-bank-vehicle-delivery-list',
@@ -24,7 +27,8 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/gr
     SharedDataGridComponent,
     TranslateModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    SharedMobileListComponent
   ],
   providers: [DatePipe],
   templateUrl: './bank-vehicle-delivery-list.component.html',
@@ -36,7 +40,9 @@ export class BankVehicleDeliveryListComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private router = inject(Router);
   private datePipe = inject(DatePipe);
+  private responsiveService = inject(ResponsiveService);
   permissionService = inject(PermissionService);
+  isMobile = this.responsiveService.isMobile;
 
   deliveries = signal<BankVehicleDelivery[]>([]);
   loading = signal(false);
@@ -109,5 +115,24 @@ export class BankVehicleDeliveryListComponent implements OnInit {
 
   mobileView(item: BankVehicleDelivery): void {
     this.onView({ row: { data: item } });
+  }
+
+  /** Same field set as the desktop grid's columns, for shared-mobile-list. */
+  sharedMobileFields: MobileListFieldDto<BankVehicleDelivery>[] = [
+    { label: 'BANK_FINANCING.ORDER_NUMBER', value: (item) => item.quotationNumber },
+    { label: 'BANK_FINANCING.END_USER_NAME', value: (item) => item.endUserName },
+    { label: 'BANK_FINANCING.BANK', value: (item) => item.bankName },
+    { label: 'VIN', value: (item) => item.vin },
+    { label: 'CORPORATE.DELIVERY_DATE', value: (item) => item.deliveryDate, type: 'date' },
+    { label: 'CORPORATE.RECEIVER_NAME', value: (item) => item.receiverName },
+  ];
+
+  /** Same single view action as the desktop grid's row actions. */
+  sharedMobileActions: MobileListActionDto<BankVehicleDelivery>[] = [
+    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW', visible: () => this.permissionService.hasPermission('sales.bank.deliveries.view') },
+  ];
+
+  onSharedMobileAction(e: MobileListActionEvent<BankVehicleDelivery>): void {
+    if (e.actionId === 'view') this.onView({ row: { data: e.item } });
   }
 }

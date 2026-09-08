@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,6 +10,9 @@ import {
 } from '../../shared/shared-data-grid/shared-data-grid.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
 import { SalesRequest } from '../../../models/sales-request.model';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../shared/shared-mobile-list/shared-mobile-list.model';
 
 interface SalesRequestListItem {
   id: number;
@@ -28,12 +31,16 @@ interface SalesRequestListItem {
     SharedDataGridComponent,
     MatButtonModule,
     MatIconModule,
-    TranslateModule
+    TranslateModule,
+    SharedMobileListComponent
   ],
   templateUrl: './sales-request-list.component.html',
   styleUrls: ['./sales-request-list.component.css']
 })
 export class SalesRequestListComponent implements OnInit {
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
+
   dataSource: SalesRequestListItem[] = [
     // Sample data
     {
@@ -78,6 +85,30 @@ export class SalesRequestListComponent implements OnInit {
     if (e.actionId === 'view') this.viewRequest(request);
     else if (e.actionId === 'edit') this.editRequest(request);
     else if (e.actionId === 'delete') this.deleteRequest(request);
+  }
+
+  /** Same field set as the desktop grid's visible columns, for the mobile card list. */
+  mobileFields: MobileListFieldDto<SalesRequestListItem>[] = [
+    { label: 'SALES_REQUEST.REQUEST_DATE', value: (r) => r.requestDate as any, type: 'date' },
+    { label: 'SALES_REQUEST.CUSTOMER', value: (r) => r.customerName },
+    { label: 'SALES_REQUEST.STATUS', value: (r) => r.status },
+    { label: 'SALES_REQUEST.TOTAL_ITEMS', value: (r) => r.totalItems },
+  ];
+
+  /** Same view/edit/delete actions as the desktop grid's row actions. */
+  mobileActions: MobileListActionDto<SalesRequestListItem>[] = [
+    { id: 'view', icon: 'eye', labelKey: 'COMMON.VIEW' },
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT' },
+    { id: 'delete', icon: 'trash', labelKey: 'COMMON.DELETE' },
+  ];
+
+  mobileTitleOf = (r: SalesRequestListItem) => r.requestNumber;
+  mobileTrackBy = (index: number, r: SalesRequestListItem) => r.id ?? index;
+
+  onMobileAction(e: MobileListActionEvent<SalesRequestListItem>): void {
+    if (e.actionId === 'view') this.viewRequest(e.item);
+    else if (e.actionId === 'edit') this.editRequest(e.item);
+    else if (e.actionId === 'delete') this.deleteRequest(e.item);
   }
 
   ngOnInit(): void {

@@ -1,24 +1,46 @@
-<div class="erp-page container">
-  <div class="erp-page-header">
-    <div class="erp-page-header-titles">
-      <h2 class="erp-page-title">{{ titleKey | translate }}</h2>
-      <div class="doc-meta" *ngIf="invoiceNumber() || previewStatus()">
-        <span class="erp-status-badge neutral doc-meta-chip" dir="ltr" *ngIf="invoiceNumber()">
-          <mat-icon>tag</mat-icon>{{ invoiceNumber() }}
-        </span>
-        <span class="erp-status-badge info" *ngIf="previewStatus()">{{ previewStatus() | translate }}</span>
+@if (isMobile()) {
+  <shared-mobile-data-entry
+    [title]="titleKey | translate"
+    [saving]="saving()"
+    [isEditMode]="isEditMode()"
+    [canSave]="true"
+    [canSaveAndPrint]="true"
+    [canCancel]="true"
+    [saveLabel]="isEditMode() ? 'COMMON.SAVE' : 'INVOICE.ISSUE'"
+    [saveAndPrintLabel]="'DOCUMENT_COMMON.ACTIONS.SAVE_AND_PRINT'"
+    (save)="saveInvoice()"
+    (saveAndPrint)="printInvoice()"
+    (cancel)="cancelForm()"
+    (back)="cancelForm()">
+    <ng-container [ngTemplateOutlet]="salesInvoiceFormBody"></ng-container>
+  </shared-mobile-data-entry>
+} @else {
+  <div class="erp-page container">
+    <div class="erp-page-header">
+      <div class="erp-page-header-titles">
+        <h2 class="erp-page-title">{{ titleKey | translate }}</h2>
+        <div class="doc-meta" *ngIf="invoiceNumber() || previewStatus()">
+          <span class="erp-status-badge neutral doc-meta-chip" dir="ltr" *ngIf="invoiceNumber()">
+            <mat-icon>tag</mat-icon>{{ invoiceNumber() }}
+          </span>
+          <span class="erp-status-badge info" *ngIf="previewStatus()">{{ previewStatus() | translate }}</span>
+        </div>
+      </div>
+      <div class="erp-page-actions">
+        <a routerLink="/sales" class="back-link">
+          <button mat-icon-button>
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <span>{{ 'INVOICE.BACK_TO_SALES' | translate }}</span>
+        </a>
       </div>
     </div>
-    <div class="erp-page-actions">
-      <a routerLink="/sales" class="back-link">
-        <button mat-icon-button>
-          <mat-icon>arrow_back</mat-icon>
-        </button>
-        <span>{{ 'INVOICE.BACK_TO_SALES' | translate }}</span>
-      </a>
-    </div>
-  </div>
 
+    <ng-container [ngTemplateOutlet]="salesInvoiceFormBody"></ng-container>
+  </div>
+}
+
+<ng-template #salesInvoiceFormBody>
   <!-- BAND 1: ACTION & TRACEABILITY HEADER BAR -->
   <div class="trace-bar">
     <div class="trace-bar-selector">
@@ -385,9 +407,11 @@
                DocumentToolbarComponent. This is the ONLY instance on the page: the sticky summary
                rail keeps it reachable without scrolling, so a duplicate top-of-page toolbar isn't
                needed. -->
-          <div class="erp-actions-bar form-actions">
-            <app-document-toolbar [actions]="toolbarActions()" [busy]="saving()"></app-document-toolbar>
-          </div>
+          @if (!isMobile()) {
+            <div class="erp-actions-bar form-actions">
+              <app-document-toolbar [actions]="toolbarActions()" [busy]="saving()"></app-document-toolbar>
+            </div>
+          }
         </mat-card>
 
         <!-- Notes -- moved directly under Invoice Summary (still within the same sidebar column)
@@ -406,4 +430,4 @@
       </aside>
     </div>
   </form>
-</div>
+</ng-template>

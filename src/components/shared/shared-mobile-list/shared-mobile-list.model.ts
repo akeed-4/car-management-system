@@ -3,7 +3,7 @@ export interface MobileListFieldDto<T = any> {
   /** i18n key or plain label shown as the row's small caption. */
   label: string;
   /** Reads the display value out of a row. */
-  value: (item: T) => string | number | null | undefined;
+  value: (item: T) => string | number | Date | null | undefined;
   /** Special rendering: 'status' renders an erp-status-badge, 'currency'/'number'/'date'
    *  apply the matching Angular pipe via SharedMobileList's own formatting helpers. */
   type?: 'text' | 'status' | 'currency' | 'number' | 'date';

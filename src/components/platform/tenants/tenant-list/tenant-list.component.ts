@@ -11,7 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import CustomStore from 'devextreme/data/custom_store';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { PlatformService } from '../../../../services/platform.service';
 import { NotificationService } from '../../../../services/notification.service';
@@ -25,6 +25,9 @@ import { TenantDto } from '../../../../models/platform/tenant.model';
 import { TenantStatus, TenantStatusHelper } from '../../../../models/enums/platform.enums';
 import { getTenantStatusClass } from '../tenant-status.util';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-tenant-list',
@@ -43,6 +46,7 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/gr
     MatSelectModule,
     SharedDataGridComponent,
     TranslateModule,
+    SharedMobileListComponent,
   ],
   templateUrl: './tenant-list.component.html',
   styleUrl: './tenant-list.component.css',
@@ -55,6 +59,9 @@ export class TenantListComponent {
   private notificationService = inject(NotificationService);
   private router = inject(Router);
   private permissionService = inject(PermissionService);
+  private responsiveService = inject(ResponsiveService);
+  private translate = inject(TranslateService);
+  isMobile = this.responsiveService.isMobile;
 
   statusFilter = signal<TenantStatus | ''>('');
 
@@ -148,6 +155,64 @@ export class TenantListComponent {
     if (e.actionId === 'edit') this.editTenant(tenant.id);
     else if (e.actionId === 'suspend' || e.actionId === 'resume') this.toggleSuspend(tenant);
     else if (e.actionId === 'delete') this.requestDelete(tenant.id);
+  }
+
+  /** Same field set as the desktop grid's visible columns, for the mobile card list. */
+  mobileFields: MobileListFieldDto<TenantDto>[] = [
+    { label: 'PLATFORM.TENANTS.OWNER', value: (t) => t.adminFullName },
+    { label: 'PLATFORM.TENANTS.EMAIL', value: (t) => t.adminEmail },
+    { label: 'PLATFORM.TENANTS.PHONE', value: (t) => t.phone },
+    { label: 'PLATFORM.TENANTS.PLAN', value: (t) => t.planName },
+    {
+      label: 'PLATFORM.TENANTS.STATUS',
+      value: (t) => this.translateTenantStatus(t.status),
+      type: 'status',
+      statusClass: (t) =>
+        t.status === TenantStatus.Active ? 'success' :
+        t.status === TenantStatus.Provisioning ? 'warning' :
+        'danger',
+    },
+  ];
+
+  /** Same edit/suspend/resume/delete actions as the desktop grid's row actions. */
+  mobileActions: MobileListActionDto<TenantDto>[] = [
+    {
+      id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT',
+      visible: () => this.permissionService.hasPermission('platform.tenants.edit'),
+    },
+    {
+      id: 'suspend', icon: 'pause_circle', labelKey: 'PLATFORM.TENANTS.TOGGLE_SUSPEND',
+      visible: (row: TenantDto) =>
+        this.permissionService.hasPermission('platform.tenants.suspend') && row.status !== TenantStatus.Suspended,
+    },
+    {
+      id: 'resume', icon: 'play_circle', labelKey: 'PLATFORM.TENANTS.TOGGLE_SUSPEND',
+      visible: (row: TenantDto) =>
+        this.permissionService.hasPermission('platform.tenants.suspend') && row.status === TenantStatus.Suspended,
+    },
+    {
+      id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'btn-danger',
+      visible: () => this.permissionService.hasPermission('platform.tenants.delete'),
+    },
+  ];
+
+  mobileTitleOf = (t: TenantDto) => t.name;
+  mobileTrackBy = (index: number, t: TenantDto) => t.id ?? index;
+
+  onMobileAction(e: MobileListActionEvent<TenantDto>): void {
+    const tenant = e.item;
+    if (e.actionId === 'edit') this.editTenant(tenant.id);
+    else if (e.actionId === 'suspend' || e.actionId === 'resume') this.toggleSuspend(tenant);
+    else if (e.actionId === 'delete') this.requestDelete(tenant.id);
+  }
+
+  /** Mirrors the desktop grid's inline #statusTemplate label mapping. */
+  private translateTenantStatus(status: TenantStatus): string {
+    const key = status === TenantStatus.Active ? 'ACTIVE'
+      : status === TenantStatus.Provisioning ? 'PROVISIONING'
+      : status === TenantStatus.Suspended ? 'SUSPENDED'
+      : 'BLOCKED';
+    return this.translate.instant('PLATFORM.TENANT_STATUS.' + key);
   }
 
   newTenant(): void {

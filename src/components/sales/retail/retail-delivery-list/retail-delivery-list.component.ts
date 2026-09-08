@@ -12,6 +12,9 @@ import { RetailService } from '../../../../services/retail.service';
 import { NotificationService } from '@/src/services/notification.service';
 import { RetailDelivery } from '../../../../models/retail/retail-delivery.model';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 const SALES_CHANNEL_BUNUK = 3;
 
@@ -31,7 +34,8 @@ const SALES_CHANNEL_BUNUK = 3;
     SharedDataGridComponent,
     TranslateModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    SharedMobileListComponent
   ],
   templateUrl: './retail-delivery-list.component.html',
   styleUrls: ['./retail-delivery-list.component.css'],
@@ -42,6 +46,8 @@ export class RetailDeliveryListComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   isBankChannel = false;
   deliveryNotes = signal<RetailDelivery[]>([]);
@@ -65,6 +71,27 @@ export class RetailDeliveryListComponent implements OnInit {
 
   onGridAction(e: SharedGridRowActionEvent): void {
     if (e.actionId === 'view') this.onView(e.row as RetailDelivery);
+  }
+
+  /** Same field set as the desktop grid's visible columns, for the mobile card list. */
+  mobileFields: MobileListFieldDto<RetailDelivery>[] = [
+    { label: 'VIN', value: (d) => d.vin },
+    { label: 'CORPORATE.GATE_PASS_SERIAL', value: (d) => d.gatePassSerial },
+    { label: 'CORPORATE.DELIVERY_DATE', value: (d) => d.deliveryDate as any, type: 'date' },
+    { label: 'CORPORATE.RECEIVER_NAME', value: (d) => d.deliveredToName },
+    { label: 'CORPORATE.DRIVER_NAME', value: (d) => d.driverName },
+  ];
+
+  /** Same single view action as the desktop grid's row actions. */
+  mobileActions: MobileListActionDto<RetailDelivery>[] = [
+    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW' },
+  ];
+
+  mobileTitleOf = (d: RetailDelivery) => d.deliveryNoteNumber;
+  mobileTrackBy = (index: number, d: RetailDelivery) => d.id ?? index;
+
+  onMobileAction(e: MobileListActionEvent<RetailDelivery>): void {
+    if (e.actionId === 'view') this.onView(e.item);
   }
 
   ngOnInit(): void {

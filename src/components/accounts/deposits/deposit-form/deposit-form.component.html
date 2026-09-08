@@ -1,19 +1,39 @@
-<div class="erp-page">
-  <div class="erp-page-header">
-    <div class="erp-page-header-titles">
-      <h2 class="erp-page-title">{{ 'ACCOUNTS.DEPOSITS.FORM.CREATE_TITLE' | translate }}</h2>
-      <p class="erp-page-subtitle">{{ 'ACCOUNTS.DEPOSITS.FORM.SUBTITLE' | translate }}</p>
-      <p class="erp-page-subtitle">{{ 'ACCOUNTS.DEPOSITS.FORM.VOUCHER_HINT' | translate }}: {{ existingDocNumber || ('CORPORATE.AUTO_GENERATED' | translate) }}</p>
+@if (isMobile()) {
+  <shared-mobile-data-entry
+    [title]="'ACCOUNTS.DEPOSITS.FORM.CREATE_TITLE' | translate"
+    [saving]="isSaving()"
+    [isEditMode]="editMode()"
+    [canSave]="true"
+    [canCancel]="true"
+    [saveLabel]="isSaving() ? 'COMMON.SAVING' : 'ACCOUNTS.DEPOSITS.FORM.SAVE'"
+    (save)="saveDeposit()"
+    (cancel)="cancelForm()"
+    (back)="cancelForm()">
+    <ng-container [ngTemplateOutlet]="depositFormBody"></ng-container>
+  </shared-mobile-data-entry>
+} @else {
+  <div class="erp-page">
+    <div class="erp-page-header">
+      <div class="erp-page-header-titles">
+        <h2 class="erp-page-title">{{ 'ACCOUNTS.DEPOSITS.FORM.CREATE_TITLE' | translate }}</h2>
+        <p class="erp-page-subtitle">{{ 'ACCOUNTS.DEPOSITS.FORM.SUBTITLE' | translate }}</p>
+        <p class="erp-page-subtitle">{{ 'ACCOUNTS.DEPOSITS.FORM.VOUCHER_HINT' | translate }}: {{ existingDocNumber || ('CORPORATE.AUTO_GENERATED' | translate) }}</p>
+      </div>
+      <div class="erp-page-actions">
+        <a mat-stroked-button color="primary" routerLink="/accounts/deposits">
+          <mat-icon>arrow_back</mat-icon>
+          {{ 'ACCOUNTS.DEPOSITS.FORM.BACK' | translate }}
+        </a>
+      </div>
     </div>
-    <div class="erp-page-actions">
-      <a mat-stroked-button color="primary" routerLink="/accounts/deposits">
-        <mat-icon>arrow_back</mat-icon>
-        {{ 'ACCOUNTS.DEPOSITS.FORM.BACK' | translate }}
-      </a>
+
+    <div class="erp-card">
+      <ng-container [ngTemplateOutlet]="depositFormBody"></ng-container>
     </div>
   </div>
+}
 
-  <div class="erp-card">
+<ng-template #depositFormBody>
     <form [formGroup]="depositForm" (ngSubmit)="saveDeposit()">
       <div class="form-grid two-columns">
 
@@ -189,15 +209,16 @@
 
       </div>
 
-      <div class="erp-actions-bar">
-        <a mat-stroked-button routerLink="/accounts/deposits">
-          {{ 'ACCOUNTS.DEPOSITS.FORM.CANCEL' | translate }}
-        </a>
-        <button mat-raised-button color="primary" type="submit" [disabled]="depositForm.invalid || isSaving()">
-          {{ isSaving() ? ('COMMON.SAVING' | translate) : ('ACCOUNTS.DEPOSITS.FORM.SAVE' | translate) }}
-        </button>
-      </div>
+      @if (!isMobile()) {
+        <div class="erp-actions-bar">
+          <a mat-stroked-button routerLink="/accounts/deposits">
+            {{ 'ACCOUNTS.DEPOSITS.FORM.CANCEL' | translate }}
+          </a>
+          <button mat-raised-button color="primary" type="submit" [disabled]="depositForm.invalid || isSaving()">
+            {{ isSaving() ? ('COMMON.SAVING' | translate) : ('ACCOUNTS.DEPOSITS.FORM.SAVE' | translate) }}
+          </button>
+        </div>
+      }
 
     </form>
-  </div>
-</div>
+</ng-template>

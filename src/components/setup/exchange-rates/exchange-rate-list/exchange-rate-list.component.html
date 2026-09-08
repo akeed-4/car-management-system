@@ -11,41 +11,56 @@
     </div>
   </div>
 
-  <mat-toolbar class="page-toolbar erp-list-toolbar">
-    <button mat-stroked-button (click)="refresh()">
-      <mat-icon>refresh</mat-icon>
-      {{ 'COMMON.REFRESH' | translate }}
-    </button>
-
-    <span class="toolbar-spacer erp-toolbar-spacer"></span>
-
-    <button mat-icon-button [matMenuTriggerFor]="exportMenu" [matTooltip]="'COMMON.EXPORT' | translate">
-      <mat-icon>file_download</mat-icon>
-    </button>
-    <mat-menu #exportMenu="matMenu">
-      <button mat-menu-item (click)="exportExcel()">
-        <mat-icon>description</mat-icon>
-        {{ 'COMMON.EXPORT_EXCEL' | translate }}
-      </button>
-    </mat-menu>
-
-    <button mat-icon-button (click)="printGrid()" [matTooltip]="'COMMON.PRINT' | translate">
-      <mat-icon>print</mat-icon>
-    </button>
-  </mat-toolbar>
-
-  <div class="grid-container erp-grid-card">
-    <app-shared-data-grid
-      [dataSource]="rates()"
-      [columns]="columns"
-      [rowActions]="rowActions"
-      keyExpr="id"
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="filteredRates()"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      [actions]="mobileActions"
       [loading]="loading()"
-      noDataText="EXCHANGE_RATE.NO_RATES"
-      [pageSize]="10"
-      [allowedPageSizes]="[10, 20, 50]"
       searchPlaceholder="COMMON.SEARCH"
-      (rowAction)="onGridAction($event)">
-    </app-shared-data-grid>
-  </div>
+      emptyMessage="EXCHANGE_RATE.NO_RATES"
+      (searchChange)="mobileSearch.set($event)"
+      (action)="onMobileAction($event)">
+    </shared-mobile-list>
+  } @else {
+    <mat-toolbar class="page-toolbar erp-list-toolbar">
+      <button mat-stroked-button (click)="refresh()">
+        <mat-icon>refresh</mat-icon>
+        {{ 'COMMON.REFRESH' | translate }}
+      </button>
+
+      <span class="toolbar-spacer erp-toolbar-spacer"></span>
+
+      <button mat-icon-button [matMenuTriggerFor]="exportMenu" [matTooltip]="'COMMON.EXPORT' | translate">
+        <mat-icon>file_download</mat-icon>
+      </button>
+      <mat-menu #exportMenu="matMenu">
+        <button mat-menu-item (click)="exportExcel()">
+          <mat-icon>description</mat-icon>
+          {{ 'COMMON.EXPORT_EXCEL' | translate }}
+        </button>
+      </mat-menu>
+
+      <button mat-icon-button (click)="printGrid()" [matTooltip]="'COMMON.PRINT' | translate">
+        <mat-icon>print</mat-icon>
+      </button>
+    </mat-toolbar>
+
+    <div class="grid-container erp-grid-card">
+      <app-shared-data-grid
+        [dataSource]="rates()"
+        [columns]="columns"
+        [rowActions]="rowActions"
+        keyExpr="id"
+        [loading]="loading()"
+        noDataText="EXCHANGE_RATE.NO_RATES"
+        [pageSize]="10"
+        [allowedPageSizes]="[10, 20, 50]"
+        searchPlaceholder="COMMON.SEARCH"
+        (rowAction)="onGridAction($event)">
+      </app-shared-data-grid>
+    </div>
+  }
 </div>

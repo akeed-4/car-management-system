@@ -18,11 +18,13 @@ import { SalesInvoice } from '../../../../models/sales-invoice.model';
 import { ResponsiveService } from '../../../../services/responsive.service';
 import { MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-sales-invoice-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslateModule, MatIconModule, MatButtonModule, MatTooltipModule, SharedDataGridComponent],
+  imports: [CommonModule, RouterLink, TranslateModule, MatIconModule, MatButtonModule, MatTooltipModule, SharedDataGridComponent, SharedMobileListComponent],
   templateUrl: './sales-invoice-list.component.html',
   styleUrl: './sales-invoice-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -89,7 +91,9 @@ export class SalesInvoiceListComponent {
     }
   }
 
-  // --- Mobile card-list rendering ---
+  // --- Mobile card-list rendering (SharedDataGrid's own built-in card fallback,
+  // used only if this component is ever rendered without the shared-mobile-list
+  // wrapper below -- kept for backward compatibility). ---
   mobileTitleOf = (item: SalesInvoice) => item.invoiceNumber;
   mobileTrackBy = (_index: number, item: SalesInvoice) => item.id;
 
@@ -106,6 +110,29 @@ export class SalesInvoiceListComponent {
 
   mobilePrintClick(item: SalesInvoice): void {
     this.onPrintClick({ row: { data: item } });
+  }
+
+  /** Same field set as the desktop grid's columns, for shared-mobile-list. */
+  sharedMobileFields: MobileListFieldDto<SalesInvoice>[] = [
+    { label: 'SALES.COL_DATE', value: (item) => item.invoiceDate, type: 'date' },
+    { label: 'SALES.COL_CUSTOMER', value: (item) => item.customerName },
+    { label: 'SALES.COL_TOTAL', value: (item) => item.totalAmount, type: 'currency' },
+    { label: 'SALES.COL_STATUS', value: (item) => (item as any).paymentStatus },
+  ];
+
+  /** Same print/edit/delete actions as the desktop grid's row actions. */
+  sharedMobileActions: MobileListActionDto<SalesInvoice>[] = [
+    { id: 'print', icon: 'print', labelKey: 'PURCHASES.PRINT_INVOICE', visible: () => true },
+    { id: 'edit', icon: 'edit', labelKey: 'PURCHASES.EDIT_INVOICE', visible: () => this.permissionService.hasPermission(this.isCashInvoice ? 'sales.cash.view' : 'sales.credit.view') },
+    { id: 'delete', icon: 'delete', labelKey: 'PURCHASES.DELETE_INVOICE', visible: () => this.permissionService.hasPermission(this.isCashInvoice ? 'sales.cash.view' : 'sales.credit.view') },
+  ];
+
+  sharedMobileTrackBy = (index: number, item: SalesInvoice) => item.id ?? index;
+
+  onSharedMobileAction(e: MobileListActionEvent<SalesInvoice>): void {
+    if (e.actionId === 'print') this.onPrintClick({ row: { data: e.item } });
+    else if (e.actionId === 'edit') this.onEditClick({ row: { data: e.item } });
+    else if (e.actionId === 'delete') this.onDeleteClick({ row: { data: e.item } });
   }
 
   invoices = computed(() => {

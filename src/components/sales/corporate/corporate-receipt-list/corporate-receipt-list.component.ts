@@ -19,6 +19,9 @@ import { PermissionService } from '../../../../services/permission.service';
 import { Receipt } from '../../../../models/receipt.model';
 import { SalesChannel } from '../../../../models/enums/sales-channel.enum';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-corporate-receipt-list',
@@ -31,7 +34,8 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/gr
     MatToolbarModule,
     MatTooltipModule,
     SharedDataGridComponent,
-    TranslateModule
+    TranslateModule,
+    SharedMobileListComponent
   ],
   templateUrl: './corporate-receipt-list.component.html',
   styleUrls: ['./corporate-receipt-list.component.css'],
@@ -44,6 +48,8 @@ export class CorporateReceiptListComponent implements OnInit {
   private salesService = inject(SalesService);
   private notificationService = inject(NotificationService);
   private router = inject(Router);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
   permissionService = inject(PermissionService);
 
   receipts = signal<Receipt[]>([]);
@@ -66,6 +72,26 @@ export class CorporateReceiptListComponent implements OnInit {
 
   onGridAction(e: SharedGridRowActionEvent): void {
     if (e.actionId === 'edit') this.onEdit(e.row);
+  }
+
+  /** Same field set as the desktop grid's visible columns, for the mobile card list. */
+  mobileFields: MobileListFieldDto<any>[] = [
+    { label: 'ACCOUNTS.RECEIPTS.COL_CUSTOMER', value: (r) => r.customerName },
+    { label: 'ACCOUNTS.RECEIPTS.COL_DATE', value: (r) => r.date, type: 'date' },
+    { label: 'ACCOUNTS.RECEIPTS.COL_AMOUNT', value: (r) => r.amount, type: 'currency' },
+    { label: 'INVOICE.PAYMENT_METHOD', value: (r) => r.paymentMethod },
+  ];
+
+  /** Same single edit action as the desktop grid's row actions. */
+  mobileActions: MobileListActionDto<any>[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('sales.corporate.receipts.view') },
+  ];
+
+  mobileTitleOf = (r: any) => r.voucherNumber;
+  mobileTrackBy = (index: number, r: any) => r.id ?? index;
+
+  onMobileAction(e: MobileListActionEvent<any>): void {
+    if (e.actionId === 'edit') this.onEdit(e.item);
   }
 
   ngOnInit(): void {

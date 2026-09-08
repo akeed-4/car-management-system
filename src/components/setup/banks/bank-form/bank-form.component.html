@@ -1,16 +1,37 @@
-<div class="page-container erp-page">
-  <div class="page-header header-row erp-page-header">
-    <div class="erp-page-header-titles">
-      <h1 class="erp-page-title">
-        {{ (mode === 'edit' ? 'BANK.EDIT_TITLE' : mode === 'view' ? 'BANK.VIEW_TITLE' : 'BANK.CREATE_TITLE') | translate }}
-      </h1>
+@if (isMobile()) {
+  <shared-mobile-data-entry
+    [title]="(mode === 'edit' ? 'BANK.EDIT_TITLE' : mode === 'view' ? 'BANK.VIEW_TITLE' : 'BANK.CREATE_TITLE') | translate"
+    [saving]="isSaving()"
+    [loading]="isLoading()"
+    [isEditMode]="isEdit"
+    [canSave]="!isView"
+    [canCancel]="true"
+    saveLabel="COMMON.SAVE"
+    cancelLabel="COMMON.CANCEL"
+    (save)="save()"
+    (cancel)="cancel()"
+    (back)="cancel()">
+    <ng-container [ngTemplateOutlet]="bankFormBody"></ng-container>
+  </shared-mobile-data-entry>
+} @else {
+  <div class="page-container erp-page">
+    <div class="page-header header-row erp-page-header">
+      <div class="erp-page-header-titles">
+        <h1 class="erp-page-title">
+          {{ (mode === 'edit' ? 'BANK.EDIT_TITLE' : mode === 'view' ? 'BANK.VIEW_TITLE' : 'BANK.CREATE_TITLE') | translate }}
+        </h1>
+      </div>
     </div>
-  </div>
 
-  <div class="loading-overlay" *ngIf="isLoading()">
-    <mat-spinner diameter="40"></mat-spinner>
-  </div>
+    <div class="loading-overlay" *ngIf="isLoading()">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
 
+    <ng-container [ngTemplateOutlet]="bankFormBody"></ng-container>
+  </div>
+}
+
+<ng-template #bankFormBody>
   <form [formGroup]="form" (ngSubmit)="save()" *ngIf="!isLoading()">
     <div class="form-card erp-card">
       <div class="erp-section">
@@ -92,18 +113,20 @@
       </div>
     </div>
 
-    <div class="form-actions erp-actions-bar">
-      <button mat-raised-button color="primary" type="submit" *ngIf="!isView" [disabled]="isSaving()">
-        <mat-icon>save</mat-icon>
-        {{ 'COMMON.SAVE' | translate }}
-      </button>
-      <button mat-raised-button color="accent" type="button" *ngIf="isView" (click)="editFromView()">
-        <mat-icon>edit</mat-icon>
-        {{ 'COMMON.EDIT' | translate }}
-      </button>
-      <button mat-stroked-button type="button" (click)="cancel()">
-        {{ (isView ? 'COMMON.BACK' : 'COMMON.CANCEL') | translate }}
-      </button>
-    </div>
+    @if (!isMobile()) {
+      <div class="form-actions erp-actions-bar">
+        <button mat-raised-button color="primary" type="submit" *ngIf="!isView" [disabled]="isSaving()">
+          <mat-icon>save</mat-icon>
+          {{ 'COMMON.SAVE' | translate }}
+        </button>
+        <button mat-raised-button color="accent" type="button" *ngIf="isView" (click)="editFromView()">
+          <mat-icon>edit</mat-icon>
+          {{ 'COMMON.EDIT' | translate }}
+        </button>
+        <button mat-stroked-button type="button" (click)="cancel()">
+          {{ (isView ? 'COMMON.BACK' : 'COMMON.CANCEL') | translate }}
+        </button>
+      </div>
+    }
   </form>
-</div>
+</ng-template>

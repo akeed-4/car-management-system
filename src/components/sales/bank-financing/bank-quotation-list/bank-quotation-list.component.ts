@@ -17,6 +17,9 @@ import { PermissionService } from '../../../../services/permission.service';
 import { BankQuotation } from '../../../../models/bank-financing/bank-quotation.model';
 import { MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-bank-quotation-list',
@@ -29,7 +32,8 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/gr
     MatToolbarModule,
     MatTooltipModule,
     SharedDataGridComponent,
-    TranslateModule
+    TranslateModule,
+    SharedMobileListComponent
   ],
   providers: [CurrencyPipe],
   templateUrl: './bank-quotation-list.component.html',
@@ -44,7 +48,9 @@ export class BankQuotationListComponent implements OnInit {
   private router = inject(Router);
   private translate = inject(TranslateService);
   private currencyPipe = inject(CurrencyPipe);
+  private responsiveService = inject(ResponsiveService);
   permissionService = inject(PermissionService);
+  isMobile = this.responsiveService.isMobile;
 
   quotations = signal<BankQuotation[]>([]);
   loading = signal(false);
@@ -167,5 +173,37 @@ export class BankQuotationListComponent implements OnInit {
 
   mobileCreateApproval(item: BankQuotation): void {
     this.onCreateApproval();
+  }
+
+  /** Same field set as the desktop grid's columns, for shared-mobile-list. */
+  sharedMobileFields: MobileListFieldDto<BankQuotation>[] = [
+    { label: 'BANK_FINANCING.END_USER_NAME', value: (item) => item.endUserName },
+    { label: 'BANK_FINANCING.BANK', value: (item) => item.bankName },
+    { label: 'PURCHASE_INVOICE.CAR', value: (item) => item.carDescription },
+    { label: 'BANK_FINANCING.VEHICLE_PRICE', value: (item) => item.vehiclePrice, type: 'currency' },
+    {
+      label: 'BANK_FINANCING.STATUS',
+      value: (item) => this.translate.instant('BANK_FINANCING.STATUS_' + item.status?.toUpperCase()),
+      type: 'status',
+      statusClass: (item) => {
+        if (item.status === 'Locked') return 'warning';
+        if (item.status === 'Bank_Approved' || item.status === 'Finalized') return 'success';
+        if (item.status === 'Expired' || item.status === 'Cancelled') return 'danger';
+        return 'neutral';
+      },
+    },
+  ];
+
+  /** Same conditional "record approval" action as before -- only shown while
+   *  the quotation is Locked (mirrors the rowActions visible predicate). */
+  sharedMobileActions: MobileListActionDto<BankQuotation>[] = [
+    {
+      id: 'createApproval', icon: 'add', labelKey: 'BANK_FINANCING.RECORD_APPROVAL',
+      visible: (item) => this.mobileIsLocked(item) && this.permissionService.hasPermission('sales.bank.quotations.view'),
+    },
+  ];
+
+  onSharedMobileAction(e: MobileListActionEvent<BankQuotation>): void {
+    if (e.actionId === 'createApproval') this.onCreateApproval();
   }
 }

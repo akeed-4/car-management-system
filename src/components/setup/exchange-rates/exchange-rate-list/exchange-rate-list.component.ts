@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, ViewChild, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,6 +17,9 @@ import { CurrencyExchangeRate } from '../../../../models/exchange-rate.model';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 import { PermissionService } from '../../../../services/permission.service';
 import { HasPermissionDirective } from '../../../shared/permission.directive';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-exchange-rate-list',
@@ -31,7 +34,8 @@ import { HasPermissionDirective } from '../../../shared/permission.directive';
     MatTooltipModule,
     TranslateModule,
     SharedDataGridComponent,
-    HasPermissionDirective
+    HasPermissionDirective,
+    SharedMobileListComponent
   ],
   templateUrl: './exchange-rate-list.component.html',
   styleUrls: ['./exchange-rate-list.component.css'],
@@ -45,9 +49,23 @@ export class ExchangeRateListComponent implements OnInit {
   private router = inject(Router);
   private translate = inject(TranslateService);
   private permissionService = inject(PermissionService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   rates = signal<CurrencyExchangeRate[]>([]);
   loading = signal(false);
+  mobileSearch = signal('');
+
+  /** Client-side search for the mobile card list (desktop keeps DevExtreme's own search panel). */
+  filteredRates = computed(() => {
+    const term = this.mobileSearch().toLowerCase();
+    const rates = this.rates();
+    if (!term) return rates;
+    return rates.filter(r =>
+      r.fromCurrencyCode?.toLowerCase().includes(term) ||
+      r.toCurrencyCode?.toLowerCase().includes(term)
+    );
+  });
 
   /** Config-driven columns -- newest effective date first (as before). */
   columns: dataGridColumnDto[] = [
@@ -67,6 +85,33 @@ export class ExchangeRateListComponent implements OnInit {
   /** Single dispatcher for the Shared DataGrid's rowAction output. */
   onGridAction(e: SharedGridRowActionEvent): void {
     const wrapped = { row: { data: e.row } };
+    if (e.actionId === 'edit') this.onEdit(wrapped);
+    else if (e.actionId === 'delete') this.onDelete(wrapped);
+  }
+
+  /** Same field set as the desktop grid's visible columns, for the mobile card list. */
+  mobileFields: MobileListFieldDto<CurrencyExchangeRate>[] = [
+    { label: 'EXCHANGE_RATE.RATE', value: (r) => r.rate },
+    { label: 'EXCHANGE_RATE.EFFECTIVE_DATE', value: (r) => r.effectiveDate, type: 'date' },
+    {
+      label: 'COMMON.ACTIVE',
+      value: (r) => this.translate.instant(r.isActive ? 'COMMON.ACTIVE' : 'COMMON.INACTIVE'),
+      type: 'status',
+      statusClass: (r) => (r.isActive ? 'success' : 'neutral'),
+    },
+  ];
+
+  /** Same edit/delete actions as the desktop grid's row actions. */
+  mobileActions: MobileListActionDto<CurrencyExchangeRate>[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('exchangerates.view') },
+    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('exchangerates.view') },
+  ];
+
+  mobileTitleOf = (r: CurrencyExchangeRate) => `${r.fromCurrencyCode} -> ${r.toCurrencyCode}`;
+  mobileTrackBy = (index: number, r: CurrencyExchangeRate) => r.id ?? index;
+
+  onMobileAction(e: MobileListActionEvent<CurrencyExchangeRate>): void {
+    const wrapped = { row: { data: e.item } };
     if (e.actionId === 'edit') this.onEdit(wrapped);
     else if (e.actionId === 'delete') this.onDelete(wrapped);
   }

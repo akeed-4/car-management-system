@@ -24,6 +24,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-consignment-form',
@@ -43,6 +45,7 @@ import { TranslateModule } from '@ngx-translate/core';
     MatNativeDateModule,
     TranslateModule,
     MatTooltipModule,
+    SharedMobileDataEntryComponent,
   ],
   templateUrl: './consignment-form.component.html',
   styleUrl: './consignment-form.component.css',
@@ -56,6 +59,8 @@ export class ConsignmentFormComponent implements OnInit {
   private dialog = inject(MatDialog);
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   carForm!: FormGroup;
   editMode = signal(false);
@@ -248,5 +253,9 @@ export class ConsignmentFormComponent implements OnInit {
       width: '600px',
       panelClass: 'responsive-dialog-panel',
     });
+  }
+
+  cancelForm(): void {
+    this.router.navigate(['/consignment-cars']);
   }
 }

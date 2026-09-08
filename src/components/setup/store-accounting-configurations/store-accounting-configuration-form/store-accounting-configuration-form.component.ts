@@ -20,6 +20,8 @@ import { NotificationService } from '../../../../services/notification.service';
 import { Store } from '../../../../models/branch.model';
 import { Account } from '../../../accounting/models';
 import { CreateStoreAccountingConfigurationDto, UpdateStoreAccountingConfigurationDto } from '../../../../models/store-accounting-configuration.model';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 type FormMode = 'create' | 'edit';
 
@@ -38,7 +40,8 @@ type FormMode = 'create' | 'edit';
     MatProgressSpinnerModule,
     MatTooltipModule,
     MatDialogModule,
-    TranslateModule
+    TranslateModule,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './store-accounting-configuration-form.component.html',
   styleUrls: ['./store-accounting-configuration-form.component.css']
@@ -53,6 +56,8 @@ export class StoreAccountingConfigurationFormComponent implements OnInit {
   private notificationService = inject(NotificationService);
   protected translate = inject(TranslateService);
   private dialog = inject(MatDialog);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   form!: FormGroup;
   mode: FormMode = 'create';

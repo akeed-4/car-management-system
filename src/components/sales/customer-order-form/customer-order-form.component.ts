@@ -18,6 +18,8 @@ import { InventoryService } from '../../../services/inventory.service';
 import { SalesService } from '../../../services/sales.service';
 import { MatIconModule } from '@angular/material/icon';
 import { NotificationService } from '../../../services/notification.service';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-customer-order-form',
@@ -32,7 +34,8 @@ import { NotificationService } from '../../../services/notification.service';
     MatCardModule,
     MatGridListModule,
     TranslateModule,
-    MatIconModule
+    MatIconModule,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './customer-order-form.component.html',
   styleUrls: ['./customer-order-form.component.css']
@@ -41,6 +44,7 @@ export class CustomerOrderFormComponent implements OnInit {
   customerOrderForm: FormGroup;
   isEditMode = false;
   customerOrderId: number | null = null;
+  isMobile = this.responsiveService.isMobile;
 
   customers = this.customerService.customers$;
   cars = this.inventoryService.cars$;
@@ -71,7 +75,8 @@ export class CustomerOrderFormComponent implements OnInit {
     private salesService: SalesService,
     private customerService: CustomerService,
     private inventoryService: InventoryService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private responsiveService: ResponsiveService
   ) {
     this.customerOrderForm = this.fb.group({
       orderNumber: [{ value: '', disabled: true }, Validators.required],
@@ -133,5 +138,9 @@ export class CustomerOrderFormComponent implements OnInit {
         this.notificationService.showError('Failed to create the customer order. Please try again.');
       }
     });
+  }
+
+  cancelForm(): void {
+    this.router.navigate(['/sales/customer-orders']);
   }
 }

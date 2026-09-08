@@ -20,6 +20,8 @@ import { SalesChannel } from '../../../../models/enums/sales-channel.enum';
 import { ResponsiveService } from '../../../../services/responsive.service';
 import { MobileCardField } from '../../../shared/mobile-card-list/mobile-card-list.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-credit-sale-list',
@@ -32,7 +34,8 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/gr
     MatToolbarModule,
     MatTooltipModule,
     TranslateModule,
-    SharedDataGridComponent
+    SharedDataGridComponent,
+    SharedMobileListComponent
   ],
   templateUrl: './credit-sale-list.component.html',
   styleUrls: ['./credit-sale-list.component.css'],
@@ -110,6 +113,42 @@ export class CreditSaleListComponent implements OnInit {
 
   mobileEdit(item: SalesInvoice): void {
     this.onEdit({ row: { data: item } });
+  }
+
+  /** Same field set as the desktop grid's columns, for shared-mobile-list. */
+  sharedMobileFields: MobileListFieldDto<SalesInvoice>[] = [
+    { label: 'INVOICE.CUSTOMER', value: (item) => item.customerName },
+    { label: 'INVOICE.INVOICE_DATE', value: (item) => item.invoiceDate, type: 'date' },
+    { label: 'INVOICE.DUE_DATE', value: (item) => item.dueDate, type: 'date' },
+    { label: 'INVOICE.TOTAL', value: (item) => item.totalAmount, type: 'currency' },
+    { label: 'INVOICE.AMOUNT_DUE', value: (item) => item.amountDue, type: 'currency' },
+    {
+      label: 'INVOICE.STATUS',
+      value: (item) => this.translate.instant('INVOICE.STATUS_' + item.status?.toUpperCase()),
+      type: 'status',
+      statusClass: (item) => {
+        if (item.status === 'Paid') return 'success';
+        if (item.status === 'Pending') return 'warning';
+        if (item.status === 'Overdue') return 'danger';
+        return 'neutral';
+      },
+    },
+  ];
+
+  /** Mobile card keeps a single action pointed at the invoice (View) rather than mirroring
+   *  both the desktop grid's 'view' and 'edit' icons -- same destination, avoids two
+   *  identical-behavior buttons crowding the card on a small screen (same as before);
+   *  Print stays visible unconditionally, matching the desktop row action. */
+  sharedMobileActions: MobileListActionDto<SalesInvoice>[] = [
+    { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW', visible: () => this.permissionService.hasPermission('sales.credit.view') },
+    { id: 'print', icon: 'print', labelKey: 'COMMON.PRINT', visible: () => true },
+    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', visible: () => this.permissionService.hasPermission('sales.credit.view') },
+  ];
+
+  onSharedMobileAction(e: MobileListActionEvent<SalesInvoice>): void {
+    if (e.actionId === 'view') this.onEdit({ row: { data: e.item } });
+    else if (e.actionId === 'print') this.onPrintClick({ row: { data: e.item } });
+    else if (e.actionId === 'delete') this.onDeleteClick({ row: { data: e.item } });
   }
 
   ngOnInit(): void {

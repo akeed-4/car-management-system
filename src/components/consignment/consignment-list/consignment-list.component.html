@@ -99,6 +99,19 @@
     </button>
   </mat-toolbar>
 
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="lastLoadedRows()"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      [actions]="mobileActions"
+      searchPlaceholder="COMMON.SEARCH"
+      emptyMessage="COMMON.NO_DATA"
+      [showSearch]="false"
+      (action)="onMobileAction($event)">
+    </shared-mobile-list>
+  } @else {
   <!-- DataGrid -->
   <div class="erp-grid-card grid-container">
     <!-- Shared DataGrid: owns grid chrome/group panel/state storing/paging;
@@ -130,6 +143,7 @@
       </ng-template>
     </app-shared-data-grid>
   </div>
+  }
 
   <app-modal
     [isOpen]="isDeleteModalOpen()"

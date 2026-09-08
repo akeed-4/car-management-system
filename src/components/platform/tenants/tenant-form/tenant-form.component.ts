@@ -1,5 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgTemplateOutlet } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -21,12 +21,15 @@ import { TenantMembershipDto } from '../../../../models/platform/tenant-membersh
 import { SubscriptionPlanDto } from '../../../../models/platform/subscription-plan.model';
 import { DomainDto } from '../../../../models/platform/domain.model';
 import { TenantStatus, TenantStatusHelper } from '../../../../models/enums/platform.enums';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-tenant-form',
   standalone: true,
   imports: [
     CommonModule,
+    NgTemplateOutlet,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
@@ -40,6 +43,7 @@ import { TenantStatus, TenantStatusHelper } from '../../../../models/enums/platf
     MatIconModule,
     MatChipsModule,
     TranslateModule,
+    SharedMobileDataEntryComponent,
   ],
   templateUrl: './tenant-form.component.html',
   styleUrl: './tenant-form.component.css',
@@ -51,6 +55,8 @@ export class TenantFormComponent implements OnInit {
   protected translate = inject(TranslateService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   tenantForm!: FormGroup;
   isEdit = signal(false);

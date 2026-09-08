@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -23,6 +23,8 @@ import { resolveStoreDisplayName } from '../../../models/store-display.util';
 import { CarSelectionDialogComponent } from '../../purchases/purchase-invoice/car-selection-dialog/car-selection-dialog.component';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-opening-balances-inventory-form',
@@ -43,6 +45,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
     MatProgressSpinnerModule,
     MatTooltipModule,
     CarSelectionDialogComponent,
+    SharedMobileDataEntryComponent,
   ],
   templateUrl: './opening-balances-inventory-form.component.html',
   styleUrls: ['./opening-balances-inventory-form.component.css']
@@ -52,6 +55,7 @@ export class OpeningBalancesInventoryFormComponent implements OnInit {
   form: FormGroup;
   isEditing = false;
   editingId: number | null = null;
+  isMobile: Signal<boolean>;
   isSaving = signal(false);
   successMessage = signal('');
 
@@ -72,8 +76,10 @@ export class OpeningBalancesInventoryFormComponent implements OnInit {
     private dialog: MatDialog,
     private route: ActivatedRoute,
     private storeAccountingConfigService: StoreAccountingConfigurationService,
-    private storeContext: StoreContextService
+    private storeContext: StoreContextService,
+    private responsiveService: ResponsiveService
   ) {
+    this.isMobile = this.responsiveService.isMobile;
     this.form = this.fb.group({
       itemId: ['', Validators.required],
       itemName: ['', Validators.required],

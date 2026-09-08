@@ -1,14 +1,36 @@
-<div class="erp-page cars-receipt-note-container p-4">
-  <div class="erp-page-header">
-    <div class="erp-page-header-titles">
-      <span class="erp-page-eyebrow">{{ 'CARS_RECEIPT_NOTE.MODULE_NAME' | translate }}</span>
-      <h2 class="erp-page-title">
-        {{ (isViewMode ? 'CARS_RECEIPT_NOTE.VIEW_TITLE' : 'CARS_RECEIPT_NOTE.CREATE_TITLE') | translate }}
-      </h2>
+@if (isMobile()) {
+  <shared-mobile-data-entry
+    [title]="(isViewMode ? 'CARS_RECEIPT_NOTE.VIEW_TITLE' : 'CARS_RECEIPT_NOTE.CREATE_TITLE') | translate"
+    [saving]="saving()"
+    [isEditMode]="isViewMode"
+    [canSave]="!isViewMode"
+    [canCancel]="true"
+    [saveLabel]="saving() ? 'COMMON.SAVING' : 'COMMON.SAVE'"
+    [cancelLabel]="isViewMode ? 'COMMON.BACK' : 'COMMON.CANCEL'"
+    (save)="onSubmit()"
+    (cancel)="onCancel()"
+    (back)="onCancel()">
+    <ng-container [ngTemplateOutlet]="grnFormBody"></ng-container>
+  </shared-mobile-data-entry>
+} @else {
+  <div class="erp-page cars-receipt-note-container p-4">
+    <div class="erp-page-header">
+      <div class="erp-page-header-titles">
+        <span class="erp-page-eyebrow">{{ 'CARS_RECEIPT_NOTE.MODULE_NAME' | translate }}</span>
+        <h2 class="erp-page-title">
+          {{ (isViewMode ? 'CARS_RECEIPT_NOTE.VIEW_TITLE' : 'CARS_RECEIPT_NOTE.CREATE_TITLE') | translate }}
+        </h2>
+      </div>
+    </div>
+    <div class="erp-card styled-card">
+      <div class="p-4">
+        <ng-container [ngTemplateOutlet]="grnFormBody"></ng-container>
+      </div>
     </div>
   </div>
-  <div class="erp-card styled-card">
-    <div class="p-4">
+}
+
+<ng-template #grnFormBody>
       <form [formGroup]="grnForm" (ngSubmit)="onSubmit()" autocomplete="off">
 
         <app-document-header *ngIf="loadedGrn" [document]="loadedGrn"></app-document-header>
@@ -64,7 +86,7 @@
 
         <div class="erp-grid-card details-grid-wrapper mb-3">
           <dx-data-grid [dataSource]="lineItems" [showBorders]="true" [columnAutoWidth]="true"
-            [rowAlternationEnabled]="true" [hoverStateEnabled]="true" 
+            [rowAlternationEnabled]="true" [hoverStateEnabled]="true"
             noDataText="{{ 'CARS_RECEIPT_NOTE.NO_ITEMS' | translate }}" rtlEnabled="true" height="200px" [showRowLines]="true" [allowColumnReordering]="true">
 
             <dxo-editing mode="cell" [allowUpdating]="!isViewMode"></dxo-editing>
@@ -93,6 +115,9 @@
           </div>
         </div>
 
+        <!-- Form Actions: desktop only -- the mobile branch's shared-mobile-data-entry
+             shell renders its own sticky Save/Cancel footer instead of this in-flow bar. -->
+        @if (!isMobile()) {
         <div class="erp-actions-bar d-flex justify-content-end align-items-center gap-3 pt-3 border-top">
           <button *ngIf="!isViewMode" mat-raised-button color="primary" type="submit" class="action-btn"
             [disabled]="saving()">
@@ -104,8 +129,7 @@
             {{ (isViewMode ? 'COMMON.BACK' : 'COMMON.CANCEL') | translate }}
           </button>
         </div>
+        }
 
       </form>
-    </div>
-  </div>
-</div>
+</ng-template>

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, computed, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, computed, signal, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SupplierLookupModalComponent } from '../../shared/supplier-lookup-modal/supplier-lookup-modal.component';
 import { CommonModule } from '@angular/common';
@@ -20,6 +20,8 @@ import { SupplierService } from '../../../services/supplier.service';
 import { NotificationService } from '../../../services/notification.service';
 import { Supplier } from '../../../models/supplier.model';
 import { PendingRequisitionLookupDto, CreateSupplierRfqDto } from '../../../models/supplier-rfq.model';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 interface RfqLineItem {
   purchaseRequisitionItemId: number;
@@ -50,12 +52,16 @@ interface RfqLineItem {
     MatTooltipModule,
     DxDataGridModule,
     DxButtonModule,
-    TranslateModule
+    TranslateModule,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './supplier-rfq-form.component.html',
   styleUrls: ['./supplier-rfq-form.component.css']
 })
 export class SupplierRfqFormComponent implements OnInit {
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
+
   rfqForm!: FormGroup;
   isEditMode = false;
   rfqId: number | null = null;

@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, Optional, signal } from '@angular/core';
+import { Component, OnInit, Inject, Optional, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -14,6 +14,8 @@ import { BranchService } from '../../../services/branch.service';
 import { CompanyService } from '../../../services/company.service';
 import { ToastService } from '../../../services/toast.service';
 import { NotificationService } from '@/src/services/notification.service';
+import { ResponsiveService } from '@/src/services/responsive.service';
+import { SharedMobileDataEntryComponent } from '@/src/components/shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-branch-form',
@@ -27,7 +29,8 @@ import { NotificationService } from '@/src/services/notification.service';
     MatButtonModule,
     MatDialogModule,
     MatProgressSpinnerModule,
-    TranslateModule
+    TranslateModule,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './branch-form.component.html',
   styleUrls: ['./branch-form.component.css']
@@ -37,6 +40,9 @@ export class BranchFormComponent implements OnInit {
   isEdit = false;
   isLoading = signal(false);
   companies: Company[] = [];
+
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   constructor(
     private fb: FormBuilder,

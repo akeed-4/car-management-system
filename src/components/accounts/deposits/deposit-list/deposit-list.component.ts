@@ -18,6 +18,9 @@ import { AdvancePaymentVoucher } from '@/src/models/advancePaymentVoucher.model'
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 import { PermissionService } from '../../../../services/permission.service';
 import { HasPermissionDirective } from '../../../shared/permission.directive';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 type SortColumn = keyof AdvancePaymentVoucher | '';
 type SortDirection = 'asc' | 'desc' | '';
@@ -37,7 +40,8 @@ type SortDirection = 'asc' | 'desc' | '';
     MatFormFieldModule,
     MatInputModule,
     SharedDataGridComponent,
-    HasPermissionDirective
+    HasPermissionDirective,
+    SharedMobileListComponent
   ],
   templateUrl: './deposit-list.component.html',
   styleUrl: './deposit-list.component.css',
@@ -47,7 +51,9 @@ export class DepositListComponent {
   // Fix: Explicitly typed depositService to resolve 'unknown' type inference.
   private depositService: DepositService = inject(DepositService);
   private router = inject(Router);
+  private responsiveService = inject(ResponsiveService);
   permissionService = inject(PermissionService);
+  isMobile = this.responsiveService.isMobile;
 
   deposits = this.depositService.deposits$;
   filter = signal('');
@@ -77,6 +83,28 @@ export class DepositListComponent {
     else if (e.actionId === 'delete') this.deleteDeposit(wrapped);
   }
 
+  /** Same field set as the desktop grid's visible columns. */
+  mobileFields: MobileListFieldDto<AdvancePaymentVoucher>[] = [
+    { label: 'ACCOUNTS.DEPOSITS.COL_DATE', value: (d) => d.date, type: 'date' },
+    { label: 'ACCOUNTS.DEPOSITS.COL_CUSTOMER', value: (d) => d.customerName },
+    { label: 'ACCOUNTS.DEPOSITS.COL_CAR', value: (d) => d.carDescription },
+    { label: 'ACCOUNTS.DEPOSITS.COL_AMOUNT', value: (d) => (d as any).totalAmount, type: 'currency' },
+  ];
+
+  /** Same edit/delete actions as the desktop grid's row actions. */
+  mobileActions: MobileListActionDto<AdvancePaymentVoucher>[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'ACCOUNTS.DEPOSITS.NOTES_TOOLTIP', visible: () => this.permissionService.hasPermission('deposits.view') },
+    { id: 'delete', icon: 'delete', labelKey: 'ACCOUNTS.DEPOSITS.DELETE_TOOLTIP', cssClass: 'warn', visible: () => this.permissionService.hasPermission('deposits.view') },
+  ];
+
+  mobileTitleOf = (d: AdvancePaymentVoucher) => d.voucherNumber;
+  mobileTrackBy = (index: number, d: AdvancePaymentVoucher) => d.id ?? index;
+
+  onMobileAction(e: MobileListActionEvent<AdvancePaymentVoucher>): void {
+    const wrapped = { row: { data: e.item } };
+    if (e.actionId === 'edit') this.Edite(wrapped);
+    else if (e.actionId === 'delete') this.deleteDeposit(wrapped);
+  }
 
   filteredAndSortedDeposits = computed(() => {
     let deposits = this.deposits();

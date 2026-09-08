@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, computed, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, computed, signal, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SupplierLookupModalComponent } from '../../shared/supplier-lookup-modal/supplier-lookup-modal.component';
@@ -25,6 +25,8 @@ import { Supplier } from '../../../models/supplier.model';
 import { CreatePoDto } from '../../../models/purchase-order.model';
 import { ApprovedOfferLookupDto } from '../../../models/purchase-offer.model';
 import { DocumentToolbarComponent, DocumentAction } from '../../shared/document';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 interface PoLineItem {
   supplierRfqItemId: number;
@@ -54,12 +56,16 @@ interface PoLineItem {
     DxDataGridModule,
     DxButtonModule,
     TranslateModule,
-    DocumentToolbarComponent
+    DocumentToolbarComponent,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './purchase-order-form.component.html',
   styleUrls: ['./purchase-order-form.component.css']
 })
 export class PurchaseOrderFormComponent implements OnInit, OnDestroy {
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
+
   poForm!: FormGroup;
   isEditMode = false;
   poId: number | null = null;

@@ -13,29 +13,29 @@
     </div>
   </div>
 
-  <app-shared-data-grid
-    [dataSource]="categories()"
-    [columns]="columns"
-    [rowActions]="rowActions"
-    keyExpr="id"
-    searchPlaceholder="CAR_CATEGORY.SEARCH_PLACEHOLDER"
-    noDataText="CAR_CATEGORY.NO_CATEGORIES"
-    [pageSize]="10"
-    [allowedPageSizes]="[10, 25, 50]"
-    [mobileItems]="categories()"
-    [mobileFields]="mobileFields"
-    [mobileTitleOf]="mobileTitleOf"
-    [mobileTrackBy]="mobileTrackBy"
-    (rowAction)="onGridAction($event)">
-
-    <!-- Mobile per-row actions (same edit/delete behavior as before) -->
-    <ng-template let-cat>
-      @if (canEdit()) {
-      <button type="button" class="btn btn-light" (click)="mobileEdit(cat)">{{ 'CAR_CATEGORY.EDIT' | translate }}</button>
-      }
-      @if (canDelete()) {
-      <button type="button" class="btn btn-light" (click)="mobileDelete(cat)">{{ 'CAR_CATEGORY.DELETE' | translate }}</button>
-      }
-    </ng-template>
-  </app-shared-data-grid>
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="filteredCategoriesForMobile()"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      [actions]="mobileActions"
+      searchPlaceholder="CAR_CATEGORY.SEARCH_PLACEHOLDER"
+      emptyMessage="CAR_CATEGORY.NO_CATEGORIES"
+      (searchChange)="mobileSearch.set($event)"
+      (action)="onMobileAction($event)">
+    </shared-mobile-list>
+  } @else {
+    <app-shared-data-grid
+      [dataSource]="categories()"
+      [columns]="columns"
+      [rowActions]="rowActions"
+      keyExpr="id"
+      searchPlaceholder="CAR_CATEGORY.SEARCH_PLACEHOLDER"
+      noDataText="CAR_CATEGORY.NO_CATEGORIES"
+      [pageSize]="10"
+      [allowedPageSizes]="[10, 25, 50]"
+      (rowAction)="onGridAction($event)">
+    </app-shared-data-grid>
+  }
 </div>

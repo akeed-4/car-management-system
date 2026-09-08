@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -18,6 +18,8 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Router } from '@angular/router';
 import { Observable, map } from 'rxjs';
 import { SalesRequest, SalesRequestItem } from '../../../models/sales-request.model';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-sales-request-form',
@@ -36,7 +38,8 @@ import { SalesRequest, SalesRequestItem } from '../../../models/sales-request.mo
     MatDatepickerModule,
     MatNativeDateModule,
     DxDataGridModule,
-    TranslateModule
+    TranslateModule,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './sales-request-form.component.html',
   styleUrls: ['./sales-request-form.component.css']
@@ -69,11 +72,15 @@ export class SalesRequestFormComponent implements OnInit {
     })
   );
 
+  isMobile: Signal<boolean>;
+
   constructor(
     private fb: FormBuilder,
     private breakpointObserver: BreakpointObserver,
-    private router: Router
+    private router: Router,
+    private responsiveService: ResponsiveService
   ) {
+    this.isMobile = this.responsiveService.isMobile;
     this.salesRequestForm = this.fb.group({
       requestDate: [new Date(), Validators.required],
       customerId: ['', Validators.required],
@@ -104,6 +111,10 @@ export class SalesRequestFormComponent implements OnInit {
       // Navigate back
       this.router.navigate(['/sales/requests']);
     }
+  }
+
+  cancelForm(): void {
+    this.router.navigate(['/sales/requests']);
   }
 
   addNewRow(): void {

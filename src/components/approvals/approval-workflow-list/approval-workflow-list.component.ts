@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, viewChild, TemplateRef } from '@angular/core';
+import { Component, computed, inject, signal, OnInit, viewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -18,6 +18,9 @@ import { ToastService } from '../../../services/toast.service';
 import { NotificationService } from '../../../services/notification.service';
 import { PermissionService } from '../../../services/permission.service';
 import { HasPermissionDirective } from '../../shared/permission.directive';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-approval-workflow-list',
@@ -32,7 +35,8 @@ import { HasPermissionDirective } from '../../shared/permission.directive';
     MatTooltipModule,
     TranslateModule,
     SharedDataGridComponent,
-    HasPermissionDirective
+    HasPermissionDirective,
+    SharedMobileListComponent
   ],
   templateUrl: './approval-workflow-list.component.html',
   styleUrls: ['./approval-workflow-list.component.css']
@@ -44,8 +48,22 @@ export class ApprovalWorkflowListComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
   private permissionService = inject(PermissionService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
   workflows = signal<ApprovalWorkflow[]>([]);
   isLoading = signal(false);
+  filter = signal('');
+
+  /** Client-side search for the mobile list (the desktop grid does its own search). */
+  filteredWorkflows = computed(() => {
+    const term = this.filter().toLowerCase();
+    const rows = this.workflows();
+    if (!term) return rows;
+    return rows.filter(w =>
+      (w.workflowName ?? '').toLowerCase().includes(term) ||
+      (w.description ?? '').toLowerCase().includes(term)
+    );
+  });
 
   documentTypes = DOCUMENT_TYPES;
 
@@ -94,6 +112,45 @@ export class ApprovalWorkflowListComponent implements OnInit {
 
   onGridAction(e: SharedGridRowActionEvent): void {
     const workflow = e.row as ApprovalWorkflow;
+    if (e.actionId === 'edit') this.editWorkflow(workflow.id);
+    else if (e.actionId === 'activate' || e.actionId === 'deactivate') this.toggleStatus(workflow);
+    else if (e.actionId === 'delete') this.deleteWorkflow(workflow);
+  }
+
+  /** Same field set as the desktop grid's visible columns. */
+  mobileFields: MobileListFieldDto<ApprovalWorkflow>[] = [
+    { label: 'APPROVALS.DOCUMENT_TYPE', value: (w) => this.getDocumentTypeLabel(w.documentType) },
+    { label: 'APPROVALS.DESCRIPTION', value: (w) => w.description },
+    { label: 'APPROVALS.LEVELS', value: (w) => this.getLevelSummary(w) },
+    {
+      label: 'APPROVALS.STATUS',
+      value: (w) => this.translate.instant(w.isActive ? 'APPROVALS.ACTIVE' : 'APPROVALS.INACTIVE'),
+      type: 'status',
+      statusClass: (w) => (w.isActive ? 'success' : 'neutral'),
+    },
+  ];
+
+  /** Same edit/activate/deactivate/delete actions as the desktop grid's row actions. */
+  mobileActions: MobileListActionDto<ApprovalWorkflow>[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'APPROVALS.EDIT_WORKFLOW', visible: () => this.permissionService.hasPermission('approvals.workflows.view') },
+    {
+      id: 'deactivate', icon: 'check_circle',
+      labelKey: 'APPROVALS.DEACTIVATE_WORKFLOW',
+      visible: (row: ApprovalWorkflow) => !!row.isActive && this.permissionService.hasPermission('approvals.workflows.view'),
+    },
+    {
+      id: 'activate', icon: 'cancel',
+      labelKey: 'APPROVALS.ACTIVATE_WORKFLOW',
+      visible: (row: ApprovalWorkflow) => !row.isActive && this.permissionService.hasPermission('approvals.workflows.view'),
+    },
+    { id: 'delete', icon: 'trash', labelKey: 'APPROVALS.DELETE_WORKFLOW', visible: () => this.permissionService.hasPermission('approvals.workflows.view') },
+  ];
+
+  mobileTitleOf = (w: ApprovalWorkflow) => w.workflowName;
+  mobileTrackBy = (index: number, w: ApprovalWorkflow) => w.id ?? index;
+
+  onMobileAction(e: MobileListActionEvent<ApprovalWorkflow>): void {
+    const workflow = e.item;
     if (e.actionId === 'edit') this.editWorkflow(workflow.id);
     else if (e.actionId === 'activate' || e.actionId === 'deactivate') this.toggleStatus(workflow);
     else if (e.actionId === 'delete') this.deleteWorkflow(workflow);

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, ViewChild, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,6 +17,9 @@ import { StoreTransfer } from '../../../../models/store-transfer.model';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 import { PermissionService } from '../../../../services/permission.service';
 import { HasPermissionDirective } from '../../../shared/permission.directive';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-store-transfer-list',
@@ -31,7 +34,8 @@ import { HasPermissionDirective } from '../../../shared/permission.directive';
     MatTooltipModule,
     TranslateModule,
     SharedDataGridComponent,
-    HasPermissionDirective
+    HasPermissionDirective,
+    SharedMobileListComponent
   ],
   templateUrl: './store-transfer-list.component.html',
   styleUrls: ['./store-transfer-list.component.css'],
@@ -45,9 +49,24 @@ export class StoreTransferListComponent implements OnInit {
   private router = inject(Router);
   private translate = inject(TranslateService);
   private permissionService = inject(PermissionService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   transfers = signal<StoreTransfer[]>([]);
   loading = signal(false);
+  mobileSearch = signal('');
+
+  /** Client-side search for the mobile card list (desktop keeps DevExtreme's own search panel). */
+  filteredTransfers = computed(() => {
+    const term = this.mobileSearch().toLowerCase();
+    const transfers = this.transfers();
+    if (!term) return transfers;
+    return transfers.filter(t =>
+      t.transferNumber?.toLowerCase().includes(term) ||
+      t.fromStoreName?.toLowerCase().includes(term) ||
+      t.toStoreName?.toLowerCase().includes(term)
+    );
+  });
 
   /** Config-driven columns -- tri-state badge via statusClass resolver. */
   columns: dataGridColumnDto[] = [
@@ -77,6 +96,35 @@ export class StoreTransferListComponent implements OnInit {
   /** Single dispatcher for the Shared DataGrid's rowAction output. */
   onGridAction(e: SharedGridRowActionEvent): void {
     const wrapped = { row: { data: e.row } };
+    if (e.actionId === 'approve') this.onApprove(wrapped);
+    else if (e.actionId === 'reject') this.onReject(wrapped);
+  }
+
+  /** Same field set as the desktop grid's visible columns, for the mobile card list. */
+  mobileFields: MobileListFieldDto<StoreTransfer>[] = [
+    { label: 'STORE_TRANSFER.TRANSFER_DATE', value: (t) => t.transferDate, type: 'date' },
+    { label: 'STORE_TRANSFER.FROM_STORE', value: (t) => t.fromStoreName },
+    { label: 'STORE_TRANSFER.TO_STORE', value: (t) => t.toStoreName },
+    {
+      label: 'COMMON.STATUS',
+      value: (t) => t.status,
+      type: 'status',
+      statusClass: (t) =>
+        t.status === 'Approved' ? 'success' : t.status === 'Pending' ? 'warning' : t.status === 'Rejected' ? 'danger' : 'neutral',
+    },
+  ];
+
+  /** Same approve/reject actions as the desktop grid's row actions (Pending only). */
+  mobileActions: MobileListActionDto<StoreTransfer>[] = [
+    { id: 'approve', icon: 'check_circle', labelKey: 'STORE_TRANSFER.APPROVE', visible: (t) => t.status === 'Pending' && this.permissionService.hasPermission('storetransfer.view') },
+    { id: 'reject', icon: 'cancel', labelKey: 'STORE_TRANSFER.REJECT', cssClass: 'warn', visible: (t) => t.status === 'Pending' && this.permissionService.hasPermission('storetransfer.view') },
+  ];
+
+  mobileTitleOf = (t: StoreTransfer) => t.transferNumber;
+  mobileTrackBy = (index: number, t: StoreTransfer) => t.id ?? index;
+
+  onMobileAction(e: MobileListActionEvent<StoreTransfer>): void {
+    const wrapped = { row: { data: e.item } };
     if (e.actionId === 'approve') this.onApprove(wrapped);
     else if (e.actionId === 'reject') this.onReject(wrapped);
   }

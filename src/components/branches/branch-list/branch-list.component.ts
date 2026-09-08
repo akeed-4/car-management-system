@@ -16,6 +16,9 @@ import { HasPermissionDirective } from '../../shared/permission.directive';
 import { PermissionService } from '../../../services/permission.service';
 import { BranchFormComponent } from '../branch-form/branch-form.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-branch-list',
@@ -28,7 +31,8 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.
     TranslateModule,
     FormsModule,
     HasPermissionDirective,
-    SharedDataGridComponent
+    SharedDataGridComponent,
+    SharedMobileListComponent
   ],
   templateUrl: './branch-list.component.html',
   styleUrls: ['./branch-list.component.css']
@@ -39,6 +43,8 @@ export class BranchListComponent {
   private router = inject(Router);
   private translate = inject(TranslateService);
   private permissionService = inject(PermissionService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   constructor() {
     this.onEdit = this.onEdit.bind(this);
@@ -169,6 +175,31 @@ export class BranchListComponent {
     if (event.data) {
       this.onEdit(event.data);
     }
+  }
+
+  /** Same field set as the desktop grid's visible columns, for the mobile card list. */
+  mobileFields: MobileListFieldDto<Branch>[] = [
+    { label: 'BRANCHES.COLUMNS.DESCRIPTION', value: (b) => b.description },
+    {
+      label: 'BRANCHES.COLUMNS.STATUS',
+      value: (b) => this.translate.instant(`BRANCHES.STATUS.${String(b.status).toUpperCase()}`),
+      type: 'status',
+      statusClass: (b) => (b.status === 'active' ? 'success' : (b.status as string) === 'suspended' ? 'warning' : 'neutral'),
+    },
+  ];
+
+  /** Same edit/delete actions as the desktop grid's row actions. */
+  mobileActions: MobileListActionDto<Branch>[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'BRANCHES.ACTIONS.EDIT', visible: () => this.permissionService.hasPermission('branches.view') },
+    { id: 'delete', icon: 'delete', labelKey: 'BRANCHES.ACTIONS.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('branches.view') },
+  ];
+
+  mobileTitleOf = (b: Branch) => b.nameAr;
+  mobileTrackBy = (index: number, b: Branch) => b.id ?? index;
+
+  onMobileAction(e: MobileListActionEvent<Branch>): void {
+    if (e.actionId === 'edit') this.onEdit(e.item);
+    else if (e.actionId === 'delete') this.onDelete(e.item);
   }
 
   // Unit test: Test data loading, CRUD operations, permission checks

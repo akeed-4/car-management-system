@@ -35,6 +35,8 @@ import { CustomerLookupModalComponent } from '@/src/components/shared/customer-l
 import { AccountAutocompleteComponent } from '@/src/components/shared/account-autocomplete/account-autocomplete.component';
 import { PaymentMethodService } from '@/src/services/payment-method.service';
 import { PaymentMethod } from '@/src/models/payment-method.model';
+import { ResponsiveService } from '@/src/services/responsive.service';
+import { SharedMobileDataEntryComponent } from '@/src/components/shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-receipt-form',
@@ -59,6 +61,7 @@ import { PaymentMethod } from '@/src/models/payment-method.model';
     MatDialogModule,
     InvoiceAllocationGridComponent,
     AccountAutocompleteComponent,
+    SharedMobileDataEntryComponent,
   ],
   templateUrl: './receipt-form.component.html',
   styleUrl: './receipt-form.component.css',
@@ -76,6 +79,8 @@ export class ReceiptFormComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private fb = inject(FormBuilder);
   private dialog = inject(MatDialog);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   receiptForm!: FormGroup;
 
@@ -454,5 +459,9 @@ export class ReceiptFormComponent implements OnInit {
 
   trackByAccountId(index: number, account: any): number {
     return account.id;
+  }
+
+  cancelForm(): void {
+    this.router.navigate(['/accounts/receipts']);
   }
 }

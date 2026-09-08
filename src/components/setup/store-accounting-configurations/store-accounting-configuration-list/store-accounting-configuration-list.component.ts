@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, ViewChild, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,6 +17,9 @@ import { StoreAccountingConfiguration } from '../../../../models/store-accountin
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 import { PermissionService } from '../../../../services/permission.service';
 import { HasPermissionDirective } from '../../../shared/permission.directive';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-store-accounting-configuration-list',
@@ -31,7 +34,8 @@ import { HasPermissionDirective } from '../../../shared/permission.directive';
     MatTooltipModule,
     TranslateModule,
     SharedDataGridComponent,
-    HasPermissionDirective
+    HasPermissionDirective,
+    SharedMobileListComponent
   ],
   templateUrl: './store-accounting-configuration-list.component.html',
   styleUrls: ['./store-accounting-configuration-list.component.css'],
@@ -45,9 +49,20 @@ export class StoreAccountingConfigurationListComponent implements OnInit {
   private router = inject(Router);
   private translate = inject(TranslateService);
   private permissionService = inject(PermissionService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   configurations = signal<StoreAccountingConfiguration[]>([]);
   loading = signal(false);
+  mobileSearch = signal('');
+
+  /** Client-side search for the mobile card list (desktop keeps DevExtreme's own search panel). */
+  filteredConfigurations = computed(() => {
+    const term = this.mobileSearch().toLowerCase();
+    const configs = this.configurations();
+    if (!term) return configs;
+    return configs.filter(c => c.storeName?.toLowerCase().includes(term));
+  });
 
   /** Config-driven columns for the Shared DataGrid (captions are i18n keys). */
   columns: dataGridColumnDto[] = [
@@ -67,6 +82,34 @@ export class StoreAccountingConfigurationListComponent implements OnInit {
   /** Single dispatcher for the Shared DataGrid's rowAction output. */
   onGridAction(e: SharedGridRowActionEvent): void {
     const wrapped = { row: { data: e.row } };
+    if (e.actionId === 'edit') this.onEdit(wrapped);
+    else if (e.actionId === 'delete') this.onDelete(wrapped);
+  }
+
+  /** Same field set as the desktop grid's visible columns, for the mobile card list. */
+  mobileFields: MobileListFieldDto<StoreAccountingConfiguration>[] = [
+    { label: 'STORE_ACCOUNTING_CONFIG.INVENTORY_ACCOUNT', value: (c) => c.inventoryAccountCode },
+    { label: 'STORE_ACCOUNTING_CONFIG.COGS_ACCOUNT', value: (c) => c.cogsAccountCode },
+    { label: 'STORE_ACCOUNTING_CONFIG.ADJUSTMENT_ACCOUNT', value: (c) => c.inventoryAdjustmentAccountCode },
+    {
+      label: 'COMMON.ACTIVE',
+      value: (c) => this.translate.instant(c.isActive ? 'COMMON.ACTIVE' : 'COMMON.INACTIVE'),
+      type: 'status',
+      statusClass: (c) => (c.isActive ? 'success' : 'neutral'),
+    },
+  ];
+
+  /** Same edit/delete actions as the desktop grid's row actions. */
+  mobileActions: MobileListActionDto<StoreAccountingConfiguration>[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('storeaccountingconfig.view') },
+    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('storeaccountingconfig.view') },
+  ];
+
+  mobileTitleOf = (c: StoreAccountingConfiguration) => c.storeName;
+  mobileTrackBy = (index: number, c: StoreAccountingConfiguration) => c.id ?? index;
+
+  onMobileAction(e: MobileListActionEvent<StoreAccountingConfiguration>): void {
+    const wrapped = { row: { data: e.item } };
     if (e.actionId === 'edit') this.onEdit(wrapped);
     else if (e.actionId === 'delete') this.onDelete(wrapped);
   }

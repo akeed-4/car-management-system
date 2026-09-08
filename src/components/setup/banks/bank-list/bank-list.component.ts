@@ -16,6 +16,9 @@ import { NotificationService } from '../../../../services/notification.service';
 import { Bank } from '../../../../models/bank.model';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 import { PermissionService } from '../../../../services/permission.service';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-bank-management-list',
@@ -29,7 +32,8 @@ import { PermissionService } from '../../../../services/permission.service';
     MatToolbarModule,
     MatTooltipModule,
     TranslateModule,
-    SharedDataGridComponent
+    SharedDataGridComponent,
+    SharedMobileListComponent
   ],
   templateUrl: './bank-list.component.html',
   styleUrls: ['./bank-list.component.css'],
@@ -43,11 +47,27 @@ export class BankManagementListComponent implements OnInit {
   private router = inject(Router);
   private translate = inject(TranslateService);
   private permissionService = inject(PermissionService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   canCreate = computed(() => this.permissionService.hasPermission('bank.create'));
 
   banks = signal<Bank[]>([]);
   loading = signal(false);
+  mobileSearch = signal('');
+
+  /** Client-side search for the mobile card list (desktop keeps DevExtreme's own search panel). */
+  filteredBanks = computed(() => {
+    const term = this.mobileSearch().toLowerCase();
+    const banks = this.banks();
+    if (!term) return banks;
+    return banks.filter(b =>
+      b.bankNameEnglish?.toLowerCase().includes(term) ||
+      b.bankNameArabic?.toLowerCase().includes(term) ||
+      b.bankCode?.toLowerCase().includes(term) ||
+      b.swiftCode?.toLowerCase().includes(term)
+    );
+  });
 
   /** Config-driven columns for the Shared DataGrid (captions are i18n keys). */
   columns: dataGridColumnDto[] = [
@@ -123,6 +143,37 @@ export class BankManagementListComponent implements OnInit {
    *  the exact same handlers the inline templates used before. */
   onGridAction(e: SharedGridRowActionEvent): void {
     const wrapped = { row: { data: e.row } };
+    if (e.actionId === 'view') this.onView(wrapped);
+    else if (e.actionId === 'edit') this.onEdit(wrapped);
+    else if (e.actionId === 'delete') this.onDelete(wrapped);
+  }
+
+  /** Same field set as the desktop grid's visible columns, for the mobile card list. */
+  mobileFields: MobileListFieldDto<Bank>[] = [
+    { label: 'BANK.NAME_ARABIC', value: (b) => b.bankNameArabic },
+    { label: 'BANK.SWIFT_CODE', value: (b) => b.swiftCode },
+    { label: 'BANK.COUNTRY', value: (b) => b.country },
+    { label: 'BANK.CURRENCY', value: (b) => b.currency },
+    {
+      label: 'COMMON.ACTIVE',
+      value: (b) => this.translate.instant(b.isActive ? 'COMMON.ACTIVE' : 'COMMON.INACTIVE'),
+      type: 'status',
+      statusClass: (b) => (b.isActive ? 'success' : 'neutral'),
+    },
+  ];
+
+  /** Same view/edit/delete actions as the desktop grid's row actions. */
+  mobileActions: MobileListActionDto<Bank>[] = [
+    { id: 'view', icon: 'visibility', labelKey: 'COMMON.VIEW' },
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('bank.edit') },
+    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('bank.delete') },
+  ];
+
+  mobileTitleOf = (b: Bank) => b.bankNameEnglish;
+  mobileTrackBy = (index: number, b: Bank) => b.id ?? index;
+
+  onMobileAction(e: MobileListActionEvent<Bank>): void {
+    const wrapped = { row: { data: e.item } };
     if (e.actionId === 'view') this.onView(wrapped);
     else if (e.actionId === 'edit') this.onEdit(wrapped);
     else if (e.actionId === 'delete') this.onDelete(wrapped);

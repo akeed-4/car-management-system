@@ -1,18 +1,37 @@
-<div class="erp-page container">
-  <div class="erp-page-header">
-    <div class="erp-page-header-titles">
-      <h2 class="erp-page-title">{{ getTitle() }}</h2>
+@if (isMobile()) {
+  <shared-mobile-data-entry
+    [title]="getTitle()"
+    [saving]="isSubmitting()"
+    [isEditMode]="editMode"
+    [canSave]="true"
+    [canCancel]="true"
+    [saveLabel]="editMode ? 'COMMON.SAVE' : 'SALES.RETURN.SAVE_AND_SEND_APPROVAL'"
+    (save)="saveReturn()"
+    (cancel)="cancelForm()"
+    (back)="cancelForm()">
+    <ng-container [ngTemplateOutlet]="salesReturnFormBody"></ng-container>
+  </shared-mobile-data-entry>
+} @else {
+  <div class="erp-page container">
+    <div class="erp-page-header">
+      <div class="erp-page-header-titles">
+        <h2 class="erp-page-title">{{ getTitle() }}</h2>
+      </div>
+      <div class="erp-page-actions">
+        <a routerLink="/sales/return" class="back-link">
+          <button mat-icon-button>
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <span>{{ 'SALES.RETURN.BACK_TO_LIST' | translate }}</span>
+        </a>
+      </div>
     </div>
-    <div class="erp-page-actions">
-      <a routerLink="/sales/return" class="back-link">
-        <button mat-icon-button>
-          <mat-icon>arrow_back</mat-icon>
-        </button>
-        <span>{{ 'SALES.RETURN.BACK_TO_LIST' | translate }}</span>
-      </a>
-    </div>
-  </div>
 
+    <ng-container [ngTemplateOutlet]="salesReturnFormBody"></ng-container>
+  </div>
+}
+
+<ng-template #salesReturnFormBody>
   <form [formGroup]="returnForm">
     <!-- ERP-style two-pane workspace: document (header + items) on the left, an always-visible
          refund summary + actions rail on the right so the total and Save/Cancel never require
@@ -121,7 +140,7 @@
             class="professional-datagrid"
             (onRowUpdating)="onRowUpdating($event)"
             (onCellValueChanged)="onCellValueChanged($event)"
-            
+
             >
     <dxo-editing mode="cell" [allowUpdating]="true"></dxo-editing>
 
@@ -267,7 +286,9 @@
             <span class="erp-total-value summary-amount">{{ totalAmount() | currency:'SAR':'symbol':'1.0-0' }}</span>
           </div>
 
-          <!-- Form Actions -->
+          <!-- Form Actions: desktop only -- the mobile branch's shared-mobile-data-entry
+               shell renders its own sticky Save/Cancel footer instead of this in-flow bar. -->
+          @if (!isMobile()) {
           <div class="erp-actions-bar form-actions">
             <button (click)="saveReturn()"
               [disabled]="returnForm.invalid || totalAmount() === 0 || isSubmitting()"
@@ -282,8 +303,9 @@
               {{ 'COMMON.CANCEL' | translate }}
             </a>
           </div>
+          }
         </mat-card>
       </aside>
     </div>
     </form>
-</div>
+</ng-template>

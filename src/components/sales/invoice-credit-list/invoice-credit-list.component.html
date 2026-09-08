@@ -13,33 +13,35 @@
     </div>
   </div>
 
-  <div class="erp-grid-card card">
-    <div class="table-wrapper premium-table">
-      <!-- Shared DataGrid: owns grid chrome + the mobile card rendering (same
-           fields/actions the split @if(isMobile()) block used to duplicate). -->
-      <app-shared-data-grid
-        [dataSource]="creditInvoices()"
-        [columns]="columns"
-        [rowActions]="rowActions"
-        [mobileItems]="creditInvoices()"
-        [mobileFields]="mobileFields"
-        [mobileTitleOf]="mobileTitleOf"
-        [mobileTrackBy]="mobileTrackBy"
-        keyExpr="id"
-        [height]="600"
-        [showSearchPanel]="false"
-        [showColumnChooser]="false"
-        selectionMode="single"
-        [noDataText]="getCaption('NO_DATA')"
-        [pageSize]="10"
-        [allowedPageSizes]="[5, 10, 20]"
-        (rowAction)="onGridAction($event)">
-
-        <ng-template let-item>
-          <button type="button" class="btn btn-light" (click)="mobileEditClick(item)">{{ 'COMMON.EDIT' | translate }}</button>
-          <button type="button" class="btn btn-light" (click)="mobileDeleteClick(item)">{{ 'COMMON.DELETE' | translate }}</button>
-        </ng-template>
-      </app-shared-data-grid>
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="creditInvoices()"
+      [fields]="sharedMobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      [actions]="sharedMobileActions"
+      searchPlaceholder="COMMON.SEARCH"
+      [emptyMessage]="getCaption('NO_DATA')"
+      (action)="onSharedMobileAction($event)">
+    </shared-mobile-list>
+  } @else {
+    <div class="erp-grid-card card">
+      <div class="table-wrapper premium-table">
+        <app-shared-data-grid
+          [dataSource]="creditInvoices()"
+          [columns]="columns"
+          [rowActions]="rowActions"
+          keyExpr="id"
+          [height]="600"
+          [showSearchPanel]="false"
+          [showColumnChooser]="false"
+          selectionMode="single"
+          [noDataText]="getCaption('NO_DATA')"
+          [pageSize]="10"
+          [allowedPageSizes]="[5, 10, 20]"
+          (rowAction)="onGridAction($event)">
+        </app-shared-data-grid>
+      </div>
     </div>
-  </div>
+  }
 </div>

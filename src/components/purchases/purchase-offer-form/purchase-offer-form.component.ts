@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, signal, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, signal, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -20,6 +20,8 @@ import { NotificationService } from '@/src/services/notification.service';
 import { Car } from '../../../models/car.model';
 import { buildVehicleDescription } from '../../../models/vehicle-description';
 import { CarSelectionDialogComponent } from '../purchase-invoice/car-selection-dialog/car-selection-dialog.component';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-purchase-offer-form',
@@ -39,12 +41,16 @@ import { CarSelectionDialogComponent } from '../purchase-invoice/car-selection-d
     DxButtonModule,
     DxSelectBoxModule,
     TranslateModule,
-    MatCardModule
+    MatCardModule,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './purchase-offer-form.component.html',
   styleUrls: ['./purchase-offer-form.component.css']
 })
 export class PurchaseOfferFormComponent implements OnInit {
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
+
   offerForm!: FormGroup;
   isEditMode = false;
   offerId?: number;

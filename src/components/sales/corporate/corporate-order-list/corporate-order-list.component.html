@@ -11,32 +11,45 @@
     </div>
   </div>
 
-  <div class="erp-grid-card">
-    <app-shared-data-grid
-      [dataSource]="orders()"
-      [columns]="columns"
-      [rowActions]="rowActions"
-      [cellTemplates]="cellTemplates"
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="orders()"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      [actions]="mobileActions"
       [loading]="loading()"
-      keyExpr="id"
-      height="600px"
-      noDataText="CORPORATE.NO_ORDERS"
-      [showColumnChooser]="false"
-      [pageSize]="10"
-      [allowedPageSizes]="[10, 20, 50]"
-      (rowDblClick)="onView($event)"
-      (rowAction)="onGridAction($event)">
+      emptyMessage="CORPORATE.NO_ORDERS"
+      (action)="onMobileAction($event)">
+    </shared-mobile-list>
+  } @else {
+    <div class="erp-grid-card">
+      <app-shared-data-grid
+        [dataSource]="orders()"
+        [columns]="columns"
+        [rowActions]="rowActions"
+        [cellTemplates]="cellTemplates"
+        [loading]="loading()"
+        keyExpr="id"
+        height="600px"
+        noDataText="CORPORATE.NO_ORDERS"
+        [showColumnChooser]="false"
+        [pageSize]="10"
+        [allowedPageSizes]="[10, 20, 50]"
+        (rowDblClick)="onView($event)"
+        (rowAction)="onGridAction($event)">
 
-      <!-- Status badge (same classes/labels as before) -->
-      <ng-template #statusTemplate let-cell>
-        <span class="erp-status-badge" [ngClass]="{
-          'neutral': cell.value === 'New',
-          'warning': cell.value === 'DepositPaid' || cell.value === 'Processing',
-          'success': cell.value === 'Completed'
-        }">
-          {{ ('CORPORATE.ORDER_STATUS_' + cell.value?.toUpperCase()) | translate }}
-        </span>
-      </ng-template>
-    </app-shared-data-grid>
-  </div>
+        <!-- Status badge (same classes/labels as before) -->
+        <ng-template #statusTemplate let-cell>
+          <span class="erp-status-badge" [ngClass]="{
+            'neutral': cell.value === 'New',
+            'warning': cell.value === 'DepositPaid' || cell.value === 'Processing',
+            'success': cell.value === 'Completed'
+          }">
+            {{ ('CORPORATE.ORDER_STATUS_' + cell.value?.toUpperCase()) | translate }}
+          </span>
+        </ng-template>
+      </app-shared-data-grid>
+    </div>
+  }
 </div>

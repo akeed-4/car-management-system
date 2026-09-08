@@ -35,6 +35,8 @@ import { extractErrorMessage } from '@/src/models/http-error-message';
 import { DefaultAccountTracker } from '@/src/components/shared/default-account/default-account.helper';
 import { CustomerLookupModalComponent } from '@/src/components/shared/customer-lookup-modal/customer-lookup-modal.component';
 import { AccountAutocompleteComponent } from '@/src/components/shared/account-autocomplete/account-autocomplete.component';
+import { ResponsiveService } from '@/src/services/responsive.service';
+import { SharedMobileDataEntryComponent } from '@/src/components/shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-deposit-form',
@@ -56,6 +58,7 @@ import { AccountAutocompleteComponent } from '@/src/components/shared/account-au
     MatTooltipModule,
     MatDialogModule,
     AccountAutocompleteComponent,
+    SharedMobileDataEntryComponent,
   ],
   templateUrl: './deposit-form.component.html',
   styleUrl: './deposit-form.component.css',
@@ -72,6 +75,9 @@ export class DepositFormComponent implements OnInit {
 private notificationService = inject(NotificationService);
   private accountingService: AccountingService = inject(AccountingService);
   private paymentMethodService = inject(PaymentMethodService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
+  editMode = signal(false);
   accounts = signal<Account[]>([]);
   creditAccounts = computed(() => this.accounts());
   debitAccounts = computed(() => this.accounts());
@@ -264,6 +270,7 @@ private notificationService = inject(NotificationService);
         const id = Number(idParam);
         const deposit = this.depositService.getDepositById(id);
         if (deposit) {
+          this.editMode.set(true);
           this.existingDocNumber = deposit.voucherNumber;
           this.depositForm.patchValue({
             date: new Date(deposit.date).toISOString().split('T')[0],
@@ -459,6 +466,10 @@ private notificationService = inject(NotificationService);
         this.notificationService.showError(extractErrorMessage(err, this.translate, 'ACCOUNTS.DEPOSITS.FORM.SAVE_FAILED'));
       }
     });
+  }
+
+  cancelForm(): void {
+    this.router.navigate(['/accounts/deposits']);
   }
 
   getVehicleIdentity(vehicle: Car | null): string {

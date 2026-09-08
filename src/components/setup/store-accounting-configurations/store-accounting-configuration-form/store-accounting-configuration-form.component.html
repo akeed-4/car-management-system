@@ -1,10 +1,31 @@
-<div class="erp-page page-container">
-  <div class="erp-page-header page-header header-row">
-    <div class="erp-page-header-titles">
-      <h1 class="erp-page-title">{{ (mode === 'edit' ? 'STORE_ACCOUNTING_CONFIG.EDIT_TITLE' : 'STORE_ACCOUNTING_CONFIG.CREATE_TITLE') | translate }}</h1>
+@if (isMobile()) {
+  <shared-mobile-data-entry
+    [title]="(mode === 'edit' ? 'STORE_ACCOUNTING_CONFIG.EDIT_TITLE' : 'STORE_ACCOUNTING_CONFIG.CREATE_TITLE') | translate"
+    [loading]="isLoading()"
+    [saving]="isSaving()"
+    [isEditMode]="mode === 'edit'"
+    [canSave]="true"
+    [canCancel]="true"
+    [saveLabel]="'COMMON.SAVE'"
+    [cancelLabel]="'COMMON.CANCEL'"
+    (save)="save()"
+    (cancel)="cancel()"
+    (back)="cancel()">
+    <ng-container [ngTemplateOutlet]="storeAccountingConfigFormBody"></ng-container>
+  </shared-mobile-data-entry>
+} @else {
+  <div class="erp-page page-container">
+    <div class="erp-page-header page-header header-row">
+      <div class="erp-page-header-titles">
+        <h1 class="erp-page-title">{{ (mode === 'edit' ? 'STORE_ACCOUNTING_CONFIG.EDIT_TITLE' : 'STORE_ACCOUNTING_CONFIG.CREATE_TITLE') | translate }}</h1>
+      </div>
     </div>
-  </div>
 
+    <ng-container [ngTemplateOutlet]="storeAccountingConfigFormBody"></ng-container>
+  </div>
+}
+
+<ng-template #storeAccountingConfigFormBody>
   <div class="loading-overlay" *ngIf="isLoading()">
     <mat-spinner diameter="40"></mat-spinner>
   </div>
@@ -144,14 +165,16 @@
         </div>
     </div>
 
-    <div class="erp-actions-bar form-actions">
-      <button mat-raised-button color="primary" type="submit" [disabled]="isSaving()">
-        <mat-icon>save</mat-icon>
-        {{ 'COMMON.SAVE' | translate }}
-      </button>
-      <button mat-stroked-button type="button" (click)="cancel()">
-        {{ 'COMMON.CANCEL' | translate }}
-      </button>
-    </div>
+    @if (!isMobile()) {
+      <div class="erp-actions-bar form-actions">
+        <button mat-raised-button color="primary" type="submit" [disabled]="isSaving()">
+          <mat-icon>save</mat-icon>
+          {{ 'COMMON.SAVE' | translate }}
+        </button>
+        <button mat-stroked-button type="button" (click)="cancel()">
+          {{ 'COMMON.CANCEL' | translate }}
+        </button>
+      </div>
+    }
   </form>
-</div>
+</ng-template>

@@ -89,34 +89,47 @@
     </button>
   </mat-toolbar>
 
-  <div class="erp-grid-card grid-container">
-    <!-- Shared DataGrid: owns grid chrome/state storing/paging; the CustomStore
-         keeps driving server-side load exactly as before. -->
-    <app-shared-data-grid
-      [dataSource]="dataSource"
-      [columns]="columns"
-      [rowActions]="rowActions"
-      [cellTemplates]="cellTemplates"
-      [dxRemoteOperations]="true"
-      [selectionMode]="'multiple'"
-      [stateStoringKey]="gridStateKey"
-      keyExpr="id"
-      scrollingMode="virtual"
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="lastLoadedRows()"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      [actions]="mobileActions"
       searchPlaceholder="COMMON.SEARCH"
-      noDataText="COMMON.NO_DATA"
-      [pageSize]="20"
-      [allowedPageSizes]="[10, 20, 50, 100]"
-      (rowDblClick)="openDetails($event)"
-      (rowAction)="onGridAction($event)">
+      emptyMessage="COMMON.NO_DATA"
+      (action)="onMobileAction($event)">
+    </shared-mobile-list>
+  } @else {
+    <div class="erp-grid-card grid-container">
+      <!-- Shared DataGrid: owns grid chrome/state storing/paging; the CustomStore
+           keeps driving server-side load exactly as before. -->
+      <app-shared-data-grid
+        [dataSource]="dataSource"
+        [columns]="columns"
+        [rowActions]="rowActions"
+        [cellTemplates]="cellTemplates"
+        [dxRemoteOperations]="true"
+        [selectionMode]="'multiple'"
+        [stateStoringKey]="gridStateKey"
+        keyExpr="id"
+        scrollingMode="virtual"
+        searchPlaceholder="COMMON.SEARCH"
+        noDataText="COMMON.NO_DATA"
+        [pageSize]="20"
+        [allowedPageSizes]="[10, 20, 50, 100]"
+        (rowDblClick)="openDetails($event)"
+        (rowAction)="onGridAction($event)">
 
-      <!-- Status badge (same classes/labels as before) -->
-      <ng-template #statusTemplate let-cell>
-        <span class="erp-status-badge chip" [ngClass]="getTenantStatusClass(cell.value)">
-          {{ ('PLATFORM.TENANT_STATUS.' + (cell.value === TenantStatus.Active ? 'ACTIVE' : cell.value === TenantStatus.Provisioning ? 'PROVISIONING' : cell.value === TenantStatus.Suspended ? 'SUSPENDED' : 'BLOCKED')) | translate }}
-        </span>
-      </ng-template>
-    </app-shared-data-grid>
-  </div>
+        <!-- Status badge (same classes/labels as before) -->
+        <ng-template #statusTemplate let-cell>
+          <span class="erp-status-badge chip" [ngClass]="getTenantStatusClass(cell.value)">
+            {{ ('PLATFORM.TENANT_STATUS.' + (cell.value === TenantStatus.Active ? 'ACTIVE' : cell.value === TenantStatus.Provisioning ? 'PROVISIONING' : cell.value === TenantStatus.Suspended ? 'SUSPENDED' : 'BLOCKED')) | translate }}
+          </span>
+        </ng-template>
+      </app-shared-data-grid>
+    </div>
+  }
 
   <app-modal
     [isOpen]="isDeleteModalOpen()"

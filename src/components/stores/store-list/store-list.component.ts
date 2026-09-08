@@ -15,6 +15,9 @@ import { HasPermissionDirective } from '../../shared/permission.directive';
 import { PermissionService } from '../../../services/permission.service';
 import { StoreFormComponent } from '../store-form/store-form.component';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.model';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListActionDto, MobileListActionEvent, MobileListFieldDto } from '../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-store-list',
@@ -27,7 +30,8 @@ import { dataGridColumnDto, sharedGridRowActionDto } from '../../../models/grid.
     TranslateModule,
     FormsModule,
     HasPermissionDirective,
-    SharedDataGridComponent
+    SharedDataGridComponent,
+    SharedMobileListComponent
   ],
   templateUrl: './store-list.component.html',
   styleUrls: ['./store-list.component.css']
@@ -37,6 +41,8 @@ export class StoreListComponent {
   private dialog = inject(MatDialog);
   private translate = inject(TranslateService);
   private permissionService = inject(PermissionService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   stores = this.storeService.stores$;
   filter = signal('');
@@ -167,6 +173,33 @@ constructor(){
     if (event.data) {
       this.onEdit(event.data);
     }
+  }
+
+  /** Same field set as the desktop grid's visible columns, for the mobile card list. */
+  mobileFields: MobileListFieldDto<Store>[] = [
+    { label: 'STORES.COLUMNS.DESCRIPTION', value: (s) => s.description },
+    { label: 'STORES.COLUMNS.ACTIVITY', value: (s: any) => s.activityName },
+    { label: 'STORES.COLUMNS.BRANCH', value: (s: any) => s.branchName },
+    {
+      label: 'STORES.COLUMNS.STATUS',
+      value: (s: any) => this.translate.instant(`STORES.STATUS.${String(s.status).toUpperCase()}`),
+      type: 'status',
+      statusClass: (s: any) => (s.status === 'active' ? 'success' : s.status === 'suspended' ? 'warning' : 'neutral'),
+    },
+  ];
+
+  /** Same edit/delete actions as the desktop grid's row actions. */
+  mobileActions: MobileListActionDto<Store>[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'STORES.ACTIONS.EDIT', visible: () => this.permissionService.hasPermission('stores.view') },
+    { id: 'delete', icon: 'delete', labelKey: 'STORES.ACTIONS.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('stores.view') },
+  ];
+
+  mobileTitleOf = (s: Store) => s.nameAr;
+  mobileTrackBy = (index: number, s: Store) => s.id ?? index;
+
+  onMobileAction(e: MobileListActionEvent<Store>): void {
+    if (e.actionId === 'edit') this.onEdit({ row: { data: e.item } });
+    else if (e.actionId === 'delete') this.onDelete({ row: { data: e.item } });
   }
 
   // Unit test: Test data loading, CRUD operations, permission checks

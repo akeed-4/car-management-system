@@ -11,29 +11,30 @@
     </div>
   </div>
 
-  <div class="erp-grid-card">
-    <!-- Shared DataGrid: on mobile (<=840px) this renders the same rows as
-         full-width cards (mobileFields/mobileTitleOf/mobileTrackBy), same
-         single view action, instead of the grid's clipped 8 columns. -->
-    <app-shared-data-grid
-      [dataSource]="orders()"
-      [columns]="columns"
-      [rowActions]="rowActions"
-      [mobileItems]="orders()"
-      [mobileFields]="mobileFields"
-      [mobileTitleOf]="mobileTitleOf"
-      [mobileTrackBy]="mobileTrackBy"
-      keyExpr="id"
-      height="600px"
-      noDataText="BANK_FINANCING.NO_ORDERS"
-      [pageSize]="10"
-      [allowedPageSizes]="[10, 20, 50]"
-      (rowDblClick)="onGridRowDblClick($event)"
-      (rowAction)="onGridAction($event)">
-
-      <ng-template let-item>
-        <button type="button" class="btn btn-light" (click)="mobileView(item)">{{ 'COMMON.VIEW' | translate }}</button>
-      </ng-template>
-    </app-shared-data-grid>
-  </div>
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="orders()"
+      [fields]="sharedMobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      [actions]="sharedMobileActions"
+      emptyMessage="BANK_FINANCING.NO_ORDERS"
+      (action)="onSharedMobileAction($event)">
+    </shared-mobile-list>
+  } @else {
+    <div class="erp-grid-card">
+      <app-shared-data-grid
+        [dataSource]="orders()"
+        [columns]="columns"
+        [rowActions]="rowActions"
+        keyExpr="id"
+        height="600px"
+        noDataText="BANK_FINANCING.NO_ORDERS"
+        [pageSize]="10"
+        [allowedPageSizes]="[10, 20, 50]"
+        (rowDblClick)="onGridRowDblClick($event)"
+        (rowAction)="onGridAction($event)">
+      </app-shared-data-grid>
+    </div>
+  }
 </div>

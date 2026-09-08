@@ -12,6 +12,20 @@
     </div>
   </div>
 
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="filteredWorkflows()"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      [actions]="mobileActions"
+      [loading]="isLoading()"
+      searchPlaceholder="COMMON.SEARCH"
+      emptyMessage="APPROVALS.NO_WORKFLOWS"
+      (searchChange)="filter.set($event)"
+      (action)="onMobileAction($event)">
+    </shared-mobile-list>
+  } @else {
   <div class="erp-grid-card">
     <!-- Shared DataGrid: owns grid chrome/paging/actions; screen-specific cells
          (type chip, level badge, status chip) are provided generically via
@@ -55,4 +69,5 @@
       </ng-template>
     </app-shared-data-grid>
   </div>
+  }
 </div>

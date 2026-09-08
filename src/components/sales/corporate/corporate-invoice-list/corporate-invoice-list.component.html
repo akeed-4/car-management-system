@@ -43,42 +43,45 @@
     </button>
   </mat-toolbar>
 
-  <div class="erp-grid-card grid-container">
-    <!-- Shared DataGrid: owns grid chrome + the mobile card rendering (same
-         fields/actions the split @if(isMobile()) block used to duplicate). -->
-    <app-shared-data-grid
-      [dataSource]="invoices()"
-      [columns]="columns"
-      [rowActions]="rowActions"
-      [cellTemplates]="cellTemplates"
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="invoices()"
+      [fields]="sharedMobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      [actions]="sharedMobileActions"
       [loading]="loading()"
-      [mobileItems]="invoices()"
-      [mobileFields]="mobileFields"
-      [mobileTitleOf]="mobileTitleOf"
-      [mobileTrackBy]="mobileTrackBy"
-      keyExpr="id"
-      height="600px"
-      noDataText="CORPORATE.NO_INVOICES"
-      [showColumnChooser]="false"
-      [pageSize]="10"
-      [allowedPageSizes]="[10, 20, 50]"
-      (rowDblClick)="onEdit($event)"
-      (rowAction)="onGridAction($event)">
+      emptyMessage="CORPORATE.NO_INVOICES"
+      (action)="onSharedMobileAction($event)">
+    </shared-mobile-list>
+  } @else {
+    <div class="erp-grid-card grid-container">
+      <app-shared-data-grid
+        [dataSource]="invoices()"
+        [columns]="columns"
+        [rowActions]="rowActions"
+        [cellTemplates]="cellTemplates"
+        [loading]="loading()"
+        keyExpr="id"
+        height="600px"
+        noDataText="CORPORATE.NO_INVOICES"
+        [showColumnChooser]="false"
+        [pageSize]="10"
+        [allowedPageSizes]="[10, 20, 50]"
+        (rowDblClick)="onEdit($event)"
+        (rowAction)="onGridAction($event)">
 
-      <ng-template let-inv>
-        <button type="button" class="btn btn-light" (click)="mobileEdit(inv)">{{ 'COMMON.EDIT' | translate }}</button>
-      </ng-template>
-
-      <!-- Status badge (same classes/labels as before) -->
-      <ng-template #statusTemplate let-cell>
-        <span class="erp-status-badge" [ngClass]="{
-          'success': cell.value === 'Paid',
-          'warning': cell.value === 'Pending',
-          'danger': cell.value === 'Overdue'
-        }">
-          {{ ('INVOICE.STATUS_' + cell.value?.toUpperCase()) | translate }}
-        </span>
-      </ng-template>
-    </app-shared-data-grid>
-  </div>
+        <!-- Status badge (same classes/labels as before) -->
+        <ng-template #statusTemplate let-cell>
+          <span class="erp-status-badge" [ngClass]="{
+            'success': cell.value === 'Paid',
+            'warning': cell.value === 'Pending',
+            'danger': cell.value === 'Overdue'
+          }">
+            {{ ('INVOICE.STATUS_' + cell.value?.toUpperCase()) | translate }}
+          </span>
+        </ng-template>
+      </app-shared-data-grid>
+    </div>
+  }
 </div>

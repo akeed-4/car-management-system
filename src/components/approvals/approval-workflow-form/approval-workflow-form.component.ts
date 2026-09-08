@@ -27,6 +27,8 @@ import {
   CONDITION_OPERATORS
 } from '../../../models/approval-workflow.model';
 import { NotificationService } from '@/src/services/notification.service';
+import { ResponsiveService } from '@/src/services/responsive.service';
+import { SharedMobileDataEntryComponent } from '@/src/components/shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-approval-workflow-form',
@@ -47,7 +49,8 @@ import { NotificationService } from '@/src/services/notification.service';
     MatChipsModule,
     MatTooltipModule,
     MatExpansionModule,
-    TranslateModule
+    TranslateModule,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './approval-workflow-form.component.html',
   styleUrls: ['./approval-workflow-form.component.css']
@@ -59,6 +62,8 @@ export class ApprovalWorkflowFormComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   workflowForm!: FormGroup;
   editMode = signal(false);

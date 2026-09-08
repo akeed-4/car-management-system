@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, effect, inject, signal, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { NgTemplateOutlet } from '@angular/common';
 import { SupplierService } from '../../../../services/supplier.service';
 import { Supplier } from '../../../../models/supplier.model';
 import { PotentialLinkedParty } from '../../../../models/potential-linked-party.model';
@@ -18,6 +19,8 @@ import { NotificationService } from '@/src/services/notification.service';
 import { NationalAddressService } from '../../../../services/national-address.service';
 import { Country, Region, City, District } from '../../../../models/national-address.model';
 import { postalCodeValidators, buildingNumberValidators } from '../../../../models/national-address-validators';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 /** Section id -> the form control names it contains, used to auto-expand + scroll to whichever
  *  collapsed section holds the first invalid control on a failed submit. Keep in sync with the
@@ -38,6 +41,7 @@ const SECTION_FIELDS: Record<string, string[]> = {
   imports: [
     ReactiveFormsModule,
     RouterLink,
+    NgTemplateOutlet,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -46,7 +50,8 @@ const SECTION_FIELDS: Record<string, string[]> = {
     MatCheckboxModule,
     MatExpansionModule,
     MatIconModule,
-    TranslateModule
+    TranslateModule,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './supplier-form.component.html',
   styleUrl: './supplier-form.component.css',
@@ -60,6 +65,8 @@ export class SupplierFormComponent implements OnInit {
   private translateService = inject(TranslateService);
   private notificationService = inject(NotificationService);
   private nationalAddressService = inject(NationalAddressService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
   supplierForm!: FormGroup;
   supplier = signal<Partial<Supplier>>({});
   editMode = signal(false);
@@ -289,5 +296,9 @@ export class SupplierFormComponent implements OnInit {
       document.getElementById(`supplier-section-${invalidSection}`)
         ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
+  }
+
+  cancelForm(): void {
+    this.router.navigate(['/entities/suppliers']);
   }
 }

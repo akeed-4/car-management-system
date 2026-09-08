@@ -43,30 +43,43 @@
     </button>
   </mat-toolbar>
 
-  <div class="erp-grid-card grid-container">
-    <app-shared-data-grid
-      [dataSource]="invoices()"
-      [columns]="columns"
-      [rowActions]="rowActions"
-      [cellTemplates]="cellTemplates"
-      keyExpr="id"
-      height="600px"
-      noDataText="BANK_FINANCING.NO_INVOICES"
-      [pageSize]="10"
-      [allowedPageSizes]="[10, 20, 50]"
-      (rowDblClick)="onGridRowDblClick($event)"
-      (rowAction)="onGridAction($event)">
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="invoices()"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      [actions]="mobileActions"
+      [loading]="loading()"
+      emptyMessage="BANK_FINANCING.NO_INVOICES"
+      (action)="onMobileAction($event)">
+    </shared-mobile-list>
+  } @else {
+    <div class="erp-grid-card grid-container">
+      <app-shared-data-grid
+        [dataSource]="invoices()"
+        [columns]="columns"
+        [rowActions]="rowActions"
+        [cellTemplates]="cellTemplates"
+        keyExpr="id"
+        height="600px"
+        noDataText="BANK_FINANCING.NO_INVOICES"
+        [pageSize]="10"
+        [allowedPageSizes]="[10, 20, 50]"
+        (rowDblClick)="onGridRowDblClick($event)"
+        (rowAction)="onGridAction($event)">
 
-      <!-- Status badge (same classes/labels as before) -->
-      <ng-template #statusTemplate let-cell>
-        <span class="erp-status-badge" [ngClass]="{
-          'success': cell.value === 'Paid',
-          'warning': cell.value === 'Pending',
-          'danger': cell.value === 'Overdue'
-        }">
-          {{ ('INVOICE.STATUS_' + cell.value?.toUpperCase()) | translate }}
-        </span>
-      </ng-template>
-    </app-shared-data-grid>
-  </div>
+        <!-- Status badge (same classes/labels as before) -->
+        <ng-template #statusTemplate let-cell>
+          <span class="erp-status-badge" [ngClass]="{
+            'success': cell.value === 'Paid',
+            'warning': cell.value === 'Pending',
+            'danger': cell.value === 'Overdue'
+          }">
+            {{ ('INVOICE.STATUS_' + cell.value?.toUpperCase()) | translate }}
+          </span>
+        </ng-template>
+      </app-shared-data-grid>
+    </div>
+  }
 </div>

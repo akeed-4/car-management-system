@@ -21,10 +21,12 @@ import { PurchaseInvoice } from '../../../models/purchase-invoice.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NotificationService } from '@/src/services/notification.service';
 import { extractErrorMessage } from '@/src/models/http-error-message';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 @Component({
   selector: 'app-purchase-return-form',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, CommonModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatIconModule, MatDatepickerModule, MatTooltipModule, ],
+  imports: [RouterLink, ReactiveFormsModule, CommonModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatIconModule, MatDatepickerModule, MatTooltipModule, SharedMobileDataEntryComponent],
   templateUrl: './purchase-return-form.component.html',
   styleUrl: './purchase-return-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,6 +40,9 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
   private translate = inject(TranslateService);
   private fb = inject(FormBuilder);
   private notificationService = inject(NotificationService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
+  saving = signal(false);
 
   returnForm!: FormGroup;
 
@@ -195,12 +200,15 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
     };
 
     // Save the return as a DRAFT -- posting happens server-side when it is approved.
+    this.saving.set(true);
     this.purchaseReturnService.addReturnInvoice(newReturn).subscribe({
       next: (_createdReturn) => {
+        this.saving.set(false);
         this.notificationService.showSuccess(this.translate.instant('PURCHASES.PURCHASE_RETURN.SUCCESS_RETURN_SAVED'));
         this.router.navigate([this.backRoute()]);
       },
       error: (error) => {
+        this.saving.set(false);
         console.error('Error saving return invoice:', error);
         this.notificationService.showError(extractErrorMessage(error, this.translate, 'PURCHASES.PURCHASE_RETURN.ERROR_SAVING_RETURN'));
       }
@@ -217,4 +225,11 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
     }
     return { isValid: true };
   };
+
+  /** Mobile shell (shared-mobile-data-entry) needs the back/cancel target as a callable method
+   *  rather than the desktop branch's plain routerLink. Same destination the desktop Cancel
+   *  button and back-link already navigate to. */
+  cancelForm(): void {
+    this.router.navigate([this.backRoute()]);
+  }
 }

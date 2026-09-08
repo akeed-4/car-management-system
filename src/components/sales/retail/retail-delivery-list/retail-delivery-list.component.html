@@ -13,22 +13,36 @@
     }
   </div>
 
-  <div class="erp-grid-card">
-  <!-- Shared DataGrid: owns grid chrome/paging/row actions (same view button,
-       double-click opens the delivery). -->
-  <app-shared-data-grid
-    [dataSource]="deliveryNotes()"
-    [columns]="columns"
-    [rowActions]="rowActions"
-    [loading]="loading()"
-    keyExpr="id"
-    height="600px"
-    searchPlaceholder="COMMON.SEARCH"
-    noDataText="CORPORATE.NO_DELIVERIES"
-    [pageSize]="10"
-    [allowedPageSizes]="[10, 20, 50]"
-    (rowDblClick)="onView($event)"
-    (rowAction)="onGridAction($event)">
-  </app-shared-data-grid>
-  </div>
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="deliveryNotes()"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackBy"
+      [actions]="mobileActions"
+      [loading]="loading()"
+      searchPlaceholder="COMMON.SEARCH"
+      emptyMessage="CORPORATE.NO_DELIVERIES"
+      (action)="onMobileAction($event)">
+    </shared-mobile-list>
+  } @else {
+    <div class="erp-grid-card">
+    <!-- Shared DataGrid: owns grid chrome/paging/row actions (same view button,
+         double-click opens the delivery). -->
+    <app-shared-data-grid
+      [dataSource]="deliveryNotes()"
+      [columns]="columns"
+      [rowActions]="rowActions"
+      [loading]="loading()"
+      keyExpr="id"
+      height="600px"
+      searchPlaceholder="COMMON.SEARCH"
+      noDataText="CORPORATE.NO_DELIVERIES"
+      [pageSize]="10"
+      [allowedPageSizes]="[10, 20, 50]"
+      (rowDblClick)="onView($event)"
+      (rowAction)="onGridAction($event)">
+    </app-shared-data-grid>
+    </div>
+  }
 </div>

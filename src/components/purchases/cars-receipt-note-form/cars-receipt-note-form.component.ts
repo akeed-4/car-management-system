@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -24,6 +24,8 @@ import { DocumentActionsToolbarComponent } from '../../shared/document-actions-t
 import { ApprovalActionDialogComponent, ApprovalActionDialogResult } from '../../shared/approval-action-dialog/approval-action-dialog.component';
 import { DocumentAuditTrailViewerComponent } from '../../shared/document-audit-trail-viewer/document-audit-trail-viewer.component';
 import { DocumentLifecycleAction } from '../../../models/document-lifecycle.model';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 interface GrnLineItem {
   purchaseOrderItemId: number;
@@ -55,12 +57,16 @@ interface GrnLineItem {
     DxButtonModule,
     TranslateModule,
     DocumentHeaderComponent,
-    DocumentActionsToolbarComponent
+    DocumentActionsToolbarComponent,
+    SharedMobileDataEntryComponent
   ],
   templateUrl: './cars-receipt-note-form.component.html',
   styleUrls: ['./cars-receipt-note-form.component.css']
 })
 export class CarsReceiptNoteFormComponent implements OnInit {
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
+
   grnForm!: FormGroup;
   isViewMode = false;
   grnId: number | null = null;

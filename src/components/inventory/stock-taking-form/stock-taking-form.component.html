@@ -1,16 +1,36 @@
-<div class="erp-page">
-  <div class="erp-page-header">
-    <div class="erp-page-header-titles">
-      <h1 class="erp-page-title">{{ pageTitle() }}</h1>
+@if (isMobile()) {
+  <shared-mobile-data-entry
+    [title]="pageTitle()"
+    [saving]="isSaving()"
+    [isEditMode]="editMode()"
+    [canSave]="true"
+    [canCancel]="true"
+    [saveLabel]="editMode() ? 'INVENTORY.STOCK_TAKING_FORM.SAVE_CHANGES' : 'INVENTORY.STOCK_TAKING_FORM.SAVE_TAKE'"
+    (save)="saveStockTake()"
+    (cancel)="cancelForm()"
+    (back)="cancelForm()">
+    <ng-container [ngTemplateOutlet]="stockTakingFormBody"></ng-container>
+  </shared-mobile-data-entry>
+} @else {
+  <div class="erp-page">
+    <div class="erp-page-header">
+      <div class="erp-page-header-titles">
+        <h1 class="erp-page-title">{{ pageTitle() }}</h1>
+      </div>
+      <div class="erp-page-actions">
+        <button mat-icon-button routerLink="/inventory/stock-taking">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+      </div>
     </div>
-    <div class="erp-page-actions">
-      <button mat-icon-button routerLink="/inventory/stock-taking">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
+
+    <div class="erp-card">
+      <ng-container [ngTemplateOutlet]="stockTakingFormBody"></ng-container>
     </div>
   </div>
+}
 
-  <div class="erp-card">
+<ng-template #stockTakingFormBody>
     <form [formGroup]="stockTakeForm">
 
       <!-- Stock Take Header -->
@@ -159,20 +179,21 @@
         </div>
       </div>
 
-      <!-- Form Actions -->
-      <div class="erp-actions-bar form-actions">
-        <button mat-stroked-button type="button" routerLink="/inventory/stock-taking" class="cancel-button">
-          {{ 'INVENTORY.STOCK_TAKING_FORM.CANCEL' | translate }}
-        </button>
-        <button mat-raised-button color="primary" (click)="saveStockTake()" [disabled]="stockTakeForm.invalid || isSaving() || locked()">
-          <span *ngIf="!isSaving()">{{ editMode() ? ('INVENTORY.STOCK_TAKING_FORM.SAVE_CHANGES' | translate) : ('INVENTORY.STOCK_TAKING_FORM.SAVE_TAKE' | translate) }}</span>
-          <mat-spinner *ngIf="isSaving()" diameter="20" color="accent"></mat-spinner>
-        </button>
-      </div>
+      <!-- Form Actions: desktop only -->
+      @if (!isMobile()) {
+        <div class="erp-actions-bar form-actions">
+          <button mat-stroked-button type="button" routerLink="/inventory/stock-taking" class="cancel-button">
+            {{ 'INVENTORY.STOCK_TAKING_FORM.CANCEL' | translate }}
+          </button>
+          <button mat-raised-button color="primary" (click)="saveStockTake()" [disabled]="stockTakeForm.invalid || isSaving() || locked()">
+            <span *ngIf="!isSaving()">{{ editMode() ? ('INVENTORY.STOCK_TAKING_FORM.SAVE_CHANGES' | translate) : ('INVENTORY.STOCK_TAKING_FORM.SAVE_TAKE' | translate) }}</span>
+            <mat-spinner *ngIf="isSaving()" diameter="20" color="accent"></mat-spinner>
+          </button>
+        </div>
+      }
 
       <div *ngIf="successMessage()" class="success-message">
         {{ successMessage() }}
       </div>
     </form>
-  </div>
-</div>
+</ng-template>
