@@ -106,7 +106,7 @@
 <!-- Filter fields: shared between the mobile shell and the desktop card so there is one
      definition of the filter form, not two drifting copies. -->
 <ng-template #filterFieldsBody>
-  <form [formGroup]="filterForm" class="filter-form">
+  <form [formGroup]="filterForm" class="filter-form" (ngSubmit)="onApplyFilter($event)">
     <div class="filter-row">
       <!-- Date Range -->
       <div class="filter-group" *ngIf="showDateRange">
@@ -177,7 +177,7 @@
          renders its own sticky Apply Filter/Reset footer instead of this in-flow bar. -->
     @if (!isMobile()) {
       <div class="filter-actions erp-actions-bar">
-        <button type="button" mat-raised-button color="primary" (click)="onApplyFilter()" [disabled]="loading">
+        <button type="button" mat-raised-button color="primary" (click)="onApplyFilter($event)" [disabled]="loading">
           <mat-icon>search</mat-icon>
           {{ 'REPORTS.APPLY_FILTER' | translate }}
         </button>

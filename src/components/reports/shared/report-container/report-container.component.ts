@@ -145,9 +145,18 @@ export class ReportContainerComponent implements OnInit {
   }
 
   /**
-   * Apply filters
+   * Apply filters. Also bound to the filter <form>'s (ngSubmit) -- not just the button's
+   * (click) -- so pressing Enter in a filter field, or any future button that loses its
+   * type="button", still goes through Angular's event handling instead of falling back to
+   * the browser's native form submission (a full page navigation that aborts the in-flight
+   * report request and leaves the UI stuck on its loading state). preventDefault()/
+   * stopPropagation() are applied unconditionally: (ngSubmit) already suppresses the native
+   * submit by itself, but a plain (click) call from a stray submit button reaches here too,
+   * so this must be safe to call with or without a real submit event.
    */
-  onApplyFilter(): void {
+  onApplyFilter(event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
     if (this.filterForm.valid) {
       const filters: ReportFilter = this.filterForm.value;
       this.filterChange.emit(filters);
