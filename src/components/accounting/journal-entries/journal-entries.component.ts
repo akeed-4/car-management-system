@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { DxDataGridModule, DxButtonModule, DxDataGridComponent } from 'devextreme-angular';
 import { Observable } from 'rxjs';
@@ -22,6 +22,8 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 import { NotificationService } from '@/src/services/notification.service';
 import { openCreateAccountDialog as openCreateAccountDialogHelper } from '../create-account-dialog.helper';
+import { ResponsiveService } from '@/src/services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 
 @Component({
   selector: 'app-journal-entries',
@@ -43,11 +45,16 @@ import { openCreateAccountDialog as openCreateAccountDialogHelper } from '../cre
     MatNativeDateModule,
     MatTooltipModule,
     MatDialogModule,
-    TranslateModule
+    TranslateModule,
+    SharedMobileDataEntryComponent
   ]
 })
 export class JournalEntriesComponent implements OnInit {
   @ViewChild(DxDataGridComponent) grid!: DxDataGridComponent;
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
+  saving = false;
+
   journalEntries$: Observable<JournalEntry[]>;
   accounts$: Observable<Account[]>;
   journalEntries: JournalEntry[] = [];
@@ -185,6 +192,24 @@ export class JournalEntriesComponent implements OnInit {
     if (this.lines.length > 1) {
       this.lines.removeAt(index);
       this.linesData.splice(index, 1);
+    }
+  }
+
+  /** Mobile card editor's Account select -- same effect as setAccountCellValue (below) but
+   *  applied directly to the FormArray control instead of a DevExtreme cell edit, since the
+   *  mobile layout binds each line's controls directly rather than through dx-data-grid. */
+  onMobileAccountChange(index: number, accountId: number | null): void {
+    const lineForm = this.lines.at(index);
+    const account = this.accounts.find(acc => acc.id === accountId);
+    lineForm.patchValue({
+      accountId,
+      accountCode: account ? account.accountCode : '',
+      accountName: account ? account.accountNameEn : '',
+    });
+    if (this.linesData[index]) {
+      this.linesData[index].accountId = accountId;
+      this.linesData[index].accountCode = account ? account.accountCode : '';
+      this.linesData[index].accountName = account ? account.accountNameEn : '';
     }
   }
 
@@ -333,6 +358,8 @@ export class JournalEntriesComponent implements OnInit {
         LineDescription: line.description || undefined
       }));
 
+      this.saving = true;
+
       if (this.isEditing && this.editingEntryId) {
         const updateDto: UpdateJournalEntryDto = {
           id: this.editingEntryId,
@@ -344,11 +371,13 @@ export class JournalEntriesComponent implements OnInit {
         };
         this.accountingService.updateJournalEntry(updateDto).subscribe({
           next: () => {
+            this.saving = false;
             this.toastService.showSuccess(this.translate.instant('ACCOUNTING.JOURNAL_ENTRY_UPDATED'));
             localStorage.removeItem('journalEntryDraft');
             this.router.navigate(['accounts/journal-entries-list']);
           },
           error: (error) => {
+            this.saving = false;
             console.error('Failed to update journal entry:', error);
            this.toastService.showError(this.translate.instant('ACCOUNTING.ERROR_UPDATING_ENTRY'));
           }
@@ -363,11 +392,13 @@ export class JournalEntriesComponent implements OnInit {
         };
         this.accountingService.createJournalEntry(createDto).subscribe({
           next: () => {
+            this.saving = false;
             this.toastService.showSuccess(this.translate.instant('ACCOUNTING.JOURNAL_ENTRY_CREATED'));
             localStorage.removeItem('journalEntryDraft');
             this.onAddEntry();
           },
           error: (error) => {
+            this.saving = false;
             console.error('Failed to create journal entry:', error);
            this.toastService.showError(this.translate.instant('ACCOUNTING.ERROR_CREATING_ENTRY'));
           }

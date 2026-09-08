@@ -1,3 +1,17 @@
+@if (isMobile()) {
+  <shared-mobile-data-entry
+    [title]="(isEditing ? 'ACCOUNTING.EDIT_ENTRY' : 'ACCOUNTING.ADD_ENTRY') | translate"
+    [saving]="saving"
+    [isEditMode]="isEditing"
+    [canSave]="true"
+    [canCancel]="true"
+    [saveLabel]="isEditing ? 'ACCOUNTING.UPDATE' : 'ACCOUNTING.SAVE'"
+    (save)="onSaveEntry()"
+    (cancel)="onCancel()"
+    (back)="onCancel()">
+    <ng-container [ngTemplateOutlet]="journalEntryFormBody"></ng-container>
+  </shared-mobile-data-entry>
+} @else {
 <div class="erp-page">
   <div class="erp-page-header">
     <div class="erp-page-header-titles">
@@ -6,6 +20,12 @@
   </div>
 
   <div class="erp-card">
+    <ng-container [ngTemplateOutlet]="journalEntryFormBody"></ng-container>
+  </div>
+</div>
+}
+
+<ng-template #journalEntryFormBody>
     <form [formGroup]="journalEntryForm" (ngSubmit)="onSaveEntry()">
 
       <div class="erp-section header-section">
@@ -66,9 +86,59 @@
         </mat-form-field>
       </div>
 
-      <!-- Details Grid -->
+      <!-- Details: dx-data-grid on desktop, stacked editable cards on mobile (same FormArray/
+           linesData either way -- see onMobileAccountChange's doc comment). -->
       <div class="erp-section details-section">
         <h3 class="erp-section-title">{{ 'ACCOUNTING.JOURNAL_LINES' | translate }}</h3>
+
+        @if (isMobile()) {
+          <div class="lines-mobile-list" formArrayName="lines">
+            @for (lineForm of lines.controls; track $index) {
+              <div class="line-card" [formGroupName]="$index">
+                <div class="line-card-header">
+                  <span class="line-card-number">{{ 'ACCOUNTING.LINE_NUMBER' | translate }} {{ $index + 1 }}</span>
+                  <button type="button" mat-icon-button class="mobile-touch-target" [disabled]="lines.length <= 1"
+                          [attr.aria-label]="'ACCOUNTING.DELETE' | translate" (click)="removeLine($index)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'ACCOUNTING.ACCOUNT' | translate }}</mat-label>
+                  <mat-select [value]="lineForm.get('accountId')?.value"
+                              (selectionChange)="onMobileAccountChange($index, $event.value)" required>
+                    <mat-option *ngFor="let acc of postableAccounts" [value]="acc.id">{{ acc.accountNameAr }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'ACCOUNTING.DEBIT' | translate }}</mat-label>
+                    <input matInput type="number" formControlName="debit" min="0">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'ACCOUNTING.CREDIT' | translate }}</mat-label>
+                    <input matInput type="number" formControlName="credit" min="0">
+                  </mat-form-field>
+                </div>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'COST_CENTER.LIST_TITLE' | translate }}</mat-label>
+                  <mat-select formControlName="costCenter">
+                    <mat-option [value]="null">-</mat-option>
+                    <mat-option *ngFor="let cc of costCenters" [value]="cc.id">{{ cc.name }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'ACCOUNTING.LINE_DESCRIPTION' | translate }}</mat-label>
+                  <input matInput formControlName="description">
+                </mat-form-field>
+              </div>
+            }
+          </div>
+        } @else {
         <dx-data-grid [dataSource]="linesData" [showBorders]="true" [allowColumnReordering]="true"
           [showColumnLines]="true" [showRowLines]="true" [height]="200" [columnAutoWidth]="true"
           [allowColumnResizing]="true"
@@ -102,6 +172,7 @@
             <dxi-button name="delete" icon="trash" onclick="deleteEntry" hint="{{ 'ACCOUNTING.DELETE' | translate }}"></dxi-button>
           </dxi-column>
         </dx-data-grid>
+        }
 
         <div class="lines-actions-bar">
           <button mat-stroked-button type="button" (click)="addLine()">
@@ -136,16 +207,19 @@
         </div>
       </div>
 
-      <div class="erp-actions-bar">
-        <button mat-button type="button" (click)="onCancel()">
-          {{ 'ACCOUNTING.CANCEL' | translate }}
-        </button>
-        <button mat-raised-button color="primary" type="submit"
-          [disabled]="journalEntryForm.invalid || !isBalanced || lines.length < 2">
-          {{ (isEditing ? 'ACCOUNTING.UPDATE' : 'ACCOUNTING.SAVE') | translate }}
-        </button>
-      </div>
+      <!-- Form Actions: desktop only -- the mobile branch's shared-mobile-data-entry shell
+           renders its own sticky Save/Cancel footer instead of this in-flow bar. -->
+      @if (!isMobile()) {
+        <div class="erp-actions-bar">
+          <button mat-button type="button" (click)="onCancel()">
+            {{ 'ACCOUNTING.CANCEL' | translate }}
+          </button>
+          <button mat-raised-button color="primary" type="submit"
+            [disabled]="journalEntryForm.invalid || !isBalanced || lines.length < 2">
+            {{ (isEditing ? 'ACCOUNTING.UPDATE' : 'ACCOUNTING.SAVE') | translate }}
+          </button>
+        </div>
+      }
 
     </form>
-  </div>
-</div>
+</ng-template>
