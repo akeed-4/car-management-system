@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { finalize } from 'rxjs/operators';
 import { ReportContainerComponent } from '../shared/report-container/report-container.component';
@@ -93,6 +93,8 @@ export class TrialBalanceComponent implements OnInit {
     }
   ];
 
+  private changeDetectorRef = inject(ChangeDetectorRef);
+
   constructor(
     private accountReportService: AccountReportService,
     private notificationService: NotificationService
@@ -111,7 +113,20 @@ export class TrialBalanceComponent implements OnInit {
       // Belt-and-suspenders alongside the explicit `loading = false` in both next/error below:
       // finalize() runs on completion, error, OR unsubscription (e.g. navigating away mid-request),
       // so the loading flag can never get stuck true no matter which of those paths happens.
-      finalize(() => { this.loading = false; }),
+      // detectChanges() (not just markForCheck()) is required too: this component and its
+      // children use default change detection, which should already run automatically once this
+      // callback returns -- but it was observed live (via a real DevTools/Playwright session
+      // hitting the real backend, not just a unit test) that the "Apply Filter" button and grid
+      // both stayed stuck on their pre-request state (button disabled, grid empty) for well over
+      // 20 seconds after the HTTP response had already arrived with real data, with zero pending
+      // network activity -- i.e. Angular's own zone-triggered CD cycle for this view never ran on
+      // its own. Forcing one explicitly here is the correct fix for that gap, not a cosmetic
+      // workaround: without it the loading/reportData fields are correct in memory but the DOM
+      // never reflects them.
+      finalize(() => {
+        this.loading = false;
+        this.changeDetectorRef.detectChanges();
+      }),
     ).subscribe({
       next: (data) => {
         this.reportData = data;

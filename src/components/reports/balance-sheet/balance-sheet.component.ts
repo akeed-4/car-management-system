@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { finalize } from 'rxjs/operators';
 import { ReportContainerComponent } from '../shared/report-container/report-container.component';
@@ -60,6 +60,8 @@ export class BalanceSheetComponent implements OnInit {
     }
   ];
 
+  private changeDetectorRef = inject(ChangeDetectorRef);
+
   constructor(
     private accountReportService: AccountReportService,
     private notificationService: NotificationService
@@ -75,9 +77,12 @@ export class BalanceSheetComponent implements OnInit {
   loadReport(): void {
     this.loading = true;
     this.accountReportService.getBalanceSheet(this.currentFilters).pipe(
-      // See TrialBalanceComponent.loadReport's doc comment: finalize() guarantees loading resets
-      // on completion, error, or unsubscription alike, on top of the explicit resets below.
-      finalize(() => { this.loading = false; }),
+      // See TrialBalanceComponent.loadReport's doc comment for why detectChanges() is required
+      // here alongside finalize()'s `loading = false`, verified live the same way.
+      finalize(() => {
+        this.loading = false;
+        this.changeDetectorRef.detectChanges();
+      }),
     ).subscribe({
       next: (data) => {
         this.reportData = data;

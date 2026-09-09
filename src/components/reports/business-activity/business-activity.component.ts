@@ -1,5 +1,6 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { finalize } from 'rxjs/operators';
 import { ReportContainerComponent } from '../shared/report-container/report-container.component';
 import { ReportGridComponent, GridColumn } from '../shared/report-grid/report-grid.component';
 import { AccountReportService } from '../../../services/account-report.service';
@@ -87,6 +88,8 @@ export class BusinessActivityComponent implements OnInit {
     }
   ];
 
+  private changeDetectorRef = inject(ChangeDetectorRef);
+
   constructor(
     private accountReportService: AccountReportService,
     private notificationService: NotificationService
@@ -101,14 +104,20 @@ export class BusinessActivityComponent implements OnInit {
    */
   loadReport(): void {
     this.loading = true;
-    this.accountReportService.getBusinessActivity(this.currentFilters).subscribe({
+    this.accountReportService.getBusinessActivity(this.currentFilters).pipe(
+      // See TrialBalanceComponent.loadReport's doc comment: finalize() + detectChanges() together
+      // guarantee both the loading flag and the grid's array-mode dataSource binding actually
+      // reach the DOM after the async response, verified live the same way.
+      finalize(() => {
+        this.loading = false;
+        this.changeDetectorRef.detectChanges();
+      }),
+    ).subscribe({
       next: (data) => {
         this.reportData = data;
-        this.loading = false;
       },
-      error: (error) => {
+      error: () => {
         this.notificationService.showError('REPORTS.BUSINESS_ACTIVITY.LOAD_ERROR');
-        this.loading = false;
       }
     });
   }

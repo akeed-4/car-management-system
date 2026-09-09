@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
@@ -77,6 +77,8 @@ export class AccountBalanceComponent implements OnInit {
     }
   ];
 
+  private changeDetectorRef = inject(ChangeDetectorRef);
+
   constructor(
     private accountReportService: AccountReportService,
     private notificationService: NotificationService
@@ -93,9 +95,14 @@ export class AccountBalanceComponent implements OnInit {
   loadReport(): void {
     this.loading = true;
     this.accountReportService.getAccountBalance(this.currentFilters).pipe(
-      // See TrialBalanceComponent.loadReport's doc comment: finalize() guarantees loading resets
-      // on completion, error, or unsubscription alike, on top of the explicit resets below.
-      finalize(() => { this.loading = false; }),
+      // See TrialBalanceComponent.loadReport's doc comment (report-grid.component's array-mode
+      // binding needs a forced CD tick after the async response, not just finalize() clearing
+      // `loading` in memory) for why detectChanges() is required here too, verified live the
+      // same way.
+      finalize(() => {
+        this.loading = false;
+        this.changeDetectorRef.detectChanges();
+      }),
     ).subscribe({
       next: (data) => {
         this.reportData = data;
