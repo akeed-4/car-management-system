@@ -1,6 +1,6 @@
 ﻿import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, Input, OnChanges, SimpleChanges, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe, CommonModule } from '@angular/common';
 import { DxDataGridModule, DxButtonModule } from 'devextreme-angular';
@@ -23,10 +23,11 @@ import { NotificationService } from '@/src/services/notification.service';
 import { extractErrorMessage } from '@/src/models/http-error-message';
 import { ResponsiveService } from '../../../services/responsive.service';
 import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
+import { SharedMobileListComponent } from '../../shared/shared-mobile-list/shared-mobile-list.component';
 @Component({
   selector: 'app-purchase-return-form',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, CommonModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatIconModule, MatDatepickerModule, MatTooltipModule, SharedMobileDataEntryComponent],
+  imports: [RouterLink, ReactiveFormsModule, FormsModule, CommonModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatIconModule, MatDatepickerModule, MatTooltipModule, SharedMobileDataEntryComponent, SharedMobileListComponent],
   templateUrl: './purchase-return-form.component.html',
   styleUrl: './purchase-return-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -167,6 +168,13 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
       })
     );
   }
+
+  // Mobile Details cards (shared-mobile-list) -- same returnItems() data and
+  // updateReturnQuantity clamping desktop's dx-data-grid cell-editing already uses; only the
+  // rendering differs (see the Header+Details mobile pattern established on sales-invoice-form).
+  mobileDetailTitleOf = (item: ReturnInvoiceItem): string => item.carDescription || '';
+
+  mobileDetailTrackBy = (_index: number, item: ReturnInvoiceItem) => item.carId;
 
   saveReturn(): void {
     const originalInvoice = this.selectedOriginalInvoice();

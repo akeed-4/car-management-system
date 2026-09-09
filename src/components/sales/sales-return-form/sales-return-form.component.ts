@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, Input, OnChanges, SimpleChanges, Inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
@@ -30,11 +30,12 @@ import { NotificationService } from '@/src/services/notification.service';
 import { extractErrorMessage } from '@/src/models/http-error-message';
 import { ResponsiveService } from '../../../services/responsive.service';
 import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
+import { SharedMobileListComponent } from '../../shared/shared-mobile-list/shared-mobile-list.component';
 
 @Component({
   selector: 'app-sales-return-form',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, CommonModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatCheckboxModule, MatIconModule, MatDatepickerModule, MatTooltipModule, NgxMatSelectSearchModule, MatCardModule, SharedMobileDataEntryComponent],
+  imports: [RouterLink, ReactiveFormsModule, FormsModule, CommonModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatCheckboxModule, MatIconModule, MatDatepickerModule, MatTooltipModule, NgxMatSelectSearchModule, MatCardModule, SharedMobileDataEntryComponent, SharedMobileListComponent],
   templateUrl: './sales-return-form.component.html',
   styleUrl: './sales-return-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -302,6 +303,13 @@ getTitle(): string {
     );
     this.updateRefundCalculation();
   }
+
+  // Mobile Details cards (shared-mobile-list) -- same returnItems() data and
+  // updateReturnQuantity clamping desktop's dx-data-grid cell-editing already uses; only the
+  // rendering differs (see the Header+Details mobile pattern established on sales-invoice-form).
+  mobileDetailTitleOf = (item: ReturnInvoiceItem): string => item.carDescription || '';
+
+  mobileDetailTrackBy = (_index: number, item: ReturnInvoiceItem) => item.carId;
 
   private updateRefundCalculation(): void {
     const invoice = this.selectedOriginalInvoice();

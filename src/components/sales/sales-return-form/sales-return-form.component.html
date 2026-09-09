@@ -126,6 +126,41 @@
       <div class="erp-card form-container lines-card">
       <section class="erp-section form-section">
         <h3 class="erp-section-title section-title">{{ 'SALES.RETURN.ITEMS_HEADER' | translate }}</h3>
+
+        <!-- Mobile renders the same returnItems() data as cards (return-quantity input bound
+             straight to the existing updateReturnQuantity clamp); desktop keeps the DevExtreme
+             grid untouched. -->
+        @if (isMobile()) {
+          <shared-mobile-list
+            *ngIf="returnItems().length > 0"
+            [data]="returnItems()"
+            [fields]="[]"
+            [titleOf]="mobileDetailTitleOf"
+            [trackByFn]="mobileDetailTrackBy"
+            [showSearch]="false">
+            <ng-template #itemTemplate let-item>
+              <div class="mobile-card-list-title">{{ item.carDescription }}</div>
+              <div class="mobile-card-list-row">
+                <span class="label">{{ 'SALES.RETURN.ORIGINAL_QTY' | translate }}</span>
+                <span class="value">{{ item.originalQuantity }}</span>
+              </div>
+              <div class="mobile-card-list-row">
+                <span class="label">{{ 'SALES.RETURN.SALE_PRICE' | translate }}</span>
+                <span class="value">{{ item.salesPrice | currency:'SAR':'symbol':'1.2-2' }}</span>
+              </div>
+              <mat-form-field appearance="outline" class="full-width" (click)="$event.stopPropagation()">
+                <mat-label>{{ 'SALES.RETURN.RETURN_QTY' | translate }}</mat-label>
+                <input matInput type="number" min="0" [max]="item.originalQuantity"
+                       [ngModel]="item.returnQuantity" [ngModelOptions]="{standalone: true}"
+                       (ngModelChange)="updateReturnQuantity(item.carId, $event)">
+              </mat-form-field>
+              <div class="mobile-card-list-row">
+                <span class="label">{{ 'SALES.RETURN.LINE_TOTAL' | translate }}</span>
+                <span class="value">{{ item.lineTotal | currency:'SAR':'symbol':'1.2-2' }}</span>
+              </div>
+            </ng-template>
+          </shared-mobile-list>
+        } @else {
         <div class="erp-grid-card datagrid-container">
           <dx-data-grid
             [dataSource]="returnItems()"
@@ -207,6 +242,7 @@
 
           </dx-data-grid>
         </div>
+        }
       </section>
       </div>
 

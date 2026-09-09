@@ -78,6 +78,10 @@ import { Observable, of, map, tap, catchError, finalize, switchMap } from 'rxjs'
 import { formatCurrency } from '@angular/common';
 import { DocumentToolbarComponent, DocumentTotalsComponent, DocumentPrintService, DocumentAction, DocumentTotalsRow } from '../../shared/document';
 import { AccountAutocompleteComponent } from '../../shared/account-autocomplete/account-autocomplete.component';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
+import { SharedMobileListComponent } from '../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListFieldDto, MobileListActionDto } from '../../shared/shared-mobile-list/shared-mobile-list.model';
 
 @Component({
   selector: 'app-purchase-invoice',
@@ -109,6 +113,8 @@ import { AccountAutocompleteComponent } from '../../shared/account-autocomplete/
     DocumentToolbarComponent,
     DocumentTotalsComponent,
     AccountAutocompleteComponent,
+    SharedMobileDataEntryComponent,
+    SharedMobileListComponent,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './purchase-invoice.component.html',
@@ -163,6 +169,8 @@ export class PurchaseInvoiceComponent implements OnInit {
   /** Shared save-before-print workflow + formatting locale for the shared totals block. */
   private printWorkflow = inject(DocumentPrintService);
   private localeId = inject(LOCALE_ID);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
   
   private currentUserId = signal<number | null>(null);
 
@@ -1180,6 +1188,39 @@ export class PurchaseInvoiceComponent implements OnInit {
     this.invoiceItems.update(items => [...items, newItem]);
   }
 
+  // =====================================================================
+  // Mobile Details cards (shared-mobile-list) -- same invoiceItems() data,
+  // add/edit/delete logic as the desktop dx-data-grid above; only the
+  // rendering differs. Field config mirrors the dxi-column set 1:1 so the
+  // two views never drift (same pattern established on sales-invoice-form).
+  // =====================================================================
+  protected readonly mobileDetailFields: MobileListFieldDto<InvoiceItem>[] = [
+    { label: 'PURCHASE_INVOICE.RECEIVED_QTY', value: item => item.receivedQuantity, type: 'number', visible: () => this.hasGrnLineage() },
+    { label: 'PURCHASE_INVOICE.QUANTITY', value: item => item.quantity, type: 'number' },
+    { label: 'PURCHASE_INVOICE.UNIT_PRICE', value: item => item.unitPrice, type: 'currency' },
+    { label: 'PURCHASE_INVOICE.TOTAL', value: item => item.lineTotal, type: 'currency' },
+    {
+      label: 'PURCHASE_INVOICE.EST_LANDED_COST',
+      value: item => this.estimatedLandedCost(item),
+      type: 'currency',
+      visible: item => this.estimatedLandedCost(item) !== null,
+    },
+  ];
+
+  protected readonly mobileDetailActions: MobileListActionDto<InvoiceItem>[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'PURCHASE_INVOICE.EDIT_ITEM' },
+    { id: 'delete', icon: 'delete', labelKey: 'PURCHASE_INVOICE.REMOVE_ITEM', cssClass: 'btn-danger' },
+  ];
+
+  mobileDetailTitleOf = (item: InvoiceItem): string => item.carDescription || '';
+
+  mobileDetailTrackBy = (_index: number, item: InvoiceItem) => item.carId;
+
+  onMobileDetailAction(event: { actionId: string; item: InvoiceItem }): void {
+    if (event.actionId === 'edit') this.editQuantity({ row: { data: event.item } });
+    else if (event.actionId === 'delete') this.removeItem({ row: { data: event.item } });
+  }
+
   toggleCarCards(): void {
     const storeId = this.purchaseInvoiceForm.get('storeId')?.value;
     const dialogRef = this.dialog.open(CarSelectionDialogComponent, {
@@ -1276,9 +1317,15 @@ export class PurchaseInvoiceComponent implements OnInit {
         label: 'PURCHASE_INVOICE.CANCEL',
         icon: 'close',
         variant: 'basic',
-        execute: () => this.router.navigate([this.backRoute()])
+        execute: () => this.cancelForm()
       }
     ];
+  }
+
+  /** Shared cancel target for both the desktop toolbar's Cancel action and the mobile shell's
+   * back/cancel (see shared-mobile-data-entry usage in the template). */
+  cancelForm(): void {
+    this.router.navigate([this.backRoute()]);
   }
 
   /**

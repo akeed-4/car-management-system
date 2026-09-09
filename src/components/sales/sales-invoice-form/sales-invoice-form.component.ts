@@ -63,6 +63,8 @@ import { StoreContextService } from '../../../services/store-context.service';
 import { resolveStoreDisplayName } from '../../../models/store-display.util';
 import { ResponsiveService } from '../../../services/responsive.service';
 import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
+import { SharedMobileListComponent } from '../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListFieldDto, MobileListActionDto } from '../../shared/shared-mobile-list/shared-mobile-list.model';
 
 export enum InvoiceType {
   Taxable = 'Taxable',
@@ -105,6 +107,7 @@ const PAYMENT_TYPE_POOL: { value: string; labelKey: string }[] = [
     DocumentToolbarComponent,
     DocumentTotalsComponent,
     SharedMobileDataEntryComponent,
+    SharedMobileListComponent,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './sales-invoice-form.component.html',
@@ -1279,6 +1282,70 @@ export class SalesInvoiceFormComponent implements OnInit {
   onInvoiceItemRowUpdated(event: { data: InvoiceItem }): void {
     const updated = event.data;
     this.invoiceItems.update(items => items.map(item => item.lineKey === updated.lineKey ? updated : item));
+  }
+
+  // =====================================================================
+  // Mobile Details cards (shared-mobile-list) -- same invoiceItems() data,
+  // add/edit/delete logic as the desktop dx-data-grid above; only the
+  // rendering differs. Field config mirrors the dxi-column set 1:1 so the
+  // two views never drift (see the reusable pattern this establishes for
+  // other Header+Details screens).
+  // =====================================================================
+  protected readonly mobileDetailFields: MobileListFieldDto<InvoiceItem>[] = [
+    { label: 'PURCHASE_INVOICE.QUANTITY', value: item => item.quantity, type: 'number' },
+    { label: 'SALES.COL_SALES_PRICE', value: item => item.salesPrice ?? item.unitPrice, type: 'currency' },
+    { label: 'PURCHASE_INVOICE.TOTAL', value: item => item.lineTotal, type: 'currency' },
+    {
+      label: 'INVOICE.NUMBER_OF_INSTALLMENTS',
+      value: item => item.installmentDetails?.numberOfInstallments,
+      visible: () => this.hasInstallments(),
+    },
+    {
+      label: 'INVOICE.INSTALLMENT_AMOUNT',
+      value: item => item.installmentDetails?.installmentAmount,
+      type: 'currency',
+      visible: () => this.hasInstallments(),
+    },
+  ];
+
+  protected readonly mobileDetailActions: MobileListActionDto<InvoiceItem>[] = [
+    { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: item => !item.isPreparationCharge },
+    { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'btn-danger' },
+  ];
+
+  mobileDetailTitleOf = (item: InvoiceItem): string => item.carDescription || item.carName || '';
+
+  mobileDetailTrackBy = (_index: number, item: InvoiceItem) => item.lineKey;
+
+  onMobileDetailAction(event: { actionId: string; item: InvoiceItem }): void {
+    if (event.actionId === 'edit') this.editInvoiceItemMobile(event.item);
+    else if (event.actionId === 'delete') this.removeItem(event.item.lineKey!);
+  }
+
+  /** Reuses the existing InvoiceItemDialogComponent (already used by addCarToInvoice above) and
+   * the same quantity/price recalculation setQuantityValue/setPriceValue perform on desktop --
+   * no new business logic, just a touch-friendly entry point onto the same invoiceItems signal. */
+  editInvoiceItemMobile(item: InvoiceItem): void {
+    const dialogRef = this.dialog.open(InvoiceItemDialogComponent, {
+      width: '400px',
+      data: {
+        carName: item.carDescription || item.carName,
+        quantity: item.quantity,
+        unitPrice: item.salesPrice ?? item.unitPrice ?? 0,
+      },
+      panelClass: 'responsive-dialog-panel',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result?.confirmed) return;
+      const quantity = Math.max(0, Number(result.quantity) || 0);
+      const salesPrice = Math.max(0, Number(result.unitPrice) || 0);
+      this.invoiceItems.update(items => items.map(existing =>
+        existing.lineKey === item.lineKey
+          ? { ...existing, quantity, salesPrice, unitPrice: salesPrice, lineTotal: this.calc.calculateLineTotal(quantity, salesPrice) }
+          : existing
+      ));
+    });
   }
 
 

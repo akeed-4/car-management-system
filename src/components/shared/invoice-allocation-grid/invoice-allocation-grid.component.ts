@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, computed, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, computed, inject, signal } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -8,6 +8,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { AllocatableInvoice, CreateInvoiceAllocation } from '../../../models/invoice-allocation.model';
+import { ResponsiveService } from '../../../services/responsive.service';
+import { SharedMobileListComponent } from '../shared-mobile-list/shared-mobile-list.component';
 
 /** One row currently in the grid, joining a CreateInvoiceAllocation (what gets sent to the
  *  backend) with the invoice's own number/original balance (for display only). */
@@ -40,12 +42,15 @@ export interface InvoiceAllocationRow {
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    SharedMobileListComponent,
   ],
   templateUrl: './invoice-allocation-grid.component.html',
   styleUrl: './invoice-allocation-grid.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InvoiceAllocationGridComponent {
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
   /** Every outstanding invoice the caller (customer/supplier) has -- the "add row" dropdown only
    *  offers invoices not already in `rows`. */
   @Input() invoiceOptions: AllocatableInvoice[] = [];
@@ -126,5 +131,20 @@ export class InvoiceAllocationGridComponent {
 
   trackByInvoiceId(_: number, row: InvoiceAllocationRow): number {
     return row.invoiceId;
+  }
+
+  titleOfRow = (row: InvoiceAllocationRow): string => row.invoiceNumber;
+
+  /** Mobile cards key edits by invoiceId (stable across re-renders) rather than array index;
+   * resolves to the same onAmountChange/removeRow the desktop table's index-based handlers use --
+   * no duplicated allocation logic. */
+  onAmountChangeByInvoiceId(invoiceId: number, amount: number): void {
+    const index = this._rows().findIndex(r => r.invoiceId === invoiceId);
+    if (index !== -1) this.onAmountChange(index, amount);
+  }
+
+  removeRowByInvoiceId(invoiceId: number): void {
+    const index = this._rows().findIndex(r => r.invoiceId === invoiceId);
+    if (index !== -1) this.removeRow(index);
   }
 }

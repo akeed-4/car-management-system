@@ -342,7 +342,20 @@
               </button>
             </div>
 
-            <!-- BAND 3: INVOICE LINE ITEMS GRID -->
+            <!-- BAND 3: INVOICE LINE ITEMS -- mobile renders the same invoiceItems() data as
+                 cards via the shared mobile list; desktop keeps the DevExtreme grid untouched. -->
+            @if (isMobile()) {
+              <shared-mobile-list
+                *ngIf="invoiceItems().length > 0"
+                [data]="invoiceItems()"
+                [fields]="mobileDetailFields"
+                [actions]="mobileDetailActions"
+                [titleOf]="mobileDetailTitleOf"
+                [trackByFn]="mobileDetailTrackBy"
+                [showSearch]="false"
+                (action)="onMobileDetailAction($event)">
+              </shared-mobile-list>
+            } @else {
             <div class="erp-grid-card table-container premium-table" *ngIf="invoiceItems().length > 0">
               <dx-data-grid
                 [dataSource]="invoiceItems()"
@@ -383,6 +396,7 @@
                 <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
               </dx-data-grid>
             </div>
+            }
           </div>
         </div>
 
