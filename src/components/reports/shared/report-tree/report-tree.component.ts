@@ -37,6 +37,10 @@ export class ReportTreeComponent implements OnInit {
   @ViewChild(DxTreeListComponent, { static: false }) treeList!: DxTreeListComponent;
 
   @Input() dataSource: any[] = [];
+  /** Report-level loading state -- see ReportGridComponent.loading's doc comment for why the
+   *  mobile shared-mobile-list needs this explicitly (there's no separate remote-mode paging
+   *  state here to fall back on the way ReportGridComponent has). */
+  @Input() loading = false;
   @Input() columns: TreeColumn[] = [];
   @Input() keyExpr: string = 'id';
   @Input() parentIdExpr: string = 'parentId';

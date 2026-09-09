@@ -56,6 +56,14 @@ export class ReportGridComponent implements OnInit, OnChanges {
     @Input() remoteDataSource?: ReportRemoteDataSource;
     @Input() columns: GridColumn[] = [];
     @Input() keyExpr: string = 'id';
+    /** Report-level loading state (the same flag the caller passes to app-report-container).
+     *  Only meaningful on mobile: the desktop dx-data-grid already shows its own noDataText
+     *  under the report-container's overlay spinner, but the mobile shared-mobile-list has no
+     *  other way to know a search is in flight in array mode (remoteMobileLoading only tracks
+     *  this grid's own remote-store paging) -- without this it renders "no data" for the old
+     *  empty/stale dataSource the instant Apply Filter is tapped, then the same "no data" state
+     *  again if the response is empty, which reads as the report silently failing. */
+    @Input() loading = false;
     @ViewChild(DxDataGridComponent, { static: false }) dataGrid!: DxDataGridComponent;
 
     /** Omit to auto-detect from the document's direction (matches SharedDataGridComponent's own

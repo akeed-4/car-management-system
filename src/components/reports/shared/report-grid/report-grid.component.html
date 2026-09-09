@@ -7,7 +7,7 @@
       [trackByFn]="mobileTrackByFn"
       [emptyMessage]="resolvedNoDataText"
       [showSearch]="false"
-      [loading]="remoteMobileLoading"
+      [loading]="loading || remoteMobileLoading"
       [totalCount]="mobileTotalCount"
       (pageChange)="loadMoreMobileRows()">
     </shared-mobile-list>
