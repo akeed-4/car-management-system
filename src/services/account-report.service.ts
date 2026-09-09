@@ -175,6 +175,13 @@ export class AccountReportService {
         accountType: labelKey,
         amount: section.total,
         level: 0,
+        // dx-tree-list (plain data structure) only recognizes a row as a root node when its
+        // parentIdExpr value equals the widget's `rootValue` option (default 0) -- leaving
+        // parentId unset here left these three rows with parentId === undefined, which matches
+        // neither the root value nor any real node, so DevExtreme's hierarchy builder threw while
+        // constructing the tree on load. Every other row already has a concrete parentId (either
+        // one of these section ids, or a parent account id), so this is the only place that needs it.
+        parentId: 0,
         hasChildren: (section.accounts?.length ?? 0) > 0,
       });
       addAccounts(section.accounts, sectionId, 1, labelKey);

@@ -6,7 +6,10 @@
       [titleOf]="mobileTitleOf"
       [trackByFn]="mobileTrackByFn"
       [emptyMessage]="resolvedNoDataText"
-      [showSearch]="false">
+      [showSearch]="false"
+      [loading]="remoteMobileLoading"
+      [totalCount]="mobileTotalCount"
+      (pageChange)="loadMoreMobileRows()">
     </shared-mobile-list>
   } @else {
   <dx-data-grid

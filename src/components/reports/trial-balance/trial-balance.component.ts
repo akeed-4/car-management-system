@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { finalize } from 'rxjs/operators';
 import { ReportContainerComponent } from '../shared/report-container/report-container.component';
 import { ReportGridComponent, GridColumn } from '../shared/report-grid/report-grid.component';
 import { AccountReportService } from '../../../services/account-report.service';
@@ -106,16 +107,17 @@ export class TrialBalanceComponent implements OnInit {
    */
   loadReport(): void {
     this.loading = true;
-    this.accountReportService.getTrialBalance(this.currentFilters).subscribe({
-      next: (data:any) => {
+    this.accountReportService.getTrialBalance(this.currentFilters).pipe(
+      // Belt-and-suspenders alongside the explicit `loading = false` in both next/error below:
+      // finalize() runs on completion, error, OR unsubscription (e.g. navigating away mid-request),
+      // so the loading flag can never get stuck true no matter which of those paths happens.
+      finalize(() => { this.loading = false; }),
+    ).subscribe({
+      next: (data) => {
         this.reportData = data;
-        this.loading = false;
-        console.log('Trial balance report data loaded:', data);
       },
-      error: (error) => {
+      error: () => {
         this.notificationService.showError('REPORTS.TRIAL_BALANCE.LOAD_ERROR');
-        this.loading = false;
-        console.error('Error loading trial balance report:', error);
       }
     });
   }

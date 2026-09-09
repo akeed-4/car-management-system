@@ -2,6 +2,9 @@ import { Component, Input, Output, EventEmitter, OnInit, ViewChild, inject } fro
 import { CommonModule } from '@angular/common';
 import { DxTreeListModule, DxTreeListComponent } from 'devextreme-angular/ui/tree-list';
 import { TranslateService } from '@ngx-translate/core';
+import { ResponsiveService } from '../../../../services/responsive.service';
+import { SharedMobileListComponent } from '../../../shared/shared-mobile-list/shared-mobile-list.component';
+import { MobileListFieldDto } from '../../../shared/shared-mobile-list/shared-mobile-list.model';
 
 export interface TreeColumn {
   dataField: string;
@@ -20,13 +23,16 @@ export interface TreeColumn {
   standalone: true,
   imports: [
     CommonModule,
-    DxTreeListModule
+    DxTreeListModule,
+    SharedMobileListComponent
   ],
   templateUrl: './report-tree.component.html',
   styleUrls: ['./report-tree.component.css']
 })
 export class ReportTreeComponent implements OnInit {
   private translateService = inject(TranslateService);
+  private responsiveService = inject(ResponsiveService);
+  isMobile = this.responsiveService.isMobile;
 
   @ViewChild(DxTreeListComponent, { static: false }) treeList!: DxTreeListComponent;
 
@@ -34,7 +40,24 @@ export class ReportTreeComponent implements OnInit {
   @Input() columns: TreeColumn[] = [];
   @Input() keyExpr: string = 'id';
   @Input() parentIdExpr: string = 'parentId';
+  /** The parentIdExpr value that marks a row as a root node (DevExtreme's own default for plain
+   *  tree data). Bound explicitly rather than left to the DevExtreme default so every consumer's
+   *  root rows have to agree on this value on purpose -- see BalanceSheetReport's synthetic
+   *  section rows in account-report.service.ts, which set parentId to this same value. */
+  @Input() rootValue: number = 0;
   @Input() hasItemsExpr: string = 'hasChildren';
+
+  /** Omit to auto-detect from the document's direction -- see ReportGridComponent.rtlEnabled's
+   *  doc comment for the identical rationale: dx-tree-list computes column/cell positions itself
+   *  rather than through CSS table layout, so without setting DevExtreme's own rtlEnabled option
+   *  the widget lays out columns left-to-right internally while the surrounding page mirrors
+   *  visually, drifting headers and data cells out of alignment in Arabic/RTL. */
+  @Input() rtlEnabled?: boolean;
+
+  get resolvedRtl(): boolean {
+    return this.rtlEnabled ?? document?.documentElement?.dir === 'rtl';
+  }
+
   @Input() showBorders: boolean = true;
   @Input() showRowLines: boolean = true;
   @Input() showColumnLines: boolean = true;
@@ -54,6 +77,39 @@ export class ReportTreeComponent implements OnInit {
 
   get resolvedNoDataText(): string {
     return this.translateService.instant(this.noDataText || 'REPORTS.APPLY_FILTER_PROMPT');
+  }
+
+  /** Mobile card list rows -- this component is always given the full flattened dataset up front
+   *  (no remote/paged mode, see exportRows' doc comment), so unlike ReportGridComponent's
+   *  remote-mode caveat, every row is always available here. */
+  get mobileData(): any[] {
+    return this.dataSource ?? [];
+  }
+
+  /** First visible column, indented per row `level` so the tree's hierarchy (section headers vs.
+   *  nested accounts) survives being flattened into a plain mobile card list -- same indentation
+   *  convention as formattedCellValue's Excel/PDF export. */
+  get mobileTitleOf(): (row: any) => string {
+    const first = this.visibleColumns[0];
+    return (row: any) => {
+      const value = first ? String(row?.[first.dataField] ?? '') : '';
+      const level = Number(row?.['level'] ?? 0);
+      return '  '.repeat(Math.max(0, level)) + value;
+    };
+  }
+
+  mobileTrackByFn = (index: number) => index;
+
+  /** Derives SharedMobileListComponent's field config from the same `columns` already driving the
+   *  desktop tree-list -- see ReportGridComponent.mobileFields' doc comment for the identical
+   *  rationale (one column definition drives both renderings). */
+  get mobileFields(): MobileListFieldDto<any>[] {
+    const [, ...rest] = this.visibleColumns;
+    return rest.map(col => ({
+      label: col.caption,
+      value: (row: any) => col.calculateCellValue ? col.calculateCellValue(row) : row?.[col.dataField],
+      type: col.dataType === 'number' ? 'number' : col.dataType === 'date' ? 'date' : 'text',
+    }));
   }
 
   @Output() rowClick = new EventEmitter<any>();
@@ -78,8 +134,7 @@ export class ReportTreeComponent implements OnInit {
           column: col.dataField,
           summaryType: 'sum',
           valueFormat: col.format || 'decimal',
-          displayFormat: `{0}`,
-          showInColumn: col.dataField
+          displayFormat: `{0}`
         }));
     }
   }

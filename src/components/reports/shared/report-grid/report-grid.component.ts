@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, ViewChild, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, ViewChild, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   DxDataGridModule,
@@ -138,7 +138,17 @@ export class ReportGridComponent implements OnInit, OnChanges {
     @Output() cellClick = new EventEmitter<any>();
     @Output() selectionChanged = new EventEmitter<any>();
 
-    constructor() { }
+    constructor() {
+        // Covers switching to mobile (e.g. resizing the window) after the remote store was
+        // already set and desktop-loaded -- ngOnChanges only re-fires loadMoreMobileRows when
+        // `remoteDataSource` itself is reassigned (a new search), not on a viewport change, so
+        // without this the mobile card list would stay empty until the next Apply Filter.
+        effect(() => {
+            if (this.isMobile() && this.isRemoteMode && this.remoteMobileRows.length === 0 && !this.remoteMobileLoading) {
+                this.loadMoreMobileRows();
+            }
+        });
+    }
 
     ngOnInit(): void {
         this.setupDefaultSummary();
@@ -164,6 +174,10 @@ export class ReportGridComponent implements OnInit, OnChanges {
         if ('dataSource' in changes || 'remoteDataSource' in changes) {
             this.gridDataSource = this.remoteDataSource ?? this.dataSource;
         }
+        if ('remoteDataSource' in changes && this.remoteDataSource) {
+            this.resetRemoteMobileRows();
+            if (this.isMobile()) this.loadMoreMobileRows();
+        }
     }
 
     /** True when the grid is bound to a remote CustomStore/DataSource rather than a plain array. */
@@ -171,12 +185,66 @@ export class ReportGridComponent implements OnInit, OnChanges {
         return !!this.remoteDataSource;
     }
 
-    /** Plain-array rows for the mobile card list -- remote/CustomStore mode isn't supported there
-     *  (SharedMobileListComponent expects a resolved array, not a DevExtreme store), so mobile
-     *  simply shows nothing in that case rather than attempting to unwrap the store. Every report
-     *  screen today uses plain-array mode. */
+    /** Remote-mode mobile paging state: SharedMobileListComponent expects a resolved array (not a
+     *  DevExtreme store), so in remote mode this component pages through the CustomStore's own
+     *  `load()` directly -- the same API DevExtreme itself calls internally -- one page at a time,
+     *  independently of the desktop dx-data-grid (which isn't even rendered on mobile). Reset
+     *  whenever the store itself changes (a new report search) or the desktop grid is asked to
+     *  refresh, so mobile and desktop always show the same result set. */
+    private remoteMobileRows: any[] = [];
+    private remoteMobileTotalCount = 0;
+    remoteMobileLoading = false;
+
+    /** Rows for the mobile card list: the plain array directly in array mode, or the
+     *  paged-in-so-far rows loaded from the remote store in remote mode (see loadMoreMobileRows). */
     get mobileData(): any[] {
-        return this.isRemoteMode ? [] : this.dataSource;
+        return this.isRemoteMode ? this.remoteMobileRows : this.dataSource;
+    }
+
+    /** Total row count on the server for remote mode -- lets SharedMobileListComponent's own
+     *  "load more" affordance show once more rows exist -- left undefined in array mode where the
+     *  full set is already in `dataSource` (mirrors mobileData's mode split above). */
+    get mobileTotalCount(): number | undefined {
+        return this.isRemoteMode ? this.remoteMobileTotalCount : undefined;
+    }
+
+    /** Loads the next page of the remote store into the mobile card list. Called once when the
+     *  grid (re)enters remote mode and on every SharedMobileListComponent `pageChange`. Uses the
+     *  store's own `load()` -- the same method DevExtreme's grid calls internally for
+     *  remoteOperations -- with plain skip/take so this stays independent of whatever sort/filter
+     *  state the (unrendered, on mobile) desktop grid instance may hold. Only CustomStore's
+     *  `load(options)` accepts a plain skip/take object this way -- DataSource.load() takes no
+     *  arguments and pages via a separate pageIndex()/paginate() API, so this only runs for an
+     *  actual CustomStore (every current report screen's remoteDataSource, per
+     *  ReportRemoteDataSource's own consumers today); a DataSource is left for the desktop grid to
+     *  drive as before, and the mobile list simply shows nothing for that (currently unused) case. */
+    loadMoreMobileRows(): void {
+        if (!this.remoteDataSource || this.remoteMobileLoading) return;
+        if (!(this.remoteDataSource instanceof CustomStore)) return;
+        this.remoteMobileLoading = true;
+        const skip = this.remoteMobileRows.length;
+        Promise.resolve(
+            this.remoteDataSource.load({ skip, take: this.remotePageSize } as any),
+        ).then((result: any) => {
+            const rows = Array.isArray(result) ? result : (result?.data ?? []);
+            const totalCount = Array.isArray(result) ? rows.length : (result?.totalCount ?? rows.length);
+            this.remoteMobileRows = skip === 0 ? rows : [...this.remoteMobileRows, ...rows];
+            this.remoteMobileTotalCount = totalCount;
+        }).catch(() => {
+            // Mirrors the desktop grid's own remote-store error handling (report-data-source.service.ts
+            // already turns a failed load into a real Error) -- the mobile list's emptyMessage/no-data
+            // state covers a load that never populated any rows, so nothing further to show here.
+        }).finally(() => {
+            this.remoteMobileLoading = false;
+        });
+    }
+
+    /** Resets remote-mode mobile paging so the next loadMoreMobileRows() call starts a fresh
+     *  result set instead of appending to a stale one -- called whenever the store itself is
+     *  replaced (a new report search) or refresh() is invoked. */
+    private resetRemoteMobileRows(): void {
+        this.remoteMobileRows = [];
+        this.remoteMobileTotalCount = 0;
     }
 
     /** First visible column is used as each mobile card's title (mirrors how the desktop grid
@@ -301,6 +369,10 @@ export class ReportGridComponent implements OnInit, OnChanges {
   refresh(): void {
     if (this.dataGrid) {
       this.dataGrid.instance.refresh();
+    }
+    if (this.isRemoteMode) {
+      this.resetRemoteMobileRows();
+      if (this.isMobile()) this.loadMoreMobileRows();
     }
   }
 

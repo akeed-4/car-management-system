@@ -1,8 +1,19 @@
 <div class="report-tree-container erp-grid-card">
+  @if (isMobile()) {
+    <shared-mobile-list
+      [data]="mobileData"
+      [fields]="mobileFields"
+      [titleOf]="mobileTitleOf"
+      [trackByFn]="mobileTrackByFn"
+      [emptyMessage]="resolvedNoDataText"
+      [showSearch]="false">
+    </shared-mobile-list>
+  } @else {
   <dx-tree-list
     [dataSource]="dataSource"
     [keyExpr]="keyExpr"
     [parentIdExpr]="parentIdExpr"
+    [rootValue]="rootValue"
     [hasItemsExpr]="hasItemsExpr"
     [showBorders]="showBorders"
     [showRowLines]="showRowLines"
@@ -11,6 +22,7 @@
     [allowColumnResizing]="allowColumnResizing"
     [allowColumnReordering]="allowColumnReordering"
     [columnAutoWidth]="true"
+    [rtlEnabled]="resolvedRtl"
     [autoExpandAll]="autoExpandAll"
     [expandNodesOnFiltering]="expandNodesOnFiltering"
     [height]="height"
@@ -65,10 +77,10 @@
         [column]="item.column"
         [summaryType]="item.summaryType"
         [valueFormat]="item.valueFormat"
-        [displayFormat]="item.displayFormat"
-        [showInColumn]="item.showInColumn">
+        [displayFormat]="item.displayFormat">
       </dxi-total-item>
     </dxo-summary>
 
   </dx-tree-list>
+  }
 </div>

@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { finalize } from 'rxjs/operators';
 import { ReportContainerComponent } from '../shared/report-container/report-container.component';
 import { ReportTreeComponent, TreeColumn } from '../shared/report-tree/report-tree.component';
 import { AccountReportService } from '../../../services/account-report.service';
@@ -73,14 +74,16 @@ export class BalanceSheetComponent implements OnInit {
    */
   loadReport(): void {
     this.loading = true;
-    this.accountReportService.getBalanceSheet(this.currentFilters).subscribe({
+    this.accountReportService.getBalanceSheet(this.currentFilters).pipe(
+      // See TrialBalanceComponent.loadReport's doc comment: finalize() guarantees loading resets
+      // on completion, error, or unsubscription alike, on top of the explicit resets below.
+      finalize(() => { this.loading = false; }),
+    ).subscribe({
       next: (data) => {
         this.reportData = data;
-        this.loading = false;
       },
-      error: (error) => {
+      error: () => {
         this.notificationService.showError('REPORTS.BALANCE_SHEET.LOAD_ERROR');
-        this.loading = false;
       }
     });
   }
