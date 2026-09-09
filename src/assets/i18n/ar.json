@@ -520,6 +520,7 @@
     "ZERO_RATED": " صفري",
     "EXEMPT": "معفى",
     "INVOICE_CLASSIFICATION": "تصنيف الفاتورة",
+    "EDIT_ITEM": "تعديل العنصر",
     "REMOVE_ITEM": "إزالة العنصر",
     "LOAD_FROM_RECEIPTS": "تحميل من إيصالات استلام السيارات",
     "ADD_SELECTED_RECEIPTS": "إضافة الإيصالات المحددة",

@@ -526,6 +526,7 @@
     "ZERO_RATED": "Zero Rated",
     "EXEMPT": "Exempt",
     "INVOICE_CLASSIFICATION": "Invoice Classification",
+    "EDIT_ITEM": "Edit Item",
     "REMOVE_ITEM": "Remove Item",
     "LOAD_FROM_RECEIPTS": "Load From Car Receipts",
     "ADD_SELECTED_RECEIPTS": "Add Selected Receipts",
