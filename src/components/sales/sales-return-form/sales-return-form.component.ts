@@ -31,11 +31,12 @@ import { extractErrorMessage } from '@/src/models/http-error-message';
 import { ResponsiveService } from '../../../services/responsive.service';
 import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 import { SharedMobileListComponent } from '../../shared/shared-mobile-list/shared-mobile-list.component';
+import { AppActionBarComponent } from '../../shared/app-action-bar/app-action-bar.component';
 
 @Component({
   selector: 'app-sales-return-form',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, FormsModule, CommonModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatCheckboxModule, MatIconModule, MatDatepickerModule, MatTooltipModule, NgxMatSelectSearchModule, MatCardModule, SharedMobileDataEntryComponent, SharedMobileListComponent],
+  imports: [RouterLink, ReactiveFormsModule, FormsModule, CommonModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatCheckboxModule, MatIconModule, MatDatepickerModule, MatTooltipModule, NgxMatSelectSearchModule, MatCardModule, SharedMobileDataEntryComponent, SharedMobileListComponent, AppActionBarComponent],
   templateUrl: './sales-return-form.component.html',
   styleUrl: './sales-return-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

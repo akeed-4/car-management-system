@@ -89,3 +89,12 @@
     gap: 15px;
   }
 }
+
+/* Row-actions cell for the line-items grid's dxi-column cellTemplate (replaces the broken
+   native dxi-button -- see the template comment). Mirrors SharedDataGridComponent's own
+   .sdg-actions-cell spacing convention. */
+.row-actions-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}

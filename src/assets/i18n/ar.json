@@ -439,6 +439,8 @@
     "PAYMENT_METHOD": "طريقة الدفع",
     "ITEMS_SECTION": "عناصر الفاتورة",
     "ADD_ITEM": "إضافة عنصر",
+    "EDIT_ITEM": "تعديل العنصر",
+    "REMOVE_ITEM": "إزالة العنصر",
     "SELECT_CAR": "اختيار السيارة",
     "PURCHASE_PRICE": "سعر الشراء",
     "QUANTITY": "الكمية",

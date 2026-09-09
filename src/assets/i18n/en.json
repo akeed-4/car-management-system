@@ -439,6 +439,8 @@
     "PAYMENT_METHOD": "Payment Method",
     "ITEMS_SECTION": "Invoice Items",
     "ADD_ITEM": "Add Item",
+    "EDIT_ITEM": "Edit Item",
+    "REMOVE_ITEM": "Remove Item",
     "SELECT_CAR": "Select Car",
     "PURCHASE_PRICE": "Purchase Price",
     "QUANTITY": "Quantity",

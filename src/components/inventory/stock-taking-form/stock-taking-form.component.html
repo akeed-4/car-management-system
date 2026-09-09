@@ -1,15 +1,26 @@
 @if (isMobile()) {
+  <!-- Header + content shell reused as-is (SharedMobileDataEntryComponent); its own built-in
+       footer is suppressed (canSave/canCancel both false) so the shared AppActionBar -- the
+       same component the desktop branch below uses -- renders as the sticky bottom bar
+       instead, giving mobile and desktop one identical action-bar contract. -->
   <shared-mobile-data-entry
     [title]="pageTitle()"
     [saving]="isSaving()"
     [isEditMode]="editMode()"
-    [canSave]="true"
-    [canCancel]="true"
-    [saveLabel]="editMode() ? 'INVENTORY.STOCK_TAKING_FORM.SAVE_CHANGES' : 'INVENTORY.STOCK_TAKING_FORM.SAVE_TAKE'"
-    (save)="saveStockTake()"
-    (cancel)="cancelForm()"
+    [canSave]="false"
+    [canCancel]="false"
     (back)="cancelForm()">
     <ng-container [ngTemplateOutlet]="stockTakingFormBody"></ng-container>
+    <app-action-bar
+      [showCancel]="true"
+      [showSave]="true"
+      [saving]="isSaving()"
+      [saveDisabled]="stockTakeForm.invalid || locked()"
+      [saveLabel]="editMode() ? 'INVENTORY.STOCK_TAKING_FORM.SAVE_CHANGES' : 'INVENTORY.STOCK_TAKING_FORM.SAVE_TAKE'"
+      [cancelLabel]="'INVENTORY.STOCK_TAKING_FORM.CANCEL'"
+      (cancel)="cancelForm()"
+      (save)="saveStockTake()">
+    </app-action-bar>
   </shared-mobile-data-entry>
 } @else {
   <div class="erp-page">
@@ -179,16 +190,23 @@
         </div>
       </div>
 
-      <!-- Form Actions: desktop only -->
+      <!-- Unified action bar (shared across the Sales/Purchase Invoice + Return + Receipt/Payment
+           + Store Transfer + Stock-Taking document screens): Save + Cancel. Same component the
+           mobile branch above uses. Save preserves the exact same 3-part disabled condition
+           (invalid form OR already saving OR locked); Cancel calls the existing cancelForm(),
+           which navigates to the same '/inventory/stock-taking' the old routerLink used. -->
       @if (!isMobile()) {
         <div class="erp-actions-bar form-actions">
-          <button mat-stroked-button type="button" routerLink="/inventory/stock-taking" class="cancel-button">
-            {{ 'INVENTORY.STOCK_TAKING_FORM.CANCEL' | translate }}
-          </button>
-          <button mat-raised-button color="primary" (click)="saveStockTake()" [disabled]="stockTakeForm.invalid || isSaving() || locked()">
-            <span *ngIf="!isSaving()">{{ editMode() ? ('INVENTORY.STOCK_TAKING_FORM.SAVE_CHANGES' | translate) : ('INVENTORY.STOCK_TAKING_FORM.SAVE_TAKE' | translate) }}</span>
-            <mat-spinner *ngIf="isSaving()" diameter="20" color="accent"></mat-spinner>
-          </button>
+          <app-action-bar
+            [showCancel]="true"
+            [showSave]="true"
+            [saving]="isSaving()"
+            [saveDisabled]="stockTakeForm.invalid || locked()"
+            [saveLabel]="editMode() ? 'INVENTORY.STOCK_TAKING_FORM.SAVE_CHANGES' : 'INVENTORY.STOCK_TAKING_FORM.SAVE_TAKE'"
+            [cancelLabel]="'INVENTORY.STOCK_TAKING_FORM.CANCEL'"
+            (cancel)="cancelForm()"
+            (save)="saveStockTake()">
+          </app-action-bar>
         </div>
       }
 

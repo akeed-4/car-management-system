@@ -1,0 +1,113 @@
+@if (responsive.isMobile()) {
+  <!-- Mobile: sticky bottom bar, same markup/CSS contract as SharedMobileDataEntryComponent's
+       footer (.mobile-sticky-footer, .mobile-control) so it looks identical whether a screen
+       uses the full shared-mobile-data-entry shell or this component standalone. -->
+  <div class="mobile-sticky-footer aab-mobile-footer" role="toolbar" aria-label="Document actions">
+    @if (canCancel) {
+      <button type="button" mat-stroked-button class="mobile-control aab-action-btn"
+              [disabled]="saving"
+              (click)="onCancel()">
+        {{ cancelLabel | translate }}
+      </button>
+    }
+
+    @if (canApprove) {
+      <button type="button" mat-stroked-button color="accent" class="mobile-control aab-action-btn"
+              [disabled]="saving || loading"
+              (click)="onApprove()">
+        {{ approveLabel | translate }}
+      </button>
+    }
+
+    @if (canPrint) {
+      <button type="button" mat-stroked-button class="mobile-control aab-action-btn"
+              [disabled]="printActionDisabled"
+              (click)="onPrint()">
+        {{ printLabel | translate }}
+      </button>
+    }
+
+    @if (hasOverflowActions) {
+      <button type="button" mat-icon-button class="mobile-touch-target" [matMenuTriggerFor]="moreMenu"
+              [attr.aria-label]="moreLabel | translate">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #moreMenu="matMenu" xPosition="before">
+        @if (canSaveAndNew) {
+          <button mat-menu-item type="button" [disabled]="primarySaveDisabled" (click)="onSaveAndNew()">
+            {{ saveAndNewLabel | translate }}
+          </button>
+        }
+        @if (canSaveAndPrint) {
+          <button mat-menu-item type="button" [disabled]="primarySaveDisabled" (click)="onSaveAndPrint()">
+            {{ saveAndPrintLabel | translate }}
+          </button>
+        }
+      </mat-menu>
+    }
+
+    @if (canSave) {
+      <button type="button" mat-flat-button color="primary" class="mobile-control aab-action-btn"
+              [disabled]="primarySaveDisabled"
+              (click)="onSave()">
+        {{ (saving ? savingLabel : saveLabel) | translate }}
+      </button>
+    }
+  </div>
+} @else {
+  <!-- Desktop: inline toolbar, same visual language as DocumentToolbarComponent
+       (.doc-toolbar / .doc-action) so screens keep one consistent button hierarchy
+       whether they use that action-list-driven component or this named-input one. -->
+  <div class="doc-toolbar aab-desktop-toolbar" [class.doc-toolbar-busy]="saving" role="toolbar" aria-label="Document actions">
+    <div class="doc-toolbar-actions">
+      @if (canCancel) {
+        <button type="button" mat-stroked-button class="doc-action"
+                [disabled]="saving"
+                (click)="onCancel()">
+          {{ cancelLabel | translate }}
+        </button>
+      }
+
+      @if (canApprove) {
+        <button type="button" mat-stroked-button class="doc-action"
+                [disabled]="saving || loading"
+                (click)="onApprove()">
+          {{ approveLabel | translate }}
+        </button>
+      }
+
+      @if (canPrint) {
+        <button type="button" mat-stroked-button class="doc-action"
+                [disabled]="printActionDisabled"
+                (click)="onPrint()">
+          <mat-icon aria-hidden="true">print</mat-icon>
+          <span>{{ printLabel | translate }}</span>
+        </button>
+      }
+
+      @if (canSaveAndNew) {
+        <button type="button" mat-stroked-button class="doc-action"
+                [disabled]="primarySaveDisabled"
+                (click)="onSaveAndNew()">
+          {{ saveAndNewLabel | translate }}
+        </button>
+      }
+
+      @if (canSaveAndPrint) {
+        <button type="button" mat-flat-button class="doc-action doc-action-accent"
+                [disabled]="primarySaveDisabled"
+                (click)="onSaveAndPrint()">
+          {{ saveAndPrintLabel | translate }}
+        </button>
+      }
+
+      @if (canSave) {
+        <button type="button" mat-flat-button class="doc-action doc-action-primary"
+                [disabled]="primarySaveDisabled"
+                (click)="onSave()">
+          {{ (saving ? savingLabel : saveLabel) | translate }}
+        </button>
+      }
+    </div>
+  </div>
+}

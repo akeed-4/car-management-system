@@ -23,6 +23,7 @@ import { MatTableModule } from '@angular/material/table';
 import { DxDataGridModule } from 'devextreme-angular';
 import { ResponsiveService } from '../../../services/responsive.service';
 import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
+import { AppActionBarComponent } from '../../shared/app-action-bar/app-action-bar.component';
 
 @Component({
   selector: 'app-stock-taking-approval-form',
@@ -43,7 +44,8 @@ import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-
     MatDatepickerModule,
     MatNativeDateModule,
     DxDataGridModule,
-    SharedMobileDataEntryComponent
+    SharedMobileDataEntryComponent,
+    AppActionBarComponent
   ],
   templateUrl: './stock-taking-approval-form.component.html',
   styleUrl: './stock-taking-approval-form.component.css',

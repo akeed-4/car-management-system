@@ -34,6 +34,7 @@ import { AccountAutocompleteComponent } from '../../shared/account-autocomplete/
 import { NotificationService } from '../../../services/notification.service';
 import { ResponsiveService } from '../../../services/responsive.service';
 import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
+import { AppActionBarComponent } from '../../shared/app-action-bar/app-action-bar.component';
 
 @Component({
   selector: 'app-stock-taking-form',
@@ -60,6 +61,7 @@ import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-
     CarSelectionDialogComponent,
     AccountAutocompleteComponent,
     SharedMobileDataEntryComponent,
+    AppActionBarComponent,
   ],
   templateUrl: './stock-taking-form.component.html',
   styleUrl: './stock-taking-form.component.css',

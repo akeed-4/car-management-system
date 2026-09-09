@@ -1,15 +1,25 @@
 @if (isMobile()) {
+  <!-- Header + content shell reused as-is (SharedMobileDataEntryComponent); its own built-in
+       footer is suppressed (canSave/canCancel both false) so the shared AppActionBar -- the
+       same component the desktop branch below uses -- renders as the sticky bottom bar
+       instead, giving mobile and desktop one identical action-bar contract. -->
   <shared-mobile-data-entry
     [title]="getTitle()"
     [saving]="isSubmitting()"
     [isEditMode]="editMode"
-    [canSave]="true"
-    [canCancel]="true"
-    [saveLabel]="editMode ? 'COMMON.SAVE' : 'SALES.RETURN.SAVE_AND_SEND_APPROVAL'"
-    (save)="saveReturn()"
-    (cancel)="cancelForm()"
+    [canSave]="false"
+    [canCancel]="false"
     (back)="cancelForm()">
     <ng-container [ngTemplateOutlet]="salesReturnFormBody"></ng-container>
+    <app-action-bar
+      [showCancel]="true"
+      [showSave]="true"
+      [saving]="isSubmitting()"
+      [saveDisabled]="returnForm.invalid || totalAmount() === 0"
+      [saveLabel]="editMode ? 'COMMON.SAVE' : 'SALES.RETURN.SAVE_AND_SEND_APPROVAL'"
+      (cancel)="cancelForm()"
+      (save)="saveReturn()">
+    </app-action-bar>
   </shared-mobile-data-entry>
 } @else {
   <div class="erp-page container">
@@ -322,22 +332,22 @@
             <span class="erp-total-value summary-amount">{{ totalAmount() | currency:'SAR':'symbol':'1.0-0' }}</span>
           </div>
 
-          <!-- Form Actions: desktop only -- the mobile branch's shared-mobile-data-entry
-               shell renders its own sticky Save/Cancel footer instead of this in-flow bar. -->
+          <!-- Unified action bar (shared across the Sales/Purchase Invoice + Return document
+               screens): Save + Cancel. Same component the mobile branch above uses. Save label
+               mirrors the previous hand-rolled button exactly (Save on edit, Save & Send for
+               Approval on create); Cancel now calls cancelForm() instead of a plain routerLink,
+               matching Purchase Return's existing cancelForm() navigation target. -->
           @if (!isMobile()) {
           <div class="erp-actions-bar form-actions">
-            <button (click)="saveReturn()"
-              [disabled]="returnForm.invalid || totalAmount() === 0 || isSubmitting()"
-              class="btn-save">
-              @if (isSubmitting()) {
-              <span>{{ 'COMMON.SAVING' | translate }}</span>
-              } @else {
-              <span>{{ 'SALES.RETURN.SAVE_AND_SEND_APPROVAL' | translate }}</span>
-              }
-            </button>
-            <a routerLink="/sales/return" class="btn-cancel">
-              {{ 'COMMON.CANCEL' | translate }}
-            </a>
+            <app-action-bar
+              [showCancel]="true"
+              [showSave]="true"
+              [saving]="isSubmitting()"
+              [saveDisabled]="returnForm.invalid || totalAmount() === 0"
+              [saveLabel]="editMode ? 'COMMON.SAVE' : 'SALES.RETURN.SAVE_AND_SEND_APPROVAL'"
+              (cancel)="cancelForm()"
+              (save)="saveReturn()">
+            </app-action-bar>
           </div>
           }
         </mat-card>

@@ -1,15 +1,25 @@
 @if (isMobile()) {
+  <!-- Header + content shell reused as-is (SharedMobileDataEntryComponent); its own built-in
+       footer is suppressed (canSave/canCancel both false) so the shared AppActionBar -- the
+       same component the desktop branch below uses -- renders as the sticky bottom bar
+       instead, giving mobile and desktop one identical action-bar contract. -->
   <shared-mobile-data-entry
     [title]="(isEditing ? 'ACCOUNTING.EDIT_ENTRY' : 'ACCOUNTING.ADD_ENTRY') | translate"
     [saving]="saving"
     [isEditMode]="isEditing"
-    [canSave]="true"
-    [canCancel]="true"
-    [saveLabel]="isEditing ? 'ACCOUNTING.UPDATE' : 'ACCOUNTING.SAVE'"
-    (save)="onSaveEntry()"
-    (cancel)="onCancel()"
+    [canSave]="false"
+    [canCancel]="false"
     (back)="onCancel()">
     <ng-container [ngTemplateOutlet]="journalEntryFormBody"></ng-container>
+    <app-action-bar
+      [showCancel]="true"
+      [showSave]="true"
+      [saving]="saving"
+      [saveLabel]="isEditing ? 'ACCOUNTING.UPDATE' : 'ACCOUNTING.SAVE'"
+      [cancelLabel]="'ACCOUNTING.CANCEL'"
+      (cancel)="onCancel()"
+      (save)="onSaveEntry()">
+    </app-action-bar>
   </shared-mobile-data-entry>
 } @else {
 <div class="erp-page">
@@ -168,9 +178,24 @@
           </dxi-column>
           <dxi-column dataField="description"
             caption="{{ 'ACCOUNTING.LINE_DESCRIPTION' | translate }}"></dxi-column>
-          <dxi-column type="buttons">
-            <dxi-button name="delete" icon="trash" onclick="deleteEntry" hint="{{ 'ACCOUNTING.DELETE' | translate }}"></dxi-button>
-          </dxi-column>
+          <!-- Native dxi-button renders empty/broken in this build (known DevExtreme issue --
+               see SharedDataGridComponent's own icon-actions template for the established
+               workaround); its onclick="deleteEntry" was also a dead plain-HTML attribute
+               referencing a method that doesn't exist, so this row action never actually
+               worked. Replaced with a plain cellTemplate + mat-icon-button calling the same
+               removeLine(index) the mobile card list already uses -- cell.rowIndex matches
+               linesData's array order, the same index onRowRemoved's indexOf lookup resolved
+               to. -->
+          <dxi-column type="buttons" caption="{{ 'ACCOUNTING.DELETE' | translate }}" [width]="70" cellTemplate="rowActionsTemplate"></dxi-column>
+          <div *dxTemplate="let cell of 'rowActionsTemplate'" class="row-actions-cell">
+            <button type="button" mat-icon-button
+                    [matTooltip]="'ACCOUNTING.DELETE' | translate"
+                    [attr.aria-label]="'ACCOUNTING.DELETE' | translate"
+                    [disabled]="lines.length <= 1"
+                    (click)="removeLine(cell.rowIndex)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
         </dx-data-grid>
         }
 
@@ -207,17 +232,24 @@
         </div>
       </div>
 
-      <!-- Form Actions: desktop only -- the mobile branch's shared-mobile-data-entry shell
-           renders its own sticky Save/Cancel footer instead of this in-flow bar. -->
+      <!-- Unified action bar (shared across the Sales/Purchase Invoice + Return + Receipt/Payment
+           + Store Transfer + Stock-Taking + Journal Entries document screens): Save + Cancel.
+           Same component the mobile branch above uses. Save preserves the exact same 3-part
+           disabled condition (invalid form OR unbalanced OR fewer than 2 lines); Cancel calls
+           the existing onCancel(), which resets the form via onAddEntry() before navigating --
+           unchanged. -->
       @if (!isMobile()) {
         <div class="erp-actions-bar">
-          <button mat-button type="button" (click)="onCancel()">
-            {{ 'ACCOUNTING.CANCEL' | translate }}
-          </button>
-          <button mat-raised-button color="primary" type="submit"
-            [disabled]="journalEntryForm.invalid || !isBalanced || lines.length < 2">
-            {{ (isEditing ? 'ACCOUNTING.UPDATE' : 'ACCOUNTING.SAVE') | translate }}
-          </button>
+          <app-action-bar
+            [showCancel]="true"
+            [showSave]="true"
+            [saving]="saving"
+            [saveDisabled]="journalEntryForm.invalid || !isBalanced || lines.length < 2"
+            [saveLabel]="isEditing ? 'ACCOUNTING.UPDATE' : 'ACCOUNTING.SAVE'"
+            [cancelLabel]="'ACCOUNTING.CANCEL'"
+            (cancel)="onCancel()"
+            (save)="onSaveEntry()">
+          </app-action-bar>
         </div>
       }
 

@@ -54,7 +54,8 @@ import { DiscountType } from '../../../models/sales-invoice-financials';
 import { SalesInvoiceCalculationService } from '../../../services/sales-invoice-calculation.service';
 import { Observable, of, map, tap, catchError, finalize, switchMap } from 'rxjs';
 import { formatCurrency } from '@angular/common';
-import { DocumentToolbarComponent, DocumentTotalsComponent, DocumentPrintService, DocumentAction, DocumentTotalsRow } from '../../shared/document';
+import { DocumentTotalsComponent, DocumentPrintService, DocumentTotalsRow } from '../../shared/document';
+import { AppActionBarComponent } from '../../shared/app-action-bar/app-action-bar.component';
 import { StoreAccountingConfigurationService } from '../../../services/store-accounting-configuration.service';
 import { warnIfStoreNotConfigured } from '../../shared/store-accounting-setup-warning-dialog/store-accounting-setup-warning.helper';
 import { warnIfPartyAccountMissing } from '../../shared/party-account-required-dialog/party-account-required-warning.helper';
@@ -104,10 +105,10 @@ const PAYMENT_TYPE_POOL: { value: string; labelKey: string }[] = [
     DxDataGridModule,
     TranslateModule,
     CashAmountCalculatorComponent,
-    DocumentToolbarComponent,
     DocumentTotalsComponent,
     SharedMobileDataEntryComponent,
     SharedMobileListComponent,
+    AppActionBarComponent,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './sales-invoice-form.component.html',
@@ -1378,54 +1379,19 @@ export class SalesInvoiceFormComponent implements OnInit {
     return this.serializeDocumentState() !== this.documentSnapshot;
   }
 
-  /** Same validity rule the save button always enforced, now feeding the shared toolbar. */
-  private canSaveInvoice(): boolean {
+  /** Same validity rule the save button always enforced, now feeding the shared action bar
+   *  (called directly from the template, so it must stay protected/public, not private). */
+  protected canSaveInvoice(): boolean {
     return !!this.invoiceForm?.get('customer')?.valid
       && !!this.invoiceForm?.get('invoiceDate')?.valid
       && !this.invoiceForm?.get('discountValue')?.invalid
       && this.invoiceItems().length > 0;
   }
 
-  /** Unified toolbar configuration -- rendered by DocumentToolbarComponent at the
-   * top of the page and in the sticky summary rail. */
-  toolbarActions(): DocumentAction[] {
-    const canSave = this.canSaveInvoice();
-    return [
-      {
-        id: 'save',
-        label: this.isEditMode() ? 'COMMON.SAVE' : 'INVOICE.ISSUE',
-        icon: 'save',
-        variant: 'primary',
-        disabled: !canSave,
-        execute: () => this.saveInvoice()
-      },
-      {
-        id: 'save-print',
-        label: 'DOCUMENT_COMMON.ACTIONS.SAVE_AND_PRINT',
-        icon: 'print',
-        variant: 'accent',
-        disabled: !canSave,
-        execute: () => this.printInvoice()
-      },
-      {
-        id: 'print',
-        label: 'DOCUMENT_COMMON.ACTIONS.PRINT',
-        icon: 'print',
-        variant: 'basic',
-        visible: this.isEditMode(),
-        // A clean persisted document can always be printed; a dirty one only if it can be saved first.
-        disabled: this.isDocumentDirty() && !canSave,
-        execute: () => this.printInvoice()
-      },
-      {
-        id: 'cancel',
-        label: 'INVOICE.CANCEL',
-        icon: 'close',
-        variant: 'basic',
-        execute: () => this.cancelForm()
-      }
-    ];
-  }
+  // Action bar configuration moved into the template (app-action-bar inputs), replacing the
+  // DocumentAction[]-driven DocumentToolbarComponent this screen used previously -- same
+  // save/saveAndPrint/print/cancel behavior, same canSaveInvoice()/isDocumentDirty() guards,
+  // now shared visually with Purchase Invoice/Sales Return/Purchase Return via AppActionBar.
 
   /** Shared cancel target for both the desktop toolbar's Cancel action and the mobile shell's
    *  Cancel/Back buttons -- same destination the toolbar already navigated to. */

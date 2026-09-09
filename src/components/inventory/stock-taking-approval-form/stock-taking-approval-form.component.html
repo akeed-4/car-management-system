@@ -1,15 +1,28 @@
 @if (isMobile()) {
+  <!-- Header + content shell reused as-is (SharedMobileDataEntryComponent); its own built-in
+       footer is suppressed (canSave/canCancel both false) so the shared AppActionBar -- the
+       same component the desktop branch below uses -- renders as the sticky bottom bar
+       instead, giving mobile and desktop one identical action-bar contract. Save label kept
+       as the mobile branch's original simpler 2-way text (Update/Submit) -- it never had
+       desktop's richer 3-way Approve/Reject/Submit wording, and this migration doesn't change
+       what each branch already showed. -->
   <shared-mobile-data-entry
     [title]="'STOCK_TAKING_APPROVAL_FORM.TITLE' | translate"
     [saving]="false"
     [isEditMode]="isEditMode()"
-    [canSave]="true"
-    [canCancel]="true"
-    [saveLabel]="isEditMode() ? 'STOCK_TAKING_APPROVAL_FORM.UPDATE' : 'STOCK_TAKING_APPROVAL_FORM.SUBMIT'"
-    (save)="saveApproval()"
-    (cancel)="cancelForm()"
+    [canSave]="false"
+    [canCancel]="false"
     (back)="cancelForm()">
     <ng-container [ngTemplateOutlet]="approvalFormBody"></ng-container>
+    <app-action-bar
+      [showCancel]="true"
+      [showSave]="true"
+      [saving]="false"
+      [saveLabel]="isEditMode() ? 'STOCK_TAKING_APPROVAL_FORM.UPDATE' : 'STOCK_TAKING_APPROVAL_FORM.SUBMIT'"
+      [cancelLabel]="'STOCK_TAKING_APPROVAL_FORM.CANCEL'"
+      (cancel)="cancelForm()"
+      (save)="saveApproval()">
+    </app-action-bar>
   </shared-mobile-data-entry>
 } @else {
   <div class="erp-page">
@@ -115,19 +128,29 @@
         <p>{{ 'STOCK_TAKING_APPROVAL_FORM.SELECT_STOCK_TAKE_MESSAGE' | translate }}</p>
       </div>
 
-      <!-- Form Actions: desktop only -- the mobile branch's shared-mobile-data-entry
-           shell renders its own sticky Save/Cancel footer instead of this in-flow bar. -->
+      <!-- Unified action bar (shared across the Sales/Purchase Invoice + Return + Receipt/Payment
+           + Store Transfer + Stock-Taking document screens): Save + Cancel. Same component the
+           mobile branch above uses. Save label keeps the exact same 3-way computed text
+           (Update in edit mode; else Approve & Update / Reject / Submit per the selected
+           approvalStatus) and the exact same *ngIf="selectedStockTake()" gate the old bar had
+           (hidden until a stock-take document is actually selected); Cancel calls the existing
+           cancelForm(), which navigates to the same '/inventory/stock-taking-approval' the old
+           routerLink used. -->
       @if (!isMobile()) {
         <div class="erp-actions-bar form-actions" *ngIf="selectedStockTake()">
-          <button mat-stroked-button type="button" routerLink="/inventory/stock-taking-approval" class="cancel-button">
-            {{ 'STOCK_TAKING_APPROVAL_FORM.CANCEL' | translate }}
-          </button>
-          <button mat-raised-button color="primary" (click)="saveApproval()" [disabled]="approvalForm.invalid">
-            {{ isEditMode() ? ('STOCK_TAKING_APPROVAL_FORM.UPDATE' | translate) :
-               (approvalForm.get('approvalStatus')?.value === 'Approved' ? ('STOCK_TAKING_APPROVAL_FORM.APPROVE_AND_UPDATE' | translate) :
-                approvalForm.get('approvalStatus')?.value === 'Rejected' ? ('STOCK_TAKING_APPROVAL_FORM.REJECT' | translate) :
-                ('STOCK_TAKING_APPROVAL_FORM.SUBMIT' | translate)) }}
-          </button>
+          <app-action-bar
+            [showCancel]="true"
+            [showSave]="true"
+            [saving]="false"
+            [saveDisabled]="approvalForm.invalid"
+            [saveLabel]="isEditMode() ? 'STOCK_TAKING_APPROVAL_FORM.UPDATE' :
+              (approvalForm.get('approvalStatus')?.value === 'Approved' ? 'STOCK_TAKING_APPROVAL_FORM.APPROVE_AND_UPDATE' :
+               approvalForm.get('approvalStatus')?.value === 'Rejected' ? 'STOCK_TAKING_APPROVAL_FORM.REJECT' :
+               'STOCK_TAKING_APPROVAL_FORM.SUBMIT')"
+            [cancelLabel]="'STOCK_TAKING_APPROVAL_FORM.CANCEL'"
+            (cancel)="cancelForm()"
+            (save)="saveApproval()">
+          </app-action-bar>
         </div>
       }
     </form>

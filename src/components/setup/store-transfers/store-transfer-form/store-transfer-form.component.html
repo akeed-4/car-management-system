@@ -1,16 +1,25 @@
 @if (isMobile()) {
+  <!-- Header + content shell reused as-is (SharedMobileDataEntryComponent); its own built-in
+       footer is suppressed (canSave/canCancel both false) so the shared AppActionBar -- the
+       same component the desktop branch below uses -- renders as the sticky bottom bar
+       instead, giving mobile and desktop one identical action-bar contract. -->
   <shared-mobile-data-entry
     [title]="'STORE_TRANSFER.CREATE_TITLE' | translate"
     [saving]="isSaving()"
     [isEditMode]="false"
-    [canSave]="true"
-    [canCancel]="true"
-    [saveLabel]="'COMMON.SAVE'"
-    [cancelLabel]="'COMMON.CANCEL'"
-    (save)="save()"
-    (cancel)="cancel()"
+    [canSave]="false"
+    [canCancel]="false"
     (back)="cancel()">
     <ng-container [ngTemplateOutlet]="storeTransferFormBody"></ng-container>
+    <app-action-bar
+      [showCancel]="true"
+      [showSave]="true"
+      [saving]="isSaving()"
+      [saveLabel]="'COMMON.SAVE'"
+      [cancelLabel]="'COMMON.CANCEL'"
+      (cancel)="cancel()"
+      (save)="save()">
+    </app-action-bar>
   </shared-mobile-data-entry>
 } @else {
   <div class="erp-page page-container">
@@ -91,15 +100,21 @@
       </div>
     </div>
 
+    <!-- Unified action bar (shared across the Sales/Purchase Invoice + Return + Receipt/Payment
+         + Store Transfer document screens): Save + Cancel. Same component the mobile branch
+         above uses. Save still calls the same save() the form's (ngSubmit) already called;
+         Cancel calls the existing cancel() unchanged. -->
     @if (!isMobile()) {
       <div class="erp-actions-bar form-actions">
-        <button mat-raised-button color="primary" type="submit" [disabled]="isSaving()">
-          <mat-icon>save</mat-icon>
-          {{ 'COMMON.SAVE' | translate }}
-        </button>
-        <button mat-stroked-button type="button" (click)="cancel()">
-          {{ 'COMMON.CANCEL' | translate }}
-        </button>
+        <app-action-bar
+          [showCancel]="true"
+          [showSave]="true"
+          [saving]="isSaving()"
+          [saveLabel]="'COMMON.SAVE'"
+          [cancelLabel]="'COMMON.CANCEL'"
+          (cancel)="cancel()"
+          (save)="save()">
+        </app-action-bar>
       </div>
     }
   </form>

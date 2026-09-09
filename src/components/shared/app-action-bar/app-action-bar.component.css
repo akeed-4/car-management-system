@@ -1,0 +1,25 @@
+/* AppActionBar -- design-system compliant: only semantic tokens (--space-*, --color-*,
+   --text-*, --border-*, --mobile-*) and logical CSS properties, no new visual language.
+   The bulk of the visual contract (.mobile-sticky-footer, .mobile-control,
+   .mobile-touch-target in src/styles-mobile.css; .doc-toolbar, .doc-action,
+   .doc-action-primary/-accent in document-toolbar.component.css) is intentionally
+   reused as-is rather than redefined here -- this file only adds what those don't
+   already cover for this component's own layout needs. */
+
+:host {
+  display: block;
+}
+
+/* Mobile: buttons share the row evenly, same flex-basis convention already used by
+   SharedMobileDataEntryComponent's footer (.smde-action-btn) and StickyActionBarComponent
+   (.action-btn) -- kept here under this component's own class name for isolation. */
+.aab-mobile-footer .aab-action-btn {
+  flex: 1 1 0;
+  min-height: var(--mobile-touch-target);
+}
+
+/* Desktop: align the toolbar to the trailing edge (logical property, RTL-safe) to match
+   the existing .erp-actions-bar convention used across ~59 document forms today. */
+.aab-desktop-toolbar {
+  margin-inline-start: auto;
+}

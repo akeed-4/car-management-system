@@ -1,15 +1,25 @@
 @if (isMobile()) {
+  <!-- Header + content shell reused as-is (SharedMobileDataEntryComponent); its own built-in
+       footer is suppressed (canSave/canCancel both false) so the shared AppActionBar -- the
+       same component the desktop branch below uses -- renders as the sticky bottom bar
+       instead, giving mobile and desktop one identical action-bar contract. -->
   <shared-mobile-data-entry
     [title]="'ACCOUNTS.FORM.TITLE' | translate"
     [saving]="false"
     [isEditMode]="isEditMode()"
-    [canSave]="true"
-    [canCancel]="true"
-    [saveLabel]="isEditMode() ? 'ACCOUNTS.FORM.UPDATE' : 'ACCOUNTS.FORM.SAVE'"
-    (save)="savePayment()"
-    (cancel)="cancelForm()"
+    [canSave]="false"
+    [canCancel]="false"
     (back)="cancelForm()">
     <ng-container [ngTemplateOutlet]="paymentFormBody"></ng-container>
+    <app-action-bar
+      [showCancel]="true"
+      [showSave]="true"
+      [saving]="false"
+      [saveLabel]="isEditMode() ? 'ACCOUNTS.FORM.UPDATE' : 'ACCOUNTS.FORM.SAVE'"
+      [cancelLabel]="'ACCOUNTS.FORM.CANCEL'"
+      (cancel)="cancelForm()"
+      (save)="savePayment()">
+    </app-action-bar>
   </shared-mobile-data-entry>
 } @else {
   <div class="erp-page">
@@ -305,14 +315,22 @@
 
       </div>
 
+      <!-- Unified action bar (shared across the Sales/Purchase Invoice + Return + Receipt/Payment
+           document screens): Save + Cancel. Same component the mobile branch above uses. Save
+           still calls the same savePayment() the form's (ngSubmit) already called; Cancel calls
+           the existing cancelForm(), which navigates to the exact same '/accounts/payments' the
+           old routerLink used. -->
       @if (!isMobile()) {
         <div class="erp-actions-bar form-actions">
-          <a mat-stroked-button routerLink="/accounts/payments">
-            {{ 'ACCOUNTS.FORM.CANCEL' | translate }}
-          </a>
-          <button mat-raised-button color="primary" type="submit">
-            {{ (isEditMode() ? 'ACCOUNTS.FORM.UPDATE' : 'ACCOUNTS.FORM.SAVE') | translate }}
-          </button>
+          <app-action-bar
+            [showCancel]="true"
+            [showSave]="true"
+            [saving]="false"
+            [saveLabel]="isEditMode() ? 'ACCOUNTS.FORM.UPDATE' : 'ACCOUNTS.FORM.SAVE'"
+            [cancelLabel]="'ACCOUNTS.FORM.CANCEL'"
+            (cancel)="cancelForm()"
+            (save)="savePayment()">
+          </app-action-bar>
         </div>
       }
 

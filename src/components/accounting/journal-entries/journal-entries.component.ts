@@ -24,6 +24,7 @@ import { NotificationService } from '@/src/services/notification.service';
 import { openCreateAccountDialog as openCreateAccountDialogHelper } from '../create-account-dialog.helper';
 import { ResponsiveService } from '@/src/services/responsive.service';
 import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
+import { AppActionBarComponent } from '../../shared/app-action-bar/app-action-bar.component';
 
 @Component({
   selector: 'app-journal-entries',
@@ -46,7 +47,8 @@ import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-
     MatTooltipModule,
     MatDialogModule,
     TranslateModule,
-    SharedMobileDataEntryComponent
+    SharedMobileDataEntryComponent,
+    AppActionBarComponent
   ]
 })
 export class JournalEntriesComponent implements OnInit {

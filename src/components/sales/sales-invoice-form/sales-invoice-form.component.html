@@ -1,18 +1,28 @@
 @if (isMobile()) {
+  <!-- Header + content shell reused as-is (SharedMobileDataEntryComponent); its own built-in
+       footer is suppressed (canSave/canCancel/canSaveAndPrint all false) so the shared
+       AppActionBar -- the same component the desktop branch below uses -- renders as the
+       sticky bottom bar instead, giving mobile and desktop one identical action-bar contract. -->
   <shared-mobile-data-entry
     [title]="titleKey | translate"
     [saving]="saving()"
     [isEditMode]="isEditMode()"
-    [canSave]="true"
-    [canSaveAndPrint]="true"
-    [canCancel]="true"
-    [saveLabel]="isEditMode() ? 'COMMON.SAVE' : 'INVOICE.ISSUE'"
-    [saveAndPrintLabel]="'DOCUMENT_COMMON.ACTIONS.SAVE_AND_PRINT'"
-    (save)="saveInvoice()"
-    (saveAndPrint)="printInvoice()"
-    (cancel)="cancelForm()"
+    [canSave]="false"
+    [canSaveAndPrint]="false"
+    [canCancel]="false"
     (back)="cancelForm()">
     <ng-container [ngTemplateOutlet]="salesInvoiceFormBody"></ng-container>
+    <app-action-bar
+      [showCancel]="true"
+      [showSave]="true"
+      [showSaveAndPrint]="true"
+      [saving]="saving()"
+      [saveDisabled]="!canSaveInvoice()"
+      [saveLabel]="isEditMode() ? 'COMMON.SAVE' : 'INVOICE.ISSUE'"
+      (cancel)="cancelForm()"
+      (save)="saveInvoice()"
+      (saveAndPrint)="printInvoice()">
+    </app-action-bar>
   </shared-mobile-data-entry>
 } @else {
   <div class="erp-page container">
@@ -366,7 +376,6 @@
                 [repaintChangesOnly]="true"
                 [editing]="{ mode: 'cell', allowUpdating: true, allowDeleting: true, useIcons: true }"
                 [rtlEnabled]="textDir === 'rtl'"
-                (onRowRemoving)="removeItem($event.data.lineKey)"
                 (onRowUpdated)="onInvoiceItemRowUpdated($event)"
                 [noDataText]="'INVOICE.NO_ITEMS' | translate"
                 [height]="420"
@@ -383,9 +392,19 @@
                 <dxi-column dataField="lineTotal" caption="{{ 'PURCHASE_INVOICE.TOTAL' | translate }}" dataType="number" format="currency" [allowEditing]="false"></dxi-column>
                 <dxi-column dataField="installmentDetails.numberOfInstallments" caption="{{ 'INVOICE.NUMBER_OF_INSTALLMENTS' | translate }}" [visible]="hasInstallments()"></dxi-column>
                 <dxi-column dataField="installmentDetails.installmentAmount" caption="{{ 'INVOICE.INSTALLMENT_AMOUNT' | translate }}" dataType="number" format="currency" [visible]="hasInstallments()"></dxi-column>
-                <dxi-column type="buttons">
-                  <dxi-button name="delete"></dxi-button>
-                </dxi-column>
+                <!-- Native dxi-button renders empty/broken in this build (known DevExtreme issue --
+                     see SharedDataGridComponent's own icon-actions template for the established
+                     workaround); using a plain cellTemplate + mat-icon-button instead, calling the
+                     exact same removeItem(lineKey) the grid always used. -->
+                <dxi-column type="buttons" caption="{{ 'INVOICE.ACTIONS' | translate }}" [width]="70" cellTemplate="rowActionsTemplate"></dxi-column>
+                <div *dxTemplate="let cell of 'rowActionsTemplate'" class="row-actions-cell">
+                  <button type="button" mat-icon-button
+                          [matTooltip]="'PURCHASE_INVOICE.REMOVE_ITEM' | translate"
+                          [attr.aria-label]="'PURCHASE_INVOICE.REMOVE_ITEM' | translate"
+                          (click)="removeItem(cell.data.lineKey)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
                 <dxo-filter-row [visible]="true"></dxo-filter-row>
                 <dxo-header-filter [visible]="true"></dxo-header-filter>
                 <dxo-scrolling mode="standard" columnRenderingMode="standard" rowRenderingMode="standard" [useNative]="false"
@@ -416,14 +435,27 @@
             <app-document-totals [rows]="totalsRows()"></app-document-totals>
           </mat-card-content>
 
-          <!-- Unified document toolbar (shared across ALL document screens): Save / Save & Print /
-               Print / Cancel -- rendered per permissions and document state by
-               DocumentToolbarComponent. This is the ONLY instance on the page: the sticky summary
-               rail keeps it reachable without scrolling, so a duplicate top-of-page toolbar isn't
-               needed. -->
+          <!-- Unified action bar (shared across the Sales/Purchase Invoice + Return document
+               screens): Save / Save & Print / Print / Cancel. This is the ONLY instance on the
+               page: the sticky summary rail keeps it reachable without scrolling, so a duplicate
+               top-of-page toolbar isn't needed. Same component the mobile branch above uses. -->
           @if (!isMobile()) {
             <div class="erp-actions-bar form-actions">
-              <app-document-toolbar [actions]="toolbarActions()" [busy]="saving()"></app-document-toolbar>
+              <app-action-bar
+                [showCancel]="true"
+                [showSave]="true"
+                [showSaveAndPrint]="true"
+                [showPrint]="isEditMode()"
+                [saving]="saving()"
+                [saveDisabled]="!canSaveInvoice()"
+                [printDisabled]="isDocumentDirty() && !canSaveInvoice()"
+                [saveLabel]="isEditMode() ? 'COMMON.SAVE' : 'INVOICE.ISSUE'"
+                [cancelLabel]="'INVOICE.CANCEL'"
+                (cancel)="cancelForm()"
+                (save)="saveInvoice()"
+                (saveAndPrint)="printInvoice()"
+                (print)="printInvoice()">
+              </app-action-bar>
             </div>
           }
         </mat-card>

@@ -76,7 +76,8 @@ import { PurchaseAdditionalCostFormComponent } from '../purchase-additional-cost
 import { PurchaseAdditionalCostService } from '@/src/services/purchase-additional-cost.service';
 import { Observable, of, map, tap, catchError, finalize, switchMap } from 'rxjs';
 import { formatCurrency } from '@angular/common';
-import { DocumentToolbarComponent, DocumentTotalsComponent, DocumentPrintService, DocumentAction, DocumentTotalsRow } from '../../shared/document';
+import { DocumentTotalsComponent, DocumentPrintService, DocumentTotalsRow } from '../../shared/document';
+import { AppActionBarComponent } from '../../shared/app-action-bar/app-action-bar.component';
 import { AccountAutocompleteComponent } from '../../shared/account-autocomplete/account-autocomplete.component';
 import { ResponsiveService } from '../../../services/responsive.service';
 import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
@@ -110,10 +111,10 @@ import { MobileListFieldDto, MobileListActionDto } from '../../shared/shared-mob
     NgxMatSelectSearchModule,
     PurchaseAdditionalCostListComponent,
     PurchaseAdditionalCostFormComponent,
-    DocumentToolbarComponent,
     DocumentTotalsComponent,
     AccountAutocompleteComponent,
     SharedMobileDataEntryComponent,
+    AppActionBarComponent,
     SharedMobileListComponent,
   ],
   providers: [provideNativeDateAdapter()],
@@ -1285,42 +1286,17 @@ export class PurchaseInvoiceComponent implements OnInit {
     return this.serializeDocumentState() !== this.documentSnapshot;
   }
 
-  /** Same validity rule the save button always enforced, now feeding the shared toolbar. */
-  private canSaveInvoice(): boolean {
+  /** Same validity rule the save button always enforced, now feeding the shared action bar
+   *  (called directly from the template, so it must stay protected/public, not private). */
+  protected canSaveInvoice(): boolean {
     return !!this.purchaseInvoiceForm && !this.purchaseInvoiceForm.invalid && this.invoiceItems().length > 0;
   }
 
-  /** Unified toolbar configuration -- rendered by DocumentToolbarComponent at the
-   * top of the page and in the sticky summary rail. */
-  toolbarActions(): DocumentAction[] {
-    const canSave = this.canSaveInvoice();
-    return [
-      {
-        id: 'save',
-        label: 'PURCHASE_INVOICE.SAVE',
-        icon: 'save',
-        variant: 'primary',
-        disabled: !canSave,
-        execute: () => this.saveInvoice()
-      },
-      {
-        id: 'save-print',
-        label: 'DOCUMENT_COMMON.ACTIONS.SAVE_AND_PRINT',
-        icon: 'print',
-        variant: 'accent',
-        disabled: !canSave,
-        execute: () => this.printInvoice()
-      },
-    
-      {
-        id: 'cancel',
-        label: 'PURCHASE_INVOICE.CANCEL',
-        icon: 'close',
-        variant: 'basic',
-        execute: () => this.cancelForm()
-      }
-    ];
-  }
+  // Action bar configuration moved into the template (app-action-bar inputs), replacing the
+  // DocumentAction[]-driven DocumentToolbarComponent this screen used previously -- same
+  // save/saveAndPrint/cancel behavior (no standalone Print action here, matching the
+  // pre-existing toolbarActions() which never had one), now shared visually with Sales
+  // Invoice/Sales Return/Purchase Return via AppActionBar.
 
   /** Shared cancel target for both the desktop toolbar's Cancel action and the mobile shell's
    * back/cancel (see shared-mobile-data-entry usage in the template). */

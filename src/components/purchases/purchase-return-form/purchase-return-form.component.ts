@@ -24,10 +24,11 @@ import { extractErrorMessage } from '@/src/models/http-error-message';
 import { ResponsiveService } from '../../../services/responsive.service';
 import { SharedMobileDataEntryComponent } from '../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
 import { SharedMobileListComponent } from '../../shared/shared-mobile-list/shared-mobile-list.component';
+import { AppActionBarComponent } from '../../shared/app-action-bar/app-action-bar.component';
 @Component({
   selector: 'app-purchase-return-form',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, FormsModule, CommonModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatIconModule, MatDatepickerModule, MatTooltipModule, SharedMobileDataEntryComponent, SharedMobileListComponent],
+  imports: [RouterLink, ReactiveFormsModule, FormsModule, CommonModule, CurrencyPipe, TranslateModule, DxDataGridModule, DxButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatIconModule, MatDatepickerModule, MatTooltipModule, SharedMobileDataEntryComponent, SharedMobileListComponent, AppActionBarComponent],
   templateUrl: './purchase-return-form.component.html',
   styleUrl: './purchase-return-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -239,5 +240,15 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
    *  button and back-link already navigate to. */
   cancelForm(): void {
     this.router.navigate([this.backRoute()]);
+  }
+
+  /** AppActionBar's Cancel output needs a callable method too (same as cancelForm() above), but
+   *  MUST target the route the page's own working back-link already uses ('/purchases/return',
+   *  a real registered route) rather than cancelForm()'s backRoute() ('/purchases/purchase-returns',
+   *  which is not a registered route anywhere in app.routes.ts and would 404) -- that mismatch
+   *  predates this change and is out of scope to fix here, so it's deliberately left untouched;
+   *  this method only preserves the desktop Cancel button's existing, correct destination. */
+  cancelToReturnList(): void {
+    this.router.navigate(['/purchases/return']);
   }
 }

@@ -22,6 +22,7 @@ import { BranchContextService } from '../../../../services/branch-context.servic
 import { scopeStoresToCurrentBranch } from '../../../../models/branch-scoped-stores.util';
 import { ResponsiveService } from '../../../../services/responsive.service';
 import { SharedMobileDataEntryComponent } from '../../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
+import { AppActionBarComponent } from '../../../shared/app-action-bar/app-action-bar.component';
 
 const differentStoresValidator: ValidatorFn = (group): ValidationErrors | null => {
   const from = group.get('fromStoreId')?.value;
@@ -43,7 +44,8 @@ const differentStoresValidator: ValidatorFn = (group): ValidationErrors | null =
     MatIconModule,
     MatDialogModule,
     TranslateModule,
-    SharedMobileDataEntryComponent
+    SharedMobileDataEntryComponent,
+    AppActionBarComponent
   ],
   templateUrl: './store-transfer-form.component.html',
   styleUrls: ['./store-transfer-form.component.css']

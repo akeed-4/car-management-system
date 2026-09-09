@@ -41,6 +41,7 @@ import { PaymentMethodService } from '@/src/services/payment-method.service';
 import { PaymentMethod } from '@/src/models/payment-method.model';
 import { ResponsiveService } from '@/src/services/responsive.service';
 import { SharedMobileDataEntryComponent } from '@/src/components/shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
+import { AppActionBarComponent } from '@/src/components/shared/app-action-bar/app-action-bar.component';
 
 @Component({
   selector: 'app-payment-form',
@@ -68,6 +69,7 @@ import { SharedMobileDataEntryComponent } from '@/src/components/shared/shared-m
     InvoiceAllocationGridComponent,
     AccountAutocompleteComponent,
     SharedMobileDataEntryComponent,
+    AppActionBarComponent,
   ],
   templateUrl: './payment-form.component.html',
   styleUrl: './payment-form.component.css',
