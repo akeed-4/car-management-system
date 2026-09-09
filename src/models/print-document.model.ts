@@ -116,7 +116,9 @@ export interface PrintTotals {
 }
 
 export interface PrintPaymentInfo {
-  method: 'Cash' | 'Card' | 'Bank Transfer' | 'Cheque' | 'Installments' | 'POS';
+  /** Legacy display string derived from the document's Payment Method master selection -- kept
+   *  open (string) because the master is user-extensible beyond the old fixed instrument union. */
+  method: string;
   reference?: string;
   amount?: number;
   notes?: string;

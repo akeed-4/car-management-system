@@ -55,21 +55,12 @@
               <input matInput type="number" formControlName="depositAmount" min="0.01" required>
             </mat-form-field>
 
+            <!-- ONE user-facing payment field: the Payment Methods master. The legacy paymentMethod
+                 code (backend numeric mapping) and the settlement account are derived from this
+                 single selection automatically. -->
             <mat-form-field appearance="outline">
               <mat-label>{{ 'ACCOUNTS.DEPOSITS.FORM.PAYMENT_METHOD' | translate }}</mat-label>
-              <mat-select formControlName="paymentMethod" required>
-                <mat-option *ngFor="let method of paymentMethods" [value]="method.value">
-                  {{ method.label | translate }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-
-            <!-- Optional Payment Method master selector -- purely additive: choosing one offers
-                 its linked account as the settlement account default below. -->
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'ACCOUNTS.FORM.PAYMENT_METHOD' | translate }}</mat-label>
-              <mat-select formControlName="paymentMethodId">
-                <mat-option [value]="null">{{ 'COMMON.NONE' | translate }}</mat-option>
+              <mat-select formControlName="paymentMethodId" required>
                 <mat-option *ngFor="let m of paymentMethodOptions()" [value]="m.id">
                   {{ translate.currentLang === 'ar' ? m.nameAr : m.nameEn }}
                 </mat-option>

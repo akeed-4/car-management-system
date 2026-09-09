@@ -73,15 +73,6 @@ export enum InvoiceType {
   Exempt = 'Exempt'
 }
 
-/** Full pool of Payment Type instruments -- the single payment selector the user sees. Payment
- * Method (a separate backend/accounting field) is derived from whichever of these is picked; see
- * derivePaymentMethodFromType. */
-const PAYMENT_TYPE_POOL: { value: string; labelKey: string }[] = [
-  { value: 'Bank Transfer', labelKey: 'INVOICE.PAYMENT_BANK_TRANSFER' },
-  { value: 'Check', labelKey: 'INVOICE.PAYMENT_CHECK' },
-  { value: 'Cash', labelKey: 'INVOICE.PAYMENT_CASH' },
-];
-
 @Component({
   selector: 'app-sales-invoice-form',
   standalone: true,
@@ -346,13 +337,10 @@ export class SalesInvoiceFormComponent implements OnInit {
    * collected for this invoice prior to this editing session (see previousPayments below). */
   originalAmountPaid = signal(0);
 
-  /** Payment Method is no longer a user-facing field -- Payment Type is now the single control
-   * the user picks from, and Payment Method (still required by the backend/accounting) is derived
-   * from it automatically (see watchPaymentTypeControl). */
-  paymentTypeOptions = computed(() => PAYMENT_TYPE_POOL);
-
-  /** Centralized Payment Methods master (active only) -- optional selector alongside Payment
-   *  Type; see watchPaymentMethodIdControl. */
+  /** Centralized Payment Methods master (active only) -- THE single user-facing payment field
+   *  (the paymentMethodId selector). The legacy paymentMethod/paymentType payload strings and the
+   *  settlement account are DERIVED from the selection (see watchPaymentMethodIdControl and
+   *  watchPaymentTypeControl) -- no hardcoded Cash/Bank Transfer/Check list anywhere. */
   paymentMethods = signal<PaymentMethod[]>([]);
 
   // Traceability: Parent Quotation lineage state
@@ -408,10 +396,14 @@ export class SalesInvoiceFormComponent implements OnInit {
         dueDate: new FormControl(''),
         paymentMethod: new FormControl('Cash'),
         paymentType: new FormControl(this.saleType === SaleType.Cash ? 'Cash' : 'Bank Transfer'),
-        // Link to the Payment Methods master -- purely additive: selecting one feeds paymentType
-        // (so the existing derivePaymentMethodFromType/Cash-lock logic is untouched) and offers
-        // its linked account as the paymentAccountId default (see watchPaymentMethodIdControl).
-        paymentMethodId: new FormControl<number | null>(null),
+        // THE single user-facing payment field. Selecting one derives the legacy
+        // paymentMethod/paymentType payload strings and applies the linked settlement account
+        // (see watchPaymentMethodIdControl). Required for cash sales -- the instrument is
+        // collected at inception; credit/installment sales collect nothing here.
+        paymentMethodId: new FormControl<number | null>(
+          null,
+          this.saleType === SaleType.Cash ? Validators.required : null
+        ),
         invoiceType: new FormControl(InvoiceType.Taxable, Validators.required),
         ClassificationId: new FormControl(0, Validators.required),
         salesperson: new FormControl(''),
@@ -575,7 +567,17 @@ export class SalesInvoiceFormComponent implements OnInit {
    *  linked account as the paymentAccountId default, unless the user has since overridden that
    *  field manually (paymentAccountManuallyChanged, tracked by DefaultAccountTracker). */
   private watchPaymentMethodIdControl(): void {
-    this.paymentMethodService.activePaymentMethods$.subscribe(methods => this.paymentMethods.set(methods));
+    this.paymentMethodService.activePaymentMethods$.subscribe(methods => {
+      this.paymentMethods.set(methods);
+
+      const preselectControl = this.invoiceForm?.get('paymentMethodId');
+      // Cash sales preselect the first active Cash-typed master method so the single Payment
+      // Method field is pre-filled the way the old hardcoded 'Cash' paymentType default was.
+      if (this.saleType === SaleType.Cash && preselectControl && preselectControl.value == null) {
+        const cashMethod = methods.find(m => (m.paymentType || '').toLowerCase() === 'cash');
+        if (cashMethod) preselectControl.setValue(cashMethod.id);
+      }
+    });
 
     const methodIdControl = this.invoiceForm.get('paymentMethodId');
     const typeControl = this.invoiceForm.get('paymentType');
@@ -585,6 +587,8 @@ export class SalesInvoiceFormComponent implements OnInit {
     methodIdControl.valueChanges.subscribe((id: number | null) => {
       const method = this.paymentMethods().find(m => m.id === id);
       if (!method) return;
+      // ONE field in, everything else derived: the legacy paymentType string (which in turn
+      // derives paymentMethod via watchPaymentTypeControl) and the settlement account.
       if (method.paymentType) typeControl.setValue(method.paymentType);
       if (!this.paymentAccountManuallyChanged()) accountControl.setValue(method.accountId);
     });
@@ -697,7 +701,13 @@ export class SalesInvoiceFormComponent implements OnInit {
           dueDate: new FormControl(invoice.dueDate ? new Date(invoice.dueDate) : ''),
           paymentMethod: new FormControl(invoice.paymentMethod || 'Cash'),
           paymentType: new FormControl(invoice.paymentType || 'Bank Transfer'),
-          paymentMethodId: new FormControl<number | null>(invoice.paymentMethodId ?? null),
+          // THE single user-facing payment field (see initForm's comment). Legacy documents
+          // saved before paymentMethodId existed keep their stored paymentMethod/paymentType
+          // strings and simply show an empty selector until a method is picked.
+          paymentMethodId: new FormControl<number | null>(
+            invoice.paymentMethodId ?? null,
+            this.saleType === SaleType.Cash ? Validators.required : null
+          ),
           salesperson: new FormControl(invoice.salesperson || ''),
           ClassificationId: new FormControl(invoice.ClassificationId || 0, Validators.required),
           invoiceType: new FormControl(invoice.invoiceType || InvoiceType.Taxable, Validators.required),

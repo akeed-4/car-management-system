@@ -1,3 +1,11 @@
+/* Hint shown where the Payment Account field used to be -- the account is now derived from the
+   selected Payment Method (one user-facing payment field). */
+.derived-account-hint {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.55);
+}
+
 /* ============================================================
    Purchase Invoice -- modern ERP document layout
    Two-pane workspace: document (header + lines + notes) on the

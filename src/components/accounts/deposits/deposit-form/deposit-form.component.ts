@@ -27,7 +27,7 @@ import { AccountNode } from '../../../../models/account-node.model';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { AccountingService, DefaultAccountKind } from '@/src/components/accounting/accounting.service';
 import { PaymentMethodService } from '@/src/services/payment-method.service';
-import { PaymentMethod } from '@/src/models/payment-method.model';
+import { PaymentMethod, matchLegacyPaymentMethodId } from '@/src/models/payment-method.model';
 import { openCreateAccountDialog } from '@/src/components/accounting/create-account-dialog.helper';
 import { Account } from '@/src/components/accounting/models';
 import { NotificationService } from '@/src/services/notification.service';
@@ -170,15 +170,10 @@ private notificationService = inject(NotificationService);
   vehicleSearch = signal('');
   existingDocNumber: string | null = null;
 
-  paymentMethods: Array<{ value: DepositPaymentMethod; label: string }> = [
-    { value: 'CASH', label: 'ACCOUNTS.CAR_PAYMENT_FORM.PAYMENT_METHODS.CASH' },
-    { value: 'CARD', label: 'ACCOUNTS.DEPOSITS.FORM.PAYMENT_METHOD_CARD' },
-    { value: 'BANK_TRANSFER', label: 'ACCOUNTS.CAR_PAYMENT_FORM.PAYMENT_METHODS.BANK_TRANSFER' },
-    { value: 'CHEQUE', label: 'ACCOUNTS.CAR_PAYMENT_FORM.PAYMENT_METHODS.CHEQUE' }
-  ];
-
-  /** Centralized Payment Methods master (active only) -- optional selector alongside the existing
-   *  hardcoded paymentMethod dropdown above; see watchFormControls' paymentMethodId subscription. */
+  /** Centralized Payment Methods master (active only) -- THE single user-facing payment field of
+   *  this form (the paymentMethodId selector). The old hardcoded CASH/CARD/BANK_TRANSFER/CHEQUE
+   *  dropdown is gone: the legacy paymentMethod code (mapped to the backend's numeric codes in
+   *  DepositService) and the settlement account are DERIVED from the master selection. */
   paymentMethodOptions = signal<PaymentMethod[]>([]);
 
   customers = this.customerService.customers$;
@@ -242,15 +237,30 @@ private notificationService = inject(NotificationService);
     // Load accounts for dropdowns -- Debit/Credit selectors must only offer leaf/postable
     // accounts, excluded server-side by this endpoint rather than filtered client-side.
     this.accountingService.getPostableAccounts().subscribe(accs => this.accounts.set(accs));
-    this.paymentMethodService.activePaymentMethods$.subscribe(methods => this.paymentMethodOptions.set(methods));
+    this.paymentMethodService.activePaymentMethods$.subscribe(methods => {
+      this.paymentMethodOptions.set(methods);
 
-    // Selecting a Payment Method offers its linked account as the debitAccountId (settlement)
-    // default -- purely additive, doesn't touch the existing paymentMethod dropdown/normalization.
+      // New deposits preselect the first active Cash-typed method so the single Payment Method
+      // field starts the way the old hardcoded 'CASH' default did. The edit route keeps the
+      // loaded document's own method (see the edit prefill below).
+      const control = this.depositForm?.get('paymentMethodId');
+      const isEditRoute = (this.route.snapshot.routeConfig?.path ?? '').includes('edit');
+      if (!isEditRoute && control && control.value == null) {
+        const cashMethod = methods.find(m => (m.paymentType || '').toLowerCase() === 'cash');
+        if (cashMethod) control.setValue(cashMethod.id);
+      }
+    });
+
+    // THE single user-facing payment field: selecting a Payment Method derives the legacy
+    // paymentMethod code (backend numeric mapping) and offers its linked account as the
+    // debitAccountId (settlement) default.
     this.depositForm.get('paymentMethodId')?.valueChanges.subscribe((id: number | null) => {
       const method = this.paymentMethodOptions().find(m => m.id === id);
-      if (method && !this.debitAccountManuallyChanged()) {
+      if (!method) return;
+      if (!this.debitAccountManuallyChanged()) {
         this.depositForm.get('debitAccountId')?.setValue(method.accountId);
       }
+      this.depositForm.get('paymentMethod')?.setValue(this.legacyDepositPaymentCode(method));
     });
 
     this.debitAccountTracker = new DefaultAccountTracker(this.accountingService, this.depositForm.get('debitAccountId') as any);
@@ -291,6 +301,12 @@ private notificationService = inject(NotificationService);
             creditAccountId: deposit.creditAccountId,
             debitAccountId: deposit.debitAccountId
           });
+          // Legacy compatibility: documents saved before paymentMethodId existed are matched
+          // back to the Payment Methods master by their stored paymentMethod code.
+          if (deposit.paymentMethodId == null) {
+            const matchedId = matchLegacyPaymentMethodId(this.paymentMethodOptions(), { paymentMethod: deposit.paymentMethod });
+            if (matchedId != null) this.depositForm.get('paymentMethodId')?.setValue(matchedId);
+          }
           this.selectedVehicleId.set(deposit.carId);
           this.selectedCustomerId.set(deposit.customerId ?? null);
         }
@@ -320,7 +336,9 @@ private notificationService = inject(NotificationService);
       finalInvoicePriceFixed: new FormControl(true),
       depositAmount: new FormControl(0, [Validators.required, Validators.min(0.01)]),
       paymentMethod: new FormControl('CASH', Validators.required),
-      paymentMethodId: new FormControl<number | null>(null),
+      // THE single user-facing payment field (see paymentMethodOptions' comment). The
+      // paymentMethod control above is a derived legacy payload value, not user input.
+      paymentMethodId: new FormControl<number | null>(null, Validators.required),
       currency: new FormControl('SAR'),
       reservationValidityDays: new FormControl(10, [Validators.required, Validators.min(1)]),
       isRefundable: new FormControl(true),
@@ -390,6 +408,17 @@ private notificationService = inject(NotificationService);
         this.selectedCustomerId.set(null);
       }
     });
+  }
+
+  /** Legacy compatibility: derives the deposit voucher's string paymentMethod code
+   *  (CASH/CARD/BANK_TRANSFER/CHEQUE -- mapped to the backend's numeric codes in
+   *  DepositService.addDeposit) from the single Payment Method master selection. */
+  private legacyDepositPaymentCode(method: PaymentMethod | null | undefined): DepositPaymentMethod {
+    const t = (method?.paymentType || '').toLowerCase();
+    if (t === 'cash') return 'CASH';
+    if (t === 'card') return 'CARD';
+    if (t === 'cheque' || t === 'check') return 'CHEQUE';
+    return 'BANK_TRANSFER';
   }
 
   saveDeposit() {

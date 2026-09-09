@@ -3843,6 +3843,7 @@
     "CODE_GENERATION_FAILED": "تعذّر توليد الرقم تلقائيًا — يمكنك فتح القفل وإدخاله يدويًا",
     "PAYMENT_ACCOUNT": "طرق الدفع",
     "PAYMENT_ACCOUNT_HINT": "طريقة الدفع (حساب النقد/البنك) المستخدمة لتسوية هذا المستند",
+    "PAYMENT_ACCOUNT_DERIVED_FROM_METHOD": "يتم اشتقاق حساب التسوية تلقائيًا من طريقة الدفع المحددة.",
     "PAYMENT_ACCOUNT_REQUIRED": "طريقة الدفع مطلوبة لترحيل المستندات النقدية.",
     "DOWN_PAYMENT_ACCOUNT_SECTION": "تسوية الدفعة المقدمة",
     "REVENUE_ACCOUNT": "حساب الإيراد",

@@ -25,7 +25,7 @@ import { SalesService } from '../../../services/sales.service';
 import { ChartOfAccountsService } from '../../../services/chart-of-accounts.service';
 import { AccountingService, DefaultAccountKind } from '../../accounting/accounting.service';
 import { PaymentMethodService } from '../../../services/payment-method.service';
-import { PaymentMethod } from '../../../models/payment-method.model';
+import { PaymentMethod, deriveLegacyPaymentStrings, matchLegacyPaymentMethodId } from '../../../models/payment-method.model';
 import { DefaultAccountTracker } from '@/src/components/shared/default-account/default-account.helper';
 import { VinService } from '../../../services/vin.service';
 import { PurchaseInvoice, AuctionCharge } from '../../../models/purchase-invoice.model';
@@ -269,17 +269,18 @@ export class PurchaseInvoiceComponent implements OnInit {
   );
 });
 
-  paymentMethods = [
-    { value: 'Cash', label: 'PURCHASE_INVOICE.PAYMENT_CASH' },
-    { value: 'Credit (Deferred)', label: 'PURCHASE_INVOICE.PAYMENT_CREDIT' },
-    { value: 'Bank Transfer', label: 'PURCHASE_INVOICE.PAYMENT_BANK_TRANSFER' },
-    { value: 'Check', label: 'PURCHASE_INVOICE.PAYMENT_CHECK' }
-  ];
-
+  /** The single user-facing payment field source: the Payment Methods master (active only) via
+   *  PaymentMethodService.activePaymentMethods$. The old hardcoded Cash/Credit (Deferred)/Bank
+   *  Transfer/Check list is gone -- paymentMethod/paymentType are derived legacy strings from the
+   *  selection (see deriveLegacyPaymentStrings), and the linked settlement account is auto-applied. */
   filteredPaymentMethods = computed(() => {
-    const filter = this.paymentMethodFilterSignal()?.toLowerCase() || '';
-    return this.paymentMethods.filter(p =>
-      this.translate.instant(p.label).toLowerCase().includes(filter)
+    const filter = (this.paymentMethodFilterSignal() || '').toLowerCase().trim();
+    const methods = this.paymentMethodOptions();
+    if (!filter) return methods;
+    return methods.filter(m =>
+      (m.nameAr || '').toLowerCase().includes(filter) ||
+      (m.nameEn || '').toLowerCase().includes(filter) ||
+      (m.paymentType || '').toLowerCase().includes(filter)
     );
   });
 
@@ -445,8 +446,11 @@ export class PurchaseInvoiceComponent implements OnInit {
   // here used to turn e.g. subtotal 12 + VAT 1.80 = 13.80 into a displayed/saved 14.00.
   totalAmount = computed(() => Math.round((this.subtotal() + this.vatAmount() + this.auctionChargesTotal() + Number.EPSILON) * 100) / 100);
 
-  /** True when the current payment type is cash - drives the auto-paid summary + cash calculator. */
-  isCashPayment = computed(() => (this.purchaseInvoiceForm?.get('paymentType')?.value ?? '').toString().toLowerCase() === 'cash');
+  /** True when the current payment type is cash - drives the auto-paid summary + cash calculator.
+   *  Signal-backed: paymentType is now DERIVED from the single Payment Method master selection
+   *  (see watchPaymentMethodIdControl), so it changes at runtime and must stay reactive. */
+  paymentTypeSignal = signal<string>('Bank Transfer');
+  isCashPayment = computed(() => this.paymentTypeSignal().toLowerCase() === 'cash');
 
   /**
    * Cash/Bank settlement accounts for CASH purchases (credit leg: Dr Inventory / Cr Payment
@@ -457,10 +461,8 @@ export class PurchaseInvoiceComponent implements OnInit {
   paymentAccounts = signal<Account[]>([]);
   private paymentAccountsLoaded = false;
 
-  /** Centralized Payment Methods master (active only) -- optional selector alongside the existing
-   *  paymentMethod dropdown; see watchPaymentMethodIdControl. Named paymentMethodOptions (not
-   *  paymentMethods) to avoid colliding with the hardcoded Cash/Credit/Bank/Check list above,
-   *  which drives the unrelated credit/cash branching logic and is left untouched. */
+  /** Centralized Payment Methods master (active only) -- THE single user-facing payment field of
+   *  this document (see filteredPaymentMethods / the paymentMethodId selector). */
   paymentMethodOptions = signal<PaymentMethod[]>([]);
 
   /** Loads the Cash/Bank options exactly once per component instance. */
@@ -473,16 +475,66 @@ export class PurchaseInvoiceComponent implements OnInit {
     });
   }
 
-  /** Selecting a Payment Method offers its linked account as the paymentAccountId default --
-   *  purely additive, does not touch the existing paymentMethod/paymentType/isCreditPayment
-   *  branching logic. */
+  /** The Payment Method master IS the one payment field: selecting a method derives the legacy
+   *  paymentMethod/paymentType payload strings (API compatibility), auto-applies the method's
+   *  linked account as the paymentAccountId settlement default, and re-drives the Cash/Credit
+   *  branching (cash calculator vs due date) through the paymentType/paymentMethod signals. */
   private watchPaymentMethodIdControl(): void {
-    this.paymentMethodService.activePaymentMethods$.subscribe(methods => this.paymentMethodOptions.set(methods));
+    this.paymentMethodService.activePaymentMethods$.subscribe(methods => {
+      this.paymentMethodOptions.set(methods);
+      this.autoSelectPaymentMethod(methods);
+    });
 
     this.purchaseInvoiceForm.get('paymentMethodId')?.valueChanges.subscribe((id: number | null) => {
       const method = this.paymentMethodOptions().find((m: PaymentMethod) => m.id === id);
-      if (method) this.purchaseInvoiceForm.get('paymentAccountId')?.setValue(method.accountId);
+      if (!method) return;
+
+      // ONE field in, everything else derived: legacy strings (payload compatibility)...
+      const legacy = deriveLegacyPaymentStrings(method);
+      this.purchaseInvoiceForm.get('paymentType')?.setValue(legacy.paymentType);
+      this.purchaseInvoiceForm.get('paymentMethod')?.setValue(legacy.paymentMethod);
+      // ...and the settlement account from the method's linked account.
+      this.purchaseInvoiceForm.get('paymentAccountId')?.setValue(method.accountId);
     });
+
+    // Keep the signal-backed Cash/Credit branching in sync with the derived controls.
+    this.purchaseInvoiceForm.get('paymentType')?.valueChanges.subscribe(v => {
+      this.paymentTypeSignal.set((v ?? '').toString());
+      // Cash/Bank settlement account requirement flips with cash/credit: keep the control's
+      // validators synced whenever the derived payment type changes.
+      this.refreshPaymentAccountValidation();
+    });
+    this.purchaseInvoiceForm.get('paymentMethod')?.valueChanges.subscribe(v => this.paymentMethodSignal.set((v ?? '').toString()));
+  }
+
+  /** Prefills the single Payment Method selector without user interaction: Cash/Credit-locked
+   *  wrappers resolve to the first master method of that type, and legacy documents saved before
+   *  paymentMethodId existed are matched back to the master by their stored strings. Never
+   *  overrides a value that is already set. */
+  private autoSelectPaymentMethod(methods: PaymentMethod[]): void {
+    const control = this.purchaseInvoiceForm?.get('paymentMethodId');
+    if (!control || control.value != null) return;
+
+    if (this.lockPaymentMethod && this.fixedPaymentMethod) {
+      const wanted = String(this.fixedPaymentMethod).toLowerCase();
+      const match = methods.find(m => {
+        const t = (m.paymentType || '').toLowerCase();
+        return t === wanted || (m.nameEn || '').toLowerCase() === wanted;
+      });
+      // Found in the master -> select it (setValue works on the locked/disabled control).
+      // Not found -> keep the legacy locked paymentMethod/paymentType strings untouched so the
+      // document still saves exactly as it did before the master existed.
+      if (match) control.setValue(match.id);
+      return;
+    }
+
+    // Edit mode only: legacy documents carry paymentMethod/paymentType but no paymentMethodId.
+    if (!this.isEditMode()) return;
+    const matchedId = matchLegacyPaymentMethodId(methods, {
+      paymentMethod: this.purchaseInvoiceForm.get('paymentMethod')?.value,
+      paymentType: this.purchaseInvoiceForm.get('paymentType')?.value
+    });
+    if (matchedId != null) control.setValue(matchedId);
   }
 
   /** Keeps the Payment Account control in sync with the settlement type: required (and kept)
@@ -504,7 +556,7 @@ export class PurchaseInvoiceComponent implements OnInit {
    * via a Cash/Credit wrapper, the lowercase 'credit' fixedPaymentMethod value -- drives the Due
    * Date field's visibility for both the unlocked and locked Purchase Invoice flows. */
   isCreditPayment = computed(() => {
-    const paymentMethod = (this.purchaseInvoiceForm?.get('paymentMethod')?.value ?? '').toString().toLowerCase();
+    const paymentMethod = (this.paymentMethodSignal() || '').toString().toLowerCase();
     return paymentMethod === 'credit (deferred)' || paymentMethod === 'credit';
   });
 
@@ -839,7 +891,11 @@ export class PurchaseInvoiceComponent implements OnInit {
     }
     applyFieldLock(this.purchaseInvoiceForm.get('paymentMethod'), { value: this.fixedPaymentMethod, disable: true });
     applyFieldLock(this.purchaseInvoiceForm.get('paymentType'), { value: this.fixedPaymentMethod, disable: true });
+    // The single Payment Method selector is locked too (autoSelectPaymentMethod may still
+    // programmatically preselect the matching master method; the user can't change it).
+    applyFieldLock(this.purchaseInvoiceForm.get('paymentMethodId'), { value: null, disable: true });
     this.paymentMethodSignal.set(this.fixedPaymentMethod);
+    this.paymentTypeSignal.set(String(this.fixedPaymentMethod ?? ''));
   }
 
 

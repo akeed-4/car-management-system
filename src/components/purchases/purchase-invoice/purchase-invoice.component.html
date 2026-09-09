@@ -208,12 +208,30 @@
                       </mat-option>
                     </mat-select>
                   </mat-form-field>
-                  <mat-form-field appearance="outline" class="full-width" *ngIf="isCreditPayment()">
-                    <mat-label>{{ 'PURCHASE_INVOICE.DUE_DATE' | translate }}</mat-label>
-                    <input matInput [matDatepicker]="dueDatePicker" formControlName="dueDate">
-                    <mat-datepicker-toggle matSuffix [for]="dueDatePicker"></mat-datepicker-toggle>
-                    <mat-datepicker #dueDatePicker></mat-datepicker>
-                  </mat-form-field>
+              <!-- ONE user-facing payment field: the Payment Methods master. The settlement account
+                   (paymentAccountId) and the legacy paymentMethod/paymentType payload strings are
+                   all derived from this single selection automatically -- see
+                   watchPaymentMethodIdControl in the component. -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'ACCOUNTS.FORM.PAYMENT_METHOD' | translate }}</mat-label>
+                <mat-select formControlName="paymentMethodId" required>
+                  <mat-option>
+                    <ngx-mat-select-search [formControl]="paymentMethodFilterCtrl"
+                      placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"
+                      noEntriesFoundLabel="{{ 'PURCHASE_INVOICE.NO_RESULTS' | translate }}">
+                    </ngx-mat-select-search>
+                  </mat-option>
+                  <mat-option *ngFor="let m of filteredPaymentMethods()" [value]="m.id">
+                    {{ translate.currentLang === 'ar' ? m.nameAr : m.nameEn }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="full-width" *ngIf="isCreditPayment()">
+                <mat-label>{{ 'PURCHASE_INVOICE.DUE_DATE' | translate }}</mat-label>
+                <input matInput [matDatepicker]="dueDatePicker" formControlName="dueDate">
+                <mat-datepicker-toggle matSuffix [for]="dueDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #dueDatePicker></mat-datepicker>
+              </mat-form-field>
 
                   <!-- Business-level Inventory/Expense classification account: default-preselected
                        via AccountResolutionService.resolve-default, user-editable. This is the only
@@ -253,34 +271,17 @@
               {{ 'CASH_CALCULATOR.TITLE' | translate }}
             </h3>
 
-            <!-- Optional Payment Method master selector -- purely additive: choosing one offers
-                 its linked account as the Payment Account default below, without touching the
-                 existing Cash/Credit/Bank/Check paymentMethod dropdown or its branching logic. -->
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'ACCOUNTS.FORM.PAYMENT_METHOD' | translate }}</mat-label>
-              <mat-select formControlName="paymentMethodId">
-                <mat-option [value]="null">{{ 'COMMON.NONE' | translate }}</mat-option>
-                <mat-option *ngFor="let m of paymentMethodOptions()" [value]="m.id">
-                  {{ translate.currentLang === 'ar' ? m.nameAr : m.nameEn }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-
-            <!-- Settlement leg for CASH purchases: Dr Inventory / Cr Payment Account.
-                 Options are active, postable, Cash/Bank-classified accounts from the existing
-                 backend endpoint; the backend re-validates any selection and falls back to its
-                 seeded default Cash when nothing is chosen. Hidden entirely on CREDIT purchases,
-                 whose credit leg is the supplier's server-resolved AP account. -->
-            <app-account-autocomplete class="full-width"
-                formControlName="paymentAccountId"
-                [accounts]="paymentAccounts()"
-                [required]="true"
-                [label]="'ACCOUNTING.PAYMENT_ACCOUNT'"
-                [hint]="'ACCOUNTING.PAYMENT_ACCOUNT_HINT'">
-            </app-account-autocomplete>
-            <span class="account-field-error" *ngIf="purchaseInvoiceForm.get('paymentAccountId')?.invalid && purchaseInvoiceForm.get('paymentAccountId')?.touched">
-              {{ 'ACCOUNTING.PAYMENT_ACCOUNT_REQUIRED' | translate }}
-            </span>
+            <!-- The single Payment Method selector lives in the header Payment section above --
+                 no duplicate payment field here. -->
+            <!-- Settlement leg for CASH purchases: Dr Inventory / Cr Payment Account. The account
+                 is DERIVED automatically from the selected Payment Method's linked account (see
+                 watchPaymentMethodIdControl in the component) -- no separate Payment Account field
+                 anymore. The backend re-validates the derived account and falls back to its seeded
+                 default Cash when nothing is chosen. Hidden entirely on CREDIT purchases, whose
+                 credit leg is the supplier's server-resolved AP account. -->
+            <p class="derived-account-hint">
+              {{ 'ACCOUNTING.PAYMENT_ACCOUNT_DERIVED_FROM_METHOD' | translate }}
+            </p>
 
             <app-cash-amount-calculator
               [invoiceTotal]="totalAmount()"

@@ -17,8 +17,11 @@ export interface SalesInvoice {
   sourceOrderId?: number;
   storeId?: number;
   salesperson?: string;
-  paymentMethod?: 'Cash' | 'Bank Transfer' | 'Finance';
-  paymentType?: 'Bank Transfer' | 'Cash' | 'Check';
+  /** Legacy payload strings -- DERIVED from the single Payment Method master selection
+   *  (paymentMethodId). Kept as plain strings for backward compatibility with existing
+   *  documents and the backend's settlement resolution; never user-facing. */
+  paymentMethod?: string;
+  paymentType?: string;
   /** Link to the Payment Methods master, if one was picked. */
   paymentMethodId?: number | null;
   invoiceType?: 'Taxable' | 'Zero Rated' | 'Exempt';

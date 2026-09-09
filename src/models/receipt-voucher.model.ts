@@ -32,7 +32,10 @@ export interface SimpleReceiptVoucher {
   id?: number;
   totalAmount: number;
   date: string;
+  /** Legacy payload string -- DERIVED from the single Payment Method master selection. */
   paymentMethod: string;
+  /** Link to the Payment Methods master (the one user-facing payment field). */
+  paymentMethodId?: number | null;
   creditAccountId: number;
   debitAccountId: number;
   details: SimpleReceiptDetail[];

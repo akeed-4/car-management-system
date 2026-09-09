@@ -3901,6 +3901,7 @@
     "CODE_GENERATION_FAILED": "Could not generate the number automatically — unlock to enter it manually",
     "PAYMENT_ACCOUNT": "Payment Methods",
     "PAYMENT_ACCOUNT_HINT": "The payment method (Cash/Bank account) used to settle this document",
+    "PAYMENT_ACCOUNT_DERIVED_FROM_METHOD": "The settlement account is taken automatically from the selected Payment Method.",
     "PAYMENT_ACCOUNT_REQUIRED": "Payment method is required for cash posting.",
     "DOWN_PAYMENT_ACCOUNT_SECTION": "Down Payment Settlement",
     "REVENUE_ACCOUNT": "Revenue Account",

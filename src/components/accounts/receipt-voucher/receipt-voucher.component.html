@@ -28,8 +28,10 @@
 
           <mat-form-field appearance="outline">
             <mat-label>{{ 'ACCOUNTS.RECEIPT_VOUCHER_FORM.PAYMENT_METHOD' | translate }}</mat-label>
-            <mat-select formControlName="paymentMethod" required>
-              <mat-option *ngFor="let method of paymentMethods" [value]="method.value">{{ method.label }}</mat-option>
+            <mat-select formControlName="paymentMethodId" required>
+              <mat-option *ngFor="let m of paymentMethods" [value]="m.id">
+                {{ m.nameAr }} — {{ m.nameEn }}
+              </mat-option>
             </mat-select>
           </mat-form-field>
 

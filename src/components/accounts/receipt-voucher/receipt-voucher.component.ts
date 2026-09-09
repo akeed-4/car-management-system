@@ -23,6 +23,8 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { AccountNode } from '../../../../src/models/account-node.model';
 import { AccountingService, DefaultAccountKind } from '../../../../src/components/accounting/accounting.service';
 import { DefaultAccountTracker } from '../../../../src/components/shared/default-account/default-account.helper';
+import { PaymentMethodService } from '../../../../src/services/payment-method.service';
+import { PaymentMethod } from '../../../../src/models/payment-method.model';
 
 @Component({
   selector: 'app-receipt-voucher',
@@ -53,6 +55,7 @@ export class ReceiptVoucherComponent implements OnInit {
   private paymentService = inject(PaymentService);
   private inventoryService = inject(InventoryService);
   private accountingService = inject(AccountingService);
+  private paymentMethodService = inject(PaymentMethodService);
 
   form!: FormGroup;
   accounts$!: Observable<AccountNode[]>;
@@ -63,27 +66,59 @@ export class ReceiptVoucherComponent implements OnInit {
   private sourceAccountTracker!: DefaultAccountTracker;
   sourceAccountManuallyChanged = false;
 
-  paymentMethods = [
-    { value: 'CASH', label: 'Cash' },
-    { value: 'BANK_TRANSFER', label: 'Bank Transfer' },
-    { value: 'CARD', label: 'Card' }
-  ];
+  /** Centralized Payment Methods master (active only) -- THE single user-facing payment field of
+   *  this voucher. The legacy paymentMethod string payload value is derived from the selection. */
+  paymentMethods: PaymentMethod[] = [];
 
   ngOnInit(): void {
     this.form = this.fb.group({
       totalAmount: [0, [Validators.required, Validators.min(0.01)]],
       date: [new Date().toISOString().split('T')[0]],
-      paymentMethod: ['', Validators.required],
+      // THE single user-facing payment field. paymentMethod is a derived legacy payload value.
+      paymentMethodId: [null as number | null, Validators.required],
+      paymentMethod: [''],
       sourceAccountId: [null, Validators.required]
     }, { validators: this.sumValidator });
 
     this.accounts$ = this.accountService.getAccounts();
     this.cars$ = this.inventoryService.getCars();
 
+    this.paymentMethodService.activePaymentMethods$.subscribe(methods => {
+      this.paymentMethods = methods;
+      // Preselect the first active Cash-typed method, matching the old hardcoded default.
+      const control = this.form?.get('paymentMethodId');
+      if (control && control.value == null && methods.length) {
+        const cashMethod = methods.find(m => (m.paymentType || '').toLowerCase() === 'cash') || methods[0];
+        control.setValue(cashMethod.id);
+      }
+    });
+
+    // ONE field in, everything else derived: the legacy paymentMethod string (API compatibility)
+    // and the payment (settlement) account from the method's linked account, unless the user
+    // picked an account manually.
+    this.form.get('paymentMethodId')?.valueChanges.subscribe((id: number | null) => {
+      const method = this.paymentMethods.find(m => m.id === id);
+      if (!method) return;
+      this.form.get('paymentMethod')?.setValue(this.legacyPaymentMethodCode(method));
+      if (!this.sourceAccountManuallyChanged) {
+        this.form.get('sourceAccountId')?.setValue(method.accountId);
+      }
+    });
+
     this.sourceAccountTracker = new DefaultAccountTracker(this.accountingService, this.form.get('sourceAccountId') as any);
     this.form.get('sourceAccountId')?.valueChanges.subscribe(() =>
       this.sourceAccountManuallyChanged = this.sourceAccountTracker.manuallyChanged);
     this.sourceAccountTracker.recalculate({ kind: DefaultAccountKind.PaymentAccount });
+  }
+
+  /** Legacy compatibility: derives the voucher's uppercase paymentMethod string
+   *  (CASH/BANK_TRANSFER/CARD/CHEQUE) from the Payment Method master selection. */
+  private legacyPaymentMethodCode(method: PaymentMethod | null | undefined): string {
+    const t = (method?.paymentType || '').toLowerCase();
+    if (t === 'cash') return 'CASH';
+    if (t === 'card') return 'CARD';
+    if (t === 'cheque' || t === 'check') return 'CHEQUE';
+    return 'BANK_TRANSFER';
   }
 
   resetSourceAccountToDefault(): void {
