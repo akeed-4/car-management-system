@@ -448,9 +448,19 @@ export class PurchaseInvoiceComponent implements OnInit {
 
   /** True when the current payment type is cash - drives the auto-paid summary + cash calculator.
    *  Signal-backed: paymentType is now DERIVED from the single Payment Method master selection
-   *  (see watchPaymentMethodIdControl), so it changes at runtime and must stay reactive. */
+   *  (see watchPaymentMethodIdControl), so it changes at runtime and must stay reactive.
+   *  Cash-locked wrappers (PurchaseCashInvoiceComponent) fix the settlement by contract: the
+   *  derived string must never override the lock -- not before the master loads, and not when the
+   *  matched master row itself carries a non-Cash paymentType. Without this guard a CASH invoice
+   *  rendered as credit: the "Initial Payment" section appeared, the supplier-AP account check ran
+   *  on save, and the header badge showed Unpaid. */
   paymentTypeSignal = signal<string>('Bank Transfer');
-  isCashPayment = computed(() => this.paymentTypeSignal().toLowerCase() === 'cash');
+  isCashPayment = computed(() => {
+    if (this.lockPaymentMethod && String(this.fixedPaymentMethod ?? '').trim().toLowerCase() === 'cash') {
+      return true;
+    }
+    return this.paymentTypeSignal().toLowerCase() === 'cash';
+  });
 
   /**
    * Cash/Bank settlement accounts for CASH purchases (credit leg: Dr Inventory / Cr Payment
@@ -491,8 +501,13 @@ export class PurchaseInvoiceComponent implements OnInit {
 
       // ONE field in, everything else derived: legacy strings (payload compatibility)...
       const legacy = deriveLegacyPaymentStrings(method);
-      this.purchaseInvoiceForm.get('paymentType')?.setValue(legacy.paymentType);
-      this.purchaseInvoiceForm.get('paymentMethod')?.setValue(legacy.paymentMethod);
+      // Cash-locked wrapper: the document is Cash by definition, so a master row whose own
+      // paymentType was mis-typed (e.g. 'Bank') must not flip the settlement back to credit --
+      // force the derived strings to Cash while keeping the method's linked settlement account.
+      const cashLocked = this.lockPaymentMethod && String(this.fixedPaymentMethod ?? '').trim().toLowerCase() === 'cash';
+      const derivedType = cashLocked ? 'Cash' : legacy.paymentType;
+      this.purchaseInvoiceForm.get('paymentType')?.setValue(derivedType);
+      this.purchaseInvoiceForm.get('paymentMethod')?.setValue(derivedType === 'Cash' ? 'Cash' : legacy.paymentMethod);
       // ...and the settlement account from the method's linked account.
       this.purchaseInvoiceForm.get('paymentAccountId')?.setValue(method.accountId);
     });
@@ -543,10 +558,14 @@ export class PurchaseInvoiceComponent implements OnInit {
   private refreshPaymentAccountValidation(): void {
     const control = this.purchaseInvoiceForm?.get('paymentAccountId');
     if (!control) return;
-    if (this.isCashPayment()) {
-      control.setValidators([Validators.required]);
-    } else {
-      control.clearValidators();
+    // OPTIONAL on cash too: when no Payment Method/account is chosen the backend falls back to
+    // the tenant's seeded default Cash account (ResolvePaymentAccountAsync's documented
+    // fallback). A hard client-side `required` here used to keep Save/Save&Print permanently
+    // disabled on cash invoices whenever no method was preselectable, with every other field
+    // correctly filled.
+    control.clearValidators();
+    if (!this.isCashPayment()) {
+      // Credit -> drop any previously chosen cash account so it can never leak into a credit payload.
       control.reset({ value: null, emitEvent: false });
     }
     control.updateValueAndValidity();
@@ -889,11 +908,16 @@ export class PurchaseInvoiceComponent implements OnInit {
     if (!this.purchaseInvoiceForm || !this.lockPaymentMethod || !this.fixedPaymentMethod) {
       return;
     }
-    applyFieldLock(this.purchaseInvoiceForm.get('paymentMethod'), { value: this.fixedPaymentMethod, disable: true });
+    applyFieldLock(this.purchaseInvoiceForm.get('paymentMethod'), { value: this.fixedPaymentMethod, disable: false });
     applyFieldLock(this.purchaseInvoiceForm.get('paymentType'), { value: this.fixedPaymentMethod, disable: true });
-    // The single Payment Method selector is locked too (autoSelectPaymentMethod may still
-    // programmatically preselect the matching master method; the user can't change it).
-    applyFieldLock(this.purchaseInvoiceForm.get('paymentMethodId'), { value: null, disable: true });
+    // The Payment Method selector stays EDITABLE: the user picks the instrument (Cash/Bank/Card/)
+    // and its linked account becomes the settlement leg. On a Cash-locked wrapper the settlement
+    // TYPE still cannot drift -- the paymentMethodId valueChanges handler forces the derived
+    // strings to 'Cash' and the backend treats an explicit client PaymentType=Cash as
+    // authoritative -- so choosing e.g. a Bank method only changes WHICH Cash/Bank account the
+    // entry posts to, never cash -> credit. (autoSelectPaymentMethod may still preselect the
+    // matching master method when the master loads.)
+    applyFieldLock(this.purchaseInvoiceForm.get('paymentMethodId'), { value: null, disable: false });
     this.paymentMethodSignal.set(this.fixedPaymentMethod);
     this.paymentTypeSignal.set(String(this.fixedPaymentMethod ?? ''));
   }
@@ -937,6 +961,13 @@ export class PurchaseInvoiceComponent implements OnInit {
 
     // Set payment method signal
     this.paymentMethodSignal.set(this.fixedPaymentMethod || 'Bank Transfer');
+    // Seed the Cash/Credit branching signal from the form's initial paymentType value (which is
+    // fixedPaymentMethod itself). Only paymentMethodSignal used to be seeded here, so a CASH
+    // wrapper started with the signal's 'Bank Transfer' default and rendered as credit -- Initial
+    // Payment section visible, supplier AP check armed, Unpaid badge -- until some control event
+    // happened to update the signal. The valueChanges subscription below only fires on CHANGES,
+    // never for the initial value.
+    this.paymentTypeSignal.set(this.purchaseInvoiceForm.get('paymentType')?.value || this.fixedPaymentMethod || 'Bank Transfer');
 
     // Set initial invoice type
     this.invoiceType.set(InvoiceType.Taxable);
@@ -949,6 +980,12 @@ export class PurchaseInvoiceComponent implements OnInit {
     // Debit account options + default preview.
     this.loadDebitAccounts();
     this.refreshDebitAccountDefault();
+
+    // Re-apply the Cash/Credit lock now that the form actually exists. ngOnChanges fires this
+    // before ngOnInit -- i.e. while purchaseInvoiceForm is still undefined -- so its early return
+    // silently skipped every lock, leaving the payment method selector editable and the derived
+    // cash/credit state unpinned on Cash/Credit-locked wrapper screens.
+    this.handlePaymentMethodLocking();
   }
 
   /** Keeps amountReceivedSignal (used by the live Paid/Due/Status preview) in sync with the
