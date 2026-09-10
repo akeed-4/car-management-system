@@ -1066,6 +1066,17 @@ export class PurchaseInvoiceComponent implements OnInit {
           auctionLotNumber: [invoice.auctionLotNumber || ''],
         }, { validators: [this.dueDateValidator] });
 
+        // Seed the Cash/Credit branching signals from the LOADED invoice's stored payment strings
+        // (same contract as initForm()'s seeding): the valueChanges subscriptions registered by
+        // watchPaymentMethodIdControl only fire on CHANGES -- never for a control's initial value --
+        // and autoSelectPaymentMethod only fixes the signals when the Payment Methods master happens
+        // to contain a matching row. Without this explicit seed a saved CASH invoice opened for edit
+        // kept the class default 'Bank Transfer' and rendered as CREDIT: the "Initial Payment"
+        // section replaced the cash calculator ("المبلغ المستلم"), the supplier-AP "link account"
+        // check armed on save, and the header badge showed Unpaid.
+        this.paymentMethodSignal.set(this.purchaseInvoiceForm.get('paymentMethod')?.value || 'Bank Transfer');
+        this.paymentTypeSignal.set(this.purchaseInvoiceForm.get('paymentType')?.value || this.paymentMethodSignal() || 'Bank Transfer');
+
         this.auctionCharges.set(invoice.auctionCharges || []);
         if (invoice.storeId) {
           this.initializeStoreState(invoice.storeId);
