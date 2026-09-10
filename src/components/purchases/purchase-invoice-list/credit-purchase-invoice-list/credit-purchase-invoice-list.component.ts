@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { PurchaseInvoice } from '../../../../models/purchase-invoice.model';
+import { isDeferredSettlementType } from '../../../../models/payment-method.model';
 import { FormsModule } from '@angular/forms';
 import { PurchasesService } from '../../../../services/purchases.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -50,8 +51,11 @@ export class CreditPurchaseInvoiceListComponent {
 
       let invoices = this.invoices().filter(inv => !!inv.isArchived === showArchived);
 
-      // Filter for credit invoices only
-      invoices = invoices.filter(inv => inv.paymentType === 'credit');
+      // Filter for credit/deferred invoices only. Same ONE settlement rule as the form's
+      // isCreditPayment (isDeferredSettlementType): Credit/Credit (Deferred)/Installment/آجل/تقسيط.
+      // The legacy exact `=== 'credit'` filter silently hid master-saved invoices ("Credit"
+      // capital-C, "Installment", ...) from this list.
+      invoices = invoices.filter(inv => isDeferredSettlementType(inv.paymentType));
 
       // Filter
       if (searchTerm) {

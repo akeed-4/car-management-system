@@ -18,6 +18,7 @@ import { PurchaseReturnService } from '../../../services/purchase-return.service
 import { ReturnInvoiceItem } from '../../../models/return-invoice-item.model';
 import { PurchaseReturnInvoice, PurchaseReturnType } from '../../../models/purchase-return-invoice.model';
 import { PurchaseInvoice } from '../../../models/purchase-invoice.model';
+import { isDeferredSettlementType } from '../../../models/payment-method.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NotificationService } from '@/src/services/notification.service';
 import { extractErrorMessage } from '@/src/models/http-error-message';
@@ -56,7 +57,14 @@ export class PurchaseReturnFormComponent implements OnInit, OnChanges {
   originalInvoices = computed(() =>
     this.invoices().filter(inv =>
       inv.items.some(item => item.quantity > 0) && // Invoices with items in stock
-      inv.paymentType === (this.returnType === 'CASH' ? 'cash' : 'credit') // Filter by payment type
+      // Same ONE settlement rule as the invoice lists (isDeferredSettlementType): CASH returns
+      // draw from immediately-settled purchases (Cash/Bank/BankTransfer/Card/Check/Other --
+      // including the Payment Methods master's own type strings), CREDIT returns from
+      // deferred ones. The legacy exact lowercase `=== 'cash'` match silently hid every
+      // master-saved purchase from this picker.
+      (this.returnType === 'CASH'
+        ? !isDeferredSettlementType(inv.paymentType)
+        : isDeferredSettlementType(inv.paymentType))
     )
   );
   selectedOriginalInvoice = signal<PurchaseInvoice | null>(null);

@@ -1061,7 +1061,10 @@ export class PurchaseInvoiceComponent implements OnInit {
           // Cash invoices persist their payment account in CreditAccountId server-side
           // (the cash entry's credit leg) -- preselect it so edit mode shows the stored one.
           paymentAccountId: [
-            (invoice.paymentType || '').toLowerCase() === 'cash' ? (invoice.creditAccountId ?? null) : null
+            // Restore the stored Cash/Bank settlement account for any IMMEDIATELY-settled
+            // invoice (Cash/Bank/BankTransfer/Card/... -- the master's own type string, not just
+            // the literal lowercase 'cash'); deferred invoices have no payment account.
+            !isDeferredSettlementType(invoice.paymentType) ? (invoice.creditAccountId ?? null) : null
           ] as [number | null],
           paymentMethodId: [invoice.paymentMethodId ?? null] as [number | null],
           dueDate: [invoice.dueDate ? new Date(invoice.dueDate) : null],

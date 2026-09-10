@@ -5,6 +5,7 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PurchaseInvoice } from '../../../../models/purchase-invoice.model';
+import { isDeferredSettlementType } from '../../../../models/payment-method.model';
 import { PurchasesService } from '../../../../services/purchases.service';
 import { ResponsiveService } from '../../../../services/responsive.service';
 import {
@@ -57,8 +58,13 @@ constructor() {
 
       let invoices = this.invoices().filter(inv => !!inv.isArchived === showArchived);
 
-      // Filter for cash invoices only
-       invoices = invoices.filter(inv => inv.paymentType === 'cash');
+      // Filter for IMMEDIATELY-settled (cash-like) invoices only. The legacy exact-match
+      // `paymentType === 'cash'` filter silently hid every invoice saved through the Payment
+      // Methods master: that master persists its own type string ("Cash" capital-C,
+      // "BankTransfer", "Card", "Check", "Other"), none of which matched the lowercase literal --
+      // so newly saved invoices never appeared in either list. The ONE settlement rule (same
+      // helper the form's isCashPayment uses) classifies by deferred-vs-immediate instead.
+      invoices = invoices.filter(inv => !isDeferredSettlementType(inv.paymentType));
 
       // Filter
       if (searchTerm) {
