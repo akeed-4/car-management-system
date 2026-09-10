@@ -23,3 +23,43 @@
 .aab-desktop-toolbar {
   margin-inline-start: auto;
 }
+
+/* Opt-in web sticky mode: pins the toolbar to the viewport's bottom edge so Save/Cancel
+   stay reachable on tall forms. Only applies when the caller binds [sticky]="true";
+   existing inline usages are untouched. */
+.aab-desktop-toolbar.aab-sticky {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  margin-bottom: 0;
+  padding-block: var(--space-2);
+  background: var(--surface-page);
+  border-top: 1px solid var(--color-gray-200);
+}
+
+/* Unsaved-changes badge (desktop toolbar, leading edge) -- mirrors the
+   .unsaved-badge pattern already established in user-permissions. */
+.aab-unsaved-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1, 4px);
+  padding: 2px var(--space-2);
+  border-radius: 999px;
+  background: var(--color-warning-100);
+  color: var(--color-warning-800);
+  font-size: var(--text-xs, 0.75rem);
+  white-space: nowrap;
+}
+
+.aab-unsaved-badge .mat-icon {
+  font-size: 0.6rem;
+  width: 0.6rem;
+  height: 0.6rem;
+}
+
+/* 18px busy spinner inside Save / Save & Print: needs a tighter line box than the
+   icon it replaces so the button height doesn't jump while saving. */
+.aab-save-spinner {
+  flex: 0 0 auto;
+  line-height: 0;
+}

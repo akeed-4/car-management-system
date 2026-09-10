@@ -1,11 +1,13 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { PermissionService } from '../../../services/permission.service';
+import { NotificationService } from '../../../services/notification.service';
 import { ResponsiveService } from '../../../services/responsive.service';
 
 /**
@@ -28,11 +30,21 @@ import { ResponsiveService } from '../../../services/responsive.service';
  *
  * Presentational only: no business logic, no save/print/permission decisions.
  * The calling screen owns all of that and reacts to the output events.
+ *
+ * Web (desktop) enhancements over the original inline toolbar:
+ * - `sticky`   -- opt-in; pins the toolbar to the viewport's bottom edge so Save/Cancel
+ *                 stay reachable on tall forms without changing any existing usage.
+ * - `dirty`    -- renders an "Unsaved changes" badge next to the actions.
+ * - `confirmCancel` -- opt-in; when `dirty`, Cancel asks for confirmation (via the shared
+ *                 NotificationService toast/confirm wrapper) instead of discarding silently.
+ *                 Works on both mobile and desktop since the handler is shared.
+ * - Icons + an 18px busy spinner on the Save button, and tooltips that explain WHY a
+ *   disabled Save/Print is disabled (invalid form / unsaved changes).
  */
 @Component({
   selector: 'app-action-bar',
   standalone: true,
-  imports: [CommonModule, TranslateModule, MatButtonModule, MatIconModule, MatMenuModule, MatTooltipModule],
+  imports: [CommonModule, TranslateModule, MatButtonModule, MatIconModule, MatMenuModule, MatProgressSpinnerModule, MatTooltipModule],
   templateUrl: './app-action-bar.component.html',
   styleUrl: './app-action-bar.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -64,6 +76,14 @@ export class AppActionBarComponent {
   @Input() saveDisabled = false;
   @Input() printDisabled = false;
 
+  // ---- Web enhancements (all opt-in; defaults preserve existing usage) ----------------
+  /** Pins the desktop toolbar to the viewport's bottom edge (sticky footer on tall forms). */
+  @Input() sticky = false;
+  /** Shows an "Unsaved changes" badge on the desktop toolbar. */
+  @Input() dirty = false;
+  /** When `dirty`, Cancel first asks the user to confirm discarding (mobile + desktop). */
+  @Input() confirmCancel = false;
+
   // ---- Labels (i18n keys; overridable per-screen) -------------------------------------
   @Input() cancelLabel = 'COMMON.CANCEL';
   @Input() saveLabel = 'COMMON.SAVE';
@@ -82,7 +102,10 @@ export class AppActionBarComponent {
   @Output() approve = new EventEmitter<void>();
   @Output() saveAndNew = new EventEmitter<void>();
 
-  constructor(protected responsive: ResponsiveService, private permissionService: PermissionService) {}
+  constructor(protected responsive: ResponsiveService,
+              private permissionService: PermissionService,
+              private notification: NotificationService,
+              private translate: TranslateService) {}
 
   protected get primarySaveDisabled(): boolean {
     return this.saveDisabled || this.saving || this.loading;
@@ -110,8 +133,32 @@ export class AppActionBarComponent {
   protected get canApprove(): boolean { return this.showApprove && this.allowed(this.permissionApprove); }
   protected get canSaveAndNew(): boolean { return this.showSaveAndNew && this.allowed(this.permissionSaveAndNew); }
 
+  /** Tooltip for the Save button: explains WHY it is disabled (empty string = no tooltip). */
+  protected get saveTooltip(): string {
+    if (this.saving) return this.translate.instant('COMMON.SAVING');
+    if (this.saveDisabled) return this.translate.instant('COMMON.FIX_ERRORS_FIRST');
+    return '';
+  }
+
+  /** Tooltip for the Print button: explains WHY it is disabled (empty string = no tooltip). */
+  protected get printTooltip(): string {
+    if (this.printDisabled) return this.translate.instant('COMMON.SAVE_BEFORE_PRINT');
+    return '';
+  }
+
   onCancel(): void {
-    if (!this.saving) this.cancel.emit();
+    if (this.saving) return;
+    // Opt-in unsaved-changes guard: ask before discarding so a stray click can't wipe a form.
+    if (this.confirmCancel && this.dirty) {
+      const title = this.translate.instant('COMMON.UNSAVED_CHANGES');
+      const message = this.translate.instant('COMMON.UNSAVED_CONFIRM');
+      const discardLabel = this.translate.instant('COMMON.DISCARD');
+      this.notification.confirmAlert(title, message, discardLabel).then(result => {
+        if (result.isConfirmed) this.cancel.emit();
+      });
+      return;
+    }
+    this.cancel.emit();
   }
 
   onSave(): void {

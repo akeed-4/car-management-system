@@ -12,18 +12,23 @@
   (print)="onPrint()"
   (refresh)="onRefresh()">
 
-  <app-report-grid
-    [dataSource]="reportData"
-    [loading]="loading"
-    [columns]="columns"
-    [keyExpr]="'accountId'"
-    [stateStorageKey]="'account-balance'"
-    [allowSorting]="true"
-    [allowFiltering]="true"
-    [allowGrouping]="false"
-    [showSummary]="true"
-    [height]="'600px'"
-    [noDataText]="hasSearched ? 'REPORTS.NO_DATA' : 'REPORTS.APPLY_FILTER_PROMPT'">
-  </app-report-grid>
+  <!-- The report body must be a projected template (see report-container's reportBody doc):
+       raw projected content between the container tags never mounts in the container's mobile
+       @if branch, which is exactly why reports showed no data on phones. -->
+  <ng-template #reportBody>
+    <app-report-grid
+      [dataSource]="reportData"
+      [loading]="loading"
+      [columns]="columns"
+      [keyExpr]="'accountId'"
+      [stateStorageKey]="'account-balance'"
+      [allowSorting]="true"
+      [allowFiltering]="true"
+      [allowGrouping]="false"
+      [showSummary]="true"
+      [height]="'600px'"
+      [noDataText]="hasSearched ? 'REPORTS.NO_DATA' : 'REPORTS.APPLY_FILTER_PROMPT'">
+    </app-report-grid>
+  </ng-template>
 
 </app-report-container>

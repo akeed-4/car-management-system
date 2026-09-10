@@ -33,21 +33,18 @@ export class BalanceSheetComponent implements OnInit {
       dataField: 'accountCode',
       caption: 'REPORTS.COLUMNS.ACCOUNT_CODE',
       dataType: 'string',
-      alignment: 'left',
       width: 150
     },
     {
       dataField: 'accountName',
       caption: 'REPORTS.COLUMNS.ACCOUNT_NAME',
       dataType: 'string',
-      alignment: 'left',
       width: 400
     },
     {
       dataField: 'accountType',
       caption: 'REPORTS.COLUMNS.TYPE',
       dataType: 'string',
-      alignment: 'center',
       width: 150
     },
     {
@@ -55,7 +52,6 @@ export class BalanceSheetComponent implements OnInit {
       caption: 'REPORTS.COLUMNS.AMOUNT',
       dataType: 'number',
       format: '#,##0.00',
-      alignment: 'right',
       width: 200
     }
   ];

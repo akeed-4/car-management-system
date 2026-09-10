@@ -33,21 +33,18 @@ export class BusinessActivityComponent implements OnInit {
       dataField: 'category',
       caption: 'REPORTS.COLUMNS.TYPE',
       dataType: 'string',
-      alignment: 'left',
       width: 150
     },
     {
       dataField: 'activityType',
       caption: 'REPORTS.COLUMNS.ACTIVITY_TYPE',
       dataType: 'string',
-      alignment: 'left',
       width: 250
     },
     {
       dataField: 'description',
       caption: 'REPORTS.COLUMNS.DESCRIPTION',
       dataType: 'string',
-      alignment: 'left',
       width: 350
     },
     {
@@ -55,7 +52,6 @@ export class BusinessActivityComponent implements OnInit {
       caption: 'REPORTS.COLUMNS.AMOUNT',
       dataType: 'number',
       format: '#,##0.00',
-      alignment: 'right',
       width: 180,
       customizeText: (cellInfo: any) => {
         const value = cellInfo.value;
@@ -70,7 +66,6 @@ export class BusinessActivityComponent implements OnInit {
       caption: 'REPORTS.COLUMNS.TYPE',
       dataType: 'number',
       format: '#,##0.00',
-      alignment: 'right',
       width: 120,
       customizeText: (cellInfo: any) => {
         return `${cellInfo.value.toFixed(2)}%`;

@@ -135,3 +135,114 @@ mat-divider {
     width: 100%;
   }
 }
+
+/* ---- Mobile page layout -------------------------------------------------------
+   Single-column flow: header -> collapsible filters card -> results card. No fixed/sticky
+   footer anywhere, so nothing overlays the results and Apply is always followed by the
+   response being visible on screen. */
+.report-container-mobile {
+  padding: var(--mobile-gutter, 16px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--mobile-gap, 12px);
+  min-height: 100%;
+}
+
+.report-filters-card,
+.report-results {
+  border-radius: 12px;
+  padding: var(--space-3, 16px);
+  background: var(--surface-card, var(--color-white));
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Collapsible filter toggle row -- full-width touch target. */
+.filters-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  width: 100%;
+  padding: var(--space-2, 8px) 0;
+  background: transparent;
+  border: none;
+  font: inherit;
+  font-weight: 600;
+  color: var(--text-primary, var(--color-gray-800));
+  cursor: pointer;
+  min-height: var(--mobile-touch-target, 44px);
+}
+
+.filters-toggle-spacer,
+.results-title-spacer {
+  flex: 1 1 auto;
+}
+
+.filters-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--color-primary-600);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.filters-chevron {
+  color: var(--text-secondary, var(--color-gray-500));
+}
+
+.report-filters-body {
+  padding-top: var(--space-2, 8px);
+}
+
+/* Touch-friendly in-flow Apply/Reset under the fields they act on. */
+.report-filters-body .filter-actions {
+  display: flex;
+  gap: var(--space-2, 8px);
+  padding-top: var(--space-3, 16px);
+}
+
+.report-filters-body .filter-actions button {
+  flex: 1 1 0;
+  min-height: var(--mobile-touch-target, 44px);
+}
+
+/* Results card header: title + row-level icon actions (refresh/exports/print). */
+.report-results-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1, 4px);
+  padding-bottom: var(--space-2, 8px);
+  border-bottom: 1px solid var(--border-default, var(--color-gray-200));
+  margin-bottom: var(--space-2, 8px);
+}
+
+.results-title {
+  font-weight: 600;
+  color: var(--text-primary, var(--color-gray-800));
+}
+
+/* Keep a visible results area while loading so the overlay spinner has height even when
+   the projected grid/list has no rows yet. */
+.report-container-mobile .report-content-wrapper {
+  min-height: 200px;
+}
+
+/* Printing (mobile + shared): only the report content prints; filters, toggles,
+   results chrome and action buttons are stripped. */
+@media print {
+  .report-filters-card,
+  .report-results-header,
+  .filter-actions,
+  .report-actions {
+    display: none !important;
+  }
+
+  .report-container-mobile {
+    padding: 0;
+  }
+}

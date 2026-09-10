@@ -1,43 +1,79 @@
 @if (isMobile()) {
+  <!-- Mobile report page: lightweight single-column flow (header -> collapsible filters ->
+       results). Deliberately does NOT use shared-mobile-data-entry: that is a DATA-ENTRY form
+       shell whose sticky footer + content padding reserve the bottom of the screen, which
+       pushed the report results below the fold and made Apply look like a no-op. Here the
+       Apply/Reset buttons are in-flow under the fields they act on, the row-level actions
+       (refresh/exports/print) live in the results card header, and applying scrolls the
+       results into view so loading and data are always visible. -->
   <div class="report-container report-container-mobile">
-    <shared-mobile-data-entry
-      [title]="title | translate"
-      [saving]="loading"
-      [canSave]="true"
-      [canCancel]="true"
-      saveLabel="REPORTS.APPLY_FILTER"
-      cancelLabel="REPORTS.RESET"
-      (save)="onApplyFilter()"
-      (cancel)="onResetFilter()">
-      <ng-container [ngTemplateOutlet]="filterFieldsBody"></ng-container>
-    </shared-mobile-data-entry>
+    <app-mobile-header [title]="title | translate" (back)="onBack()"></app-mobile-header>
 
-    <div class="report-actions erp-list-toolbar">
-      <button mat-button (click)="onRefresh()" [disabled]="loading">
-        <mat-icon>refresh</mat-icon>
-        {{ 'REPORTS.REFRESH' | translate }}
+    <!-- Filters card: collapsible; the badge shows how many filters are set. -->
+    <div class="report-filters-card erp-card">
+      <button type="button" class="filters-toggle" (click)="filtersOpen.set(!filtersOpen())"
+              [attr.aria-expanded]="filtersOpen()">
+        <mat-icon aria-hidden="true">tune</mat-icon>
+        <span>{{ 'REPORTS.FILTERS' | translate }}</span>
+        @if (activeFilterCount() > 0) {
+          <span class="filters-count">{{ activeFilterCount() }}</span>
+        }
+        <span class="filters-toggle-spacer"></span>
+        <mat-icon class="filters-chevron" aria-hidden="true">{{ filtersOpen() ? 'expand_less' : 'expand_more' }}</mat-icon>
       </button>
-      <button mat-button (click)="onExportPdf()" [disabled]="loading">
-        <mat-icon>picture_as_pdf</mat-icon>
-        {{ 'REPORTS.EXPORT_PDF' | translate }}
-      </button>
-      <button mat-button (click)="onExportExcel()" [disabled]="loading">
-        <mat-icon>table_chart</mat-icon>
-        {{ 'REPORTS.EXPORT_EXCEL' | translate }}
-      </button>
-      <button mat-button (click)="onPrint()" [disabled]="loading">
-        <mat-icon>print</mat-icon>
-        {{ 'REPORTS.PRINT' | translate }}
-      </button>
+
+      @if (filtersOpen()) {
+        <div class="report-filters-body">
+          <ng-container [ngTemplateOutlet]="filterFieldsBody"></ng-container>
+          <!-- In-flow Apply/Reset (NOT a fixed footer -- it can never cover the results). -->
+          <div class="filter-actions erp-actions-bar">
+            <button type="button" mat-flat-button color="primary" (click)="onApplyFilter($event)" [disabled]="loading">
+              <mat-icon>search</mat-icon>
+              {{ 'REPORTS.APPLY_FILTER' | translate }}
+            </button>
+            <button type="button" mat-stroked-button (click)="onResetFilter()" [disabled]="loading">
+              <mat-icon>clear</mat-icon>
+              {{ 'REPORTS.RESET' | translate }}
+            </button>
+          </div>
+        </div>
+      }
     </div>
 
-    <div class="report-content-wrapper">
-      <div class="loading-overlay" *ngIf="loading">
-        <mat-spinner diameter="50"></mat-spinner>
-        <p>{{ 'REPORTS.LOADING' | translate }}</p>
+    <!-- Results card: header keeps the actions next to the data they act on; the loading
+         spinner overlays just the results area. -->
+    <div class="report-results erp-card" #resultsAnchor>
+      <div class="report-results-header">
+        <span class="results-title">{{ 'REPORTS.RESULTS' | translate }}</span>
+        <span class="results-title-spacer"></span>
+        <button type="button" mat-icon-button (click)="onRefresh()" [disabled]="loading"
+                [attr.aria-label]="'REPORTS.REFRESH' | translate" [matTooltip]="'REPORTS.REFRESH' | translate">
+          <mat-icon>refresh</mat-icon>
+        </button>
+        <button type="button" mat-icon-button (click)="onExportExcel()" [disabled]="loading"
+                [attr.aria-label]="'REPORTS.EXPORT_EXCEL' | translate" [matTooltip]="'REPORTS.EXPORT_EXCEL' | translate">
+          <mat-icon>table_chart</mat-icon>
+        </button>
+        <button type="button" mat-icon-button (click)="onExportPdf()" [disabled]="loading"
+                [attr.aria-label]="'REPORTS.EXPORT_PDF' | translate" [matTooltip]="'REPORTS.EXPORT_PDF' | translate">
+          <mat-icon>picture_as_pdf</mat-icon>
+        </button>
+        <button type="button" mat-icon-button (click)="onPrint()" [disabled]="loading"
+                [attr.aria-label]="'REPORTS.PRINT' | translate" [matTooltip]="'REPORTS.PRINT' | translate">
+          <mat-icon>print</mat-icon>
+        </button>
       </div>
-      <div class="report-content">
-        <ng-content></ng-content>
+
+      <div class="report-content-wrapper">
+        <div class="loading-overlay" *ngIf="loading">
+          <mat-spinner diameter="50"></mat-spinner>
+          <p>{{ 'REPORTS.LOADING' | translate }}</p>
+        </div>
+        <div class="report-content">
+          <!-- Same projected template in both branches -- see reportBody's doc comment for
+               why raw <ng-content> in both @if branches starves the mobile branch. -->
+          <ng-container [ngTemplateOutlet]="reportBody"></ng-container>
+        </div>
       </div>
     </div>
   </div>
@@ -93,9 +129,9 @@
           <p>{{ 'REPORTS.LOADING' | translate }}</p>
         </div>
 
-        <!-- Report Content (ng-content for child components) -->
+        <!-- Report Content (projected <ng-template #reportBody> from the report screen) -->
         <div class="report-content">
-          <ng-content></ng-content>
+          <ng-container [ngTemplateOutlet]="reportBody"></ng-container>
         </div>
       </div>
     </mat-card-content>

@@ -330,10 +330,19 @@ export class ReportGridComponent implements OnInit, OnChanges {
    * matching the current filters/sort, not just the currently-loaded page -- DevExtreme does
    * this automatically for a CustomStore-backed grid as long as `selectedRowsOnly` is left
    * false, which is the default here.
+   *
+   * Mobile fallback: the dx-data-grid (and therefore its instance) is never rendered on
+   * mobile -- the mobile branch renders shared-mobile-list instead -- so the grid-instance
+   * path silently did nothing on phones (no download, no error). When no instance exists the
+   * export is built client-side from the same rows the mobile list is showing (mobileData)
+   * and the visible columns, so mobile and desktop export the same data.
    */
   exportToExcel(fileName: string = 'report'): void {
     const component = this.dataGrid?.instance;
-    if (!component) return;
+    if (!component) {
+      this.exportRowsToExcel(fileName);
+      return;
+    }
     import('devextreme/excel_exporter').then(({ exportDataGrid }) => {
       import('exceljs').then(async (ExcelJS) => {
         const workbook = new ExcelJS.Workbook();
@@ -352,14 +361,43 @@ export class ReportGridComponent implements OnInit, OnChanges {
     });
   }
 
+  /** Client-side Excel export built straight from the row array + visible columns (mobile
+   *  fallback; see exportToExcel's doc comment). Number columns are emitted as real numbers
+   *  so Excel can still aggregate them. */
+  private exportRowsToExcel(fileName: string): void {
+    const visible = this.columns.filter(c => c.visible !== false);
+    import('exceljs').then(async (ExcelJS) => {
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet(fileName);
+      worksheet.addRow(visible.map(c => this.getCaption(c.caption)));
+      for (const row of this.mobileData) {
+        worksheet.addRow(visible.map(c => {
+          const value = c.calculateCellValue ? c.calculateCellValue(row) : row?.[c.dataField];
+          return c.dataType === 'number' ? Number(value ?? 0) : (value ?? '');
+        }));
+      }
+      const buffer = await workbook.xlsx.writeBuffer();
+      const { saveAs } = await import('file-saver');
+      saveAs(new Blob([buffer as BlobPart], { type: 'application/octet-stream' }), `${fileName}.xlsx`);
+    });
+  }
+
   /**
    * Export grid to PDF using DevExtreme's built-in `exportDataGrid` (same dynamic-import pattern
    * as tenant-list.component.ts's exportPdf, the closest in-house precedent). Same
    * unpaged-in-remote-mode behavior as exportToExcel above.
+   *
+   * Mobile fallback: same reasoning as exportToExcel -- with no dx-data-grid instance this used
+   * to be a silent no-op on mobile. Builds a simple landscape table from mobileData/visible
+   * columns instead. (Arabic glyphs in PDF are limited by jsPDF's built-in fonts on desktop too
+   * -- this fallback is deliberately no worse than the existing desktop export.)
    */
   exportToPdf(fileName: string = 'report'): void {
     const component = this.dataGrid?.instance;
-    if (!component) return;
+    if (!component) {
+      this.exportRowsToPdf(fileName);
+      return;
+    }
     Promise.all([import('jspdf'), import('devextreme/pdf_exporter')]).then(([jsPDFModule, { exportDataGrid }]) => {
       const doc = new jsPDFModule.jsPDF();
       exportDataGrid({
@@ -368,6 +406,50 @@ export class ReportGridComponent implements OnInit, OnChanges {
       }).then(() => {
         doc.save(`${fileName}.pdf`);
       });
+    });
+  }
+
+  /** Client-side PDF export built straight from the row array + visible columns (mobile
+   *  fallback; see exportToPdf's doc comment): landscape A4, one header band, simple
+   *  pagination when the rows exceed one page. */
+  private exportRowsToPdf(fileName: string): void {
+    import('jspdf').then((jsPDFModule) => {
+      const doc = new jsPDFModule.jsPDF({ orientation: 'landscape' });
+      const visible = this.columns.filter(c => c.visible !== false);
+      if (visible.length === 0) return;
+      const margin = 10;
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const colWidth = (pageWidth - margin * 2) / visible.length;
+      let y = margin + 4;
+
+      const drawHeader = () => {
+        doc.setFontSize(9);
+        doc.setFont(undefined, 'bold');
+        visible.forEach((c, i) => doc.text(this.getCaption(c.caption), margin + i * colWidth, y));
+        doc.setFont(undefined, 'normal');
+        doc.line(margin, y + 2, pageWidth - margin, y + 2);
+        y += 8;
+      };
+      drawHeader();
+
+      for (const row of this.mobileData) {
+        if (y > pageHeight - margin) {
+          doc.addPage();
+          y = margin + 4;
+          drawHeader();
+        }
+        visible.forEach((c, i) => {
+          const value = c.calculateCellValue ? c.calculateCellValue(row) : row?.[c.dataField];
+          const text = c.dataType === 'number' && value != null
+            ? Number(value).toLocaleString()
+            : String(value ?? '');
+          doc.setFontSize(8);
+          doc.text(text, margin + i * colWidth, y, { maxWidth: colWidth - 2 });
+        });
+        y += 6;
+      }
+      doc.save(`${fileName}.pdf`);
     });
   }
 

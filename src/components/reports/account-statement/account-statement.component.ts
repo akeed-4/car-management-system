@@ -67,21 +67,18 @@ export class AccountStatementComponent implements OnInit {
       caption: 'REPORTS.COLUMNS.DATE',
       dataType: 'date',
       format: 'dd/MM/yyyy',
-      alignment: 'center',
       width: 120
     },
     {
       dataField: 'journalEntryNumber',
       caption: 'REPORTS.COLUMNS.REFERENCE',
       dataType: 'string',
-      alignment: 'left',
       width: 150
     },
     {
       dataField: 'description',
       caption: 'REPORTS.COLUMNS.DESCRIPTION',
       dataType: 'string',
-      alignment: 'left',
       width: 350
     },
     {
@@ -89,7 +86,6 @@ export class AccountStatementComponent implements OnInit {
       caption: 'REPORTS.COLUMNS.DEBIT',
       dataType: 'number',
       format: '#,##0.00',
-      alignment: 'right',
       width: 150
     },
     {
@@ -97,7 +93,6 @@ export class AccountStatementComponent implements OnInit {
       caption: 'REPORTS.COLUMNS.CREDIT',
       dataType: 'number',
       format: '#,##0.00',
-      alignment: 'right',
       width: 150
     },
     {
@@ -105,7 +100,6 @@ export class AccountStatementComponent implements OnInit {
       caption: 'REPORTS.COLUMNS.BALANCE',
       dataType: 'number',
       format: '#,##0.00',
-      alignment: 'right',
       width: 150,
       customizeText: (cellInfo: any) => {
         const value = cellInfo.value;

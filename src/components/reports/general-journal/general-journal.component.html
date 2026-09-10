@@ -12,19 +12,21 @@
   (print)="onPrint()"
   (refresh)="onRefresh()">
 
-  <app-report-grid
-    [remoteDataSource]="remoteStore"
-    [loading]="loading"
-    [columns]="columns"
-    [keyExpr]="'lineId'"
-    [stateStorageKey]="'general-journal'"
-    [remotePageSize]="20"
-    [allowSorting]="true"
-    [allowFiltering]="true"
-    [allowGrouping]="true"
-    [showGroupPanel]="true"
-    [showSummary]="true"
-    [height]="'600px'">
-  </app-report-grid>
+  <ng-template #reportBody>
+    <app-report-grid
+      [remoteDataSource]="remoteStore"
+      [loading]="loading"
+      [columns]="columns"
+      [keyExpr]="'lineId'"
+      [stateStorageKey]="'general-journal'"
+      [remotePageSize]="20"
+      [allowSorting]="true"
+      [allowFiltering]="true"
+      [allowGrouping]="true"
+      [showGroupPanel]="true"
+      [showSummary]="true"
+      [height]="'600px'">
+    </app-report-grid>
+  </ng-template>
 
 </app-report-container>

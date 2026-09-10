@@ -12,20 +12,22 @@
   (print)="onPrint()"
   (refresh)="onRefresh()">
 
-  <app-report-grid
-    [dataSource]="reportData"
-    [loading]="loading"
-    [columns]="columns"
-    [keyExpr]="'activityType'"
-    [stateStorageKey]="'business-activity'"
-    [allowSorting]="true"
-    [allowFiltering]="true"
-    [allowGrouping]="true"
-    [showGroupPanel]="true"
-    [showSummary]="true"
-    [summaryItems]="summaryItems"
-    [height]="'600px'"
-    [noDataText]="hasSearched ? 'REPORTS.NO_DATA' : 'REPORTS.APPLY_FILTER_PROMPT'">
-  </app-report-grid>
+  <ng-template #reportBody>
+    <app-report-grid
+      [dataSource]="reportData"
+      [loading]="loading"
+      [columns]="columns"
+      [keyExpr]="'activityType'"
+      [stateStorageKey]="'business-activity'"
+      [allowSorting]="true"
+      [allowFiltering]="true"
+      [allowGrouping]="true"
+      [showGroupPanel]="true"
+      [showSummary]="true"
+      [summaryItems]="summaryItems"
+      [height]="'600px'"
+      [noDataText]="hasSearched ? 'REPORTS.NO_DATA' : 'REPORTS.APPLY_FILTER_PROMPT'">
+    </app-report-grid>
+  </ng-template>
 
 </app-report-container>

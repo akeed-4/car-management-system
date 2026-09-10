@@ -58,13 +58,24 @@
   <!-- Desktop: inline toolbar, same visual language as DocumentToolbarComponent
        (.doc-toolbar / .doc-action) so screens keep one consistent button hierarchy
        whether they use that action-list-driven component or this named-input one. -->
-  <div class="doc-toolbar aab-desktop-toolbar" [class.doc-toolbar-busy]="saving" role="toolbar" aria-label="Document actions">
+  <div class="doc-toolbar aab-desktop-toolbar"
+       [class.doc-toolbar-busy]="saving"
+       [class.aab-sticky]="sticky"
+       role="toolbar" aria-label="Document actions">
+    <!-- Unsaved-changes indicator: sits on the leading edge, actions stay trailing. -->
+    @if (dirty && !saving) {
+      <span class="aab-unsaved-badge">
+        <mat-icon aria-hidden="true">fiber_manual_record</mat-icon>
+        {{ 'COMMON.UNSAVED_CHANGES' | translate }}
+      </span>
+    }
     <div class="doc-toolbar-actions">
       @if (canCancel) {
         <button type="button" mat-stroked-button class="doc-action"
                 [disabled]="saving"
                 (click)="onCancel()">
-          {{ cancelLabel | translate }}
+          <mat-icon aria-hidden="true">cancel</mat-icon>
+          <span>{{ cancelLabel | translate }}</span>
         </button>
       }
 
@@ -72,13 +83,15 @@
         <button type="button" mat-stroked-button class="doc-action"
                 [disabled]="saving || loading"
                 (click)="onApprove()">
-          {{ approveLabel | translate }}
+          <mat-icon aria-hidden="true">check_circle</mat-icon>
+          <span>{{ approveLabel | translate }}</span>
         </button>
       }
 
       @if (canPrint) {
         <button type="button" mat-stroked-button class="doc-action"
                 [disabled]="printActionDisabled"
+                [matTooltip]="printTooltip"
                 (click)="onPrint()">
           <mat-icon aria-hidden="true">print</mat-icon>
           <span>{{ printLabel | translate }}</span>
@@ -89,7 +102,8 @@
         <button type="button" mat-stroked-button class="doc-action"
                 [disabled]="primarySaveDisabled"
                 (click)="onSaveAndNew()">
-          {{ saveAndNewLabel | translate }}
+          <mat-icon aria-hidden="true">add_circle</mat-icon>
+          <span>{{ saveAndNewLabel | translate }}</span>
         </button>
       }
 
@@ -97,15 +111,24 @@
         <button type="button" mat-flat-button class="doc-action doc-action-accent"
                 [disabled]="primarySaveDisabled"
                 (click)="onSaveAndPrint()">
-          {{ saveAndPrintLabel | translate }}
+          @if (saving) {
+            <mat-spinner diameter="18" class="aab-save-spinner"></mat-spinner>
+          }
+          <span>{{ saveAndPrintLabel | translate }}</span>
         </button>
       }
 
       @if (canSave) {
         <button type="button" mat-flat-button class="doc-action doc-action-primary"
                 [disabled]="primarySaveDisabled"
+                [matTooltip]="saveTooltip"
                 (click)="onSave()">
-          {{ (saving ? savingLabel : saveLabel) | translate }}
+          @if (saving) {
+            <mat-spinner diameter="18" class="aab-save-spinner"></mat-spinner>
+          } @else {
+            <mat-icon aria-hidden="true">save</mat-icon>
+          }
+          <span>{{ (saving ? savingLabel : saveLabel) | translate }}</span>
         </button>
       }
     </div>

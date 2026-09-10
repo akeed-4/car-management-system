@@ -12,19 +12,21 @@
   (print)="onPrint()"
   (refresh)="onRefresh()">
 
-  <app-report-grid
-    [remoteDataSource]="remoteStore"
-    [loading]="loading"
-    [columns]="columns"
-    [keyExpr]="'lineId'"
-    [stateStorageKey]="'account-statement'"
-    [remotePageSize]="20"
-    [allowSorting]="true"
-    [allowFiltering]="true"
-    [allowGrouping]="false"
-    [showSummary]="false"
-    [height]="'600px'"
-    [noDataText]="hasSearched ? 'REPORTS.NO_DATA' : 'REPORTS.APPLY_FILTER_PROMPT'">
-  </app-report-grid>
+  <ng-template #reportBody>
+    <app-report-grid
+      [remoteDataSource]="remoteStore"
+      [loading]="loading"
+      [columns]="columns"
+      [keyExpr]="'lineId'"
+      [stateStorageKey]="'account-statement'"
+      [remotePageSize]="20"
+      [allowSorting]="true"
+      [allowFiltering]="true"
+      [allowGrouping]="false"
+      [showSummary]="false"
+      [height]="'600px'"
+      [noDataText]="hasSearched ? 'REPORTS.NO_DATA' : 'REPORTS.APPLY_FILTER_PROMPT'">
+    </app-report-grid>
+  </ng-template>
 
 </app-report-container>

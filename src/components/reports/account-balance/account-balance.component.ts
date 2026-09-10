@@ -34,14 +34,12 @@ export class AccountBalanceComponent implements OnInit {
       dataField: 'accountCode',
       caption: 'REPORTS.COLUMNS.ACCOUNT_CODE',
       dataType: 'string',
-      alignment: 'left',
       width: 150
     },
     {
       dataField: 'accountName',
       caption: 'REPORTS.COLUMNS.ACCOUNT_NAME',
       dataType: 'string',
-      alignment: 'left',
       width: 300
     },
     {
@@ -49,7 +47,6 @@ export class AccountBalanceComponent implements OnInit {
       caption: 'REPORTS.COLUMNS.DEBIT',
       dataType: 'number',
       format: '#,##0.00',
-      alignment: 'right',
       width: 150
     },
     {
@@ -57,7 +54,6 @@ export class AccountBalanceComponent implements OnInit {
       caption: 'REPORTS.COLUMNS.CREDIT',
       dataType: 'number',
       format: '#,##0.00',
-      alignment: 'right',
       width: 150
     },
     {
@@ -65,14 +61,12 @@ export class AccountBalanceComponent implements OnInit {
       caption: 'REPORTS.COLUMNS.BALANCE',
       dataType: 'number',
       format: '#,##0.00',
-      alignment: 'right',
       width: 150
     },
     {
       dataField: 'balanceType',
       caption: 'REPORTS.COLUMNS.TYPE',
       dataType: 'string',
-      alignment: 'center',
       width: 100
     }
   ];

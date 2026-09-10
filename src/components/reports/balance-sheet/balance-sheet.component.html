@@ -12,19 +12,21 @@
   (print)="onPrint()"
   (refresh)="onRefresh()">
 
-  <app-report-tree
-    [dataSource]="reportData"
-    [loading]="loading"
-    [columns]="columns"
-    [keyExpr]="'accountId'"
-    [parentIdExpr]="'parentId'"
-    [hasItemsExpr]="'hasChildren'"
-    [allowSorting]="false"
-    [allowFiltering]="true"
-    [autoExpandAll]="true"
-    [showSummary]="false"
-    [height]="'600px'"
-    [noDataText]="hasSearched ? 'REPORTS.NO_DATA' : 'REPORTS.APPLY_FILTER_PROMPT'">
-  </app-report-tree>
+  <ng-template #reportBody>
+    <app-report-tree
+      [dataSource]="reportData"
+      [loading]="loading"
+      [columns]="columns"
+      [keyExpr]="'accountId'"
+      [parentIdExpr]="'parentId'"
+      [hasItemsExpr]="'hasChildren'"
+      [allowSorting]="false"
+      [allowFiltering]="true"
+      [autoExpandAll]="true"
+      [showSummary]="false"
+      [height]="'600px'"
+      [noDataText]="hasSearched ? 'REPORTS.NO_DATA' : 'REPORTS.APPLY_FILTER_PROMPT'">
+    </app-report-tree>
+  </ng-template>
 
 </app-report-container>

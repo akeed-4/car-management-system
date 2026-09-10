@@ -1,6 +1,6 @@
-import { Component, Input, Output, EventEmitter, OnInit, inject, DestroyRef, effect } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, inject, DestroyRef, effect, ViewChild, ContentChild, ElementRef, TemplateRef, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,6 +11,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
 import { ReportFilter } from '@/src/models/reportmodel';
 import { AccountingService } from '../../../accounting/accounting.service';
@@ -18,7 +19,7 @@ import { StoreService } from '../../../../services/store.service';
 import { CostCenterService } from '../../../../services/cost-center.service';
 import { LanguageService } from '../../../../services/language.service';
 import { ResponsiveService } from '../../../../services/responsive.service';
-import { SharedMobileDataEntryComponent } from '../../../shared/shared-mobile-data-entry/shared-mobile-data-entry.component';
+import { MobileHeaderComponent } from '../../../shared/mobile-header/mobile-header.component';
 
 @Component({
   selector: 'app-report-container',
@@ -35,8 +36,9 @@ import { SharedMobileDataEntryComponent } from '../../../shared/shared-mobile-da
     MatSelectModule,
     MatProgressSpinnerModule,
     MatDividerModule,
+    MatTooltipModule,
     TranslateModule,
-    SharedMobileDataEntryComponent
+    MobileHeaderComponent
   ],
   templateUrl: './report-container.component.html',
   styleUrls: ['./report-container.component.css']
@@ -63,6 +65,26 @@ export class ReportContainerComponent implements OnInit {
   accounts: { id: number; code: string; name: string }[] = [];
   costCenters: { id: number; name: string }[] = [];
 
+  // ---- Mobile results/filters presentation ---------------------------------------------
+  /** Mobile only: whether the collapsible filter card is expanded. Starts open so the user
+   *  can immediately enter filters; onApplyFilter collapses it (mobile only) so the results
+   *  card sits directly under the toggle instead of below the fold. */
+  readonly filtersOpen = signal(true);
+  /** Anchor for the scroll-to-results behavior on mobile (see onApplyFilter). */
+  @ViewChild('resultsAnchor') private resultsAnchor?: ElementRef<HTMLElement>;
+
+  /**
+   * The report body (grid/tree) is passed as a projected <ng-template #reportBody> instead of
+   * raw content: this template previously declared <ng-content> in BOTH @if (isMobile())
+   * branches, and Angular only projects wildcard content into one of the two statically defined
+   * slots -- the desktop one. That is why every accounting report rendered its chrome but NO
+   * data/grid at all on mobile (the grid never mounted there), ever since the mobile branch was
+   * added. An ng-template + [ngTemplateOutlet] in each branch renders the SAME projected
+   * template whichever branch is active. (Same pattern as journal-entries.component.html's
+   * journalEntryFormBody / shared-mobile-data-entry wiring.)
+   */
+  @ContentChild('reportBody') reportBody?: TemplateRef<unknown>;
+
   private accountingService = inject(AccountingService);
   private storeService = inject(StoreService);
   private costCenterService = inject(CostCenterService);
@@ -74,7 +96,7 @@ export class ReportContainerComponent implements OnInit {
    *  injection context from inside a lifecycle hook. */
   private destroyRef = inject(DestroyRef);
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private location: Location) {
     // StoreService.stores$ is a Signal (despite the Observable-style `$` name), not an
     // Observable -- effect() is the reactive read for a signal, and (like
     // takeUntilDestroyed()) needs an injection context, which a constructor is but ngOnInit
@@ -160,6 +182,13 @@ export class ReportContainerComponent implements OnInit {
     if (this.filterForm.valid) {
       const filters: ReportFilter = this.filterForm.value;
       this.filterChange.emit(filters);
+      // Mobile: collapse the filter card and bring the results card into view so the user
+      // actually SEES the request start (spinner) and finish (rows) -- previously the results
+      // rendered below the fold and tapping Apply looked like nothing happened.
+      if (this.isMobile()) {
+        this.filtersOpen.set(false);
+        this.scrollToResults();
+      }
     }
   }
 
@@ -169,6 +198,25 @@ export class ReportContainerComponent implements OnInit {
    */
   onResetFilter(): void {
     this.filterForm.reset();
+  }
+
+  /** Mobile header back button -- returns to wherever the report was opened from. */
+  onBack(): void {
+    this.location.back();
+  }
+
+  /** Number of non-empty filter fields, shown as a badge on the mobile filters toggle. */
+  activeFilterCount(): number {
+    const values = Object.values(this.filterForm?.value ?? {});
+    return values.filter(v => v !== null && v !== undefined && v !== '').length;
+  }
+
+  /** Scrolls the results card into view (mobile). Runs in a setTimeout so the browser
+   *  has laid out the card after the filters collapsed before measuring/scrolling. */
+  private scrollToResults(): void {
+    setTimeout(() => {
+      this.resultsAnchor?.nativeElement?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   }
 
   /**

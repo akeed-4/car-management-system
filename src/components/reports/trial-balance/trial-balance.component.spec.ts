@@ -1,4 +1,5 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, TemplateRef, ContentChild } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { of, throwError, Subject } from 'rxjs';
@@ -45,7 +46,8 @@ const FAKE_ROWS: TrialBalanceReport[] = [
 @Component({
   selector: 'app-report-container',
   standalone: true,
-  template: `<ng-content></ng-content>`,
+  template: `<ng-container [ngTemplateOutlet]="reportBody"></ng-container>`,
+  imports: [NgTemplateOutlet],
 })
 class StubReportContainerComponent {
   @Input() title: any;
@@ -55,6 +57,8 @@ class StubReportContainerComponent {
   @Input() showStoreFilter: any;
   @Input() showAccountFilter: any;
   @Input() loading: any;
+  /** Mirrors the real container's projected-template contract (reportBody). */
+  @ContentChild('reportBody') reportBody?: TemplateRef<unknown>;
 }
 
 @Component({
