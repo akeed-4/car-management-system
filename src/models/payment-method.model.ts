@@ -37,6 +37,20 @@ export const PAYMENT_METHOD_TYPES: string[] = [
   'Other'
 ];
 
+/** Settlement classification helper (docs/specs/settlement-account-resolution-spec.md §2):
+ *  'Credit (Deferred)'/'Credit'/'Installment' (and Arabic آجل/تقسيط labels) are DEFERRED (term)
+ *  settlement; every other payment type -- Cash, Bank, Card, BankTransfer, Check, Other, free
+ *  text, Arabic نقدي -- settles IMMEDIATELY and is treated as cash-like everywhere the cash/credit
+ *  UI branches. Treating only the literal 'Cash' string as cash used to render immediately-settled
+ *  Bank/Card/default-'Bank Transfer' documents as credit (Initial Payment section + supplier-AP
+ *  account requirement) even though the backend settles them as cash. */
+export function isDeferredSettlementType(value: string | null | undefined): boolean {
+  const v = (value ?? '').toString().trim().toLowerCase();
+  if (!v) return false;
+  return v === 'credit' || v === 'credit (deferred)' || v === 'installment' ||
+         v.includes('آجل') || v.includes('تقسيط');
+}
+
 /** ONE user-facing Payment field rule: the user only ever picks a Payment Method (paymentMethodId)
  *  from the Payment Methods master. The legacy `paymentMethod`/`paymentType` strings that the API
  *  payload (and older documents) still carry are DERIVED from that selection -- never picked

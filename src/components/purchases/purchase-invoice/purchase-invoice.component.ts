@@ -25,7 +25,7 @@ import { SalesService } from '../../../services/sales.service';
 import { ChartOfAccountsService } from '../../../services/chart-of-accounts.service';
 import { AccountingService, DefaultAccountKind } from '../../accounting/accounting.service';
 import { PaymentMethodService } from '../../../services/payment-method.service';
-import { PaymentMethod, deriveLegacyPaymentStrings, matchLegacyPaymentMethodId } from '../../../models/payment-method.model';
+import { PaymentMethod, deriveLegacyPaymentStrings, matchLegacyPaymentMethodId, isDeferredSettlementType } from '../../../models/payment-method.model';
 import { DefaultAccountTracker } from '@/src/components/shared/default-account/default-account.helper';
 import { VinService } from '../../../services/vin.service';
 import { PurchaseInvoice, AuctionCharge } from '../../../models/purchase-invoice.model';
@@ -459,7 +459,12 @@ export class PurchaseInvoiceComponent implements OnInit {
     if (this.lockPaymentMethod && String(this.fixedPaymentMethod ?? '').trim().toLowerCase() === 'cash') {
       return true;
     }
-    return this.paymentTypeSignal().toLowerCase() === 'cash';
+    // Settlement semantics (spec §2): only Credit/Installment/deferred-typed methods are credit.
+    // Cash/Bank/Card/BankTransfer/Check/Other all settle IMMEDIATELY, so the form must render the
+    // cash calculator ("المبلغ المستلم") for them -- and never the "Initial Payment" section or
+    // the supplier-AP account check. Previously ANY non-'Cash' string (including this 'Bank
+    // Transfer' default and Bank/Card methods) rendered the document as credit on CREATE.
+    return !isDeferredSettlementType(this.paymentTypeSignal());
   });
 
   /**
@@ -575,8 +580,9 @@ export class PurchaseInvoiceComponent implements OnInit {
    * via a Cash/Credit wrapper, the lowercase 'credit' fixedPaymentMethod value -- drives the Due
    * Date field's visibility for both the unlocked and locked Purchase Invoice flows. */
   isCreditPayment = computed(() => {
-    const paymentMethod = (this.paymentMethodSignal() || '').toString().toLowerCase();
-    return paymentMethod === 'credit (deferred)' || paymentMethod === 'credit';
+    // Same deferred-settlement rule as isCashPayment (kept in sync via the shared helper) so the
+    // Due Date field and the cash/credit sections can never disagree about the settlement type.
+    return isDeferredSettlementType(this.paymentMethodSignal());
   });
 
   /** Amount received from the cash calculator (cash invoices) or the initial-payment field (credit invoices). */
@@ -1019,7 +1025,9 @@ export class PurchaseInvoiceComponent implements OnInit {
   private dueDateValidator(group: AbstractControl): { [key: string]: any } | null {
     const paymentMethod = (group.get('paymentMethod')?.value ?? '').toString().toLowerCase();
     const dueDate = group.get('dueDate')?.value;
-    const isCredit = paymentMethod === 'credit (deferred)' || paymentMethod === 'credit';
+    // Same deferred-settlement rule as isCashPayment/isCreditPayment: Credit (Deferred)/Credit/
+    // Installment (آجل/تقسيط) require a due date; immediately-settled methods never do.
+    const isCredit = isDeferredSettlementType(paymentMethod);
 
     if (isCredit && !dueDate) {
       return { dueDateRequired: true };
