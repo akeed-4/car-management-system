@@ -70,6 +70,7 @@ export class InstallmentSaleListComponent implements OnInit {
   /** Same single edit button as before. */
   rowActions: sharedGridRowActionDto[] = [
     { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('sales.installments.view') },
+    { id: 'return', icon: 'undo', labelKey: 'SALES.RETURN.CREATE', visible: () => this.permissionService.hasPermission('sales.returns.credit.view') },
   ];
 
   /** Screen-specific status badge, passed generically to the Shared DataGrid. */
@@ -81,6 +82,7 @@ export class InstallmentSaleListComponent implements OnInit {
 
   onGridAction(e: SharedGridRowActionEvent): void {
     if (e.actionId === 'edit') this.onEdit({ row: { data: e.row } });
+    else if (e.actionId === 'return') this.onReturn({ row: { data: e.row } });
   }
 
   onGridRowDblClick(rowData: any): void {
@@ -127,10 +129,12 @@ export class InstallmentSaleListComponent implements OnInit {
   /** Same single edit action as the desktop grid's row actions. */
   sharedMobileActions: MobileListActionDto<SalesInvoice>[] = [
     { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('sales.installments.view') },
+    { id: 'return', icon: 'undo', labelKey: 'SALES.RETURN.CREATE', visible: () => this.permissionService.hasPermission('sales.returns.credit.view') },
   ];
 
   onSharedMobileAction(e: MobileListActionEvent<SalesInvoice>): void {
     if (e.actionId === 'edit') this.onEdit({ row: { data: e.item } });
+    else if (e.actionId === 'return') this.onReturn({ row: { data: e.item } });
   }
 
   ngOnInit(): void {
@@ -161,6 +165,10 @@ export class InstallmentSaleListComponent implements OnInit {
 
   onEdit = (e: any): void => {
     this.router.navigate(['/sales/direct/installment-sale/edit', e.row.data.id]);
+  };
+
+  onReturn = (e: any): void => {
+    this.router.navigate(['/sales/return/credit/new'], { queryParams: { invoiceType: 'direct', invoiceId: e.row.data.id } });
   };
 
   exportExcel(): void {

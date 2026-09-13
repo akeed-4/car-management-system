@@ -7,6 +7,7 @@ import {
   SharedGridRowActionEvent,
 } from '../../../shared/shared-data-grid/shared-data-grid.component';
 import { SalesService } from '../../../../services/sales.service';
+import { SalesReturnService } from '../../../../services/sales-return.service';
 import { ToastService } from '../../../../services/toast.service';
 import { dataGridColumnDto, sharedGridRowActionDto } from '../../../../models/grid.model';
 import { identity } from 'rxjs';
@@ -36,6 +37,7 @@ export class SalesReturnInvoiceListComponent {
   private translate = inject(TranslateService);
   private router = inject(Router);
   private salesService = inject(SalesService);
+  private salesReturnService = inject(SalesReturnService);
   private toastService = inject(ToastService);
   private responsiveService = inject(ResponsiveService);
   isMobile = this.responsiveService.isMobile;
@@ -118,9 +120,9 @@ constructor() {
     this.onViewDetails.emit(invoice);
   }
   onEditClick = (e: any) => {
-    const invoiceId = e.row.data.id;
-    const editRoute = `/sales/return/${invoiceId}/edit`;
-    this.router.navigate([editRoute]);
+    const invoice = e.row.data;
+    const route = invoice.isCash ? '/sales/return/cash' : '/sales/return/credit';
+    this.router.navigate([route, invoice.id, 'edit']);
   }
 
   onPrintClick = (e: any) => {
@@ -136,7 +138,7 @@ constructor() {
 
   deleteInvoice(invoice: any): void {
     if (confirm('Are you sure you want to delete this invoice?')) {
-      this.salesService.deleteInvoice(invoice.id).subscribe({
+      this.salesReturnService.deleteSalesReturn(invoice.id).subscribe({
         next: () => {
           this.toastService.showSuccess('INVOICE.DELETED_SUCCESS');
           // Emit event to parent to handle refresh

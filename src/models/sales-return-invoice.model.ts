@@ -1,4 +1,5 @@
 import { ReturnInvoiceItem } from './return-invoice-item.model';
+import { SalesInvoiceType } from './sales-return.model';
 
 export interface SalesReturnInvoice {
   invoiceNo: any;
@@ -9,6 +10,7 @@ export interface SalesReturnInvoice {
   returnInvoiceNumber: string;
   returnInvoiceDate: string;
   originalInvoiceId: number;
+  invoiceType?: SalesInvoiceType;
   originalInvoiceNumber: string;
   customerId: number;
   customerName: string;

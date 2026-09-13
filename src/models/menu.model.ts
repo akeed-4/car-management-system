@@ -10,6 +10,7 @@ export interface MenuItem {
   isExpanded?: boolean;
   level?: number;
   order?: number;
+  permissionKey?: string;
 }
 
 export interface MenuResponse {

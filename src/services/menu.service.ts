@@ -172,6 +172,8 @@ export const menuData = [
           { id: 10041, name: 'بيع نقدي', englishName: 'Cash Sale', route: '/sales/direct/cash-sale' },
           { id: 10042, name: 'بيع آجل', englishName: 'Credit Sale', route: '/sales/direct/credit-sale' },
           { id: 10043, name: 'بيع بالتقسيط', englishName: 'Installment Sale', route: '/sales/direct/installment-sale' },
+          { id: 10045, name: 'مرتجعات نقدية', englishName: 'Cash Sales Returns', route: '/sales/return/cash', permissionKey: 'sales.returns.cash.view' },
+          { id: 10046, name: 'مرتجعات آجلة', englishName: 'Credit Sales Returns', route: '/sales/return/credit', permissionKey: 'sales.returns.credit.view' },
           { id: 10044, name: 'إدارة الأقساط', englishName: 'Installment Management', route: '/installments' }
         ]
       },
@@ -184,6 +186,8 @@ export const menuData = [
           { id: 10062, name: 'أمر بيع', englishName: 'Sales Order', route: '/sales/corporate/orders' },
           { id: 10063, name: 'إذن تسليم', englishName: 'Delivery Note', route: '/sales/corporate/deliveries' },
           { id: 10064, name: 'فاتورة مبيعات', englishName: 'Sales Invoice', route: '/sales/corporate/invoices' },
+          { id: 10066, name: 'مرتجعات نقدية', englishName: 'Cash Sales Returns', route: '/sales/return/cash', permissionKey: 'sales.returns.cash.view' },
+          { id: 10067, name: 'مرتجعات آجلة', englishName: 'Credit Sales Returns', route: '/sales/return/credit', permissionKey: 'sales.returns.credit.view' },
           { id: 10065, name: 'سند قبض', englishName: 'Receipt Voucher', route: '/sales/corporate/receipts' }
         ]
       },
@@ -197,6 +201,8 @@ export const menuData = [
           { id: 10053, name: 'أمر بيع', englishName: 'Sales Order', route: '/sales/bank/orders' },
           { id: 10054, name: 'تسليم المركبة', englishName: 'Vehicle Delivery', route: '/sales/bank/deliveries' },
           { id: 10055, name: 'فاتورة مبيعات', englishName: 'Sales Invoice', route: '/sales/bank/invoices' },
+          { id: 10057, name: 'مرتجعات نقدية', englishName: 'Cash Sales Returns', route: '/sales/return/cash', permissionKey: 'sales.returns.cash.view' },
+          { id: 10058, name: 'مرتجعات آجلة', englishName: 'Credit Sales Returns', route: '/sales/return/credit', permissionKey: 'sales.returns.credit.view' },
           { id: 10056, name: 'تحصيلات البنك', englishName: 'Bank Collections', route: '/sales/bank/collections' }
         ]
       }
@@ -221,7 +227,8 @@ export const menuData = [
     submenu: [
       { id: 113, name: 'إدارة سير العمل', englishName: 'Workflow Management', route: '/approvals/workflows' },
       { id: 114, name: 'الموافقات المعلقة', englishName: 'Pending Approvals', route: '/approvals/pending' },
-      { id: 115, name: 'لوحة الموافقات', englishName: 'Manager Approval Dashboard', route: '/approvals/manager' }
+      { id: 115, name: 'لوحة الموافقات', englishName: 'Manager Approval Dashboard', route: '/approvals/manager' },
+      { id: 116, name: 'اعتماد مرتجعات المبيعات', englishName: 'Approve Sales Returns', route: '/sales/returns-approval', permissionKey: 'sales.returns.approve.view' }
     ]
   },
   {

@@ -78,6 +78,7 @@ export class CreditSaleListComponent implements OnInit {
     { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('sales.credit.view') },
     { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', visible: () => this.permissionService.hasPermission('sales.credit.view') },
     { id: 'print', icon: 'print', labelKey: 'COMMON.PRINT', visible: () => true },
+    { id: 'return', icon: 'undo', labelKey: 'SALES.RETURN.CREATE', visible: () => this.permissionService.hasPermission('sales.returns.credit.view') },
   ];
 
   /** Screen-specific status badge, passed generically to the Shared DataGrid. */
@@ -92,6 +93,7 @@ export class CreditSaleListComponent implements OnInit {
     else if (e.actionId === 'edit') this.onEdit({ row: { data: e.row } });
     else if (e.actionId === 'print') this.onPrintClick({ row: { data: e.row } });
     else if (e.actionId === 'delete') this.onDeleteClick({ row: { data: e.row } });
+    else if (e.actionId === 'return') this.onReturn({ row: { data: e.row } });
   }
 
   onGridRowDblClick(rowData: any): void {
@@ -143,12 +145,14 @@ export class CreditSaleListComponent implements OnInit {
     { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW', visible: () => this.permissionService.hasPermission('sales.credit.view') },
     { id: 'print', icon: 'print', labelKey: 'COMMON.PRINT', visible: () => true },
     { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', visible: () => this.permissionService.hasPermission('sales.credit.view') },
+    { id: 'return', icon: 'undo', labelKey: 'SALES.RETURN.CREATE', visible: () => this.permissionService.hasPermission('sales.returns.credit.view') },
   ];
 
   onSharedMobileAction(e: MobileListActionEvent<SalesInvoice>): void {
     if (e.actionId === 'view') this.onEdit({ row: { data: e.item } });
     else if (e.actionId === 'print') this.onPrintClick({ row: { data: e.item } });
     else if (e.actionId === 'delete') this.onDeleteClick({ row: { data: e.item } });
+    else if (e.actionId === 'return') this.onReturn({ row: { data: e.item } });
   }
 
   ngOnInit(): void {
@@ -179,6 +183,10 @@ export class CreditSaleListComponent implements OnInit {
 
   onEdit = (e: any): void => {
     this.router.navigate(['/sales/direct/credit-sale/edit', e.row.data.id]);
+  };
+
+  onReturn = (e: any): void => {
+    this.router.navigate(['/sales/return/credit/new'], { queryParams: { invoiceType: 'direct', invoiceId: e.row.data.id } });
   };
 
   onPrintClick = (e: any): void => {

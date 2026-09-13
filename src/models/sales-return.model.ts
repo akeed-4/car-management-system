@@ -1,10 +1,13 @@
 // Sales Return Model
 import { ReturnInvoiceItem } from './return-invoice-item.model';
 
+export type SalesInvoiceType = 'direct' | 'corporate' | 'bank';
+
 export interface SalesReturn {
   id?: number;
   returnNo: string;
   invoiceId: number;
+  invoiceType?: SalesInvoiceType;
   carId?: number; // Optional, since items have carId
   vin: string;
   salePrice: number;

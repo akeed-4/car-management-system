@@ -77,6 +77,7 @@ export class CashSaleListComponent implements OnInit {
     { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('sales.cash.view') },
     { id: 'print', icon: 'print', labelKey: 'COMMON.PRINT', visible: () => this.permissionService.hasPermission('sales.cash.view') },
     { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', visible: () => this.permissionService.hasPermission('sales.cash.view') },
+    { id: 'return', icon: 'undo', labelKey: 'SALES.RETURN.CREATE', visible: () => this.permissionService.hasPermission('sales.returns.cash.view') },
   ];
 
   /** Screen-specific status badge, passed generically to the Shared DataGrid. */
@@ -91,6 +92,7 @@ export class CashSaleListComponent implements OnInit {
     else if (e.actionId === 'edit') this.onEdit({ row: { data: e.row } });
     else if (e.actionId === 'print') this.onPrintClick({ row: { data: e.row } });
     else if (e.actionId === 'delete') this.onDeleteClick({ row: { data: e.row } });
+    else if (e.actionId === 'return') this.onReturn({ row: { data: e.row } });
   }
 
   onGridRowDblClick(rowData: any): void {
@@ -139,12 +141,14 @@ export class CashSaleListComponent implements OnInit {
     { id: 'view', icon: 'find', labelKey: 'COMMON.VIEW', visible: () => this.permissionService.hasPermission('sales.cash.view') },
     { id: 'print', icon: 'print', labelKey: 'COMMON.PRINT', visible: () => this.permissionService.hasPermission('sales.cash.view') },
     { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', visible: () => this.permissionService.hasPermission('sales.cash.view') },
+    { id: 'return', icon: 'undo', labelKey: 'SALES.RETURN.CREATE', visible: () => this.permissionService.hasPermission('sales.returns.cash.view') },
   ];
 
   onSharedMobileAction(e: MobileListActionEvent<SalesInvoice>): void {
     if (e.actionId === 'view') this.onEdit({ row: { data: e.item } });
     else if (e.actionId === 'print') this.onPrintClick({ row: { data: e.item } });
     else if (e.actionId === 'delete') this.onDeleteClick({ row: { data: e.item } });
+    else if (e.actionId === 'return') this.onReturn({ row: { data: e.item } });
   }
 
   ngOnInit(): void {
@@ -175,6 +179,10 @@ export class CashSaleListComponent implements OnInit {
 
   onEdit = (e: any): void => {
     this.router.navigate(['/sales/direct/cash-sale/edit', e.row.data.id]);
+  };
+
+  onReturn = (e: any): void => {
+    this.router.navigate(['/sales/return/cash/new'], { queryParams: { invoiceType: 'direct', invoiceId: e.row.data.id } });
   };
 
   onPrintClick = (e: any): void => {

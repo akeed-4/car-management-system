@@ -19,6 +19,7 @@ import { ResponsiveService } from '../../../services/responsive.service';
 import { DynamicMenuService } from '../../../services/dynamic-menu.service';
 import { MenuService } from '../../../services/menu.service';
 import { MenuItem } from '../../../models/menu.model';
+import { PermissionService } from '../../../services/permission.service';
 import { ChangePasswordDialogComponent } from '../../users/change-password-dialog/change-password-dialog.component';
 
 import { ShellHeaderComponent } from './header/shell-header.component';
@@ -123,6 +124,7 @@ export class ShellComponent implements OnInit, OnDestroy {
     private responsiveService: ResponsiveService,
     private dynamicMenuService: DynamicMenuService,
     private menuService: MenuService,
+    private permissionService: PermissionService,
     private translateService: TranslateService,
     private dialog: MatDialog,
     @Inject(DOCUMENT) private document: Document,
@@ -227,12 +229,15 @@ export class ShellComponent implements OnInit, OnDestroy {
   private transformStaticMenus(menus: any[]): MenuItem[] {
     const useEnglish = this.currentLanguage === 'en';
     const withOrder = (items: any[]): MenuItem[] =>
-      items.map((item, index) => ({
-        ...item,
-        order: index,
-        name: useEnglish ? item.englishName : item.name,
-        children: item.submenu?.length ? withOrder(item.submenu) : undefined,
-      }));
+      items
+        .filter(item => !item.permissionKey || this.permissionService.hasPermission(item.permissionKey))
+        .map((item, index) => ({
+          ...item,
+          order: index,
+          name: useEnglish ? item.englishName : item.name,
+          children: item.submenu?.length ? withOrder(item.submenu) : undefined,
+        }))
+        .filter(item => item.route || item.children?.length);
     return withOrder(menus);
   }
 

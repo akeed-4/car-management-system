@@ -76,10 +76,12 @@ export class BankInvoiceListComponent implements OnInit {
   /** Same single edit button as before. */
   rowActions: sharedGridRowActionDto[] = [
     { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('sales.bank.invoices.view') },
+    { id: 'return', icon: 'undo', labelKey: 'SALES.RETURN.CREATE', visible: () => this.permissionService.hasPermission('sales.returns.credit.view') },
   ];
 
   onGridAction(e: SharedGridRowActionEvent): void {
     if (e.actionId === 'edit') this.onEdit({ row: { data: e.row } });
+    else if (e.actionId === 'return') this.onReturn(e.row);
   }
 
   /** Row double-click opens the record -- same behavior, adapted to the shared output. */
@@ -117,6 +119,10 @@ export class BankInvoiceListComponent implements OnInit {
     this.router.navigate(['/sales/bank/invoices/edit', e.row.data.id]);
   };
 
+  onReturn = (e: any): void => {
+    this.router.navigate(['/sales/return/credit/new'], { queryParams: { invoiceType: 'bank', invoiceId: e.id } });
+  };
+
   /** Same field set as the desktop grid's columns, for the mobile card list. */
   mobileFields: MobileListFieldDto<SalesInvoice>[] = [
     { label: 'INVOICE.CUSTOMER', value: (inv) => inv.customerName },
@@ -139,6 +145,7 @@ export class BankInvoiceListComponent implements OnInit {
   /** Same single edit action as the desktop grid's row actions. */
   mobileActions: MobileListActionDto<SalesInvoice>[] = [
     { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('sales.bank.invoices.view') },
+    { id: 'return', icon: 'undo', labelKey: 'SALES.RETURN.CREATE', visible: () => this.permissionService.hasPermission('sales.returns.credit.view') },
   ];
 
   mobileTitleOf = (inv: SalesInvoice) => inv.invoiceNumber;
@@ -146,6 +153,7 @@ export class BankInvoiceListComponent implements OnInit {
 
   onMobileAction(e: MobileListActionEvent<SalesInvoice>): void {
     if (e.actionId === 'edit') this.onEdit({ row: { data: e.item } });
+    else if (e.actionId === 'return') this.onReturn(e.item);
   }
 
   exportExcel(): void {

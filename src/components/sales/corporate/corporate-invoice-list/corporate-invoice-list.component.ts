@@ -77,10 +77,12 @@ export class CorporateInvoiceListComponent implements OnInit {
   /** Same single edit button as before. */
   rowActions: sharedGridRowActionDto[] = [
     { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('sales.corporate.invoices.view') },
+    { id: 'return', icon: 'undo', labelKey: 'SALES.RETURN.CREATE', visible: () => this.permissionService.hasPermission('sales.returns.credit.view') },
   ];
 
   onGridAction(e: SharedGridRowActionEvent): void {
     if (e.actionId === 'edit') this.onEdit(e.row);
+    else if (e.actionId === 'return') this.onReturn(e.row);
   }
 
   ngOnInit(): void {
@@ -112,6 +114,10 @@ export class CorporateInvoiceListComponent implements OnInit {
   onEdit = (e: any): void => {
     const id = (e?.row?.data ?? e)?.id;
     this.router.navigate(['/sales/corporate/invoices/edit', id]);
+  };
+
+  onReturn = (e: any): void => {
+    this.router.navigate(['/sales/return/credit/new'], { queryParams: { invoiceType: 'corporate', invoiceId: e.id } });
   };
 
   exportExcel(): void {
@@ -187,9 +193,11 @@ export class CorporateInvoiceListComponent implements OnInit {
   /** Same single edit action as the desktop grid's row actions. */
   sharedMobileActions: MobileListActionDto<SalesInvoice>[] = [
     { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('sales.corporate.invoices.view') },
+    { id: 'return', icon: 'undo', labelKey: 'SALES.RETURN.CREATE', visible: () => this.permissionService.hasPermission('sales.returns.credit.view') },
   ];
 
   onSharedMobileAction(e: MobileListActionEvent<SalesInvoice>): void {
     if (e.actionId === 'edit') this.onEdit({ row: { data: { id: e.item.id } } });
+    else if (e.actionId === 'return') this.onReturn(e.item);
   }
 }

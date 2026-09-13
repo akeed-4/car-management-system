@@ -20,7 +20,7 @@ import { SalesReturnService } from '../../../services/sales-return.service';
 import { InventoryService } from '../../../services/inventory.service';
 import { InvoiceIntegrationService } from '../../../services/invoice-integration.service';
 import { ReturnInvoiceItem } from '../../../models/return-invoice-item.model';
-import { SalesReturn } from '../../../models/sales-return.model';
+import { SalesInvoiceType, SalesReturn } from '../../../models/sales-return.model';
 import { SalesInvoice } from '../../../models/sales-invoice.model';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
@@ -45,6 +45,7 @@ import { AppActionBarComponent } from '../../shared/app-action-bar/app-action-ba
 export class SalesReturnFormComponent implements OnInit {
 
  @Input() isCashReturn: boolean = false;
+ @Input() invoiceType: SalesInvoiceType = 'direct';
   customTitle!: string;
   private salesService = inject(SalesService);
   private fb = inject(FormBuilder);
@@ -103,6 +104,9 @@ export class SalesReturnFormComponent implements OnInit {
   ngOnInit() {
     // Read type query parameter (cash or credit)
     this.activatedRoute.queryParams.subscribe(params => {
+      if (params['invoiceType'] === 'corporate' || params['invoiceType'] === 'bank' || params['invoiceType'] === 'direct') {
+        this.invoiceType = params['invoiceType'];
+      }
       if (params['type'] === 'cash') {
         this.isCashReturn = true;
       } else if (params['type'] === 'credit') {
@@ -132,6 +136,9 @@ export class SalesReturnFormComponent implements OnInit {
       next: (invoice) => {
         this.selectedOriginalInvoicereturn.set(invoice);
         this.isCashReturn = invoice.isCash || false;
+        if (invoice.invoiceType === 'corporate' || invoice.invoiceType === 'bank' || invoice.invoiceType === 'direct') {
+          this.invoiceType = invoice.invoiceType;
+        }
         console.log('Loaded invoice for edit:', invoice);
         // Set form data with actual return invoice values
         this.returnForm = this.fb.group({
@@ -229,9 +236,18 @@ getTitle(): string {
         const eligibleInvoices = invoices.filter(invoice =>
           !invoice.isArchived &&
           (invoice.status === 'Paid' || invoice.status === 'Pending') &&
+          this.matchesInvoiceType(invoice) &&
           invoice.isCash === this.isCashReturn
         );
         this.originalInvoices.set(eligibleInvoices);
+        const requestedInvoiceId = this.activatedRoute.snapshot.queryParamMap.get('invoiceId');
+        if (requestedInvoiceId) {
+          const invoiceId = Number(requestedInvoiceId);
+          if (eligibleInvoices.some(invoice => invoice.id === invoiceId)) {
+            this.returnForm.get('originalInvoice')?.setValue(invoiceId);
+            this.onInvoiceSelect(invoiceId);
+          }
+        }
       },
       error: (error) => {
         console.error('Failed to load invoices for returns:', error);
@@ -296,7 +312,7 @@ getTitle(): string {
           return {
             ...item,
             returnQuantity: validQuantity,
-            lineTotal: item.salesPrice * validQuantity,
+            lineTotal: (item.salesPrice ?? item.unitPrice ?? 0) * validQuantity,
           };
         }
         return item;
@@ -367,6 +383,7 @@ getTitle(): string {
     const salesReturn: SalesReturn = {
       returnNo: this.returnNumber(),
       invoiceId: originalInvoice.id,
+      invoiceType: this.invoiceType,
       carId: itemsToReturn.length > 0 ? itemsToReturn[0].carId : undefined,
       vin: '', // Will be fetched from car details
       salePrice: this.totalAmount(),
@@ -449,5 +466,11 @@ getTitle(): string {
    *  button and back-link already navigate to. */
   cancelForm(): void {
     this.router.navigate(['/sales/return']);
+  }
+
+  private matchesInvoiceType(invoice: SalesInvoice): boolean {
+    const channel = invoice.salesChannel ?? 1;
+    return this.invoiceType === 'corporate' ? channel === 2 :
+      this.invoiceType === 'bank' ? channel === 3 : channel === 1;
   }
 }
