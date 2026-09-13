@@ -2,6 +2,6 @@ export const environment = {
   production: false,
   rootName:"web",
 
-     origin: 'http://localhost:5003/',
+     origin: 'http://akeed6-001-site1.etempurl.com/',
 
 };
