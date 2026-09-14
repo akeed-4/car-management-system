@@ -342,11 +342,14 @@ export class AddAccountComponent implements OnChanges, OnInit, OnDestroy {
       syncEntityName: [false],
     });
 
-    // Parent Account picker options: keep a code-sorted snapshot of the chart of accounts.
-    this.accountingService.accounts$.subscribe(accounts => {
-      this.parentOptions = [...(accounts ?? [])].sort((a, b) =>
-        String(a.accountCode).localeCompare(String(b.accountCode)));
-    });
+    // The routed Chart of Accounts form keeps its existing cache/tree behavior. Quick-add dialogs
+    // use the scoped endpoint so other screens never load the complete Accounts table.
+    if (!this.isQuickAddDialog) {
+      this.accountingService.accounts$.subscribe(accounts => {
+        this.parentOptions = [...(accounts ?? [])].sort((a, b) =>
+          String(a.accountCode).localeCompare(String(b.accountCode)));
+      });
+    }
 
     // Watch for account type selection changes to update validation
     this.accountForm.get('accountTypeSelection')?.valueChanges.subscribe(value => {
@@ -603,6 +606,9 @@ export class AddAccountComponent implements OnChanges, OnInit, OnDestroy {
     // Load cost centers
     this.loadCostCenters();
     this.loadCurrencies();
+    if (this.isQuickAddDialog) {
+      this.accountingService.getParentAccountOptions().subscribe({ next: accounts => this.parentOptions = accounts });
+    }
 
     // Quick-add dialog mode (Requirement 9): initialize straight from dialogData instead of the
     // host page's own route -- ActivatedRoute here would otherwise resolve to whatever screen

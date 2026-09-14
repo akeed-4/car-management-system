@@ -162,7 +162,7 @@
                        the caller's current Showroom (see StoreContextService / the header switcher). -->
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'PURCHASE_INVOICE.SUPPLIER' | translate }}</mat-label>
-                    <mat-select formControlName="supplierId" required>
+                    <mat-select formControlName="supplierId">
                       <mat-option>
                         <ngx-mat-select-search [formControl]="supplierFilterCtrl"
                           placeholderLabel="{{ 'PURCHASE_INVOICE.SEARCH' | translate }}"

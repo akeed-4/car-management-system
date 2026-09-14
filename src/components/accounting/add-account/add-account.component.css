@@ -911,3 +911,53 @@ mat-form-field.form-field .mat-icon[matPrefix] {
     grid-column: span 1;
   }
 }
+
+@media (max-width: 768px) {
+  .acc-form-dialog {
+    min-width: 0;
+  }
+
+  .acc-scroll-content.mat-mdc-dialog-content {
+    max-height: calc(100dvh - 92px);
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-inline: var(--mobile-gutter, 16px);
+    padding-block-end: var(--space-3, 12px);
+  }
+
+  .acc-form-dialog .erp-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2, 8px);
+  }
+
+  .acc-form-dialog .form-field,
+  .acc-form-dialog mat-form-field {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .acc-dialog-footer.mat-mdc-dialog-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    min-height: var(--mobile-action-bar-height, 64px);
+    padding: var(--space-2, 8px) var(--mobile-gutter, 16px) max(env(safe-area-inset-bottom), var(--space-2, 8px));
+    background: var(--surface-card, #fff);
+  }
+
+  .acc-dialog-footer button {
+    min-height: var(--mobile-touch-target, 48px);
+    flex: 1 1 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .acc-scroll-content.mat-mdc-dialog-content {
+    padding-inline: 10px;
+  }
+
+  .acc-main .erp-section {
+    padding-inline: 10px;
+  }
+}

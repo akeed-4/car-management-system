@@ -414,6 +414,10 @@ export class AccountingService {
     return this.http.get<Account[]>(url, { headers: this.headers });
   }
 
+  getParentAccountOptions(): Observable<Account[]> {
+    return this.http.get<Account[]>(`${this.Url}/accounts/parent-options`, { headers: this.headers });
+  }
+
   /**
    * Preview of the next auto-generated account code under the given parent (omit for a new root
    * account). Purely informational -- CreateAccount re-derives and validates the real code at

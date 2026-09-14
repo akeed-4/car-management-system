@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { BranchService } from './branch.service';
 import { StoreService } from './store.service';
 import { SupplierService } from './supplier.service';
@@ -10,6 +11,7 @@ import { CarCategoryService } from './car-category.service';
 import { environment } from '../environments/environment';
 import { ReportFilters } from '../models/reportmodel/car-report.types';
 import { CarReportDataSource } from '../models/reportmodel/car-reports.config';
+import { DxLoadResult } from './report-data-source.service';
 
 /** Mirrors CarReportRequest on the backend (Application/DTOs/Reports/CarReportDtos.cs). */
 interface CarReportRequestDto {
@@ -90,7 +92,9 @@ export class CarReportsDataService {
   /** Calls the matching api/CarReports/{route} endpoint with the current filter panel state. */
   resolveRows(dataSource: CarReportDataSource, filters: ReportFilters): Observable<any[]> {
     const route = DATA_SOURCE_ROUTE[dataSource];
-    return this.http.post<any[]>(`${this.apiUrl}/${route}`, this.toRequestDto(filters));
+    return this.http.post<DxLoadResult<any>>(`${this.apiUrl}/${route}`, this.toRequestDto(filters)).pipe(
+      map(result => result?.data ?? []),
+    );
   }
 
   private toRequestDto(filters: ReportFilters): CarReportRequestDto {

@@ -391,7 +391,7 @@ export class SalesInvoiceFormComponent implements OnInit {
         // No Store picker anymore -- a new invoice always belongs to the caller's current
         // Showroom (StoreContextService), selected once after login.
         storeId: new FormControl(this.storeContext.current()?.storeId ?? null, Validators.required),
-        customer: new FormControl(null, Validators.required),
+        customer: new FormControl(null),
         invoiceDate: new FormControl(new Date(), Validators.required),
         dueDate: new FormControl(''),
         paymentMethod: new FormControl('Cash'),
@@ -1451,7 +1451,7 @@ export class SalesInvoiceFormComponent implements OnInit {
       this.notificationService.showError('INVOICE.SELECT_STORE');
       return of(null);
     }
-    if (!customerId || !customer) {
+    if (!this.isCash && (!customerId || !customer)) {
       this.notificationService.showError('INVOICE.SELECT_CUSTOMER_OPTION');
       return of(null);
     }
@@ -1465,8 +1465,8 @@ export class SalesInvoiceFormComponent implements OnInit {
       id: this.isEditMode() ? this.currentInvoiceId()! : 0,
       invoiceNumber: this.invoiceNumber(),
       invoiceDate: this.invoiceForm.get('invoiceDate')?.value.toISOString(),
-      customerId,
-      customerName: customer.name,
+      customerId: customerId ?? null,
+      customerName: customer?.name ?? '',
       storeId,
       ClassificationId: this.invoiceForm.get('ClassificationId')?.value,
       paymentMethod: this.invoiceForm.get('paymentMethod')?.value,
@@ -1533,7 +1533,7 @@ export class SalesInvoiceFormComponent implements OnInit {
     // Cash sales never need this: their debit leg is the payment account, not the customer's AR.
     const partyCheck$ = this.isCash
       ? of(true)
-      : warnIfPartyAccountMissing(this.dialog, this.customerService.hasReceivableAccount(customerId), 'customer', customerId, customer.name);
+      : warnIfPartyAccountMissing(this.dialog, this.customerService.hasReceivableAccount(customerId), 'customer', customerId, customer!.name);
 
     return partyCheck$.pipe(
       switchMap(canProceed => {

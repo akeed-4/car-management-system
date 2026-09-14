@@ -42,4 +42,6 @@ export interface GeneralJournalRow {
   creditAmount: number;
   costCenterId?: number | null;
   costCenterName?: string | null;
+  storeId?: number | null;
+  storeName?: string | null;
 }

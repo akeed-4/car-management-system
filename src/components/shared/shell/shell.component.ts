@@ -192,7 +192,7 @@ export class ShellComponent implements OnInit, OnDestroy {
 
   private loadMenus(): void {
     this.dynamicMenuService.menu$.subscribe({
-      next: menus => this.menusSignal.set(menus),
+      next: menus => this.menusSignal.set(this.restrictPlatformMenus(menus)),
     });
     this.dynamicMenuService.loadMenus().subscribe({
       error: () => {
@@ -210,7 +210,7 @@ export class ShellComponent implements OnInit, OnDestroy {
     this.dynamicMenuService.setLanguage(this.currentLanguage);
     const current = this.dynamicMenuService.getCurrentMenus();
     if (current?.length) {
-      this.menusSignal.set(current);
+      this.menusSignal.set(this.restrictPlatformMenus(current));
     } else {
       this.menuService.getMenus().subscribe({
         next: staticMenus => this.menusSignal.set(this.transformStaticMenus(staticMenus)),
@@ -238,7 +238,19 @@ export class ShellComponent implements OnInit, OnDestroy {
           children: item.submenu?.length ? withOrder(item.submenu) : undefined,
         }))
         .filter(item => item.route || item.children?.length);
-    return withOrder(menus);
+    return this.restrictPlatformMenus(withOrder(menus));
+  }
+
+  /** Platform navigation is a separate Identity-role surface, not a tenant permission.
+   * Keep it out of the shell for every non-platform administrator; the route guard and API
+   * remain the enforcement points if a user attempts direct navigation. */
+  private restrictPlatformMenus(menus: MenuItem[]): MenuItem[] {
+    if (this.isPlatformAdmin) return menus;
+    const withoutPlatform = (items: MenuItem[]): MenuItem[] => items
+      .filter(item => !item.route?.startsWith('/platform'))
+      .map(item => item.children ? { ...item, children: withoutPlatform(item.children) } : item)
+      .filter(item => !!item.route || !!item.children?.length);
+    return withoutPlatform(menus);
   }
 
   toggleRail(): void {

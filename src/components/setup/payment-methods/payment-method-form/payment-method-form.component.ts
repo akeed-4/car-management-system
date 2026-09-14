@@ -1,6 +1,7 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,6 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PaymentMethodService } from '../../../../services/payment-method.service';
@@ -35,6 +37,7 @@ type FormMode = 'create' | 'edit';
     MatButtonModule,
     MatIconModule,
     MatCheckboxModule,
+    MatTooltipModule,
     MatProgressSpinnerModule,
     TranslateModule,
     AccountAutocompleteComponent,
@@ -52,6 +55,7 @@ export class PaymentMethodFormComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private translate = inject(TranslateService);
   private responsiveService = inject(ResponsiveService);
+  private destroyRef = inject(DestroyRef);
   isMobile = this.responsiveService.isMobile;
 
   form!: FormGroup;
@@ -73,8 +77,25 @@ export class PaymentMethodFormComponent implements OnInit {
       nameEn: ['', [Validators.required, Validators.maxLength(150)]],
       paymentType: ['', Validators.required],
       accountId: [null, Validators.required],
-      isActive: [true]
+      isActive: [true],
+      // Only ONE active Payment Method per scope may carry this flag; the backend clears the
+      // previous default when this one is saved (Create/Update honor `isDefault`).
+      isDefault: [false]
     });
+
+    // Only ACTIVE payment methods are eligible to be the default: deactivating the method
+    // clears and disables its Default flag (and the checkbox re-enables when reactivated).
+    this.form.get('isActive')!.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(active => {
+        const isDefaultCtrl = this.form.get('isDefault')!;
+        if (active) {
+          isDefaultCtrl.enable({ emitEvent: false });
+        } else {
+          isDefaultCtrl.setValue(false, { emitEvent: false });
+          isDefaultCtrl.disable({ emitEvent: false });
+        }
+      });
   }
 
   ngOnInit(): void {

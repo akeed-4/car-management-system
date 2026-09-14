@@ -8,6 +8,12 @@ export interface PaymentMethod {
   accountNameAr: string;
   accountNameEn: string;
   isActive: boolean;
+  /** The one default Payment Method for the tenant/company scope (at most one active method
+   *  carries this flag -- enforced by the backend, which clears the previous default whenever
+   *  a new one is set). Documents resolve their automatic payment method from this flag via
+   *  PaymentMethodService.defaultPaymentMethod$ / getDefault() -- never hardcoded and never
+   *  derived from the Account. */
+  isDefault?: boolean;
   createdBy?: number | null;
   createdDate: string;
   modifiedBy?: number | null;
@@ -20,6 +26,9 @@ export interface CreatePaymentMethodDto {
   paymentType: string;
   accountId: number;
   isActive: boolean;
+  /** Mark this (active) method as the scope's default on create; the backend clears the
+   *  previous default in the same transaction so only one default ever exists. */
+  isDefault?: boolean;
 }
 
 export interface UpdatePaymentMethodDto extends CreatePaymentMethodDto {}
@@ -88,4 +97,13 @@ export function matchLegacyPaymentMethodId(
            (!!pm && (en === pm || ar === pm || t === pm));
   });
   return match?.id ?? null;
+}
+
+/** Resolves the single default Payment Method out of a Payment Methods list (frontend mirror of
+ *  the backend's one-default-per-scope rule). Documents that need an AUTOMATIC payment method
+ *  use this -- through PaymentMethodService.defaultPaymentMethod$ / getDefault() -- instead of
+ *  deriving one from the Account or hardcoding an id. Only ACTIVE methods are eligible, so
+ *  callers should pass the active list (PaymentMethodService.activePaymentMethods$). */
+export function findDefaultPaymentMethod(methods: PaymentMethod[] | null | undefined): PaymentMethod | null {
+  return methods?.find(m => m.isDefault && m.isActive) ?? null;
 }

@@ -1082,7 +1082,14 @@
     "SAVE_ERROR": "Error saving payment method",
     "DELETE_SUCCESS": "Payment method deleted successfully",
     "DELETE_ERROR": "Error deleting payment method",
-    "VALIDATION_ERROR": "Please correct the highlighted fields"
+    "VALIDATION_ERROR": "Please correct the highlighted fields",
+    "IS_DEFAULT": "Default payment method",
+    "IS_DEFAULT_HINT": "Only one active payment method can be the default. Marking this one removes the flag from the previous default.",
+    "DEFAULT_BADGE": "Default",
+    "SET_DEFAULT": "Set as Default",
+    "SET_DEFAULT_SUCCESS": "'{{name}}' is now the default payment method",
+    "ONLY_ACTIVE_CAN_BE_DEFAULT": "Only active payment methods can be set as default",
+    "ALREADY_DEFAULT": "'{{name}}' is already the default payment method"
   },
   "CURRENCY": {
     "LIST_TITLE": "Currencies",

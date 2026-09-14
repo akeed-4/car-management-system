@@ -936,7 +936,7 @@ export class PurchaseInvoiceComponent implements OnInit {
 
   private initForm(): void {
     this.purchaseInvoiceForm = this.fb.group({
-      supplierId: [null, Validators.required],
+      supplierId: [null],
       // No Store picker anymore -- a new invoice always belongs to the caller's current Showroom.
       storeId: [this.storeContext.current()?.storeId ?? null, Validators.required],
       // Debit (Inventory/Expense) account override -- default-preselected via
@@ -1499,7 +1499,7 @@ export class PurchaseInvoiceComponent implements OnInit {
     const storeId = formValue.storeId;
     const items = this.invoiceItems();
 
-    if (!supplierId || !supplier) {
+    if (!this.isCashPayment() && (!supplierId || !supplier)) {
       this.notificationService.showError(this.translate.instant('PURCHASE_INVOICE.ERROR_SELECT_SUPPLIER'));
       return of(null);
     }
@@ -1526,7 +1526,7 @@ export class PurchaseInvoiceComponent implements OnInit {
       invoiceNumber: this.invoiceNumberSignal() || '',
       invoiceDate: formValue.invoiceDate.toISOString(),
       storeId,
-      supplierId: supplierId,
+      supplierId: supplierId ?? null,
       // Optional client override of the Debit (Inventory/Expense) leg -- re-validated server-side
       // (exists, tenant-scoped, active, postable) and used verbatim when present; null (never
       // touched, or "Reset to Default" clicked back to a resolution the tracker couldn't confirm)
@@ -1572,7 +1572,7 @@ export class PurchaseInvoiceComponent implements OnInit {
     // Cash purchases never need this: their credit leg is the payment account, not supplier AP.
     const partyCheck$ = this.isCashPayment()
       ? of(true)
-      : warnIfPartyAccountMissing(this.dialog, this.supplierService.hasPayableAccount(supplierId), 'supplier', supplierId, supplier.name);
+      : warnIfPartyAccountMissing(this.dialog, this.supplierService.hasPayableAccount(supplierId), 'supplier', supplierId, supplier!.name);
 
     return partyCheck$.pipe(
       switchMap(canProceed => {

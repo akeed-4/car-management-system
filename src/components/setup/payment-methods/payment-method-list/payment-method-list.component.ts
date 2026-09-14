@@ -81,6 +81,19 @@ export class PaymentMethodListComponent implements OnInit {
     { dataField: 'accountCode', dataType: 'string', caption: 'PAYMENT_METHOD.ACCOUNT_CODE', width: 120 },
     { dataField: 'accountNameEn', dataType: 'string', caption: 'PAYMENT_METHOD.ACCOUNT' },
     { dataField: 'isActive', dataType: 'boolean', caption: 'COMMON.ACTIVE', width: 110, type: 'status' },
+    {
+      // Which Payment Method is currently the scope's default (at most one active row shows the
+      // badge; the backend guarantees uniqueness by clearing the previous default on change).
+      dataField: 'isDefault',
+      dataType: 'boolean',
+      caption: 'PAYMENT_METHOD.IS_DEFAULT',
+      width: 110,
+      type: 'status',
+      trueText: 'PAYMENT_METHOD.DEFAULT_BADGE',
+      falseText: '—',
+      allowSorting: false,
+      statusClass: (m: PaymentMethod) => (m.isDefault ? 'success' : 'neutral'),
+    },
   ];
 
   rowActions: sharedGridRowActionDto[] = [
@@ -90,6 +103,14 @@ export class PaymentMethodListComponent implements OnInit {
       icon: 'toggle_on',
       labelKey: 'PAYMENT_METHOD.TOGGLE_ACTIVE',
       visible: () => this.permissionService.hasPermission('paymentmethod.edit')
+    },
+    {
+      id: 'setDefault',
+      icon: 'star',
+      labelKey: 'PAYMENT_METHOD.SET_DEFAULT',
+      // Only ACTIVE methods are eligible, and the current default needs no action.
+      visible: (row: PaymentMethod) =>
+        this.permissionService.hasPermission('paymentmethod.edit') && !!row?.isActive && !row?.isDefault
     },
     { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('paymentmethod.delete') },
   ];
@@ -155,10 +176,38 @@ export class PaymentMethodListComponent implements OnInit {
     });
   };
 
+  /** Marks this Payment Method as THE default for the scope; the backend clears the previous
+   *  default's flag in the same transaction, so only one default can ever exist. */
+  onSetDefault = (e: any): void => {
+    const method: PaymentMethod = e.row.data;
+    // Defensive re-check for entry points without per-row visibility (mobile list keeps the
+    // action but must refuse inactive or already-default methods).
+    if (!method.isActive) {
+      this.notificationService.showWarning(this.translate.instant('PAYMENT_METHOD.ONLY_ACTIVE_CAN_BE_DEFAULT'));
+      return;
+    }
+    if (method.isDefault) {
+      this.notificationService.showInfo(this.translate.instant('PAYMENT_METHOD.ALREADY_DEFAULT', { name: method.nameEn || method.nameAr }));
+      return;
+    }
+
+    this.paymentMethodService.setDefault(method.id).subscribe({
+      next: () => {
+        this.notificationService.showSuccess(this.translate.instant('PAYMENT_METHOD.SET_DEFAULT_SUCCESS', { name: method.nameEn || method.nameAr }));
+        this.loadPaymentMethods();
+      },
+      error: (err) => {
+        const msg = err?.error?.message || err?.error || this.translate.instant('PAYMENT_METHOD.SAVE_ERROR');
+        this.notificationService.showError(msg);
+      }
+    });
+  };
+
   onGridAction(e: SharedGridRowActionEvent): void {
     const wrapped = { row: { data: e.row } };
     if (e.actionId === 'edit') this.onEdit(wrapped);
     else if (e.actionId === 'toggleActive') this.onToggleActive(wrapped);
+    else if (e.actionId === 'setDefault') this.onSetDefault(wrapped);
     else if (e.actionId === 'delete') this.onDelete(wrapped);
   }
 
@@ -169,6 +218,14 @@ export class PaymentMethodListComponent implements OnInit {
     { label: 'PAYMENT_METHOD.ACCOUNT_CODE', value: (m) => m.accountCode },
     { label: 'PAYMENT_METHOD.ACCOUNT', value: (m) => m.accountNameEn },
     {
+      // Shown only on the card of the method that IS the default, as a success badge.
+      label: 'PAYMENT_METHOD.IS_DEFAULT',
+      value: (m) => this.translate.instant('PAYMENT_METHOD.DEFAULT_BADGE'),
+      type: 'status',
+      statusClass: () => 'success',
+      visible: (m) => !!m.isDefault,
+    },
+    {
       label: 'COMMON.ACTIVE',
       value: (m) => this.translate.instant(m.isActive ? 'COMMON.ACTIVE' : 'COMMON.INACTIVE'),
       type: 'status',
@@ -176,7 +233,7 @@ export class PaymentMethodListComponent implements OnInit {
     },
   ];
 
-  /** Same edit/toggleActive/delete actions as the desktop grid's row actions. */
+  /** Same edit/toggleActive/setDefault/delete actions as the desktop grid's row actions. */
   mobileActions: MobileListActionDto<PaymentMethod>[] = [
     { id: 'edit', icon: 'edit', labelKey: 'COMMON.EDIT', visible: () => this.permissionService.hasPermission('paymentmethod.edit') },
     {
@@ -184,6 +241,14 @@ export class PaymentMethodListComponent implements OnInit {
       icon: 'toggle_on',
       labelKey: 'PAYMENT_METHOD.TOGGLE_ACTIVE',
       visible: () => this.permissionService.hasPermission('paymentmethod.edit')
+    },
+    {
+      id: 'setDefault',
+      icon: 'star',
+      labelKey: 'PAYMENT_METHOD.SET_DEFAULT',
+      // Only ACTIVE methods are eligible, and the current default needs no action.
+      visible: (m: PaymentMethod) =>
+        this.permissionService.hasPermission('paymentmethod.edit') && !!m?.isActive && !m?.isDefault
     },
     { id: 'delete', icon: 'delete', labelKey: 'COMMON.DELETE', cssClass: 'warn', visible: () => this.permissionService.hasPermission('paymentmethod.delete') },
   ];
@@ -195,6 +260,7 @@ export class PaymentMethodListComponent implements OnInit {
     const wrapped = { row: { data: e.item } };
     if (e.actionId === 'edit') this.onEdit(wrapped);
     else if (e.actionId === 'toggleActive') this.onToggleActive(wrapped);
+    else if (e.actionId === 'setDefault') this.onSetDefault(wrapped);
     else if (e.actionId === 'delete') this.onDelete(wrapped);
   }
 

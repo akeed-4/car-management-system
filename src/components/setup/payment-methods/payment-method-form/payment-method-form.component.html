@@ -66,6 +66,10 @@
 
         <div class="toggle-row">
           <mat-checkbox formControlName="isActive">{{ 'COMMON.ACTIVE' | translate }}</mat-checkbox>
+          <mat-checkbox formControlName="isDefault">
+            {{ 'PAYMENT_METHOD.IS_DEFAULT' | translate }}
+            <mat-icon class="default-hint-icon" matTooltip="{{ 'PAYMENT_METHOD.IS_DEFAULT_HINT' | translate }}">info_outline</mat-icon>
+          </mat-checkbox>
         </div>
       </div>
     </div>

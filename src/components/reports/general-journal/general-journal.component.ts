@@ -88,6 +88,12 @@ export class GeneralJournalComponent implements OnInit {
             width: 250
         },
         {
+            dataField: 'storeName',
+            caption: 'REPORTS.COLUMNS.STORE',
+            dataType: 'string',
+            width: 180
+        },
+        {
             dataField: 'description',
             caption: 'REPORTS.COLUMNS.DESCRIPTION',
             dataType: 'string',

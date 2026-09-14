@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { environment } from '../environments/environment';
-import { PaymentMethod, CreatePaymentMethodDto, UpdatePaymentMethodDto } from '../models/payment-method.model';
+import { PaymentMethod, CreatePaymentMethodDto, UpdatePaymentMethodDto, findDefaultPaymentMethod } from '../models/payment-method.model';
 
 /**
  * Single source of truth for Payment Methods master data. Every document with a Payment Method
@@ -24,6 +24,12 @@ export class PaymentMethodService {
    *  every open document picks up master-data changes without a page reload. */
   public activePaymentMethods$ = this.activeMethodsSubject.asObservable();
 
+  /** The one default Payment Method (at most one active method per tenant/company scope carries
+   *  `isDefault`), resolved live from the Payment Methods master. Documents needing an AUTOMATIC
+   *  payment method subscribe here or call `getDefault()` -- never hardcode an id and never
+   *  derive the default from the Account. Emits `null` when no default is configured. */
+  public defaultPaymentMethod$ = this.activePaymentMethods$.pipe(map(findDefaultPaymentMethod));
+
   constructor(private http: HttpClient) {
     this.refreshActive();
   }
@@ -38,6 +44,12 @@ export class PaymentMethodService {
       tap(methods => this.activeMethodsSubject.next(methods)),
       catchError(() => of([]))
     );
+  }
+
+  /** One-shot resolution of the current default Payment Method (or `null` when none is set),
+   *  read from the Payment Methods master table itself. */
+  getDefault(): Observable<PaymentMethod | null> {
+    return this.getActive().pipe(map(findDefaultPaymentMethod));
   }
 
   /** Full list (active + inactive), for the Payment Methods master screen. */
@@ -63,6 +75,15 @@ export class PaymentMethodService {
 
   setActive(id: number, isActive: boolean): Observable<void> {
     return this.http.patch<void>(`${this.baseUrl}/${id}/SetActive`, isActive).pipe(
+      tap(() => this.refreshActive())
+    );
+  }
+
+  /** Makes the given Payment Method the scope's ONLY default: the backend clears `isDefault`
+   *  from the previous default in the same transaction, so at most one default can exist.
+   *  Only ACTIVE methods are eligible -- the backend rejects inactive ones. */
+  setDefault(id: number): Observable<void> {
+    return this.http.patch<void>(`${this.baseUrl}/${id}/SetDefault`, null).pipe(
       tap(() => this.refreshActive())
     );
   }
